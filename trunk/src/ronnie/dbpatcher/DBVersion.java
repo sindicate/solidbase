@@ -3,7 +3,6 @@ package ronnie.dbpatcher;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import com.cmg.pas.SystemException;
 import com.cmg.pas.util.Assert;
@@ -46,6 +45,10 @@ public class DBVersion
 			read();
 		
 		Assert.check( DBVersion.valid );
+		
+		if( !DBVersion.tableexists )
+			return null;
+		
 		return DBVersion.version;
 	}
 	
@@ -55,7 +58,7 @@ public class DBVersion
 		
 		try
 		{
-			PreparedStatement statement = Database.connection.prepareStatement( "SELECT VERSION FROM DBVERSION" );
+			PreparedStatement statement = Database.getConnection().prepareStatement( "SELECT VERSION FROM DBVERSION" );
 			ResultSet resultSet = statement.executeQuery();
 			try
 			{
@@ -77,32 +80,35 @@ public class DBVersion
 		{
 			String sqlState = e.getSQLState();
 			if( sqlState.equals( "42000" ) || sqlState.equals( "42X05" ) ) // 42000: Oracle, 42X05: Derby
+			{
+				DBVersion.valid = true;
 				return;
+			}
 			
 //			System.out.println( e.getSQLState() );
 			throw new SystemException( e );
 		}
 	}
 	
-	static protected void createTables()
-	{
-		Assert.check( !DBVersion.tableexists );
-		try
-		{
-			Statement statement = Database.connection.createStatement();
-//			statement.execute( "DROP TABLE DBVERSION" );
-			statement.execute( "CREATE TABLE DBVERSION ( VERSION VARCHAR(20) NOT NULL, TARGET VARCHAR(20), STATEMENTS INTEGER NOT NULL )" );
-			statement.execute( "CREATE TABLE DBVERSIONLOG ( VERSION VARCHAR(20) NOT NULL, TARGET VARCHAR(20) NOT NULL, STATEMENT INTEGER NOT NULL, TIMESTAMP TIMESTAMP NOT NULL, SQLSOURCE LONG VARCHAR NOT NULL, RESULT LONG VARCHAR )" );
-			statement.execute( "INSERT INTO DBVERSION ( VERSION, STATEMENTS ) VALUES ( '0', 0 )" );
-			statement.close();
-			
-			DBVersion.tableexists = true;
-		}
-		catch( SQLException e )
-		{
-			throw new SystemException( e );
-		}
-	}
+//	static protected void createTables()
+//	{
+//		Assert.check( !DBVersion.tableexists );
+//		try
+//		{
+//			Statement statement = Database.getConnection().createStatement();
+////			statement.execute( "DROP TABLE DBVERSION" );
+//			statement.execute( "CREATE TABLE DBVERSION ( VERSION VARCHAR(20) NOT NULL, TARGET VARCHAR(20), STATEMENTS INTEGER NOT NULL )" );
+//			statement.execute( "CREATE TABLE DBVERSIONLOG ( VERSION VARCHAR(20) NOT NULL, TARGET VARCHAR(20) NOT NULL, STATEMENT INTEGER NOT NULL, TIMESTAMP TIMESTAMP NOT NULL, SQLSOURCE LONG VARCHAR NOT NULL, RESULT LONG VARCHAR )" );
+//			statement.execute( "INSERT INTO DBVERSION ( VERSION, STATEMENTS ) VALUES ( '0', 0 )" );
+//			statement.close();
+//			
+//			DBVersion.tableexists = true;
+//		}
+//		catch( SQLException e )
+//		{
+//			throw new SystemException( e );
+//		}
+//	}
 	
 	static protected boolean doesTableExist()
 	{
