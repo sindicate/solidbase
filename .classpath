@@ -5,5 +5,4 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/cmgpas"/>
 	<classpathentry kind="lib" path="lib/ojdbc14_g.jar"/>
 	<classpathentry kind="lib" path="lib/derby-10.1.2.1.jar"/>
-	<classpathentry kind="output" path="DBPatch/Voorbeeld Plugins/DynamicShape"/>
 </classpath>
