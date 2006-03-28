@@ -10,6 +10,7 @@ public class Patch
 	protected boolean open;
 	protected boolean branch;
 	protected boolean returnBranch;
+	protected long pos;
 	
 	public Patch( String source, String target, String description, boolean open, boolean branch, boolean returnBranch )
 	{
@@ -21,6 +22,7 @@ public class Patch
 		this.open = open;
 		this.branch = branch;
 		this.returnBranch = returnBranch;
+		this.pos = -1;
 	}
 
 	public boolean isBranch()
@@ -51,5 +53,16 @@ public class Patch
 	public String getTarget()
 	{
 		return this.target;
+	}
+
+	public void setPos( long pos )
+	{
+		System.out.println( "Setting pos " + pos );
+		this.pos = pos;
+	}
+
+	public long getPos()
+	{
+		return this.pos;
 	}
 }
