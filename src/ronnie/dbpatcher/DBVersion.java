@@ -38,38 +38,68 @@ public class DBVersion
 	static protected boolean tableexists;
 	
 	static protected String version;
+	static protected String target;
+	static protected int statements;
 	
 	static protected String getVersion()
 	{
 		if( !read )
 			read();
 		
-		Assert.check( DBVersion.valid );
+		Assert.check( valid );
 		
-		if( !DBVersion.tableexists )
+		if( !tableexists )
 			return null;
 		
-		return DBVersion.version;
+		return version;
+	}
+	
+	static protected String getTarget()
+	{
+		if( !read )
+			read();
+		
+		Assert.check( valid );
+		
+		if( !tableexists )
+			return null;
+		
+		return target;
+	}
+	
+	static protected int getStatements()
+	{
+		if( !read )
+			read();
+		
+		Assert.check( valid );
+		
+		if( !tableexists )
+			return 0;
+		
+		return statements;
 	}
 	
 	static protected void read()
 	{
-		DBVersion.read = true;
+		read = true;
 		
 		try
 		{
-			PreparedStatement statement = Database.getConnection().prepareStatement( "SELECT VERSION FROM DBVERSION" );
+			PreparedStatement statement = Database.getConnection().prepareStatement( "SELECT VERSION, TARGET, STATEMENTS FROM DBVERSION" );
 			ResultSet resultSet = statement.executeQuery();
 			try
 			{
-				DBVersion.tableexists = true;
+				tableexists = true;
 				System.out.println( "table exists" );
 				
 				Assert.check( resultSet.next() );
-				DBVersion.version = resultSet.getString( 1 );
+				version = resultSet.getString( 1 );
+				target = resultSet.getString( 2 );
+				statements = resultSet.getInt( 3 );
 				Assert.check( !resultSet.next() );
 				
-				DBVersion.valid = true;
+				valid = true;
 			}
 			finally
 			{
@@ -81,7 +111,7 @@ public class DBVersion
 			String sqlState = e.getSQLState();
 			if( sqlState.equals( "42000" ) || sqlState.equals( "42X05" ) ) // 42000: Oracle, 42X05: Derby
 			{
-				DBVersion.valid = true;
+				valid = true;
 				return;
 			}
 			
@@ -90,31 +120,57 @@ public class DBVersion
 		}
 	}
 	
-//	static protected void createTables()
-//	{
-//		Assert.check( !DBVersion.tableexists );
-//		try
-//		{
-//			Statement statement = Database.getConnection().createStatement();
-////			statement.execute( "DROP TABLE DBVERSION" );
-//			statement.execute( "CREATE TABLE DBVERSION ( VERSION VARCHAR(20) NOT NULL, TARGET VARCHAR(20), STATEMENTS INTEGER NOT NULL )" );
-//			statement.execute( "CREATE TABLE DBVERSIONLOG ( VERSION VARCHAR(20) NOT NULL, TARGET VARCHAR(20) NOT NULL, STATEMENT INTEGER NOT NULL, TIMESTAMP TIMESTAMP NOT NULL, SQLSOURCE LONG VARCHAR NOT NULL, RESULT LONG VARCHAR )" );
-//			statement.execute( "INSERT INTO DBVERSION ( VERSION, STATEMENTS ) VALUES ( '0', 0 )" );
-//			statement.close();
-//			
-//			DBVersion.tableexists = true;
-//		}
-//		catch( SQLException e )
-//		{
-//			throw new SystemException( e );
-//		}
-//	}
-	
 	static protected boolean doesTableExist()
 	{
 		if( !read )
 			read();
 		
-		return DBVersion.tableexists;
+		return tableexists;
+	}
+	
+	static protected void setCount( String target, int statements )
+	{
+		Assert.check( tableexists, "Version tables do not exist" );
+		
+		try
+		{
+			PreparedStatement statement = Database.getConnection().prepareStatement( "UPDATE DBVERSION SET TARGET = ?, STATEMENTS = ?" );
+			statement.setString( 1, target );
+			statement.setInt( 2, statements );
+			statement.executeUpdate(); // autocommit is on
+			statement.close();
+			
+			DBVersion.target = target;
+			DBVersion.statements = statements;
+		}
+		catch( SQLException e )
+		{
+			throw new SystemException( e );
+		}
+	}
+
+	public static void setVersion( String version )
+	{
+		Assert.check( tableexists, "Version tables do not exist" );
+		
+		try
+		{
+			PreparedStatement statement = Database.getConnection().prepareStatement( "UPDATE DBVERSION SET VERSION = ?, TARGET = NULL" );
+			statement.setString( 1, version );
+			statement.executeUpdate(); // autocommit is on
+			statement.close();
+			
+			DBVersion.version = version;
+			DBVersion.target = null;
+		}
+		catch( SQLException e )
+		{
+			throw new SystemException( e );
+		}
+	}
+
+	static public void versionTablesCreated()
+	{
+		tableexists = true;
 	}
 }

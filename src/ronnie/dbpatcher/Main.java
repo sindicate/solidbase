@@ -28,6 +28,10 @@ public class Main
 				Database.patch( version, "DHL TTS 2.0.1" );
 //				Database.patch( version, "DHL TTS 2.0.11" );
 //				Database.patch( "DHL TTS 2.0.9", "DHL TTS 3.0.3" );
+				
+				System.out.println( "Current version = " + DBVersion.getVersion() );
+				System.out.println( "Current target = " + DBVersion.getTarget() );
+				System.out.println( "Current statements = " + DBVersion.getStatements() );
 			}
 			finally
 			{

@@ -28,7 +28,8 @@ public class Database
 			}
 			try
 			{
-				Database.connection2 = DriverManager.getConnection( "jdbc:derby:c:/projects/java/dbpatcher/derbyDB;create=true" );
+				connection2 = DriverManager.getConnection( "jdbc:derby:c:/projects/java/dbpatcher/derbyDB;create=true" );
+				connection2.setAutoCommit( true );
 			}
 			catch( SQLException e )
 			{
@@ -58,16 +59,32 @@ public class Database
 		PatchFile.gotoPatch( patch );
 		
 		Statement statement = connection2.createStatement();
-		String sql = PatchFile.readStatement();
-		while( sql != null )
+		Command command = PatchFile.readStatement();
+		int count = 0;
+		while( command != null )
 		{
+			String sql = command.getCommand();
 			System.out.println( sql );
 			System.out.println();
 
-			statement.execute( sql );
-			connection2.commit();
+			if( command.isInternal() )
+			{
+				Assert.fail( "Unknown command [" + sql + "]" );
+			}
+			else
+			{
+				if( sql.length() > 0 )
+					statement.execute( sql ); // autocommit is on
+				if( !patch.isInit() )
+					DBVersion.setCount( patch.getTarget(), ++count );
+			}
 			
-			sql = PatchFile.readStatement();
+			command = PatchFile.readStatement();
 		}
+
+		if( patch.isInit() )
+			DBVersion.versionTablesCreated();
+		if( !patch.isOpen() )
+			DBVersion.setVersion( patch.getTarget() );
 	}
 }

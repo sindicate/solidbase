@@ -47,44 +47,34 @@ public class PatchFile
 				Assert.check( line.startsWith( "--*" ), "Line should start with --*" );
 				line = line.substring( 3 ).trim();
 //					System.out.println( line );
-				if( line.matches( "DEFINITION" ) )
+				if( line.matches( "PATCHES" ) )
 				{
 					Assert.check( !withinDefinition, "Already within the definition" );
 					withinDefinition = true;
 					System.out.println( "start" );
 				}
-				else if( line.matches( "(PATCH|BRANCH|RETURN) +.*" ) )
+				else if( line.matches( "(INIT|PATCH|BRANCH|RETURN) +.*" ) )
 				{
 					Assert.check( withinDefinition, "Not within the definition" );
 //						System.out.println( "patch" );
 					
-					Pattern pattern = Pattern.compile( "(PATCH|BRANCH|RETURN) +source=\"([^\"]*)\" +target=\"([^\"]+)\" +description=\"([^\"]+)\"( +open=\"(true)\")?" );
+					Pattern pattern = Pattern.compile( "(INIT|PATCH|BRANCH|RETURN)( +OPEN)? +source=\"([^\"]*)\" +target=\"([^\"]+)\" +description=\"([^\"]+)\"" );
 					Matcher matcher = pattern.matcher( line );
-					Assert.check( matcher.matches(), "Line should match the following syntax: (PATCH|BRANCH|RETURN) source=\"...\" target=\"...\" description=\"...\" (open=\"true\")" );
+					Assert.check( matcher.matches(), "Line should match the following syntax: (INIT|PATCH|BRANCH|RETURN) [OPEN] source=\"...\" target=\"...\" description=\"...\"" );
 					String action = matcher.group( 1 );
-					String source = matcher.group( 2 );
+					boolean open = matcher.group( 2 ) != null;
+					String source = matcher.group( 3 );
 					if( source.length() == 0 )
 						source = null;
-					String target = matcher.group( 3 );
-					String description = matcher.group( 4 );
-					boolean open = "true".equals( matcher.group( 6 ) );
+					String target = matcher.group( 4 );
+					String description = matcher.group( 5 );
 					boolean branch = "BRANCH".equals( action );
 					boolean returnBranch = "RETURN".equals( action );
-					Patch patch = new Patch( source, target, description, open, branch, returnBranch );
+					boolean init = "INIT".equals( action );
+					Patch patch = new Patch( source, target, description, branch, returnBranch, open, init );
 					patches.put( source, patch );
 				}
-//					else if( line.matches( "INIT +.*" ) )
-//					{
-//						Assert.check( withinDefinition, "Not within the definition" );
-////						System.out.println( "patch" );
-//						
-//						Pattern pattern = Pattern.compile( "INIT +target=\"([^\"]+)\"" );
-//						Matcher matcher = pattern.matcher( line );
-//						Assert.check( matcher.matches(), "Line should match the following syntax: INIT target=\"...\"" );
-//						String target = matcher.group( 1 );
-//						PatchFile.initPatch = new Patch( null, target, null, false, false, false );
-//					}
-				else if( line.matches( "/DEFINITION" ) )
+				else if( line.matches( "/PATCHES" ) )
 				{
 					Assert.check( withinDefinition, "Not within the definition" );
 					System.out.println( "end" );
@@ -109,25 +99,11 @@ public class PatchFile
 			
 			if( line.startsWith( "--*" ) )
 			{
-//				if( line.matches( "--\\* *INIT.*" ) )
-//				{
-//					System.out.println( line );
-//					
-//					Pattern pattern = Pattern.compile( "--\\* *INIT +target=\"([^\"]+)\"" );
-//					Matcher matcher = pattern.matcher( line );
-//					Assert.check( matcher.matches(), "Line should match the following syntax: INIT target=\"...\"" );
-//					String target = matcher.group( 1 );
-//					
-//					Patch patch = getPatch( null, target );
-//					Assert.check( patch != null, "Patch block found for undefined patch" );
-//					// TODO: Assert that action is the same
-//					patch.setPos( lis.getPos() );
-//				}
-				if( line.matches( "--\\* *(PATCH|BRANCH|RETURN).*" ) )
+				if( line.matches( "--\\* *(INIT|PATCH|BRANCH|RETURN).*" ) )
 				{
 					System.out.println( line );
 					
-					Pattern pattern = Pattern.compile( "--\\* *(PATCH|BRANCH|RETURN) +source=\"([^\"]*)\" +target=\"([^\"]+)\"" );
+					Pattern pattern = Pattern.compile( "--\\* *(INIT|PATCH|BRANCH|RETURN) +source=\"([^\"]*)\" +target=\"([^\"]+)\"" );
 					Matcher matcher = pattern.matcher( line );
 					Assert.check( matcher.matches(), "Line should match the following syntax: (PATCH|BRANCH|RETURN) source=\"...\" target=\"...\"" );
 					String action = matcher.group( 1 );
@@ -137,6 +113,7 @@ public class PatchFile
 					String target = matcher.group( 3 );
 					boolean branch = "BRANCH".equals( action );
 					boolean returnBranch = "RETURN".equals( action );
+					boolean init = "INIT".equals( action );
 					
 					Patch patch = getPatch( source, target );
 					Assert.check( patch != null, "Patch block found for undefined patch" );
@@ -171,14 +148,6 @@ public class PatchFile
 	{
 		List result = new ArrayList();
 
-//		if( version == null )
-//		{
-//			if( initPatch == null )
-//				return result;
-//			result.add( initPatch );
-//			version = initPatch.getTarget();
-//		}
-			
 		while( version == null || !version.equals( target ) )
 		{
 			List patches = (List)PatchFile.patches.get( version );
@@ -231,14 +200,6 @@ public class PatchFile
 	{
 		LinkedHashSet result = new LinkedHashSet();
 
-//		if( version == null )
-//		{
-//			if( initPatch == null )
-//				return null;
-//			version = initPatch.getTarget();
-//			result.add( version );
-//		}
-			
 		while( true )
 		{
 			List patches = (List)PatchFile.patches.get( version );
@@ -279,8 +240,9 @@ public class PatchFile
 		}
 	}
 	
-	static public String readStatement()
+	static public Command readStatement()
 	{
+		boolean internal = false;
 		StringBuilder result = new StringBuilder();
 		
 		while( true )
@@ -301,19 +263,31 @@ public class PatchFile
 			if( line.trim().length() > 0 )
 			{
 				if( line.matches( "--\\* *" ) )
-				{
-					Assert.check( result.length() > 0, "Empty statement found" );
-					return result.toString();
-				}
+					return new Command( result.toString(), internal );
 				
-				if( line.matches( "--\\* */PATCH *" ) )
+				if( line.matches( "--\\* */(INIT|PATCH|BRANCH|RETURN) *" ) )
 				{
 					Assert.check( result.length() == 0, "Unterminated statement found" );
 					return null;
 				}
 				
-				if( !line.startsWith( "--*" ) )
+				if( line.startsWith( "--*" ) )
 				{
+					line = line.substring( 3 ).trim();
+					if( !line.startsWith( "//" ))
+					{
+						if( !internal )
+						{
+							Assert.check( result.length() == 0 );
+							internal = true;
+						}
+						result.append( line.substring( 3 ) );
+						result.append( "\n" );
+					}
+				}
+				else
+				{
+					Assert.check( !internal );
 					result.append( line );
 					result.append( "\n" );
 				}
