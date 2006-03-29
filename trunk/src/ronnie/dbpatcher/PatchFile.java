@@ -3,6 +3,7 @@ package ronnie.dbpatcher;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -53,25 +54,28 @@ public class PatchFile
 					withinDefinition = true;
 					System.out.println( "start" );
 				}
-				else if( line.matches( "(INIT|PATCH|BRANCH|RETURN) +.*" ) )
+				else if( line.startsWith( "//" ) )
+				{
+					// ignore line
+				}
+				else if( line.matches( "(INIT|PATCH|BRANCH|RETURN)[ \t]+.*" ) )
 				{
 					Assert.check( withinDefinition, "Not within the definition" );
 //						System.out.println( "patch" );
 					
-					Pattern pattern = Pattern.compile( "(INIT|PATCH|BRANCH|RETURN)( +OPEN)? +source=\"([^\"]*)\" +target=\"([^\"]+)\" +description=\"([^\"]+)\"" );
+					Pattern pattern = Pattern.compile( "(INIT|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?" );
 					Matcher matcher = pattern.matcher( line );
-					Assert.check( matcher.matches(), "Line should match the following syntax: (INIT|PATCH|BRANCH|RETURN) [OPEN] source=\"...\" target=\"...\" description=\"...\"" );
+					Assert.check( matcher.matches(), "Line should match the following syntax: (INIT|PATCH|BRANCH|RETURN) [OPEN] \"...\" --> \"...\"" );
 					String action = matcher.group( 1 );
 					boolean open = matcher.group( 2 ) != null;
 					String source = matcher.group( 3 );
 					if( source.length() == 0 )
 						source = null;
 					String target = matcher.group( 4 );
-					String description = matcher.group( 5 );
 					boolean branch = "BRANCH".equals( action );
 					boolean returnBranch = "RETURN".equals( action );
 					boolean init = "INIT".equals( action );
-					Patch patch = new Patch( source, target, description, branch, returnBranch, open, init );
+					Patch patch = new Patch( source, target, branch, returnBranch, open, init );
 					patches.put( source, patch );
 				}
 				else if( line.matches( "/PATCHES" ) )
@@ -103,7 +107,7 @@ public class PatchFile
 				{
 					System.out.println( line );
 					
-					Pattern pattern = Pattern.compile( "--\\* *(INIT|PATCH|BRANCH|RETURN) +source=\"([^\"]*)\" +target=\"([^\"]+)\"" );
+					Pattern pattern = Pattern.compile( "--\\*[ \t]*(INIT|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"" );
 					Matcher matcher = pattern.matcher( line );
 					Assert.check( matcher.matches(), "Line should match the following syntax: (PATCH|BRANCH|RETURN) source=\"...\" target=\"...\"" );
 					String action = matcher.group( 1 );
@@ -152,7 +156,7 @@ public class PatchFile
 		{
 			List patches = (List)PatchFile.patches.get( version );
 			if( patches == null )
-				return result;
+				return Collections.EMPTY_LIST;
 			
 			if( patches.size() > 1 )
 			{
@@ -163,7 +167,7 @@ public class PatchFile
 					if( !patch.isBranch() )
 					{
 						List patches2 = getPatches( patch.getTarget(), target );
-						if( patches2 != null )
+						if( patches2.size() > 0 )
 						{
 							result.add( patch );
 							result.addAll( patches2 );
@@ -177,7 +181,7 @@ public class PatchFile
 					if( patch.isBranch() )
 					{
 						List patches2 = getPatches( patch.getTarget(), target );
-						if( patches2 != null )
+						if( patches2.size() > 0 )
 						{
 							result.add( patch );
 							result.addAll( patches2 );
@@ -185,7 +189,8 @@ public class PatchFile
 						}
 					}
 				}
-				return result;
+				
+				return Collections.EMPTY_LIST;
 			}
 			
 			Patch patch = (Patch)patches.get( 0 ); 
@@ -204,7 +209,7 @@ public class PatchFile
 		{
 			List patches = (List)PatchFile.patches.get( version );
 			if( patches == null )
-				return new ArrayList( result );
+				break;
 			
 			if( patches.size() > 1 )
 			{
@@ -213,17 +218,26 @@ public class PatchFile
 					Patch patch = (Patch)iter.next();
 					version = patch.getTarget();
 					result.add( version );
-					List patches2 = getTargets( version );
-					if( patches2 != null )
-						result.addAll( patches2 );
+					if( !patch.isOpen() )
+					{
+						List patches2 = getTargets( version );
+						if( patches2 != null )
+							result.addAll( patches2 );
+					}
 				}
-				return new ArrayList( result );
+				
+				break;
 			}
 			
-			Patch patch = (Patch)patches.get( 0 ); 
+			Patch patch = (Patch)patches.get( 0 );
 			version = patch.getTarget();
 			result.add( version );
+			
+			if( patch.isOpen() )
+				break;
 		}
+		
+		return new ArrayList( result );
 	}
 
 	static public void gotoPatch( Patch patch )

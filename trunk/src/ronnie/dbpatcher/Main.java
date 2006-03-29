@@ -3,8 +3,25 @@ package ronnie.dbpatcher;
 import java.util.Iterator;
 import java.util.List;
 
+import com.cmg.pas.util.Assert;
+
 public class Main
 {
+	static protected void printCurrentVersion()
+	{
+		String version = DBVersion.getVersion();
+		String target = DBVersion.getTarget();
+		int statements = DBVersion.getStatements();
+		
+		if( version == null )
+			System.out.println( "The database has no version yet." );
+		else if( target != null )
+			System.out.println( "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements succesful)." );
+		else
+			System.out.println( "Current database version is \"" + version + "\"." );
+		
+	}
+	
 	public static void main( String[] args )
 	{
 		try
@@ -13,25 +30,40 @@ public class Main
 			try
 			{
 				PatchFile.read();
+			
+				printCurrentVersion();
 				
-				String version = DBVersion.getVersion();
-				System.out.println( "Current version = " + version );
-				
-				System.out.println( "Targets:" );
-				List targets = PatchFile.getTargets( version );
+				System.out.print( "Possible targets are: " );
+				List targets = PatchFile.getTargets( DBVersion.getVersion() );
+				boolean first = true;
 				for( Iterator iter = targets.iterator(); iter.hasNext(); )
 				{
 					String target = (String)iter.next();
-					System.out.println( target );
+					if( first )
+						first = false;
+					else
+						System.out.print( ", " );
+					System.out.print( target );
 				}
+				System.out.println();
 				
-				Database.patch( version, "DHL TTS 2.0.1" );
-//				Database.patch( version, "DHL TTS 2.0.11" );
-//				Database.patch( "DHL TTS 2.0.9", "DHL TTS 3.0.3" );
+				System.out.print( "Input target version: " );
+				byte[] buffer = new byte[ 32 ];
+				int read = System.in.read( buffer );
+				Assert.check( read < 32, "Input too long" );
+				Assert.check( buffer[ read - 1 ] == '\n' );
+				String input;
+				if( buffer[ read - 2 ] == '\r' )
+					input = new String( buffer, 0, read - 2 );
+				else
+					input = new String( buffer, 0, read - 1 );
+				Assert.check( input.length() > 0, "Input too short" );
+
+				System.out.println( "You requested target " + input + "." );
 				
-				System.out.println( "Current version = " + DBVersion.getVersion() );
-				System.out.println( "Current target = " + DBVersion.getTarget() );
-				System.out.println( "Current statements = " + DBVersion.getStatements() );
+				Database.patch( DBVersion.getVersion(), input );
+				
+				printCurrentVersion();
 			}
 			finally
 			{

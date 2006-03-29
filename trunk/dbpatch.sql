@@ -1,21 +1,26 @@
+
 --*	PATCHES
---*		INIT source="" target="INIT" description="INIT"
---*		PATCH OPEN source="INIT" target="DHL TTS 2.0.1" description="TTS 2.0.1 2006-03-27"
---*		PATCH source="DHL TTS 2.0.1" target="DHL TTS 2.0.2" description="TTS 2.0.2 2006-03-27"
---*		PATCH source="DHL TTS 2.0.2" target="DHL TTS 2.0.3" description="TTS 2.0.3 2006-03-27"
---*		PATCH source="DHL TTS 2.0.3" target="DHL TTS 2.0.4" description="TTS 2.0.4 2006-03-27"
---*			BRANCH source="DHL TTS 2.0.4" target="DHL TTS 2.0.5" description="TTS 2.0.5 2006-03-27"
---*				PATCH source="DHL TTS 2.0.5" target="DHL TTS 2.0.6" description="TTS 2.0.6 2006-03-27"
---*				PATCH source="DHL TTS 2.0.6" target="DHL TTS 2.0.7" description="TTS 2.0.7 2006-03-27"
---*				PATCH source="DHL TTS 2.0.7" target="DHL TTS 2.0.8" description="TTS 2.0.8 2006-03-27"
---*				PATCH source="DHL TTS 2.0.8" target="DHL TTS 2.0.9" description="TTS 2.0.9 2006-03-27"
---*				PATCH source="DHL TTS 2.0.9" target="DHL TTS 2.0.10" description="TTS 2.0.10 2006-03-27"
---*				PATCH source="DHL TTS 2.0.10" target="DHL TTS 2.0.11" description="TTS 2.0.11 2006-03-27"
---*				PATCH source="DHL TTS 2.0.11" target="DHL TTS 2.0.12" description="TTS 2.0.12 2006-03-27"
---*			RETURN source="DHL TTS 2.0.12" target="DHL TTS 3.0.1" description="TTS 3.0.1 2006-03-27"
---*		PATCH source="DHL TTS 2.0.4" target="DHL TTS 3.0.1" description="TTS 3.0.1 2006-03-27"
---*		PATCH source="DHL TTS 3.0.1" target="DHL TTS 3.0.2" description="TTS 3.0.1 2006-03-27"
---*		PATCH source="DHL TTS 3.0.2" target="DHL TTS 3.0.3" description="TTS 3.0.1 2006-03-27"
+
+--*		INIT			""				-->	"INIT"			// De init patch creeert tabellen voor de patchtool zelf
+
+--*		// hier beginnen de echte patches
+--*		PATCH OPEN	"INIT"	-->	"2.0.1"
+--*		PATCH		"2.0.1"	-->	"2.0.2"
+--*		PATCH		"2.0.2"	-->	"2.0.3"
+--*		PATCH		"2.0.3"	-->	"2.0.4"
+--*		BRANCH		"2.0.4"	-->	"2.0.5"
+--*			PATCH	"2.0.5"	-->	"2.0.6"
+--*			PATCH	"2.0.6"	-->	"2.0.7"
+--*			PATCH	"2.0.7"	-->	"2.0.8"
+--*			PATCH	"2.0.8"	-->	"2.0.9"
+--*			PATCH	"2.0.9"	-->	"2.0.10"
+--*			PATCH	"2.0.10"	-->	"2.0.11"
+--*			PATCH	"2.0.11"	-->	"2.0.12"
+--*		RETURN		"2.0.12"	-->	"3.0.1"
+--*		PATCH		"2.0.4"	-->	"3.0.1"
+--*		PATCH		"3.0.1"	-->	"3.0.2"
+--*		PATCH		"3.0.2"	-->	"3.0.3"
+
 --*	/PATCHES
 
 
@@ -24,7 +29,7 @@
 
 
 
---* INIT source="" target="INIT"
+--* INIT "" --> "INIT"
 
 CREATE TABLE DBVERSION
 ( 
@@ -57,7 +62,7 @@ VALUES ( 'INIT', NULL, 3  )
 
 
 
---* PATCH source="INIT" target="DHL TTS 2.0.1"
+--* PATCH "INIT" --> "2.0.1"
 
 CREATE TABLE TEST
 (
@@ -74,6 +79,123 @@ DROP TABLE TEST
 
 --*
 
+--*
+
+CREATE TABLE TEST
+(
+	TEST VARCHAR(10)
+)
+--*
+
+DROP TABLE TEST
+--*
+
+CREATE TABLE TEST
+(
+	TEST VARCHAR(10)
+)
+--*
+
+DROP TABLE TEST
+--*
+
+CREATE TABLE TEST
+(
+	TEST VARCHAR(10)
+)
+--*
+
+DROP TABLE TEST
+--*
+
+CREATE TABLE TEST
+(
+	TEST VARCHAR(10)
+)
+--*
+
+DROP TABLE TEST
+--*
+
+CREATE TABLE TEST
+(
+	TEST VARCHAR(10)
+)
+--*
+
+DROP TABLE TEST
+--*
+
+CREATE TABLE TEST
+(
+	TEST VARCHAR(10)
+)
+--*
+
+DROP TABLE TEST
+--*
+
+CREATE TABLE TEST
+(
+	TEST VARCHAR(10)
+)
+--*
+
+DROP TABLE TEST
+--*
+
+CREATE TABLE TEST
+(
+	TEST VARCHAR(10)
+)
+--*
+
+DROP TABLE TEST
+--*
+
+CREATE TABLE TEST
+(
+	TEST VARCHAR(10)
+)
+--*
+
+DROP TABLE TEST
+--*
+
+CREATE TABLE TEST
+(
+	TEST VARCHAR(10)
+)
+--*
+
+DROP TABLE TEST
+--*
+
+CREATE TABLE TEST
+(
+	TEST VARCHAR(10)
+)
+--*
+
+DROP TABLE TEST
+--*
+
+CREATE TABLE TEST
+(
+	TEST VARCHAR(10)
+)
+--*
+
+DROP TABLE TEST
+--*
+
+CREATE TABLE TEST
+(
+	TEST VARCHAR(10)
+)
+--*
+
+DROP TABLE TEST
 --*
 
 --* /PATCH
