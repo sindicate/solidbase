@@ -1,6 +1,5 @@
 package ronnie.dbpatcher;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -15,34 +14,42 @@ import org.apache.commons.collections.MultiHashMap;
 
 import com.cmg.pas.SystemException;
 import com.cmg.pas.io.LineFileInputStream;
+import com.cmg.pas.io.LineInputStream;
 import com.cmg.pas.util.Assert;
 
 public class PatchFile
 {
 	static protected MultiHashMap patches = new MultiHashMap();
-	static protected LineFileInputStream lis;
+	static protected LineFileInputStream lfis;
+	static protected URL url;
 
-	static protected void open() throws FileNotFoundException
+	static protected void open() throws IOException
 	{
-//		URL url = PatchFile.class.getResource( "/dbpatch.sql" );
-//		if( url == null )
-//			throw new FileNotFoundException( "/dbpatch.sql" );
-		lis = new LineFileInputStream( "dbpatch.sql" );
+		url = PatchFile.class.getResource( "/dbpatch.sql" );
+		if( url == null )
+			lfis = new LineFileInputStream( "dbpatch.sql" );
 	}
 	
 	static protected void close() throws IOException
 	{
-		lis.close();
-		lis = null;
+		if( lfis != null )
+		{
+			lfis.close();
+			lfis = null;
+		}
 	}
 	
 	static protected void read() throws IOException
 	{
+		LineInputStream lis = null;
+		if( lfis == null )
+			lis = new LineInputStream( url.openStream() );
+			
 		boolean withinDefinition = false;
 		boolean definitionComplete = false;
 		while( !definitionComplete )
 		{
-			byte[] bytes = lis.readLine();
+			byte[] bytes = lfis != null ? lfis.readLine() : lis.readLine();
 			Assert.check( bytes != null, "End-of-file found before reading a complete definition" );
 			
 			if( bytes.length > 0 )
@@ -94,13 +101,11 @@ public class PatchFile
 		}
 		
 		scan( lis );
-		
-		lis.setPosition( 1600 ); // TODO: Remove test
 	}
 	
-	static protected void scan( LineFileInputStream lis ) throws IOException
+	static protected void scan( LineInputStream lis ) throws IOException
 	{
-		byte[] bytes = lis.readLine();
+		byte[] bytes = lfis != null ? lfis.readLine() : lis.readLine();
 		while( bytes != null )
 		{
 			String line = new String( bytes );
@@ -126,11 +131,11 @@ public class PatchFile
 					Patch patch = getPatch( source, target );
 					Assert.check( patch != null, "Patch block found for undefined patch" );
 					// TODO: Assert that action is the same
-					patch.setPos( lis.getPosition() );
+					patch.setPos( lfis != null ? lfis.getPosition() : lis.getPosition() );
 				}
 			}
 			
-			bytes = lis.readLine();
+			bytes = lfis != null ? lfis.readLine() : lis.readLine();
 		}
 	}
 	
@@ -248,9 +253,11 @@ public class PatchFile
 	{
 		Assert.check( patch.getPos() >= 0, "Patch block not found" );
 		
+		if( l)
+		lfis.setPosition( patch.getPos() );
+
 		try
 		{
-			lis.setPosition( patch.getPos() );
 		}
 		catch( IOException e )
 		{
@@ -268,7 +275,7 @@ public class PatchFile
 			byte[] bytes;
 			try
 			{
-				bytes = lis.readLine();
+				bytes = lfis.readLine();
 			}
 			catch( IOException e )
 			{
