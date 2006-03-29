@@ -6,20 +6,18 @@ public class Patch
 {
 	protected String source;
 	protected String target;
-	protected String description;
 	protected boolean branch;
 	protected boolean returnBranch;
 	protected boolean open;
 	protected boolean init;
 	protected long pos;
 	
-	public Patch( String source, String target, String description, boolean branch, boolean returnBranch, boolean open, boolean init )
+	public Patch( String source, String target, boolean branch, boolean returnBranch, boolean open, boolean init )
 	{
 		Assert.check( !( branch && returnBranch ) );
 		
 		this.source = source;
 		this.target = target;
-		this.description = description;
 		this.branch = branch;
 		this.returnBranch = returnBranch;
 		this.open = open;
@@ -30,11 +28,6 @@ public class Patch
 	public boolean isBranch()
 	{
 		return this.branch;
-	}
-
-	public String getDescription()
-	{
-		return this.description;
 	}
 
 	public boolean isReturnBranch()

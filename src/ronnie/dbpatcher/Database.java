@@ -56,7 +56,8 @@ public class Database
 	static protected void patch( String version, String target ) throws SQLException
 	{
 		List patches = PatchFile.getPatches( version, target );
-		Assert.check( patches != null, "no path found for " + version + " to " + target );
+		Assert.check( patches != null );
+		Assert.check( patches.size() > 0, "No patches found" );
 		
 //		System.out.println( "patch path for " + version + " to " + target + ":" );
 		for( Iterator iter = patches.iterator(); iter.hasNext(); )
@@ -68,9 +69,12 @@ public class Database
 	
 	static protected void patch( Patch patch ) throws SQLException
 	{
-		System.out.println( patch.getSource() + " --> " + patch.getTarget() );
+		System.out.println( "Patching \"" + patch.getSource() + "\" to \"" + patch.getTarget() + "\"" );
 		
 		PatchFile.gotoPatch( patch );
+		int skip = DBVersion.getStatements();
+		if( DBVersion.getTarget() == null )
+			skip = 0;
 		
 		Statement statement = connection.createStatement();
 		Command command = PatchFile.readStatement();
@@ -78,8 +82,8 @@ public class Database
 		while( command != null )
 		{
 			String sql = command.getCommand();
-			System.out.println( sql );
-			System.out.println();
+//			System.out.println( sql );
+//			System.out.println();
 
 			if( command.isInternal() )
 			{
@@ -87,14 +91,16 @@ public class Database
 			}
 			else
 			{
-				if( sql.length() > 0 )
+				if( sql.length() > 0 && count >= skip )
 					statement.execute( sql ); // autocommit is on
+				System.out.print( "." );
 				if( !patch.isInit() )
 					DBVersion.setCount( patch.getTarget(), ++count );
 			}
 			
 			command = PatchFile.readStatement();
 		}
+		System.out.println();
 
 		if( patch.isInit() )
 			DBVersion.versionTablesCreated();
