@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<project basedir="." default="all" name="dbpatcher">
+
+	<property file="build.properties"/>
+
+	<path id="buildpath">
+		<fileset dir="lib" includes="*.jar"/>
+	</path>
+	
+	<mkdir dir="work"/>
+
+	<target name="all" depends="jar" description="Builds everything"/>
+
+	<target name="rebuild" depends="clean,all" description="Rebuilds all"/>
+
+	<target name="classes">
+		<echo message="java.home=${java.home}"/>
+		<javac optimize="true" debug="true" deprecation="true" srcdir="src" destdir="work">
+			<classpath refid="buildpath"/>
+		</javac>
+	</target>
+
+	<target name="jar" depends="classes" description="Create jar">
+		<jar destfile="dbpatcher.jar" basedir="src" compress="true" includes="**/*.class" manifest="src/META-INF/MANIFEST.MF"/>
+	</target>
+
+	<target name="clean" description="Cleans everything">
+		<delete file="dbpatcher.jar"/>
+		<delete includeEmptyDirs="true">
+			<fileset dir="src">
+				<include name="**/*.class"/>
+			</fileset>
+		</delete>
+	</target>
+
+</project>

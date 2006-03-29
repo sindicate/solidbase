@@ -10,13 +10,27 @@ import java.util.List;
 import com.cmg.pas.SystemException;
 import com.cmg.pas.util.Assert;
 
+
+
+
+/**
+ * Represents the database.
+ */
 public class Database
 {
-	static protected Connection connection2;
+	/**
+	 * The connection to the database.
+	 */
+	static protected Connection connection;
 	
+	/**
+	 * Returns (and establishes) the connection to the database.
+	 *  
+	 * @return the connection
+	 */
 	static protected Connection getConnection()
 	{
-		if( connection2 == null )
+		if( connection == null )
 		{
 			try
 			{
@@ -28,15 +42,15 @@ public class Database
 			}
 			try
 			{
-				connection2 = DriverManager.getConnection( "jdbc:derby:c:/projects/java/dbpatcher/derbyDB;create=true" );
-				connection2.setAutoCommit( true );
+				connection = DriverManager.getConnection( "jdbc:derby:c:/projects/java/dbpatcher/derbyDB;create=true" );
+				connection.setAutoCommit( true );
 			}
 			catch( SQLException e )
 			{
 				throw new SystemException( e );
 			}
 		}
-		return connection2;
+		return connection;
 	}
 	
 	static protected void patch( String version, String target ) throws SQLException
@@ -58,7 +72,7 @@ public class Database
 		
 		PatchFile.gotoPatch( patch );
 		
-		Statement statement = connection2.createStatement();
+		Statement statement = connection.createStatement();
 		Command command = PatchFile.readStatement();
 		int count = 0;
 		while( command != null )
