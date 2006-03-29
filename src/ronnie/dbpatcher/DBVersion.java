@@ -91,7 +91,7 @@ public class DBVersion
 			try
 			{
 				tableexists = true;
-				System.out.println( "table exists" );
+//				System.out.println( "table exists" );
 				
 				Assert.check( resultSet.next() );
 				version = resultSet.getString( 1 );

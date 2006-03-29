@@ -47,7 +47,7 @@ public class Patch
 
 	public void setPos( long pos )
 	{
-		System.out.println( "Setting pos " + pos );
+//		System.out.println( "Setting pos " + pos );
 		this.pos = pos;
 	}
 

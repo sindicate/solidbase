@@ -32,6 +32,8 @@ public class Database
 	{
 		if( connection == null )
 		{
+			Configuration.getPath();
+			
 			try
 			{
 				Class.forName( "org.apache.derby.jdbc.EmbeddedDriver" );

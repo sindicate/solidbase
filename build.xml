@@ -5,7 +5,7 @@
 	<property file="build.properties"/>
 
 	<path id="buildpath">
-		<fileset dir="lib" includes="*.jar"/>
+		<fileset dir="" includes="*.jar"/>
 	</path>
 	
 	<mkdir dir="work"/>
@@ -22,16 +22,27 @@
 	</target>
 
 	<target name="jar" depends="classes" description="Create jar">
-		<jar destfile="dbpatcher.jar" basedir="src" compress="true" includes="**/*.class" manifest="src/META-INF/MANIFEST.MF"/>
+		<jar destfile="dbpatcher.jar" compress="true">
+			<fileset dir="work" includes="**/*.class"/>
+			<fileset dir="src" includes="**/*.sql"/>
+			<manifest>
+				<attribute name="Main-Class" value="ronnie.dbpatcher.Main"/>
+				<attribute name="Class-Path" value="cmg-pas.jar commons-collections-3.1.jar derby-10.1.2.1.jar ojdbc14_g.jar"/>
+			</manifest>
+		</jar>
 	</target>
 
 	<target name="clean" description="Cleans everything">
 		<delete file="dbpatcher.jar"/>
 		<delete includeEmptyDirs="true">
-			<fileset dir="src">
+			<fileset dir="work">
 				<include name="**/*.class"/>
 			</fileset>
 		</delete>
+	</target>
+	
+	<target name="removedb">
+		<delete dir="derbyDB"/>
 	</target>
 
 </project>

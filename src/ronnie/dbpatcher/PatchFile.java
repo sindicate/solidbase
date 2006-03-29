@@ -2,6 +2,7 @@ package ronnie.dbpatcher;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -23,6 +24,9 @@ public class PatchFile
 
 	static protected void open() throws FileNotFoundException
 	{
+//		URL url = PatchFile.class.getResource( "/dbpatch.sql" );
+//		if( url == null )
+//			throw new FileNotFoundException( "/dbpatch.sql" );
 		lis = new LineFileInputStream( "dbpatch.sql" );
 	}
 	
@@ -52,7 +56,7 @@ public class PatchFile
 				{
 					Assert.check( !withinDefinition, "Already within the definition" );
 					withinDefinition = true;
-					System.out.println( "start" );
+//					System.out.println( "start" );
 				}
 				else if( line.startsWith( "//" ) )
 				{
@@ -81,7 +85,7 @@ public class PatchFile
 				else if( line.matches( "/PATCHES" ) )
 				{
 					Assert.check( withinDefinition, "Not within the definition" );
-					System.out.println( "end" );
+//					System.out.println( "end" );
 					definitionComplete = true;
 				}
 				else
@@ -105,7 +109,7 @@ public class PatchFile
 			{
 				if( line.matches( "--\\* *(INIT|PATCH|BRANCH|RETURN).*" ) )
 				{
-					System.out.println( line );
+//					System.out.println( line );
 					
 					Pattern pattern = Pattern.compile( "--\\*[ \t]*(INIT|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"" );
 					Matcher matcher = pattern.matcher( line );
