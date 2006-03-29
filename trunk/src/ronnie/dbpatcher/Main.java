@@ -24,15 +24,16 @@ public class Main
 	
 	public static void main( String[] args )
 	{
+		System.out.println();
 		try
 		{
+			printCurrentVersion();
+			
 			PatchFile.open();
 			try
 			{
 				PatchFile.read();
 			
-				printCurrentVersion();
-				
 				System.out.print( "Possible targets are: " );
 				List targets = PatchFile.getTargets( DBVersion.getVersion() );
 				boolean first = true;
