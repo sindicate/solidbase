@@ -1,6 +1,7 @@
 package ronnie.dbpatcher;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -14,45 +15,34 @@ import java.util.regex.Pattern;
 import org.apache.commons.collections.MultiHashMap;
 
 import com.cmg.pas.SystemException;
-import com.cmg.pas.io.LineFileInputStream;
 import com.cmg.pas.io.LineInputStream;
 import com.cmg.pas.util.Assert;
 
 public class PatchFile
 {
 	static protected MultiHashMap patches = new MultiHashMap();
-	static protected LineFileInputStream lfis;
 	static protected LineInputStream lis;
-	static protected URL url;
 
 	static protected void open() throws IOException
 	{
-		url = PatchFile.class.getResource( "/dbpatch.sql" );
+		URL url = PatchFile.class.getResource( "/dbpatch.sql" );
 		if( url != null )
 		{
-			lis = new LineInputStream( url.openStream() );
+			lis = new LineInputStream( url );
 			System.out.println( "Opened patchfile: " + url );
 		}
 		else
 		{
 			File file = new File( "dbpatch.sql" );
-			lfis = new LineFileInputStream( file );
+			lis = new LineInputStream( new FileInputStream( file ) );
 			System.out.println( "Opened patchfile: " + file.getAbsolutePath() );
 		}
 	}
 	
 	static protected void close() throws IOException
 	{
-		if( lfis != null )
-		{
-			lfis.close();
-			lfis = null;
-		}
-		if( lis != null )
-		{
-			lis.close();
-			lis = null;
-		}
+		lis.close();
+		lis = null;
 	}
 	
 	static protected void read() throws IOException
@@ -61,7 +51,7 @@ public class PatchFile
 		boolean definitionComplete = false;
 		while( !definitionComplete )
 		{
-			byte[] bytes = lfis != null ? lfis.readLine() : lis.readLine();
+			byte[] bytes = lis.readLine();
 			Assert.check( bytes != null, "End-of-file found before reading a complete definition" );
 			
 			if( bytes.length > 0 )
@@ -117,18 +107,8 @@ public class PatchFile
 	
 	static protected void scan() throws IOException
 	{
-		byte[] bytes;
-		long pos;
-		if( lfis != null )
-		{
-			pos = lfis.getPosition();
-			bytes = lfis.readLine();
-		}
-		else
-		{
-			pos = lis.getPosition();
-			bytes = lis.readLine();
-		}
+		long pos = lis.getPosition();
+		byte[] bytes = lis.readLine();
 		
 		while( bytes != null )
 		{
@@ -138,8 +118,6 @@ public class PatchFile
 			{
 				if( line.matches( "--\\*[ \t]*(INIT|PATCH|BRANCH|RETURN).*" ) )
 				{
-//					System.out.println( line );
-					
 					Pattern pattern = Pattern.compile( "--\\*[ \t]*(INIT|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"" );
 					Matcher matcher = pattern.matcher( line );
 					Assert.check( matcher.matches(), "Line should match the following syntax: (PATCH|BRANCH|RETURN) source=\"...\" target=\"...\"" );
@@ -159,16 +137,8 @@ public class PatchFile
 				}
 			}
 			
-			if( lfis != null )
-			{
-				pos = lfis.getPosition();
-				bytes = lfis.readLine();
-			}
-			else
-			{
-				pos = lis.getPosition();
-				bytes = lis.readLine();
-			}
+			pos = lis.getPosition();
+			bytes = lis.readLine();
 		}
 	}
 	
@@ -288,23 +258,10 @@ public class PatchFile
 		
 		try
 		{
-			byte[] bytes;
-			if( lfis != null )
-			{
-				lfis.setPosition( patch.getPos() );
-				bytes = lfis.readLine();
-			}
-			else
-			{
-				if( lis.getPosition() > patch.getPos() )
-				{
-					lis.close();
-					lis = new LineInputStream( url.openStream() );
-				}
-				lis.skip( patch.getPos() - lis.getPosition() );
-				bytes = lis.readLine();
-			}
+			lis.setPosition( patch.getPos() );
+			byte[] bytes = lis.readLine();
 			String line = new String( bytes );
+			System.out.println( line );
 			Assert.check( line.matches( "--\\*[ \t]*(INIT|PATCH|BRANCH|RETURN).*" ) );
 		}
 		catch( IOException e )
@@ -323,7 +280,7 @@ public class PatchFile
 			byte[] bytes;
 			try
 			{
-				bytes = lfis != null ? lfis.readLine() : lis.readLine();
+				bytes = lis.readLine();
 			}
 			catch( IOException e )
 			{
