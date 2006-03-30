@@ -1,9 +1,5 @@
 package ronnie.dbpatcher;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Map.Entry;
 
 public class Configuration
 {
