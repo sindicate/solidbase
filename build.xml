@@ -24,7 +24,7 @@
 	<target name="jar" depends="classes" description="Create jar">
 		<jar destfile="dbpatcher.jar" compress="true">
 			<fileset dir="work" includes="**/*.class"/>
-			<fileset dir="src" includes="**/*.sql"/>
+			<fileset dir="src" includes="**/*.sql,**/*.properties"/>
 			<manifest>
 				<attribute name="Main-Class" value="ronnie.dbpatcher.Main"/>
 				<attribute name="Class-Path" value="cmg-pas.jar commons-collections-3.1.jar derby-10.1.2.1.jar ojdbc14_g.jar"/>
