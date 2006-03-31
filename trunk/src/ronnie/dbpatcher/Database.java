@@ -32,19 +32,18 @@ public class Database
 	{
 		if( connection == null )
 		{
-			Configuration.getPath();
-			
 			try
 			{
-				Class.forName( "org.apache.derby.jdbc.EmbeddedDriver" );
+				Class.forName( Configuration.getDriver() );
 			}
 			catch( ClassNotFoundException e )
 			{
 				throw new SystemException( e );
 			}
+			
 			try
 			{
-				connection = DriverManager.getConnection( "jdbc:derby:c:/projects/java/dbpatcher/derbyDB;create=true" );
+				connection = DriverManager.getConnection( Configuration.getDBUrl() );
 				connection.setAutoCommit( true );
 			}
 			catch( SQLException e )

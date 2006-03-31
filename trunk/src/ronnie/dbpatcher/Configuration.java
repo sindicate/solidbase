@@ -1,23 +1,69 @@
 package ronnie.dbpatcher;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Properties;
+
+import com.cmg.pas.SystemException;
+import com.cmg.pas.util.Assert;
+
 
 public class Configuration
 {
-	static protected String getPath()
+	static protected String url; 
+	static protected String driver; 
+	static protected String schema; 
+	static protected String version; 
+	
+	static
 	{
-//		Properties properties = System.getProperties();
-//		for( Iterator iter = properties.entrySet().iterator(); iter.hasNext(); )
-//		{
-//			Entry entry = (Map.Entry)iter.next();
-//			System.out.println( entry.getKey() + "=" + entry.getValue() );
-//		}
-		
-//		Map env = System.getenv();
-//		for( Iterator iter = env.entrySet().iterator(); iter.hasNext(); )
-//		{
-//			Entry entry = (Entry)iter.next();
-//			System.out.println( entry.getKey() + "=" + entry.getValue() );
-//		}
-		return null;
+		try
+		{
+			File file = new File( "dbpatcher.properties" );
+			System.out.println( "Reading property file " + file.getAbsolutePath() );
+			FileInputStream input = new FileInputStream( file );
+			Properties properties = new Properties();
+			properties.load( input );
+			url = properties.getProperty( "database.url" );
+			
+			Assert.check( url != null, "database.url not specified in dbpatcher.properties" );
+
+			URL url = Configuration.class.getResource( "private.properties" );
+			if( url == null )
+				throw new FileNotFoundException( "private.properties not found in classpath" );
+			System.out.println( "Reading property file " + url );
+			properties = new Properties();
+			properties.load( url.openStream() );
+			driver = properties.getProperty( "database.driver" );
+			schema = properties.getProperty( "version.schema" );
+			version = properties.getProperty( "patcher.version" );
+			if( schema.length() == 0 )
+				schema = null;
+			
+			Assert.check( driver != null, "database.driver not specified in private.properties" );
+			Assert.check( version != null, "patcher.version not specified in private.properties" );
+		}
+		catch( IOException e )
+		{
+			throw new SystemException( e );
+		}
+	}
+	
+	static protected String getDriver()
+	{
+		return driver;
+	}
+	
+	static protected String getDBUrl()
+	{
+		return url;
+	}
+
+	public static String getVersion()
+	{
+		return version;
 	}
 }

@@ -25,6 +25,8 @@ public class Main
 	public static void main( String[] args )
 	{
 		System.out.println();
+		System.out.println( "DBPatcher v" + Configuration.getVersion() + ", (C) 2006 R.M. de Bloois, LogicaCMG" );
+		System.out.println();
 		try
 		{
 			printCurrentVersion();
@@ -60,17 +62,17 @@ public class Main
 					input = new String( buffer, 0, read - 1 );
 				Assert.check( input.length() > 0, "Input too short" );
 
-				System.out.println( "You requested target " + input + "." );
+//				System.out.println( "You requested target " + input + "." );
 				
 				Database.patch( DBVersion.getVersion(), input );
 				
+				System.out.println();
 				printCurrentVersion();
 			}
 			finally
 			{
 				PatchFile.close();
 			}
-				
 		}
 		catch( Exception e )
 		{

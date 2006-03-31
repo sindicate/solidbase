@@ -29,13 +29,13 @@ public class PatchFile
 		if( url != null )
 		{
 			lis = new LineInputStream( url );
-			System.out.println( "Opened patchfile: " + url );
+			System.out.println( "Opening patchfile: " + url );
 		}
 		else
 		{
 			File file = new File( "dbpatch.sql" );
 			lis = new LineInputStream( new FileInputStream( file ) );
-			System.out.println( "Opened patchfile: " + file.getAbsolutePath() );
+			System.out.println( "Opening patchfile: " + file.getAbsolutePath() );
 		}
 	}
 	
@@ -261,7 +261,7 @@ public class PatchFile
 			lis.setPosition( patch.getPos() );
 			byte[] bytes = lis.readLine();
 			String line = new String( bytes );
-			System.out.println( line );
+//			System.out.println( line );
 			Assert.check( line.matches( "--\\*[ \t]*(INIT|PATCH|BRANCH|RETURN).*" ) );
 		}
 		catch( IOException e )
