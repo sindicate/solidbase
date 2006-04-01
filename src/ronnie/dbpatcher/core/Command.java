@@ -1,5 +1,10 @@
 package ronnie.dbpatcher.core;
 
+/**
+ * 
+ * @author René M. de Bloois
+ * @since Apr 1, 2006 7:13:28 PM
+ */
 public class Command
 {
 	protected String command;
