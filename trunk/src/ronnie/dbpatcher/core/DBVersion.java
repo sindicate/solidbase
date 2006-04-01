@@ -1,13 +1,3 @@
-package ronnie.dbpatcher.core;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-
-import com.cmg.pas.SystemException;
-import com.cmg.pas.util.Assert;
-
 /*
  * TABLES:
  * 
@@ -27,13 +17,22 @@ import com.cmg.pas.util.Assert;
  *     DHL TTS 2.0.11, DHL TTS 2.0.12, 5, 2006-03-27 13:56:00, CREATE TABLE ..., TABLE ALREADY EXISTS 
  */
 
+package ronnie.dbpatcher.core;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import com.cmg.pas.SystemException;
+import com.cmg.pas.util.Assert;
+
+/**
+ * 
+ * @author René M. de Bloois
+ * @since Apr 1, 2006 7:17:41 PM
+ */
 public class DBVersion
 {
-//	static protected String tableName = "versioncontrol";
-//	static protected String keyColumn = "vers_cont_id"; 
-//	static protected String valueColumn = "vers_reg_num"; 
-//	static protected String timestampColumn = "timestamp";
-	
 	static protected boolean read; // read tried
 	static protected boolean valid; // read succeeded
 	static protected boolean tableexists;

@@ -2,6 +2,11 @@ package ronnie.dbpatcher.core;
 
 import com.cmg.pas.util.Assert;
 
+/**
+ * 
+ * @author René M. de Bloois
+ * @since Apr 1, 2006 7:18:15 PM
+ */
 public class Patch
 {
 	protected String source;

@@ -14,11 +14,15 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.collections.MultiHashMap;
 
-
 import com.cmg.pas.SystemException;
 import com.cmg.pas.io.LineInputStream;
 import com.cmg.pas.util.Assert;
 
+/**
+ * 
+ * @author René M. de Bloois
+ * @since Apr 1, 2006 7:18:27 PM
+ */
 public class PatchFile
 {
 	static protected MultiHashMap patches = new MultiHashMap();
@@ -122,14 +126,14 @@ public class PatchFile
 					Pattern pattern = Pattern.compile( "--\\*[ \t]*(INIT|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"" );
 					Matcher matcher = pattern.matcher( line );
 					Assert.check( matcher.matches(), "Line should match the following syntax: (PATCH|BRANCH|RETURN) source=\"...\" target=\"...\"" );
-					String action = matcher.group( 1 );
+//					String action = matcher.group( 1 );
 					String source = matcher.group( 2 );
 					if( source.length() == 0 )
 						source = null;
 					String target = matcher.group( 3 );
-					boolean branch = "BRANCH".equals( action );
-					boolean returnBranch = "RETURN".equals( action );
-					boolean init = "INIT".equals( action );
+//					boolean branch = "BRANCH".equals( action );
+//					boolean returnBranch = "RETURN".equals( action );
+//					boolean init = "INIT".equals( action );
 					
 					Patch patch = getPatch( source, target );
 					Assert.check( patch != null, "Patch block found for undefined patch" );

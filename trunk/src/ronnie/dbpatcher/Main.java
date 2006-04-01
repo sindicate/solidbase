@@ -7,6 +7,11 @@ import ronnie.dbpatcher.core.Patcher;
 
 import com.cmg.pas.util.Assert;
 
+/**
+ * 
+ * @author René M. de Bloois
+ * @since Apr 1, 2006 7:18:27 PM
+ */
 public class Main
 {
 	static protected void printCurrentVersion()

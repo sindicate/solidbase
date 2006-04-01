@@ -10,7 +10,11 @@ import java.util.Properties;
 import com.cmg.pas.SystemException;
 import com.cmg.pas.util.Assert;
 
-
+/**
+ * 
+ * @author René M. de Bloois
+ * @since Apr 1, 2006 7:18:27 PM
+ */
 public class Configuration
 {
 	static protected String url; 
