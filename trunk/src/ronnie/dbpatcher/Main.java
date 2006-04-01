@@ -3,15 +3,17 @@ package ronnie.dbpatcher;
 import java.util.Iterator;
 import java.util.List;
 
+import ronnie.dbpatcher.core.Patcher;
+
 import com.cmg.pas.util.Assert;
 
 public class Main
 {
 	static protected void printCurrentVersion()
 	{
-		String version = DBVersion.getVersion();
-		String target = DBVersion.getTarget();
-		int statements = DBVersion.getStatements();
+		String version = Patcher.getCurrentVersion();
+		String target = Patcher.getCurrentTarget();
+		int statements = Patcher.getCurrentStatements();
 		
 		if( version == null )
 			System.out.println( "The database has no version yet." );
@@ -24,20 +26,23 @@ public class Main
 	
 	public static void main( String[] args )
 	{
-		System.out.println();
-		System.out.println( "DBPatcher v" + Configuration.getVersion() + ", (C) 2006 R.M. de Bloois, LogicaCMG" );
-		System.out.println();
 		try
 		{
+			System.out.println();
+			System.out.println( "DBPatcher v" + Configuration.getVersion() + ", (C) 2006 R.M. de Bloois, LogicaCMG" );
+			System.out.println();
+			
+			Patcher.setDatabase( Configuration.getDriver(), Configuration.getDBUrl() );
+
 			printCurrentVersion();
 			
-			PatchFile.open();
+			Patcher.openPatchFile();
 			try
 			{
-				PatchFile.read();
+				Patcher.readPatchFile();
 			
 				System.out.print( "Possible targets are: " );
-				List targets = PatchFile.getTargets( DBVersion.getVersion() );
+				List targets = Patcher.getTargets();
 				boolean first = true;
 				for( Iterator iter = targets.iterator(); iter.hasNext(); )
 				{
@@ -64,14 +69,14 @@ public class Main
 
 //				System.out.println( "You requested target " + input + "." );
 				
-				Database.patch( DBVersion.getVersion(), input );
+				Patcher.patch( input );
 				
 				System.out.println();
 				printCurrentVersion();
 			}
 			finally
 			{
-				PatchFile.close();
+				Patcher.closePatchFile();
 			}
 		}
 		catch( Exception e )

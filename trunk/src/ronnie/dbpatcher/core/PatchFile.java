@@ -1,4 +1,4 @@
-package ronnie.dbpatcher;
+package ronnie.dbpatcher.core;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.collections.MultiHashMap;
+
 
 import com.cmg.pas.SystemException;
 import com.cmg.pas.io.LineInputStream;

@@ -1,4 +1,4 @@
-package ronnie.dbpatcher;
+package ronnie.dbpatcher.core;
 
 public class Command
 {
