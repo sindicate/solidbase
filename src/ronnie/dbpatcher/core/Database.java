@@ -1,4 +1,4 @@
-package ronnie.dbpatcher;
+package ronnie.dbpatcher.core;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -21,7 +21,15 @@ public class Database
 	/**
 	 * The connection to the database.
 	 */
+	static protected String driverName;
+	static protected String url;
 	static protected Connection connection;
+	
+	static protected void setDatabase( String driverName, String url )
+	{
+		Database.driverName = driverName;
+		Database.url = url;
+	}
 	
 	/**
 	 * Returns (and establishes) the connection to the database.
@@ -34,7 +42,7 @@ public class Database
 		{
 			try
 			{
-				Class.forName( Configuration.getDriver() );
+				Class.forName( driverName );
 			}
 			catch( ClassNotFoundException e )
 			{
@@ -43,7 +51,7 @@ public class Database
 			
 			try
 			{
-				connection = DriverManager.getConnection( Configuration.getDBUrl() );
+				connection = DriverManager.getConnection( url );
 				connection.setAutoCommit( true );
 			}
 			catch( SQLException e )

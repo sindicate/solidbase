@@ -1,8 +1,9 @@
-package ronnie.dbpatcher;
+package ronnie.dbpatcher.core;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 
 import com.cmg.pas.SystemException;
 import com.cmg.pas.util.Assert;
