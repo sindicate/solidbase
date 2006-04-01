@@ -25,10 +25,23 @@ public class Database
 	static protected String url;
 	static protected Connection connection;
 	
-	static protected void setDatabase( String driverName, String url )
+	static protected void setConnection( String driverName, String url )
 	{
 		Database.driverName = driverName;
 		Database.url = url;
+	}
+	
+	static protected void setConnection( Connection connection )
+	{
+		Database.connection = connection;
+		try
+		{
+			connection.setAutoCommit( true );
+		}
+		catch( SQLException e )
+		{
+			throw new SystemException( e );
+		}
 	}
 	
 	/**
@@ -78,7 +91,7 @@ public class Database
 	
 	static protected void patch( Patch patch ) throws SQLException
 	{
-		System.out.println( "Patching \"" + patch.getSource() + "\" to \"" + patch.getTarget() + "\"" );
+		System.out.print( "Patching \"" + patch.getSource() + "\" to \"" + patch.getTarget() + "\"" );
 		
 		PatchFile.gotoPatch( patch );
 		int skip = DBVersion.getStatements();

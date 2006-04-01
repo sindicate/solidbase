@@ -1,8 +1,14 @@
 package ronnie.dbpatcher.core;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Properties;
+
+import com.cmg.pas.SystemException;
+import com.cmg.pas.util.Assert;
 
 public class Patcher
 {
@@ -46,8 +52,29 @@ public class Patcher
 		Database.patch( DBVersion.getVersion(), target );
 	}
 
-	public static void setDatabase( String driverName, String url )
+	static public void setConnection( String driverName, String url )
 	{
-		Database.setDatabase( driverName, url );
+		Database.setConnection( driverName, url );
+	}
+	
+	static public void setConnection( Connection connection )
+	{
+		Database.setConnection( connection );
+	}
+	
+	static public String getVersion()
+	{
+		Properties properties = new Properties();
+		try
+		{
+			properties.load( Patcher.class.getResourceAsStream( "core.properties" ) );
+		}
+		catch( IOException e )
+		{
+			throw new SystemException( e );
+		}
+		String result = properties.getProperty( "core.version" );
+		Assert.check( result != null );
+		return result;
 	}
 }
