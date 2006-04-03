@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -18,6 +19,13 @@ import com.cmg.pas.util.Assert;
  */
 public class Patcher
 {
+	static protected ArrayList plugins = new ArrayList();
+	
+	static
+	{
+		plugins.add( new AssertPlugin() );
+	}
+	
 	static public void openPatchFile() throws IOException
 	{
 		PatchFile.open();
@@ -123,7 +131,18 @@ public class Patcher
 			else
 			{
 				if( sql.length() > 0 && count >= skip )
-					statement.execute( sql ); // autocommit is on
+				{
+					boolean done = false;
+					for( Iterator iter = plugins.iterator(); iter.hasNext(); )
+					{
+						Plugin plugin = (Plugin)iter.next();
+						done = plugin.execute( sql );
+						if( done )
+							break;
+					}
+					if( !done )
+						statement.execute( sql ); // autocommit is on
+				}
 				System.out.print( "." );
 				if( !patch.isInit() )
 					DBVersion.setCount( patch.getTarget(), ++count );

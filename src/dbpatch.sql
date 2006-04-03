@@ -31,6 +31,13 @@
 
 --* INIT "" --> "INIT"
 
+--* // Hier komt de check in de oude version_control
+ASSERT EXISTS MESSAGE "Assertion failed"
+SELECT * 
+FROM SYS.SYSTABLES
+WHERE TABLENAME = 'SYSTABLES'
+--*
+
 CREATE TABLE DBVERSION
 ( 
 	VERSION VARCHAR(20) NOT NULL, 
