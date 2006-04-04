@@ -277,7 +277,6 @@ public class PatchFile
 	
 	static public Command readStatement()
 	{
-		boolean internal = false;
 		StringBuilder result = new StringBuilder();
 		
 		while( true )
@@ -297,8 +296,8 @@ public class PatchFile
 			String line = new String( bytes );
 			if( line.trim().length() > 0 )
 			{
-				if( line.matches( "--\\* *" ) )
-					return new Command( result.toString(), internal );
+				if( line.matches( "GO *" ) )
+					return new Command( result.toString(), false );
 				
 				if( line.matches( "--\\* */(INIT|PATCH|BRANCH|RETURN) *" ) )
 				{
@@ -310,19 +309,10 @@ public class PatchFile
 				{
 					line = line.substring( 3 ).trim();
 					if( !line.startsWith( "//" ))
-					{
-						if( !internal )
-						{
-							Assert.check( result.length() == 0 );
-							internal = true;
-						}
-						result.append( line.substring( 3 ) );
-						result.append( "\n" );
-					}
+						return new Command( line, true );
 				}
 				else
 				{
-					Assert.check( !internal );
 					result.append( line );
 					result.append( "\n" );
 				}

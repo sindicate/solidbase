@@ -126,7 +126,7 @@ public class Patcher
 
 			if( command.isInternal() )
 			{
-				Assert.fail( "Unknown command [" + sql + "]" );
+					Assert.fail( "Unknown command [" + sql + "]" );
 			}
 			else
 			{
