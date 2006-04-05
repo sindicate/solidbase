@@ -71,7 +71,18 @@ public class Patcher
 	
 	static public void patch( String target ) throws SQLException
 	{
-		patch( DBVersion.getVersion(), target );
+		List targets = PatchFile.getTargets( DBVersion.getVersion() );
+		for( Iterator iter = targets.iterator(); iter.hasNext(); )
+		{
+			String s = (String)iter.next();
+			if( s.equals( target ) )
+			{
+				patch( DBVersion.getVersion(), target );
+				return;
+			}
+		}
+		
+		throw new SystemException( "Target " + target + " is not a possible target" );
 	}
 
 	static public void setConnection( String driverName, String url )
@@ -152,7 +163,7 @@ public class Patcher
 						for( Iterator iter = plugins.iterator(); iter.hasNext(); )
 						{
 							Plugin plugin = (Plugin)iter.next();
-							done = plugin.execute( sql );
+							done = plugin.execute( command );
 							if( done )
 								break;
 						}
