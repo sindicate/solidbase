@@ -9,13 +9,21 @@ import java.util.regex.Pattern;
 
 import com.cmg.pas.util.Assert;
 
+/**
+ * 
+ * @author René M. de Bloois
+ * @since Apr 1, 2006 7:13:28 PM
+ */
 public class AssertPlugin extends Plugin
 {
 	static protected Pattern assertPattern = Pattern.compile( "\\s*ASSERT\\s+EXISTS\\s+MESSAGE\\s+\"([^\"]*)\"\\s+(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 	
-	public boolean execute( String sql ) throws SQLException
+	public boolean execute( Command command ) throws SQLException
 	{
-		Matcher matcher = assertPattern.matcher( sql );
+		if( !command.counting )
+			return false;
+		
+		Matcher matcher = assertPattern.matcher( command.getCommand() );
 		if( matcher.matches() )
 		{
 			String message = matcher.group( 1 );
