@@ -26,6 +26,8 @@ public class Patcher
 	static protected ArrayList plugins = new ArrayList();
 	static protected Stack ignoreStack = new Stack();
 	static protected HashSet ignoreSet = new HashSet();
+	static protected Pattern ignoreSqlErrorPattern = Pattern.compile( "IGNORE[ \\t]+SQL[ \\t]+ERROR[ \\t]+(\\w+([ \\t]*,[ \\t]*\\w+)*)", Pattern.CASE_INSENSITIVE );
+	static protected Pattern ignoreEnd = Pattern.compile( "/IGNORE[ \\t]+SQL[ \\t]+ERROR", Pattern.CASE_INSENSITIVE );
 	
 	static
 	{
@@ -132,42 +134,45 @@ public class Patcher
 
 			if( !command.isCounting() )
 			{
-				Matcher matcher = Pattern.compile( "IGNORE[ \\t]+SQL[ \\t]+ERROR[ \\t]+(\\w+([ \\t]*,[ \\t]*\\w+)*)" ).matcher( sql );
+				Matcher matcher = ignoreSqlErrorPattern.matcher( sql );
 				if( matcher.matches() )
 					pushIgnores( matcher.group( 1 ) );
-				else if( sql.matches( "/IGNORE[ \\t]+SQL[ \\t]+ERROR" ) )
+				else if( ignoreEnd.matcher( sql ).matches() )
 					popIgnores();
 				else
 					Assert.fail( "Unknown command [" + sql + "]" );
 			}
 			else
 			{
-				if( sql.length() > 0 && count >= skip )
+				if( count >= skip )
 				{
-					boolean done = false;
-					for( Iterator iter = plugins.iterator(); iter.hasNext(); )
+					if( sql.length() > 0 )
 					{
-						Plugin plugin = (Plugin)iter.next();
-						done = plugin.execute( sql );
-						if( done )
-							break;
-					}
-					if( !done )
-						try
+						boolean done = false;
+						for( Iterator iter = plugins.iterator(); iter.hasNext(); )
 						{
-							statement.execute( sql ); // autocommit is on
+							Plugin plugin = (Plugin)iter.next();
+							done = plugin.execute( sql );
+							if( done )
+								break;
 						}
-						catch( SQLException e )
-						{
-							String error = e.getSQLState();
-							if( !ignoreSet.contains( error ) )
+						if( !done )
+							try
 							{
-								System.err.println( "Exception while executing \n" + sql );
-								throw e;
+								statement.execute( sql ); // autocommit is on
 							}
-						}
+							catch( SQLException e )
+							{
+								String error = e.getSQLState();
+								if( !ignoreSet.contains( error ) )
+								{
+									System.err.println( "Exception while executing \n" + sql );
+									throw e;
+								}
+							}
+					}
+					System.out.print( "." );
 				}
-				System.out.print( "." );
 				if( !patch.isInit() )
 					DBVersion.setCount( patch.getTarget(), ++count );
 			}

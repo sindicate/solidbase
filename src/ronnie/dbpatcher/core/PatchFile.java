@@ -27,6 +27,12 @@ public class PatchFile
 {
 	static protected MultiHashMap patches = new MultiHashMap();
 	static protected LineInputStream lis;
+	static protected Pattern patchDefinitionMarkerPattern = Pattern.compile( "(INIT|PATCH|BRANCH|RETURN)[ \t]+.*", Pattern.CASE_INSENSITIVE );
+	static protected Pattern patchDefinitionPattern = Pattern.compile( "(INIT|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
+	static protected Pattern patchStartMarkerPattern = Pattern.compile( "--\\*[ \t]*(INIT|PATCH|BRANCH|RETURN).*", Pattern.CASE_INSENSITIVE );
+	static protected Pattern patchStartPattern = Pattern.compile( "--\\*[ \t]*(INIT|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
+	static protected Pattern patchEndPattern = Pattern.compile( "--\\* */(INIT|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
+	static protected Pattern goPattern = Pattern.compile( "GO *", Pattern.CASE_INSENSITIVE );
 
 	static protected void open() throws IOException
 	{
@@ -66,7 +72,7 @@ public class PatchFile
 				Assert.check( line.startsWith( "--*" ), "Line should start with --*" );
 				line = line.substring( 3 ).trim();
 //					System.out.println( line );
-				if( line.matches( "PATCHES" ) )
+				if( line.equalsIgnoreCase( "PATCHES" ) )
 				{
 					Assert.check( !withinDefinition, "Already within the definition" );
 					withinDefinition = true;
@@ -76,13 +82,12 @@ public class PatchFile
 				{
 					// ignore line
 				}
-				else if( line.matches( "(INIT|PATCH|BRANCH|RETURN)[ \t]+.*" ) )
+				else if( patchDefinitionMarkerPattern.matcher( line ).matches() )
 				{
 					Assert.check( withinDefinition, "Not within the definition" );
 //						System.out.println( "patch" );
 					
-					Pattern pattern = Pattern.compile( "(INIT|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?" );
-					Matcher matcher = pattern.matcher( line );
+					Matcher matcher = patchDefinitionPattern.matcher( line );
 					Assert.check( matcher.matches(), "Line should match the following syntax: (INIT|PATCH|BRANCH|RETURN) [OPEN] \"...\" --> \"...\"" );
 					String action = matcher.group( 1 );
 					boolean open = matcher.group( 2 ) != null;
@@ -90,13 +95,13 @@ public class PatchFile
 					if( source.length() == 0 )
 						source = null;
 					String target = matcher.group( 4 );
-					boolean branch = "BRANCH".equals( action );
-					boolean returnBranch = "RETURN".equals( action );
-					boolean init = "INIT".equals( action );
+					boolean branch = "BRANCH".equalsIgnoreCase( action );
+					boolean returnBranch = "RETURN".equalsIgnoreCase( action );
+					boolean init = "INIT".equalsIgnoreCase( action );
 					Patch patch = new Patch( source, target, branch, returnBranch, open, init );
 					patches.put( source, patch );
 				}
-				else if( line.matches( "/PATCHES" ) )
+				else if( line.equalsIgnoreCase( "/PATCHES" ) )
 				{
 					Assert.check( withinDefinition, "Not within the definition" );
 //					System.out.println( "end" );
@@ -121,19 +126,18 @@ public class PatchFile
 			
 			if( line.startsWith( "--*" ) )
 			{
-				if( line.matches( "--\\*[ \t]*(INIT|PATCH|BRANCH|RETURN).*" ) )
+				if( patchStartMarkerPattern.matcher( line ).matches() )
 				{
-					Pattern pattern = Pattern.compile( "--\\*[ \t]*(INIT|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"" );
-					Matcher matcher = pattern.matcher( line );
+					Matcher matcher = patchStartPattern.matcher( line );
 					Assert.check( matcher.matches(), "Line should match the following syntax: (PATCH|BRANCH|RETURN) source=\"...\" target=\"...\"" );
 //					String action = matcher.group( 1 );
 					String source = matcher.group( 2 );
 					if( source.length() == 0 )
 						source = null;
 					String target = matcher.group( 3 );
-//					boolean branch = "BRANCH".equals( action );
-//					boolean returnBranch = "RETURN".equals( action );
-//					boolean init = "INIT".equals( action );
+//					boolean branch = "BRANCH".equalsIgnoreCase( action );
+//					boolean returnBranch = "RETURN".equalsIgnoreCase( action );
+//					boolean init = "INIT".equalsIgnoreCase( action );
 					
 					Patch patch = getPatch( source, target );
 					Assert.check( patch != null, "Patch block found for undefined patch" );
@@ -267,7 +271,7 @@ public class PatchFile
 			byte[] bytes = lis.readLine();
 			String line = new String( bytes );
 //			System.out.println( line );
-			Assert.check( line.matches( "--\\*[ \t]*(INIT|PATCH|BRANCH|RETURN).*" ) );
+			Assert.check( patchStartMarkerPattern.matcher( line ).matches() );
 		}
 		catch( IOException e )
 		{
@@ -296,10 +300,10 @@ public class PatchFile
 			String line = new String( bytes );
 			if( line.trim().length() > 0 )
 			{
-				if( line.matches( "GO *" ) )
+				if( goPattern.matcher( line ).matches() )
 					return new Command( result.toString(), true );
 				
-				if( line.matches( "--\\* */(INIT|PATCH|BRANCH|RETURN) *" ) )
+				if( patchEndPattern.matcher( line ).matches() )
 				{
 					Assert.check( result.length() == 0, "Unterminated statement found" );
 					return null;
