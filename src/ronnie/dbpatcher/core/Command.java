@@ -8,11 +8,11 @@ package ronnie.dbpatcher.core;
 public class Command
 {
 	protected String command;
-	protected boolean internal;
+	protected boolean counting;
 	
-	public boolean isInternal()
+	public boolean isCounting()
 	{
-		return this.internal;
+		return this.counting;
 	}
 
 	public String getCommand()
@@ -20,9 +20,9 @@ public class Command
 		return this.command;
 	}
 
-	protected Command( String command, boolean internal )
+	protected Command( String command, boolean counting )
 	{
 		this.command = command;
-		this.internal = internal;
+		this.counting = counting;
 	}
 }
