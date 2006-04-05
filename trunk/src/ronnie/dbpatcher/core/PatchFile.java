@@ -297,7 +297,7 @@ public class PatchFile
 			if( line.trim().length() > 0 )
 			{
 				if( line.matches( "GO *" ) )
-					return new Command( result.toString(), false );
+					return new Command( result.toString(), true );
 				
 				if( line.matches( "--\\* */(INIT|PATCH|BRANCH|RETURN) *" ) )
 				{
@@ -309,7 +309,7 @@ public class PatchFile
 				{
 					line = line.substring( 3 ).trim();
 					if( !line.startsWith( "//" ))
-						return new Command( line, true );
+						return new Command( line, false );
 				}
 				else
 				{

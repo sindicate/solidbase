@@ -5,9 +5,13 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.cmg.pas.SystemException;
 import com.cmg.pas.util.Assert;
@@ -20,6 +24,8 @@ import com.cmg.pas.util.Assert;
 public class Patcher
 {
 	static protected ArrayList plugins = new ArrayList();
+	static protected Stack ignoreStack = new Stack();
+	static protected HashSet ignoreSet = new HashSet();
 	
 	static
 	{
@@ -124,8 +130,14 @@ public class Patcher
 //			System.out.println( sql );
 //			System.out.println();
 
-			if( command.isInternal() )
+			if( !command.isCounting() )
 			{
+				Matcher matcher = Pattern.compile( "IGNORE[ \\t]+SQL[ \\t]+ERROR[ \\t]+(\\w+([ \\t]*,[ \\t]*\\w+)*)" ).matcher( sql );
+				if( matcher.matches() )
+					pushIgnores( matcher.group( 1 ) );
+				else if( sql.matches( "/IGNORE[ \\t]+SQL[ \\t]+ERROR" ) )
+					popIgnores();
+				else
 					Assert.fail( "Unknown command [" + sql + "]" );
 			}
 			else
@@ -141,7 +153,19 @@ public class Patcher
 							break;
 					}
 					if( !done )
-						statement.execute( sql ); // autocommit is on
+						try
+						{
+							statement.execute( sql ); // autocommit is on
+						}
+						catch( SQLException e )
+						{
+							String error = e.getSQLState();
+							if( !ignoreSet.contains( error ) )
+							{
+								System.err.println( "Exception while executing \n" + sql );
+								throw e;
+							}
+						}
 				}
 				System.out.print( "." );
 				if( !patch.isInit() )
@@ -156,5 +180,32 @@ public class Patcher
 			DBVersion.versionTablesCreated();
 		if( !patch.isOpen() )
 			DBVersion.setVersion( patch.getTarget() );
+	}
+
+	static protected void pushIgnores( String ignores )
+	{
+		String[] ss = ignores.split( "," );
+		for( int i = 0; i < ss.length; i++ )
+			ss[ i ] = ss[ i ].trim();
+		ignoreStack.push( ss );
+		refreshIgnores();
+	}
+	
+	static protected void popIgnores()
+	{
+		ignoreStack.pop();
+		refreshIgnores();
+	}
+	
+	static protected void refreshIgnores()
+	{
+		HashSet ignores = new HashSet();
+		for( Iterator iter = ignoreStack.iterator(); iter.hasNext(); )
+		{
+			String[] ss = (String[])iter.next();
+			for( int i = 0; i < ss.length; i++ )
+				ignores.add( ss[ i ] );
+		}
+		ignoreSet = ignores;
 	}
 }
