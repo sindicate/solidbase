@@ -28,6 +28,7 @@ public class Patcher
 	static protected HashSet ignoreSet = new HashSet();
 	static protected Pattern ignoreSqlErrorPattern = Pattern.compile( "IGNORE[ \\t]+SQL[ \\t]+ERROR[ \\t]+(\\w+([ \\t]*,[ \\t]*\\w+)*)", Pattern.CASE_INSENSITIVE );
 	static protected Pattern ignoreEnd = Pattern.compile( "/IGNORE[ \\t]+SQL[ \\t]+ERROR", Pattern.CASE_INSENSITIVE );
+	static protected ProgressListener callBack;
 	
 	static
 	{
@@ -127,7 +128,7 @@ public class Patcher
 	
 	static protected void patch( Patch patch ) throws SQLException
 	{
-		System.out.print( "Patching \"" + patch.getSource() + "\" to \"" + patch.getTarget() + "\"" );
+		Patcher.callBack.patchStarting( patch.getSource(), patch.getTarget() );
 		
 		PatchFile.gotoPatch( patch );
 		int skip = DBVersion.getStatements();
@@ -140,8 +141,7 @@ public class Patcher
 		while( command != null )
 		{
 			String sql = command.getCommand();
-//			System.out.println( sql );
-//			System.out.println();
+			Patcher.callBack.executing( command );
 
 			if( !command.isCounting() )
 			{
@@ -176,21 +176,19 @@ public class Patcher
 							{
 								String error = e.getSQLState();
 								if( !ignoreSet.contains( error ) )
-								{
-									System.err.println( "Exception while executing \n" + sql );
 									throw e;
-								}
 							}
 					}
-					System.out.print( "." );
 				}
 				if( !patch.isInit() )
 					DBVersion.setCount( patch.getTarget(), ++count );
 			}
 			
+			Patcher.callBack.executed();
+			
 			command = PatchFile.readStatement();
 		}
-		System.out.println();
+		Patcher.callBack.patchFinished();
 
 		if( patch.isInit() )
 			DBVersion.versionTablesCreated();
@@ -223,5 +221,15 @@ public class Patcher
 				ignores.add( ss[ i ] );
 		}
 		ignoreSet = ignores;
+	}
+
+	static public ProgressListener getCallBack()
+	{
+		return Patcher.callBack;
+	}
+
+	static public void setCallBack( ProgressListener callBack )
+	{
+		Patcher.callBack = callBack;
 	}
 }

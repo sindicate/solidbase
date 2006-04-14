@@ -3,8 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/cmgpas"/>
-	<classpathentry kind="lib" path="ojdbc14_g.jar"/>
-	<classpathentry kind="lib" path="derby-10.1.2.1.jar"/>
 	<classpathentry kind="lib" path="commons-collections-3.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

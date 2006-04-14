@@ -1,6 +1,5 @@
 package ronnie.dbpatcher.core;
 
-
 /**
  * 
  * @author René M. de Bloois

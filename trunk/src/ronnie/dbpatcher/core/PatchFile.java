@@ -40,13 +40,13 @@ public class PatchFile
 		if( url != null )
 		{
 			lis = new LineInputStream( url );
-			System.out.println( "Opening patchfile: " + url );
+			Patcher.callBack.openingPatchFile( "Opening patchfile: " + url );
 		}
 		else
 		{
 			File file = new File( "dbpatch.sql" );
 			lis = new LineInputStream( new FileInputStream( file ) );
-			System.out.println( "Opening patchfile: " + file.getAbsolutePath() );
+			Patcher.callBack.openingPatchFile( "Opening patchfile: " + file.getAbsolutePath() );
 		}
 	}
 	

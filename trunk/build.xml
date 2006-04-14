@@ -21,13 +21,22 @@
 		</javac>
 	</target>
 
+	<!--
+	<target name="extract-libs">
+		<unjar dest="work" src="cmg-pas.jar"/>
+		<unjar dest="work" src="commons-collections-3.1.jar"/>
+		<unjar dest="work" src="derby-10.1.2.1.jar"/>
+		<unjar dest="work" src="ojdbc14_g.jar"/>
+	</target>
+	-->
+
 	<target name="jar" depends="classes" description="Create jar">
 		<jar destfile="dbpatcher.jar" compress="true">
 			<fileset dir="work" includes="**/*.class"/>
 			<fileset dir="src" includes="**/*.sql,**/*.properties"/>
 			<manifest>
-				<attribute name="Main-Class" value="ronnie.dbpatcher.Main"/>
-				<attribute name="Class-Path" value="cmg-pas.jar commons-collections-3.1.jar derby-10.1.2.1.jar ojdbc14_g.jar"/>
+				<attribute name="Main-Class" value="ronnie.dbpatcher.Boot"/>
+<!--				<attribute name="Class-Path" value="cmg-pas.jar commons-collections-3.1.jar derby-10.1.2.1.jar ojdbc14_g.jar"/> -->
 			</manifest>
 		</jar>
 	</target>
