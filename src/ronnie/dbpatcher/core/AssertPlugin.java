@@ -23,6 +23,7 @@ public class AssertPlugin extends Plugin
 		if( !command.counting )
 			return false;
 		
+		
 		Matcher matcher = assertPattern.matcher( command.getCommand() );
 		if( matcher.matches() )
 		{

@@ -23,7 +23,7 @@ public class Main
 		if( version == null )
 			System.out.println( "The database has no version yet." );
 		else if( target != null )
-			System.out.println( "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements succesful)." );
+			System.out.println( "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
 		else
 			System.out.println( "Current database version is \"" + version + "\"." );
 	}
@@ -50,6 +50,8 @@ public class Main
 	{
 		try
 		{
+			Patcher.setCallBack( new Progress() );
+			
 			System.out.println();
 			System.out.println( "DBPatcher v" + Configuration.getVersion() + ", patch engine v" + Patcher.getVersion() );
 			System.out.println( "(C) 2006 R.M. de Bloois, LogicaCMG" );
