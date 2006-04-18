@@ -1,6 +1,7 @@
 package ronnie.dbpatcher.core;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -138,62 +139,88 @@ public class Patcher
 		Statement statement = Database.getConnection().createStatement();
 		Command command = PatchFile.readStatement();
 		int count = 0;
-		while( command != null )
+		try
 		{
-			String sql = command.getCommand();
-			Patcher.callBack.executing( command );
-
-			if( !command.isCounting() )
+			while( command != null )
 			{
-				Matcher matcher = ignoreSqlErrorPattern.matcher( sql );
-				if( matcher.matches() )
-					pushIgnores( matcher.group( 1 ) );
-				else if( ignoreEnd.matcher( sql ).matches() )
-					popIgnores();
-				else
-					Assert.fail( "Unknown command [" + sql + "]" );
-			}
-			else
-			{
-				if( count >= skip )
+				String sql = command.getCommand();
+				Patcher.callBack.executing( command );
+	
+				if( !command.isCounting() )
 				{
-					if( sql.length() > 0 )
+					Matcher matcher = ignoreSqlErrorPattern.matcher( sql );
+					if( matcher.matches() )
+						pushIgnores( matcher.group( 1 ) );
+					else if( ignoreEnd.matcher( sql ).matches() )
+						popIgnores();
+					else
+						Assert.fail( "Unknown command [" + sql + "]" );
+				}
+				else
+				{
+					count++;
+					if( count > skip )
 					{
-						boolean done = false;
-						for( Iterator iter = plugins.iterator(); iter.hasNext(); )
+						SQLException sqle = null;
+						if( sql.length() > 0 )
 						{
-							Plugin plugin = (Plugin)iter.next();
-							done = plugin.execute( command );
-							if( done )
-								break;
+							boolean done = false;
+							for( Iterator iter = plugins.iterator(); iter.hasNext(); )
+							{
+								Plugin plugin = (Plugin)iter.next();
+								done = plugin.execute( command );
+								if( done )
+									break;
+							}
+							if( !done )
+								try
+								{
+									statement.execute( sql ); // autocommit is on
+								}
+								catch( SQLException e )
+								{
+									String error = e.getSQLState();
+									if( ignoreSet.contains( error ) )
+										sqle = e;
+									else
+										throw e;
+								}
 						}
-						if( !done )
-							try
-							{
-								statement.execute( sql ); // autocommit is on
-							}
-							catch( SQLException e )
-							{
-								String error = e.getSQLState();
-								if( !ignoreSet.contains( error ) )
-									throw e;
-							}
+						if( !patch.isInit() )
+						{
+							DBVersion.setCount( patch.getTarget(), count );
+							if( sqle != null )
+								DBVersionLog.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), sqle );
+							else
+								DBVersionLog.log( patch.getSource(), patch.getTarget(), count, sql, (String)null );
+						}
 					}
 				}
-				if( !patch.isInit() )
-					DBVersion.setCount( patch.getTarget(), ++count );
+				
+				Patcher.callBack.executed();
+				
+				command = PatchFile.readStatement();
 			}
-			
-			Patcher.callBack.executed();
-			
-			command = PatchFile.readStatement();
+			Patcher.callBack.patchFinished();
+	
+			if( patch.isInit() )
+				DBVersion.versionTablesCreated();
+			if( !patch.isOpen() )
+			{
+				DBVersion.setVersion( patch.getTarget() );
+				DBVersionLog.log( patch.getSource(), patch.getTarget(), count, null, "COMPLETED VERSION " + patch.getTarget() );
+			}
 		}
-		Patcher.callBack.patchFinished();
-
-		if( patch.isInit() )
-			DBVersion.versionTablesCreated();
-		if( !patch.isOpen() )
-			DBVersion.setVersion( patch.getTarget() );
+		catch( RuntimeException e )
+		{
+			DBVersionLog.log( patch.getSource(), patch.getTarget(), count, command.getCommand(), e );
+			throw e;
+		}
+		catch( SQLException e )
+		{
+			DBVersionLog.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), e );
+			throw e;
+		}
 	}
 
 	static protected void pushIgnores( String ignores )
@@ -231,5 +258,10 @@ public class Patcher
 	static public void setCallBack( ProgressListener callBack )
 	{
 		Patcher.callBack = callBack;
+	}
+	
+	static public void logToXML( OutputStream out )
+	{
+		DBVersionLog.logToXML( out );
 	}
 }

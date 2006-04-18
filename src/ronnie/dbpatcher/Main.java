@@ -48,19 +48,25 @@ public class Main
 	
 	static public void main( String[] args )
 	{
+		System.out.println();
+		System.out.println( "DBPatcher v" + Configuration.getVersion() + ", patch engine v" + Patcher.getVersion() );
+		System.out.println( "(C) 2006 R.M. de Bloois, LogicaCMG" );
+		System.out.println();
+
+		Patcher.setCallBack( new Progress() );
+		
+		Patcher.setConnection( Configuration.getDriver(), Configuration.getDBUrl() );
+		System.out.println( "Connecting to database..." );
+		printCurrentVersion();
+		
+		if( args.length == 1 && args[ 0 ].equals( "exportlog" ) )
+		{
+			Patcher.logToXML( System.out );
+			return;
+		}
+		
 		try
 		{
-			Patcher.setCallBack( new Progress() );
-			
-			System.out.println();
-			System.out.println( "DBPatcher v" + Configuration.getVersion() + ", patch engine v" + Patcher.getVersion() );
-			System.out.println( "(C) 2006 R.M. de Bloois, LogicaCMG" );
-			System.out.println();
-
-			Patcher.setConnection( Configuration.getDriver(), Configuration.getDBUrl() );
-			System.out.println( "Connecting to database..." );
-			printCurrentVersion();
-			
 			Patcher.openPatchFile();
 			try
 			{
@@ -91,7 +97,8 @@ public class Main
 		}
 		catch( Exception e )
 		{
-			e.printStackTrace( System.err );
+			System.out.println();
+			e.printStackTrace( System.out );
 		}
 	}
 }

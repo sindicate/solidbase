@@ -109,7 +109,8 @@ public class DBVersion
 		catch( SQLException e )
 		{
 			String sqlState = e.getSQLState();
-			if( sqlState.equals( "42000" ) || sqlState.equals( "42X05" ) ) // 42000: Oracle, 42X05: Derby
+			if( sqlState.equals( "42000" ) /* Oracle */ 
+					|| sqlState.equals( "42X05" ) /* Derby */ )
 			{
 				valid = true;
 				return;
@@ -137,7 +138,8 @@ public class DBVersion
 			PreparedStatement statement = Database.getConnection().prepareStatement( "UPDATE DBVERSION SET TARGET = ?, STATEMENTS = ?" );
 			statement.setString( 1, target );
 			statement.setInt( 2, statements );
-			statement.executeUpdate(); // autocommit is on
+			int modified = statement.executeUpdate(); // autocommit is on
+			Assert.check( modified == 1, "Expecting 1 record to be updated, not " + modified );
 			statement.close();
 			
 			DBVersion.target = target;
@@ -157,7 +159,8 @@ public class DBVersion
 		{
 			PreparedStatement statement = Database.getConnection().prepareStatement( "UPDATE DBVERSION SET VERSION = ?, TARGET = NULL" );
 			statement.setString( 1, version );
-			statement.executeUpdate(); // autocommit is on
+			int modified = statement.executeUpdate(); // autocommit is on
+			Assert.check( modified == 1, "Expecting 1 record to be updated, not " + modified );
 			statement.close();
 			
 			DBVersion.version = version;
