@@ -49,7 +49,7 @@ public class Main
 	static public void main( String[] args )
 	{
 		System.out.println();
-		System.out.println( "DBPatcher v" + Configuration.getVersion() + ", patch engine v" + Patcher.getVersion() );
+		System.out.println( "DBPatcher v" + Configuration.getVersion() + " for Oracle, patch engine v" + Patcher.getVersion() );
 		System.out.println( "(C) 2006 R.M. de Bloois, LogicaCMG" );
 		System.out.println();
 
