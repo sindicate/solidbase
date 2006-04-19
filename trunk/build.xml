@@ -5,7 +5,7 @@
 	<property file="build.properties"/>
 
 	<path id="buildpath">
-		<fileset dir="" includes="*.jar"/>
+		<fileset dir="lib" includes="*.jar"/>
 	</path>
 	
 	<mkdir dir="work"/>
@@ -23,9 +23,9 @@
 	</target>
 
 	<target name="extractjars">
-		<unjar dest="work" src="cmg-pas.jar"/>
-<!--		<unjar dest="work" src="commons-collections-3.1.jar"/>
-		<unjar dest="work" src="derby-10.1.2.1.jar"/>
+		<unjar dest="work" src="lib/cmg-pas.jar"/>
+		<unjar dest="work" src="lib/commons-collections-3.1.jar"/>
+<!--		<unjar dest="work" src="derby-10.1.2.1.jar"/>
 		<unjar dest="work" src="ojdbc14_g.jar"/> -->
 	</target>
 
@@ -40,16 +40,17 @@
 		</jar>
 	</target>
 	
-	<target name="dist" depends="jar">
-		
+	<target name="dist" depends="rebuild">
+		<copy todir="dist" preservelastmodified="true">
+			<fileset dir="lib" includes="derby-*.jar,ojdbc*_g.jar"/>
+			<fileset dir="" includes="dbpatcher.properties"/>
+		</copy>
 	</target>
 
 	<target name="clean" description="Cleans everything">
-		<delete file="dbpatcher.jar"/>
 		<delete includeEmptyDirs="true">
-			<fileset dir="work">
-				<include name="**/*.class"/>
-			</fileset>
+			<fileset dir="work" includes="**/*"/>
+			<fileset dir="dist" includes="*.jar"/>
 		</delete>
 	</target>
 	

@@ -19,6 +19,7 @@ public class Configuration
 {
 	static protected String url; 
 	static protected String driver; 
+	static protected String driverJar; 
 	static protected String schema; 
 	static protected String version; 
 	
@@ -32,6 +33,7 @@ public class Configuration
 			Properties properties = new Properties();
 			properties.load( input );
 			url = properties.getProperty( "database.url" );
+			driverJar = properties.getProperty( "database.driver.jar" );
 			
 			Assert.check( url != null, "database.url not specified in dbpatcher.properties" );
 
@@ -66,8 +68,13 @@ public class Configuration
 		return url;
 	}
 
-	public static String getVersion()
+	static protected String getVersion()
 	{
 		return version;
+	}
+
+	static protected String getDriverJar()
+	{
+		return driverJar;
 	}
 }
