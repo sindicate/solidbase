@@ -35,7 +35,7 @@ public class DBVersionLog
 		
 		try
 		{
-			PreparedStatement statement = Database.getConnection().prepareStatement( "INSERT INTO DBVERSIONLOG ( SOURCE, TARGET, STATEMENT, TIMESTAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ? )" );
+			PreparedStatement statement = Database.getConnection().prepareStatement( "INSERT INTO DBVERSIONLOG ( SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ? )" );
 			statement.setString( 1, StringUtil.emptyToNull( source ) );
 			statement.setString( 2, target );
 			statement.setInt( 3, count );
@@ -85,7 +85,7 @@ public class DBVersionLog
 	{
 		try
 		{
-			ResultSet result = Database.getConnection().createStatement().executeQuery( "SELECT SOURCE, TARGET, STATEMENT, TIMESTAMP, COMMAND, RESULT FROM DBVERSIONLOG ORDER BY ID" );
+			ResultSet result = Database.getConnection().createStatement().executeQuery( "SELECT SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT FROM DBVERSIONLOG ORDER BY ID" );
 			
 			OutputFormat format = new OutputFormat( "XML", "ISO-8859-1", true );
 			XMLSerializer serializer = new XMLSerializer( out, format );
@@ -99,7 +99,7 @@ public class DBVersionLog
 				attributes.addAttribute( null, null, "source", null, result.getString( 1 ) );
 				attributes.addAttribute( null, null, "target", null, result.getString( 2 ) );
 				attributes.addAttribute( null, null, "count", null, String.valueOf( result.getInt( 3 ) ) );
-				attributes.addAttribute( null, null, "timestamp", null, String.valueOf( result.getTimestamp( 4 ) ) );
+				attributes.addAttribute( null, null, "stamp", null, String.valueOf( result.getTimestamp( 4 ) ) );
 				serializer.startElement( null, null, "command", attributes );
 				String sql = result.getString( 5 );
 				if( sql != null )

@@ -129,6 +129,8 @@ public class Patcher
 	
 	static protected void patch( Patch patch ) throws SQLException
 	{
+		Assert.notNull( patch, "patch == null" );
+		
 		Patcher.callBack.patchStarting( patch.getSource(), patch.getTarget() );
 		
 		PatchFile.gotoPatch( patch );
@@ -213,12 +215,12 @@ public class Patcher
 		}
 		catch( RuntimeException e )
 		{
-			DBVersionLog.log( patch.getSource(), patch.getTarget(), count, command.getCommand(), e );
+			DBVersionLog.log( patch.getSource(), patch.getTarget(), count, command == null ? null : command.getCommand(), e );
 			throw e;
 		}
 		catch( SQLException e )
 		{
-			DBVersionLog.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), e );
+			DBVersionLog.logSQLException( patch.getSource(), patch.getTarget(), count, command == null ? null : command.getCommand(), e );
 			throw e;
 		}
 	}
