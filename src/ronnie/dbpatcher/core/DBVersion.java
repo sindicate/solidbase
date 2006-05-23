@@ -7,7 +7,7 @@
  *     DHL TTS 2.0.11, <NULL>, 10, version is complete, it took 10 statements to get there
  *     DHL TTS 2.0.11, DHL TTS 2.0.12, 4, patch is not complete, 4 statements already executed 
  * 
- * DBVERSIONLOG ( VERSION, TARGET, STATEMENT, TIMESTAMP, SQL, RESULT )
+ * DBVERSIONLOG ( VERSION, TARGET, STATEMENT, STAMP, SQL, RESULT )
  * 
  *     Version jumps:
  *     DHL TTS 2.0.11, <NULL>, <NULL>, 2006-03-27 13:56:00, <NULL>, <NULL>

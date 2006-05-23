@@ -1,5 +1,6 @@
 package ronnie.dbpatcher;
 
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -98,6 +99,8 @@ public class Main
 		catch( Exception e )
 		{
 			System.out.println();
+			if( e instanceof SQLException )
+				System.out.println( "SQLSTATE: " + ( (SQLException)e ).getSQLState() );
 			e.printStackTrace( System.out );
 		}
 	}
