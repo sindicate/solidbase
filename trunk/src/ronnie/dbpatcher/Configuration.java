@@ -22,13 +22,14 @@ public class Configuration
 	static protected String driverJar; 
 	static protected String schema; 
 	static protected String version; 
+	static protected String user; 
 	
 	static
 	{
 		try
 		{
 			File file = new File( "dbpatcher.properties" );
-			System.out.println( "Reading property file " + file.getAbsolutePath() );
+			Console.println( "Reading property file " + file.getAbsolutePath() );
 			FileInputStream input = new FileInputStream( file );
 			Properties properties = new Properties();
 			properties.load( input );
@@ -40,12 +41,13 @@ public class Configuration
 			URL url = Configuration.class.getResource( "private.properties" );
 			if( url == null )
 				throw new FileNotFoundException( "private.properties not found in classpath" );
-			System.out.println( "Reading property file " + url );
+			Console.println( "Reading property file " + url );
 			properties = new Properties();
 			properties.load( url.openStream() );
 			driver = properties.getProperty( "database.driver" );
 			schema = properties.getProperty( "version.schema" );
 			version = properties.getProperty( "patcher.version" );
+			user = properties.getProperty( "database.user" );
 			if( schema.length() == 0 )
 				schema = null;
 			
@@ -76,5 +78,10 @@ public class Configuration
 	static protected String getDriverJar()
 	{
 		return driverJar;
+	}
+
+	static protected String getUser()
+	{
+		return user;
 	}
 }

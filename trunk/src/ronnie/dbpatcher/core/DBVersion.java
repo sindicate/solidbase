@@ -40,6 +40,7 @@ public class DBVersion
 	static protected String version;
 	static protected String target;
 	static protected int statements;
+	static protected String user;
 	
 	static protected String getVersion()
 	{
@@ -82,16 +83,16 @@ public class DBVersion
 	
 	static protected void read()
 	{
+		Assert.notNull( user, "User is not set" );
 		read = true;
 		
 		try
 		{
-			PreparedStatement statement = Database.getConnection().prepareStatement( "SELECT VERSION, TARGET, STATEMENTS FROM DBVERSION" );
+			PreparedStatement statement = Database.getConnection( user ).prepareStatement( "SELECT VERSION, TARGET, STATEMENTS FROM DBVERSION" );
 			ResultSet resultSet = statement.executeQuery();
 			try
 			{
 				tableexists = true;
-//				System.out.println( "table exists" );
 				
 				Assert.check( resultSet.next() );
 				version = resultSet.getString( 1 );
@@ -116,7 +117,6 @@ public class DBVersion
 				return;
 			}
 			
-//			System.out.println( e.getSQLState() );
 			throw new SystemException( e );
 		}
 	}
@@ -135,7 +135,7 @@ public class DBVersion
 		
 		try
 		{
-			PreparedStatement statement = Database.getConnection().prepareStatement( "UPDATE DBVERSION SET TARGET = ?, STATEMENTS = ?" );
+			PreparedStatement statement = Database.getConnection( user ).prepareStatement( "UPDATE DBVERSION SET TARGET = ?, STATEMENTS = ?" );
 			statement.setString( 1, target );
 			statement.setInt( 2, statements );
 			int modified = statement.executeUpdate(); // autocommit is on
@@ -157,7 +157,7 @@ public class DBVersion
 		
 		try
 		{
-			PreparedStatement statement = Database.getConnection().prepareStatement( "UPDATE DBVERSION SET VERSION = ?, TARGET = NULL" );
+			PreparedStatement statement = Database.getConnection( user ).prepareStatement( "UPDATE DBVERSION SET VERSION = ?, TARGET = NULL" );
 			statement.setString( 1, version );
 			int modified = statement.executeUpdate(); // autocommit is on
 			Assert.check( modified == 1, "Expecting 1 record to be updated, not " + modified );
@@ -175,5 +175,15 @@ public class DBVersion
 	static public void versionTablesCreated()
 	{
 		tableexists = true;
+	}
+
+	static public void setUser( String user )
+	{
+		DBVersion.user = user;
+	}
+
+	protected static String getUser()
+	{
+		return user;
 	}
 }

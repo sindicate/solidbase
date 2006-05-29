@@ -2,7 +2,6 @@ package ronnie.dbpatcher.core;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -13,6 +12,8 @@ import java.util.Properties;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import ronnie.dbpatcher.Console;
 
 import com.cmg.pas.SystemException;
 import com.cmg.pas.util.Assert;
@@ -29,11 +30,14 @@ public class Patcher
 	static protected HashSet ignoreSet = new HashSet();
 	static protected Pattern ignoreSqlErrorPattern = Pattern.compile( "IGNORE[ \\t]+SQL[ \\t]+ERROR[ \\t]+(\\w+([ \\t]*,[ \\t]*\\w+)*)", Pattern.CASE_INSENSITIVE );
 	static protected Pattern ignoreEnd = Pattern.compile( "/IGNORE[ \\t]+SQL[ \\t]+ERROR", Pattern.CASE_INSENSITIVE );
+	static protected Pattern setUserPattern = Pattern.compile( "SET[ \\t]+USER[ \\t]+(\\w+)[ \\t]*", Pattern.CASE_INSENSITIVE );
+	static protected Pattern startMessagePattern = Pattern.compile( "\\s*MESSAGE\\s+START\\s+'([^']*)'\\s*", Pattern.CASE_INSENSITIVE );
 	static protected ProgressListener callBack;
 	
 	static
 	{
 		plugins.add( new AssertPlugin() );
+		plugins.add( new OracleDBMSOutputPlugin() );
 	}
 	
 	static public void openPatchFile() throws IOException
@@ -80,6 +84,7 @@ public class Patcher
 			if( s.equals( target ) )
 			{
 				patch( DBVersion.getVersion(), target );
+				terminatePlugins();
 				return;
 			}
 		}
@@ -87,15 +92,26 @@ public class Patcher
 		throw new SystemException( "Target " + target + " is not a possible target" );
 	}
 
-	static public void setConnection( String driverName, String url )
+	protected static void terminatePlugins()
+	{
+		for( Iterator iter = plugins.iterator(); iter.hasNext(); )
+		{
+			Plugin plugin = (Plugin)iter.next();
+			plugin.terminate();
+		}
+	}
+
+	static public void setConnection( String driverName, String url, String user )
 	{
 		Database.setConnection( driverName, url );
+		DBVersion.setUser( user );
+		Database.setDefaultUser( user );
 	}
 	
-	static public void setConnection( Connection connection )
-	{
-		Database.setConnection( connection );
-	}
+//	static public void setConnection( Connection connection )
+//	{
+//		Database.setConnection( connection );
+//	}
 	
 	static public String getVersion()
 	{
@@ -119,7 +135,6 @@ public class Patcher
 		Assert.check( patches != null );
 		Assert.check( patches.size() > 0, "No patches found" );
 		
-//		System.out.println( "patch path for " + version + " to " + target + ":" );
 		for( Iterator iter = patches.iterator(); iter.hasNext(); )
 		{
 			Patch patch = (Patch)iter.next();
@@ -138,7 +153,9 @@ public class Patcher
 		if( DBVersion.getTarget() == null )
 			skip = 0;
 		
-		Statement statement = Database.getConnection().createStatement();
+		String startMessage = null;
+		
+//		Statement statement = Database.getConnection().createStatement();
 		Command command = PatchFile.readStatement();
 		int count = 0;
 		try
@@ -146,23 +163,39 @@ public class Patcher
 			while( command != null )
 			{
 				String sql = command.getCommand();
-				Patcher.callBack.executing( command );
 	
 				if( !command.isCounting() )
 				{
-					Matcher matcher = ignoreSqlErrorPattern.matcher( sql );
-					if( matcher.matches() )
+					Matcher matcher;
+					if( ( matcher = ignoreSqlErrorPattern.matcher( sql ) ).matches() )
 						pushIgnores( matcher.group( 1 ) );
 					else if( ignoreEnd.matcher( sql ).matches() )
 						popIgnores();
+					else if( ( matcher = setUserPattern.matcher( sql ) ).matches() )
+						setUser( matcher.group( 1 ) );
+					else if( ( matcher = startMessagePattern.matcher( sql ) ).matches() )
+						startMessage = matcher.group( 1 );
 					else
-						Assert.fail( "Unknown command [" + sql + "]" );
+					{
+						boolean done = false;
+						for( Iterator iter = plugins.iterator(); iter.hasNext(); )
+						{
+							Plugin plugin = (Plugin)iter.next();
+							done = plugin.execute( command );
+							if( done )
+								break;
+						}
+						if( !done )
+							Assert.fail( "Unknown command [" + sql + "]" );
+					}
 				}
 				else
 				{
 					count++;
 					if( count > skip )
 					{
+						Patcher.callBack.executing( command, startMessage );
+
 						SQLException sqle = null;
 						if( sql.length() > 0 )
 						{
@@ -177,6 +210,7 @@ public class Patcher
 							if( !done )
 								try
 								{
+									Statement statement = Database.getConnection().createStatement();
 									statement.execute( sql ); // autocommit is on
 								}
 								catch( SQLException e )
@@ -185,7 +219,12 @@ public class Patcher
 									if( ignoreSet.contains( error ) )
 										sqle = e;
 									else
+									{
+										Console.emptyLine();
+										Console.println( "Exception while executing sql:" );
+										Console.println( sql );
 										throw e;
+									}
 								}
 						}
 						if( !patch.isInit() )
@@ -196,10 +235,14 @@ public class Patcher
 							else
 								DBVersionLog.log( patch.getSource(), patch.getTarget(), count, sql, (String)null );
 						}
+						
+						Patcher.callBack.executed();
 					}
+					else
+						Patcher.callBack.skipped( command );
+					
+					startMessage = null;
 				}
-				
-				Patcher.callBack.executed();
 				
 				command = PatchFile.readStatement();
 			}
@@ -225,6 +268,12 @@ public class Patcher
 		}
 	}
 
+	static protected void setUser( String user )
+	{
+		Database.setDefaultUser( user );
+//		Database.getConnection(); // To enter password
+	}
+	
 	static protected void pushIgnores( String ignores )
 	{
 		String[] ss = ignores.split( "," );

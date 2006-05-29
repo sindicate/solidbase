@@ -35,7 +35,7 @@ public class DBVersionLog
 		
 		try
 		{
-			PreparedStatement statement = Database.getConnection().prepareStatement( "INSERT INTO DBVERSIONLOG ( SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ? )" );
+			PreparedStatement statement = Database.getConnection( DBVersion.getUser() ).prepareStatement( "INSERT INTO DBVERSIONLOG ( SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ? )" );
 			statement.setString( 1, StringUtil.emptyToNull( source ) );
 			statement.setString( 2, target );
 			statement.setInt( 3, count );
@@ -85,7 +85,7 @@ public class DBVersionLog
 	{
 		try
 		{
-			ResultSet result = Database.getConnection().createStatement().executeQuery( "SELECT SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT FROM DBVERSIONLOG ORDER BY ID" );
+			ResultSet result = Database.getConnection( DBVersion.getUser() ).createStatement().executeQuery( "SELECT SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT FROM DBVERSIONLOG ORDER BY ID" );
 			
 			OutputFormat format = new OutputFormat( "XML", "ISO-8859-1", true );
 			XMLSerializer serializer = new XMLSerializer( out, format );

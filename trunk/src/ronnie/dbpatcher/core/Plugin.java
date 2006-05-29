@@ -9,5 +9,10 @@ import java.sql.SQLException;
  */
 abstract public class Plugin
 {
-	abstract public boolean execute( Command command ) throws SQLException;
+	abstract protected boolean execute( Command command ) throws SQLException;
+	
+	protected void terminate()
+	{
+		//
+	}
 }
