@@ -16,7 +16,7 @@ import com.cmg.pas.util.Assert;
  */
 public class AssertPlugin extends Plugin
 {
-	static protected Pattern assertPattern = Pattern.compile( "\\s*ASSERT\\s+EXISTS\\s+MESSAGE\\s+\"([^\"]*)\"\\s+(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static protected Pattern assertPattern = Pattern.compile( "\\s*ASSERT\\s+EXISTS\\s+MESSAGE\\s+'([^']*)'\\s+(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 	
 	public boolean execute( Command command ) throws SQLException
 	{

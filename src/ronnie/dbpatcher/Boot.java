@@ -11,7 +11,7 @@ public class Boot
 	{
 		try
 		{
-			System.out.println( "Booting..." );
+			Console.println( "Booting..." );
 	
 			URLClassLoader classLoader = (URLClassLoader)Boot.class.getClassLoader();
 			URL[] orig = classLoader.getURLs();
@@ -22,7 +22,7 @@ public class Boot
 			File driverJarFile = new File( driverJar );
 			urls[ urls.length - 1 ] = driverJarFile.toURL();
 			
-			System.out.println( "Adding jar to classpath: " + urls[ urls.length - 1 ] );
+			Console.println( "Adding jar to classpath: " + urls[ urls.length - 1 ] );
 
 			classLoader = new URLClassLoader( urls, Boot.class.getClassLoader().getParent() );
 			Class main = classLoader.loadClass( "ronnie.dbpatcher.Main" );

@@ -6,7 +6,7 @@ import java.util.List;
 
 import ronnie.dbpatcher.core.Patcher;
 
-import com.cmg.pas.util.Assert;
+import com.cmg.pas.SystemException;
 
 /**
  * 
@@ -22,11 +22,11 @@ public class Main
 		int statements = Patcher.getCurrentStatements();
 		
 		if( version == null )
-			System.out.println( "The database has no version yet." );
+			Console.println( "The database has no version yet." );
 		else if( target != null )
-			System.out.println( "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
+			Console.println( "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
 		else
-			System.out.println( "Current database version is \"" + version + "\"." );
+			Console.println( "Current database version is \"" + version + "\"." );
 	}
 	
 	static protected String list( List list )
@@ -49,46 +49,37 @@ public class Main
 	
 	static public void main( String[] args )
 	{
-		System.out.println();
-		System.out.println( "DBPatcher v" + Configuration.getVersion() + " for Oracle, patch engine v" + Patcher.getVersion() );
-		System.out.println( "(C) 2006 R.M. de Bloois, LogicaCMG" );
-		System.out.println();
-
-		Patcher.setCallBack( new Progress() );
-		
-		Patcher.setConnection( Configuration.getDriver(), Configuration.getDBUrl() );
-		System.out.println( "Connecting to database..." );
-		printCurrentVersion();
-		
-		if( args.length == 1 && args[ 0 ].equals( "exportlog" ) )
-		{
-			Patcher.logToXML( System.out );
-			return;
-		}
-		
 		try
 		{
+			Console.println();
+			Console.println( "DBPatcher v" + Configuration.getVersion() + " for Oracle, patch engine v" + Patcher.getVersion() );
+			Console.println( "(C) 2006 R.M. de Bloois, LogicaCMG" );
+			Console.println();
+
+			Patcher.setCallBack( new Progress() );
+			
+			Patcher.setConnection( Configuration.getDriver(), Configuration.getDBUrl(), Configuration.getUser() );
+			Console.println( "Connecting to database..." );
+			printCurrentVersion();
+			
+			if( args.length == 1 && args[ 0 ].equals( "exportlog" ) )
+			{
+				Patcher.logToXML( System.out );
+				return;
+			}
+			
 			Patcher.openPatchFile();
 			try
 			{
 				Patcher.readPatchFile();
 
-				System.out.println( "Possible targets are: " + list( Patcher.getTargets() ) );
-				System.out.print( "Input target version: " );
+				Console.println( "Possible targets are: " + list( Patcher.getTargets() ) );
+				Console.print( "Input target version: " );
 
-				byte[] buffer = new byte[ 32 ];
-				int read = System.in.read( buffer );
-				Assert.check( read < 32, "Input too long" );
-				Assert.check( buffer[ --read ] == '\n' );
-				if( buffer[ read - 1 ] == '\r' )
-					read--;
-
-				String input = new String( buffer, 0, read );
-				Assert.check( input.length() > 0, "Input too short" );
-
+				String input = Console.input();
 				Patcher.patch( input );
 				
-				System.out.println();
+				Console.println();
 				printCurrentVersion();
 			}
 			finally
@@ -98,9 +89,15 @@ public class Main
 		}
 		catch( Exception e )
 		{
-			System.out.println();
+			Console.println();
+			if( e instanceof SystemException )
+				if( e.getCause() != null )
+					e = (Exception)e.getCause();
 			if( e instanceof SQLException )
-				System.out.println( "SQLSTATE: " + ( (SQLException)e ).getSQLState() );
+			{
+				Console.println( "SQLState: " + ( (SQLException)e ).getSQLState() );
+//				Console.println( "ErrorCode: " + ( (SQLException)e ).getErrorCode() );
+			}
 			e.printStackTrace( System.out );
 		}
 	}
