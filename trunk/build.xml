@@ -17,27 +17,37 @@
 
 	<target name="classes">
 		<echo message="java.home=${java.home}"/>
-		<javac optimize="true" debug="true" deprecation="true" srcdir="src" destdir="work">
+		<mkdir dir="work/classes"/>
+		<javac optimize="true" debug="true" deprecation="true" srcdir="src" destdir="work/classes">
 			<classpath refid="buildpath"/>
 		</javac>
 	</target>
 
 	<target name="extractjars">
-		<unjar dest="work" src="lib/cmg-pas.jar"/>
-		<unjar dest="work" src="lib/commons-collections-3.1.jar"/>
-<!--		<unjar dest="work" src="derby-10.1.2.1.jar"/>
-		<unjar dest="work" src="ojdbc14_g.jar"/> -->
+		<mkdir dir="work/classes"/>
+		<unjar dest="work/classes" src="lib/cmg-pas.jar"/>
+		<delete dir="work/classes/com/cmg/pas/servlet"/>
+		<delete dir="work/classes/com/cmg/pas/mvc"/>
+		<delete dir="work/classes/com/cmg/pas/dao"/>
+		<delete dir="work/classes/com/cmg/pas/email"/>
+		<delete dir="work/classes/com/cmg/pas/view"/>
+		<unjar dest="work/classes" src="lib/commons-collections-3.1.jar"/>
+<!--		<unjar dest="work/classes" src="derby-10.1.2.1.jar"/>
+		<unjar dest="work/classes" src="ojdbc14_g.jar"/> -->
 	</target>
 
 	<target name="jar" depends="classes,extractjars" description="Create jar">
 		<jar destfile="dist/dbpatcher.jar" compress="true">
-			<fileset dir="work" includes="**/*.class"/>
+			<fileset dir="work/classes" includes="**/*.class"/>
 			<fileset dir="src" includes="**/*.sql,**/*.properties"/>
 			<manifest>
 				<attribute name="Main-Class" value="ronnie.dbpatcher.Boot"/>
 <!--				<attribute name="Class-Path" value="cmg-pas.jar commons-collections-3.1.jar derby-10.1.2.1.jar ojdbc14_g.jar"/> -->
 			</manifest>
 		</jar>
+<!--		<java jar="lib/proguard-3.6.jar" fork="true">
+			<arg value="@proguard.pro"/>
+		</java>-->
 	</target>
 	
 	<target name="dist" depends="rebuild">

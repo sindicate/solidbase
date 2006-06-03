@@ -31,6 +31,13 @@ public class Progress extends ProgressListener
 		}
 	}
 	
+	protected void exception( Command command )
+	{
+		Console.emptyLine();
+		Console.println( "Exception while executing:" );
+		Console.println( command.getCommand() );
+	}
+	
 	protected void executed()
 	{
 		Console.print( "." );
@@ -46,7 +53,7 @@ public class Progress extends ProgressListener
 		Console.println();
 	}
 
-	public String requestPassword( String user )
+	protected String requestPassword( String user )
 	{
 		Console.carriageReturn();
 		Console.print( "Input password for user '" + user + "': " );

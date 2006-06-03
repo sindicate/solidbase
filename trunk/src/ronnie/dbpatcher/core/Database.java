@@ -90,7 +90,7 @@ public class Database
 		return getConnection( url, defaultUser, password );
 	}
 
-	public static void setDefaultUser( String defaultUser )
+	static protected void setDefaultUser( String defaultUser )
 	{
 		Database.defaultUser = defaultUser;
 	}

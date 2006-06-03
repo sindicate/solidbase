@@ -27,14 +27,19 @@ public class ProgressListener
 		// to be overridden
 	}
 
-	public String requestPassword( String user )
+	protected String requestPassword( String user )
 	{
 		// to be overridden
 		return null;
 	}
 
-	public void skipped( Command command )
+	protected void skipped( Command command )
 	{
-		// TODO Auto-generated method stub
+		// to be overridden
+	}
+	
+	protected void exception( Command command )
+	{
+		// to be overridden
 	}
 }

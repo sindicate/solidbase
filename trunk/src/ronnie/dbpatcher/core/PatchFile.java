@@ -261,7 +261,7 @@ public class PatchFile
 		return new ArrayList( result );
 	}
 
-	static public void gotoPatch( Patch patch )
+	static protected void gotoPatch( Patch patch )
 	{
 		Assert.check( patch.getPos() >= 0, "Patch block not found" );
 		
@@ -279,7 +279,7 @@ public class PatchFile
 		}
 	}
 	
-	static public Command readStatement()
+	static protected Command readStatement()
 	{
 		StringBuilder result = new StringBuilder();
 		
