@@ -52,7 +52,7 @@ public class Main
 		try
 		{
 			Console.println();
-			Console.println( "DBPatcher v" + Configuration.getVersion() + " for Oracle, patch engine v" + Patcher.getVersion() );
+			Console.println( "DBPatcher v" + Configuration.getVersion() + ", patch engine v" + Patcher.getVersion() );
 			Console.println( "(C) 2006 R.M. de Bloois, LogicaCMG" );
 			Console.println();
 
@@ -72,15 +72,18 @@ public class Main
 			try
 			{
 				Patcher.readPatchFile();
-
-				Console.println( "Possible targets are: " + list( Patcher.getTargets() ) );
-				Console.print( "Input target version: " );
-
-				String input = Console.input();
-				Patcher.patch( input );
-				
-				Console.println();
-				printCurrentVersion();
+				List targets = Patcher.getTargets();
+				if( targets.size() > 0 )
+				{
+					Console.println( "Possible targets are: " + list( targets ) );
+					Console.print( "Input target version: " );
+					String input = Console.input();
+					Patcher.patch( input );
+					Console.emptyLine();
+					printCurrentVersion();
+				}
+				else
+					Console.println( "There are no possible targets." );
 			}
 			finally
 			{

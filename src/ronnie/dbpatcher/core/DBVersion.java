@@ -151,7 +151,7 @@ public class DBVersion
 		}
 	}
 
-	public static void setVersion( String version )
+	static protected void setVersion( String version )
 	{
 		Assert.check( tableexists, "Version tables do not exist" );
 		
@@ -172,17 +172,17 @@ public class DBVersion
 		}
 	}
 
-	static public void versionTablesCreated()
+	static protected void versionTablesCreated()
 	{
 		tableexists = true;
 	}
 
-	static public void setUser( String user )
+	static protected void setUser( String user )
 	{
 		DBVersion.user = user;
 	}
 
-	protected static String getUser()
+	static protected String getUser()
 	{
 		return user;
 	}

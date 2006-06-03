@@ -18,7 +18,7 @@ public class AssertPlugin extends Plugin
 {
 	static protected Pattern assertPattern = Pattern.compile( "\\s*ASSERT\\s+EXISTS\\s+MESSAGE\\s+'([^']*)'\\s+(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 	
-	public boolean execute( Command command ) throws SQLException
+	protected boolean execute( Command command ) throws SQLException
 	{
 		if( !command.counting )
 			return false;

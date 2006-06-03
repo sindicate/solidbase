@@ -17,7 +17,7 @@ public class Patch
 	protected boolean init;
 	protected long pos;
 	
-	public Patch( String source, String target, boolean branch, boolean returnBranch, boolean open, boolean init )
+	protected Patch( String source, String target, boolean branch, boolean returnBranch, boolean open, boolean init )
 	{
 		Assert.check( !( branch && returnBranch ) );
 		
@@ -30,42 +30,42 @@ public class Patch
 		this.pos = -1;
 	}
 
-	public boolean isBranch()
+	protected boolean isBranch()
 	{
 		return this.branch;
 	}
 
-	public boolean isReturnBranch()
+	protected boolean isReturnBranch()
 	{
 		return this.returnBranch;
 	}
 
-	public String getSource()
+	protected String getSource()
 	{
 		return this.source;
 	}
 
-	public String getTarget()
+	protected String getTarget()
 	{
 		return this.target;
 	}
 
-	public void setPos( long pos )
+	protected void setPos( long pos )
 	{
 		this.pos = pos;
 	}
 
-	public long getPos()
+	protected long getPos()
 	{
 		return this.pos;
 	}
 
-	public boolean isOpen()
+	protected boolean isOpen()
 	{
 		return this.open;
 	}
 
-	public boolean isInit()
+	protected boolean isInit()
 	{
 		return this.init;
 	}

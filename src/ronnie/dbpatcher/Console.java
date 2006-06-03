@@ -9,15 +9,15 @@ import com.cmg.pas.util.Assert;
 public class Console
 {
 	static protected int col = 0;
-	static DateFormat dateFormat = DateFormat.getDateTimeInstance( DateFormat.SHORT, DateFormat.SHORT );
+	static protected DateFormat dateFormat = DateFormat.getDateTimeInstance( DateFormat.SHORT, DateFormat.SHORT );
 	
-	public static void println()
+	static protected void println()
 	{
 		System.out.println();
 		col = 0;
 	}
 	
-	public static void print( String string )
+	static protected void print( String string )
 	{
 //		Assert.check( string.indexOf( '\n' ) < 0, "Newlines not allowed" );
 		if( col == 0 )
@@ -29,7 +29,7 @@ public class Console
 		col += string.length();
 	}
 	
-	public static void println( String string )
+	static protected void println( String string )
 	{
 //		Assert.check( string.indexOf( '\n' ) < 0, "Newlines not allowed" );
 		if( col == 0 )
@@ -41,19 +41,19 @@ public class Console
 		col = 0;
 	}
 
-	public static void carriageReturn()
+	static protected void carriageReturn()
 	{
 		if( col > 0 )
 			println();
 	}
 
-	public static void emptyLine()
+	static protected void emptyLine()
 	{
 		carriageReturn();
 		println();
 	}
 	
-	public static String input() throws IOException
+	static protected String input() throws IOException
 	{
 		byte[] buffer = new byte[ 100 ];
 		int read = System.in.read( buffer );

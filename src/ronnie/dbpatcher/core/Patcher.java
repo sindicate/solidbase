@@ -13,8 +13,6 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ronnie.dbpatcher.Console;
-
 import com.cmg.pas.SystemException;
 import com.cmg.pas.util.Assert;
 
@@ -92,7 +90,7 @@ public class Patcher
 		throw new SystemException( "Target " + target + " is not a possible target" );
 	}
 
-	protected static void terminatePlugins()
+	static protected void terminatePlugins()
 	{
 		for( Iterator iter = plugins.iterator(); iter.hasNext(); )
 		{
@@ -220,9 +218,7 @@ public class Patcher
 										sqle = e;
 									else
 									{
-										Console.emptyLine();
-										Console.println( "Exception while executing sql:" );
-										Console.println( sql );
+										Patcher.callBack.exception( command );
 										throw e;
 									}
 								}
