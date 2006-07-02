@@ -33,6 +33,12 @@ public class DBVersionLog
 		Assert.notEmpty( target, "target must not be empty" );
 //		Assert.notEmpty( command, "command must not be empty" );
 		
+		// Trim strings, maximum length for VARCHAR2 is 4000
+		if( command != null && command.length() > 4000 )
+			command = command.substring( 0, 4000 );
+		if( result != null && result.length() > 4000 )
+			result = result.substring( 0, 4000 );
+		
 		try
 		{
 			PreparedStatement statement = Database.getConnection( DBVersion.getUser() ).prepareStatement( "INSERT INTO DBVERSIONLOG ( SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ? )" );
