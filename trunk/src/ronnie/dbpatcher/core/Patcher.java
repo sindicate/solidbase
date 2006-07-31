@@ -31,6 +31,7 @@ public class Patcher
 	static protected Pattern setUserPattern = Pattern.compile( "SET[ \\t]+USER[ \\t]+(\\w+)[ \\t]*", Pattern.CASE_INSENSITIVE );
 	static protected Pattern startMessagePattern = Pattern.compile( "\\s*MESSAGE\\s+START\\s+'([^']*)'\\s*", Pattern.CASE_INSENSITIVE );
 	static protected ProgressListener callBack;
+	static protected String defaultUser;
 	
 	static
 	{
@@ -104,12 +105,9 @@ public class Patcher
 		Database.setConnection( driverName, url );
 		DBVersion.setUser( user );
 		Database.setDefaultUser( user );
+
+		defaultUser = user; // Overwrites the default user in the Database class at the start of each patch.
 	}
-	
-//	static public void setConnection( Connection connection )
-//	{
-//		Database.setConnection( connection );
-//	}
 	
 	static public String getVersion()
 	{
@@ -153,7 +151,8 @@ public class Patcher
 		
 		String startMessage = null;
 		
-//		Statement statement = Database.getConnection().createStatement();
+		Database.setDefaultUser( defaultUser ); // overwrite the default user at the start of each patch
+		
 		Command command = PatchFile.readStatement();
 		int count = 0;
 		try

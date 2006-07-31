@@ -31,7 +31,12 @@
 		<delete dir="work/classes/com/cmg/pas/dao"/>
 		<delete dir="work/classes/com/cmg/pas/email"/>
 		<delete dir="work/classes/com/cmg/pas/view"/>
-		<unjar dest="work/classes" src="lib/commons-collections-3.1.jar"/>
+		<unjar dest="work/classes" src="lib/commons-collections-3.1.jar">
+			<patternset>
+				<include name="org/apache/commons/collections/MultiMap.class"/>
+				<include name="org/apache/commons/collections/MultiHashMap*.class"/>
+			</patternset>
+		</unjar>
 <!--		<unjar dest="work/classes" src="derby-10.1.2.1.jar"/>
 		<unjar dest="work/classes" src="ojdbc14_g.jar"/> -->
 	</target>

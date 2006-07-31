@@ -10,6 +10,7 @@ import com.cmg.pas.util.Assert;
 
 
 /**
+ * Manages connection to the database.
  * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:16:37 PM
@@ -22,6 +23,12 @@ public class Database
 	static protected HashMap passwords = new HashMap();
 	static protected String defaultUser;
 	
+	/**
+	 * Configures the classname for the database driver and the url to the database.
+	 * 
+	 * @param driverName
+	 * @param url
+	 */
 	static protected void setConnection( String driverName, String url )
 	{
 		Database.driverName = driverName;
@@ -36,19 +43,14 @@ public class Database
 		}
 	}
 	
-//	static protected void setConnection( Connection connection )
-//	{
-//		Database.connection = connection;
-//		try
-//		{
-//			connection.setAutoCommit( true );
-//		}
-//		catch( SQLException e )
-//		{
-//			throw new SystemException( e );
-//		}
-//	}
-	
+	/**
+	 * Retrieves a connection from the DriverManager with the given url, user and password. Autocommit is set to true.
+	 * 
+	 * @param url
+	 * @param user
+	 * @param password
+	 * @return
+	 */
 	static protected Connection getConnection( String url, String user, String password )
 	{
 		try
@@ -63,6 +65,15 @@ public class Database
 		}
 	}
 	
+	/**
+	 * Gets a connection for the given user. If a connection for the given user is not available, this method will
+	 * request a password by calling {@link Patcher#callBack}. A connection for a specific user is saved for later
+	 * retrieval. A future call to this method with the same user will return the same connection. It uses the database
+	 * configuration set by {@link #setConnection(String, String)}.
+	 * 
+	 * @param user
+	 * @return
+	 */
 	static protected Connection getConnection( String user )
 	{
 		Connection connection = (Connection)connections.get( user );
@@ -76,22 +87,26 @@ public class Database
 		return connection;
 	}
 	
+	/**
+	 * Gets a connection for the default user.
+	 * 
+	 * @return
+	 * @see #getConnection(String)
+	 */
 	static protected Connection getConnection()
 	{
-		Assert.notNull( defaultUser, "User not set" );
+		Assert.notEmpty( defaultUser, "User must not be empty" );
 		return getConnection( defaultUser );
 	}
 
-	static protected Connection getNewConnection()
-	{
-		Assert.notNull( defaultUser, "User not set" );
-		String password = (String)passwords.get( defaultUser );
-		Assert.notNull( password, "Password not set" );
-		return getConnection( url, defaultUser, password );
-	}
-
+	/**
+	 * Sets the default user.
+	 * 
+	 * @param defaultUser
+	 */
 	static protected void setDefaultUser( String defaultUser )
 	{
+		Assert.notEmpty( defaultUser, "User must not be empty" );
 		Database.defaultUser = defaultUser;
 	}
 }
