@@ -1,6 +1,6 @@
 package ronnie.dbpatcher.core;
 
-import com.cmg.pas.util.Assert;
+import com.lcmg.rbloois.util.Assert;
 
 /**
  * 

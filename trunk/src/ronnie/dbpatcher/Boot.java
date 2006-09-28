@@ -18,7 +18,7 @@ public class Boot
 			URL[] urls = new URL[ orig.length + 1 ];
 			System.arraycopy( orig, 0, urls, 0, orig.length );
 			
-			String driverJar = Configuration.getDriverJar();
+			String driverJar = Configuration.getDBDriverJar();
 			File driverJarFile = new File( driverJar );
 			urls[ urls.length - 1 ] = driverJarFile.toURL();
 			

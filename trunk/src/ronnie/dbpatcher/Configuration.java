@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
 
-import com.cmg.pas.SystemException;
-import com.cmg.pas.util.Assert;
+import com.lcmg.rbloois.SystemException;
+import com.lcmg.rbloois.util.Assert;
 
 /**
  * 
@@ -17,9 +17,13 @@ import com.cmg.pas.util.Assert;
  */
 public class Configuration
 {
-	static protected String url; 
-	static protected String driver; 
-	static protected String driverJar; 
+	static private final String DBPATCHER_PROPERTIES = "dbpatcher.properties";
+	static private final String DBPATCHER_DEFAULT_PROPERTIES = "dbpatcher-default.properties";
+	static private final String DBPATCHER_DEFAULT_PROPERTIES_OLD = "private.properties";
+	
+	static protected String dbUrl; 
+	static protected String dbDriver; 
+	static protected String dbDriverJar; 
 	static protected String schema; 
 	static protected String version; 
 	static protected String user; 
@@ -28,31 +32,37 @@ public class Configuration
 	{
 		try
 		{
-			File file = new File( "dbpatcher.properties" );
+			// Load the default properties or the old private properties
+			URL url = Configuration.class.getResource( DBPATCHER_DEFAULT_PROPERTIES );
+			if( url == null )
+			{
+				url = Configuration.class.getResource( DBPATCHER_DEFAULT_PROPERTIES_OLD );
+				if( url == null )
+					throw new FileNotFoundException( DBPATCHER_DEFAULT_PROPERTIES + " or " + DBPATCHER_DEFAULT_PROPERTIES_OLD + " not found in classpath" );
+			}
+			Console.println( "Reading property file " + url );
+			Properties defaultProperties = new Properties();
+			defaultProperties.load( url.openStream() );
+			
+			// Load the properties
+			File file = new File( DBPATCHER_PROPERTIES );
 			Console.println( "Reading property file " + file.getAbsolutePath() );
 			FileInputStream input = new FileInputStream( file );
-			Properties properties = new Properties();
+			Properties properties = new Properties( defaultProperties );
 			properties.load( input );
-			url = properties.getProperty( "database.url" );
-			driverJar = properties.getProperty( "database.driver.jar" );
 			
-			Assert.check( url != null, "database.url not specified in dbpatcher.properties" );
-
-			URL url = Configuration.class.getResource( "private.properties" );
-			if( url == null )
-				throw new FileNotFoundException( "private.properties not found in classpath" );
-			Console.println( "Reading property file " + url );
-			properties = new Properties();
-			properties.load( url.openStream() );
-			driver = properties.getProperty( "database.driver" );
+			dbUrl = properties.getProperty( "database.url" );
+			dbDriverJar = properties.getProperty( "database.driver.jar" );
+			dbDriver = properties.getProperty( "database.driver" );
 			schema = properties.getProperty( "version.schema" );
 			version = properties.getProperty( "patcher.version" );
 			user = properties.getProperty( "database.user" );
 			if( schema.length() == 0 )
 				schema = null;
 			
-			Assert.check( driver != null, "database.driver not specified in private.properties" );
-			Assert.check( version != null, "patcher.version not specified in private.properties" );
+			Assert.check( dbUrl != null, "database.url not found in dbpatcher.properties" );
+			Assert.check( dbDriver != null, "database.driver not found in dbpatcher.properties" );
+			Assert.check( version != null, "patcher.version not found in dbpatcher.properties" );
 		}
 		catch( IOException e )
 		{
@@ -60,14 +70,14 @@ public class Configuration
 		}
 	}
 	
-	static protected String getDriver()
+	static protected String getDBDriver()
 	{
-		return driver;
+		return dbDriver;
 	}
 	
 	static protected String getDBUrl()
 	{
-		return url;
+		return dbUrl;
 	}
 
 	static protected String getVersion()
@@ -75,9 +85,9 @@ public class Configuration
 		return version;
 	}
 
-	static protected String getDriverJar()
+	static protected String getDBDriverJar()
 	{
-		return driverJar;
+		return dbDriverJar;
 	}
 
 	static protected String getUser()
