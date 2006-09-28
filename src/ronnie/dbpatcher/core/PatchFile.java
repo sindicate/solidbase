@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.collections.MultiHashMap;
+import org.apache.commons.collections.map.MultiValueMap;
 
-import com.cmg.pas.SystemException;
-import com.cmg.pas.io.LineInputStream;
-import com.cmg.pas.util.Assert;
+import com.lcmg.rbloois.SystemException;
+import com.lcmg.rbloois.io.LineInputStream;
+import com.lcmg.rbloois.util.Assert;
 
 /**
  * 
@@ -25,7 +25,7 @@ import com.cmg.pas.util.Assert;
  */
 public class PatchFile
 {
-	static protected MultiHashMap patches = new MultiHashMap();
+	static protected MultiValueMap patches = new MultiValueMap();
 	static protected LineInputStream lis;
 	static protected Pattern patchDefinitionMarkerPattern = Pattern.compile( "(INIT|PATCH|BRANCH|RETURN)[ \t]+.*", Pattern.CASE_INSENSITIVE );
 	static protected Pattern patchDefinitionPattern = Pattern.compile( "(INIT|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
@@ -140,7 +140,7 @@ public class PatchFile
 //					boolean init = "INIT".equalsIgnoreCase( action );
 					
 					Patch patch = getPatch( source, target );
-					Assert.check( patch != null, "Patch block found for undefined patch" );
+					Assert.check( patch != null, "Patch block found for undefined patch: \"" + source + "\" --> \"" + target + "\"" );
 					// TODO: Assert that action is the same
 					patch.setPos( pos );
 				}
@@ -156,15 +156,16 @@ public class PatchFile
 		Patch result = null;
 
 		List patches = (List)PatchFile.patches.get( source );
-		for( Iterator iter = patches.iterator(); iter.hasNext(); )
-		{
-			Patch patch = (Patch)iter.next();
-			if( patch.getTarget().equals( target ) )
+		if( patches != null )
+			for( Iterator iter = patches.iterator(); iter.hasNext(); )
 			{
-				Assert.check( result == null, "Patch definitions are not unique" );
-				result = patch;
+				Patch patch = (Patch)iter.next();
+				if( patch.getTarget().equals( target ) )
+				{
+					Assert.check( result == null, "Patch definitions are not unique" );
+					result = patch;
+				}
 			}
-		}
 
 		return result;
 	}

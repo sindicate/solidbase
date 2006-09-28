@@ -5,7 +5,7 @@ import java.io.IOException;
 import ronnie.dbpatcher.core.Command;
 import ronnie.dbpatcher.core.ProgressListener;
 
-import com.cmg.pas.SystemException;
+import com.lcmg.rbloois.SystemException;
 
 public class Progress extends ProgressListener
 {

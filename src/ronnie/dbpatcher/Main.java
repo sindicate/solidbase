@@ -6,7 +6,7 @@ import java.util.List;
 
 import ronnie.dbpatcher.core.Patcher;
 
-import com.cmg.pas.SystemException;
+import com.lcmg.rbloois.SystemException;
 
 /**
  * 
@@ -58,7 +58,7 @@ public class Main
 
 			Patcher.setCallBack( new Progress() );
 			
-			Patcher.setConnection( Configuration.getDriver(), Configuration.getDBUrl(), Configuration.getUser() );
+			Patcher.setConnection( Configuration.getDBDriver(), Configuration.getDBUrl(), Configuration.getUser() );
 			Console.println( "Connecting to database..." );
 			printCurrentVersion();
 			

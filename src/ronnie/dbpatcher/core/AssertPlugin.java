@@ -7,7 +7,7 @@ import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.cmg.pas.util.Assert;
+import com.lcmg.rbloois.util.Assert;
 
 /**
  * 

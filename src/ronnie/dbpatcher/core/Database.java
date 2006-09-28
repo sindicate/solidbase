@@ -5,8 +5,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-import com.cmg.pas.SystemException;
-import com.cmg.pas.util.Assert;
+import com.lcmg.rbloois.SystemException;
+import com.lcmg.rbloois.util.Assert;
 
 
 /**

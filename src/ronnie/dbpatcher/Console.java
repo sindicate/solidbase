@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
 
-import com.cmg.pas.util.Assert;
+import com.lcmg.rbloois.util.Assert;
 
 public class Console
 {
@@ -63,7 +63,6 @@ public class Console
 			read--;
 
 		String input = new String( buffer, 0, read );
-		Assert.check( input.length() > 0, "Input too short" );
 		
 		col = 0;
 		return input;
