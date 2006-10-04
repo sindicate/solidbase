@@ -1,6 +1,8 @@
 package ronnie.dbpatcher;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.util.Date;
 
@@ -10,6 +12,7 @@ public class Console
 {
 	static protected int col = 0;
 	static protected DateFormat dateFormat = DateFormat.getDateTimeInstance( DateFormat.SHORT, DateFormat.SHORT );
+	static protected BufferedReader stdin;
 	
 	static protected void println()
 	{
@@ -55,14 +58,11 @@ public class Console
 	
 	static protected String input() throws IOException
 	{
-		byte[] buffer = new byte[ 100 ];
-		int read = System.in.read( buffer );
-		Assert.check( read < 100, "Input too long" );
-		Assert.check( buffer[ --read ] == '\n' );
-		if( buffer[ read - 1 ] == '\r' )
-			read--;
-
-		String input = new String( buffer, 0, read );
+		if( stdin == null )
+			stdin = new BufferedReader( new InputStreamReader( System.in ) );
+		
+		String input = stdin.readLine();
+		Assert.notNull( input, "No more input" );
 		
 		col = 0;
 		return input;
