@@ -1,6 +1,6 @@
 package ronnie.dbpatcher.core;
 
-import com.lcmg.rbloois.util.Assert;
+import com.logicacmg.idt.commons.util.Assert;
 
 /**
  * 
@@ -19,7 +19,7 @@ public class Patch
 	
 	protected Patch( String source, String target, boolean branch, boolean returnBranch, boolean open, boolean init )
 	{
-		Assert.check( !( branch && returnBranch ) );
+		Assert.isTrue( !( branch && returnBranch ) );
 		
 		this.source = source;
 		this.target = target;

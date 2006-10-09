@@ -7,7 +7,7 @@ import java.sql.Types;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.lcmg.rbloois.SystemException;
+import com.logicacmg.idt.commons.SystemException;
 
 /**
  * 

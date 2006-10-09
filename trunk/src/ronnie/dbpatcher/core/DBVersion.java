@@ -23,8 +23,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.lcmg.rbloois.SystemException;
-import com.lcmg.rbloois.util.Assert;
+import com.logicacmg.idt.commons.SystemException;
+import com.logicacmg.idt.commons.util.Assert;
 
 /**
  * 
@@ -47,7 +47,7 @@ public class DBVersion
 		if( !read )
 			read();
 		
-		Assert.check( valid );
+		Assert.isTrue( valid );
 		
 		if( !tableexists )
 			return null;
@@ -60,7 +60,7 @@ public class DBVersion
 		if( !read )
 			read();
 		
-		Assert.check( valid );
+		Assert.isTrue( valid );
 		
 		if( !tableexists )
 			return null;
@@ -73,7 +73,7 @@ public class DBVersion
 		if( !read )
 			read();
 		
-		Assert.check( valid );
+		Assert.isTrue( valid );
 		
 		if( !tableexists )
 			return 0;
@@ -94,11 +94,11 @@ public class DBVersion
 			{
 				tableexists = true;
 				
-				Assert.check( resultSet.next() );
+				Assert.isTrue( resultSet.next() );
 				version = resultSet.getString( 1 );
 				target = resultSet.getString( 2 );
 				statements = resultSet.getInt( 3 );
-				Assert.check( !resultSet.next() );
+				Assert.isTrue( !resultSet.next() );
 				
 				valid = true;
 			}
@@ -131,7 +131,7 @@ public class DBVersion
 	
 	static protected void setCount( String target, int statements )
 	{
-		Assert.check( tableexists, "Version tables do not exist" );
+		Assert.isTrue( tableexists, "Version tables do not exist" );
 		
 		try
 		{
@@ -139,7 +139,7 @@ public class DBVersion
 			statement.setString( 1, target );
 			statement.setInt( 2, statements );
 			int modified = statement.executeUpdate(); // autocommit is on
-			Assert.check( modified == 1, "Expecting 1 record to be updated, not " + modified );
+			Assert.isTrue( modified == 1, "Expecting 1 record to be updated, not " + modified );
 			statement.close();
 			
 			DBVersion.target = target;
@@ -153,14 +153,14 @@ public class DBVersion
 
 	static protected void setVersion( String version )
 	{
-		Assert.check( tableexists, "Version tables do not exist" );
+		Assert.isTrue( tableexists, "Version tables do not exist" );
 		
 		try
 		{
 			PreparedStatement statement = Database.getConnection( user ).prepareStatement( "UPDATE DBVERSION SET VERSION = ?, TARGET = NULL" );
 			statement.setString( 1, version );
 			int modified = statement.executeUpdate(); // autocommit is on
-			Assert.check( modified == 1, "Expecting 1 record to be updated, not " + modified );
+			Assert.isTrue( modified == 1, "Expecting 1 record to be updated, not " + modified );
 			statement.close();
 			
 			DBVersion.version = version;

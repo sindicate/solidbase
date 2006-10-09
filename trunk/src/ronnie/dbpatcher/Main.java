@@ -6,7 +6,7 @@ import java.util.List;
 
 import ronnie.dbpatcher.core.Patcher;
 
-import com.lcmg.rbloois.SystemException;
+import com.logicacmg.idt.commons.SystemException;
 
 /**
  * 
