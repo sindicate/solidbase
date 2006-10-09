@@ -11,9 +11,9 @@ import java.sql.Timestamp;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
-import com.lcmg.rbloois.SystemException;
-import com.lcmg.rbloois.util.Assert;
-import com.lcmg.rbloois.util.StringUtil;
+import com.logicacmg.idt.commons.SystemException;
+import com.logicacmg.idt.commons.util.Assert;
+import com.logicacmg.idt.commons.util.StringUtil;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 

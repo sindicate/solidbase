@@ -25,19 +25,21 @@
 
 	<target name="extractjars">
 		<mkdir dir="work/classes"/>
-		<unjar dest="work/classes" src="lib/lcmg-rbloois.jar">
+		<unjar dest="work/classes">
+			<fileset file="lib/idt-commons-*.jar"/>
 			<patternset>
-				<exclude name="com/lcmg/rbloois/cache/**"/>
-				<exclude name="com/lcmg/rbloois/email/**"/>
-				<exclude name="com/lcmg/rbloois/jdbc/**"/>
-				<exclude name="com/lcmg/rbloois/model/**"/>
-				<exclude name="com/lcmg/rbloois/servlet/**"/>
-				<exclude name="com/lcmg/rbloois/spring/**"/>
-				<exclude name="com/lcmg/rbloois/tomcat5/**"/>
-				<exclude name="com/lcmg/rbloois/xml/**"/>
+				<exclude name="com/logicacmg/idt/commons/cache/**"/>
+				<exclude name="com/logicacmg/idt/commons/email/**"/>
+				<exclude name="com/logicacmg/idt/commons/jdbc/**"/>
+				<exclude name="com/logicacmg/idt/commons/business/**"/>
+				<exclude name="com/logicacmg/idt/commons/servlet/**"/>
+				<exclude name="com/logicacmg/idt/commons/spring/**"/>
+				<exclude name="com/logicacmg/idt/commons/tomcat5/**"/>
+				<exclude name="com/logicacmg/idt/commons/xml/**"/>
 			</patternset>
 		</unjar>
-		<unjar dest="work/classes" src="lib/commons-collections-3.2.jar">
+		<unjar dest="work/classes">
+			<fileset file="lib/commons-collections-*.jar"/>
 			<patternset>
 				<include name="org/apache/commons/collections/Factory.class"/>
 				<include name="org/apache/commons/collections/FunctorException.class"/>
@@ -54,12 +56,13 @@
 			<fileset dir="src" includes="**/*.sql,**/*.properties"/>
 			<manifest>
 				<attribute name="Main-Class" value="ronnie.dbpatcher.Boot"/>
-<!--				<attribute name="Class-Path" value="cmg-pas.jar commons-collections-3.1.jar derby-10.1.2.1.jar ojdbc14.jar"/> -->
 			</manifest>
 		</jar>
-<!--		<java jar="lib/proguard-3.6.jar" fork="true">
+		<!--
+		<java jar="lib/proguard-3.6.jar" fork="true">
 			<arg value="@proguard.pro"/>
-		</java>-->
+		</java>
+		-->
 	</target>
 	
 	<target name="dist" depends="rebuild">

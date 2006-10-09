@@ -14,9 +14,9 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.collections.map.MultiValueMap;
 
-import com.lcmg.rbloois.SystemException;
-import com.lcmg.rbloois.io.LineInputStream;
-import com.lcmg.rbloois.util.Assert;
+import com.logicacmg.idt.commons.SystemException;
+import com.logicacmg.idt.commons.io.LineInputStream;
+import com.logicacmg.idt.commons.util.Assert;
 
 /**
  * 
@@ -63,18 +63,18 @@ public class PatchFile
 		while( !definitionComplete )
 		{
 			byte[] bytes = lis.readLine();
-			Assert.check( bytes != null, "End-of-file found before reading a complete definition" );
+			Assert.isTrue( bytes != null, "End-of-file found before reading a complete definition" );
 			
 			if( bytes.length > 0 )
 			{
 				String line = new String( bytes );
 				
-				Assert.check( line.startsWith( "--*" ), "Line should start with --*" );
+				Assert.isTrue( line.startsWith( "--*" ), "Line should start with --*" );
 				line = line.substring( 3 ).trim();
 //					System.out.println( line );
 				if( line.equalsIgnoreCase( "PATCHES" ) )
 				{
-					Assert.check( !withinDefinition, "Already within the definition" );
+					Assert.isTrue( !withinDefinition, "Already within the definition" );
 					withinDefinition = true;
 //					System.out.println( "start" );
 				}
@@ -84,11 +84,11 @@ public class PatchFile
 				}
 				else if( patchDefinitionMarkerPattern.matcher( line ).matches() )
 				{
-					Assert.check( withinDefinition, "Not within the definition" );
+					Assert.isTrue( withinDefinition, "Not within the definition" );
 //						System.out.println( "patch" );
 					
 					Matcher matcher = patchDefinitionPattern.matcher( line );
-					Assert.check( matcher.matches(), "Line should match the following syntax: (INIT|PATCH|BRANCH|RETURN) [OPEN] \"...\" --> \"...\"" );
+					Assert.isTrue( matcher.matches(), "Line should match the following syntax: (INIT|PATCH|BRANCH|RETURN) [OPEN] \"...\" --> \"...\"" );
 					String action = matcher.group( 1 );
 					boolean open = matcher.group( 2 ) != null;
 					String source = matcher.group( 3 );
@@ -103,7 +103,7 @@ public class PatchFile
 				}
 				else if( line.equalsIgnoreCase( "/PATCHES" ) )
 				{
-					Assert.check( withinDefinition, "Not within the definition" );
+					Assert.isTrue( withinDefinition, "Not within the definition" );
 //					System.out.println( "end" );
 					definitionComplete = true;
 				}
@@ -129,7 +129,7 @@ public class PatchFile
 				if( patchStartMarkerPattern.matcher( line ).matches() )
 				{
 					Matcher matcher = patchStartPattern.matcher( line );
-					Assert.check( matcher.matches(), "Line should match the following syntax: (PATCH|BRANCH|RETURN) source=\"...\" target=\"...\"" );
+					Assert.isTrue( matcher.matches(), "Line should match the following syntax: (PATCH|BRANCH|RETURN) source=\"...\" target=\"...\"" );
 //					String action = matcher.group( 1 );
 					String source = matcher.group( 2 );
 					if( source.length() == 0 )
@@ -140,7 +140,7 @@ public class PatchFile
 //					boolean init = "INIT".equalsIgnoreCase( action );
 					
 					Patch patch = getPatch( source, target );
-					Assert.check( patch != null, "Patch block found for undefined patch: \"" + source + "\" --> \"" + target + "\"" );
+					Assert.isTrue( patch != null, "Patch block found for undefined patch: \"" + source + "\" --> \"" + target + "\"" );
 					// TODO: Assert that action is the same
 					patch.setPos( pos );
 				}
@@ -162,7 +162,7 @@ public class PatchFile
 				Patch patch = (Patch)iter.next();
 				if( patch.getTarget().equals( target ) )
 				{
-					Assert.check( result == null, "Patch definitions are not unique" );
+					Assert.isTrue( result == null, "Patch definitions are not unique" );
 					result = patch;
 				}
 			}
@@ -264,7 +264,7 @@ public class PatchFile
 
 	static protected void gotoPatch( Patch patch )
 	{
-		Assert.check( patch.getPos() >= 0, "Patch block not found" );
+		Assert.isTrue( patch.getPos() >= 0, "Patch block not found" );
 		
 		try
 		{
@@ -272,7 +272,7 @@ public class PatchFile
 			byte[] bytes = lis.readLine();
 			String line = new String( bytes );
 //			System.out.println( line );
-			Assert.check( patchStartMarkerPattern.matcher( line ).matches() );
+			Assert.isTrue( patchStartMarkerPattern.matcher( line ).matches() );
 		}
 		catch( IOException e )
 		{
@@ -296,7 +296,7 @@ public class PatchFile
 				throw new SystemException( e );
 			}
 			
-			Assert.check( bytes != null, "Premature end of file found" );
+			Assert.isTrue( bytes != null, "Premature end of file found" );
 			
 			String line = new String( bytes );
 			if( line.trim().length() > 0 )
@@ -306,7 +306,7 @@ public class PatchFile
 				
 				if( patchEndPattern.matcher( line ).matches() )
 				{
-					Assert.check( result.length() == 0, "Unterminated statement found" );
+					Assert.isTrue( result.length() == 0, "Unterminated statement found" );
 					return null;
 				}
 				

@@ -7,7 +7,7 @@ import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.lcmg.rbloois.util.Assert;
+import com.logicacmg.idt.commons.util.Assert;
 
 /**
  * 
@@ -29,7 +29,7 @@ public class AssertPlugin extends Plugin
 		{
 			String message = matcher.group( 1 );
 			String select  = matcher.group( 2 ).trim();
-			Assert.check( select.substring( 0, 7 ).equalsIgnoreCase( "SELECT " ), "Check should be a SELECT" );
+			Assert.isTrue( select.substring( 0, 7 ).equalsIgnoreCase( "SELECT " ), "Check should be a SELECT" );
 			Connection connection = Database.getConnection();
 			Statement statement = connection.createStatement();
 			ResultSet result = statement.executeQuery( select );

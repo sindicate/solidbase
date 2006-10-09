@@ -13,8 +13,8 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.lcmg.rbloois.SystemException;
-import com.lcmg.rbloois.util.Assert;
+import com.logicacmg.idt.commons.SystemException;
+import com.logicacmg.idt.commons.util.Assert;
 
 /**
  * 
@@ -121,15 +121,15 @@ public class Patcher
 			throw new SystemException( e );
 		}
 		String result = properties.getProperty( "core.version" );
-		Assert.check( result != null );
+		Assert.isTrue( result != null );
 		return result;
 	}
 	
 	static protected void patch( String version, String target ) throws SQLException
 	{
 		List patches = PatchFile.getPatches( version, target );
-		Assert.check( patches != null );
-		Assert.check( patches.size() > 0, "No patches found" );
+		Assert.isTrue( patches != null );
+		Assert.isTrue( patches.size() > 0, "No patches found" );
 		
 		for( Iterator iter = patches.iterator(); iter.hasNext(); )
 		{

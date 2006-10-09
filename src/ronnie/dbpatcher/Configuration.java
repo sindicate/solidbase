@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
 
-import com.lcmg.rbloois.SystemException;
-import com.lcmg.rbloois.util.Assert;
+import com.logicacmg.idt.commons.SystemException;
+import com.logicacmg.idt.commons.util.Assert;
 
 /**
  * 
@@ -60,9 +60,9 @@ public class Configuration
 			if( schema.length() == 0 )
 				schema = null;
 			
-			Assert.check( dbUrl != null, "database.url not found in dbpatcher.properties" );
-			Assert.check( dbDriver != null, "database.driver not found in dbpatcher.properties" );
-			Assert.check( version != null, "patcher.version not found in dbpatcher.properties" );
+			Assert.isTrue( dbUrl != null, "database.url not found in dbpatcher.properties" );
+			Assert.isTrue( dbDriver != null, "database.driver not found in dbpatcher.properties" );
+			Assert.isTrue( version != null, "patcher.version not found in dbpatcher.properties" );
 		}
 		catch( IOException e )
 		{
