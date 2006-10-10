@@ -10,11 +10,15 @@ import java.util.regex.Pattern;
 import com.logicacmg.idt.commons.SystemException;
 
 /**
+ * The purpose of this plugin was to capture dbms output and present it to the user while the patch was running. It doesn't work however because
+ * parallel statements through the same connection is not possible with the Oracle jdbc driver (or any driver).
+ * 
+ * But this plugin acts as a good example for a future plugin that may implement the required functionality in a temporary table.
  * 
  * @author René M. de Bloois
  * @since May 29, 2006
  */
-public class OracleDBMSOutputPlugin extends Plugin
+public class OracleDBMSOutputPoller extends CommandListener
 {
 	static protected Pattern disablePattern = Pattern.compile( "\\s*DISABLE\\s+DBMSOUTPUT\\s*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 	static protected Pattern enablePattern = Pattern.compile( "\\s*ENABLE\\s+DBMSOUTPUT\\s*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
@@ -23,7 +27,7 @@ public class OracleDBMSOutputPlugin extends Plugin
 	
 	protected boolean execute( Command command ) throws SQLException
 	{
-		if( command.counting )
+		if( command.isNonRepeatable() )
 			return false;
 		
 		Matcher matcher = enablePattern.matcher( command.getCommand() );

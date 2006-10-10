@@ -10,7 +10,7 @@ import com.logicacmg.idt.commons.util.Assert;
 
 
 /**
- * Manages connection to the database.
+ * Manages connections to the database.
  * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:16:37 PM
@@ -26,16 +26,16 @@ public class Database
 	/**
 	 * Configures the classname for the database driver and the url to the database.
 	 * 
-	 * @param driverName
-	 * @param url
+	 * @param driverClassName The database driver class name.
+	 * @param url The database connection url.
 	 */
-	static protected void setConnection( String driverName, String url )
+	static protected void setConnection( String driverClassName, String url )
 	{
-		Database.driverName = driverName;
+		Database.driverName = driverClassName;
 		Database.url = url;
 		try
 		{
-			Class.forName( driverName );
+			Class.forName( driverClassName );
 		}
 		catch( ClassNotFoundException e )
 		{
@@ -44,12 +44,12 @@ public class Database
 	}
 	
 	/**
-	 * Retrieves a connection from the DriverManager with the given url, user and password. Autocommit is set to true.
+	 * Gets a new connection from the DriverManager with the given url, user and password. The returned connection has autocommit set to on.
 	 * 
-	 * @param url
-	 * @param user
-	 * @param password
-	 * @return
+	 * @param url The database connection url.
+	 * @param user The connection user.
+	 * @param password The password of the user.
+	 * @return the connection.
 	 */
 	static protected Connection getConnection( String url, String user, String password )
 	{
@@ -66,13 +66,13 @@ public class Database
 	}
 	
 	/**
-	 * Gets a connection for the given user. If a connection for the given user is not available, this method will
-	 * request a password by calling {@link Patcher#callBack}. A connection for a specific user is saved for later
+	 * Gets a cached connection for the given user. If a connection for the given user is not found in the cache, this method will
+	 * request a password by calling the method {@link ProgressListener#requestPassword(String)} of {@link Patcher#callBack}. A connection for a specific user is saved for later
 	 * retrieval. A future call to this method with the same user will return the same connection. It uses the database
 	 * configuration set by {@link #setConnection(String, String)}.
 	 * 
-	 * @param user
-	 * @return
+	 * @param user The user name.
+	 * @return the connection
 	 */
 	static protected Connection getConnection( String user )
 	{
@@ -90,7 +90,7 @@ public class Database
 	/**
 	 * Gets a connection for the default user.
 	 * 
-	 * @return
+	 * @return the connection.
 	 * @see #getConnection(String)
 	 */
 	static protected Connection getConnection()
@@ -102,11 +102,11 @@ public class Database
 	/**
 	 * Sets the default user.
 	 * 
-	 * @param defaultUser
+	 * @param user
 	 */
-	static protected void setDefaultUser( String defaultUser )
+	static protected void setDefaultUser( String user )
 	{
-		Assert.notEmpty( defaultUser, "User must not be empty" );
-		Database.defaultUser = defaultUser;
+		Assert.notEmpty( user, "User must not be empty" );
+		Database.defaultUser = user;
 	}
 }

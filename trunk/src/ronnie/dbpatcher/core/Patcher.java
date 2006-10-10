@@ -23,7 +23,7 @@ import com.logicacmg.idt.commons.util.Assert;
  */
 public class Patcher
 {
-	static protected ArrayList plugins = new ArrayList();
+	static protected ArrayList listeners = new ArrayList();
 	static protected Stack ignoreStack = new Stack();
 	static protected HashSet ignoreSet = new HashSet();
 	static protected Pattern ignoreSqlErrorPattern = Pattern.compile( "IGNORE[ \\t]+SQL[ \\t]+ERROR[ \\t]+(\\w+([ \\t]*,[ \\t]*\\w+)*)", Pattern.CASE_INSENSITIVE );
@@ -35,8 +35,8 @@ public class Patcher
 	
 	static
 	{
-		plugins.add( new AssertPlugin() );
-		plugins.add( new OracleDBMSOutputPlugin() );
+		listeners.add( new AssertCommandExecuter() );
+		listeners.add( new OracleDBMSOutputPoller() );
 	}
 	
 	static public void openPatchFile() throws IOException
@@ -83,7 +83,7 @@ public class Patcher
 			if( s.equals( target ) )
 			{
 				patch( DBVersion.getVersion(), target );
-				terminatePlugins();
+				terminateCommandListeners();
 				return;
 			}
 		}
@@ -91,12 +91,12 @@ public class Patcher
 		throw new SystemException( "Target " + target + " is not a possible target" );
 	}
 
-	static protected void terminatePlugins()
+	static protected void terminateCommandListeners()
 	{
-		for( Iterator iter = plugins.iterator(); iter.hasNext(); )
+		for( Iterator iter = listeners.iterator(); iter.hasNext(); )
 		{
-			Plugin plugin = (Plugin)iter.next();
-			plugin.terminate();
+			CommandListener listener = (CommandListener)iter.next();
+			listener.terminate();
 		}
 	}
 
@@ -163,28 +163,29 @@ public class Patcher
 			{
 				String sql = command.getCommand();
 	
-				if( !command.isCounting() )
+				if( command.isRepeatable() )
 				{
-					Matcher matcher;
-					if( ( matcher = ignoreSqlErrorPattern.matcher( sql ) ).matches() )
-						pushIgnores( matcher.group( 1 ) );
-					else if( ignoreEnd.matcher( sql ).matches() )
-						popIgnores();
-					else if( ( matcher = setUserPattern.matcher( sql ) ).matches() )
-						setUser( matcher.group( 1 ) );
-					else if( ( matcher = startMessagePattern.matcher( sql ) ).matches() )
-						startMessage = matcher.group( 1 );
-					else
+					boolean done = false;
+					for( Iterator iter = listeners.iterator(); iter.hasNext(); )
 					{
-						boolean done = false;
-						for( Iterator iter = plugins.iterator(); iter.hasNext(); )
-						{
-							Plugin plugin = (Plugin)iter.next();
-							done = plugin.execute( command );
-							if( done )
-								break;
-						}
-						if( !done )
+						CommandListener listener = (CommandListener)iter.next();
+						done = listener.execute( command );
+						if( done )
+							break;
+					}
+					
+					if( !done )
+					{
+						Matcher matcher;
+						if( ( matcher = ignoreSqlErrorPattern.matcher( sql ) ).matches() )
+							pushIgnores( matcher.group( 1 ) );
+						else if( ignoreEnd.matcher( sql ).matches() )
+							popIgnores();
+						else if( ( matcher = setUserPattern.matcher( sql ) ).matches() )
+							setUser( matcher.group( 1 ) );
+						else if( ( matcher = startMessagePattern.matcher( sql ) ).matches() )
+							startMessage = matcher.group( 1 );
+						else
 							Assert.fail( "Unknown command [" + sql + "]" );
 					}
 				}
@@ -199,13 +200,14 @@ public class Patcher
 						if( sql.length() > 0 )
 						{
 							boolean done = false;
-							for( Iterator iter = plugins.iterator(); iter.hasNext(); )
+							for( Iterator iter = listeners.iterator(); iter.hasNext(); )
 							{
-								Plugin plugin = (Plugin)iter.next();
-								done = plugin.execute( command );
+								CommandListener listener = (CommandListener)iter.next();
+								done = listener.execute( command );
 								if( done )
 									break;
 							}
+							
 							if( !done )
 								try
 								{
@@ -224,6 +226,7 @@ public class Patcher
 									}
 								}
 						}
+						
 						if( !patch.isInit() )
 						{
 							DBVersion.setCount( patch.getTarget(), count );

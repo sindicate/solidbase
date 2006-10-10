@@ -302,7 +302,7 @@ public class PatchFile
 			if( line.trim().length() > 0 )
 			{
 				if( goPattern.matcher( line ).matches() )
-					return new Command( result.toString(), true );
+					return new Command( result.toString(), false );
 				
 				if( patchEndPattern.matcher( line ).matches() )
 				{
@@ -314,7 +314,7 @@ public class PatchFile
 				{
 					line = line.substring( 3 ).trim();
 					if( !line.startsWith( "//" ))
-						return new Command( line, false );
+						return new Command( line, true );
 				}
 				else
 				{
