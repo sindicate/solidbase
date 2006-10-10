@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<project basedir="." default="all" name="dbpatcher">
+<project basedir="." name="dbpatcher">
 
 	<property file="build.properties"/>
 
@@ -11,10 +11,14 @@
 	<mkdir dir="work"/>
 	<mkdir dir="dist"/>
 
-	<target name="all" depends="jar" description="Builds everything"/>
-
-	<target name="rebuild" depends="clean,all" description="Rebuilds all"/>
-
+	<target name="clean" description="Cleans everything">
+		<delete includeEmptyDirs="true">
+			<fileset dir="work" includes="**/*"/>
+			<fileset dir="dist" includes="*.jar"/>
+		</delete>
+		<delete dir="/projects/temp/dbpatcher/db"/>
+	</target>
+	
 	<target name="classes">
 		<echo message="java.home=${java.home}"/>
 		<mkdir dir="work/classes"/>
@@ -65,22 +69,13 @@
 		-->
 	</target>
 	
-	<target name="dist" depends="rebuild">
+	<target name="build" depends="jar">
 		<copy todir="dist" preservelastmodified="true">
 			<fileset dir="lib" includes="derby-*.jar,ojdbc*.jar"/>
-			<fileset dir="" includes="dbpatcher.properties"/>
+			<fileset dir="" includes="dbpatcher.properties,dbpatch.sql"/>
 		</copy>
 	</target>
 
-	<target name="clean" description="Cleans everything">
-		<delete includeEmptyDirs="true">
-			<fileset dir="work" includes="**/*"/>
-			<fileset dir="dist" includes="*.jar"/>
-		</delete>
-	</target>
-	
-	<target name="removedb">
-		<delete dir="derbyDB"/>
-	</target>
+	<target name="dist" depends="clean,build"/>
 
 </project>

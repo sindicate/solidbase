@@ -153,6 +153,8 @@ public class Patcher
 		
 		Database.setDefaultUser( defaultUser ); // overwrite the default user at the start of each patch
 		
+		DBVersion.read();
+
 		Command command = PatchFile.readStatement();
 		int count = 0;
 		try
@@ -226,9 +228,9 @@ public class Patcher
 						{
 							DBVersion.setCount( patch.getTarget(), count );
 							if( sqle != null )
-								DBVersionLog.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), sqle );
+								DBVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), sqle );
 							else
-								DBVersionLog.log( patch.getSource(), patch.getTarget(), count, sql, (String)null );
+								DBVersion.log( patch.getSource(), patch.getTarget(), count, sql, (String)null );
 						}
 						
 						Patcher.callBack.executed();
@@ -243,22 +245,22 @@ public class Patcher
 			}
 			Patcher.callBack.patchFinished();
 	
-			if( patch.isInit() )
-				DBVersion.versionTablesCreated();
+			DBVersion.read();
+			
 			if( !patch.isOpen() )
 			{
 				DBVersion.setVersion( patch.getTarget() );
-				DBVersionLog.log( patch.getSource(), patch.getTarget(), count, null, "COMPLETED VERSION " + patch.getTarget() );
+				DBVersion.log( patch.getSource(), patch.getTarget(), count, null, "COMPLETED VERSION " + patch.getTarget() );
 			}
 		}
 		catch( RuntimeException e )
 		{
-			DBVersionLog.log( patch.getSource(), patch.getTarget(), count, command == null ? null : command.getCommand(), e );
+			DBVersion.log( patch.getSource(), patch.getTarget(), count, command == null ? null : command.getCommand(), e );
 			throw e;
 		}
 		catch( SQLException e )
 		{
-			DBVersionLog.logSQLException( patch.getSource(), patch.getTarget(), count, command == null ? null : command.getCommand(), e );
+			DBVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command == null ? null : command.getCommand(), e );
 			throw e;
 		}
 	}
@@ -308,6 +310,6 @@ public class Patcher
 	
 	static public void logToXML( OutputStream out )
 	{
-		DBVersionLog.logToXML( out );
+		DBVersion.logToXML( out );
 	}
 }
