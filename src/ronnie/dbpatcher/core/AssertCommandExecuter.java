@@ -10,19 +10,28 @@ import java.util.regex.Pattern;
 import com.logicacmg.idt.commons.util.Assert;
 
 /**
+ * This plugin asserts that a given query statement returns results. It generates an error with the given message otherwise. This plugin can be used to check the state of the database. Example:
+ * 
+ * <blockquote><pre>
+ * ASSERT EXISTS MESSAGE 'Expecting old style version 2.0.17'
+ * SELECT *
+ * FROM VERSION_CONTROL
+ * WHERE VERS_CONT_ID = 'VERSION'
+ * AND VERS_REG_NUM = 'DHL TTS 2.0.17'
+ * GO
+ * </pre></blockquote>
  * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:13:28 PM
  */
-public class AssertPlugin extends Plugin
+public class AssertCommandExecuter extends CommandListener
 {
-	static protected Pattern assertPattern = Pattern.compile( "\\s*ASSERT\\s+EXISTS\\s+MESSAGE\\s+'([^']*)'\\s+(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern assertPattern = Pattern.compile( "\\s*ASSERT\\s+EXISTS\\s+MESSAGE\\s+'([^']*)'\\s+(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 	
 	protected boolean execute( Command command ) throws SQLException
 	{
-		if( !command.counting )
+		if( command.isRepeatable() )
 			return false;
-		
 		
 		Matcher matcher = assertPattern.matcher( command.getCommand() );
 		if( matcher.matches() )
