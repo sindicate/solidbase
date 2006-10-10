@@ -22,11 +22,19 @@ public class Main
 		int statements = Patcher.getCurrentStatements();
 		
 		if( version == null )
-			Console.println( "The database has no version yet." );
-		else if( target != null )
-			Console.println( "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
+		{
+			if( target != null )
+				Console.println( "The database has no version yet, incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
+			else
+				Console.println( "The database has no version yet." );
+		}
 		else
-			Console.println( "Current database version is \"" + version + "\"." );
+		{
+			if( target != null )
+				Console.println( "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
+			else
+				Console.println( "Current database version is \"" + version + "\"." );
+		}
 	}
 	
 	static protected String list( List list )

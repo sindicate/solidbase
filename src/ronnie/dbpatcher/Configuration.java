@@ -57,7 +57,7 @@ public class Configuration
 			schema = properties.getProperty( "version.schema" );
 			version = properties.getProperty( "patcher.version" );
 			user = properties.getProperty( "database.user" );
-			if( schema.length() == 0 )
+			if( schema != null && schema.length() == 0 )
 				schema = null;
 			
 			Assert.isTrue( dbUrl != null, "database.url not found in dbpatcher.properties" );
@@ -94,4 +94,4 @@ public class Configuration
 	{
 		return user;
 	}
-}
+	}
