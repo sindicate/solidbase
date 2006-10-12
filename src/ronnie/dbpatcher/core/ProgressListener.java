@@ -1,45 +1,51 @@
 package ronnie.dbpatcher.core;
 
+/**
+ * 
+ * 
+ * @author R.M. de Bloois
+ * @since Apr 14, 2006
+ */
 public class ProgressListener
 {
 	protected void patchStarting( String source, String target )
 	{
-		// to be overridden
+		// could be implemented in subclass
 	}
 	
 	protected void executing( Command command, String message )
 	{
-		// to be overridden
+		// could be implemented in subclass
 	}
 
 	protected void executed()
 	{
-		// to be overridden
+		// could be implemented in subclass
 	}
 	
 	protected void patchFinished()
 	{
-		// to be overridden
+		// could be implemented in subclass
 	}
 	
 	protected void openingPatchFile( String patchFile )
 	{
-		// to be overridden
+		// could be implemented in subclass
 	}
 
 	protected String requestPassword( String user )
 	{
-		// to be overridden
+		// could be implemented in subclass
 		return null;
 	}
 
 	protected void skipped( Command command )
 	{
-		// to be overridden
+		// could be implemented in subclass
 	}
 	
 	protected void exception( Command command )
 	{
-		// to be overridden
+		// could be implemented in subclass
 	}
 }

@@ -22,7 +22,6 @@ public class Console
 	
 	static protected void print( String string )
 	{
-//		Assert.check( string.indexOf( '\n' ) < 0, "Newlines not allowed" );
 		if( col == 0 )
 		{
 			System.out.print( dateFormat.format( new Date() ) );
@@ -34,7 +33,6 @@ public class Console
 	
 	static protected void println( String string )
 	{
-//		Assert.check( string.indexOf( '\n' ) < 0, "Newlines not allowed" );
 		if( col == 0 )
 		{
 			System.out.print( dateFormat.format( new Date() ) );

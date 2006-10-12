@@ -229,7 +229,7 @@ public class Patcher
 						
 						if( !patch.isInit() )
 						{
-							DBVersion.setCount( patch.getTarget(), count );
+							DBVersion.setProgress( patch.getTarget(), count );
 							if( sqle != null )
 								DBVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), sqle );
 							else

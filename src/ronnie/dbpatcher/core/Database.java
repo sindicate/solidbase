@@ -67,9 +67,8 @@ public class Database
 	
 	/**
 	 * Gets a cached connection for the given user. If a connection for the given user is not found in the cache, this method will
-	 * request a password by calling the method {@link ProgressListener#requestPassword(String)} of {@link Patcher#callBack}. A connection for a specific user is saved for later
-	 * retrieval. A future call to this method with the same user will return the same connection. It uses the database
-	 * configuration set by {@link #setConnection(String, String)}.
+	 * request a password by calling the method {@link ProgressListener#requestPassword(String)} of {@link Patcher#callBack}. The connection is cached for later use.
+	 * It uses the database configuration set by {@link #setConnection(String, String)}.
 	 * 
 	 * @param user The user name.
 	 * @return the connection
