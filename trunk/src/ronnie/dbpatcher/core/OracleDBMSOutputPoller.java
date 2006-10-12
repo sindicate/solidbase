@@ -72,64 +72,64 @@ public class OracleDBMSOutputPoller extends CommandListener
 			}
 		}
 	}
-}
 
-class Poller extends Thread
-{
-	protected Connection connection;
-	
-	protected Poller( Connection connection )
+	static protected class Poller extends Thread
 	{
-		this.connection = connection;
-	}
-
-	public void run()
-	{
-		try
+		protected Connection connection;
+		
+		protected Poller( Connection connection )
 		{
-			System.out.println( "Started Poller thread" );
-			
-			String sql = "begin dbms_output.get_line( ?, ? ); end;";
-			CallableStatement statement = this.connection.prepareCall( sql );
-			statement.registerOutParameter( 1, Types.VARCHAR );
-			statement.registerOutParameter( 2, Types.INTEGER );
-
-			boolean stop = false;
-			boolean needsleep = false;
-			while( !stop && !isInterrupted() )
-			{
-				System.out.println( "Poll" );
-				needsleep = true;
-				
-				statement.execute();
-				while( statement.getInt( 2 ) == 0 )
-				{
-					System.out.println( statement.getString( 1 ) );
-					statement.execute();
-				}
-			
-				if( needsleep )
-				{
-					needsleep = false;
-					try
-					{
-						sleep( 1000 );
-					}
-					catch( InterruptedException e )
-					{
-						stop = true;
-					}
-				}
-			}
-			
-			this.connection.close();
-			
-			System.out.println( "Finished Poller thread" );
+			this.connection = connection;
 		}
-		catch( Throwable t )
+
+		public void run()
 		{
-			System.err.println( "The DBMSOutput poller thread crashed" );
-			t.printStackTrace( System.err );
+			try
+			{
+				System.out.println( "Started Poller thread" );
+				
+				String sql = "begin dbms_output.get_line( ?, ? ); end;";
+				CallableStatement statement = this.connection.prepareCall( sql );
+				statement.registerOutParameter( 1, Types.VARCHAR );
+				statement.registerOutParameter( 2, Types.INTEGER );
+
+				boolean stop = false;
+				boolean needsleep = false;
+				while( !stop && !isInterrupted() )
+				{
+					System.out.println( "Poll" );
+					needsleep = true;
+					
+					statement.execute();
+					while( statement.getInt( 2 ) == 0 )
+					{
+						System.out.println( statement.getString( 1 ) );
+						statement.execute();
+					}
+				
+					if( needsleep )
+					{
+						needsleep = false;
+						try
+						{
+							sleep( 1000 );
+						}
+						catch( InterruptedException e )
+						{
+							stop = true;
+						}
+					}
+				}
+				
+				this.connection.close();
+				
+				System.out.println( "Finished Poller thread" );
+			}
+			catch( Throwable t )
+			{
+				System.err.println( "The DBMSOutput poller thread crashed" );
+				t.printStackTrace( System.err );
+			}
 		}
 	}
 }

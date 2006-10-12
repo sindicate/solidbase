@@ -19,6 +19,7 @@ import com.logicacmg.idt.commons.io.LineInputStream;
 import com.logicacmg.idt.commons.util.Assert;
 
 /**
+ * This class manages the patch file.
  * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM

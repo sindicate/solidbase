@@ -4,8 +4,8 @@
  * DBVERSION ( VERSION, TARGET, STATEMENTS ), 1 record
  * 
  *     Examples:
- *     DHL TTS 2.0.11, <NULL>, 10, version is complete, it took 10 statements to get there
- *     DHL TTS 2.0.11, DHL TTS 2.0.12, 4, patch is not complete, 4 statements already executed 
+ *     DHL TTS 2.0.11, <NULL>, 10 : version is complete, it took 10 statements to get there
+ *     DHL TTS 2.0.11, DHL TTS 2.0.12, 4 : version is not complete, 4 statements already executed 
  * 
  * DBVERSIONLOG ( VERSION, TARGET, STATEMENT, STAMP, SQL, RESULT )
  * 
@@ -37,6 +37,7 @@ import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
 /**
+ * This class represents the version information in the database. It is able to interpret the data and modify the data.
  * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:17:41 PM
@@ -53,6 +54,11 @@ public class DBVersion
 	static protected int statements;
 	static protected String user;
 	
+	/**
+	 * Gets the current version of the database. If the version table does not yet exist it return null.
+	 * 
+	 * @return the current version of the database. Will be null if and only if the version table does not exist.
+	 */
 	static protected String getVersion()
 	{
 		if( !read )
@@ -63,9 +69,16 @@ public class DBVersion
 		if( !versionTableExists )
 			return null;
 		
+		Assert.notNull( version );
+		
 		return version;
 	}
 	
+	/**
+	 * Gets the current target version of the database. This method will only return a non-null value when the database state is in between 2 versions. 
+	 * 
+	 * @return the current target version of the database.
+	 */
 	static protected String getTarget()
 	{
 		if( !read )
@@ -76,9 +89,16 @@ public class DBVersion
 		if( !versionTableExists )
 			return null;
 		
+		Assert.notNull( target );
+
 		return target;
 	}
-	
+
+	/**
+	 * Gets the number of statements that have been executed to upgrade the database to the target version.
+	 * 
+	 * @return the number of statements that have been executed.
+	 */
 	static protected int getStatements()
 	{
 		if( !read )
@@ -92,6 +112,10 @@ public class DBVersion
 		return statements;
 	}
 	
+	/**
+	 * Refreshes the data from the database. Is automatically called if needed by {@link #getVersion()}, {@link #getTarget()} and {@link #getStatements()}.
+	 *
+	 */
 	static protected void read()
 	{
 		Assert.notNull( user, "User is not set" );
@@ -151,7 +175,13 @@ public class DBVersion
 		}
 	}
 	
-	static protected void setCount( String target, int statements )
+	/**
+	 * Sets the number of statements executed and the target version.
+	 * 
+	 * @param target The target version.
+	 * @param statements The number of statements executed.
+	 */
+	static protected void setProgress( String target, int statements )
 	{
 		Assert.notEmpty( target, "Target must not be empty" );
 		
@@ -182,6 +212,11 @@ public class DBVersion
 		}
 	}
 
+	/**
+	 * Sets the current version.
+	 * 
+	 * @param version The version.
+	 */
 	static protected void setVersion( String version )
 	{
 		Assert.notEmpty( version, "Version must not be empty" );
@@ -204,16 +239,35 @@ public class DBVersion
 		}
 	}
 
+	/**
+	 * The user/owner/schema of the version tables.
+	 * 
+	 * @param user The user.
+	 */
 	static protected void setUser( String user )
 	{
 		DBVersion.user = user;
 	}
 
+	/**
+	 * Gets the user/owner/schema of the version tables.
+	 * 
+	 * @return
+	 */
 	static protected String getUser()
 	{
 		return user;
 	}
 	
+	/**
+	 * Adds a log record to the version log table.
+	 *  
+	 * @param source
+	 * @param target
+	 * @param count
+	 * @param command
+	 * @param result
+	 */
 	static protected void log( String source, String target, int count, String command, String result )
 	{
 		if( !DBVersion.logTableExists )
@@ -247,6 +301,15 @@ public class DBVersion
 		}
 	}
 
+	/**
+	 * Adds a log record to the version log table.
+	 * 
+	 * @param source
+	 * @param target
+	 * @param count
+	 * @param command
+	 * @param e
+	 */
 	static protected void log( String source, String target, int count, String command, Exception e )
 	{
 		Assert.notNull( e, "exception must not be null" );
@@ -257,6 +320,15 @@ public class DBVersion
 		log( source, target, count, command, buffer.toString() );
 	}
 
+	/**
+	 * Adds a log record to the version log table.
+	 * 
+	 * @param source
+	 * @param target
+	 * @param count
+	 * @param command
+	 * @param e
+	 */
 	static protected void logSQLException( String source, String target, int count, String command, SQLException e )
 	{
 		Assert.notNull( e, "exception must not be null" );
@@ -277,6 +349,11 @@ public class DBVersion
 		log( source, target, count, command, buffer.toString() );
 	}
 	
+	/**
+	 * Dumps the current log in XML format to the given output stream.
+	 * 
+	 * @param out The outputstream.
+	 */
 	static protected void logToXML( OutputStream out )
 	{
 		try
