@@ -89,8 +89,6 @@ public class DBVersion
 		if( !versionTableExists )
 			return null;
 		
-		Assert.notNull( target );
-
 		return target;
 	}
 
