@@ -19,7 +19,7 @@ public class Configuration
 {
 	static private final String DBPATCHER_PROPERTIES = "dbpatcher.properties";
 	static private final String DBPATCHER_DEFAULT_PROPERTIES = "dbpatcher-default.properties";
-	static private final String DBPATCHER_DEFAULT_PROPERTIES_OLD = "private.properties";
+	static private final String DBPATCHER_VERSION_PROPERTIES = "version.properties";
 	
 	static protected String dbUrl; 
 	static protected String dbDriver; 
@@ -32,19 +32,18 @@ public class Configuration
 	{
 		try
 		{
-			// Load the default properties or the old private properties
+			// Load the default properties
+			
 			URL url = Configuration.class.getResource( DBPATCHER_DEFAULT_PROPERTIES );
 			if( url == null )
-			{
-				url = Configuration.class.getResource( DBPATCHER_DEFAULT_PROPERTIES_OLD );
-				if( url == null )
-					throw new FileNotFoundException( DBPATCHER_DEFAULT_PROPERTIES + " or " + DBPATCHER_DEFAULT_PROPERTIES_OLD + " not found in classpath" );
-			}
+				throw new FileNotFoundException( DBPATCHER_DEFAULT_PROPERTIES + " not found in classpath" );
+			
 			Console.println( "Reading property file " + url );
 			Properties defaultProperties = new Properties();
 			defaultProperties.load( url.openStream() );
 			
 			// Load the properties
+			
 			File file = new File( DBPATCHER_PROPERTIES );
 			Console.println( "Reading property file " + file.getAbsolutePath() );
 			FileInputStream input = new FileInputStream( file );
@@ -55,14 +54,25 @@ public class Configuration
 			dbDriverJar = properties.getProperty( "database.driver.jar" );
 			dbDriver = properties.getProperty( "database.driver" );
 			schema = properties.getProperty( "version.schema" );
-			version = properties.getProperty( "patcher.version" );
 			user = properties.getProperty( "database.user" );
 			if( schema != null && schema.length() == 0 )
 				schema = null;
 			
 			Assert.isTrue( dbUrl != null, "database.url not found in dbpatcher.properties" );
 			Assert.isTrue( dbDriver != null, "database.driver not found in dbpatcher.properties" );
-			Assert.isTrue( version != null, "patcher.version not found in dbpatcher.properties" );
+			
+			// Load the version properties
+			
+			url = Configuration.class.getResource( DBPATCHER_VERSION_PROPERTIES );
+			if( url == null )
+				throw new FileNotFoundException( DBPATCHER_VERSION_PROPERTIES );
+
+			properties = new Properties();
+			properties.load( url.openStream() );
+
+			version = properties.getProperty( "module.version" );
+			
+			Assert.isTrue( version != null, "module.version not found in version.properties" );
 		}
 		catch( IOException e )
 		{
@@ -94,4 +104,4 @@ public class Configuration
 	{
 		return user;
 	}
-	}
+}
