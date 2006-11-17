@@ -3,6 +3,7 @@
 <project basedir="." name="dbpatcher">
 
 	<property file="build.properties"/>
+	<property name="version.properties" value="src/ronnie/dbpatcher/version.properties"/>
 
 	<path id="compile.classpath">
 		<fileset dir="lib" includes="*.jar"/>
@@ -60,6 +61,7 @@
 			<fileset dir="src" includes="**/*.sql,**/*.properties"/>
 			<manifest>
 				<attribute name="Main-Class" value="ronnie.dbpatcher.Boot"/>
+				<attribute name="Version" value="${module.version}"/>
 			</manifest>
 		</jar>
 		<!--
@@ -76,7 +78,7 @@
 		</copy>
 	</target>
 
-	<target name="dist" depends="clean,build"/>
+	<target name="dist" depends="clean,updateversion,build"/>
 
 	<target name="javadoc" depends="classes" description="Generate Javadoc">
 		<mkdir dir="dist/docs/api"/>
@@ -85,4 +87,15 @@
 		</javadoc>
 	</target>
 
+	<target name="updateversion">
+		<!-- Revert the version.properties to prevent an M from being appended to the revision number. -->
+		<exec executable="svn" dir="${basedir}"><arg line="revert ${version.properties}"/></exec>
+		<!-- Update the properties file. -->
+		<exec executable="svnversion" dir="${basedir}" output="${version.properties}"><arg line="-n ."/></exec>
+		<!-- svnversion return either format nnnn:vvvv or vvvv, we just use the vvvv part. This part can have a trailing M or S for modified or switched. -->
+		<replaceregexp file="${version.properties}" match="^(|[0-9]*:)([0-9]*[M|S]*)$" replace="module.version=1.0.\2" byline="false"/>
+		<loadproperties srcFile="${version.properties}"/>
+		<echo message="Version: ${module.version}"/>
+	</target>
+	
 </project>

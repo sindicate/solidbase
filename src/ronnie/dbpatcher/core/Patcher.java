@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -107,22 +106,8 @@ public class Patcher
 		Database.setDefaultUser( user );
 
 		defaultUser = user; // Overwrites the default user in the Database class at the start of each patch.
-	}
-	
-	static public String getVersion()
-	{
-		Properties properties = new Properties();
-		try
-		{
-			properties.load( Patcher.class.getResourceAsStream( "core.properties" ) );
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
-		String result = properties.getProperty( "core.version" );
-		Assert.isTrue( result != null );
-		return result;
+		
+		callBack.debug( "driverName=" + driverName + ", url=" + url + ", user=" + user + "" );
 	}
 	
 	static protected void patch( String version, String target ) throws SQLException

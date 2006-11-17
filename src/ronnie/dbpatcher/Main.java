@@ -7,6 +7,7 @@ import java.util.List;
 import ronnie.dbpatcher.core.Patcher;
 
 import com.logicacmg.idt.commons.SystemException;
+import com.logicacmg.idt.commons.util.Assert;
 
 /**
  * 
@@ -60,17 +61,30 @@ public class Main
 		try
 		{
 			Console.println();
-			Console.println( "DBPatcher v" + Configuration.getVersion() + ", patch engine v" + Patcher.getVersion() );
+			Console.println( "DBPatcher v" + Configuration.getVersion() );
 			Console.println( "(C) 2006 R.M. de Bloois, LogicaCMG" );
 			Console.println();
 
-			Patcher.setCallBack( new Progress() );
+			boolean exportlog = false;
+			boolean verbose = false;
+			for( int i = 0; i < args.length; i++ )
+			{
+				String arg = args[ i ];
+				if( args[ i ].equals( "exportlog" ) )
+					exportlog = true;
+				else if( args[ i ].equals( "verbose" ) )
+					verbose = true;
+				else
+					Assert.fail( "argument [" + arg + "] not recognized" );
+			}
+			
+			Patcher.setCallBack( new Progress( verbose ) );
 			
 			Patcher.setConnection( Configuration.getDBDriver(), Configuration.getDBUrl(), Configuration.getUser() );
 			Console.println( "Connecting to database..." );
 			printCurrentVersion();
-			
-			if( args.length == 1 && args[ 0 ].equals( "exportlog" ) )
+
+			if( exportlog )
 			{
 				Patcher.logToXML( System.out );
 				return;

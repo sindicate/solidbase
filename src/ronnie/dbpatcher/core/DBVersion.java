@@ -136,6 +136,8 @@ public class DBVersion
 				statements = resultSet.getInt( 3 );
 				Assert.isTrue( !resultSet.next() );
 				
+				Patcher.callBack.debug( "version=" + version + ", target=" + target + ", statements=" + statements );
+				
 				valid = true;
 			}
 			finally

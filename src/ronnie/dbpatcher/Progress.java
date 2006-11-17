@@ -9,7 +9,12 @@ import com.logicacmg.idt.commons.SystemException;
 
 public class Progress extends ProgressListener
 {
-	protected Command currentCommand;
+	boolean verbose;
+	
+	protected Progress( boolean verbose )
+	{
+		this.verbose = verbose;
+	}
 	
 	protected void openingPatchFile( String patchFile )
 	{
@@ -23,7 +28,6 @@ public class Progress extends ProgressListener
 
 	protected void executing( Command command, String message )
 	{
-		this.currentCommand = command;
 		if( message != null )
 		{
 			Console.carriageReturn();
@@ -43,11 +47,6 @@ public class Progress extends ProgressListener
 		Console.print( "." );
 	}
 
-	protected void skipped()
-	{
-		Console.print( "x" );
-	}
-
 	protected void patchFinished()
 	{
 		Console.println();
@@ -65,5 +64,11 @@ public class Progress extends ProgressListener
 		{
 			throw new SystemException( e );
 		}
+	}
+
+	protected void debug( String message )
+	{
+		if( this.verbose )
+			Console.println( "DEBUG: " + message );
 	}
 }

@@ -48,4 +48,9 @@ public class ProgressListener
 	{
 		// could be implemented in subclass
 	}
+	
+	protected void debug( String message )
+	{
+		// could be implemented in subclass
+	}
 }
