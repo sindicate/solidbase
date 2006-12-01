@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -70,16 +71,19 @@ public class Patcher
 	
 	static public List getTargets()
 	{
-		return 	PatchFile.getTargets( DBVersion.getVersion() );
+		LinkedHashSet result = new LinkedHashSet();
+		PatchFile.getTargets( DBVersion.getVersion(), DBVersion.getTarget(), result );
+		return new ArrayList( result );
 	}
 	
 	static public void patch( String target ) throws SQLException
 	{
-		List targets = PatchFile.getTargets( DBVersion.getVersion() );
+		List targets = getTargets();
+		
 		for( Iterator iter = targets.iterator(); iter.hasNext(); )
 		{
-			String s = (String)iter.next();
-			if( s.equals( target ) )
+			String t = (String)iter.next();
+			if( t.equals( target ) )
 			{
 				patch( DBVersion.getVersion(), target );
 				terminateCommandListeners();

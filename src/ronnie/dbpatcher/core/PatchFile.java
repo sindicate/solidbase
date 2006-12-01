@@ -225,43 +225,31 @@ public class PatchFile
 		return Collections.EMPTY_LIST;
 	}
 
-	static protected List getTargets( String version )
+	static protected void getTargets( String version, String targeting, LinkedHashSet result )
 	{
-		LinkedHashSet result = new LinkedHashSet();
-
-		while( true )
-		{
-			List patches = (List)PatchFile.patches.get( version );
-			if( patches == null )
-				break;
-			
-			if( patches.size() > 1 )
-			{
-				for( Iterator iter = patches.iterator(); iter.hasNext(); )
-				{
-					Patch patch = (Patch)iter.next();
-					version = patch.getTarget();
-					result.add( version );
-					if( !patch.isOpen() )
-					{
-						List patches2 = getTargets( version );
-						if( patches2 != null )
-							result.addAll( patches2 );
-					}
-				}
-				
-				break;
-			}
-			
-			Patch patch = (Patch)patches.get( 0 );
-			version = patch.getTarget();
-			result.add( version );
-			
-			if( patch.isOpen() )
-				break;
-		}
+		Assert.notNull( result, "'result' must not be null" );
 		
-		return new ArrayList( result );
+		List patches = (List)PatchFile.patches.get( version );
+		if( patches == null )
+			return;
+		
+		Assert.isTrue( patches.size() > 0, "Not expecting an empty list" );
+		
+		for( Iterator iter = patches.iterator(); iter.hasNext(); )
+		{
+			Patch patch = (Patch)iter.next();
+			
+			String target = patch.getTarget();
+			if( targeting == null || targeting.equals( target ) )
+			{
+				result.add( target );
+				if( !patch.isOpen() )
+				{
+					// Recursively determine more patches
+					getTargets( target, null, result );
+				}
+			}
+		}
 	}
 
 	static protected void gotoPatch( Patch patch )
