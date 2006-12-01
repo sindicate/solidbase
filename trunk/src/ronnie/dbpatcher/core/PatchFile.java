@@ -173,55 +173,56 @@ public class PatchFile
 
 	static protected List getPatches( String version, String target )
 	{
-		List result = new ArrayList();
+		Assert.isTrue( !target.equals( version ), "Target [" + target + "] == version [" + version + "]" );
+		
+		List patches = (List)PatchFile.patches.get( version );
+		if( patches == null )
+			return Collections.EMPTY_LIST;
+		Assert.isTrue( patches.size() > 0, "Not expecting an empty list" );
 
-		while( version == null || !version.equals( target ) )
+		for( Iterator iter = patches.iterator(); iter.hasNext(); )
 		{
-			List patches = (List)PatchFile.patches.get( version );
-			if( patches == null )
-				return Collections.EMPTY_LIST;
-			
-			if( patches.size() > 1 )
+			Patch patch = (Patch)iter.next();
+			if( patch.getTarget().equals( target ) )
 			{
-				// branches should go last
-				for( Iterator iter = patches.iterator(); iter.hasNext(); )
-				{
-					Patch patch = (Patch)iter.next();
-					if( !patch.isBranch() )
-					{
-						List patches2 = getPatches( patch.getTarget(), target );
-						if( patches2.size() > 0 )
-						{
-							result.add( patch );
-							result.addAll( patches2 );
-							return result;
-						}
-					}
-				}
-				for( Iterator iter = patches.iterator(); iter.hasNext(); )
-				{
-					Patch patch = (Patch)iter.next();
-					if( patch.isBranch() )
-					{
-						List patches2 = getPatches( patch.getTarget(), target );
-						if( patches2.size() > 0 )
-						{
-							result.add( patch );
-							result.addAll( patches2 );
-							return result;
-						}
-					}
-				}
-				
-				return Collections.EMPTY_LIST;
+				// Found it
+				List result = new ArrayList();
+				result.add( patch );
+				return result;
 			}
 			
-			Patch patch = (Patch)patches.get( 0 ); 
-			result.add( patch );
-			version = patch.getTarget();
+			if( !patch.isBranch() )
+			{
+				// Try recursive through the normal path
+				List patches2 = getPatches( patch.getTarget(), target );
+				if( patches2.size() > 0 )
+				{
+					List result = new ArrayList();
+					result.add( patch );
+					result.addAll( patches2 );
+					return result;
+				}
+			}
 		}
 		
-		return result;
+		for( Iterator iter = patches.iterator(); iter.hasNext(); )
+		{
+			Patch patch = (Patch)iter.next();
+			if( patch.isBranch() )
+			{
+				// Try recursive through the branches
+				List patches2 = getPatches( patch.getTarget(), target );
+				if( patches2.size() > 0 )
+				{
+					List result = new ArrayList();
+					result.add( patch );
+					result.addAll( patches2 );
+					return result;
+				}
+			}
+		}
+		
+		return Collections.EMPTY_LIST;
 	}
 
 	static protected List getTargets( String version )
