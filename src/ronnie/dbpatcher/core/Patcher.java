@@ -17,7 +17,7 @@ import com.logicacmg.idt.commons.SystemException;
 import com.logicacmg.idt.commons.util.Assert;
 
 /**
- * 
+ *
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
@@ -32,54 +32,54 @@ public class Patcher
 	static protected Pattern startMessagePattern = Pattern.compile( "\\s*MESSAGE\\s+START\\s+'([^']*)'\\s*", Pattern.CASE_INSENSITIVE );
 	static protected ProgressListener callBack;
 	static protected String defaultUser;
-	
+
 	static
 	{
 		listeners.add( new AssertCommandExecuter() );
 		listeners.add( new OracleDBMSOutputPoller() );
 	}
-	
+
 	static public void openPatchFile() throws IOException
 	{
 		PatchFile.open();
 	}
-	
+
 	static public void readPatchFile() throws IOException
 	{
 		PatchFile.read();
 	}
-	
+
 	static public void closePatchFile() throws IOException
 	{
 		PatchFile.close();
 	}
-	
+
 	static public String getCurrentVersion()
 	{
 		return DBVersion.getVersion();
 	}
-	
+
 	static public String getCurrentTarget()
 	{
 		return DBVersion.getTarget();
 	}
-	
+
 	static public int getCurrentStatements()
 	{
 		return DBVersion.getStatements();
 	}
-	
+
 	static public List getTargets()
 	{
 		LinkedHashSet result = new LinkedHashSet();
 		PatchFile.getTargets( DBVersion.getVersion(), DBVersion.getTarget(), result );
 		return new ArrayList( result );
 	}
-	
+
 	static public void patch( String target ) throws SQLException
 	{
 		List targets = getTargets();
-		
+
 		for( Iterator iter = targets.iterator(); iter.hasNext(); )
 		{
 			String t = (String)iter.next();
@@ -90,7 +90,7 @@ public class Patcher
 				return;
 			}
 		}
-		
+
 		throw new SystemException( "Target " + target + " is not a possible target" );
 	}
 
@@ -110,38 +110,38 @@ public class Patcher
 		Database.setDefaultUser( user );
 
 		defaultUser = user; // Overwrites the default user in the Database class at the start of each patch.
-		
+
 		callBack.debug( "driverName=" + driverName + ", url=" + url + ", user=" + user + "" );
 	}
-	
+
 	static protected void patch( String version, String target ) throws SQLException
 	{
 		List patches = PatchFile.getPatches( version, target );
 		Assert.isTrue( patches != null );
 		Assert.isTrue( patches.size() > 0, "No patches found" );
-		
+
 		for( Iterator iter = patches.iterator(); iter.hasNext(); )
 		{
 			Patch patch = (Patch)iter.next();
 			patch( patch );
 		}
 	}
-	
+
 	static protected void patch( Patch patch ) throws SQLException
 	{
 		Assert.notNull( patch, "patch == null" );
-		
+
 		Patcher.callBack.patchStarting( patch.getSource(), patch.getTarget() );
-		
+
 		PatchFile.gotoPatch( patch );
 		int skip = DBVersion.getStatements();
 		if( DBVersion.getTarget() == null )
 			skip = 0;
-		
+
 		String startMessage = null;
-		
+
 		Database.setDefaultUser( defaultUser ); // overwrite the default user at the start of each patch
-		
+
 		DBVersion.read();
 
 		Command command = PatchFile.readStatement();
@@ -151,7 +151,7 @@ public class Patcher
 			while( command != null )
 			{
 				String sql = command.getCommand();
-	
+
 				if( command.isRepeatable() )
 				{
 					boolean done = false;
@@ -162,7 +162,7 @@ public class Patcher
 						if( done )
 							break;
 					}
-					
+
 					if( !done )
 					{
 						Matcher matcher;
@@ -196,12 +196,19 @@ public class Patcher
 								if( done )
 									break;
 							}
-							
+
 							if( !done )
 								try
 								{
 									Statement statement = Database.getConnection().createStatement();
-									statement.execute( sql ); // autocommit is on
+									try
+									{
+										statement.execute( sql ); // autocommit is on
+									}
+									finally
+									{
+										statement.close();
+									}
 								}
 								catch( SQLException e )
 								{
@@ -215,7 +222,7 @@ public class Patcher
 									}
 								}
 						}
-						
+
 						if( !patch.isInit() )
 						{
 							DBVersion.setProgress( patch.getTarget(), count );
@@ -224,21 +231,21 @@ public class Patcher
 							else
 								DBVersion.log( patch.getSource(), patch.getTarget(), count, sql, (String)null );
 						}
-						
+
 						Patcher.callBack.executed();
 					}
 					else
 						Patcher.callBack.skipped( command );
-					
+
 					startMessage = null;
 				}
-				
+
 				command = PatchFile.readStatement();
 			}
 			Patcher.callBack.patchFinished();
-	
+
 			DBVersion.read();
-			
+
 			if( !patch.isOpen() )
 			{
 				DBVersion.setVersion( patch.getTarget() );
@@ -262,7 +269,7 @@ public class Patcher
 		Database.setDefaultUser( user );
 //		Database.getConnection(); // To enter password
 	}
-	
+
 	static protected void pushIgnores( String ignores )
 	{
 		String[] ss = ignores.split( "," );
@@ -271,13 +278,13 @@ public class Patcher
 		ignoreStack.push( ss );
 		refreshIgnores();
 	}
-	
+
 	static protected void popIgnores()
 	{
 		ignoreStack.pop();
 		refreshIgnores();
 	}
-	
+
 	static protected void refreshIgnores()
 	{
 		HashSet ignores = new HashSet();
@@ -299,7 +306,7 @@ public class Patcher
 	{
 		Patcher.callBack = callBack;
 	}
-	
+
 	static public void logToXML( OutputStream out )
 	{
 		DBVersion.logToXML( out );
