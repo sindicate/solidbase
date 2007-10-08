@@ -5,32 +5,52 @@
 	<property file="build.properties"/>
 	<property name="version.properties" value="src/ronnie/dbpatcher/version.properties"/>
 
+	<!-- Source folders & files -->
+	<property name="test.home" value="test"/>
+	<property name="test.lib.home" value="tools/testng"/>
+
+	<!-- Product folders -->
+	<property name="build.home" value="../BUILDS/dbpatcher/"/>
+	<property name="temp.home" value="../TEMP/dbpatcher/"/>
+	<property name="dist.home" value="${build.home}/dist"/>
+
+	<!-- Classpaths -->
+
 	<path id="compile.classpath">
 		<fileset dir="lib" includes="*.jar"/>
 	</path>
 	
-	<mkdir dir="work"/>
-	<mkdir dir="dist"/>
+	<path id="compiletest.classpath">
+		<pathelement location="${build.home}/classes"/>
+		<path refid="compile.classpath"/>
+		<fileset dir="${test.lib.home}" includes="*.jar"/>
+	</path>
+
+	<path id="test.classpath">
+		<pathelement location="${build.home}/test"/>
+		<path refid="compiletest.classpath"/>
+	</path>
+
+	<!-- Custom Ant Task Definitions -->
+
+	<taskdef resource="testngtasks" classpath="${test.lib.home}/testng-5.6-jdk15.jar"/> <!-- TestNG -->
 
 	<target name="clean" description="Cleans everything">
-		<delete includeEmptyDirs="true">
-			<fileset dir="work" includes="**/*"/>
-			<fileset dir="dist" includes="*.jar"/>
-		</delete>
-		<delete dir="/projects/temp/dbpatcher/db"/>
+		<delete dir="${build.home}"/>
+		<delete dir="${temp.home}"/>
 	</target>
 	
 	<target name="classes">
 		<echo message="java.home=${java.home}"/>
-		<mkdir dir="work/classes"/>
-		<javac optimize="true" debug="true" deprecation="true" srcdir="src" destdir="work/classes">
+		<mkdir dir="${build.home}/classes"/>
+		<javac srcdir="src" destdir="${build.home}/classes" source="1.5" target="1.5" optimize="true" debug="true" deprecation="true">
 			<classpath refid="compile.classpath"/>
 		</javac>
 	</target>
 
 	<target name="extractjars">
-		<mkdir dir="work/classes"/>
-		<unjar dest="work/classes">
+		<mkdir dir="${build.home}/classes"/>
+		<unjar dest="${build.home}/classes">
 			<fileset file="lib/idt-commons-*.jar"/>
 			<patternset>
 				<exclude name="com/logicacmg/idt/commons/cache/**"/>
@@ -43,7 +63,7 @@
 				<exclude name="com/logicacmg/idt/commons/xml/**"/>
 			</patternset>
 		</unjar>
-		<unjar dest="work/classes">
+		<unjar dest="${build.home}/classes">
 			<fileset file="lib/commons-collections-*.jar"/>
 			<patternset>
 				<include name="org/apache/commons/collections/Factory.class"/>
@@ -56,8 +76,9 @@
 	</target>
 
 	<target name="jar" depends="classes,extractjars" description="Create jar">
-		<jar destfile="dist/dbpatcher.jar" compress="true">
-			<fileset dir="work/classes" includes="**/*.class"/>
+		<mkdir dir="${dist.home}"/>
+		<jar destfile="${dist.home}/dbpatcher.jar" compress="true">
+			<fileset dir="${build.home}/classes" includes="**/*.class"/>
 			<fileset dir="src" includes="**/*.sql,**/*.properties"/>
 			<manifest>
 				<attribute name="Main-Class" value="ronnie.dbpatcher.Boot"/>
@@ -72,13 +93,33 @@
 	</target>
 	
 	<target name="build" depends="jar">
-		<copy todir="dist" preservelastmodified="true">
+		<copy todir="${dist.home}" preservelastmodified="true">
 			<fileset dir="lib" includes="derby-*.jar,ojdbc*.jar"/>
 			<fileset dir="" includes="dbpatcher.properties,dbpatch.sql"/>
 		</copy>
 	</target>
 
-	<target name="dist" depends="clean,updateversion,build"/>
+	<target name="compiletest" depends="classes">
+		<mkdir dir="${build.home}/test"/>
+		<javac source="1.5" target="1.5" srcdir="${test.home}" destdir="${build.home}/test" debug="true" deprecation="true" optimize="true">
+			<classpath refid="compiletest.classpath"/>
+		</javac>
+	</target>
+
+	<target name="buildtest" depends="build,compiletest">
+		<copy preservelastmodified="true" todir="${build.home}/test">
+			<fileset dir="${test.home}" excludes="**/*.java"/>
+		</copy>
+	</target>
+
+	<target name="test" depends="buildtest" description="Run all tests">
+		<testng classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="2">
+			<xmlfileset file="${test.home}/test.xml"/>
+			<jvmarg value="-Xmx256m"/>
+		</testng>
+	</target>
+
+	<target name="dist" depends="clean,updateversion,test,build"/>
 
 	<target name="javadoc" depends="classes" description="Generate Javadoc">
 		<mkdir dir="dist/docs/api"/>
