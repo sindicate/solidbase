@@ -28,6 +28,7 @@ public class AssertCommandExecuter extends CommandListener
 {
 	static private final Pattern assertPattern = Pattern.compile( "\\s*ASSERT\\s+EXISTS\\s+MESSAGE\\s+'([^']*)'\\s+(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
+	@Override
 	protected boolean execute( Command command ) throws SQLException
 	{
 		if( command.isRepeatable() )

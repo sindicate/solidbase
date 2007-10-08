@@ -1,9 +1,6 @@
 package ronnie.dbpatcher.core;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -26,8 +23,6 @@ import com.logicacmg.idt.commons.util.Assert;
  */
 public class PatchFile
 {
-	static protected MultiValueMap patches = new MultiValueMap();
-	static protected LineInputStream lis;
 	static protected Pattern patchDefinitionMarkerPattern = Pattern.compile( "(INIT|PATCH|BRANCH|RETURN)[ \t]+.*", Pattern.CASE_INSENSITIVE );
 	static protected Pattern patchDefinitionPattern = Pattern.compile( "(INIT|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
 	static protected Pattern patchStartMarkerPattern = Pattern.compile( "--\\*[ \t]*(INIT|PATCH|BRANCH|RETURN).*", Pattern.CASE_INSENSITIVE );
@@ -35,35 +30,27 @@ public class PatchFile
 	static protected Pattern patchEndPattern = Pattern.compile( "--\\* */(INIT|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
 	static protected Pattern goPattern = Pattern.compile( "GO *", Pattern.CASE_INSENSITIVE );
 
-	static protected void open() throws IOException
+	protected MultiValueMap patches = new MultiValueMap();
+	protected LineInputStream lis;
+
+	protected PatchFile( LineInputStream lis )
 	{
-		URL url = PatchFile.class.getResource( "/dbpatch.sql" );
-		if( url != null )
-		{
-			lis = new LineInputStream( url );
-			Patcher.callBack.openingPatchFile( "Opening patchfile: " + url );
-		}
-		else
-		{
-			File file = new File( "dbpatch.sql" );
-			lis = new LineInputStream( new FileInputStream( file ) );
-			Patcher.callBack.openingPatchFile( "Opening patchfile: " + file.getAbsolutePath() );
-		}
+		this.lis = lis;
 	}
 	
-	static protected void close() throws IOException
+	protected void close() throws IOException
 	{
-		lis.close();
-		lis = null;
+		this.lis.close();
+		this.lis = null;
 	}
 	
-	static protected void read() throws IOException
+	protected void read() throws IOException
 	{
 		boolean withinDefinition = false;
 		boolean definitionComplete = false;
 		while( !definitionComplete )
 		{
-			byte[] bytes = lis.readLine();
+			byte[] bytes = this.lis.readLine();
 			Assert.isTrue( bytes != null, "End-of-file found before reading a complete definition" );
 			
 			if( bytes.length > 0 )
@@ -100,7 +87,7 @@ public class PatchFile
 					boolean returnBranch = "RETURN".equalsIgnoreCase( action );
 					boolean init = "INIT".equalsIgnoreCase( action );
 					Patch patch = new Patch( source, target, branch, returnBranch, open, init );
-					patches.put( source, patch );
+					this.patches.put( source, patch );
 				}
 				else if( line.equalsIgnoreCase( "/PATCHES" ) )
 				{
@@ -116,10 +103,10 @@ public class PatchFile
 		scan();
 	}
 	
-	static protected void scan() throws IOException
+	protected void scan() throws IOException
 	{
-		long pos = lis.getPosition();
-		byte[] bytes = lis.readLine();
+		long pos = this.lis.getPosition();
+		byte[] bytes = this.lis.readLine();
 		
 		while( bytes != null )
 		{
@@ -147,16 +134,16 @@ public class PatchFile
 				}
 			}
 			
-			pos = lis.getPosition();
-			bytes = lis.readLine();
+			pos = this.lis.getPosition();
+			bytes = this.lis.readLine();
 		}
 	}
 	
-	static protected Patch getPatch( String source, String target )
+	protected Patch getPatch( String source, String target )
 	{
 		Patch result = null;
 
-		List patches = (List)PatchFile.patches.get( source );
+		List patches = (List)this.patches.get( source );
 		if( patches != null )
 			for( Iterator iter = patches.iterator(); iter.hasNext(); )
 			{
@@ -171,11 +158,11 @@ public class PatchFile
 		return result;
 	}
 
-	static protected List getPatches( String version, String target )
+	protected List getPatches( String version, String target )
 	{
 		Assert.isTrue( !target.equals( version ), "Target [" + target + "] == version [" + version + "]" );
 		
-		List patches = (List)PatchFile.patches.get( version );
+		List patches = (List)this.patches.get( version );
 		if( patches == null )
 			return Collections.EMPTY_LIST;
 		Assert.isTrue( patches.size() > 0, "Not expecting an empty list" );
@@ -225,11 +212,11 @@ public class PatchFile
 		return Collections.EMPTY_LIST;
 	}
 
-	static protected void getTargets( String version, String targeting, LinkedHashSet result )
+	protected void getTargets( String version, String targeting, LinkedHashSet result )
 	{
 		Assert.notNull( result, "'result' must not be null" );
 		
-		List patches = (List)PatchFile.patches.get( version );
+		List patches = (List)this.patches.get( version );
 		if( patches == null )
 			return;
 		
@@ -252,14 +239,14 @@ public class PatchFile
 		}
 	}
 
-	static protected void gotoPatch( Patch patch )
+	protected void gotoPatch( Patch patch )
 	{
 		Assert.isTrue( patch.getPos() >= 0, "Patch block not found" );
 		
 		try
 		{
-			lis.setPosition( patch.getPos() );
-			byte[] bytes = lis.readLine();
+			this.lis.setPosition( patch.getPos() );
+			byte[] bytes = this.lis.readLine();
 			String line = new String( bytes );
 //			System.out.println( line );
 			Assert.isTrue( patchStartMarkerPattern.matcher( line ).matches() );
@@ -270,7 +257,7 @@ public class PatchFile
 		}
 	}
 	
-	static protected Command readStatement()
+	protected Command readStatement()
 	{
 		StringBuilder result = new StringBuilder();
 		
@@ -279,7 +266,7 @@ public class PatchFile
 			byte[] bytes;
 			try
 			{
-				bytes = lis.readLine();
+				bytes = this.lis.readLine();
 			}
 			catch( IOException e )
 			{
