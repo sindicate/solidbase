@@ -25,6 +25,7 @@ public class OracleDBMSOutputPoller extends CommandListener
 	
 	protected Poller poller; 
 	
+	@Override
 	protected boolean execute( Command command ) throws SQLException
 	{
 		if( command.isNonRepeatable() )
@@ -57,6 +58,7 @@ public class OracleDBMSOutputPoller extends CommandListener
 		return false;
 	}
 	
+	@Override
 	protected void terminate()
 	{
 		if( this.poller != null )
@@ -82,6 +84,7 @@ public class OracleDBMSOutputPoller extends CommandListener
 			this.connection = connection;
 		}
 
+		@Override
 		public void run()
 		{
 			try

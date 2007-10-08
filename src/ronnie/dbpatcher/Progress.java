@@ -16,16 +16,19 @@ public class Progress extends ProgressListener
 		this.verbose = verbose;
 	}
 	
+	@Override
 	protected void openingPatchFile( String patchFile )
 	{
 		Console.println( "Opening patchfile: " + patchFile );
 	}
 	
+	@Override
 	protected void patchStarting( String source, String target )
 	{
 		Console.print( "Patching \"" + source + "\" to \"" + target + "\"" );
 	}
 
+	@Override
 	protected void executing( Command command, String message )
 	{
 		if( message != null )
@@ -35,6 +38,7 @@ public class Progress extends ProgressListener
 		}
 	}
 	
+	@Override
 	protected void exception( Command command )
 	{
 		Console.emptyLine();
@@ -42,16 +46,19 @@ public class Progress extends ProgressListener
 		Console.println( command.getCommand() );
 	}
 	
+	@Override
 	protected void executed()
 	{
 		Console.print( "." );
 	}
 
+	@Override
 	protected void patchFinished()
 	{
 		Console.println();
 	}
 
+	@Override
 	protected String requestPassword( String user )
 	{
 		Console.carriageReturn();
@@ -66,6 +73,7 @@ public class Progress extends ProgressListener
 		}
 	}
 
+	@Override
 	protected void debug( String message )
 	{
 		if( this.verbose )

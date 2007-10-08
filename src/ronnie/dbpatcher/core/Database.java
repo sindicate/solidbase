@@ -19,7 +19,7 @@ public class Database
 {
 	static protected String driverName;
 	static protected String url;
-	static protected HashMap connections = new HashMap();
+	static protected HashMap< String, Connection > connections = new HashMap< String, Connection >();
 	static protected HashMap passwords = new HashMap();
 	static protected String defaultUser;
 	
@@ -75,7 +75,7 @@ public class Database
 	 */
 	static protected Connection getConnection( String user )
 	{
-		Connection connection = (Connection)connections.get( user );
+		Connection connection = connections.get( user );
 		if( connection == null )
 		{
 			String password = Patcher.callBack.requestPassword( user );
@@ -107,5 +107,20 @@ public class Database
 	{
 		Assert.notEmpty( user, "User must not be empty" );
 		Database.defaultUser = user;
+	}
+	
+	static protected void closeConnections()
+	{
+		for( Connection connection : connections.values() )
+			try
+			{
+				connection.close();
+			}
+			catch( SQLException e )
+			{
+				throw new SystemException( e );
+			}
+		
+		connections.clear();
 	}
 }

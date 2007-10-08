@@ -1,7 +1,10 @@
 package ronnie.dbpatcher.core;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URL;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -14,6 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.logicacmg.idt.commons.SystemException;
+import com.logicacmg.idt.commons.io.LineInputStream;
 import com.logicacmg.idt.commons.util.Assert;
 
 /**
@@ -32,26 +36,59 @@ public class Patcher
 	static protected Pattern startMessagePattern = Pattern.compile( "\\s*MESSAGE\\s+START\\s+'([^']*)'\\s*", Pattern.CASE_INSENSITIVE );
 	static protected ProgressListener callBack;
 	static protected String defaultUser;
+	static protected PatchFile patchFile;
+	static protected String patchFileName;
 
 	static
 	{
 		listeners.add( new AssertCommandExecuter() );
 		listeners.add( new OracleDBMSOutputPoller() );
 	}
+	
+	static public void setPatchFileName( String fileName )
+	{
+		patchFileName = fileName;
+	}
 
 	static public void openPatchFile() throws IOException
 	{
-		PatchFile.open();
+		String fileName = patchFileName;
+		if( fileName == null )
+			fileName = "dbpatch.sql";
+		
+		LineInputStream lis;
+		URL url = Patcher.class.getResource( "/" + fileName ); // In the classpath
+		if( url != null )
+		{
+			lis = new LineInputStream( url );
+			callBack.openingPatchFile( "Opening patchfile: " + url );
+		}
+		else
+		{
+			File file = new File( fileName ); // In the current folder
+			lis = new LineInputStream( new FileInputStream( file ) );
+			callBack.openingPatchFile( "Opening patchfile: " + file.getAbsolutePath() );
+		}
+
+		patchFile = new PatchFile( lis );
 	}
 
 	static public void readPatchFile() throws IOException
 	{
-		PatchFile.read();
+		patchFile.read();
 	}
 
-	static public void closePatchFile() throws IOException
+	static public void closePatchFile()
 	{
-		PatchFile.close();
+		try
+		{
+			patchFile.close();
+		}
+		catch( IOException e )
+		{
+			throw new SystemException( e ); 
+		}
+		patchFile = null;
 	}
 
 	static public String getCurrentVersion()
@@ -72,7 +109,7 @@ public class Patcher
 	static public List getTargets()
 	{
 		LinkedHashSet result = new LinkedHashSet();
-		PatchFile.getTargets( DBVersion.getVersion(), DBVersion.getTarget(), result );
+		patchFile.getTargets( DBVersion.getVersion(), DBVersion.getTarget(), result );
 		return new ArrayList( result );
 	}
 
@@ -116,7 +153,7 @@ public class Patcher
 
 	static protected void patch( String version, String target ) throws SQLException
 	{
-		List patches = PatchFile.getPatches( version, target );
+		List patches = patchFile.getPatches( version, target );
 		Assert.isTrue( patches != null );
 		Assert.isTrue( patches.size() > 0, "No patches found" );
 
@@ -133,7 +170,7 @@ public class Patcher
 
 		Patcher.callBack.patchStarting( patch.getSource(), patch.getTarget() );
 
-		PatchFile.gotoPatch( patch );
+		patchFile.gotoPatch( patch );
 		int skip = DBVersion.getStatements();
 		if( DBVersion.getTarget() == null )
 			skip = 0;
@@ -144,7 +181,7 @@ public class Patcher
 
 		DBVersion.read();
 
-		Command command = PatchFile.readStatement();
+		Command command = patchFile.readStatement();
 		int count = 0;
 		try
 		{
@@ -240,7 +277,7 @@ public class Patcher
 					startMessage = null;
 				}
 
-				command = PatchFile.readStatement();
+				command = patchFile.readStatement();
 			}
 			Patcher.callBack.patchFinished();
 
@@ -310,5 +347,11 @@ public class Patcher
 	static public void logToXML( OutputStream out )
 	{
 		DBVersion.logToXML( out );
+	}
+	
+	static public void end()
+	{
+		closePatchFile();
+		Database.closeConnections();
 	}
 }

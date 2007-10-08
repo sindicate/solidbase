@@ -7,7 +7,7 @@
 
 	<!-- Source folders & files -->
 	<property name="test.home" value="test"/>
-	<property name="test.lib.home" value="tools/testng"/>
+	<property name="test.lib.home" value="tools/test"/>
 
 	<!-- Product folders -->
 	<property name="build.home" value="../BUILDS/dbpatcher/"/>
@@ -53,14 +53,13 @@
 		<unjar dest="${build.home}/classes">
 			<fileset file="lib/idt-commons-*.jar"/>
 			<patternset>
-				<exclude name="com/logicacmg/idt/commons/cache/**"/>
-				<exclude name="com/logicacmg/idt/commons/email/**"/>
-				<exclude name="com/logicacmg/idt/commons/jdbc/**"/>
-				<exclude name="com/logicacmg/idt/commons/business/**"/>
-				<exclude name="com/logicacmg/idt/commons/servlet/**"/>
-				<exclude name="com/logicacmg/idt/commons/spring/**"/>
-				<exclude name="com/logicacmg/idt/commons/tomcat5/**"/>
-				<exclude name="com/logicacmg/idt/commons/xml/**"/>
+				<include name="com/logicacmg/idt/commons/*"/>
+				<include name="com/logicacmg/idt/commons/collections/**"/>
+				<include name="com/logicacmg/idt/commons/io/**"/>
+				<include name="com/logicacmg/idt/commons/logging/**"/>
+				<include name="com/logicacmg/idt/commons/profiling/**"/>
+				<include name="com/logicacmg/idt/commons/reflect/**"/>
+				<include name="com/logicacmg/idt/commons/util/**"/>
 			</patternset>
 		</unjar>
 		<unjar dest="${build.home}/classes">
@@ -71,6 +70,12 @@
 				<include name="org/apache/commons/collections/MultiMap.class"/>
 				<include name="org/apache/commons/collections/map/AbstractMapDecorator.class"/>
 				<include name="org/apache/commons/collections/map/MultiValueMap*.class"/>
+			</patternset>
+		</unjar>
+		<unjar dest="${build.home}/classes">
+			<fileset file="lib/commons-lang-*.jar"/>
+			<patternset>
+				<include name="org/apache/commons/lang/StringUtils.class"/>
 			</patternset>
 		</unjar>
 	</target>
