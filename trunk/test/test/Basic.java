@@ -8,17 +8,18 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
+import ronnie.dbpatcher.core.Database;
 import ronnie.dbpatcher.core.Patcher;
 
 public class Basic
 {
 	@Test
-	public void test() throws IOException, SQLException
+	public void testBasic() throws IOException, SQLException
 	{
 		FileUtils.deleteDirectory( new File( "c:/projects/temp/dbpatcher/db" ) );
 		
 		Patcher.setCallBack( new TestProgressListener() );
-		Patcher.setConnection( "org.apache.derby.jdbc.EmbeddedDriver", "jdbc:derby:c:/projects/temp/dbpatcher/db;create=true", "app" );
+		Patcher.setConnection( new Database( "org.apache.derby.jdbc.EmbeddedDriver", "jdbc:derby:c:/projects/temp/dbpatcher/db;create=true" ), "app" );
 		Patcher.setPatchFileName( "testpatch1.sql" );
 		
 		Patcher.openPatchFile();
@@ -28,7 +29,21 @@ public class Basic
 		assert targets.size() > 0;
 		
 		Patcher.patch( "1.0.2" );
+	}
+	
+	@Test(dependsOnMethods="testBasic", expectedExceptions=SQLException.class)
+	public void testMissingGo() throws IOException, SQLException
+	{
+		Patcher.setCallBack( new TestProgressListener() );
+		Patcher.setConnection( new Database( "org.apache.derby.jdbc.EmbeddedDriver", "jdbc:derby:c:/projects/temp/dbpatcher/db;create=true" ), "app" );
+		Patcher.setPatchFileName( "testpatch2.sql" );
 		
-		Patcher.end();
+		Patcher.openPatchFile();
+		Patcher.readPatchFile();
+		
+		List< String > targets = Patcher.getTargets();
+		assert targets.size() > 0;
+		
+		Patcher.patch( "1.0.3" );
 	}
 }

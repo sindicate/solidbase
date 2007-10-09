@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 
+import ronnie.dbpatcher.core.Database;
 import ronnie.dbpatcher.core.Patcher;
 
 import com.logicacmg.idt.commons.SystemException;
@@ -80,7 +81,7 @@ public class Main
 			
 			Patcher.setCallBack( new Progress( verbose ) );
 			
-			Patcher.setConnection( Configuration.getDBDriver(), Configuration.getDBUrl(), Configuration.getUser() );
+			Patcher.setConnection( new Database( Configuration.getDBDriver(), Configuration.getDBUrl() ), Configuration.getUser() );
 			Console.println( "Connecting to database..." );
 			printCurrentVersion();
 

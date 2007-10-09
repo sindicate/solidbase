@@ -38,6 +38,8 @@ public class Patcher
 	static protected String defaultUser;
 	static protected PatchFile patchFile;
 	static protected String patchFileName;
+	static protected Database database;
+	static protected DBVersion dbVersion;
 
 	static
 	{
@@ -93,23 +95,23 @@ public class Patcher
 
 	static public String getCurrentVersion()
 	{
-		return DBVersion.getVersion();
+		return dbVersion.getVersion();
 	}
 
 	static public String getCurrentTarget()
 	{
-		return DBVersion.getTarget();
+		return dbVersion.getTarget();
 	}
 
 	static public int getCurrentStatements()
 	{
-		return DBVersion.getStatements();
+		return dbVersion.getStatements();
 	}
 
 	static public List getTargets()
 	{
 		LinkedHashSet result = new LinkedHashSet();
-		patchFile.getTargets( DBVersion.getVersion(), DBVersion.getTarget(), result );
+		patchFile.getTargets( dbVersion.getVersion(), dbVersion.getTarget(), result );
 		return new ArrayList( result );
 	}
 
@@ -122,7 +124,7 @@ public class Patcher
 			String t = (String)iter.next();
 			if( t.equals( target ) )
 			{
-				patch( DBVersion.getVersion(), target );
+				patch( dbVersion.getVersion(), target );
 				terminateCommandListeners();
 				return;
 			}
@@ -140,15 +142,17 @@ public class Patcher
 		}
 	}
 
-	static public void setConnection( String driverName, String url, String user )
+	static public void setConnection( Database database, String user )
 	{
-		Database.setConnection( driverName, url );
-		DBVersion.setUser( user );
-		Database.setDefaultUser( user );
+		Patcher.database = database;
+		database.setDefaultUser( user );
+
+		dbVersion = new DBVersion( database );
+		dbVersion.setUser( user );
 
 		defaultUser = user; // Overwrites the default user in the Database class at the start of each patch.
 
-		callBack.debug( "driverName=" + driverName + ", url=" + url + ", user=" + user + "" );
+		callBack.debug( "driverName=" + database.driverName + ", url=" + database.url + ", user=" + user + "" );
 	}
 
 	static protected void patch( String version, String target ) throws SQLException
@@ -171,15 +175,15 @@ public class Patcher
 		Patcher.callBack.patchStarting( patch.getSource(), patch.getTarget() );
 
 		patchFile.gotoPatch( patch );
-		int skip = DBVersion.getStatements();
-		if( DBVersion.getTarget() == null )
+		int skip = dbVersion.getStatements();
+		if( dbVersion.getTarget() == null )
 			skip = 0;
 
 		String startMessage = null;
 
-		Database.setDefaultUser( defaultUser ); // overwrite the default user at the start of each patch
+		database.setDefaultUser( defaultUser ); // overwrite the default user at the start of each patch
 
-		DBVersion.read();
+		dbVersion.read();
 
 		Command command = patchFile.readStatement();
 		int count = 0;
@@ -195,7 +199,7 @@ public class Patcher
 					for( Iterator iter = listeners.iterator(); iter.hasNext(); )
 					{
 						CommandListener listener = (CommandListener)iter.next();
-						done = listener.execute( command );
+						done = listener.execute( database, command );
 						if( done )
 							break;
 					}
@@ -229,7 +233,7 @@ public class Patcher
 							for( Iterator iter = listeners.iterator(); iter.hasNext(); )
 							{
 								CommandListener listener = (CommandListener)iter.next();
-								done = listener.execute( command );
+								done = listener.execute( database, command );
 								if( done )
 									break;
 							}
@@ -237,7 +241,7 @@ public class Patcher
 							if( !done )
 								try
 								{
-									Statement statement = Database.getConnection().createStatement();
+									Statement statement = database.getConnection().createStatement();
 									try
 									{
 										statement.execute( sql ); // autocommit is on
@@ -262,11 +266,11 @@ public class Patcher
 
 						if( !patch.isInit() )
 						{
-							DBVersion.setProgress( patch.getTarget(), count );
+							dbVersion.setProgress( patch.getTarget(), count );
 							if( sqle != null )
-								DBVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), sqle );
+								dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), sqle );
 							else
-								DBVersion.log( patch.getSource(), patch.getTarget(), count, sql, (String)null );
+								dbVersion.log( patch.getSource(), patch.getTarget(), count, sql, (String)null );
 						}
 
 						Patcher.callBack.executed();
@@ -281,29 +285,29 @@ public class Patcher
 			}
 			Patcher.callBack.patchFinished();
 
-			DBVersion.read();
+			dbVersion.read();
 
 			if( !patch.isOpen() )
 			{
-				DBVersion.setVersion( patch.getTarget() );
-				DBVersion.log( patch.getSource(), patch.getTarget(), count, null, "COMPLETED VERSION " + patch.getTarget() );
+				dbVersion.setVersion( patch.getTarget() );
+				dbVersion.log( patch.getSource(), patch.getTarget(), count, null, "COMPLETED VERSION " + patch.getTarget() );
 			}
 		}
 		catch( RuntimeException e )
 		{
-			DBVersion.log( patch.getSource(), patch.getTarget(), count, command == null ? null : command.getCommand(), e );
+			dbVersion.log( patch.getSource(), patch.getTarget(), count, command == null ? null : command.getCommand(), e );
 			throw e;
 		}
 		catch( SQLException e )
 		{
-			DBVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command == null ? null : command.getCommand(), e );
+			dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command == null ? null : command.getCommand(), e );
 			throw e;
 		}
 	}
 
 	static protected void setUser( String user )
 	{
-		Database.setDefaultUser( user );
+		database.setDefaultUser( user );
 //		Database.getConnection(); // To enter password
 	}
 
@@ -346,12 +350,12 @@ public class Patcher
 
 	static public void logToXML( OutputStream out )
 	{
-		DBVersion.logToXML( out );
+		dbVersion.logToXML( out );
 	}
 	
 	static public void end()
 	{
 		closePatchFile();
-		Database.closeConnections();
+		database.closeConnections();
 	}
 }

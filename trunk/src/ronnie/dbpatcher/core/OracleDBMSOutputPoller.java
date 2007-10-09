@@ -26,7 +26,7 @@ public class OracleDBMSOutputPoller extends CommandListener
 	protected Poller poller; 
 	
 	@Override
-	protected boolean execute( Command command ) throws SQLException
+	protected boolean execute( Database database, Command command ) throws SQLException
 	{
 		if( command.isNonRepeatable() )
 			return false;
@@ -34,7 +34,7 @@ public class OracleDBMSOutputPoller extends CommandListener
 		Matcher matcher = enablePattern.matcher( command.getCommand() );
 		if( matcher.matches() )
 		{
-			Connection connection = Database.getConnection();
+			Connection connection = database.getConnection();
 			
 			connection.prepareCall( "begin dbms_output.enable; end;" ).execute();
 			System.out.println( "Enabled serveroutput" );
@@ -47,7 +47,7 @@ public class OracleDBMSOutputPoller extends CommandListener
 		matcher = disablePattern.matcher( command.getCommand() );
 		if( matcher.matches() )
 		{
-			Connection connection = Database.getConnection();
+			Connection connection = database.getConnection();
 			connection.prepareCall( "begin dbms_output.disable; end;" ).execute();
 			System.out.println( "Disabled serveroutput" );
 

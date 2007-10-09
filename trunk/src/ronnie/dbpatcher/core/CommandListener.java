@@ -18,7 +18,7 @@ abstract public class CommandListener
 	 * @return true to signal the patchtool to stop processing the command, false otherwise.
 	 * @throws SQLException
 	 */
-	abstract protected boolean execute( Command command ) throws SQLException;
+	abstract protected boolean execute( Database database, Command command ) throws SQLException;
 	
 	/**
 	 * Gives the listener a chance to cleanup after itself. For example to kill threads that it started or temporary tables that it created.
