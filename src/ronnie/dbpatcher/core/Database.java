@@ -17,22 +17,16 @@ import com.logicacmg.idt.commons.util.Assert;
  */
 public class Database
 {
-	static protected String driverName;
-	static protected String url;
-	static protected HashMap< String, Connection > connections = new HashMap< String, Connection >();
-	static protected HashMap passwords = new HashMap();
-	static protected String defaultUser;
+	protected String driverName;
+	protected String url;
+	protected HashMap< String, Connection > connections = new HashMap< String, Connection >();
+	protected HashMap passwords = new HashMap();
+	protected String defaultUser;
 	
-	/**
-	 * Configures the classname for the database driver and the url to the database.
-	 * 
-	 * @param driverClassName The database driver class name.
-	 * @param url The database connection url.
-	 */
-	static protected void setConnection( String driverClassName, String url )
+	public Database( String driverClassName, String url )
 	{
-		Database.driverName = driverClassName;
-		Database.url = url;
+		this.driverName = driverClassName;
+		this.url = url;
 		try
 		{
 			Class.forName( driverClassName );
@@ -51,7 +45,7 @@ public class Database
 	 * @param password The password of the user.
 	 * @return the connection.
 	 */
-	static protected Connection getConnection( String url, String user, String password )
+	protected Connection getConnection( String url, String user, String password )
 	{
 		try
 		{
@@ -73,15 +67,15 @@ public class Database
 	 * @param user The user name.
 	 * @return the connection
 	 */
-	static protected Connection getConnection( String user )
+	protected Connection getConnection( String user )
 	{
-		Connection connection = connections.get( user );
+		Connection connection = this.connections.get( user );
 		if( connection == null )
 		{
 			String password = Patcher.callBack.requestPassword( user );
-			connection = getConnection( url, user, password );
-			connections.put( user, connection );
-			passwords.put( user, password );
+			connection = getConnection( this.url, user, password );
+			this.connections.put( user, connection );
+			this.passwords.put( user, password );
 		}
 		return connection;
 	}
@@ -92,10 +86,10 @@ public class Database
 	 * @return the connection.
 	 * @see #getConnection(String)
 	 */
-	static protected Connection getConnection()
+	protected Connection getConnection()
 	{
-		Assert.notEmpty( defaultUser, "User must not be empty" );
-		return getConnection( defaultUser );
+		Assert.notEmpty( this.defaultUser, "User must not be empty" );
+		return getConnection( this.defaultUser );
 	}
 
 	/**
@@ -103,15 +97,15 @@ public class Database
 	 * 
 	 * @param user
 	 */
-	static protected void setDefaultUser( String user )
+	protected void setDefaultUser( String user )
 	{
 		Assert.notEmpty( user, "User must not be empty" );
-		Database.defaultUser = user;
+		this.defaultUser = user;
 	}
 	
-	static protected void closeConnections()
+	protected void closeConnections()
 	{
-		for( Connection connection : connections.values() )
+		for( Connection connection : this.connections.values() )
 			try
 			{
 				connection.close();
@@ -121,6 +115,6 @@ public class Database
 				throw new SystemException( e );
 			}
 		
-		connections.clear();
+		this.connections.clear();
 	}
 }

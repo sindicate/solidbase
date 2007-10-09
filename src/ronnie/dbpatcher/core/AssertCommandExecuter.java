@@ -29,7 +29,7 @@ public class AssertCommandExecuter extends CommandListener
 	static private final Pattern assertPattern = Pattern.compile( "\\s*ASSERT\\s+EXISTS\\s+MESSAGE\\s+'([^']*)'\\s+(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 	@Override
-	protected boolean execute( Command command ) throws SQLException
+	protected boolean execute( Database database, Command command ) throws SQLException
 	{
 		if( command.isRepeatable() )
 			return false;
@@ -40,7 +40,7 @@ public class AssertCommandExecuter extends CommandListener
 			String message = matcher.group( 1 );
 			String select  = matcher.group( 2 ).trim();
 			Assert.isTrue( select.substring( 0, 7 ).equalsIgnoreCase( "SELECT " ), "Check should be a SELECT" );
-			Connection connection = Database.getConnection();
+			Connection connection = database.getConnection();
 			Statement statement = connection.createStatement();
 			try
 			{

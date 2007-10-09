@@ -44,34 +44,41 @@ import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
  */
 public class DBVersion
 {
-	static protected boolean read; // read tried
-	static protected boolean valid; // read succeeded
-	static protected boolean versionTableExists;
-	static protected boolean logTableExists;
+	protected boolean read; // read tried
+	protected boolean valid; // read succeeded
+	protected boolean versionTableExists;
+	protected boolean logTableExists;
 	
-	static protected String version;
-	static protected String target;
-	static protected int statements;
-	static protected String user;
+	protected String version;
+	protected String target;
+	protected int statements;
+	protected String user;
+	
+	protected Database database;
+	
+	protected DBVersion( Database database )
+	{
+		this.database = database;
+	}
 	
 	/**
 	 * Gets the current version of the database. If the version table does not yet exist it return null.
 	 * 
 	 * @return the current version of the database. Will be null if and only if the version table does not exist.
 	 */
-	static protected String getVersion()
+	protected String getVersion()
 	{
-		if( !read )
+		if( !this.read )
 			read();
 		
-		Assert.isTrue( valid );
+		Assert.isTrue( this.valid );
 		
-		if( !versionTableExists )
+		if( !this.versionTableExists )
 			return null;
 		
-		Assert.notNull( version );
+		Assert.notNull( this.version );
 		
-		return version;
+		return this.version;
 	}
 	
 	/**
@@ -79,17 +86,17 @@ public class DBVersion
 	 * 
 	 * @return the current target version of the database.
 	 */
-	static protected String getTarget()
+	protected String getTarget()
 	{
-		if( !read )
+		if( !this.read )
 			read();
 		
-		Assert.isTrue( valid );
+		Assert.isTrue( this.valid );
 		
-		if( !versionTableExists )
+		if( !this.versionTableExists )
 			return null;
 		
-		return target;
+		return this.target;
 	}
 
 	/**
@@ -97,48 +104,48 @@ public class DBVersion
 	 * 
 	 * @return the number of statements that have been executed.
 	 */
-	static protected int getStatements()
+	protected int getStatements()
 	{
-		if( !read )
+		if( !this.read )
 			read();
 		
-		Assert.isTrue( valid );
+		Assert.isTrue( this.valid );
 		
-		if( !versionTableExists )
+		if( !this.versionTableExists )
 			return 0;
 		
-		return statements;
+		return this.statements;
 	}
 	
 	/**
 	 * Refreshes the data from the database. Is automatically called if needed by {@link #getVersion()}, {@link #getTarget()} and {@link #getStatements()}.
 	 *
 	 */
-	static protected void read()
+	protected void read()
 	{
-		Assert.notNull( user, "User is not set" );
-		read = true;
+		Assert.notNull( this.user, "User is not set" );
+		this.read = true;
 		
-		versionTableExists = false;
-		logTableExists = false;
+		this.versionTableExists = false;
+		this.logTableExists = false;
 		
 		try
 		{
-			PreparedStatement statement = Database.getConnection( user ).prepareStatement( "SELECT VERSION, TARGET, STATEMENTS FROM DBVERSION" );
+			PreparedStatement statement = this.database.getConnection( this.user ).prepareStatement( "SELECT VERSION, TARGET, STATEMENTS FROM DBVERSION" );
 			ResultSet resultSet = statement.executeQuery();
 			try
 			{
-				versionTableExists = true;
+				this.versionTableExists = true;
 				
 				Assert.isTrue( resultSet.next() );
-				version = resultSet.getString( 1 );
-				target = resultSet.getString( 2 );
-				statements = resultSet.getInt( 3 );
+				this.version = resultSet.getString( 1 );
+				this.target = resultSet.getString( 2 );
+				this.statements = resultSet.getInt( 3 );
 				Assert.isTrue( !resultSet.next() );
 				
-				Patcher.callBack.debug( "version=" + version + ", target=" + target + ", statements=" + statements );
+				Patcher.callBack.debug( "version=" + this.version + ", target=" + this.target + ", statements=" + this.statements );
 				
-				valid = true;
+				this.valid = true;
 			}
 			finally
 			{
@@ -149,18 +156,18 @@ public class DBVersion
 		{
 			String sqlState = e.getSQLState();
 			if( sqlState.equals( "42000" ) /* Oracle */ || sqlState.equals( "42X05" ) /* Derby */ )
-				valid = true;
+				this.valid = true;
 			else
 				throw new SystemException( e );
 		}
 		
 		try
 		{
-			PreparedStatement statement = Database.getConnection( user ).prepareStatement( "SELECT * FROM DBVERSIONLOG" );
+			PreparedStatement statement = this.database.getConnection( this.user ).prepareStatement( "SELECT * FROM DBVERSIONLOG" );
 			statement.executeQuery();
 			try
 			{
-				logTableExists = true;
+				this.logTableExists = true;
 			}
 			finally
 			{
@@ -181,19 +188,19 @@ public class DBVersion
 	 * @param target The target version.
 	 * @param statements The number of statements executed.
 	 */
-	static protected void setProgress( String target, int statements )
+	protected void setProgress( String target, int statements )
 	{
 		Assert.notEmpty( target, "Target must not be empty" );
 		
 		try
 		{
 			PreparedStatement statement;
-			if( versionTableExists )
-				statement = Database.getConnection( user ).prepareStatement( "UPDATE DBVERSION SET TARGET = ?, STATEMENTS = ?" );
+			if( this.versionTableExists )
+				statement = this.database.getConnection( this.user ).prepareStatement( "UPDATE DBVERSION SET TARGET = ?, STATEMENTS = ?" );
 			else
 			{
 				// Presume that the table has been created by the first SQL statement in the patch
-				statement = Database.getConnection( user ).prepareStatement( "INSERT INTO DBVERSION ( TARGET, STATEMENTS ) VALUES ( ?, ? )" );
+				statement = this.database.getConnection( this.user ).prepareStatement( "INSERT INTO DBVERSION ( TARGET, STATEMENTS ) VALUES ( ?, ? )" );
 			}
 			statement.setString( 1, target );
 			statement.setInt( 2, statements );
@@ -201,10 +208,10 @@ public class DBVersion
 			Assert.isTrue( modified == 1, "Expecting 1 record to be updated, not " + modified );
 			statement.close();
 			
-			versionTableExists = true;
+			this.versionTableExists = true;
 			
-			DBVersion.target = target;
-			DBVersion.statements = statements;
+			this.target = target;
+			this.statements = statements;
 		}
 		catch( SQLException e )
 		{
@@ -217,21 +224,21 @@ public class DBVersion
 	 * 
 	 * @param version The version.
 	 */
-	static protected void setVersion( String version )
+	protected void setVersion( String version )
 	{
 		Assert.notEmpty( version, "Version must not be empty" );
-		Assert.isTrue( versionTableExists, "Version table does not exist" );
+		Assert.isTrue( this.versionTableExists, "Version table does not exist" );
 		
 		try
 		{
-			PreparedStatement statement = Database.getConnection( user ).prepareStatement( "UPDATE DBVERSION SET VERSION = ?, TARGET = NULL" );
+			PreparedStatement statement = this.database.getConnection( this.user ).prepareStatement( "UPDATE DBVERSION SET VERSION = ?, TARGET = NULL" );
 			statement.setString( 1, version );
 			int modified = statement.executeUpdate(); // autocommit is on
 			Assert.isTrue( modified == 1, "Expecting 1 record to be updated, not " + modified );
 			statement.close();
 			
-			DBVersion.version = version;
-			DBVersion.target = null;
+			this.version = version;
+			this.target = null;
 		}
 		catch( SQLException e )
 		{
@@ -244,9 +251,9 @@ public class DBVersion
 	 * 
 	 * @param user The user.
 	 */
-	static protected void setUser( String user )
+	protected void setUser( String user )
 	{
-		DBVersion.user = user;
+		this.user = user;
 	}
 
 	/**
@@ -254,9 +261,9 @@ public class DBVersion
 	 * 
 	 * @return
 	 */
-	static protected String getUser()
+	protected String getUser()
 	{
-		return user;
+		return this.user;
 	}
 	
 	/**
@@ -268,9 +275,9 @@ public class DBVersion
 	 * @param command
 	 * @param result
 	 */
-	static protected void log( String source, String target, int count, String command, String result )
+	protected void log( String source, String target, int count, String command, String result )
 	{
-		if( !DBVersion.logTableExists )
+		if( !this.logTableExists )
 			return;
 		
 //		Assert.notEmpty( source, "source must not be empty" );
@@ -285,7 +292,7 @@ public class DBVersion
 		
 		try
 		{
-			PreparedStatement statement = Database.getConnection( DBVersion.getUser() ).prepareStatement( "INSERT INTO DBVERSIONLOG ( SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ? )" );
+			PreparedStatement statement = this.database.getConnection( getUser() ).prepareStatement( "INSERT INTO DBVERSIONLOG ( SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ? )" );
 			statement.setString( 1, StringUtil.emptyToNull( source ) );
 			statement.setString( 2, target );
 			statement.setInt( 3, count );
@@ -310,7 +317,7 @@ public class DBVersion
 	 * @param command
 	 * @param e
 	 */
-	static protected void log( String source, String target, int count, String command, Exception e )
+	protected void log( String source, String target, int count, String command, Exception e )
 	{
 		Assert.notNull( e, "exception must not be null" );
 		
@@ -329,7 +336,7 @@ public class DBVersion
 	 * @param command
 	 * @param e
 	 */
-	static protected void logSQLException( String source, String target, int count, String command, SQLException e )
+	protected void logSQLException( String source, String target, int count, String command, SQLException e )
 	{
 		Assert.notNull( e, "exception must not be null" );
 		
@@ -354,11 +361,11 @@ public class DBVersion
 	 * 
 	 * @param out The outputstream.
 	 */
-	static protected void logToXML( OutputStream out )
+	protected void logToXML( OutputStream out )
 	{
 		try
 		{
-			ResultSet result = Database.getConnection( DBVersion.getUser() ).createStatement().executeQuery( "SELECT SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT FROM DBVERSIONLOG ORDER BY ID" );
+			ResultSet result = this.database.getConnection( getUser() ).createStatement().executeQuery( "SELECT SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT FROM DBVERSIONLOG ORDER BY ID" );
 			
 			OutputFormat format = new OutputFormat( "XML", "ISO-8859-1", true );
 			XMLSerializer serializer = new XMLSerializer( out, format );
