@@ -23,6 +23,12 @@ public class Database
 	protected HashMap passwords = new HashMap();
 	protected String defaultUser;
 	
+	/**
+	 * Constructs a Database object for a specific database url. This object will manage multiple connections to this database.
+	 * 
+	 * @param driverClassName Classname of the driver.
+	 * @param url Url of the database.
+	 */
 	public Database( String driverClassName, String url )
 	{
 		this.driverName = driverClassName;
@@ -62,7 +68,6 @@ public class Database
 	/**
 	 * Gets a cached connection for the given user. If a connection for the given user is not found in the cache, this method will
 	 * request a password by calling the method {@link ProgressListener#requestPassword(String)} of {@link Patcher#callBack}. The connection is cached for later use.
-	 * It uses the database configuration set by {@link #setConnection(String, String)}.
 	 * 
 	 * @param user The user name.
 	 * @return the connection
@@ -81,14 +86,15 @@ public class Database
 	}
 	
 	/**
-	 * Gets a connection for the default user.
+	 * Gets a connection for the default user from the cache. If a connection for the default user is not found in the cache, this method will
+	 * request a password by calling the method {@link ProgressListener#requestPassword(String)} of {@link Patcher#callBack}. The connection is cached for later use.
 	 * 
 	 * @return the connection.
 	 * @see #getConnection(String)
 	 */
 	protected Connection getConnection()
 	{
-		Assert.notEmpty( this.defaultUser, "User must not be empty" );
+		Assert.notEmpty( this.defaultUser, "Default user must not be empty" );
 		return getConnection( this.defaultUser );
 	}
 
