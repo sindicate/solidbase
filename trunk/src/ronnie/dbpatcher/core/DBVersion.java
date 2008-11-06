@@ -1,20 +1,20 @@
 /*
  * TABLES:
- * 
+ *
  * DBVERSION ( VERSION, TARGET, STATEMENTS ), 1 record
- * 
+ *
  *     Examples:
  *     DHL TTS 2.0.11, <NULL>, 10 : version is complete, it took 10 statements to get there
- *     DHL TTS 2.0.11, DHL TTS 2.0.12, 4 : version is not complete, 4 statements already executed 
- * 
+ *     DHL TTS 2.0.11, DHL TTS 2.0.12, 4 : version is not complete, 4 statements already executed
+ *
  * DBVERSIONLOG ( VERSION, TARGET, STATEMENT, STAMP, SQL, RESULT )
- * 
+ *
  *     Version jumps:
  *     DHL TTS 2.0.11, <NULL>, <NULL>, 2006-03-27 13:56:00, <NULL>, <NULL>
  *     DHL TTS 2.0.12, <NULL>, <NULL>, 2006-03-27 13:56:00, <NULL>, <NULL>
- *     
+ *
  *     Individual statements:
- *     DHL TTS 2.0.11, DHL TTS 2.0.12, 5, 2006-03-27 13:56:00, CREATE TABLE ..., TABLE ALREADY EXISTS 
+ *     DHL TTS 2.0.11, DHL TTS 2.0.12, 5, 2006-03-27 13:56:00, CREATE TABLE ..., TABLE ALREADY EXISTS
  */
 
 package ronnie.dbpatcher.core;
@@ -38,7 +38,7 @@ import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
 /**
  * This class represents the version information in the database. It is able to interpret the data and modify the data.
- * 
+ *
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:17:41 PM
  */
@@ -48,75 +48,75 @@ public class DBVersion
 	protected boolean valid; // read succeeded
 	protected boolean versionTableExists;
 	protected boolean logTableExists;
-	
+
 	protected String version;
 	protected String target;
 	protected int statements;
 	protected String user;
-	
+
 	protected Database database;
-	
+
 	protected DBVersion( Database database )
 	{
 		this.database = database;
 	}
-	
+
 	/**
 	 * Gets the current version of the database. If the version table does not yet exist it return null.
-	 * 
+	 *
 	 * @return the current version of the database. Will be null if and only if the version table does not exist.
 	 */
 	protected String getVersion()
 	{
 		if( !this.read )
 			read();
-		
+
 		Assert.isTrue( this.valid );
-		
+
 		if( !this.versionTableExists )
 			return null;
-		
+
 		Assert.notNull( this.version );
-		
+
 		return this.version;
 	}
-	
+
 	/**
-	 * Gets the current target version of the database. This method will only return a non-null value when the database state is in between 2 versions. 
-	 * 
+	 * Gets the current target version of the database. This method will only return a non-null value when the database state is in between 2 versions.
+	 *
 	 * @return the current target version of the database.
 	 */
 	protected String getTarget()
 	{
 		if( !this.read )
 			read();
-		
+
 		Assert.isTrue( this.valid );
-		
+
 		if( !this.versionTableExists )
 			return null;
-		
+
 		return this.target;
 	}
 
 	/**
 	 * Gets the number of statements that have been executed to upgrade the database to the target version.
-	 * 
+	 *
 	 * @return the number of statements that have been executed.
 	 */
 	protected int getStatements()
 	{
 		if( !this.read )
 			read();
-		
+
 		Assert.isTrue( this.valid );
-		
+
 		if( !this.versionTableExists )
 			return 0;
-		
+
 		return this.statements;
 	}
-	
+
 	/**
 	 * Refreshes the data from the database. Is automatically called if needed by {@link #getVersion()}, {@link #getTarget()} and {@link #getStatements()}.
 	 *
@@ -125,26 +125,26 @@ public class DBVersion
 	{
 		Assert.notNull( this.user, "User is not set" );
 		this.read = true;
-		
+
 		this.versionTableExists = false;
 		this.logTableExists = false;
-		
+
 		try
 		{
 			PreparedStatement statement = this.database.getConnection( this.user ).prepareStatement( "SELECT VERSION, TARGET, STATEMENTS FROM DBVERSION" );
-			ResultSet resultSet = statement.executeQuery();
 			try
 			{
 				this.versionTableExists = true;
-				
+
+				ResultSet resultSet = statement.executeQuery(); // Resultset is closed when the statement is closed
 				Assert.isTrue( resultSet.next() );
 				this.version = resultSet.getString( 1 );
 				this.target = resultSet.getString( 2 );
 				this.statements = resultSet.getInt( 3 );
 				Assert.isTrue( !resultSet.next() );
-				
+
 				Patcher.callBack.debug( "version=" + this.version + ", target=" + this.target + ", statements=" + this.statements );
-				
+
 				this.valid = true;
 			}
 			finally
@@ -160,7 +160,7 @@ public class DBVersion
 			else
 				throw new SystemException( e );
 		}
-		
+
 		try
 		{
 			PreparedStatement statement = this.database.getConnection( this.user ).prepareStatement( "SELECT * FROM DBVERSIONLOG" );
@@ -181,17 +181,17 @@ public class DBVersion
 				throw new SystemException( e );
 		}
 	}
-	
+
 	/**
 	 * Sets the number of statements executed and the target version.
-	 * 
+	 *
 	 * @param target The target version.
 	 * @param statements The number of statements executed.
 	 */
 	protected void setProgress( String target, int statements )
 	{
 		Assert.notEmpty( target, "Target must not be empty" );
-		
+
 		try
 		{
 			PreparedStatement statement;
@@ -207,9 +207,9 @@ public class DBVersion
 			int modified = statement.executeUpdate(); // autocommit is on
 			Assert.isTrue( modified == 1, "Expecting 1 record to be updated, not " + modified );
 			statement.close();
-			
+
 			this.versionTableExists = true;
-			
+
 			this.target = target;
 			this.statements = statements;
 		}
@@ -221,14 +221,14 @@ public class DBVersion
 
 	/**
 	 * Sets the current version.
-	 * 
+	 *
 	 * @param version The version.
 	 */
 	protected void setVersion( String version )
 	{
 		Assert.notEmpty( version, "Version must not be empty" );
 		Assert.isTrue( this.versionTableExists, "Version table does not exist" );
-		
+
 		try
 		{
 			PreparedStatement statement = this.database.getConnection( this.user ).prepareStatement( "UPDATE DBVERSION SET VERSION = ?, TARGET = NULL" );
@@ -236,7 +236,7 @@ public class DBVersion
 			int modified = statement.executeUpdate(); // autocommit is on
 			Assert.isTrue( modified == 1, "Expecting 1 record to be updated, not " + modified );
 			statement.close();
-			
+
 			this.version = version;
 			this.target = null;
 		}
@@ -248,7 +248,7 @@ public class DBVersion
 
 	/**
 	 * The user/owner/schema of the version tables.
-	 * 
+	 *
 	 * @param user The user.
 	 */
 	protected void setUser( String user )
@@ -258,17 +258,17 @@ public class DBVersion
 
 	/**
 	 * Gets the user/owner/schema of the version tables.
-	 * 
+	 *
 	 * @return
 	 */
 	protected String getUser()
 	{
 		return this.user;
 	}
-	
+
 	/**
 	 * Adds a log record to the version log table.
-	 *  
+	 *
 	 * @param source
 	 * @param target
 	 * @param count
@@ -279,17 +279,17 @@ public class DBVersion
 	{
 		if( !this.logTableExists )
 			return;
-		
+
 //		Assert.notEmpty( source, "source must not be empty" );
 		Assert.notEmpty( target, "target must not be empty" );
 //		Assert.notEmpty( command, "command must not be empty" );
-		
+
 		// Trim strings, maximum length for VARCHAR2 is 4000
 		if( command != null && command.length() > 4000 )
 			command = command.substring( 0, 4000 );
 		if( result != null && result.length() > 4000 )
 			result = result.substring( 0, 4000 );
-		
+
 		try
 		{
 			PreparedStatement statement = this.database.getConnection( getUser() ).prepareStatement( "INSERT INTO DBVERSIONLOG ( SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ? )" );
@@ -310,7 +310,7 @@ public class DBVersion
 
 	/**
 	 * Adds a log record to the version log table.
-	 * 
+	 *
 	 * @param source
 	 * @param target
 	 * @param count
@@ -320,16 +320,16 @@ public class DBVersion
 	protected void log( String source, String target, int count, String command, Exception e )
 	{
 		Assert.notNull( e, "exception must not be null" );
-		
+
 		StringWriter buffer = new StringWriter();
 		e.printStackTrace( new PrintWriter( buffer ) );
-		
+
 		log( source, target, count, command, buffer.toString() );
 	}
 
 	/**
 	 * Adds a log record to the version log table.
-	 * 
+	 *
 	 * @param source
 	 * @param target
 	 * @param count
@@ -339,7 +339,7 @@ public class DBVersion
 	protected void logSQLException( String source, String target, int count, String command, SQLException e )
 	{
 		Assert.notNull( e, "exception must not be null" );
-		
+
 		StringBuffer buffer = new StringBuffer();
 
 		while( true )
@@ -352,13 +352,13 @@ public class DBVersion
 				break;
 			buffer.append( "\n" );
 		}
-		
+
 		log( source, target, count, command, buffer.toString() );
 	}
-	
+
 	/**
 	 * Dumps the current log in XML format to the given output stream.
-	 * 
+	 *
 	 * @param out The outputstream.
 	 */
 	protected void logToXML( OutputStream out )
@@ -366,13 +366,13 @@ public class DBVersion
 		try
 		{
 			ResultSet result = this.database.getConnection( getUser() ).createStatement().executeQuery( "SELECT SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT FROM DBVERSIONLOG ORDER BY ID" );
-			
+
 			OutputFormat format = new OutputFormat( "XML", "ISO-8859-1", true );
 			XMLSerializer serializer = new XMLSerializer( out, format );
-			
+
 			serializer.startDocument();
 			serializer.startElement( null, null, "log", null );
-			
+
 			while( result.next() )
 			{
 				AttributesImpl attributes = new AttributesImpl();
@@ -393,7 +393,7 @@ public class DBVersion
 				}
 				serializer.endElement( null, null, "command" );
 			}
-			
+
 			serializer.endElement( null, null, "log" );
 			serializer.endDocument();
 		}
