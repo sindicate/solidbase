@@ -46,7 +46,7 @@ public class Patcher
 		listeners.add( new AssertCommandExecuter() );
 		listeners.add( new OracleDBMSOutputPoller() );
 	}
-	
+
 	static public void setPatchFileName( String fileName )
 	{
 		patchFileName = fileName;
@@ -57,7 +57,7 @@ public class Patcher
 		String fileName = patchFileName;
 		if( fileName == null )
 			fileName = "dbpatch.sql";
-		
+
 		LineInputStream lis;
 		URL url = Patcher.class.getResource( "/" + fileName ); // In the classpath
 		if( url != null )
@@ -88,7 +88,7 @@ public class Patcher
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e ); 
+			throw new SystemException( e );
 		}
 		patchFile = null;
 	}
@@ -142,17 +142,24 @@ public class Patcher
 		}
 	}
 
-	static public void setConnection( Database database, String user )
+	/**
+	 * Configures the connection to the database, including the default user.
+	 * Each patch in the patch file starts with this default user.
+	 *
+	 * @param database
+	 * @param defaultUser
+	 */
+	static public void setConnection( Database database, String defaultUser )
 	{
 		Patcher.database = database;
-		database.setDefaultUser( user );
+		database.setCurrentUser( defaultUser );
 
 		dbVersion = new DBVersion( database );
-		dbVersion.setUser( user );
+		dbVersion.setUser( defaultUser );
 
-		defaultUser = user; // Overwrites the default user in the Database class at the start of each patch.
+		Patcher.defaultUser = defaultUser; // Overwrites the default user in the Database class at the start of each patch.
 
-		callBack.debug( "driverName=" + database.driverName + ", url=" + database.url + ", user=" + user + "" );
+		callBack.debug( "driverName=" + database.driverName + ", url=" + database.url + ", user=" + defaultUser + "" );
 	}
 
 	static protected void patch( String version, String target ) throws SQLException
@@ -181,7 +188,7 @@ public class Patcher
 
 		String startMessage = null;
 
-		database.setDefaultUser( defaultUser ); // overwrite the default user at the start of each patch
+		database.setCurrentUser( defaultUser ); // overwrite the default user at the start of each patch
 
 		dbVersion.read();
 
@@ -307,7 +314,7 @@ public class Patcher
 
 	static protected void setUser( String user )
 	{
-		database.setDefaultUser( user );
+		database.setCurrentUser( user );
 //		Database.getConnection(); // To enter password
 	}
 
@@ -352,7 +359,7 @@ public class Patcher
 	{
 		dbVersion.logToXML( out );
 	}
-	
+
 	static public void end()
 	{
 		closePatchFile();

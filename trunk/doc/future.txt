@@ -1,0 +1,24 @@
+Property file:
+
+	driverjars = ojdbc14.jar, mysql.jar
+	databases = prod, test
+	
+	prod.name = DHL Production
+	prod.driver = oracle.jdbc.OracleDriver
+	prod.url = jdbc:oracle:thin:@NL-PLS-CVS01:1521:DHL
+	prod.applications = app1, app2
+
+	prod.app1.user = app1
+	prod.app2.user = app2
+
+	test.name = DHL Test
+	test.driver = oracle.jdbc.OracleDriver
+	test.url = jdbc:oracle:thin:@NL-PLS-CVS01:1521:DHL2
+	test.applications = app3
+	
+	test.app3.user = app3
+	
+	
+TODO
+
+	Test that the user is indeed optional.
