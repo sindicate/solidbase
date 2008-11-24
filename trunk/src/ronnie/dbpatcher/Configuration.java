@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.logicacmg.idt.commons.SystemException;
 import com.logicacmg.idt.commons.util.Assert;
 
@@ -27,7 +29,7 @@ public class Configuration
 	static protected boolean fromAnt;
 
 	// Version 2 configuration
-	static protected String driverJars;
+	static protected List< String > driverJars;
 	static protected List< Database > databases;
 
 	// Version 1 configuration
@@ -94,7 +96,16 @@ public class Configuration
 				// Version 2 configuration
 
 				// driver jars
-				driverJars = properties.getProperty( "driverjars" );
+				driverJars = new ArrayList();
+
+				String driversProperty = properties.getProperty( "driverjars" );
+				Assert.notBlank( driversProperty, "'driverjars' not configured in " + DBPATCHER_PROPERTIES );
+				for( String driverJar : driversProperty.split( "," ) )
+				{
+					driverJar = driverJar.trim();
+					if( driverJar.length() > 0 )
+						driverJars.add( driverJar );
+				}
 
 				// databases
 				databases = new ArrayList< Database >();
@@ -107,30 +118,35 @@ public class Configuration
 					if( databaseName.length() > 0 )
 					{
 						// per database
-						String name = properties.getProperty( databaseName + ".name" );
+						String databaseDescription = properties.getProperty( databaseName + ".description" );
 						String driver = properties.getProperty( databaseName + ".driver" );
 						String dbUrl = properties.getProperty( databaseName + ".url" );
 
-						Assert.notBlank( name, "'" + databaseName + ".name' not configured in " + DBPATCHER_PROPERTIES );
+						if( StringUtils.isBlank( databaseDescription ) )
+							databaseDescription = databaseName;
 						Assert.notBlank( driver, "'" + databaseName + ".driver' not configured in " + DBPATCHER_PROPERTIES );
 						Assert.notBlank( dbUrl, "'" + databaseName + ".url' not configured in " + DBPATCHER_PROPERTIES );
 
-						Database database = new Database( name, driver, dbUrl );
+						Database database = new Database( databaseName, databaseDescription, driver, dbUrl );
 						databases.add( database );
 
 						// apps
-						String appsProperty = properties.getProperty( database + ".applications" );
-						Assert.notBlank( appsProperty, "'" + database + ".applications' not configured in " + DBPATCHER_PROPERTIES );
+						String appsProperty = properties.getProperty( databaseName + ".applications" );
+						Assert.notBlank( appsProperty, "'" + databaseName + ".applications' not configured in " + DBPATCHER_PROPERTIES );
 
-						for( String app : appsProperty.split( "," ) )
+						for( String appName : appsProperty.split( "," ) )
 						{
-							app = app.trim();
-							if( app.length() > 0 )
+							appName = appName.trim();
+							if( appName.length() > 0 )
 							{
-								String userName = properties.getProperty( database + "." + app + ".user" );
-								Assert.notBlank( name, "'" + database + "." + app + ".user' not configured in " + DBPATCHER_PROPERTIES );
+								String appDescription = properties.getProperty( databaseName + "." + appName + ".description" );
+								String userName = properties.getProperty( databaseName + "." + appName + ".user" );
 
-								database.addApplication( userName );
+								if( StringUtils.isBlank( appDescription ) )
+									appDescription = appName;
+								Assert.notBlank( userName, "'" + databaseName + "." + appName + ".user' not configured in " + DBPATCHER_PROPERTIES );
+
+								database.addApplication( appName, appDescription, userName );
 							}
 						}
 					}
@@ -181,30 +197,50 @@ public class Configuration
 		return user;
 	}
 
+	static protected Database getDatabase( String name )
+	{
+		for( Database database : databases )
+			if( database.name.equals( name ) )
+				return database;
+		throw new SystemException( "Database [" + name + "] not configured." );
+	}
+
 	static protected class Database
 	{
 		protected String name;
+		protected String description;
 		protected String driver;
 		protected String url;
-		protected List< Application > applications;
-		protected Database( String name, String driver, String url )
+		protected List< Application > applications = new ArrayList();
+		protected Database( String name, String description, String driver, String url )
 		{
 			this.name = name;
+			this.description = description;
 			this.driver = driver;
 			this.url = url;
 		}
-		protected void addApplication( String userName )
+		protected void addApplication( String name, String description, String userName )
 		{
-			this.applications.add( new Application( userName ) );
+			this.applications.add( new Application( name, description, userName ) );
+		}
+		protected Application getApplication( String name )
+		{
+			for( Application application : this.applications )
+				if( application.name.equals( name ) )
+					return application;
+			throw new SystemException( "Application [" + name + "] not configured for database [" + this.name + "]." );
 		}
 	}
 
 	static protected class Application
 	{
 		protected String name;
+		protected String description;
 		protected String userName;
-		protected Application( String userName )
+		protected Application( String name, String description, String userName )
 		{
+			this.name = name;
+			this.description = description;
 			this.userName = userName;
 		}
 	}
