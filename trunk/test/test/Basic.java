@@ -17,33 +17,45 @@ public class Basic
 	public void testBasic() throws IOException, SQLException
 	{
 		FileUtils.deleteDirectory( new File( "c:/projects/temp/dbpatcher/db" ) );
-		
+
 		Patcher.setCallBack( new TestProgressListener() );
 		Patcher.setConnection( new Database( "org.apache.derby.jdbc.EmbeddedDriver", "jdbc:derby:c:/projects/temp/dbpatcher/db;create=true" ), "app" );
-		Patcher.setPatchFileName( "testpatch1.sql" );
-		
-		Patcher.openPatchFile();
-		Patcher.readPatchFile();
-		
-		List< String > targets = Patcher.getTargets();
-		assert targets.size() > 0;
-		
-		Patcher.patch( "1.0.2" );
+
+		Patcher.openPatchFile( "testpatch1.sql" );
+		try
+		{
+			Patcher.readPatchFile();
+
+			List< String > targets = Patcher.getTargets();
+			assert targets.size() > 0;
+
+			Patcher.patch( "1.0.2" );
+		}
+		finally
+		{
+			Patcher.closePatchFile();
+		}
 	}
-	
+
 	@Test(dependsOnMethods="testBasic", expectedExceptions=SQLException.class)
 	public void testMissingGo() throws IOException, SQLException
 	{
 		Patcher.setCallBack( new TestProgressListener() );
 		Patcher.setConnection( new Database( "org.apache.derby.jdbc.EmbeddedDriver", "jdbc:derby:c:/projects/temp/dbpatcher/db;create=true" ), "app" );
-		Patcher.setPatchFileName( "testpatch2.sql" );
-		
-		Patcher.openPatchFile();
-		Patcher.readPatchFile();
-		
-		List< String > targets = Patcher.getTargets();
-		assert targets.size() > 0;
-		
-		Patcher.patch( "1.0.3" );
+
+		Patcher.openPatchFile( "testpatch2.sql" );
+		try
+		{
+			Patcher.readPatchFile();
+
+			List< String > targets = Patcher.getTargets();
+			assert targets.size() > 0;
+
+			Patcher.patch( "1.0.3" );
+		}
+		finally
+		{
+			Patcher.closePatchFile();
+		}
 	}
 }

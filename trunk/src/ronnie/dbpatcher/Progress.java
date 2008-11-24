@@ -10,18 +10,18 @@ import com.logicacmg.idt.commons.SystemException;
 public class Progress extends ProgressListener
 {
 	boolean verbose;
-	
+
 	protected Progress( boolean verbose )
 	{
 		this.verbose = verbose;
 	}
-	
+
 	@Override
 	protected void openingPatchFile( String patchFile )
 	{
-		Console.println( "Opening patchfile: " + patchFile );
+		Console.println( "Opening patchfile '" + patchFile + "'" );
 	}
-	
+
 	@Override
 	protected void patchStarting( String source, String target )
 	{
@@ -37,7 +37,7 @@ public class Progress extends ProgressListener
 			Console.print( message );
 		}
 	}
-	
+
 	@Override
 	protected void exception( Command command )
 	{
@@ -45,7 +45,7 @@ public class Progress extends ProgressListener
 		Console.println( "Exception while executing:" );
 		Console.println( command.getCommand() );
 	}
-	
+
 	@Override
 	protected void executed()
 	{

@@ -37,7 +37,6 @@ public class Patcher
 	static protected ProgressListener callBack;
 	static protected String defaultUser;
 	static protected PatchFile patchFile;
-	static protected String patchFileName;
 	static protected Database database;
 	static protected DBVersion dbVersion;
 
@@ -47,14 +46,8 @@ public class Patcher
 		listeners.add( new OracleDBMSOutputPoller() );
 	}
 
-	static public void setPatchFileName( String fileName )
+	static public void openPatchFile( String fileName ) throws IOException
 	{
-		patchFileName = fileName;
-	}
-
-	static public void openPatchFile() throws IOException
-	{
-		String fileName = patchFileName;
 		if( fileName == null )
 			fileName = "dbpatch.sql";
 
@@ -63,13 +56,13 @@ public class Patcher
 		if( url != null )
 		{
 			lis = new LineInputStream( url );
-			callBack.openingPatchFile( "Opening patchfile: " + url );
+			callBack.openingPatchFile( url.toString() );
 		}
 		else
 		{
 			File file = new File( fileName ); // In the current folder
 			lis = new LineInputStream( new FileInputStream( file ) );
-			callBack.openingPatchFile( "Opening patchfile: " + file.getAbsolutePath() );
+			callBack.openingPatchFile( file.getAbsolutePath() );
 		}
 
 		patchFile = new PatchFile( lis );

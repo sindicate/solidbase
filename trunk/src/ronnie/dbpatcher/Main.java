@@ -83,6 +83,7 @@ public class Main
 
 			Patcher.setCallBack( new Progress( verbose ) );
 
+			String patchFile;
 			if( Configuration.configVersion == 2 )
 			{
 				ronnie.dbpatcher.Configuration.Database selectedDatabase;
@@ -114,11 +115,13 @@ public class Main
 					selectedApplication = selectedDatabase.applications.get( 0 );
 
 				Patcher.setConnection( new Database( selectedDatabase.driver, selectedDatabase.url ), selectedApplication.userName );
+				patchFile = selectedApplication.patchFile;
 				Console.println( "Connecting to database '" + selectedDatabase.description + "', application '" + selectedApplication.description + "'..." );
 			}
 			else
 			{
 				Patcher.setConnection( new Database( Configuration.getDBDriver(), Configuration.getDBUrl() ), Configuration.getUser() );
+				patchFile = "dbpatch.sql";
 				Console.println( "Connecting to database..." );
 			}
 
@@ -130,7 +133,7 @@ public class Main
 				return;
 			}
 
-			Patcher.openPatchFile();
+			Patcher.openPatchFile( patchFile );
 			try
 			{
 				Patcher.readPatchFile();
