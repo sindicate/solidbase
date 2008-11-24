@@ -141,12 +141,14 @@ public class Configuration
 							{
 								String appDescription = properties.getProperty( databaseName + "." + appName + ".description" );
 								String userName = properties.getProperty( databaseName + "." + appName + ".user" );
+								String patchFile = properties.getProperty( databaseName + "." + appName + ".patchfile" );
 
 								if( StringUtils.isBlank( appDescription ) )
 									appDescription = appName;
 								Assert.notBlank( userName, "'" + databaseName + "." + appName + ".user' not configured in " + DBPATCHER_PROPERTIES );
+								Assert.notBlank( patchFile, "'" + databaseName + "." + appName + ".patchfile' not configured in " + DBPATCHER_PROPERTIES );
 
-								database.addApplication( appName, appDescription, userName );
+								database.addApplication( appName, appDescription, userName, patchFile );
 							}
 						}
 					}
@@ -219,9 +221,9 @@ public class Configuration
 			this.driver = driver;
 			this.url = url;
 		}
-		protected void addApplication( String name, String description, String userName )
+		protected void addApplication( String name, String description, String userName, String patchFile )
 		{
-			this.applications.add( new Application( name, description, userName ) );
+			this.applications.add( new Application( name, description, userName, patchFile ) );
 		}
 		protected Application getApplication( String name )
 		{
@@ -237,11 +239,13 @@ public class Configuration
 		protected String name;
 		protected String description;
 		protected String userName;
-		protected Application( String name, String description, String userName )
+		protected String patchFile;
+		protected Application( String name, String description, String userName, String patchFile )
 		{
 			this.name = name;
 			this.description = description;
 			this.userName = userName;
+			this.patchFile = patchFile;
 		}
 	}
 }
