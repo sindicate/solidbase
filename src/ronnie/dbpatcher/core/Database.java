@@ -11,7 +11,7 @@ import com.logicacmg.idt.commons.util.Assert;
 
 /**
  * Manages connections to the database.
- * 
+ *
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:16:37 PM
  */
@@ -21,11 +21,11 @@ public class Database
 	protected String url;
 	protected HashMap< String, Connection > connections = new HashMap< String, Connection >();
 	protected HashMap passwords = new HashMap();
-	protected String defaultUser;
-	
+	protected String currentUser;
+
 	/**
 	 * Constructs a Database object for a specific database url. This object will manage multiple connections to this database.
-	 * 
+	 *
 	 * @param driverClassName Classname of the driver.
 	 * @param url Url of the database.
 	 */
@@ -42,10 +42,10 @@ public class Database
 			throw new SystemException( e );
 		}
 	}
-	
+
 	/**
 	 * Gets a new connection from the DriverManager with the given url, user and password. The returned connection has autocommit set to on.
-	 * 
+	 *
 	 * @param url The database connection url.
 	 * @param user The connection user.
 	 * @param password The password of the user.
@@ -64,11 +64,11 @@ public class Database
 			throw new SystemException( e );
 		}
 	}
-	
+
 	/**
 	 * Gets a cached connection for the given user. If a connection for the given user is not found in the cache, this method will
 	 * request a password by calling the method {@link ProgressListener#requestPassword(String)} of {@link Patcher#callBack}. The connection is cached for later use.
-	 * 
+	 *
 	 * @param user The user name.
 	 * @return the connection
 	 */
@@ -84,31 +84,31 @@ public class Database
 		}
 		return connection;
 	}
-	
+
 	/**
 	 * Gets a connection for the default user from the cache. If a connection for the default user is not found in the cache, this method will
 	 * request a password by calling the method {@link ProgressListener#requestPassword(String)} of {@link Patcher#callBack}. The connection is cached for later use.
-	 * 
+	 *
 	 * @return the connection.
 	 * @see #getConnection(String)
 	 */
 	protected Connection getConnection()
 	{
-		Assert.notEmpty( this.defaultUser, "Default user must not be empty" );
-		return getConnection( this.defaultUser );
+		Assert.notEmpty( this.currentUser, "Current user must not be empty" );
+		return getConnection( this.currentUser );
 	}
 
 	/**
 	 * Sets the default user.
-	 * 
+	 *
 	 * @param user
 	 */
-	protected void setDefaultUser( String user )
+	protected void setCurrentUser( String user )
 	{
 		Assert.notEmpty( user, "User must not be empty" );
-		this.defaultUser = user;
+		this.currentUser = user;
 	}
-	
+
 	protected void closeConnections()
 	{
 		for( Connection connection : this.connections.values() )
@@ -120,7 +120,7 @@ public class Database
 			{
 				throw new SystemException( e );
 			}
-		
+
 		this.connections.clear();
 	}
 }
