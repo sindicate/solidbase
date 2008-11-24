@@ -12,6 +12,7 @@ public class Console
 {
 	static protected int col = 0;
 	static protected BufferedReader stdin;
+	static protected boolean fromAnt;
 
 	static protected void println()
 	{
@@ -57,6 +58,8 @@ public class Console
 
 	static synchronized protected String input() throws IOException
 	{
+		if( fromAnt )
+			carriageReturn();
 		if( stdin == null )
 			stdin = new BufferedReader( new InputStreamReader( System.in ) );
 

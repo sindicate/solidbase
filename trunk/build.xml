@@ -70,12 +70,6 @@
 		</javac>
 	</target>
 
-	<target name="build" depends="compile">
-		<copy todir="${build.home}/classes" preservelastmodified="yes">
-			<fileset dir="src" excludes="**/*.java"/>
-		</copy>
-	</target>
-	
 	<target name="compiletest" depends="compile">
 		<mkdir dir="${build.home}/test"/>
 		<javac source="${target-jre}" target="${target-jre}" srcdir="${test.home}" destdir="${build.home}/test" debug="true" deprecation="true" optimize="true">
@@ -88,7 +82,7 @@
 			<fileset dir="${test.home}" excludes="**/*.java"/>
 		</copy>
 	</target>
-
+	
 	<target name="test" depends="buildtest" description="Run all tests">
 		<testng classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="2">
 			<xmlfileset file="${test.home}/test.xml"/>
@@ -128,7 +122,10 @@
 		</unjar>
 	</target>
 
-	<target name="jar" depends="build,extractjars" description="Create jar">
+	<target name="jar" depends="compile,extractjars" description="Create jar">
+		<copy todir="${build.home}/classes" preservelastmodified="yes">
+			<fileset dir="src" excludes="**/*.java"/>
+		</copy>
 		<groovy src="getsvninfo.groovy"/>
 		<echo file="${build.home}/classes/${version.properties}" message="module.version=${release.number}.${svn.revision}" />
 		<mkdir dir="${dist.home}"/>
@@ -146,16 +143,23 @@
 		</jar>
 	</target>
 	
+	<target name="build" depends="jar">
+		<copy todir="${dist.home}" preservelastmodified="true">
+			<fileset dir="dist"/>
+		</copy>
+	</target>
+	
+	<target name="run" depends="build">
+		<java jar="${dist.home}/dbpatcher.jar" fork="yes" dir="${dist.home}">
+			<arg value="fromant"/>
+		</java>
+	</target>
+
 	<target name="checksvnstatus">
 		<groovy src="checksvnstatus.groovy"/>
 	</target>
 
-	<target name="dist" depends="checksvnstatus,clean,test,jar">
-		<copy todir="${dist.home}" preservelastmodified="true">
-			<fileset dir="lib" includes="derby-*.jar,ojdbc*.jar"/>
-			<fileset dir="${test.lib.home}" includes="derby-*.jar,ojdbc*.jar"/>
-			<fileset dir="" includes="dbpatcher.properties,dbpatch.sql"/>
-		</copy>
+	<target name="dist" depends="checksvnstatus,clean,build">
 	</target>
 
 	<target name="javadoc" depends="compile" description="Generate Javadoc">

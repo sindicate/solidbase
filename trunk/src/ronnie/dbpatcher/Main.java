@@ -11,7 +11,7 @@ import com.logicacmg.idt.commons.SystemException;
 import com.logicacmg.idt.commons.util.Assert;
 
 /**
- * 
+ *
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
@@ -22,7 +22,7 @@ public class Main
 		String version = Patcher.getCurrentVersion();
 		String target = Patcher.getCurrentTarget();
 		int statements = Patcher.getCurrentStatements();
-		
+
 		if( version == null )
 		{
 			if( target != null )
@@ -33,16 +33,16 @@ public class Main
 		else
 		{
 			if( target != null )
-				Console.println( "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
-			else
-				Console.println( "Current database version is \"" + version + "\"." );
-		}
+			Console.println( "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
+		else
+			Console.println( "Current database version is \"" + version + "\"." );
 	}
-	
+	}
+
 	static protected String list( List list )
 	{
 		StringBuffer buffer = new StringBuffer();
-		
+
 		boolean first = true;
 		for( Iterator iter = list.iterator(); iter.hasNext(); )
 		{
@@ -53,17 +53,17 @@ public class Main
 				buffer.append( ", " );
 			buffer.append( object );
 		}
-		
+
 		return buffer.toString();
 	}
-	
+
 	static public void main( String[] args )
 	{
 		try
 		{
 			Console.println();
 			Console.println( "DBPatcher v" + Configuration.getVersion() );
-			Console.println( "(C) 2006 R.M. de Bloois, LogicaCMG" );
+			Console.println( "(C) 2006-2008 R.M. de Bloois, LogicaCMG" );
 			Console.println();
 
 			boolean exportlog = false;
@@ -75,12 +75,14 @@ public class Main
 					exportlog = true;
 				else if( args[ i ].equals( "verbose" ) )
 					verbose = true;
+				else if( args[ i ].equals( "fromant" ) )
+					Console.fromAnt = true;
 				else
 					Assert.fail( "argument [" + arg + "] not recognized" );
 			}
-			
+
 			Patcher.setCallBack( new Progress( verbose ) );
-			
+
 			Patcher.setConnection( new Database( Configuration.getDBDriver(), Configuration.getDBUrl() ), Configuration.getUser() );
 			Console.println( "Connecting to database..." );
 			printCurrentVersion();
@@ -90,7 +92,7 @@ public class Main
 				Patcher.logToXML( System.out );
 				return;
 			}
-			
+
 			Patcher.openPatchFile();
 			try
 			{
