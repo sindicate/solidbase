@@ -41,6 +41,7 @@
 	<path id="test.classpath">
 		<pathelement location="${build.home}/test"/>
 		<path refid="compiletest.classpath"/>
+		<fileset dir="${dist.home}" includes="*.jar"/>
 	</path>
 
 	<!-- Custom Ant Task Definitions -->
@@ -159,8 +160,7 @@
 		<groovy src="checksvnstatus.groovy"/>
 	</target>
 
-	<target name="dist" depends="checksvnstatus,clean,build">
-	</target>
+	<target name="dist" depends="checksvnstatus,clean,test,build"/>
 
 	<target name="javadoc" depends="compile" description="Generate Javadoc">
 		<mkdir dir="dist/docs/api"/>

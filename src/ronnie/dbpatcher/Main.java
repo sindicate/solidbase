@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 
+import ronnie.dbpatcher.config.Configuration;
 import ronnie.dbpatcher.core.Database;
 import ronnie.dbpatcher.core.Patcher;
 
@@ -33,10 +34,10 @@ public class Main
 		else
 		{
 			if( target != null )
-			Console.println( "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
-		else
-			Console.println( "Current database version is \"" + version + "\"." );
-	}
+				Console.println( "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
+			else
+				Console.println( "Current database version is \"" + version + "\"." );
+		}
 	}
 
 	static protected String list( List list )
@@ -61,66 +62,67 @@ public class Main
 	{
 		try
 		{
-			Console.println();
-			Console.println( "DBPatcher v" + Configuration.getVersion() );
-			Console.println( "(C) 2006-2008 R.M. de Bloois, LogicaCMG" );
-			Console.println();
-
 			boolean exportlog = false;
 			boolean verbose = false;
 			for( int i = 0; i < args.length; i++ )
 			{
 				String arg = args[ i ];
-				if( args[ i ].equals( "exportlog" ) )
+				if( arg.equals( "exportlog" ) )
 					exportlog = true;
-				else if( args[ i ].equals( "verbose" ) )
+				else if( arg.equals( "verbose" ) )
 					verbose = true;
-				else if( args[ i ].equals( "fromant" ) )
+				else if( arg.equals( "fromant" ) )
 					Console.fromAnt = true;
 				else
 					Assert.fail( "argument [" + arg + "] not recognized" );
 			}
 
-			Patcher.setCallBack( new Progress( verbose ) );
+			Progress progress = new Progress( verbose );
+			Configuration configuration = new Configuration( progress );
 
+			Console.println( "DBPatcher v" + configuration.getVersion() );
+			Console.println( "(C) 2006-2008 R.M. de Bloois, LogicaCMG" );
+			Console.println();
+
+			Patcher.setCallBack( progress );
 			String patchFile;
-			if( Configuration.configVersion == 2 )
+			if( configuration.getConfigVersion() == 2 )
 			{
-				ronnie.dbpatcher.Configuration.Database selectedDatabase;
-				if( Configuration.databases.size() > 1 )
+				ronnie.dbpatcher.config.Configuration.Database selectedDatabase;
+				if( configuration.getDatabases().size() > 1 )
 				{
 					Console.println( "Available database:" );
-					for( ronnie.dbpatcher.Configuration.Database database : Configuration.databases )
-						Console.println( "    " + database.name + " (" + database.description + ")" );
+					for( ronnie.dbpatcher.config.Configuration.Database database : configuration.getDatabases() )
+						Console.println( "    " + database.getName() + " (" + database.getDescription() + ")" );
 					Console.print( "Select a database from the above:" );
 					String input = Console.input();
-					selectedDatabase = Configuration.getDatabase( input );
+					selectedDatabase = configuration.getDatabase( input );
 					Console.println();
 				}
 				else
-					selectedDatabase = Configuration.databases.get( 0 );
+					selectedDatabase = configuration.getDatabases().get( 0 );
 
-				ronnie.dbpatcher.Configuration.Application selectedApplication;
-				if( selectedDatabase.applications.size() > 1 )
+				ronnie.dbpatcher.config.Configuration.Application selectedApplication;
+				if( selectedDatabase.getApplications().size() > 1 )
 				{
-					Console.println( "Available applications in database '" + selectedDatabase.description + "':" );
-					for( ronnie.dbpatcher.Configuration.Application application : selectedDatabase.applications )
-						Console.println( "    " + application.name + " (" + application.description + ")" );
+					Console.println( "Available applications in database '" + selectedDatabase.getDescription() + "':" );
+					for( ronnie.dbpatcher.config.Configuration.Application application : selectedDatabase.getApplications() )
+						Console.println( "    " + application.getName() + " (" + application.getDescription() + ")" );
 					Console.print( "Select an application from the above:" );
 					String input = Console.input();
 					selectedApplication = selectedDatabase.getApplication( input );
 					Console.println();
 				}
 				else
-					selectedApplication = selectedDatabase.applications.get( 0 );
+					selectedApplication = selectedDatabase.getApplications().get( 0 );
 
-				Patcher.setConnection( new Database( selectedDatabase.driver, selectedDatabase.url ), selectedApplication.userName );
-				patchFile = selectedApplication.patchFile;
-				Console.println( "Connecting to database '" + selectedDatabase.description + "', application '" + selectedApplication.description + "'..." );
+				Patcher.setConnection( new Database( selectedDatabase.getDriver(), selectedDatabase.getUrl() ), selectedApplication.getUserName() );
+				patchFile = selectedApplication.getPatchFile();
+				Console.println( "Connecting to database '" + selectedDatabase.getDescription() + "', application '" + selectedApplication.getDescription() + "'..." );
 			}
 			else
 			{
-				Patcher.setConnection( new Database( Configuration.getDBDriver(), Configuration.getDBUrl() ), Configuration.getUser() );
+				Patcher.setConnection( new Database( configuration.getDBDriver(), configuration.getDBUrl() ), configuration.getUser() );
 				patchFile = "dbpatch.sql";
 				Console.println( "Connecting to database..." );
 			}
@@ -158,14 +160,14 @@ public class Main
 		catch( Exception e )
 		{
 			Console.println();
+
 			if( e instanceof SystemException )
 				if( e.getCause() != null )
 					e = (Exception)e.getCause();
+
 			if( e instanceof SQLException )
-			{
 				Console.println( "SQLState: " + ( (SQLException)e ).getSQLState() );
-//				Console.println( "ErrorCode: " + ( (SQLException)e ).getErrorCode() );
-			}
+
 			e.printStackTrace( System.out );
 		}
 	}

@@ -2,18 +2,25 @@ package ronnie.dbpatcher;
 
 import java.io.IOException;
 
+import ronnie.dbpatcher.config.ConfigListener;
 import ronnie.dbpatcher.core.Command;
 import ronnie.dbpatcher.core.ProgressListener;
 
 import com.logicacmg.idt.commons.SystemException;
 
-public class Progress extends ProgressListener
+public class Progress extends ProgressListener implements ConfigListener
 {
 	boolean verbose;
 
 	protected Progress( boolean verbose )
 	{
 		this.verbose = verbose;
+	}
+
+	public void readingPropertyFile( String path )
+	{
+		if( this.verbose )
+			Console.println( "Reading property file " + path );
 	}
 
 	@Override
