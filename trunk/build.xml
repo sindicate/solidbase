@@ -3,170 +3,165 @@
 <project basedir="." name="dbpatcher">
 
 	<!-- Property file -->
-	
-	<property file="build.properties"/>
-	
+
+	<property file="build.properties" />
+
 	<!-- Properties -->
-	
-	<property name="target-jre" value="1.5"/>
-	<property name="version.properties" value="ronnie/dbpatcher/version.properties"/>
-	<property name="release.number" value="1.0"/>
+
+	<property name="target-jre" value="1.5" />
+	<property name="version.properties" value="ronnie/dbpatcher/config/version.properties" />
+	<property name="release.number" value="1.0" />
 
 	<!-- Source folders & files -->
-	<property name="test.home" value="test"/>
-	<property name="test.lib.home" value="tools/test"/>
+	<property name="test.home" value="test" />
+	<property name="test.lib.home" value="tools/test" />
 
 	<!-- Product folders -->
-	<property name="build.home" value="../BUILDS/dbpatcher"/>
-	<property name="temp.home" value="../TEMP/dbpatcher"/>
-	<property name="dist.home" value="${build.home}/dist"/>
+	<property name="build.home" value="../BUILDS/dbpatcher" />
+	<property name="temp.home" value="../TEMP/dbpatcher" />
+	<property name="dist.home" value="${build.home}/dist" />
 
+	
 	<!-- Classpaths -->
 
 	<path id="groovy.classpath">
-		<fileset dir="tools/groovy" includes="*.jar"/>
-		<fileset dir="tools/svnkit" includes="*.jar"/>
+		<fileset dir="tools/groovy" includes="*.jar" />
+		<fileset dir="tools/svnkit" includes="*.jar" />
 	</path>
-	
+
+	<path id="jarjar.classpath">
+		<fileset dir="tools/jarjar" includes="*.jar" />
+	</path>
+
 	<path id="compile.classpath">
-		<fileset dir="lib" includes="*.jar"/>
+		<fileset dir="lib" includes="*.jar" />
 	</path>
-	
+
 	<path id="compiletest.classpath">
-		<pathelement location="${build.home}/classes"/>
-		<path refid="compile.classpath"/>
-		<fileset dir="${test.lib.home}" includes="*.jar"/>
+		<pathelement location="${build.home}/classes" />
+		<path refid="compile.classpath" />
+		<fileset dir="${test.lib.home}" includes="*.jar" />
 	</path>
 
 	<path id="test.classpath">
-		<pathelement location="${build.home}/test"/>
-		<path refid="compiletest.classpath"/>
-		<fileset dir="${dist.home}" includes="*.jar"/>
+		<pathelement location="${build.home}/test" />
+		<path refid="compiletest.classpath" />
+		<fileset dir="${dist.home}" includes="*.jar" />
 	</path>
 
+	
 	<!-- Custom Ant Task Definitions -->
 
-	<taskdef resource="testngtasks" classpath="${test.lib.home}/testng-5.6-jdk15.jar"/> <!-- TestNG -->
+	<taskdef resource="testngtasks" classpath="${test.lib.home}/testng-5.6-jdk15.jar" />
+	<!-- TestNG -->
+	<taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpathref="groovy.classpath" />
+	<taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpathref="jarjar.classpath" />
 
-	<taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpathref="groovy.classpath"/>
-
+	
 	<!-- Default target -->
-	
+
 	<target name="none">
-		<echo message="Use ant -p to see available targets"/>
+		<echo message="Use ant -p to see available targets" />
 	</target>
 
-	<!-- Targets -->
 	
+	<!-- Targets -->
+
 	<target name="clean" description="Cleans everything">
-		<delete dir="${build.home}"/>
-		<delete dir="${temp.home}"/>
+		<delete dir="${build.home}" />
+		<delete dir="${temp.home}" />
 	</target>
+
 	
 	<target name="compile">
-		<echo message="java.home=${java.home}"/>
-		<mkdir dir="${build.home}/classes"/>
+		<echo message="java.home=${java.home}" />
+		<mkdir dir="${build.home}/classes" />
 		<javac srcdir="src" destdir="${build.home}/classes" source="${target-jre}" target="${target-jre}" optimize="true" debug="true" deprecation="true">
-			<classpath refid="compile.classpath"/>
+			<classpath refid="compile.classpath" />
 		</javac>
 	</target>
 
+	
 	<target name="compiletest" depends="compile">
-		<mkdir dir="${build.home}/test"/>
+		<mkdir dir="${build.home}/test" />
 		<javac source="${target-jre}" target="${target-jre}" srcdir="${test.home}" destdir="${build.home}/test" debug="true" deprecation="true" optimize="true">
-			<classpath refid="compiletest.classpath"/>
+			<classpath refid="compiletest.classpath" />
 		</javac>
 	</target>
 
-	<target name="buildtest" depends="build,compiletest">
+	
+	<target name="buildtest" depends="compiletest">
 		<copy preservelastmodified="true" todir="${build.home}/test">
-			<fileset dir="${test.home}" excludes="**/*.java"/>
+			<fileset dir="${test.home}" excludes="**/*.java" />
 		</copy>
 	</target>
+
 	
-	<target name="test" depends="buildtest" description="Run all tests">
+	<target name="test" depends="build,buildtest" description="Run all tests">
 		<testng classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="2">
-			<xmlfileset file="${test.home}/test.xml"/>
-			<jvmarg value="-Xmx256m"/>
+			<xmlfileset file="${test.home}/test.xml" />
+			<jvmarg value="-Xmx256m" />
 		</testng>
 	</target>
 
-	<target name="extractjars">
-		<mkdir dir="${build.home}/classes"/>
-		<unjar dest="${build.home}/classes">
-			<fileset file="lib/idt-commons-*.jar"/>
-			<patternset>
-				<include name="com/logicacmg/idt/commons/*"/>
-				<include name="com/logicacmg/idt/commons/collections/**"/>
-				<include name="com/logicacmg/idt/commons/io/**"/>
-				<include name="com/logicacmg/idt/commons/logging/**"/>
-				<include name="com/logicacmg/idt/commons/profiling/**"/>
-				<include name="com/logicacmg/idt/commons/reflect/**"/>
-				<include name="com/logicacmg/idt/commons/util/**"/>
-			</patternset>
-		</unjar>
-		<unjar dest="${build.home}/classes">
-			<fileset file="lib/commons-collections-*.jar"/>
-			<patternset>
-				<include name="org/apache/commons/collections/Factory.class"/>
-				<include name="org/apache/commons/collections/FunctorException.class"/>
-				<include name="org/apache/commons/collections/MultiMap.class"/>
-				<include name="org/apache/commons/collections/map/AbstractMapDecorator.class"/>
-				<include name="org/apache/commons/collections/map/MultiValueMap*.class"/>
-			</patternset>
-		</unjar>
-		<unjar dest="${build.home}/classes">
-			<fileset file="lib/commons-lang-*.jar"/>
-			<patternset>
-				<include name="org/apache/commons/lang/StringUtils.class"/>
-			</patternset>
-		</unjar>
+	
+	<target name="jar" depends="compile" description="Create jar">
+		<copy todir="${build.home}/classes" preservelastmodified="yes">
+			<fileset dir="src" excludes="**/*.java" />
+		</copy>
+		<groovy src="getsvninfo.groovy" />
+		<echo file="${build.home}/classes/${version.properties}" message="module.version=${release.number}.${svn.revision}" />
+		<mkdir dir="${dist.home}" />
+		<jarjar compress="yes" destfile="${dist.home}/dbpatcher.jar">
+			<fileset dir="${build.home}/classes" />
+			<zipfileset src="lib/idt-commons-2.0.135.jar" excludes="**/*.sql" />
+			<zipfileset src="lib/commons-collections-3.2.jar" excludes="META-INF/LICENSE.txt,META-INF/NOTICE.txt" />
+			<zipfileset src="lib/commons-lang-2.3.jar" />
+			<rule pattern="com.logicacmg.idt.commons.**" result="dbpatcher.@0" />
+			<rule pattern="org.apache.commons.**" result="dbpatcher.@0" />
+			<keep pattern="ronnie.dbpatcher.Main" />
+			<keep pattern="ronnie.dbpatcher.Boot" />
+			<manifest>
+				<attribute name="Main-Class" value="ronnie.dbpatcher.Boot" />
+				<attribute name="Version" value="${release.number}.${svn.revision}" />
+				<attribute name="Project-Name" value="${ant.project.name}" />
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Target-JRE" value="${target-jre}" />
+				<attribute name="SVN-url" value="${svn.url}" />
+				<attribute name="SVN-revision" value="${svn.revision}" />
+			</manifest>
+		</jarjar>
 	</target>
 
-	<target name="jar" depends="compile,extractjars" description="Create jar">
-		<copy todir="${build.home}/classes" preservelastmodified="yes">
-			<fileset dir="src" excludes="**/*.java"/>
-		</copy>
-		<groovy src="getsvninfo.groovy"/>
-		<echo file="${build.home}/classes/${version.properties}" message="module.version=${release.number}.${svn.revision}" />
-		<mkdir dir="${dist.home}"/>
-		<jar destfile="${dist.home}/dbpatcher.jar" compress="true">
-			<fileset dir="${build.home}/classes"/>
-			<manifest>
-				<attribute name="Main-Class" value="ronnie.dbpatcher.Boot"/>
-				<attribute name="Version" value="${release.number}.${svn.revision}"/>
-				<attribute name="Project-Name" value="${ant.project.name}"/>
-				<attribute name="Built-By" value="${user.name}"/>
-				<attribute name="Target-JRE" value="${target-jre}"/>
-				<attribute name="SVN-url" value="${svn.url}"/>
-				<attribute name="SVN-revision" value="${svn.revision}"/>
-			</manifest>
-		</jar>
-	</target>
 	
 	<target name="build" depends="jar">
 		<copy todir="${dist.home}" preservelastmodified="true">
-			<fileset dir="dist"/>
+			<fileset dir="dist" />
 		</copy>
 	</target>
-	
+
+		
 	<target name="run" depends="build">
 		<java jar="${dist.home}/dbpatcher.jar" fork="yes" dir="${dist.home}">
-			<arg value="fromant"/>
+			<arg value="fromant" />
 		</java>
 	</target>
 
+	
 	<target name="checksvnstatus">
-		<groovy src="checksvnstatus.groovy"/>
+		<groovy src="checksvnstatus.groovy" />
 	</target>
 
-	<target name="dist" depends="checksvnstatus,clean,test,build"/>
+	
+	<target name="dist" depends="checksvnstatus,clean,test,build" />
 
+	
 	<target name="javadoc" depends="compile" description="Generate Javadoc">
-		<mkdir dir="dist/docs/api"/>
+		<mkdir dir="dist/docs/api" />
 		<javadoc sourcepath="src" destdir="dist/docs/api" packagenames="*" linkoffline="http://java.sun.com/j2se/1.5.0/docs/api doc/jdk1.5.0">
-			<classpath refid="compile.classpath"/>
+			<classpath refid="compile.classpath" />
 		</javadoc>
 	</target>
 
+	
 </project>
