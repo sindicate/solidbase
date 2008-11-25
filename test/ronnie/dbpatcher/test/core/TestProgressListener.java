@@ -1,4 +1,4 @@
-package test;
+package ronnie.dbpatcher.test.core;
 
 import ronnie.dbpatcher.core.Command;
 import ronnie.dbpatcher.core.ProgressListener;

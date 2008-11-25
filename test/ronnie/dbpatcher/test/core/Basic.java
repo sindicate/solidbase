@@ -1,4 +1,4 @@
-package test;
+package ronnie.dbpatcher.test.core;
 
 import java.io.File;
 import java.io.IOException;
