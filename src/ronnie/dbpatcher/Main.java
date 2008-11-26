@@ -23,7 +23,7 @@ import com.logicacmg.idt.commons.SystemException;
  */
 public class Main
 {
-	static protected void printCurrentVersion()
+	static protected void printCurrentVersion( Console console )
 	{
 		String version = Patcher.getCurrentVersion();
 		String target = Patcher.getCurrentTarget();
@@ -32,16 +32,16 @@ public class Main
 		if( version == null )
 		{
 			if( target != null )
-				Console.println( "The database has no version yet, incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
+				console.println( "The database has no version yet, incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
 			else
-				Console.println( "The database has no version yet." );
+				console.println( "The database has no version yet." );
 		}
 		else
 		{
 			if( target != null )
-				Console.println( "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
+				console.println( "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
 			else
-				Console.println( "Current database version is \"" + version + "\"." );
+				console.println( "Current database version is \"" + version + "\"." );
 		}
 	}
 
@@ -65,6 +65,8 @@ public class Main
 
 	static public void main( String[] args )
 	{
+		Console console = new Console();
+
 		try
 		{
 			// Configure the commandline options
@@ -94,14 +96,14 @@ public class Main
 			}
 			catch( ParseException e )
 			{
-				Console.println( e.getMessage() );
+				console.println( e.getMessage() );
 				new HelpFormatter().printHelp( "dbpatcher", options, true );
 				return;
 			}
 
 			boolean verbose = line.hasOption( "verbose" );
 			boolean exportlog = line.hasOption( "exportlog" );
-			Console.fromAnt = line.hasOption( "fromant" );
+			console.fromAnt = line.hasOption( "fromant" );
 
 			// Validate the commandline options
 
@@ -110,17 +112,17 @@ public class Main
 				boolean valid = true;
 				if( !line.hasOption( "driver" ) )
 				{
-					Console.println( "Missing driver option" );
+					console.println( "Missing driver option" );
 					valid = false;
 				}
 				if( !line.hasOption( "url" ) )
 				{
-					Console.println( "Missing url option" );
+					console.println( "Missing url option" );
 					valid = false;
 				}
 				if( !line.hasOption( "user" ) )
 				{
-					Console.println( "Missing user option" );
+					console.println( "Missing user option" );
 					valid = false;
 				}
 				if( !valid )
@@ -132,12 +134,12 @@ public class Main
 
 			//
 
-			Progress progress = new Progress( verbose );
+			Progress progress = new Progress( console, verbose );
 			Configuration configuration = new Configuration( progress, line.getOptionValue( "driver" ), line.getOptionValue( "url" ), line.getOptionValue( "user" ), line.getOptionValue( "pass" ), line.getOptionValue( "target" ) );
 
-			Console.println( "DBPatcher v" + configuration.getVersion() );
-			Console.println( "(C) 2006-2008 R.M. de Bloois, LogicaCMG" );
-			Console.println();
+			console.println( "DBPatcher v" + configuration.getVersion() );
+			console.println( "(C) 2006-2008 R.M. de Bloois, LogicaCMG" );
+			console.println();
 
 			Patcher.setCallBack( progress );
 			String patchFile;
@@ -146,13 +148,13 @@ public class Main
 				ronnie.dbpatcher.config.Configuration.Database selectedDatabase;
 				if( configuration.getDatabases().size() > 1 )
 				{
-					Console.println( "Available database:" );
+					console.println( "Available database:" );
 					for( ronnie.dbpatcher.config.Configuration.Database database : configuration.getDatabases() )
-						Console.println( "    " + database.getName() + " (" + database.getDescription() + ")" );
-					Console.print( "Select a database from the above:" );
-					String input = Console.input();
+						console.println( "    " + database.getName() + " (" + database.getDescription() + ")" );
+					console.print( "Select a database from the above:" );
+					String input = console.input();
 					selectedDatabase = configuration.getDatabase( input );
-					Console.println();
+					console.println();
 				}
 				else
 					selectedDatabase = configuration.getDatabases().get( 0 );
@@ -160,29 +162,29 @@ public class Main
 				ronnie.dbpatcher.config.Configuration.Application selectedApplication;
 				if( selectedDatabase.getApplications().size() > 1 )
 				{
-					Console.println( "Available applications in database '" + selectedDatabase.getDescription() + "':" );
+					console.println( "Available applications in database '" + selectedDatabase.getDescription() + "':" );
 					for( ronnie.dbpatcher.config.Configuration.Application application : selectedDatabase.getApplications() )
-						Console.println( "    " + application.getName() + " (" + application.getDescription() + ")" );
-					Console.print( "Select an application from the above:" );
-					String input = Console.input();
+						console.println( "    " + application.getName() + " (" + application.getDescription() + ")" );
+					console.print( "Select an application from the above:" );
+					String input = console.input();
 					selectedApplication = selectedDatabase.getApplication( input );
-					Console.println();
+					console.println();
 				}
 				else
 					selectedApplication = selectedDatabase.getApplications().get( 0 );
 
 				Patcher.setConnection( new Database( selectedDatabase.getDriver(), selectedDatabase.getUrl() ), selectedApplication.getUserName(), null );
 				patchFile = selectedApplication.getPatchFile();
-				Console.println( "Connecting to database '" + selectedDatabase.getDescription() + "', application '" + selectedApplication.getDescription() + "'..." );
+				console.println( "Connecting to database '" + selectedDatabase.getDescription() + "', application '" + selectedApplication.getDescription() + "'..." );
 			}
 			else
 			{
 				Patcher.setConnection( new Database( configuration.getDBDriver(), configuration.getDBUrl() ), configuration.getUser(), configuration.getPassWord() );
 				patchFile = "dbpatch.sql";
-				Console.println( "Connecting to database..." );
+				console.println( "Connecting to database..." );
 			}
 
-			printCurrentVersion();
+			printCurrentVersion( console );
 
 			if( exportlog )
 			{
@@ -193,19 +195,18 @@ public class Main
 			Patcher.openPatchFile( patchFile );
 			try
 			{
-				Patcher.readPatchFile();
 				List targets = Patcher.getTargets();
 				if( targets.size() > 0 )
 				{
-					Console.println( "Possible targets are: " + list( targets ) );
-					Console.print( "Input target version: " );
-					String input = Console.input();
+					console.println( "Possible targets are: " + list( targets ) );
+					console.print( "Input target version: " );
+					String input = console.input();
 					Patcher.patch( input );
-					Console.emptyLine();
-					printCurrentVersion();
+					console.emptyLine();
+					printCurrentVersion( console );
 				}
 				else
-					Console.println( "There are no possible targets." );
+					console.println( "There are no possible targets." );
 			}
 			finally
 			{
@@ -214,14 +215,14 @@ public class Main
 		}
 		catch( Exception e )
 		{
-			Console.println();
+			console.println();
 
 			if( e instanceof SystemException )
 				if( e.getCause() != null )
 					e = (Exception)e.getCause();
 
 			if( e instanceof SQLException )
-				Console.println( "SQLState: " + ( (SQLException)e ).getSQLState() );
+				console.println( "SQLState: " + ( (SQLException)e ).getSQLState() );
 
 			e.printStackTrace( System.out );
 		}

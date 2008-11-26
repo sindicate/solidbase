@@ -11,6 +11,8 @@ public class Boot
 {
 	public static void main( String[] args )
 	{
+		Console console = new Console();
+
 		try
 		{
 			boolean verbose = false;
@@ -19,12 +21,12 @@ public class Boot
 					verbose = true;
 
 			if( verbose )
-				Console.println( "Booting..." );
+				console.println( "Booting..." );
 
 			// Read the configuration files
 			// TODO This is not needed when database is configured on the command line
 			// TODO Merge the Boot and the Main class
-			Configuration configuration = new Configuration( new Progress( false ), null, null, null, null, null );
+			Configuration configuration = new Configuration( new Progress( console, false ), null, null, null, null, null );
 
 			// Add the driver jar(s) to the classpath
 			URLClassLoader classLoader = (URLClassLoader)Boot.class.getClassLoader();
@@ -40,7 +42,7 @@ public class Boot
 					File driverJarFile = new File( driverJar );
 					urls[ i++ ] = driverJarFile.toURL();
 					if( verbose )
-						Console.println( "Adding jar to classpath: " + driverJarFile.toURL() );
+						console.println( "Adding jar to classpath: " + driverJarFile.toURL() );
 				}
 			}
 			else
@@ -51,11 +53,11 @@ public class Boot
 				File driverJarFile = new File( driverJar );
 				urls[ urls.length - 1 ] = driverJarFile.toURL();
 				if( verbose )
-					Console.println( "Adding jar to classpath: " + driverJarFile.toURL() );
+					console.println( "Adding jar to classpath: " + driverJarFile.toURL() );
 			}
 
 			if( verbose )
-				Console.println();
+				console.println();
 
 			// Create a new classloader with the new classpath
 			classLoader = new URLClassLoader( urls, Boot.class.getClassLoader().getParent() );
