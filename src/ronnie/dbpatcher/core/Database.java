@@ -20,8 +20,7 @@ public class Database
 	protected String driverName;
 	protected String url;
 	protected HashMap< String, Connection > connections = new HashMap< String, Connection >();
-	protected HashMap passwords = new HashMap();
-	protected String currentUser;
+	private String currentUser;
 
 	/**
 	 * Constructs a Database object for a specific database url. This object will manage multiple connections to this database.
@@ -66,6 +65,22 @@ public class Database
 	}
 
 	/**
+	 * Initializes and caches a connection for the given user and password.
+	 *
+	 * @param user The username.
+	 * @param passWord The password.
+	 */
+	protected void initConnection( String user, String passWord )
+	{
+		Connection connection = this.connections.get( user );
+		if( connection == null )
+		{
+			connection = getConnection( this.url, user, passWord );
+			this.connections.put( user, connection );
+		}
+	}
+
+	/**
 	 * Gets a cached connection for the given user. If a connection for the given user is not found in the cache, this method will
 	 * request a password by calling the method {@link ProgressListener#requestPassword(String)} of {@link Patcher#callBack}. The connection is cached for later use.
 	 *
@@ -80,7 +95,6 @@ public class Database
 			String password = Patcher.callBack.requestPassword( user );
 			connection = getConnection( this.url, user, password );
 			this.connections.put( user, connection );
-			this.passwords.put( user, password );
 		}
 		return connection;
 	}
@@ -113,13 +127,13 @@ public class Database
 	{
 		for( Connection connection : this.connections.values() )
 			try
-			{
+		{
 				connection.close();
-			}
-			catch( SQLException e )
-			{
-				throw new SystemException( e );
-			}
+		}
+		catch( SQLException e )
+		{
+			throw new SystemException( e );
+		}
 
 		this.connections.clear();
 	}

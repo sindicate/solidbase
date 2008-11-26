@@ -115,6 +115,7 @@
 		<jarjar compress="yes" destfile="${dist.home}/dbpatcher.jar">
 			<fileset dir="${build.home}/classes" />
 			<zipfileset src="lib/idt-commons-2.0.135.jar" excludes="**/*.sql" />
+			<zipfileset src="lib/commons-cli-1.1.jar" excludes="META-INF/LICENSE.txt,META-INF/NOTICE.txt" />
 			<zipfileset src="lib/commons-collections-3.2.jar" excludes="META-INF/LICENSE.txt,META-INF/NOTICE.txt" />
 			<zipfileset src="lib/commons-lang-2.3.jar" />
 			<rule pattern="com.logicacmg.idt.commons.**" result="dbpatcher.@0" />
@@ -143,7 +144,17 @@
 		
 	<target name="run" depends="build">
 		<java jar="${dist.home}/dbpatcher.jar" fork="yes" dir="${dist.home}">
-			<arg value="fromant" />
+			<arg value="-fromant" />
+			<!--
+			<arg value="-driver" />
+			<arg value="org.apache.derby.jdbc.EmbeddedDriver" />
+			<arg value="-url" />
+			<arg value="jdbc:derby:c:/projects/temp/dbpatcher/db;create=true" />
+			<arg value="-user" />
+			<arg value="app" />
+			<arg value="-pass" />
+			<arg value="" />
+			-->
 		</java>
 	</target>
 

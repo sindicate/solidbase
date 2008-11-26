@@ -37,10 +37,20 @@ public class Configuration
 	protected String dbUrl;
 	protected String dbDriver;
 	protected String dbDriverJar;
-	protected String user;
+	protected String userName;
+	protected String passWord;
+	protected String target;
 
-	public Configuration( ConfigListener progress ) throws IOException
+	// TODO The automatic target should also be added to the properties file
+	public Configuration( ConfigListener progress, String optionDriver, String optionUrl, String optionUserName, String optionPassWord, String optionTarget ) throws IOException
 	{
+		// Checks
+
+		if( optionDriver != null )
+			Assert.isTrue( optionUrl != null && optionUserName != null );
+		else
+			Assert.isTrue( optionUrl == null && optionUserName == null );
+
 		// Load the version properties
 
 		URL url = Configuration.class.getResource( DBPATCHER_VERSION_PROPERTIES );
@@ -53,6 +63,20 @@ public class Configuration
 		this.version = properties.getProperty( "module.version" );
 
 		Assert.isTrue( this.version != null, "module.version not found in version.properties" );
+
+		// Process the commandline options
+
+		if( optionDriver != null )
+		{
+			this.configVersion = 1;
+			this.dbDriver = optionDriver;
+			this.dbUrl = optionUrl;
+			this.userName = optionUserName;
+			this.passWord = optionPassWord;
+			this.target = optionTarget;
+
+			return; // No need to read the properties
+		}
 
 		// Load the default properties
 
@@ -156,16 +180,16 @@ public class Configuration
 		{
 			// Version 1 configuration
 
-			this.dbUrl = properties.getProperty( "database.url" );
 			this.dbDriverJar = properties.getProperty( "database.driver.jar" );
 			this.dbDriver = properties.getProperty( "database.driver" );
-			this.user = properties.getProperty( "database.user" );
+			this.dbUrl = properties.getProperty( "database.url" );
+			this.userName = properties.getProperty( "database.user" );
 
 			Assert.isTrue( this.dbUrl != null, "database.url not found in " + DBPATCHER_PROPERTIES );
 			Assert.isTrue( this.dbDriver != null, "database.driver not found in " + DBPATCHER_PROPERTIES );
-
 		}
 	}
+
 
 	public String getDBDriver()
 	{
@@ -193,7 +217,7 @@ public class Configuration
 	public String getUser()
 	{
 		Assert.isTrue( this.configVersion == 1, "Only supported with config version 1" );
-		return this.user;
+		return this.userName;
 	}
 
 	public Database getDatabase( String name )
@@ -244,6 +268,22 @@ public class Configuration
 		return this.dbDriverJar;
 	}
 
+	public String getUserName()
+	{
+		return this.userName;
+	}
+
+	public String getPassWord()
+	{
+		return this.passWord;
+	}
+
+	public String getTarget()
+	{
+		return this.target;
+	}
+
+
 	static public class Database
 	{
 		protected String name;
@@ -251,6 +291,7 @@ public class Configuration
 		protected String driver;
 		protected String url;
 		protected List< Application > applications = new ArrayList();
+
 		protected Database( String name, String description, String driver, String url )
 		{
 			this.name = name;
@@ -258,10 +299,12 @@ public class Configuration
 			this.driver = driver;
 			this.url = url;
 		}
+
 		protected void addApplication( String name, String description, String userName, String patchFile )
 		{
 			this.applications.add( new Application( name, description, userName, patchFile ) );
 		}
+
 		public Application getApplication( String name )
 		{
 			for( Application application : this.applications )
@@ -269,27 +312,33 @@ public class Configuration
 					return application;
 			throw new SystemException( "Application [" + name + "] not configured for database [" + this.name + "]." );
 		}
+
 		public String getName()
 		{
 			return this.name;
 		}
+
 		public String getDescription()
 		{
 			return this.description;
 		}
+
 		public String getDriver()
 		{
 			return this.driver;
 		}
+
 		public String getUrl()
 		{
 			return this.url;
 		}
+
 		public List< Application > getApplications()
 		{
 			return this.applications;
 		}
 	}
+
 
 	static public class Application
 	{
@@ -297,6 +346,7 @@ public class Configuration
 		protected String description;
 		protected String userName;
 		protected String patchFile;
+
 		protected Application( String name, String description, String userName, String patchFile )
 		{
 			this.name = name;
@@ -304,18 +354,22 @@ public class Configuration
 			this.userName = userName;
 			this.patchFile = patchFile;
 		}
+
 		public String getName()
 		{
 			return this.name;
 		}
+
 		public String getDescription()
 		{
 			return this.description;
 		}
+
 		public String getUserName()
 		{
 			return this.userName;
 		}
+
 		public String getPatchFile()
 		{
 			return this.patchFile;
