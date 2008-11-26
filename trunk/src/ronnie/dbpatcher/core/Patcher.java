@@ -142,10 +142,12 @@ public class Patcher
 	 * @param database
 	 * @param defaultUser
 	 */
-	static public void setConnection( Database database, String defaultUser )
+	static public void setConnection( Database database, String defaultUser, String passWord )
 	{
 		Patcher.database = database;
 		database.setCurrentUser( defaultUser );
+		if( passWord != null )
+			database.initConnection( defaultUser, passWord ); // This prevents the password being requested from the user.
 
 		dbVersion = new DBVersion( database );
 		dbVersion.setUser( defaultUser );
@@ -240,7 +242,7 @@ public class Patcher
 
 							if( !done )
 								try
-								{
+							{
 									Statement statement = database.getConnection().createStatement();
 									try
 									{
@@ -250,18 +252,18 @@ public class Patcher
 									{
 										statement.close();
 									}
-								}
-								catch( SQLException e )
+							}
+							catch( SQLException e )
+							{
+								String error = e.getSQLState();
+								if( ignoreSet.contains( error ) )
+									sqle = e;
+								else
 								{
-									String error = e.getSQLState();
-									if( ignoreSet.contains( error ) )
-										sqle = e;
-									else
-									{
-										Patcher.callBack.exception( command );
-										throw e;
-									}
+									Patcher.callBack.exception( command );
+									throw e;
 								}
+							}
 						}
 
 						if( !patch.isInit() )
@@ -308,7 +310,7 @@ public class Patcher
 	static protected void setUser( String user )
 	{
 		database.setCurrentUser( user );
-//		Database.getConnection(); // To enter password
+		//		Database.getConnection(); // To enter password
 	}
 
 	static protected void pushIgnores( String ignores )
