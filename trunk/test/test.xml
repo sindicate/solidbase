@@ -4,7 +4,7 @@
 <suite name="Suite1" verbose="1">
 	<test name="test">
 		<packages>
-			<package name="ronnie.dbpatcher.test.core" />
+			<package name="ronnie.dbpatcher.test.*" />
 		</packages>
 	</test>
 </suite>

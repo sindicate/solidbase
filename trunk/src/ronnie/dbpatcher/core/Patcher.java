@@ -55,29 +55,40 @@ public class Patcher
 		URL url = Patcher.class.getResource( "/" + fileName ); // In the classpath
 		if( url != null )
 		{
-			lis = new LineInputStream( url );
 			callBack.openingPatchFile( url.toString() );
+			lis = new LineInputStream( url );
 		}
 		else
 		{
 			File file = new File( fileName ); // In the current folder
-			lis = new LineInputStream( new FileInputStream( file ) );
 			callBack.openingPatchFile( file.getAbsolutePath() );
+			lis = new LineInputStream( new FileInputStream( file ) );
 		}
 
 		patchFile = new PatchFile( lis );
-	}
 
-	static public void readPatchFile() throws IOException
-	{
-		patchFile.read();
+		try // Need to close in case of an exception during reading
+		{
+			patchFile.read();
+		}
+		catch( RuntimeException e )
+		{
+			patchFile.close();
+			throw e;
+		}
+		catch( IOException e )
+		{
+			patchFile.close();
+			throw e;
+		}
 	}
 
 	static public void closePatchFile()
 	{
-		try
+		if( patchFile != null )
+			try
 		{
-			patchFile.close();
+				patchFile.close();
 		}
 		catch( IOException e )
 		{
@@ -358,6 +369,7 @@ public class Patcher
 	static public void end()
 	{
 		closePatchFile();
-		database.closeConnections();
+		if( database != null )
+			database.closeConnections();
 	}
 }

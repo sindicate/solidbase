@@ -10,29 +10,31 @@ import com.logicacmg.idt.commons.SystemException;
 
 public class Progress extends ProgressListener implements ConfigListener
 {
-	boolean verbose;
+	protected boolean verbose;
+	protected Console console;
 
-	protected Progress( boolean verbose )
+	public Progress( Console console, boolean verbose )
 	{
+		this.console = console;
 		this.verbose = verbose;
 	}
 
 	public void readingPropertyFile( String path )
 	{
 		if( this.verbose )
-			Console.println( "Reading property file " + path );
+			this.console.println( "Reading property file " + path );
 	}
 
 	@Override
 	protected void openingPatchFile( String patchFile )
 	{
-		Console.println( "Opening patchfile '" + patchFile + "'" );
+		this.console.println( "Opening patchfile '" + patchFile + "'" );
 	}
 
 	@Override
 	protected void patchStarting( String source, String target )
 	{
-		Console.print( "Patching \"" + source + "\" to \"" + target + "\"" );
+		this.console.print( "Patching \"" + source + "\" to \"" + target + "\"" );
 	}
 
 	@Override
@@ -40,39 +42,39 @@ public class Progress extends ProgressListener implements ConfigListener
 	{
 		if( message != null )
 		{
-			Console.carriageReturn();
-			Console.print( message );
+			this.console.carriageReturn();
+			this.console.print( message );
 		}
 	}
 
 	@Override
 	protected void exception( Command command )
 	{
-		Console.emptyLine();
-		Console.println( "Exception while executing:" );
-		Console.println( command.getCommand() );
+		this.console.emptyLine();
+		this.console.println( "Exception while executing:" );
+		this.console.println( command.getCommand() );
 	}
 
 	@Override
 	protected void executed()
 	{
-		Console.print( "." );
+		this.console.print( "." );
 	}
 
 	@Override
 	protected void patchFinished()
 	{
-		Console.println();
+		this.console.println();
 	}
 
 	@Override
 	protected String requestPassword( String user )
 	{
-		Console.carriageReturn();
-		Console.print( "Input password for user '" + user + "': " );
+		this.console.carriageReturn();
+		this.console.print( "Input password for user '" + user + "': " );
 		try
 		{
-			return Console.input();
+			return this.console.input();
 		}
 		catch( IOException e )
 		{
@@ -84,6 +86,6 @@ public class Progress extends ProgressListener implements ConfigListener
 	protected void debug( String message )
 	{
 		if( this.verbose )
-			Console.println( "DEBUG: " + message );
+			this.console.println( "DEBUG: " + message );
 	}
 }

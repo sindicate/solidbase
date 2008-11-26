@@ -6,8 +6,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.testng.annotations.Test;
-
 import ronnie.dbpatcher.core.Database;
 import ronnie.dbpatcher.core.Patcher;
 
@@ -16,6 +14,7 @@ public class Basic
 	@Test
 	public void testBasic() throws IOException, SQLException
 	{
+		Patcher.end();
 		FileUtils.deleteDirectory( new File( "c:/projects/temp/dbpatcher/db" ) );
 
 		Patcher.setCallBack( new TestProgressListener() );
@@ -24,8 +23,6 @@ public class Basic
 		Patcher.openPatchFile( "testpatch1.sql" );
 		try
 		{
-			Patcher.readPatchFile();
-
 			List< String > targets = Patcher.getTargets();
 			assert targets.size() > 0;
 
@@ -46,8 +43,6 @@ public class Basic
 		Patcher.openPatchFile( "testpatch2.sql" );
 		try
 		{
-			Patcher.readPatchFile();
-
 			List< String > targets = Patcher.getTargets();
 			assert targets.size() > 0;
 
@@ -55,7 +50,7 @@ public class Basic
 		}
 		finally
 		{
-			Patcher.closePatchFile();
+			Patcher.end();
 		}
 	}
 }

@@ -3,6 +3,7 @@ package ronnie.dbpatcher;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.text.DateFormat;
 import java.util.Date;
 
@@ -10,63 +11,65 @@ import com.logicacmg.idt.commons.util.Assert;
 
 public class Console
 {
-	static protected int col = 0;
-	static protected BufferedReader stdin;
-	static protected boolean fromAnt;
+	protected int col = 0;
+	protected BufferedReader stdin;
+	protected boolean fromAnt;
+	protected boolean prefixWithDate = true;
+	protected PrintStream out = System.out;
 
-	static protected void println()
+	protected void println()
 	{
-		System.out.println();
-		col = 0;
+		this.out.println();
+		this.col = 0;
 	}
 
-	static protected void print( String string )
+	protected void print( String string )
 	{
-		if( col == 0 )
+		if( this.col == 0 && this.prefixWithDate )
 		{
 			DateFormat dateFormat = DateFormat.getDateTimeInstance( DateFormat.SHORT, DateFormat.SHORT );
-			System.out.print( dateFormat.format( new Date() ) );
-			System.out.print( "   " );
+			this.out.print( dateFormat.format( new Date() ) );
+			this.out.print( "   " );
 		}
-		System.out.print( string );
-		col += string.length();
+		this.out.print( string );
+		this.col += string.length();
 	}
 
-	static protected void println( String string )
+	protected void println( String string )
 	{
-		if( col == 0 )
+		if( this.col == 0 && this.prefixWithDate )
 		{
 			DateFormat dateFormat = DateFormat.getDateTimeInstance( DateFormat.SHORT, DateFormat.SHORT );
-			System.out.print( dateFormat.format( new Date() ) );
-			System.out.print( "   " );
+			this.out.print( dateFormat.format( new Date() ) );
+			this.out.print( "   " );
 		}
-		System.out.println( string );
-		col = 0;
+		this.out.println( string );
+		this.col = 0;
 	}
 
-	static protected void carriageReturn()
+	protected void carriageReturn()
 	{
-		if( col > 0 )
+		if( this.col > 0 )
 			println();
 	}
 
-	static protected void emptyLine()
+	protected void emptyLine()
 	{
 		carriageReturn();
 		println();
 	}
 
-	static synchronized protected String input() throws IOException
+	synchronized protected String input() throws IOException
 	{
-		if( fromAnt )
+		if( this.fromAnt )
 			carriageReturn();
-		if( stdin == null )
-			stdin = new BufferedReader( new InputStreamReader( System.in ) );
+		if( this.stdin == null )
+			this.stdin = new BufferedReader( new InputStreamReader( System.in ) );
 
-		String input = stdin.readLine();
+		String input = this.stdin.readLine();
 		Assert.notNull( input, "No more input" );
 
-		col = 0;
+		this.col = 0;
 		return input;
 	}
 }
