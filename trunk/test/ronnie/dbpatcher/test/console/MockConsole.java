@@ -6,9 +6,11 @@ import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import com.logicacmg.idt.commons.util.Assert;
+import org.apache.commons.io.output.TeeOutputStream;
 
 import ronnie.dbpatcher.Console;
+
+import com.logicacmg.idt.commons.util.Assert;
 
 public class MockConsole extends Console
 {
@@ -19,7 +21,8 @@ public class MockConsole extends Console
 	{
 		this.prefixWithDate = false;
 		this.buffer = new ByteArrayOutputStream();
-		this.out = new PrintStream( this.buffer );
+		this.out = new PrintStream( new TeeOutputStream( this.buffer, System.out ) );
+		//this.out = new PrintStream( this.buffer );
 	}
 
 	protected void addAnswer( String answer )
