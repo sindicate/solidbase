@@ -2,6 +2,9 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 
 <suite name="Suite1" verbose="1">
+	<listeners>
+		<listener class-name="ronnie.dbpatcher.test.TestListener" />
+	</listeners>
 	<test name="test">
 		<packages>
 			<package name="ronnie.dbpatcher.test.*" />

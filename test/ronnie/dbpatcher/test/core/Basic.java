@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.testng.annotations.Test;
+
 import ronnie.dbpatcher.core.Database;
 import ronnie.dbpatcher.core.Patcher;
 

@@ -23,6 +23,8 @@ import com.logicacmg.idt.commons.SystemException;
  */
 public class Main
 {
+	static public Console console = new Console();
+
 	static protected void printCurrentVersion( Console console )
 	{
 		String version = Patcher.getCurrentVersion();
@@ -65,8 +67,6 @@ public class Main
 
 	static public void main( String[] args )
 	{
-		Console console = new Console();
-
 		try
 		{
 			// Configure the commandline options
