@@ -198,10 +198,15 @@ public class Main
 				List targets = Patcher.getTargets();
 				if( targets.size() > 0 )
 				{
-					console.println( "Possible targets are: " + list( targets ) );
-					console.print( "Input target version: " );
-					String input = console.input();
-					Patcher.patch( input );
+					if( configuration.getTarget() != null )
+						Patcher.patch( configuration.getTarget() );
+					else
+					{
+						console.println( "Possible targets are: " + list( targets ) );
+						console.print( "Input target version: " );
+						String input = console.input();
+						Patcher.patch( input );
+					}
 					console.emptyLine();
 					printCurrentVersion( console );
 				}
