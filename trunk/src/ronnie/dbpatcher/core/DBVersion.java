@@ -76,7 +76,7 @@ public class DBVersion
 		if( !this.versionTableExists )
 			return null;
 
-		Assert.notNull( this.version );
+		//Assert.notNull( this.version );
 
 		return this.version;
 	}
@@ -134,8 +134,6 @@ public class DBVersion
 			PreparedStatement statement = this.database.getConnection( this.user ).prepareStatement( "SELECT VERSION, TARGET, STATEMENTS FROM DBVERSION" );
 			try
 			{
-				this.versionTableExists = true;
-
 				ResultSet resultSet = statement.executeQuery(); // Resultset is closed when the statement is closed
 				Assert.isTrue( resultSet.next() );
 				this.version = resultSet.getString( 1 );
@@ -145,6 +143,7 @@ public class DBVersion
 
 				Patcher.callBack.debug( "version=" + this.version + ", target=" + this.target + ", statements=" + this.statements );
 
+				this.versionTableExists = true;
 				this.valid = true;
 			}
 			finally
@@ -280,9 +279,9 @@ public class DBVersion
 		if( !this.logTableExists )
 			return;
 
-//		Assert.notEmpty( source, "source must not be empty" );
+		//		Assert.notEmpty( source, "source must not be empty" );
 		Assert.notEmpty( target, "target must not be empty" );
-//		Assert.notEmpty( command, "command must not be empty" );
+		//		Assert.notEmpty( command, "command must not be empty" );
 
 		// Trim strings, maximum length for VARCHAR2 is 4000
 		if( command != null && command.length() > 4000 )

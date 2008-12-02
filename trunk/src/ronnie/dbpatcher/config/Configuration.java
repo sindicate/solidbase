@@ -40,9 +40,10 @@ public class Configuration
 	protected String userName;
 	protected String passWord;
 	protected String target;
+	protected String patchFile;
 
 	// TODO The automatic target should also be added to the properties file
-	public Configuration( ConfigListener progress, String optionDriver, String optionUrl, String optionUserName, String optionPassWord, String optionTarget ) throws IOException
+	public Configuration( ConfigListener progress, String optionDriver, String optionUrl, String optionUserName, String optionPassWord, String optionTarget, String optionPatchFile ) throws IOException
 	{
 		// Checks
 
@@ -74,6 +75,7 @@ public class Configuration
 			this.userName = optionUserName;
 			this.passWord = optionPassWord;
 			this.target = optionTarget;
+			this.patchFile = optionPatchFile;
 
 			return; // No need to read the properties
 		}
@@ -281,6 +283,11 @@ public class Configuration
 	public String getTarget()
 	{
 		return this.target;
+	}
+
+	public String getPatchFile()
+	{
+		return this.patchFile;
 	}
 
 
