@@ -1,1 +1,6 @@
 Add version deprecation
+Add potential target patch
+Add -target wildcard option
+	examples:
+		-target *
+		-target 1.0.*
