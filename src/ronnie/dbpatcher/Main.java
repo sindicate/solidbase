@@ -65,7 +65,7 @@ public class Main
 		return buffer.toString();
 	}
 
-	static public void main( String[] args )
+	static public void main( String... args )
 	{
 		try
 		{
@@ -77,15 +77,17 @@ public class Main
 			options.addOption( "export", false, "export historical patch results to an xml file" ); // TODO Add filename as an option value
 			options.addOption( "driver", true, "sets the jdbc driverclass" );
 			options.addOption( "url", true, "sets the url of the database" );
-			options.addOption( "user", true, "sets the default username to patch with" );
-			options.addOption( "pass", true, "sets the password of the default username" );
+			options.addOption( "username", true, "sets the default username to patch with" );
+			options.addOption( "password", true, "sets the password of the default username" );
 			options.addOption( "target", true, "sets the target version" );
+			options.addOption( "patchfile", true, "sets the patch file" );
 
 			options.getOption( "driver" ).setArgName( "classname" );
 			options.getOption( "url" ).setArgName( "url" );
-			options.getOption( "user" ).setArgName( "username" );
-			options.getOption( "pass" ).setArgName( "password" );
+			options.getOption( "username" ).setArgName( "username" );
+			options.getOption( "password" ).setArgName( "password" );
 			options.getOption( "target" ).setArgName( "targetversion" );
+			options.getOption( "patchfile" ).setArgName( "patchfile" );
 
 			// Read the commandline options
 
@@ -107,7 +109,7 @@ public class Main
 
 			// Validate the commandline options
 
-			if( line.hasOption( "driver" ) || line.hasOption( "url" ) || line.hasOption( "user" ) )
+			if( line.hasOption( "driver" ) || line.hasOption( "url" ) || line.hasOption( "username" ) )
 			{
 				boolean valid = true;
 				if( !line.hasOption( "driver" ) )
@@ -120,7 +122,7 @@ public class Main
 					console.println( "Missing url option" );
 					valid = false;
 				}
-				if( !line.hasOption( "user" ) )
+				if( !line.hasOption( "username" ) )
 				{
 					console.println( "Missing user option" );
 					valid = false;
@@ -135,7 +137,7 @@ public class Main
 			//
 
 			Progress progress = new Progress( console, verbose );
-			Configuration configuration = new Configuration( progress, line.getOptionValue( "driver" ), line.getOptionValue( "url" ), line.getOptionValue( "user" ), line.getOptionValue( "pass" ), line.getOptionValue( "target" ) );
+			Configuration configuration = new Configuration( progress, line.getOptionValue( "driver" ), line.getOptionValue( "url" ), line.getOptionValue( "username" ), line.getOptionValue( "password" ), line.getOptionValue( "target" ), line.getOptionValue( "patchfile" ) );
 
 			console.println( "DBPatcher v" + configuration.getVersion() );
 			console.println( "(C) 2006-2008 R.M. de Bloois, LogicaCMG" );
@@ -180,7 +182,9 @@ public class Main
 			else
 			{
 				Patcher.setConnection( new Database( configuration.getDBDriver(), configuration.getDBUrl() ), configuration.getUser(), configuration.getPassWord() );
-				patchFile = "dbpatch.sql";
+				patchFile = configuration.getPatchFile();
+				if( patchFile == null )
+					patchFile = "dbpatch.sql";
 				console.println( "Connecting to database..." );
 			}
 
