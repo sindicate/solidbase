@@ -3,7 +3,7 @@ package ronnie.dbpatcher.test.core;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
@@ -25,7 +25,7 @@ public class Basic
 		Patcher.openPatchFile( "testpatch1.sql" );
 		try
 		{
-			List< String > targets = Patcher.getTargets();
+			Set< String > targets = Patcher.getTargets( false );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.2" );
@@ -45,7 +45,7 @@ public class Basic
 		Patcher.openPatchFile( "testpatch2.sql" );
 		try
 		{
-			List< String > targets = Patcher.getTargets();
+			Set< String > targets = Patcher.getTargets( false );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.3" );

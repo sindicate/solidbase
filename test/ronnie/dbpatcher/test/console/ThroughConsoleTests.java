@@ -31,7 +31,7 @@ public class ThroughConsoleTests
 	}
 
 	@Test
-	public void testConsole() throws IOException, SQLException
+	public void testConsole()
 	{
 		MockConsole console = new MockConsole();
 		console.addAnswer( "prod" );

@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,7 +16,7 @@ import com.logicacmg.idt.commons.io.LineInputStream;
 import com.logicacmg.idt.commons.util.Assert;
 
 /**
- * This class manages the patch file.
+ * This class manages the patch file contents and the paths between versions.
  * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
@@ -49,6 +49,12 @@ public class PatchFile
 		this.lis = null;
 	}
 
+
+	/**
+	 * Reads and analyzes the patch file. The result is that the patches map is filled with the available patches.
+	 * 
+	 * @throws IOException
+	 */
 	protected void read() throws IOException
 	{
 		boolean withinDefinition = false;
@@ -110,7 +116,7 @@ public class PatchFile
 
 
 	/**
-	 * Scans for patches in the file.
+	 * Scans for patches in the file. Called by {@link #read()}.
 	 * 
 	 * @throws IOException
 	 */
@@ -151,7 +157,7 @@ public class PatchFile
 	}
 
 	/**
-	 * Returns the patch belonging to the specified source and target.
+	 * Returns the patch belonging to the specified source and target. Also check for duplicates.
 	 * 
 	 * @param source
 	 * @param target
@@ -185,36 +191,37 @@ public class PatchFile
 	 */
 	protected List getPatchPath( String source, String target )
 	{
-		// wildcard?
-		if( target.endsWith( "*" ) )
-			return getPatchPathPartialTarget( source, target.substring( 0, target.length() - 1 ) );
-
-		Assert.isTrue( !target.equals( source ), "Target [" + target + "] == version [" + source + "]" );
+		// If equal than we are finished
+		// TODO Make source always not null?
+		if( source == null )
+		{
+			if( target == null )
+				return Collections.EMPTY_LIST;
+		}
+		else
+		{
+			if( source.equals( target ) )
+				return Collections.EMPTY_LIST;
+		}
 
 		// Start with all the patches that start with the given source
 		List patches = (List)this.patches.get( source );
 		if( patches == null )
-			return Collections.EMPTY_LIST;
+			return null;
+
 		Assert.isTrue( patches.size() > 0, "Not expecting an empty list" );
 
+		// Depth first no branches
 		for( Iterator iter = patches.iterator(); iter.hasNext(); )
 		{
 			Patch patch = (Patch)iter.next();
-
-			if( patch.getTarget().equals( target ) )
-			{
-				// Found it
-				List result = new ArrayList();
-				result.add( patch );
-				return result;
-			}
-
 			if( !patch.isBranch() )
 			{
-				// Try recursive through the normal path
+				// Recurse
 				List patches2 = getPatchPath( patch.getTarget(), target );
-				if( patches2.size() > 0 )
+				if( patches2 != null )
 				{
+					// Found complete path
 					List result = new ArrayList();
 					result.add( patch );
 					result.addAll( patches2 );
@@ -223,6 +230,7 @@ public class PatchFile
 			}
 		}
 
+		// Branches
 		for( Iterator iter = patches.iterator(); iter.hasNext(); )
 		{
 			Patch patch = (Patch)iter.next();
@@ -230,7 +238,7 @@ public class PatchFile
 			{
 				// Try recursive through the branches
 				List patches2 = getPatchPath( patch.getTarget(), target );
-				if( patches2.size() > 0 )
+				if( patches2 != null )
 				{
 					List result = new ArrayList();
 					result.add( patch );
@@ -240,97 +248,45 @@ public class PatchFile
 			}
 		}
 
-		return Collections.EMPTY_LIST;
+		return null;
 	}
 
 	/**
-	 * Returns a patch path for the specified source and target prefix.
+	 * Determines all possible target versions from the specified source version.
 	 * 
-	 * @param source
-	 * @param targetPrefix
-	 * @return
+	 * @param version
+	 * @param targeting Specifies the direction that has been initiated.
+	 * @param tips Only return tip version
+	 * @param result
 	 */
-	protected List getPatchPathPartialTarget( String source, String targetPrefix )
-	{
-		// Start with all the patches that start with the given source
-		List patches = (List)this.patches.get( source );
-		if( patches == null )
-			return Collections.EMPTY_LIST;
-		Assert.isTrue( patches.size() > 0, "Not expecting an empty list" );
-
-		// Depth first through main and return patches
-		for( Iterator iter = patches.iterator(); iter.hasNext(); )
-		{
-			Patch patch = (Patch)iter.next();
-			if( !patch.isBranch() )
-			{
-				if( patch.getTarget().startsWith( targetPrefix ) )
-				{
-					// Found one
-					List result = new ArrayList();
-					result.add( patch );
-					return result;
-				}
-
-				// Try recursive through the normal path
-				List patches2 = getPatchPath( patch.getTarget(), targetPrefix );
-				if( patches2.size() > 0 )
-				{
-					List result = new ArrayList();
-					result.add( patch );
-					result.addAll( patches2 );
-					return result;
-				}
-			}
-		}
-
-		for( Iterator iter = patches.iterator(); iter.hasNext(); )
-		{
-			Patch patch = (Patch)iter.next();
-			if( patch.isBranch() )
-			{
-				// Try recursive through the branches
-				List patches2 = getPatchPath( patch.getTarget(), targetPrefix );
-				if( patches2.size() > 0 )
-				{
-					List result = new ArrayList();
-					result.add( patch );
-					result.addAll( patches2 );
-					return result;
-				}
-			}
-		}
-
-		return Collections.EMPTY_LIST;
-	}
-
-	protected void getTargets( String version, String targeting, LinkedHashSet result )
+	protected void collectTargets( String version, String targeting, boolean tips, Set< String > result )
 	{
 		Assert.notNull( result, "'result' must not be null" );
 
 		List patches = (List)this.patches.get( version );
 		if( patches == null )
 			return;
-
 		Assert.isTrue( patches.size() > 0, "Not expecting an empty list" );
 
 		for( Iterator iter = patches.iterator(); iter.hasNext(); )
 		{
 			Patch patch = (Patch)iter.next();
-
-			String target = patch.getTarget();
-			if( targeting == null || targeting.equals( target ) )
+			if( targeting == null || targeting.equals( patch.getTarget() ) )
 			{
-				result.add( target );
+				if( tips && !patch.isReturnBranch() )
+					result.remove( patch.getSource() );
+				result.add( patch.getTarget() );
 				if( !patch.isOpen() )
-				{
-					// Recursively determine more patches
-					getTargets( target, null, result );
-				}
+					collectTargets( patch.getTarget(), null, tips, result ); // Recursively determine more patches
 			}
 		}
 	}
 
+	/**
+	 * Jump to the position in the patch file where the given patch starts.
+	 * 
+	 * @param patch
+	 */
 	protected void gotoPatch( Patch patch )
 	{
 		Assert.isTrue( patch.getPos() >= 0, "Patch block not found" );
@@ -349,6 +305,11 @@ public class PatchFile
 		}
 	}
 
+	/**
+	 * Reads a statement from the patch file or null when no more statements are available in the current patch.
+	 * 
+	 * @return
+	 */
 	protected Command readStatement()
 	{
 		StringBuilder result = new StringBuilder();
