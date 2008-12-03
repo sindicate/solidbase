@@ -4,3 +4,4 @@ Add -target wildcard option
 	examples:
 		-target *
 		-target 1.0.*
+Add "database is up to date"
