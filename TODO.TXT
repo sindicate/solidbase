@@ -5,3 +5,5 @@ Add -target wildcard option
 		-target *
 		-target 1.0.*
 Add "database is up to date"
+Add test for open patches
+Add test for branches and return patches

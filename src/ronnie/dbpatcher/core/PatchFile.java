@@ -150,6 +150,13 @@ public class PatchFile
 		}
 	}
 
+	/**
+	 * Returns the patch belonging to the specified source and target.
+	 * 
+	 * @param source
+	 * @param target
+	 * @return
+	 */
 	protected Patch getPatch( String source, String target )
 	{
 		Patch result = null;
@@ -169,11 +176,23 @@ public class PatchFile
 		return result;
 	}
 
-	protected List getPatches( String version, String target )
+	/**
+	 * Returns a patch path for the specified source and target.
+	 * 
+	 * @param source
+	 * @param target
+	 * @return
+	 */
+	protected List getPatchPath( String source, String target )
 	{
-		Assert.isTrue( !target.equals( version ), "Target [" + target + "] == version [" + version + "]" );
+		// wildcard?
+		if( target.endsWith( "*" ) )
+			return getPatchPathPartialTarget( source, target.substring( 0, target.length() - 1 ) );
 
-		List patches = (List)this.patches.get( version );
+		Assert.isTrue( !target.equals( source ), "Target [" + target + "] == version [" + source + "]" );
+
+		// Start with all the patches that start with the given source
+		List patches = (List)this.patches.get( source );
 		if( patches == null )
 			return Collections.EMPTY_LIST;
 		Assert.isTrue( patches.size() > 0, "Not expecting an empty list" );
@@ -181,6 +200,7 @@ public class PatchFile
 		for( Iterator iter = patches.iterator(); iter.hasNext(); )
 		{
 			Patch patch = (Patch)iter.next();
+
 			if( patch.getTarget().equals( target ) )
 			{
 				// Found it
@@ -192,7 +212,7 @@ public class PatchFile
 			if( !patch.isBranch() )
 			{
 				// Try recursive through the normal path
-				List patches2 = getPatches( patch.getTarget(), target );
+				List patches2 = getPatchPath( patch.getTarget(), target );
 				if( patches2.size() > 0 )
 				{
 					List result = new ArrayList();
@@ -209,7 +229,68 @@ public class PatchFile
 			if( patch.isBranch() )
 			{
 				// Try recursive through the branches
-				List patches2 = getPatches( patch.getTarget(), target );
+				List patches2 = getPatchPath( patch.getTarget(), target );
+				if( patches2.size() > 0 )
+				{
+					List result = new ArrayList();
+					result.add( patch );
+					result.addAll( patches2 );
+					return result;
+				}
+			}
+		}
+
+		return Collections.EMPTY_LIST;
+	}
+
+	/**
+	 * Returns a patch path for the specified source and target prefix.
+	 * 
+	 * @param source
+	 * @param targetPrefix
+	 * @return
+	 */
+	protected List getPatchPathPartialTarget( String source, String targetPrefix )
+	{
+		// Start with all the patches that start with the given source
+		List patches = (List)this.patches.get( source );
+		if( patches == null )
+			return Collections.EMPTY_LIST;
+		Assert.isTrue( patches.size() > 0, "Not expecting an empty list" );
+
+		// Depth first through main and return patches
+		for( Iterator iter = patches.iterator(); iter.hasNext(); )
+		{
+			Patch patch = (Patch)iter.next();
+			if( !patch.isBranch() )
+			{
+				if( patch.getTarget().startsWith( targetPrefix ) )
+				{
+					// Found one
+					List result = new ArrayList();
+					result.add( patch );
+					return result;
+				}
+
+				// Try recursive through the normal path
+				List patches2 = getPatchPath( patch.getTarget(), targetPrefix );
+				if( patches2.size() > 0 )
+				{
+					List result = new ArrayList();
+					result.add( patch );
+					result.addAll( patches2 );
+					return result;
+				}
+			}
+		}
+
+		for( Iterator iter = patches.iterator(); iter.hasNext(); )
+		{
+			Patch patch = (Patch)iter.next();
+			if( patch.isBranch() )
+			{
+				// Try recursive through the branches
+				List patches2 = getPatchPath( patch.getTarget(), targetPrefix );
 				if( patches2.size() > 0 )
 				{
 					List result = new ArrayList();
