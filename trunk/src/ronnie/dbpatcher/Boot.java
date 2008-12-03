@@ -26,7 +26,7 @@ public class Boot
 			// Read the configuration files
 			// TODO This is not needed when database is configured on the command line
 			// TODO Merge the Boot and the Main class
-			Configuration configuration = new Configuration( new Progress( console, false ), null, null, null, null, null );
+			Configuration configuration = new Configuration( new Progress( console, false ), null, null, null, null, null, null );
 
 			// Add the driver jar(s) to the classpath
 			URLClassLoader classLoader = (URLClassLoader)Boot.class.getClassLoader();

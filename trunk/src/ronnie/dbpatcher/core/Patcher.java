@@ -10,8 +10,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,14 +20,15 @@ import com.logicacmg.idt.commons.SystemException;
 import com.logicacmg.idt.commons.io.LineInputStream;
 import com.logicacmg.idt.commons.util.Assert;
 
+
 /**
- *
+ * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
 public class Patcher
 {
-	static protected ArrayList listeners = new ArrayList();
+	static protected List< CommandListener > listeners = new ArrayList();
 	static protected Stack ignoreStack = new Stack();
 	static protected HashSet ignoreSet = new HashSet();
 	static protected Pattern ignoreSqlErrorPattern = Pattern.compile( "IGNORE[ \\t]+SQL[ \\t]+ERROR[ \\t]+(\\w+([ \\t]*,[ \\t]*\\w+)*)", Pattern.CASE_INSENSITIVE );
@@ -67,7 +68,8 @@ public class Patcher
 
 		patchFile = new PatchFile( lis );
 
-		try // Need to close in case of an exception during reading
+		// Need to close in case of an exception during reading
+		try
 		{
 			patchFile.read();
 		}
@@ -112,25 +114,55 @@ public class Patcher
 		return dbVersion.getStatements();
 	}
 
-	static public List getTargets()
+	/**
+	 * Returns all possible targets.
+	 * 
+	 * @param tips If true only the tips of the patch paths are returned.
+	 * @return
+	 */
+	static public Set< String > getTargets( boolean tips )
 	{
-		LinkedHashSet result = new LinkedHashSet();
-		patchFile.getTargets( dbVersion.getVersion(), dbVersion.getTarget(), result );
-		return new ArrayList( result );
+		Set result = new HashSet();
+		patchFile.collectTargets( dbVersion.getVersion(), dbVersion.getTarget(), tips, result );
+		return result;
 	}
 
+	/**
+	 * Patches to the given target version. The target version can end with an '*', indicating whatever tip version that matches the target prefix.
+	 * 
+	 * @param target
+	 * @throws SQLException
+	 */
 	static public void patch( String target ) throws SQLException
 	{
-		List targets = getTargets();
+		// First check that the target really is reachable, considering open patches and incomplete patches.
 
-		for( Iterator iter = targets.iterator(); iter.hasNext(); )
+		boolean wildcard = target.endsWith( "*" );
+		if( wildcard )
 		{
-			String t = (String)iter.next();
-			if( t.equals( target ) )
+			target = target.substring( 0, target.length() - 1 );
+			Set< String > targets = getTargets( true );
+			for( String t : targets )
 			{
-				patch( dbVersion.getVersion(), target );
-				terminateCommandListeners();
-				return;
+				if( t.startsWith( target ) )
+				{
+					patch( dbVersion.getVersion(), t );
+					terminateCommandListeners();
+					return;
+				}
+			}
+		}
+		else
+		{
+			Set< String > targets = getTargets( false );
+			for( String t : targets )
+			{
+				if( t.equals( target ) )
+				{
+					patch( dbVersion.getVersion(), t );
+					terminateCommandListeners();
+					return;
+				}
 			}
 		}
 
@@ -139,17 +171,14 @@ public class Patcher
 
 	static protected void terminateCommandListeners()
 	{
-		for( Iterator iter = listeners.iterator(); iter.hasNext(); )
-		{
-			CommandListener listener = (CommandListener)iter.next();
+		for( CommandListener listener : listeners )
 			listener.terminate();
-		}
 	}
 
 	/**
 	 * Configures the connection to the database, including the default user.
 	 * Each patch in the patch file starts with this default user.
-	 *
+	 * 
 	 * @param database
 	 * @param defaultUser
 	 */
@@ -321,7 +350,7 @@ public class Patcher
 	static protected void setUser( String user )
 	{
 		database.setCurrentUser( user );
-		//		Database.getConnection(); // To enter password
+		// Database.getConnection(); // To enter password
 	}
 
 	static protected void pushIgnores( String ignores )

@@ -1,8 +1,9 @@
 package ronnie.dbpatcher;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
@@ -47,7 +48,7 @@ public class Main
 		}
 	}
 
-	static protected String list( List list )
+	static protected String list( Collection list )
 	{
 		StringBuffer buffer = new StringBuffer();
 
@@ -199,23 +200,24 @@ public class Main
 			Patcher.openPatchFile( patchFile );
 			try
 			{
-				List targets = Patcher.getTargets();
-				if( targets.size() > 0 )
+				if( configuration.getTarget() != null )
+					Patcher.patch( configuration.getTarget() );
+				else
 				{
-					if( configuration.getTarget() != null )
-						Patcher.patch( configuration.getTarget() );
-					else
+					Set< String > targets = Patcher.getTargets( false );
+					if( targets.size() > 0 )
 					{
 						console.println( "Possible targets are: " + list( targets ) );
 						console.print( "Input target version: " );
 						String input = console.input();
 						Patcher.patch( input );
 					}
-					console.emptyLine();
-					printCurrentVersion( console );
+					else
+						console.println( "There are no possible targets." );
+					// TODO Distinguish between uptodate and no possible path
 				}
-				else
-					console.println( "There are no possible targets." );
+				console.emptyLine();
+				printCurrentVersion( console );
 			}
 			finally
 			{

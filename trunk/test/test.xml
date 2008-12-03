@@ -7,7 +7,7 @@
 	</listeners>
 	<test name="test">
 		<packages>
-			<package name="ronnie.dbpatcher.test.*" />
+			<package name="ronnie.dbpatcher.*" />
 		</packages>
 	</test>
 </suite>

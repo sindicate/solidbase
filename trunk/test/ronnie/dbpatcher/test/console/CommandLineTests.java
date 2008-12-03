@@ -32,7 +32,7 @@ public class CommandLineTests
 	}
 
 	@Test
-	public void testCommandLine() throws IOException, SQLException
+	public void testCommandLine()
 	{
 		MockConsole console = new MockConsole();
 
