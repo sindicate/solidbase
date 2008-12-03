@@ -17,11 +17,11 @@ public class Patch
 	protected boolean open;
 	protected boolean init;
 	protected long pos;
-	
+
 	protected Patch( String source, String target, boolean branch, boolean returnBranch, boolean open, boolean init )
 	{
 		Assert.isTrue( !( branch && returnBranch ) );
-		
+
 		this.source = source;
 		this.target = target;
 		this.branch = branch;
