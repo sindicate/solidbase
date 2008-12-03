@@ -44,7 +44,7 @@ public class CommandLineTests
 				"-url", "jdbc:derby:c:/projects/temp/dbpatcher/db;create=true",
 				"-username", "app",
 				"-password", "",
-				"-target", "1.0.2",
+				"-target", "1.0.*",
 				"-patchfile", "dbpatch.sql" );
 
 		String output = console.getOutput();

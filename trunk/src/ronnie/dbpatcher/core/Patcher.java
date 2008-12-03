@@ -10,6 +10,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -120,9 +121,9 @@ public class Patcher
 	 * @param tips If true only the tips of the patch paths are returned.
 	 * @return
 	 */
-	static public Set< String > getTargets( boolean tips )
+	static public LinkedHashSet< String > getTargets( boolean tips )
 	{
-		Set result = new HashSet();
+		LinkedHashSet result = new LinkedHashSet();
 		patchFile.collectTargets( dbVersion.getVersion(), dbVersion.getTarget(), tips, result );
 		return result;
 	}
