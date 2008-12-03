@@ -3,8 +3,7 @@ package ronnie.dbpatcher;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
-
+import java.util.LinkedHashSet;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -204,7 +203,8 @@ public class Main
 					Patcher.patch( configuration.getTarget() );
 				else
 				{
-					Set< String > targets = Patcher.getTargets( false );
+					// Need linked set because order is important
+					LinkedHashSet< String > targets = Patcher.getTargets( false );
 					if( targets.size() > 0 )
 					{
 						console.println( "Possible targets are: " + list( targets ) );

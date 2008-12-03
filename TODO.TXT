@@ -1,9 +1,10 @@
-Add version deprecation
-Add potential target patch
-Add -target wildcard option
-	examples:
-		-target *
-		-target 1.0.*
-Add "database is up to date"
-Add test for open patches
-Add test for branches and return patches
+		Add version deprecation
+		Add "database is up to date"
+		Add test for open patches
+		Add test for branches and return patches
+
+NOT		Add potential target patch
+DONE	Add -target wildcard option
+			examples:
+				-target *
+				-target 1.0.*
