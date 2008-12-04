@@ -1,11 +1,5 @@
 package ronnie.dbpatcher.test.console;
 
-import java.io.File;
-import java.io.IOException;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-
-import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -16,18 +10,9 @@ import ronnie.dbpatcher.core.Patcher;
 public class ThroughConsoleTests
 {
 	@BeforeClass
-	protected void init() throws IOException
+	protected void init()
 	{
 		Patcher.end();
-		try
-		{
-			DriverManager.getConnection( "jdbc:derby:c:/projects/temp/dbpatcher/db;shutdown=true" );
-		}
-		catch( SQLException e )
-		{
-			assert e.getSQLState().equals( "08006" ) || e.getSQLState().equals( "XJ004" ) : "Did not expect " + e.getSQLState() + ": " + e.getMessage();
-		}
-		FileUtils.deleteDirectory( new File( "c:/projects/temp/dbpatcher/db" ) );
 	}
 
 	@Test
@@ -65,10 +50,10 @@ public class ThroughConsoleTests
 				"    app1 (app1 description)\n" +
 				"    app2 (app2)\n" +
 				"Select an application from the above:\n" +
-				"DEBUG: driverName=org.apache.derby.jdbc.EmbeddedDriver, url=jdbc:derby:c:/...;create=true, user=app\n" +
+				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test1, user=sa\n" +
 				"Connecting to database 'DHL Production', application 'app1 description'...\n" +
-				"Input password for user 'app': The database has no version yet.\n" +
-				"Opening patchfile 'C:\\...\\dbpatch-derby-example.sql'\n" +
+				"Input password for user 'sa': The database has no version yet.\n" +
+				"Opening patchfile 'C:\\...\\dbpatch-hsqldb-example.sql'\n" +
 				"Possible targets are: 1.0.1, 1.0.2\n" +
 				"Input target version: Patching \"null\" to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +

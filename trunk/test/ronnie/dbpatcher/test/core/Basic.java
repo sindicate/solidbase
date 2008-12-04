@@ -20,7 +20,8 @@ public class Basic
 		FileUtils.deleteDirectory( new File( "c:/projects/temp/dbpatcher/db" ) );
 
 		Patcher.setCallBack( new TestProgressListener() );
-		Patcher.setConnection( new Database( "org.apache.derby.jdbc.EmbeddedDriver", "jdbc:derby:c:/projects/temp/dbpatcher/db;create=true" ), "app", null );
+		// TODO Learn to really shutdown an inmemory database
+		Patcher.setConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3" ), "sa", null );
 
 		Patcher.openPatchFile( "testpatch1.sql" );
 		try
@@ -40,7 +41,7 @@ public class Basic
 	public void testMissingGo() throws IOException, SQLException
 	{
 		Patcher.setCallBack( new TestProgressListener() );
-		Patcher.setConnection( new Database( "org.apache.derby.jdbc.EmbeddedDriver", "jdbc:derby:c:/projects/temp/dbpatcher/db;create=true" ), "app", null );
+		Patcher.setConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3" ), "sa", null );
 
 		Patcher.openPatchFile( "testpatch2.sql" );
 		try
