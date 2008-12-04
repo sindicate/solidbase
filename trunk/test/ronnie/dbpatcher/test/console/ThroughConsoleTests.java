@@ -68,7 +68,7 @@ public class ThroughConsoleTests
 				"DEBUG: driverName=org.apache.derby.jdbc.EmbeddedDriver, url=jdbc:derby:c:/...;create=true, user=app\n" +
 				"Connecting to database 'DHL Production', application 'app1 description'...\n" +
 				"Input password for user 'app': The database has no version yet.\n" +
-				"Opening patchfile 'C:\\...\\dbpatch.sql'\n" +
+				"Opening patchfile 'C:\\...\\dbpatch-derby-example.sql'\n" +
 				"Possible targets are: 1.0.1, 1.0.2\n" +
 				"Input target version: Patching \"null\" to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +

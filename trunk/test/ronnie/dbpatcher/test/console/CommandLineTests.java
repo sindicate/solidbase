@@ -1,12 +1,8 @@
 package ronnie.dbpatcher.test.console;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -20,16 +16,6 @@ public class CommandLineTests
 	protected void init() throws IOException
 	{
 		Patcher.end();
-		try
-		{
-			DriverManager.getConnection( "jdbc:derby:c:/projects/temp/dbpatcher/db;shutdown=true" );
-		}
-		catch( SQLException e )
-		{
-			assert e.getSQLState().equals( "08006" ) || e.getSQLState().equals( "XJ004" ) : "Did not expect " + e.getSQLState() + ": " + e.getMessage();
-		}
-		// TODO Make temp db folder dynamic
-		FileUtils.deleteDirectory( new File( "c:/projects/temp/dbpatcher/db" ) );
 	}
 
 	@Test
@@ -41,12 +27,12 @@ public class CommandLineTests
 
 		// TODO Rename patchfile to test the -patchfile option
 		Main.main( "-verbose",
-				"-driver", "org.apache.derby.jdbc.EmbeddedDriver",
-				"-url", "jdbc:derby:c:/projects/temp/dbpatcher/db;create=true",
-				"-username", "app",
+				"-driver", "org.hsqldb.jdbcDriver",
+				"-url", "jdbc:hsqldb:mem:test",
+				"-username", "sa",
 				"-password", "",
 				"-target", "1.0.*",
-				"-patchfile", "dbpatch.sql" );
+				"-patchfile", "dbpatch-hsqldb-example.sql" );
 
 		String output = console.getOutput();
 		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
@@ -60,10 +46,10 @@ public class CommandLineTests
 		Assert.assertEquals( output,
 				"DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, LogicaCMG\n" +
 				"\n" +
-				"DEBUG: driverName=org.apache.derby.jdbc.EmbeddedDriver, url=jdbc:derby:c:/...;create=true, user=app\n" +
+				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test, user=sa\n" +
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
-				"Opening patchfile 'C:\\...\\dbpatch.sql'\n" +
+				"Opening patchfile 'C:\\...\\dbpatch-hsqldb-example.sql'\n" +
 				"Patching \"null\" to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +
@@ -86,12 +72,12 @@ public class CommandLineTests
 		Main.console = console;
 
 		Main.main( "-verbose",
-				"-driver", "org.apache.derby.jdbc.EmbeddedDriver",
-				"-url", "jdbc:derby:c:/projects/temp/dbpatcher/db;create=true",
-				"-username", "app",
+				"-driver", "org.hsqldb.jdbcDriver",
+				"-url", "jdbc:hsqldb:mem:test",
+				"-username", "sa",
 				"-password", "",
 				"-target", "100.0.*",
-				"-patchfile", "dbpatch.sql" );
+				"-patchfile", "dbpatch-hsqldb-example.sql" );
 
 		String output = console.getOutput();
 		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
@@ -103,10 +89,10 @@ public class CommandLineTests
 		Assert.assertEquals( output,
 				"DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, LogicaCMG\n" +
 				"\n" +
-				"DEBUG: driverName=org.apache.derby.jdbc.EmbeddedDriver, url=jdbc:derby:c:/...;create=true, user=app\n" +
+				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test, user=sa\n" +
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
-				"Opening patchfile 'C:\\...\\dbpatch.sql'\n" +
+				"Opening patchfile 'C:\\...\\dbpatch-hsqldb-example.sql'\n" +
 				"\n"
 		);
 
