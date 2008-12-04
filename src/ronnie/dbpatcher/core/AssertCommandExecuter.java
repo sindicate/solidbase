@@ -44,9 +44,10 @@ public class AssertCommandExecuter extends CommandListener
 			Statement statement = connection.createStatement();
 			try
 			{
-				ResultSet result = statement.executeQuery( select ); // Resultset is closed when the statement is closed
+				ResultSet result = statement.executeQuery( select );
 				if( !result.next() )
 					Assert.fail( message );
+				// Resultset is closed when the statement is closed
 			}
 			finally
 			{
