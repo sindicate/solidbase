@@ -148,6 +148,7 @@ public class Patcher
 				if( t.startsWith( target ) )
 				{
 					patch( dbVersion.getVersion(), t );
+					callBack.patchingFinished();
 					terminateCommandListeners();
 					return;
 				}
@@ -161,6 +162,7 @@ public class Patcher
 				if( t.equals( target ) )
 				{
 					patch( dbVersion.getVersion(), t );
+					callBack.patchingFinished();
 					terminateCommandListeners();
 					return;
 				}

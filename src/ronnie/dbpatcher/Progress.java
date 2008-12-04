@@ -68,6 +68,12 @@ public class Progress extends ProgressListener implements ConfigListener
 	}
 
 	@Override
+	protected void patchingFinished()
+	{
+		this.console.println( "The database has been patched." );
+	}
+
+	@Override
 	protected String requestPassword( String user )
 	{
 		this.console.carriageReturn();
