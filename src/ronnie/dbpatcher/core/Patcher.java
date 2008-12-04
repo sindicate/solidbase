@@ -141,11 +141,11 @@ public class Patcher
 		boolean wildcard = target.endsWith( "*" );
 		if( wildcard )
 		{
-			target = target.substring( 0, target.length() - 1 );
+			String targetPrefix = target.substring( 0, target.length() - 1 );
 			Set< String > targets = getTargets( true );
 			for( String t : targets )
 			{
-				if( t.startsWith( target ) )
+				if( t.startsWith( targetPrefix ) )
 				{
 					patch( dbVersion.getVersion(), t );
 					callBack.patchingFinished();

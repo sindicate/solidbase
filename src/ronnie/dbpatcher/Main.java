@@ -235,7 +235,7 @@ public class Main
 			if( e instanceof SQLException )
 				console.println( "SQLState: " + ( (SQLException)e ).getSQLState() );
 
-			e.printStackTrace( System.out );
+			console.exception( e );
 		}
 	}
 }
