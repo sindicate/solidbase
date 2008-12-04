@@ -1,6 +1,7 @@
 		Add version deprecation
 		Add test for branches and return patches
 		When the current version is not found as source -> then it is deprecated?
+		Add DONTCOUNT test
 
 NOT		Add potential target patch
 DONE	Add -target wildcard option
