@@ -3,6 +3,7 @@ package ronnie.dbpatcher.test.console;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -13,7 +14,7 @@ import ronnie.dbpatcher.core.Patcher;
 public class CommandLineTests
 {
 	@BeforeClass
-	protected void init() throws IOException
+	protected void init()
 	{
 		Patcher.end();
 	}
@@ -28,7 +29,7 @@ public class CommandLineTests
 		// TODO Rename patchfile to test the -patchfile option
 		Main.main( "-verbose",
 				"-driver", "org.hsqldb.jdbcDriver",
-				"-url", "jdbc:hsqldb:mem:test",
+				"-url", "jdbc:hsqldb:mem:test2",
 				"-username", "sa",
 				"-password", "",
 				"-target", "1.0.*",
@@ -46,7 +47,7 @@ public class CommandLineTests
 		Assert.assertEquals( output,
 				"DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, LogicaCMG\n" +
 				"\n" +
-				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test, user=sa\n" +
+				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test2, user=sa\n" +
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
 				"Opening patchfile 'C:\\...\\dbpatch-hsqldb-example.sql'\n" +
@@ -73,7 +74,7 @@ public class CommandLineTests
 
 		Main.main( "-verbose",
 				"-driver", "org.hsqldb.jdbcDriver",
-				"-url", "jdbc:hsqldb:mem:test",
+				"-url", "jdbc:hsqldb:mem:test2",
 				"-username", "sa",
 				"-password", "",
 				"-target", "100.0.*",
@@ -89,7 +90,7 @@ public class CommandLineTests
 		Assert.assertEquals( output,
 				"DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, LogicaCMG\n" +
 				"\n" +
-				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test, user=sa\n" +
+				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test2, user=sa\n" +
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
 				"Opening patchfile 'C:\\...\\dbpatch-hsqldb-example.sql'\n" +
