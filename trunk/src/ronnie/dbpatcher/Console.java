@@ -16,6 +16,7 @@ public class Console
 	protected boolean fromAnt;
 	protected boolean prefixWithDate = true;
 	protected PrintStream out = System.out;
+	protected PrintStream err = System.err;
 
 	protected void println()
 	{
@@ -71,5 +72,10 @@ public class Console
 
 		this.col = 0;
 		return input;
+	}
+
+	protected void exception( Exception e )
+	{
+		e.printStackTrace( this.err );
 	}
 }

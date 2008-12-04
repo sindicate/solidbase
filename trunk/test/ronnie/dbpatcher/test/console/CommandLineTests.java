@@ -1,10 +1,11 @@
 package ronnie.dbpatcher.test.console;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -75,5 +76,50 @@ public class CommandLineTests
 				"\n" +
 				"Current database version is \"1.0.2\".\n"
 		);
+	}
+
+	@Test
+	public void testCommandLineNotPossible()
+	{
+		MockConsole console = new MockConsole();
+
+		Main.console = console;
+
+		Main.main( "-verbose",
+				"-driver", "org.apache.derby.jdbc.EmbeddedDriver",
+				"-url", "jdbc:derby:c:/projects/temp/dbpatcher/db;create=true",
+				"-username", "app",
+				"-password", "",
+				"-target", "100.0.*",
+				"-patchfile", "dbpatch.sql" );
+
+		String output = console.getOutput();
+		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
+		output = output.replaceAll( "C:\\\\\\S+\\\\", "C:\\\\...\\\\" );
+		output = output.replaceAll( "DBPatcher v1\\.0\\.\\d+\\s+\\(C\\) 2006-200\\d R\\.M\\. de Bloois, LogicaCMG", "DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, LogicaCMG" );
+		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
+		output = output.replaceAll( "\\\r", "" );
+
+		Assert.assertEquals( output,
+				"DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, LogicaCMG\n" +
+				"\n" +
+				"DEBUG: driverName=org.apache.derby.jdbc.EmbeddedDriver, url=jdbc:derby:c:/...;create=true, user=app\n" +
+				"Connecting to database...\n" +
+				"The database has no version yet.\n" +
+				"Opening patchfile 'C:\\...\\dbpatch.sql'\n" +
+				"\n"
+		);
+
+		String error = console.getErrorOutput();
+		try
+		{
+			error = new BufferedReader( new StringReader( error ) ).readLine();
+		}
+		catch( IOException e )
+		{
+			Assert.fail( "Did not expect an exception", e );
+		}
+
+		Assert.assertEquals( error, "com.logicacmg.idt.commons.SystemException: Target 100.0.* is not a possible target" );
 	}
 }

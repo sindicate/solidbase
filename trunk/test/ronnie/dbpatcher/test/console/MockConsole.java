@@ -15,14 +15,16 @@ import com.logicacmg.idt.commons.util.Assert;
 public class MockConsole extends Console
 {
 	protected Queue< String > answerQueue = new LinkedList< String >();
-	protected ByteArrayOutputStream buffer;
+	protected ByteArrayOutputStream outputBuffer;
+	protected ByteArrayOutputStream errorBuffer;
 
 	protected MockConsole()
 	{
 		this.prefixWithDate = false;
-		this.buffer = new ByteArrayOutputStream();
-		this.out = new PrintStream( new TeeOutputStream( this.buffer, System.out ) );
-		//this.out = new PrintStream( this.buffer );
+		this.outputBuffer = new ByteArrayOutputStream();
+		this.errorBuffer = new ByteArrayOutputStream();
+		this.out = new PrintStream( new TeeOutputStream( this.outputBuffer, this.out ) );
+		this.err = new PrintStream( new TeeOutputStream( this.errorBuffer, this.err ) );
 	}
 
 	protected void addAnswer( String answer )
@@ -32,7 +34,12 @@ public class MockConsole extends Console
 
 	protected String getOutput()
 	{
-		return this.buffer.toString();
+		return this.outputBuffer.toString();
+	}
+
+	protected String getErrorOutput()
+	{
+		return this.errorBuffer.toString();
 	}
 
 	@Override
