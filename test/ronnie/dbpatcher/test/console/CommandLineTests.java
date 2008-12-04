@@ -79,7 +79,7 @@ public class CommandLineTests
 	}
 
 	@Test
-	public void testCommandLineNotPossible()
+	public void testCommandLineNotPossible() throws IOException
 	{
 		MockConsole console = new MockConsole();
 
@@ -111,15 +111,9 @@ public class CommandLineTests
 		);
 
 		String error = console.getErrorOutput();
-		try
-		{
-			error = new BufferedReader( new StringReader( error ) ).readLine();
-		}
-		catch( IOException e )
-		{
-			Assert.fail( "Did not expect an exception", e );
-		}
+		error = new BufferedReader( new StringReader( error ) ).readLine();
 
+		Assert.assertNotNull( error, "Expected an error" );
 		Assert.assertEquals( error, "com.logicacmg.idt.commons.SystemException: Target 100.0.* is not a possible target" );
 	}
 }

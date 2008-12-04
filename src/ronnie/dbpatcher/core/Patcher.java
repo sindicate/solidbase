@@ -29,13 +29,18 @@ import com.logicacmg.idt.commons.util.Assert;
  */
 public class Patcher
 {
-	static protected List< CommandListener > listeners = new ArrayList();
-	static protected Stack ignoreStack = new Stack();
-	static protected HashSet ignoreSet = new HashSet();
 	static protected Pattern ignoreSqlErrorPattern = Pattern.compile( "IGNORE[ \\t]+SQL[ \\t]+ERROR[ \\t]+(\\w+([ \\t]*,[ \\t]*\\w+)*)", Pattern.CASE_INSENSITIVE );
 	static protected Pattern ignoreEnd = Pattern.compile( "/IGNORE[ \\t]+SQL[ \\t]+ERROR", Pattern.CASE_INSENSITIVE );
 	static protected Pattern setUserPattern = Pattern.compile( "SET[ \\t]+USER[ \\t]+(\\w+)[ \\t]*", Pattern.CASE_INSENSITIVE );
 	static protected Pattern startMessagePattern = Pattern.compile( "\\s*MESSAGE\\s+START\\s+'([^']*)'\\s*", Pattern.CASE_INSENSITIVE );
+	static protected Pattern dontCountPattern = Pattern.compile( "DONTCOUNT", Pattern.CASE_INSENSITIVE );
+	static protected Pattern dontCountPatternEnd = Pattern.compile( "/DONTCOUNT", Pattern.CASE_INSENSITIVE );
+
+	static protected List< CommandListener > listeners = new ArrayList();
+	static protected Stack ignoreStack = new Stack();
+	static protected HashSet ignoreSet = new HashSet();
+	static protected boolean dontCount;
+
 	static protected ProgressListener callBack;
 	static protected String defaultUser;
 	static protected PatchFile patchFile;
@@ -136,40 +141,41 @@ public class Patcher
 	 */
 	static public void patch( String target ) throws SQLException
 	{
-		// First check that the target really is reachable, considering open patches and incomplete patches.
-
 		boolean wildcard = target.endsWith( "*" );
 		if( wildcard )
 		{
 			String targetPrefix = target.substring( 0, target.length() - 1 );
 			Set< String > targets = getTargets( true );
 			for( String t : targets )
-			{
 				if( t.startsWith( targetPrefix ) )
 				{
 					patch( dbVersion.getVersion(), t );
-					callBack.patchingFinished();
-					terminateCommandListeners();
-					return;
+					break;
 				}
-			}
-		}
-		else
-		{
-			Set< String > targets = getTargets( false );
-			for( String t : targets )
-			{
-				if( t.equals( target ) )
-				{
-					patch( dbVersion.getVersion(), t );
-					callBack.patchingFinished();
-					terminateCommandListeners();
-					return;
-				}
-			}
+
+			terminateCommandListeners();
+			// TODO Remove the possibility that the version is null?
+			if( dbVersion.getVersion() != null && dbVersion.getVersion().startsWith( targetPrefix ) )
+				callBack.patchingFinished();
+			else
+				throw new SystemException( "Target " + target + " is not a possible target" );
+
+			return;
 		}
 
-		throw new SystemException( "Target " + target + " is not a possible target" );
+		Set< String > targets = getTargets( false );
+		for( String t : targets )
+			if( t.equals( target ) )
+			{
+				patch( dbVersion.getVersion(), t );
+				break;
+			}
+
+		terminateCommandListeners();
+		if( dbVersion.getVersion() != null && dbVersion.getVersion().equals( target ) )
+			callBack.patchingFinished();
+		else
+			throw new SystemException( "Target " + target + " is not a possible target" );
 	}
 
 	static protected void terminateCommandListeners()
@@ -213,6 +219,45 @@ public class Patcher
 		}
 	}
 
+	static protected SQLException execute( Command command ) throws SQLException
+	{
+		Assert.isTrue( command.isNonRepeatable() );
+
+		String sql = command.getCommand();
+		if( sql.length() > 0 )
+		{
+			for( Iterator iter = listeners.iterator(); iter.hasNext(); )
+			{
+				CommandListener listener = (CommandListener)iter.next();
+				if( listener.execute( database, command ) )
+					return null;
+			}
+
+			try
+			{
+				Statement statement = database.getConnection().createStatement();
+				try
+				{
+					statement.execute( sql ); // autocommit is on
+				}
+				finally
+				{
+					statement.close();
+				}
+			}
+			catch( SQLException e )
+			{
+				String error = e.getSQLState();
+				if( ignoreSet.contains( error ) )
+					return e;
+				Patcher.callBack.exception( command );
+				throw e;
+			}
+		}
+
+		return null;
+	}
+
 	static protected void patch( Patch patch ) throws SQLException
 	{
 		Assert.notNull( patch, "patch == null" );
@@ -238,7 +283,7 @@ public class Patcher
 			{
 				String sql = command.getCommand();
 
-				if( command.isRepeatable() )
+				if( command.isRepeatable() ) // TODO Rename to isDBPatcherCommand
 				{
 					boolean done = false;
 					for( Iterator iter = listeners.iterator(); iter.hasNext(); )
@@ -260,9 +305,21 @@ public class Patcher
 							setUser( matcher.group( 1 ) );
 						else if( ( matcher = startMessagePattern.matcher( sql ) ).matches() )
 							startMessage = matcher.group( 1 );
+						else if( ( matcher = dontCountPattern.matcher( sql ) ).matches() )
+							enableDontCount();
+						else if( ( matcher = dontCountPatternEnd.matcher( sql ) ).matches() )
+							disableDontCount();
 						else
 							Assert.fail( "Unknown command [" + sql + "]" );
 					}
+				}
+				else if( dontCount )
+				{
+					Patcher.callBack.executing( command, startMessage );
+					execute( command );
+					Patcher.callBack.executed();
+
+					startMessage = null;
 				}
 				else
 				{
@@ -270,54 +327,15 @@ public class Patcher
 					if( count > skip )
 					{
 						Patcher.callBack.executing( command, startMessage );
-
-						SQLException sqle = null;
-						if( sql.length() > 0 )
-						{
-							boolean done = false;
-							for( Iterator iter = listeners.iterator(); iter.hasNext(); )
-							{
-								CommandListener listener = (CommandListener)iter.next();
-								done = listener.execute( database, command );
-								if( done )
-									break;
-							}
-
-							if( !done )
-								try
-							{
-									Statement statement = database.getConnection().createStatement();
-									try
-									{
-										statement.execute( sql ); // autocommit is on
-									}
-									finally
-									{
-										statement.close();
-									}
-							}
-							catch( SQLException e )
-							{
-								String error = e.getSQLState();
-								if( ignoreSet.contains( error ) )
-									sqle = e;
-								else
-								{
-									Patcher.callBack.exception( command );
-									throw e;
-								}
-							}
-						}
-
+						SQLException sqlException = execute( command );
 						if( !patch.isInit() )
 						{
 							dbVersion.setProgress( patch.getTarget(), count );
-							if( sqle != null )
-								dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), sqle );
+							if( sqlException != null )
+								dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), sqlException );
 							else
 								dbVersion.log( patch.getSource(), patch.getTarget(), count, sql, (String)null );
 						}
-
 						Patcher.callBack.executed();
 					}
 					else
@@ -381,6 +399,18 @@ public class Patcher
 				ignores.add( ss[ i ] );
 		}
 		ignoreSet = ignores;
+	}
+
+	static protected void enableDontCount()
+	{
+		Assert.isFalse( dontCount, "Can't nest DONTCOUNT" );
+		dontCount = true;
+	}
+
+	static protected void disableDontCount()
+	{
+		Assert.isTrue( dontCount, "DONTCOUNT was not enabled" );
+		dontCount = false;
 	}
 
 	static public ProgressListener getCallBack()

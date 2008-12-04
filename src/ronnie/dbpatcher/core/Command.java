@@ -18,7 +18,7 @@ public class Command
 {
 	protected String command;
 	protected boolean repeatable;
-	
+
 	/**
 	 * Constructs the command.
 	 * 
@@ -30,7 +30,7 @@ public class Command
 		this.command = command;
 		this.repeatable = repeatable;
 	}
-	
+
 	/**
 	 * Indicates if the command is repeatable or not.
 	 * 
@@ -46,7 +46,7 @@ public class Command
 	 * 
 	 * @return true if the command is non-repeatable, false otherwise.
 	 */
-	public boolean isNonRepeatable()
+	public boolean isNonRepeatable() // TODO Rename to isDatabaseCommand
 	{
 		return !this.repeatable;
 	}
