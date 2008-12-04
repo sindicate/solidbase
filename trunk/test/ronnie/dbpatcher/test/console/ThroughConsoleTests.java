@@ -78,6 +78,7 @@ public class ThroughConsoleTests
 				"Creating table USERS.\n" +
 				"Inserting admin user.\n" +
 				"DEBUG: version=1.0.1, target=1.0.2, statements=2\n" +
+				"The database has been patched.\n" +
 				"\n" +
 				"Current database version is \"1.0.2\".\n"
 		);

@@ -1,10 +1,11 @@
 		Add version deprecation
-		Add "database is up to date"
-		Add test for open patches
 		Add test for branches and return patches
+		When the current version is not found as source -> then it is deprecated?
 
 NOT		Add potential target patch
 DONE	Add -target wildcard option
 			examples:
 				-target *
 				-target 1.0.*
+DONE	Add "database is up to date"
+DONE	Add test for open patches

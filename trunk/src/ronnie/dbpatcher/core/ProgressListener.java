@@ -37,6 +37,11 @@ public class ProgressListener
 		// could be implemented in subclass
 	}
 
+	protected void patchingFinished()
+	{
+		// could be implemented in subclass
+	}
+
 	protected String requestPassword( String user )
 	{
 		// could be implemented in subclass
