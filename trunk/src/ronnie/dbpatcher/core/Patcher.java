@@ -94,13 +94,15 @@ public class Patcher
 	static public void closePatchFile()
 	{
 		if( patchFile != null )
+		{
 			try
-		{
+			{
 				patchFile.close();
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
+			}
+			catch( IOException e )
+			{
+				throw new SystemException( e );
+			}
 		}
 		patchFile = null;
 	}

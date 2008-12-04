@@ -25,6 +25,7 @@ import java.io.StringWriter;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 
 import org.xml.sax.SAXException;
@@ -163,9 +164,9 @@ public class DBVersion
 		try
 		{
 			PreparedStatement statement = this.database.getConnection( this.user ).prepareStatement( "SELECT * FROM DBVERSIONLOG" );
-			statement.executeQuery();
 			try
 			{
+				statement.executeQuery();
 				this.logTableExists = true;
 			}
 			finally
@@ -201,11 +202,17 @@ public class DBVersion
 				// Presume that the table has been created by the first SQL statement in the patch
 				statement = this.database.getConnection( this.user ).prepareStatement( "INSERT INTO DBVERSION ( TARGET, STATEMENTS ) VALUES ( ?, ? )" );
 			}
-			statement.setString( 1, target );
-			statement.setInt( 2, statements );
-			int modified = statement.executeUpdate(); // autocommit is on
-			Assert.isTrue( modified == 1, "Expecting 1 record to be updated, not " + modified );
-			statement.close();
+			try
+			{
+				statement.setString( 1, target );
+				statement.setInt( 2, statements );
+				int modified = statement.executeUpdate(); // autocommit is on
+				Assert.isTrue( modified == 1, "Expecting 1 record to be updated, not " + modified );
+			}
+			finally
+			{
+				statement.close();
+			}
 
 			this.versionTableExists = true;
 
@@ -231,10 +238,16 @@ public class DBVersion
 		try
 		{
 			PreparedStatement statement = this.database.getConnection( this.user ).prepareStatement( "UPDATE DBVERSION SET VERSION = ?, TARGET = NULL" );
-			statement.setString( 1, version );
-			int modified = statement.executeUpdate(); // autocommit is on
-			Assert.isTrue( modified == 1, "Expecting 1 record to be updated, not " + modified );
-			statement.close();
+			try
+			{
+				statement.setString( 1, version );
+				int modified = statement.executeUpdate(); // autocommit is on
+				Assert.isTrue( modified == 1, "Expecting 1 record to be updated, not " + modified );
+			}
+			finally
+			{
+				statement.close();
+			}
 
 			this.version = version;
 			this.target = null;
@@ -292,14 +305,20 @@ public class DBVersion
 		try
 		{
 			PreparedStatement statement = this.database.getConnection( getUser() ).prepareStatement( "INSERT INTO DBVERSIONLOG ( SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ? )" );
-			statement.setString( 1, StringUtil.emptyToNull( source ) );
-			statement.setString( 2, target );
-			statement.setInt( 3, count );
-			statement.setTimestamp( 4, new Timestamp( System.currentTimeMillis() ) );
-			statement.setString( 5, StringUtil.emptyToNull( command ) );
-			statement.setString( 6, StringUtil.emptyToNull( result ) );
-			statement.executeUpdate(); // autocommit is on
-			statement.close();
+			try
+			{
+				statement.setString( 1, StringUtil.emptyToNull( source ) );
+				statement.setString( 2, target );
+				statement.setInt( 3, count );
+				statement.setTimestamp( 4, new Timestamp( System.currentTimeMillis() ) );
+				statement.setString( 5, StringUtil.emptyToNull( command ) );
+				statement.setString( 6, StringUtil.emptyToNull( result ) );
+				statement.executeUpdate(); // autocommit is on
+			}
+			finally
+			{
+				statement.close();
+			}
 		}
 		catch( SQLException e )
 		{
@@ -364,37 +383,45 @@ public class DBVersion
 	{
 		try
 		{
-			ResultSet result = this.database.getConnection( getUser() ).createStatement().executeQuery( "SELECT SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT FROM DBVERSIONLOG ORDER BY ID" );
-
-			OutputFormat format = new OutputFormat( "XML", "ISO-8859-1", true );
-			XMLSerializer serializer = new XMLSerializer( out, format );
-
-			serializer.startDocument();
-			serializer.startElement( null, null, "log", null );
-
-			while( result.next() )
+			Statement stat = this.database.getConnection( getUser() ).createStatement();
+			try
 			{
-				AttributesImpl attributes = new AttributesImpl();
-				attributes.addAttribute( null, null, "source", null, result.getString( 1 ) );
-				attributes.addAttribute( null, null, "target", null, result.getString( 2 ) );
-				attributes.addAttribute( null, null, "count", null, String.valueOf( result.getInt( 3 ) ) );
-				attributes.addAttribute( null, null, "stamp", null, String.valueOf( result.getTimestamp( 4 ) ) );
-				serializer.startElement( null, null, "command", attributes );
-				String sql = result.getString( 5 );
-				if( sql != null )
-					serializer.characters( sql.toCharArray(), 0, sql.length() );
-				String res = result.getString( 6 );
-				if( res != null )
-				{
-					serializer.startElement( null, null, "result", null );
-					serializer.characters( res.toCharArray(), 0, res.length() );
-					serializer.endElement( null, null, "result" );
-				}
-				serializer.endElement( null, null, "command" );
-			}
+				ResultSet result = stat.executeQuery( "SELECT SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT FROM DBVERSIONLOG ORDER BY ID" );
 
-			serializer.endElement( null, null, "log" );
-			serializer.endDocument();
+				OutputFormat format = new OutputFormat( "XML", "ISO-8859-1", true );
+				XMLSerializer serializer = new XMLSerializer( out, format );
+
+				serializer.startDocument();
+				serializer.startElement( null, null, "log", null );
+
+				while( result.next() )
+				{
+					AttributesImpl attributes = new AttributesImpl();
+					attributes.addAttribute( null, null, "source", null, result.getString( 1 ) );
+					attributes.addAttribute( null, null, "target", null, result.getString( 2 ) );
+					attributes.addAttribute( null, null, "count", null, String.valueOf( result.getInt( 3 ) ) );
+					attributes.addAttribute( null, null, "stamp", null, String.valueOf( result.getTimestamp( 4 ) ) );
+					serializer.startElement( null, null, "command", attributes );
+					String sql = result.getString( 5 );
+					if( sql != null )
+						serializer.characters( sql.toCharArray(), 0, sql.length() );
+					String res = result.getString( 6 );
+					if( res != null )
+					{
+						serializer.startElement( null, null, "result", null );
+						serializer.characters( res.toCharArray(), 0, res.length() );
+						serializer.endElement( null, null, "result" );
+					}
+					serializer.endElement( null, null, "command" );
+				}
+
+				serializer.endElement( null, null, "log" );
+				serializer.endDocument();
+			}
+			finally
+			{
+				stat.close();
+			}
 		}
 		catch( SAXException e )
 		{

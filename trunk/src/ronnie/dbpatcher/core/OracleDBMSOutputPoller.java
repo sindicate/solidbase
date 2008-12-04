@@ -22,42 +22,58 @@ public class OracleDBMSOutputPoller extends CommandListener
 {
 	static protected Pattern disablePattern = Pattern.compile( "\\s*DISABLE\\s+DBMSOUTPUT\\s*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 	static protected Pattern enablePattern = Pattern.compile( "\\s*ENABLE\\s+DBMSOUTPUT\\s*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
-	
-	protected Poller poller; 
-	
+
+	protected Poller poller;
+
 	@Override
 	protected boolean execute( Database database, Command command ) throws SQLException
 	{
 		if( command.isNonRepeatable() )
 			return false;
-		
+
 		Matcher matcher = enablePattern.matcher( command.getCommand() );
 		if( matcher.matches() )
 		{
 			Connection connection = database.getConnection();
-			
-			connection.prepareCall( "begin dbms_output.enable; end;" ).execute();
+
+			CallableStatement call = connection.prepareCall( "begin dbms_output.enable; end;" );
+			try
+			{
+				call.execute();
+			}
+			finally
+			{
+				call.close();
+			}
 			System.out.println( "Enabled serveroutput" );
 
 			this.poller = new Poller( connection );
 			this.poller.start();
 			return true;
 		}
-		
+
 		matcher = disablePattern.matcher( command.getCommand() );
 		if( matcher.matches() )
 		{
 			Connection connection = database.getConnection();
-			connection.prepareCall( "begin dbms_output.disable; end;" ).execute();
+			CallableStatement call = connection.prepareCall( "begin dbms_output.disable; end;" );
+			try
+			{
+				call.execute();
+			}
+			finally
+			{
+				call.close();
+			}
 			System.out.println( "Disabled serveroutput" );
 
 			terminate();
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	@Override
 	protected void terminate()
 	{
@@ -78,7 +94,7 @@ public class OracleDBMSOutputPoller extends CommandListener
 	static protected class Poller extends Thread
 	{
 		protected Connection connection;
-		
+
 		protected Poller( Connection connection )
 		{
 			this.connection = connection;
@@ -90,7 +106,7 @@ public class OracleDBMSOutputPoller extends CommandListener
 			try
 			{
 				System.out.println( "Started Poller thread" );
-				
+
 				String sql = "begin dbms_output.get_line( ?, ? ); end;";
 				CallableStatement statement = this.connection.prepareCall( sql );
 				statement.registerOutParameter( 1, Types.VARCHAR );
@@ -102,14 +118,14 @@ public class OracleDBMSOutputPoller extends CommandListener
 				{
 					System.out.println( "Poll" );
 					needsleep = true;
-					
+
 					statement.execute();
 					while( statement.getInt( 2 ) == 0 )
 					{
 						System.out.println( statement.getString( 1 ) );
 						statement.execute();
 					}
-				
+
 					if( needsleep )
 					{
 						needsleep = false;
@@ -123,9 +139,9 @@ public class OracleDBMSOutputPoller extends CommandListener
 						}
 					}
 				}
-				
+
 				this.connection.close();
-				
+
 				System.out.println( "Finished Poller thread" );
 			}
 			catch( Throwable t )
