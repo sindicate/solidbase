@@ -33,8 +33,8 @@ public class Patcher
 	static protected Pattern ignoreEnd = Pattern.compile( "/IGNORE[ \\t]+SQL[ \\t]+ERROR", Pattern.CASE_INSENSITIVE );
 	static protected Pattern setUserPattern = Pattern.compile( "SET[ \\t]+USER[ \\t]+(\\w+)[ \\t]*", Pattern.CASE_INSENSITIVE );
 	static protected Pattern startMessagePattern = Pattern.compile( "\\s*MESSAGE\\s+START\\s+'([^']*)'\\s*", Pattern.CASE_INSENSITIVE );
-	static protected Pattern dontCountPattern = Pattern.compile( "DONTCOUNT", Pattern.CASE_INSENSITIVE );
-	static protected Pattern dontCountPatternEnd = Pattern.compile( "/DONTCOUNT", Pattern.CASE_INSENSITIVE );
+	static protected Pattern sessionConfigPattern = Pattern.compile( "SESSIONCONFIG", Pattern.CASE_INSENSITIVE );
+	static protected Pattern sessionConfigPatternEnd = Pattern.compile( "/SESSIONCONFIG", Pattern.CASE_INSENSITIVE );
 
 	static protected List< CommandListener > listeners = new ArrayList();
 	static protected Stack ignoreStack = new Stack();
@@ -307,9 +307,9 @@ public class Patcher
 							setUser( matcher.group( 1 ) );
 						else if( ( matcher = startMessagePattern.matcher( sql ) ).matches() )
 							startMessage = matcher.group( 1 );
-						else if( ( matcher = dontCountPattern.matcher( sql ) ).matches() )
+						else if( ( matcher = sessionConfigPattern.matcher( sql ) ).matches() )
 							enableDontCount();
-						else if( ( matcher = dontCountPatternEnd.matcher( sql ) ).matches() )
+						else if( ( matcher = sessionConfigPatternEnd.matcher( sql ) ).matches() )
 							disableDontCount();
 						else
 							Assert.fail( "Unknown command [" + sql + "]" );
@@ -405,13 +405,13 @@ public class Patcher
 
 	static protected void enableDontCount()
 	{
-		Assert.isFalse( dontCount, "Can't nest DONTCOUNT" );
+		Assert.isFalse( dontCount, "Counting already enabled" );
 		dontCount = true;
 	}
 
 	static protected void disableDontCount()
 	{
-		Assert.isTrue( dontCount, "DONTCOUNT was not enabled" );
+		Assert.isTrue( dontCount, "Counting already disabled" );
 		dontCount = false;
 	}
 
