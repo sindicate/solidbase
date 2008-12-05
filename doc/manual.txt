@@ -1,0 +1,39 @@
+CHANGE COMMANDS VS CONFIG COMMANDS
+
+	- patchfile -> patches = versions -> commands
+	- 2 kinds of commands in the patchfile: patches = state and/or structure modification commands vs. config = session configuration commands.
+	- patch commands form the meat of the patch. They change the structure and/or configuration of the database and the data in it.
+	- config commands change the mode of operation of the patchtool or the current session with the database.
+	
+	To distinguish between patch commands and config commands, config commands start with --*
+	
+	Examples of patch commands:
+		CREATE TABLE
+		CREATE INDEX
+		ADD COLUMN
+		INSERT reference data like countries
+		UPDATE data to conform with the new datamodel
+		
+	Examples of config commands:
+		--* SET USER, which changes to a connection with the specified user to execute the commands
+		--* MESSAGE START, which registers a message that is only printed when a patch command is actually being executed
+		
+	But real SQL can also be transformed into config commands:
+	
+		--* CONFIG
+		ALTER SESSION ...
+		--* /CONFIG
+		
+	The patchtool uses 1 connection per user. Configuring the connection like this should be done per user and per patch, because execution of a patch does not include scanning of all previous patches with regard to config commands.
+	
+PATCH FAILURE
+
+	- The patchtool manages the current version of the database in the database itself. 
+		To cope with patch failures, the target version and the number of changes executed to reach the target version is registered too.
+		When a patch failes in the middle, it can be restarted and the patchtool will skip all commands that have been executed allready.
+		Config commands are ignored in this process, which means that they are not counted, and the are NOT skipped when a patch is restarted.
+		
+	
+
+TODO	
+1 connection per user
