@@ -155,7 +155,8 @@ public class DBVersion
 		catch( SQLException e )
 		{
 			String sqlState = e.getSQLState();
-			if( sqlState.equals( "42000" ) /* Oracle */ || sqlState.equals( "42X05" ) /* Derby */  || sqlState.equals( "S0002" ) /* HSQLDB */ )
+			// TODO Make this configurable
+			if( sqlState.equals( "42000" ) /* Oracle */ || sqlState.equals( "42S02" ) /* MySQL */  || sqlState.equals( "42X05" ) /* Derby */  || sqlState.equals( "S0002" ) /* HSQLDB */ )
 				this.valid = true;
 			else
 				throw new SystemException( e );
@@ -177,7 +178,7 @@ public class DBVersion
 		catch( SQLException e )
 		{
 			String sqlState = e.getSQLState();
-			if( !( sqlState.equals( "42000" ) /* Oracle */ || sqlState.equals( "42X05" ) /* Derby */ || sqlState.equals( "S0002" ) /* HSQLDB */ ) )
+			if( !( sqlState.equals( "42000" ) /* Oracle */ || sqlState.equals( "42S02" ) /* MySQL */ || sqlState.equals( "42X05" ) /* Derby */ || sqlState.equals( "S0002" ) /* HSQLDB */ ) )
 				throw new SystemException( e );
 		}
 	}

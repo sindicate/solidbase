@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.jar"/>
 	<classpathentry kind="lib" path="tools/test/commons-io-1.3.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang-2.3.jar"/>
+	<classpathentry kind="lib" path="dist/hsqldb.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
