@@ -1,6 +1,7 @@
 package ronnie.dbpatcher.core;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -23,6 +24,8 @@ import com.logicacmg.idt.commons.util.Assert;
  */
 public class PatchFile
 {
+	static protected final Pattern encodingPattern = Pattern.compile( "^--\\*[ \t]*ENCODING[ \t]+\"([^\"]*)\"[ \t]*$", Pattern.CASE_INSENSITIVE );
+
 	static protected final Pattern patchDefinitionMarkerPattern = Pattern.compile( "(INIT|PATCH|BRANCH|RETURN)[ \t]+.*", Pattern.CASE_INSENSITIVE );
 	static protected final Pattern patchDefinitionPattern = Pattern.compile( "(INIT|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
 	private static final String PATCH_DEFINITION_SYNTAX_ERROR = "Line should match the following syntax: (INIT|PATCH|BRANCH|RETURN) [OPEN] \"...\" --> \"...\"";
@@ -38,15 +41,35 @@ public class PatchFile
 	protected MultiValueMap patches = new MultiValueMap();
 	protected LineInputStream lis;
 
-	protected PatchFile( LineInputStream lis )
+	protected PatchFile( LineInputStream lis ) throws IOException
 	{
 		this.lis = lis;
+		detectAndSetEncoding();
 	}
 
 	protected void close() throws IOException
 	{
-		this.lis.close();
-		this.lis = null;
+		if( this.lis != null )
+		{
+			this.lis.close();
+			this.lis = null;
+		}
+	}
+
+
+	/**
+	 * Detects encoding of the patchfile.
+	 *
+	 * @throws IOException
+	 */
+	protected void detectAndSetEncoding() throws IOException
+	{
+		String line = this.lis.readLine();
+		Matcher matcher = encodingPattern.matcher( line );
+		if( matcher.matches() )
+			this.lis.setEncoding( matcher.group( 1 ) );
+		else
+			this.lis.setPosition( 0 );
 	}
 
 
@@ -61,13 +84,11 @@ public class PatchFile
 		boolean definitionComplete = false;
 		while( !definitionComplete )
 		{
-			byte[] bytes = this.lis.readLine();
-			Assert.isTrue( bytes != null, "End-of-file found before reading a complete definition" );
+			String line = this.lis.readLine();
+			Assert.isTrue( line != null, "End-of-file found before reading a complete definition" );
 
-			if( bytes.length > 0 )
+			if( line.trim().length() > 0 )
 			{
-				String line = new String( bytes );
-
 				Assert.isTrue( line.startsWith( "--*" ), "Line should start with --*" );
 				line = line.substring( 3 ).trim();
 				//					System.out.println( line );
@@ -123,12 +144,10 @@ public class PatchFile
 	protected void scan() throws IOException
 	{
 		long pos = this.lis.getPosition();
-		byte[] bytes = this.lis.readLine();
+		String line = this.lis.readLine();
 
-		while( bytes != null )
+		while( line != null )
 		{
-			String line = new String( bytes );
-
 			if( line.startsWith( "--*" ) )
 			{
 				if( patchStartMarkerPattern.matcher( line ).matches() )
@@ -152,7 +171,7 @@ public class PatchFile
 			}
 
 			pos = this.lis.getPosition();
-			bytes = this.lis.readLine();
+			line = this.lis.readLine();
 		}
 	}
 
@@ -294,8 +313,7 @@ public class PatchFile
 		try
 		{
 			this.lis.setPosition( patch.getPos() );
-			byte[] bytes = this.lis.readLine();
-			String line = new String( bytes );
+			String line = this.lis.readLine();
 			//			System.out.println( line );
 			Assert.isTrue( patchStartMarkerPattern.matcher( line ).matches() );
 		}
@@ -309,6 +327,7 @@ public class PatchFile
 	 * Reads a statement from the patch file or null when no more statements are available in the current patch.
 	 * 
 	 * @return
+	 * @throws UnsupportedEncodingException
 	 */
 	protected Command readStatement()
 	{
@@ -316,41 +335,38 @@ public class PatchFile
 
 		while( true )
 		{
-			byte[] bytes;
 			try
 			{
-				bytes = this.lis.readLine();
+				String line = this.lis.readLine();
+				Assert.isTrue( line != null, "Premature end of file found" );
+
+				if( line.trim().length() > 0 )
+				{
+					if( goPattern.matcher( line ).matches() )
+						return new Command( result.toString(), false );
+
+					if( patchEndPattern.matcher( line ).matches() )
+					{
+						Assert.isTrue( result.length() == 0, "Unterminated statement found" );
+						return null;
+					}
+
+					if( line.startsWith( "--*" ) )
+					{
+						line = line.substring( 3 ).trim();
+						if( !line.startsWith( "//" ))
+							return new Command( line, true );
+					}
+					else
+					{
+						result.append( line );
+						result.append( "\n" );
+					}
+				}
 			}
 			catch( IOException e )
 			{
 				throw new SystemException( e );
-			}
-
-			Assert.isTrue( bytes != null, "Premature end of file found" );
-
-			String line = new String( bytes );
-			if( line.trim().length() > 0 )
-			{
-				if( goPattern.matcher( line ).matches() )
-					return new Command( result.toString(), false );
-
-				if( patchEndPattern.matcher( line ).matches() )
-				{
-					Assert.isTrue( result.length() == 0, "Unterminated statement found" );
-					return null;
-				}
-
-				if( line.startsWith( "--*" ) )
-				{
-					line = line.substring( 3 ).trim();
-					if( !line.startsWith( "//" ))
-						return new Command( line, true );
-				}
-				else
-				{
-					result.append( line );
-					result.append( "\n" );
-				}
 			}
 		}
 	}

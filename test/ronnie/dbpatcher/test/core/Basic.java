@@ -1,11 +1,9 @@
 package ronnie.dbpatcher.test.core;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
 import ronnie.dbpatcher.core.Database;
@@ -17,7 +15,6 @@ public class Basic
 	public void testBasic() throws IOException, SQLException
 	{
 		Patcher.end();
-		FileUtils.deleteDirectory( new File( "c:/projects/temp/dbpatcher/db" ) );
 
 		Patcher.setCallBack( new TestProgressListener() );
 		// TODO Learn to really shutdown an inmemory database

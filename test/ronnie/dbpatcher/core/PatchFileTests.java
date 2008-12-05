@@ -1,5 +1,6 @@
 package ronnie.dbpatcher.core;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -10,9 +11,11 @@ import org.testng.annotations.Test;
 public class PatchFileTests
 {
 	@Test
-	public void testCollectTipVersions()
+	public void testCollectTipVersions() throws IOException
 	{
-		PatchFile patchFile = new PatchFile( null );
+		Patcher.openPatchFile( "testpatch1.sql" );
+		PatchFile patchFile = Patcher.patchFile;
+
 		Map< String, Patch > patches = patchFile.patches;
 		patches.put( "1.1", new Patch( "1.1", "1.2", false, false, false, false ) );
 		patches.put( "1.2", new Patch( "1.2", "1.3", false, false, false, false ) );
@@ -42,9 +45,11 @@ public class PatchFileTests
 	}
 
 	@Test
-	public void testOpenPatch()
+	public void testOpenPatch() throws IOException
 	{
-		PatchFile patchFile = new PatchFile( null );
+		Patcher.openPatchFile( "testpatch1.sql" );
+		PatchFile patchFile = Patcher.patchFile;
+
 		Map< String, Patch > patches = patchFile.patches;
 		patches.put( "1.1", new Patch( "1.1", "1.2", false, false, false, false ) );
 		patches.put( "1.2", new Patch( "1.2", "1.3", false, false, false, false ) );
