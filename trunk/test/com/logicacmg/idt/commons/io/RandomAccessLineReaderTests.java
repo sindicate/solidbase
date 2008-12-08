@@ -8,7 +8,6 @@ import org.testng.annotations.Test;
 
 public class RandomAccessLineReaderTests
 {
-
 	@Test
 	public void testUtf16BomAndExplicit() throws IOException, SQLException
 	{
