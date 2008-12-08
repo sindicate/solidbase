@@ -47,6 +47,14 @@ public class PatchFile
 		this.file = file;
 
 		String line = file.readLine();
+		//System.out.println( "First line [" + line + "]" );
+		StringBuilder s = new StringBuilder();
+		char[] chars = line.toCharArray();
+		for( char c : chars )
+			if( c != 0 )
+				s.append( c );
+		line = s.toString();
+		//System.out.println( "First line (fixed) [" + line + "]" );
 		Matcher matcher = encodingPattern.matcher( line );
 		if( matcher.matches() )
 		{

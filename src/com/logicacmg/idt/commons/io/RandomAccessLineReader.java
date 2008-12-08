@@ -41,6 +41,7 @@ public class RandomAccessLineReader
 
 		this.reader.mark( 1000 ); // 1000 is smaller then the default buffer size of 8192, which is ok
 		String line = this.reader.readLine();
+		//System.out.println( "First line [" + line + "]" );
 		this.reader.reset();
 		if( line == null )
 			return;
