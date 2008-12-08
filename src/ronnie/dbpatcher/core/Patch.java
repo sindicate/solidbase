@@ -16,7 +16,7 @@ public class Patch
 	protected boolean returnBranch;
 	protected boolean open;
 	protected boolean init;
-	protected long pos;
+	protected int pos;
 
 	protected Patch( String source, String target, boolean branch, boolean returnBranch, boolean open, boolean init )
 	{
@@ -76,7 +76,7 @@ public class Patch
 	 * 
 	 * @param pos
 	 */
-	protected void setPos( long pos )
+	protected void setPos( int pos )
 	{
 		this.pos = pos;
 	}
@@ -86,7 +86,7 @@ public class Patch
 	 * 
 	 * @return
 	 */
-	protected long getPos()
+	protected int getPos()
 	{
 		return this.pos;
 	}

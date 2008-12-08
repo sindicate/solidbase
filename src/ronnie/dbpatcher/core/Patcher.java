@@ -1,7 +1,6 @@
 package ronnie.dbpatcher.core;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
@@ -18,7 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.logicacmg.idt.commons.SystemException;
-import com.logicacmg.idt.commons.io.LineInputStream;
+import com.logicacmg.idt.commons.io.RandomAccessLineReader;
 import com.logicacmg.idt.commons.util.Assert;
 
 
@@ -58,21 +57,21 @@ public class Patcher
 		if( fileName == null )
 			fileName = "dbpatch.sql";
 
-		LineInputStream lis;
+		RandomAccessLineReader ralr;
 		URL url = Patcher.class.getResource( "/" + fileName ); // In the classpath
 		if( url != null )
 		{
 			callBack.openingPatchFile( url.toString() );
-			lis = new LineInputStream( url );
+			ralr = new RandomAccessLineReader( url );
 		}
 		else
 		{
 			File file = new File( fileName ); // In the current folder
 			callBack.openingPatchFile( file.getAbsolutePath() );
-			lis = new LineInputStream( new FileInputStream( file ) );
+			ralr = new RandomAccessLineReader( file );
 		}
 
-		patchFile = new PatchFile( lis );
+		patchFile = new PatchFile( ralr );
 
 		// Need to close in case of an exception during reading
 		try
