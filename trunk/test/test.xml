@@ -8,6 +8,7 @@
 	<test name="test">
 		<packages>
 			<package name="ronnie.dbpatcher.*" />
+			<package name="com.logicacmg.idt.*" />
 		</packages>
 	</test>
 </suite>
