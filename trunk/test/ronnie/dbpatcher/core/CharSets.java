@@ -20,7 +20,7 @@ public class CharSets
 		Patcher.end();
 		Patcher.setCallBack( new TestProgressListener() );
 		Patcher.openPatchFile( "testpatch1.sql" );
-		Assert.assertEquals( Patcher.patchFile.lis.getEncoding(), "ISO-8859-1" );
+		Assert.assertEquals( Patcher.patchFile.file.getEncoding(), "ISO-8859-1" );
 	}
 
 	@Test
@@ -31,7 +31,7 @@ public class CharSets
 		Patcher.setConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testUtf8" ), "sa", null );
 
 		Patcher.openPatchFile( "patch-utf-8-1.sql" );
-		Assert.assertEquals( Patcher.patchFile.lis.getEncoding(), "UTF-8" );
+		Assert.assertEquals( Patcher.patchFile.file.getEncoding(), "UTF-8" );
 		try
 		{
 			Set< String > targets = Patcher.getTargets( false );
@@ -52,12 +52,12 @@ public class CharSets
 		Assert.assertEquals( userName, "rené" );
 	}
 
-	@Test(expectedExceptions=UnsupportedOperationException.class)
+	@Test
 	public void testUtf16Bom() throws IOException, SQLException
 	{
 		Patcher.end();
 		Patcher.setCallBack( new TestProgressListener() );
 		Patcher.openPatchFile( "patch-utf-16-bom-1.sql" );
-		//Assert.assertEquals( Patcher.patchFile.encoding, "UTF-16" );
+		Assert.assertEquals( Patcher.patchFile.file.getEncoding(), "UTF-16LE" );
 	}
 }

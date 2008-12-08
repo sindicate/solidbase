@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.collections.map.MultiValueMap;
 
 import com.logicacmg.idt.commons.SystemException;
-import com.logicacmg.idt.commons.io.LineInputStream;
+import com.logicacmg.idt.commons.io.RandomAccessLineReader;
 import com.logicacmg.idt.commons.util.Assert;
 
 /**
@@ -39,37 +39,32 @@ public class PatchFile
 	static protected final Pattern goPattern = Pattern.compile( "GO *", Pattern.CASE_INSENSITIVE );
 
 	protected MultiValueMap patches = new MultiValueMap();
-	protected LineInputStream lis;
+	protected RandomAccessLineReader file;
 
-	protected PatchFile( LineInputStream lis ) throws IOException
+
+	protected PatchFile( RandomAccessLineReader file ) throws IOException
 	{
-		this.lis = lis;
-		detectAndSetEncoding();
+		this.file = file;
+
+		String line = file.readLine();
+		Matcher matcher = encodingPattern.matcher( line );
+		if( matcher.matches() )
+		{
+			file.reOpen( matcher.group( 1 ) );
+			file.readLine(); // skip the first line
+		}
+		else
+			file.gotoLine( 1 );
 	}
+
 
 	protected void close() throws IOException
 	{
-		if( this.lis != null )
+		if( this.file != null )
 		{
-			this.lis.close();
-			this.lis = null;
+			this.file.close();
+			this.file = null;
 		}
-	}
-
-
-	/**
-	 * Detects encoding of the patchfile.
-	 *
-	 * @throws IOException
-	 */
-	protected void detectAndSetEncoding() throws IOException
-	{
-		String line = this.lis.readLine();
-		Matcher matcher = encodingPattern.matcher( line );
-		if( matcher.matches() )
-			this.lis.setEncoding( matcher.group( 1 ) );
-		else
-			this.lis.setPosition( 0 );
 	}
 
 
@@ -84,7 +79,7 @@ public class PatchFile
 		boolean definitionComplete = false;
 		while( !definitionComplete )
 		{
-			String line = this.lis.readLine();
+			String line = this.file.readLine();
 			Assert.isTrue( line != null, "End-of-file found before reading a complete definition" );
 
 			if( line.trim().length() > 0 )
@@ -143,8 +138,8 @@ public class PatchFile
 	 */
 	protected void scan() throws IOException
 	{
-		long pos = this.lis.getPosition();
-		String line = this.lis.readLine();
+		int pos = this.file.getLineNumber();
+		String line = this.file.readLine();
 
 		while( line != null )
 		{
@@ -170,8 +165,8 @@ public class PatchFile
 				}
 			}
 
-			pos = this.lis.getPosition();
-			line = this.lis.readLine();
+			pos = this.file.getLineNumber();
+			line = this.file.readLine();
 		}
 	}
 
@@ -312,8 +307,8 @@ public class PatchFile
 
 		try
 		{
-			this.lis.setPosition( patch.getPos() );
-			String line = this.lis.readLine();
+			this.file.gotoLine( patch.getPos() );
+			String line = this.file.readLine();
 			//			System.out.println( line );
 			Assert.isTrue( patchStartMarkerPattern.matcher( line ).matches() );
 		}
@@ -337,7 +332,7 @@ public class PatchFile
 		{
 			try
 			{
-				String line = this.lis.readLine();
+				String line = this.file.readLine();
 				Assert.isTrue( line != null, "Premature end of file found" );
 
 				if( line.trim().length() > 0 )
