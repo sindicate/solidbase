@@ -10,6 +10,8 @@ import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.logicacmg.idt.commons.io.RandomAccessLineReader;
+
 import ronnie.dbpatcher.test.core.TestProgressListener;
 
 public class CharSets
@@ -59,5 +61,26 @@ public class CharSets
 		Patcher.setCallBack( new TestProgressListener() );
 		Patcher.openPatchFile( "patch-utf-16-bom-1.sql" );
 		Assert.assertEquals( Patcher.patchFile.file.getEncoding(), "UTF-16LE" );
+	}
+
+	@Test
+	public void testUtf16BomAndExplicit() throws IOException, SQLException
+	{
+		Patcher.end();
+		Patcher.setCallBack( new TestProgressListener() );
+		Patcher.openPatchFile( "patch-utf-16-bom-2.sql" );
+		Assert.assertEquals( Patcher.patchFile.file.getEncoding(), "UTF-16LE" );
+
+		RandomAccessLineReader reader = Patcher.patchFile.file;
+		reader.gotoLine( 1 );
+		boolean found = false;
+		String line = reader.readLine();
+		while( line != null )
+		{
+			if( line.contains( "rené" ) )
+				found = true;
+			line = reader.readLine();
+		}
+		Assert.assertTrue( found, "Expected to find rené" );
 	}
 }

@@ -1,3 +1,5 @@
-#Fri Dec 05 15:01:21 CET 2008
+#Mon Dec 08 12:48:40 CET 2008
 eclipse.preferences.version=1
+encoding//test/patch-utf-16-bom-1.sql=UTF-16LE
+encoding//test/patch-utf-16-bom-2.sql=UTF-16LE
 encoding//test/patch-utf-8-1.sql=UTF-8
