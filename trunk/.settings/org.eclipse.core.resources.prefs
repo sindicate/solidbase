@@ -1,5 +1,6 @@
-#Mon Dec 08 13:19:05 CET 2008
+#Tue Dec 09 13:35:40 CET 2008
 eclipse.preferences.version=1
+encoding//dist/dbpatch-derby-example.sql=ISO-8859-1
 encoding//test/patch-utf-16-bom-1.sql=UTF-16LE
 encoding//test/patch-utf-16-bom-2.sql=UTF-16LE
 encoding//test/patch-utf-16-nobom-1.sql=UTF-16LE

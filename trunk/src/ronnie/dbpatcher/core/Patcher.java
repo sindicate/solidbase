@@ -1,9 +1,11 @@
 package ronnie.dbpatcher.core;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -424,9 +426,21 @@ public class Patcher
 		Patcher.callBack = callBack;
 	}
 
-	static public void logToXML( OutputStream out )
+	static public void logToXML( String filename )
 	{
-		dbVersion.logToXML( out );
+		if( filename.equals( "-" ) )
+			dbVersion.logToXML( System.out, Charset.defaultCharset() );
+		else
+		{
+			try
+			{
+				dbVersion.logToXML( new FileOutputStream( filename ), Charset.forName( "UTF-8" ) );
+			}
+			catch( FileNotFoundException e )
+			{
+				throw new SystemException( e );
+			}
+		}
 	}
 
 	static public void end()
