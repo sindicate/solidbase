@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -237,7 +239,12 @@ public class Configuration
 
 	public List< String > getDriverJars()
 	{
-		Assert.isTrue( this.configVersion == 2, "Only supported with config version 2" );
+		if( this.configVersion == 1 )
+		{
+			if( this.dbDriverJar != null )
+				return Arrays.asList( this.dbDriverJar );
+			return Collections.EMPTY_LIST;
+		}
 		return this.driverJars;
 	}
 
@@ -250,24 +257,6 @@ public class Configuration
 	public int getConfigVersion()
 	{
 		return this.configVersion;
-	}
-
-	public String getDbUrl()
-	{
-		Assert.isTrue( this.configVersion == 1, "Only supported with config version 1" );
-		return this.dbUrl;
-	}
-
-	public String getDbDriver()
-	{
-		Assert.isTrue( this.configVersion == 1, "Only supported with config version 1" );
-		return this.dbDriver;
-	}
-
-	public String getDbDriverJar()
-	{
-		Assert.isTrue( this.configVersion == 1, "Only supported with config version 1" );
-		return this.dbDriverJar;
 	}
 
 	public String getUserName()

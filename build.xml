@@ -126,7 +126,7 @@
 			<keep pattern="ronnie.dbpatcher.Main" />
 			<keep pattern="ronnie.dbpatcher.Boot" />
 			<manifest>
-				<attribute name="Main-Class" value="ronnie.dbpatcher.Boot" />
+				<attribute name="Main-Class" value="ronnie.dbpatcher.Main" />
 				<attribute name="Version" value="${release.number}.${svn.revision}" />
 				<attribute name="Project-Name" value="${ant.project.name}" />
 				<attribute name="Built-By" value="${user.name}" />
