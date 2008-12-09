@@ -74,7 +74,7 @@ public class Main
 			Options options = new Options();
 			options.addOption( "verbose", false, "be extra verbose" );
 			options.addOption( "fromant", false, "adds newlines after input requests" );
-			options.addOption( "export", false, "export historical patch results to an xml file" ); // TODO Add filename as an option value
+			options.addOption( "dumplog", true, "export historical patch results to an xml file" ); // TODO Add filename as an option value
 			options.addOption( "driver", true, "sets the jdbc driverclass" );
 			options.addOption( "url", true, "sets the url of the database" );
 			options.addOption( "username", true, "sets the default username to patch with" );
@@ -82,6 +82,7 @@ public class Main
 			options.addOption( "target", true, "sets the target version" );
 			options.addOption( "patchfile", true, "sets the patch file" );
 
+			options.getOption( "dumplog" ).setArgName( "filename" );
 			options.getOption( "driver" ).setArgName( "classname" );
 			options.getOption( "url" ).setArgName( "url" );
 			options.getOption( "username" ).setArgName( "username" );
@@ -104,7 +105,7 @@ public class Main
 			}
 
 			boolean verbose = line.hasOption( "verbose" );
-			boolean exportlog = line.hasOption( "exportlog" );
+			boolean exportlog = line.hasOption( "dumplog" );
 			console.fromAnt = line.hasOption( "fromant" );
 
 			// Validate the commandline options
@@ -192,7 +193,7 @@ public class Main
 
 			if( exportlog )
 			{
-				Patcher.logToXML( System.out );
+				Patcher.logToXML( line.getOptionValue( "dumplog" ) );
 				return;
 			}
 

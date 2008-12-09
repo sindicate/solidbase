@@ -1,3 +1,5 @@
+--* ENCODING "ISO-8859-1"
+
 --* // ========================================================================
 
 --*	PATCHES
@@ -64,6 +66,10 @@ GO
 
 --* MESSAGE START 'Inserting admin user'
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
+GO
+
+--* MESSAGE START 'Inserting user'
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
 GO
 
 --* /PATCH

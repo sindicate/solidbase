@@ -22,6 +22,7 @@ package ronnie.dbpatcher.core;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -380,7 +381,7 @@ public class DBVersion
 	 *
 	 * @param out The outputstream.
 	 */
-	protected void logToXML( OutputStream out )
+	protected void logToXML( OutputStream out, Charset charSet )
 	{
 		try
 		{
@@ -389,7 +390,7 @@ public class DBVersion
 			{
 				ResultSet result = stat.executeQuery( "SELECT SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT FROM DBVERSIONLOG ORDER BY ID" );
 
-				OutputFormat format = new OutputFormat( "XML", "ISO-8859-1", true );
+				OutputFormat format = new OutputFormat( "XML", charSet.name(), true );
 				XMLSerializer serializer = new XMLSerializer( out, format );
 
 				serializer.startDocument();

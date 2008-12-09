@@ -157,18 +157,18 @@ public class PatchFile
 				{
 					Matcher matcher = patchStartPattern.matcher( line );
 					Assert.isTrue( matcher.matches(), PATCH_START_SYNTAX_ERROR );
-					//					String action = matcher.group( 1 );
+					// String action = matcher.group( 1 );
 					String source = matcher.group( 2 );
 					if( source.length() == 0 )
 						source = null;
 					String target = matcher.group( 3 );
-					//					boolean branch = "BRANCH".equalsIgnoreCase( action );
-					//					boolean returnBranch = "RETURN".equalsIgnoreCase( action );
-					//					boolean init = "INIT".equalsIgnoreCase( action );
+					// boolean branch = "BRANCH".equalsIgnoreCase( action );
+					// boolean returnBranch = "RETURN".equalsIgnoreCase( action );
+					// boolean init = "INIT".equalsIgnoreCase( action );
 
 					Patch patch = getPatch( source, target );
 					Assert.isTrue( patch != null, "Patch block found for undefined patch: \"" + source + "\" --> \"" + target + "\"" );
-					// TODO: Assert that action is the same
+					// TODO Assert that action is the same
 					patch.setPos( pos );
 				}
 			}
