@@ -45,11 +45,11 @@ public class ThroughConsoleTests
 				"Available database:\n" +
 				"    prod (DHL Production)\n" +
 				"    test (test)\n" +
-				"Select a database from the above:\n" +
+				"Select a database from the above: \n" +
 				"Available applications in database 'DHL Production':\n" +
 				"    app1 (app1 description)\n" +
 				"    app2 (app2)\n" +
-				"Select an application from the above:\n" +
+				"Select an application from the above: \n" +
 				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test1, user=sa\n" +
 				"Connecting to database 'DHL Production', application 'app1 description'...\n" +
 				"Input password for user 'sa': The database has no version yet.\n" +

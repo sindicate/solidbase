@@ -176,7 +176,7 @@ public class Main
 					console.println( "Available database:" );
 					for( ronnie.dbpatcher.config.Configuration.Database database : configuration.getDatabases() )
 						console.println( "    " + database.getName() + " (" + database.getDescription() + ")" );
-					console.print( "Select a database from the above:" );
+					console.print( "Select a database from the above: " );
 					String input = console.input();
 					selectedDatabase = configuration.getDatabase( input );
 					console.println();
@@ -190,7 +190,7 @@ public class Main
 					console.println( "Available applications in database '" + selectedDatabase.getDescription() + "':" );
 					for( ronnie.dbpatcher.config.Configuration.Application application : selectedDatabase.getApplications() )
 						console.println( "    " + application.getName() + " (" + application.getDescription() + ")" );
-					console.print( "Select an application from the above:" );
+					console.print( "Select an application from the above: " );
 					String input = console.input();
 					selectedApplication = selectedDatabase.getApplication( input );
 					console.println();
@@ -292,7 +292,7 @@ public class Main
 		// Execute the main class through the new classloader with reflection
 		Class main = classLoader.loadClass( "ronnie.dbpatcher.Main" );
 		Method method = main.getDeclaredMethod( "pass2", String[].class );
-		method.invoke( method, args );
+		method.invoke( method, (Object)args );
 	}
 
 
