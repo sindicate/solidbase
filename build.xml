@@ -102,7 +102,7 @@
 	
 	<target name="test" depends="build,buildtest" description="Run all tests">
 		<testng workingDir="${dist.home}" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="2">
-			<xmlfileset file="${test.home}/test.xml" />
+			<classfileset dir="${build.home}/test" />
 			<jvmarg value="-Xmx256m" />
 		</testng>
 	</target>
@@ -117,7 +117,7 @@
 		<mkdir dir="${dist.home}" />
 		<jarjar compress="yes" destfile="${dist.home}/dbpatcher.jar">
 			<fileset dir="${build.home}/classes" />
-			<zipfileset src="lib/idt-commons-2.0.135.jar" excludes="**/*.sql" />
+			<zipfileset src="lib/idt-commons-2.0.142.jar" excludes="**/*.sql" />
 			<zipfileset src="lib/commons-cli-1.1.jar" excludes="META-INF/LICENSE.txt,META-INF/NOTICE.txt" />
 			<zipfileset src="lib/commons-collections-3.2.jar" excludes="META-INF/LICENSE.txt,META-INF/NOTICE.txt" />
 			<zipfileset src="lib/commons-lang-2.3.jar" />
