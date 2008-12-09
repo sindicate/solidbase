@@ -1,9 +1,17 @@
 package ronnie.dbpatcher;
 
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -23,7 +31,9 @@ import com.logicacmg.idt.commons.SystemException;
  */
 public class Main
 {
-	static public Console console = new Console();
+	static public Console console;
+	static private boolean pass2 = false;
+
 
 	static protected void printCurrentVersion( Console console )
 	{
@@ -47,6 +57,7 @@ public class Main
 		}
 	}
 
+
 	static protected String list( Collection list )
 	{
 		StringBuffer buffer = new StringBuffer();
@@ -65,10 +76,14 @@ public class Main
 		return buffer.toString();
 	}
 
+
 	static public void main( String... args )
 	{
 		try
 		{
+			if( console == null )
+				console = new Console();
+
 			// Configure the commandline options
 
 			Options options = new Options();
@@ -81,6 +96,7 @@ public class Main
 			options.addOption( "password", true, "sets the password of the default username" );
 			options.addOption( "target", true, "sets the target version" );
 			options.addOption( "patchfile", true, "sets the patch file" );
+			// TODO Add driverjar option
 
 			options.getOption( "dumplog" ).setArgName( "filename" );
 			options.getOption( "driver" ).setArgName( "classname" );
@@ -139,6 +155,12 @@ public class Main
 
 			Progress progress = new Progress( console, verbose );
 			Configuration configuration = new Configuration( progress, line.getOptionValue( "driver" ), line.getOptionValue( "url" ), line.getOptionValue( "username" ), line.getOptionValue( "password" ), line.getOptionValue( "target" ), line.getOptionValue( "patchfile" ) );
+
+			if( !pass2 && !configuration.getDriverJars().isEmpty() )
+			{
+				reload( args, configuration.getDriverJars(), verbose );
+				return;
+			}
 
 			console.println( "DBPatcher v" + configuration.getVersion() );
 			console.println( "(C) 2006-2008 R.M. de Bloois, LogicaCMG" );
@@ -238,5 +260,45 @@ public class Main
 
 			console.exception( e );
 		}
+	}
+
+
+	static protected void reload( String[] args, List< String > jars, boolean verbose ) throws MalformedURLException, NoSuchMethodException, ClassNotFoundException, IllegalAccessException, InvocationTargetException
+	{
+		if( verbose )
+			console.println( "Extending classpath" );
+
+		// Add the driver jar(s) to the classpath
+		URLClassLoader classLoader = (URLClassLoader)Main.class.getClassLoader();
+		URL[] orig = classLoader.getURLs();
+		URL[] urls;
+		urls = new URL[ orig.length + jars.size() ];
+		System.arraycopy( orig, 0, urls, 0, orig.length );
+		int i = orig.length;
+		for( String jar : jars )
+		{
+			File driverJarFile = new File( jar );
+			urls[ i++ ] = driverJarFile.toURI().toURL();
+			if( verbose )
+				console.println( "Adding jar to classpath: " + urls[ i - 1 ] );
+		}
+
+		if( verbose )
+			console.println();
+
+		// Create a new classloader with the new classpath
+		classLoader = new URLClassLoader( urls, Main.class.getClassLoader().getParent() );
+
+		// Execute the main class through the new classloader with reflection
+		Class main = classLoader.loadClass( "ronnie.dbpatcher.Main" );
+		Method method = main.getDeclaredMethod( "pass2", String[].class );
+		method.invoke( method, args );
+	}
+
+
+	static public void pass2( String[] args )
+	{
+		pass2 = true;
+		main( args );
 	}
 }

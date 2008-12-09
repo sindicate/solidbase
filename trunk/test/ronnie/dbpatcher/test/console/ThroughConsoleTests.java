@@ -26,7 +26,7 @@ public class ThroughConsoleTests
 
 		Main.console = console;
 
-		Main.main( new String[] { "-verbose" } );
+		Main.pass2( new String[] { "-verbose" } );
 
 		String output = console.getOutput();
 		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
