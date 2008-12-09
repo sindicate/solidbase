@@ -15,7 +15,7 @@
 --* PATCH "" --> "1.0.1"
 --* // ========================================================================
 
---* MESSAGE START 'Creating table DBVERSION'
+--* SET MESSAGE "Creating table DBVERSION"
 CREATE TABLE DBVERSION
 ( 
 	VERSION VARCHAR, 
