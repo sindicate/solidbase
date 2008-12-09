@@ -74,7 +74,7 @@ public class Main
 			Options options = new Options();
 			options.addOption( "verbose", false, "be extra verbose" );
 			options.addOption( "fromant", false, "adds newlines after input requests" );
-			options.addOption( "dumplog", true, "export historical patch results to an xml file" ); // TODO Add filename as an option value
+			options.addOption( "dumplog", true, "export historical patch results to an xml file" );
 			options.addOption( "driver", true, "sets the jdbc driverclass" );
 			options.addOption( "url", true, "sets the url of the database" );
 			options.addOption( "username", true, "sets the default username to patch with" );
