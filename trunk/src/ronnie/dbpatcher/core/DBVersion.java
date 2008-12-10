@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -131,56 +132,71 @@ public class DBVersion
 		this.versionTableExists = false;
 		this.logTableExists = false;
 
+		Connection connection = this.database.getConnection( this.user );
 		try
 		{
-			PreparedStatement statement = this.database.getConnection( this.user ).prepareStatement( "SELECT VERSION, TARGET, STATEMENTS FROM DBVERSION" );
 			try
 			{
-				ResultSet resultSet = statement.executeQuery(); // Resultset is closed when the statement is closed
-				Assert.isTrue( resultSet.next() );
-				this.version = resultSet.getString( 1 );
-				this.target = resultSet.getString( 2 );
-				this.statements = resultSet.getInt( 3 );
-				Assert.isTrue( !resultSet.next() );
+				PreparedStatement statement = connection.prepareStatement( "SELECT VERSION, TARGET, STATEMENTS FROM DBVERSION" );
+				try
+				{
+					ResultSet resultSet = statement.executeQuery(); // Resultset is closed when the statement is closed
+					Assert.isTrue( resultSet.next() );
+					this.version = resultSet.getString( 1 );
+					this.target = resultSet.getString( 2 );
+					this.statements = resultSet.getInt( 3 );
+					Assert.isTrue( !resultSet.next() );
 
-				Patcher.callBack.debug( "version=" + this.version + ", target=" + this.target + ", statements=" + this.statements );
+					Patcher.callBack.debug( "version=" + this.version + ", target=" + this.target + ", statements=" + this.statements );
 
-				this.versionTableExists = true;
-				this.valid = true;
+					this.versionTableExists = true;
+					this.valid = true;
+				}
+				finally
+				{
+					statement.close();
+				}
 			}
-			finally
+			catch( SQLException e )
 			{
-				statement.close();
+				String sqlState = e.getSQLState();
+				// TODO Make this configurable
+				if( sqlState.equals( "42000" ) /* Oracle */ || sqlState.equals( "42S02" ) /* MySQL */  || sqlState.equals( "42X05" ) /* Derby */  || sqlState.equals( "S0002" ) /* HSQLDB */ )
+					this.valid = true;
+				else
+					throw new SystemException( e );
 			}
-		}
-		catch( SQLException e )
-		{
-			String sqlState = e.getSQLState();
-			// TODO Make this configurable
-			if( sqlState.equals( "42000" ) /* Oracle */ || sqlState.equals( "42S02" ) /* MySQL */  || sqlState.equals( "42X05" ) /* Derby */  || sqlState.equals( "S0002" ) /* HSQLDB */ )
-				this.valid = true;
-			else
-				throw new SystemException( e );
-		}
 
-		try
-		{
-			PreparedStatement statement = this.database.getConnection( this.user ).prepareStatement( "SELECT * FROM DBVERSIONLOG" );
 			try
 			{
-				statement.executeQuery();
-				this.logTableExists = true;
+				PreparedStatement statement = connection.prepareStatement( "SELECT * FROM DBVERSIONLOG" );
+				try
+				{
+					statement.executeQuery();
+					this.logTableExists = true;
+				}
+				finally
+				{
+					statement.close();
+				}
 			}
-			finally
+			catch( SQLException e )
 			{
-				statement.close();
+				String sqlState = e.getSQLState();
+				if( !( sqlState.equals( "42000" ) /* Oracle */ || sqlState.equals( "42S02" ) /* MySQL */ || sqlState.equals( "42X05" ) /* Derby */ || sqlState.equals( "S0002" ) /* HSQLDB */ ) )
+					throw new SystemException( e );
 			}
 		}
-		catch( SQLException e )
+		finally
 		{
-			String sqlState = e.getSQLState();
-			if( !( sqlState.equals( "42000" ) /* Oracle */ || sqlState.equals( "42S02" ) /* MySQL */ || sqlState.equals( "42X05" ) /* Derby */ || sqlState.equals( "S0002" ) /* HSQLDB */ ) )
+			try
+			{
+				connection.commit();
+			}
+			catch( SQLException e )
+			{
 				throw new SystemException( e );
+			}
 		}
 	}
 
@@ -196,24 +212,26 @@ public class DBVersion
 
 		try
 		{
+			Connection connection = this.database.getConnection( this.user );
 			PreparedStatement statement;
 			if( this.versionTableExists )
-				statement = this.database.getConnection( this.user ).prepareStatement( "UPDATE DBVERSION SET TARGET = ?, STATEMENTS = ?" );
+				statement = connection.prepareStatement( "UPDATE DBVERSION SET TARGET = ?, STATEMENTS = ?" );
 			else
 			{
 				// Presume that the table has been created by the first SQL statement in the patch
-				statement = this.database.getConnection( this.user ).prepareStatement( "INSERT INTO DBVERSION ( TARGET, STATEMENTS ) VALUES ( ?, ? )" );
+				statement = connection.prepareStatement( "INSERT INTO DBVERSION ( TARGET, STATEMENTS ) VALUES ( ?, ? )" );
 			}
 			try
 			{
 				statement.setString( 1, target );
 				statement.setInt( 2, statements );
-				int modified = statement.executeUpdate(); // autocommit is on
+				int modified = statement.executeUpdate();
 				Assert.isTrue( modified == 1, "Expecting 1 record to be updated, not " + modified );
 			}
 			finally
 			{
 				statement.close();
+				connection.commit(); // You can commit even if it fails. Only 1 update done.
 			}
 
 			this.versionTableExists = true;
@@ -239,16 +257,18 @@ public class DBVersion
 
 		try
 		{
-			PreparedStatement statement = this.database.getConnection( this.user ).prepareStatement( "UPDATE DBVERSION SET VERSION = ?, TARGET = NULL" );
+			Connection connection = this.database.getConnection( this.user );
+			PreparedStatement statement = connection.prepareStatement( "UPDATE DBVERSION SET VERSION = ?, TARGET = NULL" );
 			try
 			{
 				statement.setString( 1, version );
-				int modified = statement.executeUpdate(); // autocommit is on
+				int modified = statement.executeUpdate();
 				Assert.isTrue( modified == 1, "Expecting 1 record to be updated, not " + modified );
 			}
 			finally
 			{
 				statement.close();
+				connection.commit(); // You can commit even if it fails. Only 1 update done.
 			}
 
 			this.version = version;
@@ -306,7 +326,8 @@ public class DBVersion
 
 		try
 		{
-			PreparedStatement statement = this.database.getConnection( getUser() ).prepareStatement( "INSERT INTO DBVERSIONLOG ( SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ? )" );
+			Connection connection = this.database.getConnection( getUser() );
+			PreparedStatement statement = connection.prepareStatement( "INSERT INTO DBVERSIONLOG ( SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ? )" );
 			try
 			{
 				statement.setString( 1, StringUtil.emptyToNull( source ) );
@@ -315,11 +336,12 @@ public class DBVersion
 				statement.setTimestamp( 4, new Timestamp( System.currentTimeMillis() ) );
 				statement.setString( 5, StringUtil.emptyToNull( command ) );
 				statement.setString( 6, StringUtil.emptyToNull( result ) );
-				statement.executeUpdate(); // autocommit is on
+				statement.executeUpdate();
 			}
 			finally
 			{
 				statement.close();
+				connection.commit(); // You can commit even if it fails. Only 1 update done.
 			}
 		}
 		catch( SQLException e )
@@ -385,7 +407,8 @@ public class DBVersion
 	{
 		try
 		{
-			Statement stat = this.database.getConnection( getUser() ).createStatement();
+			Connection connection = this.database.getConnection( getUser() );
+			Statement stat = connection.createStatement();
 			try
 			{
 				ResultSet result = stat.executeQuery( "SELECT SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT FROM DBVERSIONLOG ORDER BY ID" );
@@ -423,6 +446,7 @@ public class DBVersion
 			finally
 			{
 				stat.close();
+				connection.commit();
 			}
 		}
 		catch( SAXException e )
