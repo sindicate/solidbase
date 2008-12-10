@@ -42,6 +42,19 @@ public class PatchFileTests
 		expected.add( "3.2" );
 
 		Assert.assertEquals( result, expected );
+
+		// Another one
+
+		result = new HashSet();
+		patchFile.collectTargets( "1.3", "2.1", true, result );
+		for( String tip : result )
+			System.out.println( tip );
+
+		expected = new HashSet();
+		expected.add( "2.5" );
+		expected.add( "3.2" );
+
+		Assert.assertEquals( result, expected );
 	}
 
 	@Test

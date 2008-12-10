@@ -53,6 +53,7 @@ public class AssertCommandExecuter extends CommandListener
 			{
 				// TODO The core engine should be able to check if a plugin leaves statements open.
 				statement.close(); // Need to close the statement because the connection stays open.
+				connection.commit();
 			}
 
 			return true;

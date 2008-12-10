@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -238,14 +239,25 @@ public class Patcher
 
 			try
 			{
-				Statement statement = database.getConnection().createStatement();
+				Connection connection = database.getConnection();
+				Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
+				Statement statement = connection.createStatement();
+				boolean commit = false;
 				try
 				{
-					statement.execute( sql ); // autocommit is on
+					statement.execute( sql );
+					commit = true;
 				}
 				finally
 				{
 					statement.close();
+					if( commit )
+						connection.commit();
+					else
+					{
+						connection.rollback();
+						System.out.println( "Rolled back" );
+					}
 				}
 			}
 			catch( SQLException e )
@@ -374,7 +386,6 @@ public class Patcher
 	static protected void setUser( String user )
 	{
 		database.setCurrentUser( user );
-		// Database.getConnection(); // To enter password
 	}
 
 	static protected void pushIgnores( String ignores )

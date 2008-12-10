@@ -43,7 +43,7 @@ public class Database
 	}
 
 	/**
-	 * Gets a new connection from the DriverManager with the given url, user and password. The returned connection has autocommit set to on.
+	 * Gets a new connection from the DriverManager with the given url, user and password. The returned connection has autocommit off.
 	 *
 	 * @param url The database connection url.
 	 * @param user The connection user.
@@ -55,7 +55,7 @@ public class Database
 		try
 		{
 			Connection connection = DriverManager.getConnection( url, user, password );
-			connection.setAutoCommit( true );
+			connection.setAutoCommit( false );
 			return connection;
 		}
 		catch( SQLException e )
