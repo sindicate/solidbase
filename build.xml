@@ -102,8 +102,10 @@
 	
 	<target name="test" depends="build,buildtest" description="Run all tests">
 		<testng workingDir="${dist.home}" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="2">
-			<classfileset dir="${build.home}/test" />
+			<jvmarg value="-javaagent:../../../dbpatcher/tools/test/jmockit.jar" />
 			<jvmarg value="-Xmx256m" />
+			<classfileset dir="${build.home}/test" />
+			<reporter classname="ronnie.dbpatcher.test.TestListener"/>
 		</testng>
 	</target>
 

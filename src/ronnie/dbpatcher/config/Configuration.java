@@ -2,8 +2,9 @@ package ronnie.dbpatcher.config;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +30,7 @@ public class Configuration
 
 	protected String version;
 	protected boolean fromAnt;
+	protected Properties properties;
 
 	// Version 2 configuration
 	protected List< String > driverJars;
@@ -44,8 +46,14 @@ public class Configuration
 	protected String target;
 	protected String patchFile;
 
+	// Needed for testing
+	protected File getPropertiesFile()
+	{
+		return new File( DBPATCHER_PROPERTIES );
+	}
+
 	// TODO The automatic target should also be added to the properties file
-	public Configuration( ConfigListener progress, String optionDriver, String optionUrl, String optionUserName, String optionPassWord, String optionTarget, String optionPatchFile ) throws IOException
+	public Configuration( ConfigListener progress, String optionDriver, String optionUrl, String optionUserName, String optionPassWord, String optionTarget, String optionPatchFile )
 	{
 		// Checks
 
@@ -58,139 +66,182 @@ public class Configuration
 
 		URL url = Configuration.class.getResource( DBPATCHER_VERSION_PROPERTIES );
 		if( url == null )
-			throw new FileNotFoundException( DBPATCHER_VERSION_PROPERTIES );
+			throw new SystemException( "File not found: " + DBPATCHER_VERSION_PROPERTIES );
 
-		Properties properties = new Properties();
-		properties.load( url.openStream() );
-
-		this.version = properties.getProperty( "module.version" );
-
-		Assert.isTrue( this.version != null, "module.version not found in version.properties" );
-
-		// Process the commandline options
-
-		if( optionDriver != null )
-		{
-			this.configVersion = 1;
-			this.dbDriver = optionDriver;
-			this.dbUrl = optionUrl;
-			this.userName = optionUserName;
-			this.passWord = optionPassWord;
-			this.target = optionTarget;
-			this.patchFile = optionPatchFile;
-
-			return; // No need to read the properties
-		}
-
-		// Load the default properties
-
-		url = Configuration.class.getResource( DBPATCHER_DEFAULT_PROPERTIES );
-		if( url == null )
-			throw new FileNotFoundException( DBPATCHER_DEFAULT_PROPERTIES + " not found in classpath" );
-
-		progress.readingPropertyFile( url.toString() );
-		Properties defaultProperties = new Properties();
-		defaultProperties.load( url.openStream() );
-
-		// Load the properties
-
-		File file = new File( DBPATCHER_PROPERTIES );
-		progress.readingPropertyFile( file.getAbsolutePath() );
-		properties = new Properties( defaultProperties );
-		FileInputStream input = new FileInputStream( file );
 		try
 		{
-			properties.load( input );
-		}
-		finally
-		{
-			input.close();
-		}
+			Properties versionProperties = new Properties();
+			versionProperties.load( url.openStream() );
 
-		// Read the config version
+			this.version = versionProperties.getProperty( "module.version" );
 
-		this.configVersion = 1;
-		String s = properties.getProperty( "config-version" );
-		if( s != null )
-		{
-			this.configVersion = Integer.parseInt( s );
-			Assert.isTrue( this.configVersion >= 1 && this.configVersion <= 2, "config-version can only be 1 or 2" );
-		}
+			Assert.isTrue( this.version != null, "module.version not found in version.properties" );
 
-		if( this.configVersion == 2 )
-		{
-			// Version 2 configuration
+			// Process the commandline options
 
-			// driver jars
-			this.driverJars = new ArrayList();
-
-			String driversProperty = properties.getProperty( "driverjars" );
-			Assert.notBlank( driversProperty, "'driverjars' not configured in " + DBPATCHER_PROPERTIES );
-			for( String driverJar : driversProperty.split( "," ) )
+			if( optionDriver != null )
 			{
-				driverJar = driverJar.trim();
-				if( driverJar.length() > 0 )
-					this.driverJars.add( driverJar );
+				this.configVersion = 1;
+				this.dbDriver = optionDriver;
+				this.dbUrl = optionUrl;
+				this.userName = optionUserName;
+				this.passWord = optionPassWord;
+				this.target = optionTarget;
+				this.patchFile = optionPatchFile;
+
+				return; // No need to read the properties
 			}
 
-			// databases
-			this.databases = new ArrayList< Database >();
+			// Load the default properties
 
-			String databasesProperty = properties.getProperty( "databases" );
-			Assert.notBlank( databasesProperty, "'databases' not configured in " + DBPATCHER_PROPERTIES );
-			for( String databaseName : databasesProperty.split( "," ) )
+			url = Configuration.class.getResource( DBPATCHER_DEFAULT_PROPERTIES );
+			if( url == null )
+				throw new SystemException( DBPATCHER_DEFAULT_PROPERTIES + " not found in classpath" );
+
+			progress.readingPropertyFile( url.toString() );
+			Properties defaultProperties = new Properties();
+			defaultProperties.load( url.openStream() );
+
+			// Load the properties
+
+			File file = getPropertiesFile();
+			progress.readingPropertyFile( file.getAbsolutePath() );
+			this.properties = new Properties( defaultProperties );
+			FileInputStream input = new FileInputStream( file );
+			try
 			{
-				databaseName = databaseName.trim();
-				if( databaseName.length() > 0 )
+				this.properties.load( input );
+			}
+			finally
+			{
+				input.close();
+			}
+
+			// Read the config version
+
+			this.configVersion = 1;
+			String s = this.properties.getProperty( "config-version" );
+			if( s != null )
+			{
+				this.configVersion = Integer.parseInt( s );
+				Assert.isTrue( this.configVersion >= 1 && this.configVersion <= 2, "config-version can only be 1 or 2" );
+			}
+
+			if( this.configVersion == 2 )
+			{
+				// Version 2 configuration
+
+				// driver jars
+				this.driverJars = new ArrayList();
+
+				String driversProperty = this.properties.getProperty( "driverjars" );
+				Assert.notBlank( driversProperty, "'driverjars' not configured in " + DBPATCHER_PROPERTIES );
+				for( String driverJar : driversProperty.split( "," ) )
 				{
-					// per database
-					String databaseDescription = properties.getProperty( databaseName + ".description" );
-					String driver = properties.getProperty( databaseName + ".driver" );
-					String dbUrl = properties.getProperty( databaseName + ".url" );
+					driverJar = driverJar.trim();
+					if( driverJar.length() > 0 )
+						this.driverJars.add( driverJar );
+				}
 
-					if( StringUtils.isBlank( databaseDescription ) )
-						databaseDescription = databaseName;
-					Assert.notBlank( driver, "'" + databaseName + ".driver' not configured in " + DBPATCHER_PROPERTIES );
-					Assert.notBlank( dbUrl, "'" + databaseName + ".url' not configured in " + DBPATCHER_PROPERTIES );
-
-					Database database = new Database( databaseName, databaseDescription, driver, dbUrl );
-					this.databases.add( database );
-
-					// apps
-					String appsProperty = properties.getProperty( databaseName + ".applications" );
-					Assert.notBlank( appsProperty, "'" + databaseName + ".applications' not configured in " + DBPATCHER_PROPERTIES );
-
-					for( String appName : appsProperty.split( "," ) )
+				// databases configuration plugin
+				String databaseConfigClass = this.properties.getProperty( "databases.config.class" );
+				if( databaseConfigClass != null )
+				{
+					try
 					{
-						appName = appName.trim();
-						if( appName.length() > 0 )
+						Class cls = Class.forName( databaseConfigClass );
+						Constructor constructor = cls.getConstructor( Configuration.class );
+						DatabasesConfiguration config = (DatabasesConfiguration)constructor.newInstance( this );
+						this.databases = config.getDatabases();
+						return;
+					}
+					catch( ClassNotFoundException e )
+					{
+						throw new SystemException( e );
+					}
+					catch( InstantiationException e )
+					{
+						throw new SystemException( e );
+					}
+					catch( IllegalAccessException e )
+					{
+						throw new SystemException( e );
+					}
+					catch( NoSuchMethodException e )
+					{
+						throw new SystemException( e );
+					}
+					catch( InvocationTargetException e )
+					{
+						if( e.getCause() instanceof RuntimeException )
+							throw (RuntimeException)e.getCause();
+						throw new SystemException( e.getCause() );
+					}
+				}
+
+				// read it myself
+				this.databases = new ArrayList< Database >();
+
+				String databasesProperty = this.properties.getProperty( "databases" );
+				Assert.notBlank( databasesProperty, "'databases' not configured in " + DBPATCHER_PROPERTIES );
+				for( String databaseName : databasesProperty.split( "," ) )
+				{
+					databaseName = databaseName.trim();
+					if( databaseName.length() > 0 )
+					{
+						// per database
+						String databaseDescription = this.properties.getProperty( databaseName + ".description" );
+						String driver = this.properties.getProperty( databaseName + ".driver" );
+						String dbUrl = this.properties.getProperty( databaseName + ".url" );
+
+						if( StringUtils.isBlank( databaseDescription ) )
+							databaseDescription = databaseName;
+						Assert.notBlank( driver, "'" + databaseName + ".driver' not configured in " + DBPATCHER_PROPERTIES );
+						Assert.notBlank( dbUrl, "'" + databaseName + ".url' not configured in " + DBPATCHER_PROPERTIES );
+
+						Database database = new Database( databaseName, databaseDescription, driver, dbUrl );
+						this.databases.add( database );
+
+						// apps
+						String appsProperty = this.properties.getProperty( databaseName + ".applications" );
+						Assert.notBlank( appsProperty, "'" + databaseName + ".applications' not configured in " + DBPATCHER_PROPERTIES );
+
+						for( String appName : appsProperty.split( "," ) )
 						{
-							String appDescription = properties.getProperty( databaseName + "." + appName + ".description" );
-							String userName = properties.getProperty( databaseName + "." + appName + ".user" );
-							String patchFile = properties.getProperty( databaseName + "." + appName + ".patchfile" );
+							appName = appName.trim();
+							if( appName.length() > 0 )
+							{
+								String appDescription = this.properties.getProperty( databaseName + "." + appName + ".description" );
+								String userName = this.properties.getProperty( databaseName + "." + appName + ".user" );
+								String patchFile = this.properties.getProperty( databaseName + "." + appName + ".patchfile" );
 
-							if( StringUtils.isBlank( appDescription ) )
-								appDescription = appName;
-							Assert.notBlank( userName, "'" + databaseName + "." + appName + ".user' not configured in " + DBPATCHER_PROPERTIES );
-							Assert.notBlank( patchFile, "'" + databaseName + "." + appName + ".patchfile' not configured in " + DBPATCHER_PROPERTIES );
+								if( StringUtils.isBlank( appDescription ) )
+									appDescription = appName;
+								Assert.notBlank( userName, "'" + databaseName + "." + appName + ".user' not configured in " + DBPATCHER_PROPERTIES );
+								Assert.notBlank( patchFile, "'" + databaseName + "." + appName + ".patchfile' not configured in " + DBPATCHER_PROPERTIES );
 
-							database.addApplication( appName, appDescription, userName, patchFile );
+								database.addApplication( appName, appDescription, userName, patchFile );
+							}
 						}
 					}
 				}
 			}
+			else
+			{
+				// Version 1 configuration
+
+				this.dbDriverJar = this.properties.getProperty( "database.driver.jar" );
+				this.dbDriver = this.properties.getProperty( "database.driver" );
+				this.dbUrl = this.properties.getProperty( "database.url" );
+				this.userName = this.properties.getProperty( "database.user" );
+
+				Assert.isTrue( this.dbUrl != null, "database.url not found in " + DBPATCHER_PROPERTIES );
+				Assert.isTrue( this.dbDriver != null, "database.driver not found in " + DBPATCHER_PROPERTIES );
+			}
 		}
-		else
+		catch( IOException e )
 		{
-			// Version 1 configuration
-
-			this.dbDriverJar = properties.getProperty( "database.driver.jar" );
-			this.dbDriver = properties.getProperty( "database.driver" );
-			this.dbUrl = properties.getProperty( "database.url" );
-			this.userName = properties.getProperty( "database.user" );
-
-			Assert.isTrue( this.dbUrl != null, "database.url not found in " + DBPATCHER_PROPERTIES );
-			Assert.isTrue( this.dbDriver != null, "database.driver not found in " + DBPATCHER_PROPERTIES );
+			throw new SystemException( e );
 		}
 	}
 
@@ -279,96 +330,8 @@ public class Configuration
 		return this.patchFile;
 	}
 
-
-	static public class Database
+	public String getProperty( String name )
 	{
-		protected String name;
-		protected String description;
-		protected String driver;
-		protected String url;
-		protected List< Application > applications = new ArrayList();
-
-		protected Database( String name, String description, String driver, String url )
-		{
-			this.name = name;
-			this.description = description;
-			this.driver = driver;
-			this.url = url;
-		}
-
-		protected void addApplication( String name, String description, String userName, String patchFile )
-		{
-			this.applications.add( new Application( name, description, userName, patchFile ) );
-		}
-
-		public Application getApplication( String name )
-		{
-			for( Application application : this.applications )
-				if( application.name.equals( name ) )
-					return application;
-			throw new SystemException( "Application [" + name + "] not configured for database [" + this.name + "]." );
-		}
-
-		public String getName()
-		{
-			return this.name;
-		}
-
-		public String getDescription()
-		{
-			return this.description;
-		}
-
-		public String getDriver()
-		{
-			return this.driver;
-		}
-
-		public String getUrl()
-		{
-			return this.url;
-		}
-
-		public List< Application > getApplications()
-		{
-			return this.applications;
-		}
-	}
-
-
-	static public class Application
-	{
-		protected String name;
-		protected String description;
-		protected String userName;
-		protected String patchFile;
-
-		protected Application( String name, String description, String userName, String patchFile )
-		{
-			this.name = name;
-			this.description = description;
-			this.userName = userName;
-			this.patchFile = patchFile;
-		}
-
-		public String getName()
-		{
-			return this.name;
-		}
-
-		public String getDescription()
-		{
-			return this.description;
-		}
-
-		public String getUserName()
-		{
-			return this.userName;
-		}
-
-		public String getPatchFile()
-		{
-			return this.patchFile;
-		}
+		return this.properties.getProperty( name );
 	}
 }

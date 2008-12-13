@@ -18,7 +18,7 @@ public class MockConsole extends Console
 	protected ByteArrayOutputStream outputBuffer;
 	protected ByteArrayOutputStream errorBuffer;
 
-	protected MockConsole()
+	public MockConsole()
 	{
 		this.prefixWithDate = false;
 		this.outputBuffer = new ByteArrayOutputStream();
@@ -27,23 +27,23 @@ public class MockConsole extends Console
 		this.err = new PrintStream( new TeeOutputStream( this.errorBuffer, this.err ) );
 	}
 
-	protected void addAnswer( String answer )
+	public void addAnswer( String answer )
 	{
 		this.answerQueue.offer( answer );
 	}
 
-	protected String getOutput()
+	public String getOutput()
 	{
 		return this.outputBuffer.toString();
 	}
 
-	protected String getErrorOutput()
+	public String getErrorOutput()
 	{
 		return this.errorBuffer.toString();
 	}
 
 	@Override
-	protected synchronized String input() throws IOException
+	public synchronized String input() throws IOException
 	{
 		String input = this.answerQueue.poll();
 		Assert.notNull( input, "No more input" );
