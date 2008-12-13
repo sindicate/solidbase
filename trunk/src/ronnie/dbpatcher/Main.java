@@ -170,12 +170,15 @@ public class Main
 			String patchFile;
 			if( configuration.getConfigVersion() == 2 )
 			{
-				ronnie.dbpatcher.config.Configuration.Database selectedDatabase;
+				ronnie.dbpatcher.config.Database selectedDatabase;
 				if( configuration.getDatabases().size() > 1 )
 				{
 					console.println( "Available database:" );
-					for( ronnie.dbpatcher.config.Configuration.Database database : configuration.getDatabases() )
-						console.println( "    " + database.getName() + " (" + database.getDescription() + ")" );
+					for( ronnie.dbpatcher.config.Database database : configuration.getDatabases() )
+						if( database.getDescription() != null )
+							console.println( "    " + database.getName() + " (" + database.getDescription() + ")" );
+						else
+							console.println( "    " + database.getName() );
 					console.print( "Select a database from the above: " );
 					String input = console.input();
 					selectedDatabase = configuration.getDatabase( input );
@@ -184,12 +187,15 @@ public class Main
 				else
 					selectedDatabase = configuration.getDatabases().get( 0 );
 
-				ronnie.dbpatcher.config.Configuration.Application selectedApplication;
+				ronnie.dbpatcher.config.Application selectedApplication;
 				if( selectedDatabase.getApplications().size() > 1 )
 				{
-					console.println( "Available applications in database '" + selectedDatabase.getDescription() + "':" );
-					for( ronnie.dbpatcher.config.Configuration.Application application : selectedDatabase.getApplications() )
-						console.println( "    " + application.getName() + " (" + application.getDescription() + ")" );
+					console.println( "Available applications in database '" + selectedDatabase.getName() + "':" );
+					for( ronnie.dbpatcher.config.Application application : selectedDatabase.getApplications() )
+						if( application.getDescription() != null )
+							console.println( "    " + application.getName() + " (" + application.getDescription() + ")" );
+						else
+							console.println( "    " + application.getName() );
 					console.print( "Select an application from the above: " );
 					String input = console.input();
 					selectedApplication = selectedDatabase.getApplication( input );
@@ -200,7 +206,7 @@ public class Main
 
 				Patcher.setConnection( new Database( selectedDatabase.getDriver(), selectedDatabase.getUrl() ), selectedApplication.getUserName(), null );
 				patchFile = selectedApplication.getPatchFile();
-				console.println( "Connecting to database '" + selectedDatabase.getDescription() + "', application '" + selectedApplication.getDescription() + "'..." );
+				console.println( "Connecting to database '" + selectedDatabase.getName() + "', application '" + selectedApplication.getName() + "'..." );
 			}
 			else
 			{

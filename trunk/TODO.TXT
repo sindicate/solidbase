@@ -2,6 +2,9 @@
 		Add test for branches and return patches
 		When the current version is not found as source -> then it is deprecated?
 		Add DONTCOUNT test
+		Add test that works without a property file
+		Replace driverjars by classpathextension option
+		Must be able te skip the app configuration
 
 NOT		Add potential target patch
 DONE	Add -target wildcard option
