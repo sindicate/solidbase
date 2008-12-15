@@ -46,7 +46,7 @@ public class ThroughConsoleTests
 				"    prod (DHL Production)\n" +
 				"    test (test)\n" +
 				"Select a database from the above: \n" +
-				"Available applications in database 'DHL Production':\n" +
+				"Available applications in database 'prod':\n" +
 				"    app1 (app1 description)\n" +
 				"    app2 (app2)\n" +
 				"Select an application from the above: \n" +

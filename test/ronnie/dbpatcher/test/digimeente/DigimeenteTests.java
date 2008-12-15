@@ -1,6 +1,8 @@
 package ronnie.dbpatcher.test.digimeente;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import mockit.Mockit;
@@ -60,11 +62,11 @@ public class DigimeenteTests
 				"DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, LogicaCMG\n" +
 				"\n" +
 				"Available database:\n" +
-				"    Zaanstad-slot2\n" +
 				"    Zaanstad-slot1\n" +
+				"    Zaanstad-slot2\n" +
 				"Select a database from the above: \n" +
 				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:digimeente1, user=sa\n" +
-				"Connecting to database 'Zaanstad-slot1', application 'default'...\n" +
+				"Connecting to database 'Zaanstad-slot1', application 'midoffice'...\n" +
 				"Input password for user 'sa': The database has no version yet.\n" +
 				"Opening patchfile 'C:\\...\\dbpatch-hsqldb-example.sql'\n" +
 				"Possible targets are: 1.0.1, 1.0.2\n" +

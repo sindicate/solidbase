@@ -62,4 +62,12 @@ public class Database
 	{
 		return this.applications;
 	}
+
+	static public class Comparator implements java.util.Comparator< Database >
+	{
+		public int compare( Database database1, Database database2 )
+		{
+			return database1.name.compareTo( database2.name );
+		}
+	}
 }

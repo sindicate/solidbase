@@ -2,6 +2,7 @@ package ronnie.dbpatcher.test.console;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -23,8 +24,9 @@ public class MockConsole extends Console
 		this.prefixWithDate = false;
 		this.outputBuffer = new ByteArrayOutputStream();
 		this.errorBuffer = new ByteArrayOutputStream();
+		OutputStream originalOut = this.out;
 		this.out = new PrintStream( new TeeOutputStream( this.outputBuffer, this.out ) );
-		this.err = new PrintStream( new TeeOutputStream( this.errorBuffer, this.err ) );
+		this.err = new PrintStream( new TeeOutputStream( this.errorBuffer, originalOut ) );
 	}
 
 	public void addAnswer( String answer )

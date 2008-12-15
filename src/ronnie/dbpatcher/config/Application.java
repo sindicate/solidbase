@@ -37,4 +37,12 @@ public class Application
 	{
 		return this.patchFile;
 	}
+
+	static public class Comparator implements java.util.Comparator< Application >
+	{
+		public int compare( Application application1, Application application2 )
+		{
+			return application1.name.compareTo( application2.name );
+		}
+	}
 }

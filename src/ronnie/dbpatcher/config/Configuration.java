@@ -225,6 +225,10 @@ public class Configuration
 						}
 					}
 				}
+
+				Collections.sort( this.databases, new Database.Comparator() );
+				for( Database database : this.databases )
+					Collections.sort( database.applications, new Application.Comparator() );
 			}
 			else
 			{
