@@ -11,5 +11,6 @@
 	<classpathentry kind="lib" path="lib/commons-lang-2.3.jar"/>
 	<classpathentry kind="lib" path="dist/hsqldb.jar"/>
 	<classpathentry kind="lib" path="tools/test/jmockit.jar"/>
+	<classpathentry kind="lib" path="lib/groovy-all-1.5.7.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

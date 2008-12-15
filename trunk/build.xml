@@ -120,13 +120,12 @@
 		<jarjar compress="yes" destfile="${dist.home}/dbpatcher.jar">
 			<fileset dir="${build.home}/classes" />
 			<zipfileset src="lib/idt-commons-2.0.142.jar" excludes="**/*.sql" />
-			<zipfileset src="lib/commons-cli-1.1.jar" excludes="META-INF/LICENSE.txt,META-INF/NOTICE.txt" />
-			<zipfileset src="lib/commons-collections-3.2.jar" excludes="META-INF/LICENSE.txt,META-INF/NOTICE.txt" />
-			<zipfileset src="lib/commons-lang-2.3.jar" />
+			<zipfileset src="lib/commons-cli-1.1.jar" />
+			<zipfileset src="lib/commons-collections-3.2.jar" excludes="META-INF/*.txt" />
+			<zipfileset src="lib/commons-lang-2.3.jar" excludes="META-INF/*.txt" />
 			<rule pattern="com.logicacmg.idt.commons.**" result="dbpatcher.@0" />
 			<rule pattern="org.apache.commons.**" result="dbpatcher.@0" />
 			<keep pattern="ronnie.dbpatcher.Main" />
-			<keep pattern="ronnie.dbpatcher.Boot" />
 			<manifest>
 				<attribute name="Main-Class" value="ronnie.dbpatcher.Main" />
 				<attribute name="Version" value="${release.number}.${svn.revision}" />

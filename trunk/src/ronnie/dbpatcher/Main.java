@@ -171,7 +171,12 @@ public class Main
 			if( configuration.getConfigVersion() == 2 )
 			{
 				ronnie.dbpatcher.config.Database selectedDatabase;
-				if( configuration.getDatabases().size() > 1 )
+				if( configuration.getDatabases().size() == 0 )
+				{
+					console.println( "There are no databases configured." );
+					return;
+				}
+				else if( configuration.getDatabases().size() > 1 )
 				{
 					console.println( "Available database:" );
 					for( ronnie.dbpatcher.config.Database database : configuration.getDatabases() )
