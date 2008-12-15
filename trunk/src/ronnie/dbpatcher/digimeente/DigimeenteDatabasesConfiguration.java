@@ -88,7 +88,7 @@ public class DigimeenteDatabasesConfiguration implements DatabasesConfiguration
 
 							String fileName = file.getName();
 							Database database = new Database( folder.getName() + "-" + fileName.substring( 0, fileName.length() - 11 ), null, driver, url );
-							database.addApplication( "default", null, username, patchFile );
+							database.addApplication( "midoffice", null, username, patchFile );
 
 							databases.add( database );
 						}
