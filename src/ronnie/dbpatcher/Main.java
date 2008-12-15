@@ -258,18 +258,18 @@ public class Main
 				Patcher.closePatchFile();
 			}
 		}
-		catch( Exception e )
+		catch( Throwable t )
 		{
 			console.println();
 
-			if( e instanceof SystemException )
-				if( e.getCause() != null )
-					e = (Exception)e.getCause();
+			if( t instanceof SystemException )
+				if( t.getCause() != null )
+					t = t.getCause();
 
-			if( e instanceof SQLException )
-				console.println( "SQLState: " + ( (SQLException)e ).getSQLState() );
+			if( t instanceof SQLException )
+				console.println( "SQLState: " + ( (SQLException)t ).getSQLState() );
 
-			console.exception( e );
+			console.printStacktrace( t );
 		}
 	}
 

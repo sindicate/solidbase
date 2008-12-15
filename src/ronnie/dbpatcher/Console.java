@@ -74,8 +74,8 @@ public class Console
 		return input;
 	}
 
-	protected void exception( Exception e )
+	protected void printStacktrace( Throwable t )
 	{
-		e.printStackTrace( this.err );
+		t.printStackTrace( this.err );
 	}
 }
