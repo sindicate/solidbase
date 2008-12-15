@@ -15,52 +15,39 @@
 --* PATCH "" --> "1.0.1"
 --* // ========================================================================
 
---* SET MESSAGE 'Creating table DBVERSION'
+--* SET MESSAGE "Creating table DBVERSION"
 
 --* // Create version control table
 CREATE TABLE DBVERSION
 (
-	VERSION VARCHAR2(20),
-	TARGET VARCHAR2(20),
+	VERSION VARCHAR(20),
+	TARGET VARCHAR(20),
 	STATEMENTS INTEGER NOT NULL
 )
 GO
 
 --* // The patch tool expects to be able to use the DBVERSION table after the *first* sql statement
 
---* SET MESSAGE 'Creating table DBVERSIONLOG'
-
---* // Create version control log table sequence generator
-CREATE SEQUENCE DBVERSIONLOG_SEQUENCE
-GO
+--* SET MESSAGE "Creating table DBVERSIONLOG"
 
 --* // Create version control log table
 CREATE TABLE DBVERSIONLOG
 (
-	ID INTEGER NOT NULL,
-	SOURCE VARCHAR2(20),
-	TARGET VARCHAR2(20) NOT NULL,
+	ID INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	SOURCE VARCHAR(20),
+	TARGET VARCHAR(20) NOT NULL,
 	STATEMENT INTEGER NOT NULL,
-	STAMP DATE NOT NULL,
-	COMMAND VARCHAR2(4000),
-	RESULT VARCHAR2(4000)
+	STAMP TIMESTAMP NOT NULL,
+	COMMAND VARCHAR(4000),
+	RESULT VARCHAR(4000)
 )
-GO
-
---* // Create version control log table autonumber trigger
-CREATE OR REPLACE TRIGGER DBVERSIONLOG_AUTONUMBER BEFORE INSERT ON DBVERSIONLOG
-REFERENCING NEW AS NEWROW
-FOR EACH ROW
-BEGIN
-	IF :NEWROW.ID IS NULL THEN
-		SELECT DBVERSIONLOG_SEQUENCE.NEXTVAL INTO :NEWROW.ID FROM DUAL;
-	END IF;
-END;
 GO
 
 --* // The existence of DBVERSIONLOG will automatically be detected at the end of this patch
 
 --* /PATCH
+
+--* // ========================================================================
 
 
 
@@ -69,7 +56,7 @@ GO
 
 
 --* // ========================================================================
---* PATCH "1.0.1" --> "1.0.2"
+--* PATCH "1.0.1" --> "2.0.2"
 --* // ========================================================================
 
 --* SET MESSAGE 'Creating EP datamodel'
@@ -86,5 +73,3 @@ CREATE TABLE EP_ORGANISATION(
 GO
 
 --* /PATCH
-
---* // ========================================================================
