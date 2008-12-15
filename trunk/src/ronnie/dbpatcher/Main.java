@@ -32,7 +32,7 @@ import com.logicacmg.idt.commons.SystemException;
 public class Main
 {
 	static public Console console;
-	static private boolean pass2 = false;
+	static private int pass = 1;
 
 
 	static protected void printCurrentVersion( Console console )
@@ -154,9 +154,9 @@ public class Main
 			//
 
 			Progress progress = new Progress( console, verbose );
-			Configuration configuration = new Configuration( progress, line.getOptionValue( "driver" ), line.getOptionValue( "url" ), line.getOptionValue( "username" ), line.getOptionValue( "password" ), line.getOptionValue( "target" ), line.getOptionValue( "patchfile" ) );
+			Configuration configuration = new Configuration( progress, pass, line.getOptionValue( "driver" ), line.getOptionValue( "url" ), line.getOptionValue( "username" ), line.getOptionValue( "password" ), line.getOptionValue( "target" ), line.getOptionValue( "patchfile" ) );
 
-			if( !pass2 && !configuration.getDriverJars().isEmpty() )
+			if( pass == 1 )
 			{
 				reload( args, configuration.getDriverJars(), verbose );
 				return;
@@ -276,6 +276,13 @@ public class Main
 
 	static protected void reload( String[] args, List< String > jars, boolean verbose ) throws MalformedURLException, NoSuchMethodException, ClassNotFoundException, IllegalAccessException, InvocationTargetException
 	{
+		if( jars.isEmpty() )
+		{
+			// No need to add a new classloader
+			pass2( args );
+			return;
+		}
+
 		if( verbose )
 			console.println( "Extending classpath" );
 
@@ -309,7 +316,7 @@ public class Main
 
 	static public void pass2( String[] args )
 	{
-		pass2 = true;
+		pass = 2;
 		main( args );
 	}
 }

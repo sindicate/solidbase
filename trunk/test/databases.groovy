@@ -6,8 +6,8 @@ import ronnie.dbpatcher.config.Database;
 def result = [];
 
 // Get the location of the slot properties files
-def location = configuration.getProperty( "databases.config.location" );
-assert location : "Property 'databases.config.location' not set.";
+def location = configuration.getProperty( "databases.config.folder" );
+assert location : "Property 'databases.config.folder' not set.";
 location = new File( location );
 
 // Get the client folders
