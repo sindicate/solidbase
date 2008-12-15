@@ -1,5 +1,7 @@
 package ronnie.dbpatcher.config;
 
+import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,7 +15,6 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
-
 import com.logicacmg.idt.commons.SystemException;
 import com.logicacmg.idt.commons.util.Assert;
 
@@ -177,6 +178,17 @@ public class Configuration
 							throw (RuntimeException)e.getCause();
 						throw new SystemException( e.getCause() );
 					}
+				}
+
+				// databases configuration script
+				String databaseConfigScript = this.properties.getProperty( "databases.config.script" );
+				if( databaseConfigScript != null )
+				{
+					Binding binding = new Binding();
+					binding.setVariable( "configuration", this );
+					this.databases = (List)new GroovyShell( binding ).evaluate( new File( databaseConfigScript ) );
+					Assert.notNull( this.databases, "Did not receive a result from the databases configuration script" );
+					return;
 				}
 
 				// read it myself
