@@ -1,7 +1,5 @@
 package ronnie.dbpatcher.config;
 
-import groovy.lang.Binding;
-import groovy.lang.GroovyShell;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,10 +9,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
+
 import com.logicacmg.idt.commons.SystemException;
 import com.logicacmg.idt.commons.util.Assert;
 
@@ -118,9 +119,6 @@ public class Configuration
 				input.close();
 			}
 
-			if( pass == 1 )
-				return;
-
 			// Read the config version
 
 			this.configVersion = 1;
@@ -147,104 +145,105 @@ public class Configuration
 							this.driverJars.add( driverJar );
 					}
 
-				// databases configuration plugin
-				String databaseConfigClass = this.properties.getProperty( "databases.config.class" );
-				if( databaseConfigClass != null )
+				if( pass > 1 )
 				{
-					try
-					{
-						Class cls = Class.forName( databaseConfigClass );
-						Constructor constructor = cls.getConstructor( Configuration.class );
-						DatabasesConfiguration config = (DatabasesConfiguration)constructor.newInstance( this );
-						this.databases = config.getDatabases();
-						return;
-					}
-					catch( ClassNotFoundException e )
-					{
-						throw new SystemException( e );
-					}
-					catch( InstantiationException e )
-					{
-						throw new SystemException( e );
-					}
-					catch( IllegalAccessException e )
-					{
-						throw new SystemException( e );
-					}
-					catch( NoSuchMethodException e )
-					{
-						throw new SystemException( e );
-					}
-					catch( InvocationTargetException e )
-					{
-						if( e.getCause() instanceof RuntimeException )
-							throw (RuntimeException)e.getCause();
-						throw new SystemException( e.getCause() );
-					}
-				}
+					String databaseConfigClass = this.properties.getProperty( "databases.config.class" );
+					String databaseConfigScript = this.properties.getProperty( "databases.config.script" );
 
-				// databases configuration script
-				String databaseConfigScript = this.properties.getProperty( "databases.config.script" );
-				if( databaseConfigScript != null )
-				{
-					// In the Sun's java you don't need the groovy stuff in the classpath when it is not used.
-					Binding binding = new Binding();
-					binding.setVariable( "configuration", this );
-					this.databases = (List)new GroovyShell( binding ).evaluate( new File( databaseConfigScript ) );
-					Assert.notNull( this.databases, "Did not receive a result from the databases configuration script" );
-					return;
-				}
-
-				// read it myself
-				this.databases = new ArrayList< Database >();
-
-				String databasesProperty = this.properties.getProperty( "databases" );
-				Assert.notBlank( databasesProperty, "'databases' not configured in " + DBPATCHER_PROPERTIES );
-				for( String databaseName : databasesProperty.split( "," ) )
-				{
-					databaseName = databaseName.trim();
-					if( databaseName.length() > 0 )
+					if( databaseConfigClass != null ) // databases configuration plugin
 					{
-						// per database
-						String databaseDescription = this.properties.getProperty( databaseName + ".description" );
-						String driver = this.properties.getProperty( databaseName + ".driver" );
-						String dbUrl = this.properties.getProperty( databaseName + ".url" );
-
-						if( StringUtils.isBlank( databaseDescription ) )
-							databaseDescription = databaseName;
-						Assert.notBlank( driver, "'" + databaseName + ".driver' not configured in " + DBPATCHER_PROPERTIES );
-						Assert.notBlank( dbUrl, "'" + databaseName + ".url' not configured in " + DBPATCHER_PROPERTIES );
-
-						Database database = new Database( databaseName, databaseDescription, driver, dbUrl );
-						this.databases.add( database );
-
-						// apps
-						String appsProperty = this.properties.getProperty( databaseName + ".applications" );
-						Assert.notBlank( appsProperty, "'" + databaseName + ".applications' not configured in " + DBPATCHER_PROPERTIES );
-
-						for( String appName : appsProperty.split( "," ) )
+						try
 						{
-							appName = appName.trim();
-							if( appName.length() > 0 )
+							Class cls = Class.forName( databaseConfigClass );
+							Constructor constructor = cls.getConstructor( Configuration.class );
+							DatabasesConfiguration config = (DatabasesConfiguration)constructor.newInstance( this );
+							this.databases = config.getDatabases();
+						}
+						catch( ClassNotFoundException e )
+						{
+							throw new SystemException( e );
+						}
+						catch( InstantiationException e )
+						{
+							throw new SystemException( e );
+						}
+						catch( IllegalAccessException e )
+						{
+							throw new SystemException( e );
+						}
+						catch( NoSuchMethodException e )
+						{
+							throw new SystemException( e );
+						}
+						catch( InvocationTargetException e )
+						{
+							if( e.getCause() instanceof RuntimeException )
+								throw (RuntimeException)e.getCause();
+							throw new SystemException( e.getCause() );
+						}
+					}
+					else if( databaseConfigScript != null ) // databases configuration script
+					{
+						// Use seperate GroovyUtil class to prevent linking to groovy when groovy is not needed.
+						Map binding = new HashMap();
+						binding.put( "configuration", this );
+						this.databases = (List)GroovyUtil.evaluate( new File( databaseConfigScript ), binding );
+						Assert.notNull( this.databases, "Did not receive a result from the databases configuration script" );
+					}
+					else
+					{
+						// read it myself
+						this.databases = new ArrayList< Database >();
+
+						String databasesProperty = this.properties.getProperty( "databases" );
+						Assert.notBlank( databasesProperty, "'databases' not configured in " + DBPATCHER_PROPERTIES );
+						for( String databaseName : databasesProperty.split( "," ) )
+						{
+							databaseName = databaseName.trim();
+							if( databaseName.length() > 0 )
 							{
-								String appDescription = this.properties.getProperty( databaseName + "." + appName + ".description" );
-								String userName = this.properties.getProperty( databaseName + "." + appName + ".user" );
-								String patchFile = this.properties.getProperty( databaseName + "." + appName + ".patchfile" );
+								// per database
+								String databaseDescription = this.properties.getProperty( databaseName + ".description" );
+								String driver = this.properties.getProperty( databaseName + ".driver" );
+								String dbUrl = this.properties.getProperty( databaseName + ".url" );
 
-								if( StringUtils.isBlank( appDescription ) )
-									appDescription = appName;
-								Assert.notBlank( userName, "'" + databaseName + "." + appName + ".user' not configured in " + DBPATCHER_PROPERTIES );
-								Assert.notBlank( patchFile, "'" + databaseName + "." + appName + ".patchfile' not configured in " + DBPATCHER_PROPERTIES );
+								if( StringUtils.isBlank( databaseDescription ) )
+									databaseDescription = databaseName;
+								Assert.notBlank( driver, "'" + databaseName + ".driver' not configured in " + DBPATCHER_PROPERTIES );
+								Assert.notBlank( dbUrl, "'" + databaseName + ".url' not configured in " + DBPATCHER_PROPERTIES );
 
-								database.addApplication( appName, appDescription, userName, patchFile );
+								Database database = new Database( databaseName, databaseDescription, driver, dbUrl );
+								this.databases.add( database );
+
+								// apps
+								String appsProperty = this.properties.getProperty( databaseName + ".applications" );
+								Assert.notBlank( appsProperty, "'" + databaseName + ".applications' not configured in " + DBPATCHER_PROPERTIES );
+
+								for( String appName : appsProperty.split( "," ) )
+								{
+									appName = appName.trim();
+									if( appName.length() > 0 )
+									{
+										String appDescription = this.properties.getProperty( databaseName + "." + appName + ".description" );
+										String userName = this.properties.getProperty( databaseName + "." + appName + ".user" );
+										String patchFile = this.properties.getProperty( databaseName + "." + appName + ".patchfile" );
+
+										if( StringUtils.isBlank( appDescription ) )
+											appDescription = appName;
+										Assert.notBlank( userName, "'" + databaseName + "." + appName + ".user' not configured in " + DBPATCHER_PROPERTIES );
+										Assert.notBlank( patchFile, "'" + databaseName + "." + appName + ".patchfile' not configured in " + DBPATCHER_PROPERTIES );
+
+										database.addApplication( appName, appDescription, userName, patchFile );
+									}
+								}
 							}
 						}
 					}
-				}
 
-				Collections.sort( this.databases, new Database.Comparator() );
-				for( Database database : this.databases )
-					Collections.sort( database.applications, new Application.Comparator() );
+					Collections.sort( this.databases, new Database.Comparator() );
+					for( Database database : this.databases )
+						Collections.sort( database.applications, new Application.Comparator() );
+				}
 			}
 			else
 			{

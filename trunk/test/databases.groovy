@@ -1,6 +1,5 @@
 // use 'configuration' to refer to the Configuration object 
 
-import com.logicacmg.idt.commons.SystemException;
 import ronnie.dbpatcher.config.Database;
 
 def result = [];
@@ -26,9 +25,10 @@ for( File folder : folders )
 			{
 				// Load the properties file
 				def properties = new Properties();
-				file.withInputStream{ stream -> properties.load( stream ); }
+				file.withInputStream { stream -> properties.load( stream ); }
 
 				// Get and test the required properties
+				def description = properties."conf.description";
 				def type = properties."conf.database.type";
 				def hostname = properties."conf.database.hostname";
 				def port = properties."conf.database.port";
@@ -64,11 +64,11 @@ for( File folder : folders )
 					patchFile = "dbpatch-hsqldb-example.sql";
 				}
 				else
-					throw new SystemException( "Unknown database type: ${type}" );
+					throw new RuntimeException( "Unknown database type: ${type}" );
 
 				// Define the database & application
 				String fileName = file.name - ".properties";
-				Database database = new Database( "${folder.name}-${fileName}", null, driver, url );
+				Database database = new Database( "${folder.name}-${fileName}", description, driver, url );
 				database.addApplication( "midoffice", null, username, patchFile );
 
 				result.add( database );
