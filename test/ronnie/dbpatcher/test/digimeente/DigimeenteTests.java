@@ -31,7 +31,7 @@ public class DigimeenteTests
 		Mockit.redefineMethods( Configuration.class, new MockConfiguration( "../test/dbpatcher-digimeente.properties" ) );
 
 		// Test the mock itself
-		Configuration configuration = new Configuration( new Progress( null, false ), null, null, null, null, null, null );
+		Configuration configuration = new Configuration( new Progress( null, false ), 2, null, null, null, null, null, null );
 		Assert.assertEquals( Manipulator.getConfigurationPropertiesFile( configuration ).getName(), "dbpatcher-digimeente.properties" );
 
 		MockConsole console = new MockConsole();

@@ -54,7 +54,7 @@ public class Configuration
 	}
 
 	// TODO The automatic target should also be added to the properties file
-	public Configuration( ConfigListener progress, String optionDriver, String optionUrl, String optionUserName, String optionPassWord, String optionTarget, String optionPatchFile )
+	public Configuration( ConfigListener progress, int pass, String optionDriver, String optionUrl, String optionUserName, String optionPassWord, String optionTarget, String optionPatchFile )
 	{
 		// Checks
 
@@ -118,6 +118,9 @@ public class Configuration
 				input.close();
 			}
 
+			if( pass == 1 )
+				return;
+
 			// Read the config version
 
 			this.configVersion = 1;
@@ -135,14 +138,14 @@ public class Configuration
 				// driver jars
 				this.driverJars = new ArrayList();
 
-				String driversProperty = this.properties.getProperty( "driverjars" );
-				Assert.notBlank( driversProperty, "'driverjars' not configured in " + DBPATCHER_PROPERTIES );
-				for( String driverJar : driversProperty.split( "," ) )
-				{
-					driverJar = driverJar.trim();
-					if( driverJar.length() > 0 )
-						this.driverJars.add( driverJar );
-				}
+				String driversProperty = this.properties.getProperty( "classpathext" );
+				if( driversProperty != null )
+					for( String driverJar : driversProperty.split( ";" ) )
+					{
+						driverJar = driverJar.trim();
+						if( driverJar.length() > 0 )
+							this.driverJars.add( driverJar );
+					}
 
 				// databases configuration plugin
 				String databaseConfigClass = this.properties.getProperty( "databases.config.class" );
@@ -184,6 +187,7 @@ public class Configuration
 				String databaseConfigScript = this.properties.getProperty( "databases.config.script" );
 				if( databaseConfigScript != null )
 				{
+					// In the Sun's java you don't need the groovy stuff in the classpath when it is not used.
 					Binding binding = new Binding();
 					binding.setVariable( "configuration", this );
 					this.databases = (List)new GroovyShell( binding ).evaluate( new File( databaseConfigScript ) );
