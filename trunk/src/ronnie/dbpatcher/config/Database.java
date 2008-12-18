@@ -1,6 +1,3 @@
-/**
- * 
- */
 package ronnie.dbpatcher.config;
 
 import java.util.ArrayList;

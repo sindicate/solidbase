@@ -139,6 +139,12 @@
 				<method access="public static" type="void" name="main" parameters="java.lang.String[]" />
 				<method access="public static" type="void" name="pass2" parameters="java.lang.String[]" />
 		    </keep>
+		    <keep access="public" name="ronnie.dbpatcher.config.Configuration">
+				<method access="public" type="java.lang.String" name="getProperty" parameters="java.lang.String" />
+		    </keep>
+		    <keep access="public" name="ronnie.dbpatcher.config.Database">
+				<method access="public" type="void" name="addApplication" parameters="java.lang.String,java.lang.String,java.lang.String,java.lang.String" />
+		    </keep>
 			<keepnames name="*" />
 			<keepattribute name="SourceFile" />
 			<keepattribute name="LineNumberTable" />
