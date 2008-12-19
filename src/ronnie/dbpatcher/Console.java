@@ -17,11 +17,48 @@ public class Console
 	protected boolean prefixWithDate = true;
 	protected PrintStream out = System.out;
 	protected PrintStream err = System.err;
+	protected java.io.Console java6console;
+
+
+	public Console()
+	{
+		try
+		{
+			this.java6console = System.console();
+		}
+		catch( NoSuchMethodError e )
+		{
+			// Only works in java 6
+		}
+	}
+
+	protected void printBare( String string )
+	{
+		if( this.java6console != null )
+		{
+			this.java6console.writer().print( string );
+			this.java6console.flush();
+		}
+		else
+			this.out.print( string );
+		this.col += string.length();
+	}
+
+	protected void printlnBare( String string )
+	{
+		if( this.java6console != null )
+		{
+			this.java6console.writer().println( string );
+			this.java6console.flush();
+		}
+		else
+			this.out.println( string );
+		this.col = 0;
+	}
 
 	protected void println()
 	{
-		this.out.println();
-		this.col = 0;
+		printlnBare( "" );
 	}
 
 	protected void print( String string )
@@ -29,11 +66,9 @@ public class Console
 		if( this.col == 0 && this.prefixWithDate )
 		{
 			DateFormat dateFormat = DateFormat.getDateTimeInstance( DateFormat.SHORT, DateFormat.SHORT );
-			this.out.print( dateFormat.format( new Date() ) );
-			this.out.print( "   " );
+			printBare( dateFormat.format( new Date() ) + "   " );
 		}
-		this.out.print( string );
-		this.col += string.length();
+		printBare( string );
 	}
 
 	protected void println( String string )
@@ -41,33 +76,48 @@ public class Console
 		if( this.col == 0 && this.prefixWithDate )
 		{
 			DateFormat dateFormat = DateFormat.getDateTimeInstance( DateFormat.SHORT, DateFormat.SHORT );
-			this.out.print( dateFormat.format( new Date() ) );
-			this.out.print( "   " );
+			printBare( dateFormat.format( new Date() ) + "   " );
 		}
-		this.out.println( string );
-		this.col = 0;
+		printlnBare( string );
 	}
 
 	protected void carriageReturn()
 	{
 		if( this.col > 0 )
-			println();
+			printlnBare( "" );
 	}
 
 	protected void emptyLine()
 	{
 		carriageReturn();
-		println();
+		printlnBare( "" );
 	}
 
-	synchronized protected String input() throws IOException
+	protected String input() throws IOException
+	{
+		return input( false );
+	}
+
+	synchronized protected String input( boolean password ) throws IOException
 	{
 		if( this.fromAnt )
 			carriageReturn();
-		if( this.stdin == null )
-			this.stdin = new BufferedReader( new InputStreamReader( System.in ) );
 
-		String input = this.stdin.readLine();
+		String input;
+		if( this.java6console != null )
+		{
+			if( password )
+				input = new String( this.java6console.readPassword() );
+			else
+				input = this.java6console.readLine();
+		}
+		else
+		{
+			if( this.stdin == null )
+				this.stdin = new BufferedReader( new InputStreamReader( System.in ) );
+			input = this.stdin.readLine();
+		}
+
 		Assert.notNull( input, "No more input" );
 
 		this.col = 0;
