@@ -45,7 +45,7 @@ public class MockConsole extends Console
 	}
 
 	@Override
-	public synchronized String input() throws IOException
+	public synchronized String input( boolean password ) throws IOException
 	{
 		String input = this.answerQueue.poll();
 		Assert.notNull( input, "No more input" );

@@ -80,7 +80,7 @@ public class Progress extends ProgressListener implements ConfigListener
 		this.console.print( "Input password for user '" + user + "': " );
 		try
 		{
-			return this.console.input();
+			return this.console.input( true );
 		}
 		catch( IOException e )
 		{
