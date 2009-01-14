@@ -318,11 +318,12 @@ public class DBVersion
 		Assert.notEmpty( target, "target must not be empty" );
 		//		Assert.notEmpty( command, "command must not be empty" );
 
-		// Trim strings, maximum length for VARCHAR2 is 4000
-		if( command != null && command.length() > 4000 )
-			command = command.substring( 0, 4000 );
-		if( result != null && result.length() > 4000 )
-			result = result.substring( 0, 4000 );
+		// Trim strings, maximum length for VARCHAR2 in Oracle is 4000 !BYTES!
+		// Trim more, to make room for UTF8 bytes
+		if( command != null && command.length() > 3000 )
+			command = command.substring( 0, 3000 );
+		if( result != null && result.length() > 3000 )
+			result = result.substring( 0, 3000 );
 
 		try
 		{

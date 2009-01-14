@@ -346,6 +346,8 @@ public class Patcher
 						if( !patch.isInit() )
 						{
 							dbVersion.setProgress( patch.getTarget(), count );
+							// We have to update the progress even if the logging fails. Otherwise the patch cannot be
+							// restarted. That's why the progress update is first. But some logging will be lost in that case.
 							if( sqlException != null )
 								dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), sqlException );
 							else
