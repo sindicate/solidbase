@@ -51,6 +51,7 @@ public class CommandLineTests
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
 				"Opening patchfile 'C:\\...\\dbpatch-hsqldb-example.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
 				"Patching \"null\" to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +
@@ -95,6 +96,7 @@ public class CommandLineTests
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
 				"Opening patchfile 'C:\\...\\dbpatch-hsqldb-example.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
 				"\n"
 		);
 

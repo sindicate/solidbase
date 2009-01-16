@@ -12,6 +12,11 @@ public class ProgressListener
 		// could be implemented in subclass
 	}
 
+	public void openedPatchFile( PatchFile patchFile )
+	{
+		// could be implemented in subclass
+	}
+
 	protected void patchStarting( String source, String target )
 	{
 		// could be implemented in subclass
