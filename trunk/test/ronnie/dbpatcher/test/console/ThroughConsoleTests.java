@@ -54,6 +54,7 @@ public class ThroughConsoleTests
 				"Connecting to database 'prod', application 'app1'...\n" +
 				"Input password for user 'sa': The database has no version yet.\n" +
 				"Opening patchfile 'C:\\...\\dbpatch-hsqldb-example.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
 				"Possible targets are: 1.0.1, 1.0.2\n" +
 				"Input target version: Patching \"null\" to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +

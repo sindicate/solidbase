@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import ronnie.dbpatcher.config.ConfigListener;
 import ronnie.dbpatcher.core.Command;
+import ronnie.dbpatcher.core.PatchFile;
 import ronnie.dbpatcher.core.ProgressListener;
 
 import com.logicacmg.idt.commons.SystemException;
@@ -29,6 +30,12 @@ public class Progress extends ProgressListener implements ConfigListener
 	protected void openingPatchFile( String patchFile )
 	{
 		this.console.println( "Opening patchfile '" + patchFile + "'" );
+	}
+
+	@Override
+	public void openedPatchFile( PatchFile patchFile )
+	{
+		this.console.println( "    Encoding is '" + patchFile.getEncoding() + "'" );
 	}
 
 	@Override

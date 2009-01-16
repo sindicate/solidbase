@@ -76,6 +76,8 @@ public class Patcher
 
 		patchFile = new PatchFile( ralr );
 
+		callBack.openedPatchFile( patchFile );
+
 		// Need to close in case of an exception during reading
 		try
 		{

@@ -53,6 +53,7 @@ public class PatchFile
 		for( char c : chars )
 			if( c != 0 )
 				s.append( c );
+
 		line = s.toString();
 		//System.out.println( "First line (fixed) [" + line + "]" );
 		Matcher matcher = encodingPattern.matcher( line );
@@ -372,5 +373,11 @@ public class PatchFile
 				throw new SystemException( e );
 			}
 		}
+	}
+
+
+	public String getEncoding()
+	{
+		return this.file.getEncoding();
 	}
 }
