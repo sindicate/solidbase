@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V5.0//EN" "../tools/docbook/docbook-5.0b5.dtd">
+
+<book xmlns="http://docbook.org/ns/docbook">
+
+	<info>
+		<title>Database Patch Tool Manual</title>
+		<subtitle>A tool to manage the controlled upgrade of databases
+		</subtitle>
+		<author>
+			<personname>René M. de Bloois</personname>
+			<orgname>Logica</orgname>
+		</author>
+		<productname>Database Patch Tool</productname>
+	</info>
+
+	<chapter xml:id="starting-the-patchtool">
+		<title>Starting the patchtool</title>
+
+		<section xml:id="executing-java">
+			<title>Executing java</title>
+			The way to start the patchtool is as follows:
+			<screen>java -jar dbpatcher.jar [-cp xxx.jar] -help</screen>
+			The -cp classpath option gives the ability to add jdbc drivers to the
+			classpath, but this can also be done by using the classpathext
+			property in the the dbpatcher.properties file.
+			<caution>
+				TODO Dit is een test
+			</caution>
+		</section>
+
+		<section xml:id="classpath-extension">
+			<title>Classpath extension</title>
+			By adding the following property to the dbpatcher.properties file:
+			<screen>classpathext = ojdbc14.jar;derby-10.2.1.6.jar;hsqldb.jar</screen>
+			one can add jars that are needed to the patchtool's classpath.
+		</section>
+
+		<section xml:id="commandline-options">
+			<title>Commandline options</title>
+
+			Below is the output of the
+			<programlisting>java -jar dbpatcher.jar -help</programlisting>
+			command:
+			<screen><![CDATA[
+usage: dbpatcher [-driver <classname>] [-dumplog <filename>] [-fromant]
+       [-password <password>] [-patchfile <patchfile>] [-target <targetversion>]
+       [-url <url>] [-username <username>] [-verbose]
+ -driver <classname>       sets the jdbc driverclass
+ -dumplog <filename>       export historical patch results to an xml file
+ -fromant                  adds newlines after input requests
+ -password <password>      sets the password of the default username
+ -patchfile <patchfile>    sets the patch file
+ -target <targetversion>   sets the target version
+ -url <url>                sets the url of the database
+ -username <username>      sets the default username to patch with
+ -verbose                  be extra verbose
+ ]]>		</screen>
+
+			TODO Is the password really optional?
+			TODO When driver is specified,
+			the configuration file is ignored?
+
+		</section>
+		
+	</chapter>
+	
+	<chapter xml:id="configuring-the-patchtool">
+		<title>Configuring the patchtool</title>
+
+		<section xml:id="configuration-files">
+			<title>Configuration files</title>
+			There are 2 configuration files:
+			<itemizedlist>
+				<listitem>
+					/ronnie/dbpatcher/config/dbpatcher-default.properties in the
+					dbpatcher.jar
+				</listitem>
+				<listitem>
+					dbpatcher.properties in the working folder
+				</listitem>
+			</itemizedlist>
+			The dbpatcher.properties overrides properties in the
+			dbpatcher-default.properties. This makes it possible to instrument the
+			jar file with fixed settings, so that the person using the patchtool
+			only has to concern himself with settings he should adapt.
+			
+			<example><title>Example configuration</title>
+				<programlisting><![CDATA[
+# Specifies which version of the config should be used, 1 is old, 2 is the newest
+config-version = 2
+
+# Specifies jars to be added to the classpath
+classpathext = ojdbc14.jar;derby-10.2.1.6.jar;hsqldb.jar
+
+# databases
+databases = prod, test
+
+# database 'prod'
+prod.description = DHL Production
+prod.driver = org.hsqldb.jdbcDriver
+prod.url = jdbc:hsqldb:mem:test1
+prod.applications = app1, app2
+
+# database 'prod', application 'app1'
+prod.app1.description = app1 description
+prod.app1.user = sa
+prod.app1.patchfile = dbpatch-hsqldb-example.sql
+
+# database 'prod', application 'app2'
+prod.app2.user = sa
+prod.app2.patchfile = dbpatch-hsqldb-example.sql
+
+# database 'test'
+test.driver = org.apache.derby.jdbc.EmbeddedDriver
+test.url = jdbc:derby:c:/projects/temp/dbpatcher/db;create=true
+test.applications = app3
+
+# database 'test', application 'app3'
+test.app3.user = app
+test.app3.patchfile = dbpatch-derby-example.sql
+]]>				</programlisting>
+			</example>
+		
+			<table border="1">
+				<title>Configuration details</title>
+				<caption>flkjflkjf</caption>
+				<tr>
+					<th>Property</th>
+					<th>Possible values</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td>config-version</td>
+					<td>1 or 2</td>
+					<td>Specifies which version of the configuration you like to use</td>
+				</tr>
+				<tr>
+					<td>classpathext</td>
+					<td>list of jarfiles seperated by ;</td>
+					<td>Specifies which jars need to be added at the end of the classpath</td>
+				</tr>
+				<tr>
+					<td>databases</td>
+					<td>commaseperated list of database names</td>
+					<td>Specifies which databases are available to be patched</td>
+				</tr>
+				<tr>
+					<td>&lt;dbname&gt;.description</td>
+					<td></td>
+					<td>Description for this database</td>
+				</tr>
+				<tr>
+					<td>&lt;dbname&gt;.driver</td>
+					<td></td>
+					<td>Driverclass needed to connect to this database</td>
+				</tr>
+				<tr>
+					<td>&lt;dbname&gt;.url</td>
+					<td></td>
+					<td>Url that points to this database</td>
+				</tr>
+				<tr>
+					<td>&lt;dbname&gt;.applications</td>
+					<td>commaseperated list of applications in this database</td>
+					<td>Specifies which applications are available in this database</td>
+				</tr>
+				<tr>
+					<td>&lt;dbname&gt;.&lt;appname&gt;.description</td>
+					<td></td>
+					<td>Description for this application</td>
+				</tr>
+				<tr>
+					<td>&lt;dbname&gt;.&lt;appname&gt;.user</td>
+					<td></td>
+					<td>User needed to connect to this application</td>
+				</tr>
+				<tr>
+					<td>&lt;dbname&gt;.&lt;appname&gt;.patchfile</td>
+					<td></td>
+					<td>Patchfile to upgrade this application</td>
+				</tr>
+			</table>
+			
+		</section>
+
+	</chapter>
+
+</book>
