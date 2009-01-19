@@ -21,7 +21,7 @@
 	<property name="temp.home" value="../TEMP/dbpatcher" />
 	<property name="dist.home" value="${build.home}/dist" />
 
-	
+
 	<!-- Classpaths -->
 
 	<path id="groovy.classpath">
@@ -41,6 +41,14 @@
 		<fileset dir="tools/test" includes="*.jar" />
 	</path>
 
+	<path id="xalan.classpath">
+		<fileset dir="tools/xalan" includes="*.jar" />
+	</path>
+
+	<path id="fop.classpath">
+		<fileset dir="tools/fop" includes="*.jar" />
+	</path>
+
 	<path id="compile.classpath">
 		<fileset dir="lib" includes="*.jar" />
 	</path>
@@ -57,22 +65,23 @@
 		<fileset dir="${dist.home}" includes="*.jar" />
 	</path>
 
-	
+
 	<!-- Custom Ant Task Definitions -->
 
 	<taskdef resource="testngtasks" classpathref="testng.classpath" />
 	<taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpathref="groovy.classpath" />
 	<taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpathref="jarjar.classpath" />
 	<taskdef resource="proguard/ant/task.properties" classpathref="proguard.classpath" />
+	<taskdef name="fop" classname="org.apache.fop.tools.anttasks.Fop" classpathref="fop.classpath" />
 
-	
+
 	<!-- Default target -->
 
 	<target name="none">
 		<echo message="Use ant -p to see available targets" />
 	</target>
 
-	
+
 	<!-- Targets -->
 
 	<target name="clean" description="Cleans everything">
@@ -80,7 +89,7 @@
 		<delete dir="${temp.home}" />
 	</target>
 
-	
+
 	<target name="compile">
 		<echo message="java.home=${java.home}" />
 		<mkdir dir="${build.home}/classes" />
@@ -89,7 +98,7 @@
 		</javac>
 	</target>
 
-	
+
 	<target name="compiletest" depends="compile">
 		<mkdir dir="${build.home}/test" />
 		<javac source="${target-jre}" target="${target-jre}" srcdir="${test.home}" destdir="${build.home}/test" debug="true" deprecation="true" optimize="true">
@@ -97,14 +106,14 @@
 		</javac>
 	</target>
 
-	
+
 	<target name="buildtest" depends="compiletest">
 		<copy preservelastmodified="true" todir="${build.home}/test">
 			<fileset dir="${test.home}" excludes="**/*.java" />
 		</copy>
 	</target>
 
-	
+
 	<target name="test" depends="build,buildtest" description="Run all tests">
 		<testng workingDir="${dist.home}" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="2">
 			<jvmarg value="-javaagent:../../../dbpatcher/tools/test/jmockit.jar" />
@@ -114,7 +123,7 @@
 		</testng>
 	</target>
 
-	
+
 	<target name="jar" depends="compile" description="Create jar">
 		<copy todir="${build.home}/classes" preservelastmodified="yes">
 			<fileset dir="src" excludes="**/*.java" />
@@ -129,22 +138,22 @@
 		</jarjar>
 		<proguard optimizationpasses="10" verbose="true" note="false">
 			<injar file="${build.home}/stage/dbpatcher1.jar" />
-		    <outjar file="${build.home}/stage/dbpatcher2.jar" />
-		    <libraryjar file="${java.home}/lib/rt.jar" />
-		    <libraryjar file="tools/groovy/groovy-1.5.7.jar" />
+			<outjar file="${build.home}/stage/dbpatcher2.jar" />
+			<libraryjar file="${java.home}/lib/rt.jar" />
+			<libraryjar file="tools/groovy/groovy-1.5.7.jar" />
 			<libraryjar file="lib/commons-cli-1.1.jar" />
 			<libraryjar file="lib/commons-collections-3.2.jar" />
 			<libraryjar file="lib/commons-lang-2.3.jar" />
-		    <keep access="public" name="ronnie.dbpatcher.Main">
+			<keep access="public" name="ronnie.dbpatcher.Main">
 				<method access="public static" type="void" name="main" parameters="java.lang.String[]" />
 				<method access="public static" type="void" name="pass2" parameters="java.lang.String[]" />
-		    </keep>
-		    <keep access="public" name="ronnie.dbpatcher.config.Configuration">
+			</keep>
+			<keep access="public" name="ronnie.dbpatcher.config.Configuration">
 				<method access="public" type="java.lang.String" name="getProperty" parameters="java.lang.String" />
-		    </keep>
-		    <keep access="public" name="ronnie.dbpatcher.config.Database">
+			</keep>
+			<keep access="public" name="ronnie.dbpatcher.config.Database">
 				<method access="public" type="void" name="addApplication" parameters="java.lang.String,java.lang.String,java.lang.String,java.lang.String" />
-		    </keep>
+			</keep>
 			<keepnames name="*" />
 			<keepattribute name="SourceFile" />
 			<keepattribute name="LineNumberTable" />
@@ -170,14 +179,14 @@
 		</jarjar>
 	</target>
 
-	
+
 	<target name="build" depends="jar">
 		<copy todir="${dist.home}" preservelastmodified="true">
 			<fileset dir="dist" />
 		</copy>
 	</target>
 
-		
+
 	<target name="run" depends="build">
 		<java jar="${dist.home}/dbpatcher.jar" fork="yes" dir="${dist.home}">
 			<arg value="-fromant" />
@@ -194,15 +203,15 @@
 		</java>
 	</target>
 
-	
+
 	<target name="checksvnstatus">
 		<groovy src="checksvnstatus.groovy" />
 	</target>
 
-	
+
 	<target name="dist" depends="checksvnstatus,clean,test,build" />
 
-	
+
 	<target name="javadoc" depends="compile" description="Generate Javadoc">
 		<mkdir dir="dist/docs/api" />
 		<javadoc sourcepath="src" destdir="dist/docs/api" packagenames="*" linkoffline="http://java.sun.com/j2se/1.5.0/docs/api doc/jdk1.5.0">
@@ -210,5 +219,14 @@
 		</javadoc>
 	</target>
 
-	
+
+	<target name="manual">
+		<mkdir dir="${build.home}" />
+		<mkdir dir="${dist.home}" />
+		<xslt style="tools/docbook/xhtml/docbook.xsl" in="doc/manual.xml" out="${dist.home}/manual.html" classpathref="xalan.classpath" />
+		<xslt style="tools/docbook/fo/docbook.xsl" in="doc/manual.xml" out="${build.home}/manual.fo" classpathref="xalan.classpath" />
+		<fop format="application/pdf" fofile="${build.home}/manual.fo" outfile="${dist.home}/manual.pdf" />
+	</target>
+
+
 </project>
