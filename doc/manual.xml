@@ -4,45 +4,167 @@
 <book xmlns="http://docbook.org/ns/docbook">
 
 	<info>
-		<title>Database Patch Tool Manual</title>
-		<subtitle>A tool to manage the controlled upgrade of databases
-		</subtitle>
-		<author>
-			<personname>René M. de Bloois</personname>
-			<orgname>Logica</orgname>
-		</author>
+		<title>Database Patch Tool User's Manual</title>
+		<subtitle>A tool to manage the controlled upgrade of database structures</subtitle>
+		<author><personname>René M. de Bloois</personname></author>
 		<productname>Database Patch Tool</productname>
 	</info>
 
+	<chapter xml:id="concept">
+		<title>Concept</title>
+		
+		<section xml:id="database-structure-and-versions">
+			<title>Database structure and versions</title>
+			<para>
+				A database has a certain structure.
+				The structure is defined by the database objects defined (like tables, views, indexes, constraints, stored procedures and triggers) and some fixed reference data which is the same in each instance of the database.
+				This structure evolves over time. There are multiple versions of the database structure.
+				The patchtool's function is to track this version number and make it possible to transform the database structure from one version to the next version without loosing data.  
+				A transformation from one version to another happens by executing a series of change scripts.
+				A change script transforms the database structure from one version to the next.
+				A change script consists of a series of database changes interleaved with patch mode settings.
+			</para>
+		</section>
+		
+		<section xml:id="changes-vs-settings">
+			<title>Database changes vs. patch mode settings</title>
+			<para>
+				Below are examples of database changes and patch mode settings.
+			</para>
+			<itemizedlist>
+				<title>Examples of database changes</title>
+				<listitem><para><computeroutput>CREATE TABLE ...</computeroutput></para></listitem>
+				<listitem><para><computeroutput>CREATE INDEX ...</computeroutput></para></listitem>
+				<listitem><para><computeroutput>ALTER TABLE ADD COLUMN ...</computeroutput></para></listitem>
+				<listitem><para><computeroutput>INSERT &lt;reference data, for example countries&gt;</computeroutput></para></listitem>
+				<listitem><para><computeroutput>UPDATE &lt;data to conform with the changed data model&gt;</computeroutput></para></listitem>
+			</itemizedlist>
+			<para>
+				Database changes form the meat of the patch. They change the structure/configuration of the database and the fixed reference data in it.
+			</para>
+			<variablelist>
+				<title>Examples of patch mode settings</title>
+				<varlistentry>
+					<term><computeroutput>--* SET USER</computeroutput></term>
+					<listitem><para>changes the user that is executing the statements that are sent to the database</para></listitem>
+				</varlistentry>
+				<varlistentry>
+					<term><computeroutput>--* MESSAGE START</computeroutput></term>
+					<listitem><para>registers a message that is printed just before the first database change following it is executed</para></listitem>
+				</varlistentry>
+			</variablelist>
+			<para>
+				Patch mode settings change the mode of operation of the patchtool.
+				Patch mode settings are reset at the start of each individual patch.
+				But you can also mark normal SQL as being a patch mode setting:
+			</para>
+			<programlisting>
+				--* SESSIONCONFIG
+				ALTER SESSION ...
+				--* /SESSIONCONFIG
+			</programlisting>
+			<para>
+				This changes the mode of the current connection to the database. 
+				Remember that if you change the user with <computeroutput>SET USER</computeroutput> you get another connection, so you may have to repeat the <computeroutput>ALTER SESSION</computeroutput> for each user you use.
+			</para>
+		</section>
+		
+		<section xml:id="patch-failure-and-recovery">
+			<title>Patch failure and recovery</title>
+			<para>
+				Database changes are permanent and thus non-repeatable.
+				Patch mode settings are not permanent and must be repeated in case of a patch restart.
+				So there are some differences between changes and the one hand and settings on the other with respect to patch failure and restart:
+			</para>
+			<para>
+				When a patch failure occurs the patchtool remembers what patch was being executed and how many database changes were successful.
+				After fixing the cause of the failure the patchtool can be restarted and it will skip all database changes that were already executed successfully.
+				Patch mode settings however do not behave like this. 
+				Patch mode settings should always be executed from the beginning of each patch.
+				Because of this, patch mode settings are not counted, which means that they do not interfere with counting of the number of successful database changes.
+			</para>
+		</section>
+
+	</chapter>
+	
 	<chapter xml:id="starting-the-patchtool">
 		<title>Starting the patchtool</title>
 
-		<section xml:id="executing-java">
-			<title>Executing java</title>
-			The way to start the patchtool is as follows:
-			<screen>java -jar dbpatcher.jar [-cp xxx.jar] -help</screen>
-			The -cp classpath option gives the ability to add jdbc drivers to the
-			classpath, but this can also be done by using the classpathext
-			property in the the dbpatcher.properties file.
-			<caution>
-				TODO Dit is een test
-			</caution>
+		<section xml:id="starting-with-jave">
+			<title>Starting with java</title>
+			<para>
+				The patchtool is started with the following command:
+				<programlisting>java -jar dbpatcher.jar</programlisting>
+				This will start the interactive mode of the patchtool, 
+				which will present the user with some choices regarding the database and application, the target version, 
+				and will ask the user for passwords when needed. 
+			</para>
+			<example><title>Example interactive mode</title>
+				<screen><![CDATA[
+C:\PROJECTS\BUILDS\dbpatcher\dist>java -jar dbpatcher.jar
+20-1-09 20:47   DBPatcher v1.0.101
+20-1-09 20:47   (C) 2006-2008 R.M. de Bloois, LogicaCMG
+
+20-1-09 20:47   Available database:
+20-1-09 20:47       prod (DHL Production)
+20-1-09 20:47       test (test)
+20-1-09 20:47   Select a database from the above: prod
+
+20-1-09 20:47   Available applications in database 'prod':
+20-1-09 20:47       app1 (app1 description)
+20-1-09 20:47       app2 (app2)
+20-1-09 20:47   Select an application from the above: app1
+
+20-1-09 20:47   Connecting to database 'prod', application 'app1'...
+20-1-09 20:47   Input password for user 'sa':
+20-1-09 20:47   The database has no version yet.
+20-1-09 20:47   Opening patchfile 'C:\PROJECTS\BUILDS\dbpatcher\dist\dbpatch-hsqldb-example.sql'
+20-1-09 20:47       Encoding is 'ISO-8859-1'
+20-1-09 20:47   Possible targets are: 1.0.1, 1.0.2
+20-1-09 20:47   Input target version: 1.0.2
+20-1-09 20:47   Patching "null" to "1.0.1"
+20-1-09 20:47   Creating table DBVERSION.
+20-1-09 20:47   Creating table DBVERSIONLOG.
+20-1-09 20:47   Patching "1.0.1" to "1.0.2"
+20-1-09 20:47   Creating table USERS.
+20-1-09 20:47   Inserting admin user.
+20-1-09 20:47   The database has been patched.
+
+20-1-09 20:47   Current database version is "1.0.2".
+
+C:\PROJECTS\BUILDS\dbpatcher\dist>
+]]>				</screen>
+			</example>
 		</section>
 
 		<section xml:id="classpath-extension">
 			<title>Classpath extension</title>
-			By adding the following property to the dbpatcher.properties file:
-			<screen>classpathext = ojdbc14.jar;derby-10.2.1.6.jar;hsqldb.jar</screen>
-			one can add jars that are needed to the patchtool's classpath.
+			<para>
+				Normally, you need to add jar files to the patchtool's classpath.
+				These jar files will be jdbc drivers needed to access the database, but you can add any jar file you want.
+				There are 2 ways to add jar files to the classpath:
+				<itemizedlist>
+					<listitem><para>
+						By configuring the following property in the dbpatcher.properties file:
+						<programlisting>classpathext = ojdbc14.jar;derby-10.2.1.6.jar</programlisting>
+						<note><para>Currently, this does not work when the <code>-driver</code> option is specified on the command line, as the complete property file is skipped in that case.</para></note>
+					</para></listitem>
+					<listitem><para>
+						By adding the jar files to the -cp option when starting java:
+						<programlisting>java -cp dbpatcher.jar;ojdbc14.jar;derby-10.2.1.6.jar ronnie.dbpatcher.Main</programlisting>
+						As you see, you need to start the patch tool specifying the Main class instead of the jar.
+					</para></listitem>
+				</itemizedlist>
+			</para>
 		</section>
 
 		<section xml:id="commandline-options">
 			<title>Commandline options</title>
-
-			Below is the output of the
-			<programlisting>java -jar dbpatcher.jar -help</programlisting>
-			command:
-			<screen><![CDATA[
+			<para>
+				Below is the output of the
+				<programlisting>java -jar dbpatcher.jar -help</programlisting>
+				command:
+				<screen><![CDATA[
 usage: dbpatcher [-driver <classname>] [-dumplog <filename>] [-fromant]
        [-password <password>] [-patchfile <patchfile>] [-target <targetversion>]
        [-url <url>] [-username <username>] [-verbose]
@@ -55,19 +177,21 @@ usage: dbpatcher [-driver <classname>] [-dumplog <filename>] [-fromant]
  -url <url>                sets the url of the database
  -username <username>      sets the default username to patch with
  -verbose                  be extra verbose
- ]]>		</screen>
-			TODO Driver, username, password need to be specified together or not at all.
-			TODO Is the password really optional?
-			TODO When driver is specified, the configuration files are ignored. But when driver is not specified, all commandline options are ignored.
-			TODO Wildcard in the target
+ ]]>			</screen>
+				TODO Driver, username, password need to be specified together or not at all.
+				TODO Is the password really optional?
+				TODO When driver is specified, the configuration files are ignored. But when driver is not specified, all commandline options are ignored.
+				TODO Wildcard in the target
+			</para>
 		</section>
 		
 	</chapter>
 	
 	<chapter xml:id="configuring-the-patchtool">
 		<title>Configuring the patchtool</title>
-		TODO Creating a database configurer plugin in java. databases.config.class
-		<programlisting><![CDATA[
+		<para>
+			TODO Creating a database configurer plugin in java. databases.config.class
+			<programlisting><![CDATA[
 package ronnie.dbpatcher.config;
 
 import java.util.List;
@@ -77,25 +201,31 @@ public interface DatabasesConfiguration
     void init( Configuration configuration );
     List< Database > getDatabases();
 }
-]]>		</programlisting>
-		TODO Creating a database configurer plugin in groovy. databases.config.script
+]]>			</programlisting>
+			TODO Creating a database configurer plugin in groovy. databases.config.script
+		</para>
 		<section xml:id="configuration-files">
 			<title>Configuration files</title>
-			There are 2 configuration files:
-			<itemizedlist>
-				<listitem>
-					/ronnie/dbpatcher/config/dbpatcher-default.properties in the
-					dbpatcher.jar
-				</listitem>
-				<listitem>
-					dbpatcher.properties in the working folder
-				</listitem>
-			</itemizedlist>
-			The dbpatcher.properties overrides properties in the
-			dbpatcher-default.properties. This makes it possible to instrument the
-			jar file with fixed settings, so that the person using the patchtool
-			only has to concern himself with settings he should adapt.
-			
+			<para>
+				There are 2 configuration files:
+				<itemizedlist>
+					<listitem>
+						<para>
+							/ronnie/dbpatcher/config/dbpatcher-default.properties in the
+							dbpatcher.jar
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							dbpatcher.properties in the working folder
+						</para>
+					</listitem>
+				</itemizedlist>
+				The dbpatcher.properties overrides properties in the
+				dbpatcher-default.properties. This makes it possible to instrument the
+				jar file with fixed settings, so that the person using the patchtool
+				only has to concern himself with settings he should adapt.
+			</para>
 			<example><title>Example configuration</title>
 				<programlisting><![CDATA[
 # Specifies which version of the config should be used, 1 is old, 2 is the newest
@@ -133,8 +263,7 @@ test.app3.patchfile = dbpatch-derby-example.sql
 ]]>				</programlisting>
 			</example>
 		
-			<table border="1">
-				<title>Configuration details</title>
+			<table border="1" title="Configuration details">
 				<caption>flkjflkjf</caption>
 				<tr>
 					<th>Property</th>
@@ -192,47 +321,64 @@ test.app3.patchfile = dbpatch-derby-example.sql
 					<td>Patchfile to upgrade this application</td>
 				</tr>
 			</table>
-			TODO More than 1 database -> select. More than 1 application -> select. Thus no selection needed when only 1 db and 1 app.
+			<para>
+				TODO More than 1 database -> select. More than 1 application -> select. Thus no selection needed when only 1 db and 1 app.
+			</para>
 		</section>
 
 	</chapter>
 	
 	<chapter xml:id="maintaining-the-patch">
 		<title>Maintaining the patch</title>
-		TODO --* Patchtool command, --* // Patchtool comment
-		TODO ENCODING
-		TODO Concept: repeatable/nonrepeatable commands. See somewhere else.
-		TODO Example patchfile.
-		TODO Don't modify existing patches.
-		TODO Open patches.
-		TODO Starting with a clean database.
-		TODO Starting with an existing database.
-		TODO IGNORE SQL ERROR.
-		TODO SET MESSAGE.
-		TODO ASSERT EXISTS can be used when using the patchtool on an existing database
-		TODO SET USER. Describe that the version tables are looked for with the user given on the commandline or in the configuration file.
-		TODO SESSIONCONFIG
-		TODO Creating the 2 version tables. 1 should be available after the 1st statement, the other at the end of the first patch.
-		TODO Default user at the start at the patch.
-		TODO Patchfile is first looked for in the classpath, and then in the working folder.
-		TODO Maintaining branches.
+		
+		<para>
+			TODO --* Patchtool command, --* // Patchtool comment
+			TODO ENCODING
+			TODO Concept: repeatable/nonrepeatable commands. See somewhere else.
+			TODO Example patchfile.
+			TODO Don't modify historic patches (patches that are already used to change a live database). 
+			TODO Open patches.
+			TODO Starting with a clean database.
+			TODO Starting with an existing database.
+			TODO IGNORE SQL ERROR.
+			TODO SET MESSAGE.
+			TODO ASSERT EXISTS can be used when using the patchtool on an existing database
+			TODO SET USER. Describe that the version tables are looked for with the user given on the commandline or in the configuration file.
+			TODO SESSIONCONFIG
+			TODO Creating the 2 version tables. 1 should be available after the 1st statement, the other at the end of the first patch.
+			TODO Default user at the start at the patch.
+			TODO Patchfile is first looked for in the classpath, and then in the working folder.
+			TODO Maintaining branches.
+		</para>
+		
 		<section>
 			<title>Open patches</title>
-			During development, changes on the databases come unexpected and often.
-			This may lead to a lot of patches and a quickly growing version number.
-			If you don't want this you can keep the patch open.
-			An open patch can be executed but the jump to the new version number will be blocked.
-			New changes to the database can be added to the end of this patch, they will automatically be picked up next time someone executes the patch.
+			<para>
+				During development, changes on the databases come unexpected and often.
+				This may lead to a lot of patches and a quickly growing version number.
+				If you don't want this you can keep the patch open.
+				An open patch can be executed but the jump to the new version number will not happen.
+				New changes to the database can be added to the end of this patch, they will automatically be picked up next time someone executes the patch.
+				When the time comes to deliver the patch, you can close the 
+			</para>
 		</section>
+		
+		<section>
+			<title>Maintaining branches</title>
+			<para></para>
+		</section>
+		
 	</chapter>
 	
 	<chapter xml:id="technical-details">
 		<title>Technical details</title>
-		TODO Password masking in java 5 not possible
-		TODO How does the patchtool maintain the version in the database (version, target, statements).
-		TODO Modular implementation, Core, Config, Commandline interface.
-		TODO Creating plugins with the CommandListener.
-		TODO Logging in the versionlog table.
+		<para>
+			TODO Password masking in java 5 not possible
+			TODO How does the patchtool maintain the version in the database (version, target, statements).
+			TODO Modular implementation, Core, Config, Commandline interface.
+			TODO Creating plugins with the CommandListener.
+			TODO Logging in the versionlog table.
+		</para>
 	</chapter>
 
 </book>
