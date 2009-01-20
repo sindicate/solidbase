@@ -288,6 +288,7 @@ public class Patcher
 
 		String startMessage = null;
 
+		// TODO Also reset ignored errors and sessionconfig
 		database.setCurrentUser( defaultUser ); // overwrite the default user at the start of each patch
 
 		dbVersion.read();

@@ -67,7 +67,7 @@ public class DBVersion
 	/**
 	 * Gets the current version of the database. If the version table does not yet exist it return null.
 	 *
-	 * @return the current version of the database. Will be null if and only if the version table does not exist.
+	 * @return the current version of the database.
 	 */
 	protected String getVersion()
 	{
