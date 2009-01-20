@@ -19,7 +19,7 @@ public class DigimeenteDatabasesConfiguration implements DatabasesConfiguration
 {
 	protected List< Database > databases;
 
-	public DigimeenteDatabasesConfiguration( Configuration configuration )
+	public void init( Configuration configuration )
 	{
 		try
 		{

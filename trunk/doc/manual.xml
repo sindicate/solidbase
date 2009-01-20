@@ -56,18 +56,29 @@ usage: dbpatcher [-driver <classname>] [-dumplog <filename>] [-fromant]
  -username <username>      sets the default username to patch with
  -verbose                  be extra verbose
  ]]>		</screen>
-
+			TODO Driver, username, password need to be specified together or not at all.
 			TODO Is the password really optional?
-			TODO When driver is specified,
-			the configuration file is ignored?
-
+			TODO When driver is specified, the configuration files are ignored. But when driver is not specified, all commandline options are ignored.
+			TODO Wildcard in the target
 		</section>
 		
 	</chapter>
 	
 	<chapter xml:id="configuring-the-patchtool">
 		<title>Configuring the patchtool</title>
+		TODO Creating a database configurer plugin in java. databases.config.class
+		<programlisting><![CDATA[
+package ronnie.dbpatcher.config;
 
+import java.util.List;
+
+public interface DatabasesConfiguration
+{
+    void init( Configuration configuration );
+    List< Database > getDatabases();
+}
+]]>		</programlisting>
+		TODO Creating a database configurer plugin in groovy. databases.config.script
 		<section xml:id="configuration-files">
 			<title>Configuration files</title>
 			There are 2 configuration files:
@@ -181,9 +192,47 @@ test.app3.patchfile = dbpatch-derby-example.sql
 					<td>Patchfile to upgrade this application</td>
 				</tr>
 			</table>
-			
+			TODO More than 1 database -> select. More than 1 application -> select. Thus no selection needed when only 1 db and 1 app.
 		</section>
 
+	</chapter>
+	
+	<chapter xml:id="maintaining-the-patch">
+		<title>Maintaining the patch</title>
+		TODO --* Patchtool command, --* // Patchtool comment
+		TODO ENCODING
+		TODO Concept: repeatable/nonrepeatable commands. See somewhere else.
+		TODO Example patchfile.
+		TODO Don't modify existing patches.
+		TODO Open patches.
+		TODO Starting with a clean database.
+		TODO Starting with an existing database.
+		TODO IGNORE SQL ERROR.
+		TODO SET MESSAGE.
+		TODO ASSERT EXISTS can be used when using the patchtool on an existing database
+		TODO SET USER. Describe that the version tables are looked for with the user given on the commandline or in the configuration file.
+		TODO SESSIONCONFIG
+		TODO Creating the 2 version tables. 1 should be available after the 1st statement, the other at the end of the first patch.
+		TODO Default user at the start at the patch.
+		TODO Patchfile is first looked for in the classpath, and then in the working folder.
+		TODO Maintaining branches.
+		<section>
+			<title>Open patches</title>
+			During development, changes on the databases come unexpected and often.
+			This may lead to a lot of patches and a quickly growing version number.
+			If you don't want this you can keep the patch open.
+			An open patch can be executed but the jump to the new version number will be blocked.
+			New changes to the database can be added to the end of this patch, they will automatically be picked up next time someone executes the patch.
+		</section>
+	</chapter>
+	
+	<chapter xml:id="technical-details">
+		<title>Technical details</title>
+		TODO Password masking in java 5 not possible
+		TODO How does the patchtool maintain the version in the database (version, target, statements).
+		TODO Modular implementation, Core, Config, Commandline interface.
+		TODO Creating plugins with the CommandListener.
+		TODO Logging in the versionlog table.
 	</chapter>
 
 </book>

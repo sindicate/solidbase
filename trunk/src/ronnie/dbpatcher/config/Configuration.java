@@ -3,8 +3,6 @@ package ronnie.dbpatcher.config;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -155,8 +153,8 @@ public class Configuration
 						try
 						{
 							Class cls = Class.forName( databaseConfigClass );
-							Constructor constructor = cls.getConstructor( Configuration.class );
-							DatabasesConfiguration config = (DatabasesConfiguration)constructor.newInstance( this );
+							DatabasesConfiguration config = (DatabasesConfiguration)cls.newInstance();
+							config.init( this );
 							this.databases = config.getDatabases();
 						}
 						catch( ClassNotFoundException e )
@@ -170,16 +168,6 @@ public class Configuration
 						catch( IllegalAccessException e )
 						{
 							throw new SystemException( e );
-						}
-						catch( NoSuchMethodException e )
-						{
-							throw new SystemException( e );
-						}
-						catch( InvocationTargetException e )
-						{
-							if( e.getCause() instanceof RuntimeException )
-								throw (RuntimeException)e.getCause();
-							throw new SystemException( e.getCause() );
 						}
 					}
 					else if( databaseConfigScript != null ) // databases configuration script
