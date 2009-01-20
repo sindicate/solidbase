@@ -49,6 +49,10 @@
 		<fileset dir="tools/fop" includes="*.jar" />
 	</path>
 
+	<path id="jing.classpath">
+		<fileset dir="tools/jing" includes="*.jar" />
+	</path>
+
 	<path id="compile.classpath">
 		<fileset dir="lib" includes="*.jar" />
 	</path>
@@ -221,6 +225,12 @@
 
 
 	<target name="manual">
+		<java jar="tools/jing/jing.jar" fork="true">
+			<arg value="-t" />
+			<arg value="-i" />
+			<arg path="tools/docbook/docbook.rng" />
+			<arg path="doc/manual.xml" />
+		</java>
 		<mkdir dir="${build.home}" />
 		<mkdir dir="${dist.home}" />
 		<xslt style="tools/docbook/xhtml/docbook.xsl" in="doc/manual.xml" out="${dist.home}/manual.html" classpathref="xalan.classpath" />
