@@ -83,6 +83,18 @@ ALTER SESSION ...
 			</para>
 		</section>
 
+		<section>
+			<title>Open patches</title>
+			<para>
+				During development, changes on the databases come unexpected and often.
+				This may lead to a lot of patches and a quickly growing version number.
+				If you don't want this you can keep the patch open.
+				An open patch can be executed but the bump to the new version number will not happen.
+				New changes to the database can be added to the end of this patch, they will automatically be picked up when someone re-executes the patch.
+				When the time comes to officially deliver the patch for execution on a test, acceptance or production database, you can close the patch. 
+			</para>
+		</section>
+		
 	</chapter>
 	
 	<chapter xml:id="starting-the-patchtool">
@@ -310,7 +322,7 @@ test.app3.patchfile = dbpatch-derby-example.sql]]></programlisting>
 				</tr>
 				<tr>
 					<td>&lt;dbname&gt;.applications</td>
-					<td>commaseperated list of applications in this database</td>
+					<td>comma-seperated list of applications in this database</td>
 					<td>Specifies which applications are available in this database</td>
 				</tr>
 				<tr>
@@ -355,8 +367,7 @@ public interface DatabasesConfiguration
     List< Database > getDatabases();
 }]]></programlisting>
 
-				<example>
-					<title>Example databases configuration class</title>
+				<example><title>Example databases configuration class</title>
 <programlisting><![CDATA[package somePackage;
 
 import ronnie.dbpatcher.config.Configuration;
@@ -442,39 +453,193 @@ databases.config.test = value to be read by the databases configuration class]]>
 	
 	<chapter xml:id="maintaining-the-patch">
 		<title>Maintaining the patch</title>
-		
+
 		<literallayout>
-			TODO --* Patchtool command, --* // Patchtool comment
-			TODO ENCODING
-			TODO Concept: repeatable/nonrepeatable commands. See somewhere else.
-			TODO Example patchfile.
 			TODO Don't modify historic patches (patches that are already used to change a live database). 
-			TODO Open patches.
-			TODO Starting with a clean database.
+			TODO Open patches (details).
 			TODO Starting with an existing database.
-			TODO IGNORE SQL ERROR.
-			TODO SET MESSAGE.
 			TODO ASSERT EXISTS can be used when using the patchtool on an existing database
-			TODO SET USER. Describe that the version tables are looked for with the user given on the commandline or in the configuration file.
-			TODO SESSIONCONFIG
 			TODO Creating the 2 version tables. 1 should be available after the 1st statement, the other at the end of the first patch.
-			TODO Default user at the start at the patch.
 			TODO Patchfile is first looked for in the classpath, and then in the working folder.
 			TODO Maintaining branches.
 		</literallayout>
-		
+
 		<section>
-			<title>Open patches</title>
+			<title>Your first patchfile</title>
+			
+			<example>
+				<title>Example patch file</title>
+				<para>Below an example of a patchfile:</para>
+			</example>
+			
+<programlisting><![CDATA[--* ENCODING "UTF-8"
+
+--* // ========================================================================
+
+--*	PATCHES
+--*     PATCH "" --> "1.0.1"
+--*     PATCH "1.0.1" --> "1.0.2"
+--*	/PATCHES
+
+(7 empty lines recommended)
+
+--* // ========================================================================
+--* PATCH "" --> "1.0.1"
+--* // ========================================================================
+
+--* SET MESSAGE "Creating table DBVERSION"
+
+CREATE TABLE DBVERSION
+( 
+    VERSION VARCHAR, 
+    TARGET VARCHAR, 
+    STATEMENTS INTEGER NOT NULL 
+)
+GO
+
+--* // The patch tool expects to be able to use the DBVERSION table
+--* // after the *first* sql statement
+
+--* SET MESSAGE "Creating table DBVERSIONLOG"
+
+CREATE TABLE DBVERSIONLOG
+(
+    ID INTEGER IDENTITY, -- An index might be needed
+    SOURCE VARCHAR,
+    TARGET VARCHAR NOT NULL,
+    STATEMENT VARCHAR NOT NULL,
+    STAMP TIMESTAMP NOT NULL,
+    COMMAND VARCHAR,
+    RESULT VARCHAR
+)
+GO
+
+--* // The existence of DBVERSIONLOG will automatically be detected
+--* // at the end of this patch
+
+--* /PATCH
+
+(7 empty lines recommended)
+
+--* // ========================================================================
+--* PATCH "1.0.1" --> "1.0.2"
+--* // ========================================================================
+
+--* SET MESSAGE "Creating table USERS"
+
+CREATE TABLE USERS
+(
+    USER_ID INT IDENTITY,
+    USER_USERNAME VARCHAR NOT NULL,
+    USER_PASSWORD VARCHAR NOT NULL
+)
+GO
+
+--* SET MESSAGE "Inserting admin user"
+
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD )
+VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
+GO
+
+--* /PATCH
+
+--* // ========================================================================]]></programlisting>
+			
 			<para>
-				During development, changes on the databases come unexpected and often.
-				This may lead to a lot of patches and a quickly growing version number.
-				If you don't want this you can keep the patch open.
-				An open patch can be executed but the jump to the new version number will not happen.
-				New changes to the database can be added to the end of this patch, they will automatically be picked up next time someone executes the patch.
-				When the time comes to deliver the patch, you can close the 
+				Lines starting with <code>--*</code> are patchtool commands.
+				Lines starting with <code>--* //</code> are patchtool comments. Such comments are not sent to the database.
+				The rest of the lines represent in most cases normal SQL.
 			</para>
+			
+			<para>
+				The patchfile may optionally start with a character encoding.
+				If the encoding is not specified, the patch tool tries to detect the encoding from the BOM (Byte Order Mark, the first 2, 3 or 4 bytes of the file).
+				BOMs for UTF-16BE, UTF-16LE and UTF-8 are recognized. UTF-32 is not yet recognized.
+				If no BOM is present, ISO-8859-1 is used.
+			</para>
+			
+			<para>
+				The patchfile starts with a header that defines the patches that are available in the body of the patchfile.
+				In the header it is also possible to mark a specific patch as <code>OPEN</code>, <code>BRANCH</code> or <code>RETURN</code>. TODO More on this below.
+			</para>
+			
+			<para>
+				A patch consists of a sequence of SQL statements and patchtool commands.
+				Statements are considered to be database changes and are sent to the database.
+				Patchtool commands are considered to be patch mode settings and are interpreted by the patchtool.
+			</para>
+			
+			<para>
+				When the patch is supposed to be executed on a virgin database (not yet touched by the patchtool) you need the first initial patch from the example.
+				This patch creates the tables required by the patchtool, namely <code>DBVERSION</code> and <code>DBVERSIONLOG</code>.
+				Oracle, MySQL, Derby and HSQLDB versions of this initial patch are available. 
+			</para>
+			
 		</section>
 		
+		<section>
+			<title>Patchtool commands</title>
+			
+			<para>
+				This section describes the various patchtool commands available.
+			</para>
+			
+			<section>
+				<title><code>--* SET MESSAGE "&lt;message&gt;"</code></title>
+				
+				<para>
+					Sets a message that will be shown to the user.
+					You would normally set a message just before a couple of database changes to describe to the user what is happening next.
+				</para>
+				
+				<para>
+					A message set in this way is not immediately shown.
+					It is shown when the patchtool executes a database change and then cleared so that it is only shown once.
+					There is a possibility that a message is not shown, because it is overwritten by another <code>SET MESSAGE</code> before a database change is executed.
+					This technique is used to facilitate patch restart after a patch failure.
+					When a patch is restarted, messages for which all database changes are skipped should not be shown.
+				</para>
+				
+			</section>
+			
+			<section>
+				<title><code>--* IGNORE SQL ERROR XXXXX [, XXXXX [, ...]]</code></title>
+				
+				<para>
+					Tells the patchtool to ignore certain sql errors.
+					This is useful when you want to do a database change, but you are not sure if it is done already.
+					This may happen when using branches or when someone has done some changes manually (which is not recommended).
+					Use <code>--* /IGNORE SQL ERROR</code> to end this ignore.
+					You can also nest multiple IGNOREs. 
+					Use this feature with care.
+				</para>
+				
+			</section>
+			
+			<section>
+				<title><code>--* SET USER XXXXX</code></title>
+				
+				<para>
+					Tells the patchtool to switch to another database user. The patchtool user will be asked for the password automatically when needed.
+					Database changes following this will be executed by this user.
+					The patchtool switches back to the default user (given on the commandline or put in the configuration) at the start of each individual patch.
+					This command is useful when there is no single user available that has enough rights to make modifications on all parts of the database that are upgraded as a whole.
+				</para>
+				
+			</section>
+			
+			<section>
+				<title><code>--* SESSIONCONFIG</code></title>
+				
+				<para>
+					Tells the patchtool that statements between this and the ending <code>--* /SESSIONCONFIG</code> should not be regarded as database changes but as patch mode settings.
+					Especially useful around <code>ALTER SESSION</code> which changes the mode of the current connection (the current connection is the connection belonging to the current user.)
+				</para>
+				
+			</section>
+			
+		</section>
+
 		<section>
 			<title>Maintaining branches</title>
 			<para></para>
