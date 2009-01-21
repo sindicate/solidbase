@@ -58,11 +58,9 @@
 				Patch mode settings are reset at the start of each individual patch.
 				But you can also mark normal SQL as being a patch mode setting:
 			</para>
-			<programlisting>
-				--* SESSIONCONFIG
-				ALTER SESSION ...
-				--* /SESSIONCONFIG
-			</programlisting>
+<programlisting>--* SESSIONCONFIG
+ALTER SESSION ...
+--* /SESSIONCONFIG</programlisting>
 			<para>
 				This changes the mode of the current connection to the database. 
 				Remember that if you change the user with <computeroutput>SET USER</computeroutput> you get another connection, so you may have to repeat the <computeroutput>ALTER SESSION</computeroutput> for each user you use.
@@ -100,8 +98,7 @@
 				and will ask the user for passwords when needed. 
 			</para>
 			<example><title>Example interactive mode</title>
-				<screen><![CDATA[
-C:\PROJECTS\BUILDS\dbpatcher\dist>java -jar dbpatcher.jar
+<screen><![CDATA[C:\PROJECTS\BUILDS\dbpatcher\dist>java -jar dbpatcher.jar
 20-1-09 20:47   DBPatcher v1.0.101
 20-1-09 20:47   (C) 2006-2008 R.M. de Bloois, LogicaCMG
 
@@ -132,8 +129,7 @@ C:\PROJECTS\BUILDS\dbpatcher\dist>java -jar dbpatcher.jar
 
 20-1-09 20:47   Current database version is "1.0.2".
 
-C:\PROJECTS\BUILDS\dbpatcher\dist>
-]]>				</screen>
+C:\PROJECTS\BUILDS\dbpatcher\dist>]]></screen>
 			</example>
 		</section>
 
@@ -161,11 +157,11 @@ C:\PROJECTS\BUILDS\dbpatcher\dist>
 		<section xml:id="commandline-options">
 			<title>Commandline options</title>
 			<para>
-				Below is the output of the
+				Following is the output of the
 				<programlisting>java -jar dbpatcher.jar -help</programlisting>
 				command:
-				<screen><![CDATA[
-usage: dbpatcher [-driver <classname>] [-dumplog <filename>] [-fromant]
+			</para>
+<screen><![CDATA[usage: dbpatcher [-driver <classname>] [-dumplog <filename>] [-fromant]
        [-password <password>] [-patchfile <patchfile>] [-target <targetversion>]
        [-url <url>] [-username <username>] [-verbose]
  -driver <classname>       sets the jdbc driverclass
@@ -176,59 +172,62 @@ usage: dbpatcher [-driver <classname>] [-dumplog <filename>] [-fromant]
  -target <targetversion>   sets the target version
  -url <url>                sets the url of the database
  -username <username>      sets the default username to patch with
- -verbose                  be extra verbose
- ]]>			</screen>
-				TODO Driver, username, password need to be specified together or not at all.
-				TODO Is the password really optional?
-				TODO When driver is specified, the configuration files are ignored. But when driver is not specified, all commandline options are ignored.
-				TODO Wildcard in the target
-			</para>
+ -verbose                  be extra verbose]]></screen>
+ 			<para>
+ 				The <code>-driver</code>, <code>-url</code> and <code>-username</code> options always go together. You must specify them all, or none at all.
+ 				When the <code>-driver</code> option is specified the configuration files will be ignored.
+ 				The given username is also the username which will be used to find the <code>DBVERSION</code> and the <code>DBVERSIONLOG</code> tables.
+ 			</para>
+ 			<example>
+ 				<title>Command line examples</title>
+				<screen>java -jar dbpatcher.jar</screen>
+ 				<para>Starts the patchtool in interactive mode. All configuration is read from the <code>dbpatcher.properties</code>.</para>
+<screen>java -cp dbpatcher.jar;ojdbc14.jar ronnie.dbpatcher.Main 
+  -driver oracle.jdbc.OracleDriver 
+  -url jdbc:oracle:thin:@hostname:1521:dbname 
+  -username rene</screen>
+ 				<para>Starts the patchtool in interactive mode for the given database and user. The <code>dbpatcher.properties</code> is ignored.</para>
+<screen>java -cp dbpatcher.jar;ojdbc14.jar ronnie.dbpatcher.Main 
+  -driver oracle.jdbc.OracleDriver 
+  -url jdbc:oracle:thin:@hostname:1521:dbname 
+  -username rene -password geheim 
+  -patchfile oracle-patch.sql -target 2.0.*</screen>
+ 				<para>Patches the given database to the last version that start with 2.0. The <code>dbpatcher.properties</code> is ignored.</para>
+ <screen>java -cp dbpatcher.jar;ojdbc14.jar ronnie.dbpatcher.Main 
+   -driver oracle.jdbc.OracleDriver 
+   -url jdbc:oracle:thin:@hostname:1521:dbname 
+   -username rene -dumplog upgrade.log</screen>
+ 				<para>Dumps the patch log of the given database. The <code>dbpatcher.properties</code> is ignored.</para>
+ 			</example>
 		</section>
 		
 	</chapter>
 	
 	<chapter xml:id="configuring-the-patchtool">
 		<title>Configuring the patchtool</title>
-		<para>
-			TODO Creating a database configurer plugin in java. databases.config.class
-			<programlisting><![CDATA[
-package ronnie.dbpatcher.config;
 
-import java.util.List;
-
-public interface DatabasesConfiguration
-{
-    void init( Configuration configuration );
-    List< Database > getDatabases();
-}
-]]>			</programlisting>
-			TODO Creating a database configurer plugin in groovy. databases.config.script
-		</para>
 		<section xml:id="configuration-files">
 			<title>Configuration files</title>
 			<para>
 				There are 2 configuration files:
-				<itemizedlist>
-					<listitem>
-						<para>
-							/ronnie/dbpatcher/config/dbpatcher-default.properties in the
-							dbpatcher.jar
-						</para>
-					</listitem>
-					<listitem>
-						<para>
-							dbpatcher.properties in the working folder
-						</para>
-					</listitem>
-				</itemizedlist>
-				The dbpatcher.properties overrides properties in the
-				dbpatcher-default.properties. This makes it possible to instrument the
-				jar file with fixed settings, so that the person using the patchtool
-				only has to concern himself with settings he should adapt.
+			</para>
+			<itemizedlist>
+				<listitem>
+					<para>
+						The internal /ronnie/dbpatcher/config/dbpatcher-default.properties;
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						dbpatcher.properties in the working folder.
+					</para>
+				</listitem>
+			</itemizedlist>
+			<para>
+				The dbpatcher.properties overrides properties in the dbpatcher-default.properties. This makes it possible to instrument the jar file with default settings.
 			</para>
 			<example><title>Example configuration</title>
-				<programlisting><![CDATA[
-# Specifies which version of the config should be used, 1 is old, 2 is the newest
+<programlisting><![CDATA[# Specifies which version of the config should be used, 1 is old, 2 is the newest
 config-version = 2
 
 # Specifies jars to be added to the classpath
@@ -259,12 +258,11 @@ test.applications = app3
 
 # database 'test', application 'app3'
 test.app3.user = app
-test.app3.patchfile = dbpatch-derby-example.sql
-]]>				</programlisting>
+test.app3.patchfile = dbpatch-derby-example.sql]]></programlisting>
 			</example>
 		
-			<table border="1" title="Configuration details">
-				<caption>flkjflkjf</caption>
+			<table border="1">
+				<caption>Configuration details</caption>
 				<tr>
 					<th>Property</th>
 					<th>Possible values</th>
@@ -281,8 +279,18 @@ test.app3.patchfile = dbpatch-derby-example.sql
 					<td>Specifies which jars need to be added at the end of the classpath</td>
 				</tr>
 				<tr>
+					<td>databases.config.class</td>
+					<td>classname</td>
+					<td>Specifies a class which will replace the normal databases configuration.</td>
+				</tr>
+				<tr>
+					<td>databases.config.script</td>
+					<td>script filename</td>
+					<td>Specifies a script which will replace the normal databases configuration. Currently, only .groovy files are supported.</td>
+				</tr>
+				<tr>
 					<td>databases</td>
-					<td>commaseperated list of database names</td>
+					<td>comma-seperated list of database names</td>
 					<td>Specifies which databases are available to be patched</td>
 				</tr>
 				<tr>
@@ -321,9 +329,113 @@ test.app3.patchfile = dbpatch-derby-example.sql
 					<td>Patchfile to upgrade this application</td>
 				</tr>
 			</table>
-			<para>
+ 			<literallayout>
 				TODO More than 1 database -> select. More than 1 application -> select. Thus no selection needed when only 1 db and 1 app.
+			</literallayout>
+		</section>
+
+		<section>
+			<title>Using external databases configuration</title>
+			
+			<para>
+				It is possible to replace the normal databases configuration in dbpatcher.properties with an external class or script.
 			</para>
+			
+			<section>
+				<title>Configuring databases with an external class</title>
+				
+				<para>
+					You need to add a class to the classpath which extends the following interface:
+				</para>
+				
+<programlisting><![CDATA[package ronnie.dbpatcher.config;
+public interface DatabasesConfiguration
+{
+    void init( Configuration configuration );
+    List< Database > getDatabases();
+}]]></programlisting>
+
+				<example>
+					<title>Example databases configuration class</title>
+<programlisting><![CDATA[package somePackage;
+
+import ronnie.dbpatcher.config.Configuration;
+import ronnie.dbpatcher.config.Database;
+import ronnie.dbpatcher.config.DatabasesConfiguration;
+
+public class CustomDatabasesConfiguration implements DatabasesConfiguration
+{
+    protected List< Database > databases;
+
+    public void init( Configuration configuration )
+    {
+        // You can read configuration from the dbpatcher.properties like this: 
+        String test = configuration.getProperty( "databases.config.test" );
+        
+        this.databases = new ArrayList();
+        Database database = new Database( "<name>", "<description or null>", 
+                "<driver>", "<url>" );
+        database.addApplication( "<name>", "<description or null>", 
+                "<username>", "<patchfile>" );
+        this.databases.add( database );
+    }
+
+    public List< Database > getDatabases()
+    {
+        return this.databases;
+    }
+}]]></programlisting>
+				</example>
+
+				<para>
+					The class is configured like this:
+				</para>
+
+<programlisting><![CDATA[config-version = 2
+classpathext = ojdbc14.jar
+databases.config.class = somepackage.CustomDatabasesConfiguration
+databases.config.test = value to be read by the databases configuration class]]></programlisting>
+
+			</section>
+			
+			<section>
+				<title>Configuring databases with an external script</title>
+				
+				<para>
+					You need to create a script like this:
+				</para>
+				
+				<example>
+					<title>Example databases configuration script</title>
+<programlisting><![CDATA[// This is a groovy script called: databasesconfig.groovy
+
+import ronnie.dbpatcher.config.Database;
+
+// You can read configuration from the dbpatcher.properties like this: 
+def test = configuration.getProperty( "databases.config.test" );
+
+def result = []; // Creates a java.util.List
+def database = new Database( "<name>", "<description or null>", 
+        "<driver>", "<url>" );
+database.addApplication( "<name>", "<description or null>", 
+        "<username>", "<patchfile>" );
+result.add( database );
+
+return result; // Will be picked up by the patchtool
+]]></programlisting>
+				</example>
+
+				<para>
+					The script is configured like this:
+				</para>
+
+<programlisting><![CDATA[config-version = 2
+classpathext = ojdbc14.jar
+databases.config.script = databasesconfig.groovy
+databases.config.test = value to be read by the databases configuration class]]></programlisting>
+
+			</section>
+			
 		</section>
 
 	</chapter>
@@ -331,7 +443,7 @@ test.app3.patchfile = dbpatch-derby-example.sql
 	<chapter xml:id="maintaining-the-patch">
 		<title>Maintaining the patch</title>
 		
-		<para>
+		<literallayout>
 			TODO --* Patchtool command, --* // Patchtool comment
 			TODO ENCODING
 			TODO Concept: repeatable/nonrepeatable commands. See somewhere else.
@@ -349,7 +461,7 @@ test.app3.patchfile = dbpatch-derby-example.sql
 			TODO Default user at the start at the patch.
 			TODO Patchfile is first looked for in the classpath, and then in the working folder.
 			TODO Maintaining branches.
-		</para>
+		</literallayout>
 		
 		<section>
 			<title>Open patches</title>
@@ -372,13 +484,13 @@ test.app3.patchfile = dbpatch-derby-example.sql
 	
 	<chapter xml:id="technical-details">
 		<title>Technical details</title>
-		<para>
+		<literallayout>
 			TODO Password masking in java 5 not possible
 			TODO How does the patchtool maintain the version in the database (version, target, statements).
 			TODO Modular implementation, Core, Config, Commandline interface.
 			TODO Creating plugins with the CommandListener.
 			TODO Logging in the versionlog table.
-		</para>
+		</literallayout>
 	</chapter>
 
 </book>
