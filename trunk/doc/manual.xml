@@ -13,8 +13,13 @@
 	<chapter xml:id="concept">
 		<title>Concept</title>
 		
+		<literallayout>
+			TODO Add missing xml:id's.
+		</literallayout>
+		
 		<section xml:id="database-structure-and-versions">
 			<title>Database structure and versions</title>
+			
 			<para>
 				A database has a certain structure.
 				The structure is defined by the database objects defined (like tables, views, indexes, constraints, stored procedures and triggers) and some fixed reference data which is the same in each instance of the database.
@@ -24,13 +29,16 @@
 				A change script transforms the database structure from one version to the next.
 				A change script consists of a series of database changes interleaved with patch mode settings.
 			</para>
+			
 		</section>
 		
 		<section xml:id="changes-vs-settings">
 			<title>Database changes vs. patch mode settings</title>
+			
 			<para>
 				Below are examples of database changes and patch mode settings.
 			</para>
+			
 			<itemizedlist>
 				<title>Examples of database changes</title>
 				<listitem><para><computeroutput>CREATE TABLE ...</computeroutput></para></listitem>
@@ -39,9 +47,11 @@
 				<listitem><para><computeroutput>INSERT &lt;reference data, for example countries&gt;</computeroutput></para></listitem>
 				<listitem><para><computeroutput>UPDATE &lt;data to conform with the changed data model&gt;</computeroutput></para></listitem>
 			</itemizedlist>
+			
 			<para>
 				Database changes form the meat of the patch. They change the structure/configuration of the database and the fixed reference data in it.
 			</para>
+			
 			<variablelist>
 				<title>Examples of patch mode settings</title>
 				<varlistentry>
@@ -53,27 +63,33 @@
 					<listitem><para>registers a message that is printed just before the first database change following it is executed</para></listitem>
 				</varlistentry>
 			</variablelist>
+			
 			<para>
 				Patch mode settings change the mode of operation of the patchtool.
 				Patch mode settings are reset at the start of each individual patch.
 				But you can also mark normal SQL as being a patch mode setting:
 			</para>
+			
 <programlisting>--* SESSIONCONFIG
 ALTER SESSION ...
 --* /SESSIONCONFIG</programlisting>
+
 			<para>
 				This changes the mode of the current connection to the database. 
 				Remember that if you change the user with <computeroutput>SET USER</computeroutput> you get another connection, so you may have to repeat the <computeroutput>ALTER SESSION</computeroutput> for each user you use.
 			</para>
+			
 		</section>
 		
 		<section xml:id="patch-failure-and-recovery">
 			<title>Patch failure and recovery</title>
+			
 			<para>
 				Database changes are permanent and thus non-repeatable.
 				Patch mode settings are not permanent and must be repeated in case of a patch restart.
 				So there are some differences between changes and the one hand and settings on the other with respect to patch failure and restart:
 			</para>
+			
 			<para>
 				When a patch failure occurs the patchtool remembers what patch was being executed and how many database changes were successful.
 				After fixing the cause of the failure the patchtool can be restarted and it will skip all database changes that were already executed successfully.
@@ -81,10 +97,12 @@ ALTER SESSION ...
 				Patch mode settings should always be executed from the beginning of each patch.
 				Because of this, patch mode settings are not counted, which means that they do not interfere with counting of the number of successful database changes.
 			</para>
+			
 		</section>
 
 		<section>
 			<title>Open patches</title>
+			
 			<para>
 				During development, changes on the databases come unexpected and often.
 				This may lead to a lot of patches and a quickly growing version number.
@@ -93,6 +111,7 @@ ALTER SESSION ...
 				New changes to the database can be added to the end of this patch, they will automatically be picked up when someone re-executes the patch.
 				When the time comes to officially deliver the patch for execution on a test, acceptance or production database, you can close the patch. 
 			</para>
+			
 		</section>
 		
 	</chapter>
@@ -102,6 +121,7 @@ ALTER SESSION ...
 
 		<section xml:id="starting-with-jave">
 			<title>Starting with java</title>
+			
 			<para>
 				The patchtool is started with the following command:
 				<programlisting>java -jar dbpatcher.jar</programlisting>
@@ -109,6 +129,7 @@ ALTER SESSION ...
 				which will present the user with some choices regarding the database and application, the target version, 
 				and will ask the user for passwords when needed. 
 			</para>
+			
 			<example><title>Example interactive mode</title>
 <screen><![CDATA[C:\PROJECTS\BUILDS\dbpatcher\dist>java -jar dbpatcher.jar
 20-1-09 20:47   DBPatcher v1.0.101
@@ -143,36 +164,42 @@ ALTER SESSION ...
 
 C:\PROJECTS\BUILDS\dbpatcher\dist>]]></screen>
 			</example>
+			
 		</section>
 
 		<section xml:id="classpath-extension">
 			<title>Classpath extension</title>
+			
 			<para>
 				Normally, you need to add jar files to the patchtool's classpath.
 				These jar files will be jdbc drivers needed to access the database, but you can add any jar file you want.
 				There are 2 ways to add jar files to the classpath:
-				<itemizedlist>
-					<listitem><para>
-						By configuring the following property in the dbpatcher.properties file:
-						<programlisting>classpathext = ojdbc14.jar;derby-10.2.1.6.jar</programlisting>
-						<note><para>Currently, this does not work when the <code>-driver</code> option is specified on the command line, as the complete property file is skipped in that case.</para></note>
-					</para></listitem>
-					<listitem><para>
-						By adding the jar files to the -cp option when starting java:
-						<programlisting>java -cp dbpatcher.jar;ojdbc14.jar;derby-10.2.1.6.jar ronnie.dbpatcher.Main</programlisting>
-						As you see, you need to start the patch tool specifying the Main class instead of the jar.
-					</para></listitem>
-				</itemizedlist>
 			</para>
+			
+			<itemizedlist>
+				<listitem><para>
+					By configuring the following property in the dbpatcher.properties file:
+					<programlisting>classpathext = ojdbc14.jar;derby-10.2.1.6.jar</programlisting>
+					<note><para>Currently, this does not work when the <code>-driver</code> option is specified on the command line, as the complete property file is skipped in that case.</para></note>
+				</para></listitem>
+				<listitem><para>
+					By adding the jar files to the -cp option when starting java:
+					<programlisting>java -cp dbpatcher.jar;ojdbc14.jar;derby-10.2.1.6.jar ronnie.dbpatcher.Main</programlisting>
+					As you see, you need to start the patch tool specifying the Main class instead of the jar.
+				</para></listitem>
+			</itemizedlist>
+
 		</section>
 
 		<section xml:id="commandline-options">
 			<title>Commandline options</title>
+			
 			<para>
 				Following is the output of the
 				<programlisting>java -jar dbpatcher.jar -help</programlisting>
 				command:
 			</para>
+			
 <screen><![CDATA[usage: dbpatcher [-driver <classname>] [-dumplog <filename>] [-fromant]
        [-password <password>] [-patchfile <patchfile>] [-target <targetversion>]
        [-url <url>] [-username <username>] [-verbose]
@@ -185,11 +212,13 @@ C:\PROJECTS\BUILDS\dbpatcher\dist>]]></screen>
  -url <url>                sets the url of the database
  -username <username>      sets the default username to patch with
  -verbose                  be extra verbose]]></screen>
+ 
  			<para>
  				The <code>-driver</code>, <code>-url</code> and <code>-username</code> options always go together. You must specify them all, or none at all.
  				When the <code>-driver</code> option is specified the configuration files will be ignored.
  				The given username is also the username which will be used to find the <code>DBVERSION</code> and the <code>DBVERSIONLOG</code> tables.
  			</para>
+ 			
  			<example>
  				<title>Command line examples</title>
 				<screen>java -jar dbpatcher.jar</screen>
@@ -211,6 +240,7 @@ C:\PROJECTS\BUILDS\dbpatcher\dist>]]></screen>
    -username rene -dumplog upgrade.log</screen>
  				<para>Dumps the patch log of the given database. The <code>dbpatcher.properties</code> is ignored.</para>
  			</example>
+ 			
 		</section>
 		
 	</chapter>
@@ -220,9 +250,11 @@ C:\PROJECTS\BUILDS\dbpatcher\dist>]]></screen>
 
 		<section xml:id="configuration-files">
 			<title>Configuration files</title>
+			
 			<para>
 				There are 2 configuration files:
 			</para>
+			
 			<itemizedlist>
 				<listitem>
 					<para>
@@ -235,9 +267,11 @@ C:\PROJECTS\BUILDS\dbpatcher\dist>]]></screen>
 					</para>
 				</listitem>
 			</itemizedlist>
+			
 			<para>
 				The dbpatcher.properties overrides properties in the dbpatcher-default.properties. This makes it possible to instrument the jar file with default settings.
 			</para>
+			
 			<example><title>Example configuration</title>
 <programlisting><![CDATA[# Specifies which version of the config should be used, 1 is old, 2 is the newest
 config-version = 2
@@ -341,9 +375,11 @@ test.app3.patchfile = dbpatch-derby-example.sql]]></programlisting>
 					<td>Patchfile to upgrade this application</td>
 				</tr>
 			</table>
+			
  			<literallayout>
 				TODO More than 1 database -> select. More than 1 application -> select. Thus no selection needed when only 1 db and 1 app.
 			</literallayout>
+			
 		</section>
 
 		<section>
@@ -461,7 +497,6 @@ databases.config.test = value to be read by the databases configuration class]]>
 			TODO ASSERT EXISTS can be used when using the patchtool on an existing database
 			TODO Creating the 2 version tables. 1 should be available after the 1st statement, the other at the end of the first patch.
 			TODO Patchfile is first looked for in the classpath, and then in the working folder.
-			TODO Maintaining branches.
 		</literallayout>
 
 		<section>
@@ -642,20 +677,99 @@ GO
 
 		<section>
 			<title>Maintaining branches</title>
-			<para></para>
+			
+			<para>
+				In the practice of software development it is common to use a version control system.
+				It also common to create a stable branch whenever software needs to be put into production.
+				With this you create parallel lines of software development where the stable branch only receives bugfixes whereas the development branch (trunk) receives both bugfixes and new developments.
+			</para>
+			
+			<para>
+				With respect to database upgrading there will also come a moment where creation of a branch is inevitable.
+				This moment is defined by the need to implement a database change for the stable branch, but changes are already applied to the trunk.
+			</para>
+			
+			<para>
+				A branch in the database patchfile is created by adding two patches that spring from the same version, in essence a fork in the path.
+				The first patch should be left empty, its only purpose is to jump to a new major/minor version number.
+				The second patch contains the changes for the stable branch and is marked with <code>BRANCH</code> instead of <code>PATCH</code>.
+				This creates a dead end, so you need to add another patch marked with <code>RETURN</code> which returns the stable branch to the trunk.
+			</para>
+			
+			<para>
+				As an example you get the patch header displayed below.
+			</para>
+			
+			<example>
+				<title>Example patch header creating a branch</title>
+<programlisting><![CDATA[--*	PATCHES
+--*     PATCH "" --> "1.0.1"
+--*     PATCH "1.0.1" --> "1.0.2"
+--*     PATCH "1.0.2" --> "1.0.3"
+--*     PATCH "1.0.3" --> "1.0.4"
+--*     PATCH "1.0.4" --> "1.0.5"
+--*         BRANCH "1.0.5" --> "1.0.6"
+--*         RETURN "1.0.6" --> "2.0.1"
+--*     PATCH "1.0.5" --> "2.0.1"      // This patch should be left empty
+--*	/PATCHES]]></programlisting>
+			</example>
+
+			<para>
+				It is advisable to leave the indicated patch empty (1.0.5 --> 2.0.1), to make sure that you have a suitable version to return to if needed.
+				This makes version 1.0.5 and 2.0.1 of the database identical, which gives the opportunity for the branch to return to an identical database from where it sprung.
+				You cannot achieve this by letting the return patch point to version 1.0.5, because circularities are not allowed.
+				It is not always required to return to an identical database, but it could happen in order to make the return patch as simple as possible.
+				So better safe than sorry.
+			</para>
+			
+			<para>
+				As developments on the 2 parallel lines continue, you get more patches on the stable branch and the development branch.
+				Whenever a change is added to the branch, one should analyze what to do with the return patch.
+				The source side of the return patch always moves along with the evolution of the patches on the branch.
+				However, depending on the scenario, the destination side of the return patch may point to any of the 2.0.x versions.
+			</para>
+
+			<example>
+				<title>Example patch header evolving a branch</title>
+<programlisting><![CDATA[--*	PATCHES
+--*     PATCH "" --> "1.0.1"
+--*     PATCH "1.0.1" --> "1.0.2"
+--*     PATCH "1.0.2" --> "1.0.3"
+--*     PATCH "1.0.3" --> "1.0.4"
+--*     PATCH "1.0.4" --> "1.0.5"
+--*         BRANCH "1.0.5" --> "1.0.6"
+--*         PATCH "1.0.6" --> "1.0.7"
+--*         PATCH "1.0.7" --> "1.0.8"
+--*         RETURN "1.0.8" --> "2.0.2"
+--*     PATCH "1.0.5" --> "2.0.1"      // This patch should be left empty
+--*     PATCH "2.0.1" --> "2.0.2"
+--*     PATCH "2.0.2" --> "2.0.3"
+--*     PATCH "2.0.3" --> "2.0.4"
+--*	/PATCHES]]></programlisting>
+			</example>
+
+			<note>
+				<para>
+					As shown in the example above, <code>BRANCH</code> should only be used once to create a branch. TODO See resolving paths
+				</para>
+			</note>
+
 		</section>
 		
 	</chapter>
 	
 	<chapter xml:id="technical-details">
 		<title>Technical details</title>
+		
 		<literallayout>
 			TODO Password masking in java 5 not possible
 			TODO How does the patchtool maintain the version in the database (version, target, statements).
 			TODO Modular implementation, Core, Config, Commandline interface.
 			TODO Creating plugins with the CommandListener.
 			TODO Logging in the versionlog table.
+			TODO How are paths through the version determined by the patchtool?
 		</literallayout>
+		
 	</chapter>
 
 </book>
