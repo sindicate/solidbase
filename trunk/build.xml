@@ -225,7 +225,7 @@
 
 
 	<target name="manual">
-		<echo message="NOTE: You may use 'ant -autoproxy manual' when you have network problems" />
+		<echo message="NOTE: You can use 'ant -autoproxy &lt;target&gt;' when you have network problems" />
 		<java jar="tools/jing/jing.jar" fork="true">
 			<arg value="-t" />
 			<arg value="-i" />
