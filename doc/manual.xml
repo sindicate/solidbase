@@ -10,6 +10,15 @@
 		<productname>Database Patch Tool</productname>
 	</info>
 
+	<chapter xml:id="audience">
+		<title>Audience</title>
+
+		<para>
+			TODO Audience &amp; why use the patchtool
+		</para>
+				
+	</chapter>
+
 	<chapter xml:id="concept">
 		<title>Concept</title>
 		
@@ -17,13 +26,13 @@
 			<title>Database structure and versions</title>
 			
 			<para>
-				A database has a certain structure.
-				The structure is defined by the database objects defined (like tables, views, indexes, constraints, stored procedures and triggers) and some fixed reference data which is the same in each instance of the database.
-				This structure evolves over time. There are multiple versions of the database structure.
-				The patchtool's function is to track this version number and make it possible to transform the database structure from one version to the next version without loosing data.  
-				A transformation from one version to another happens by executing a series of change scripts.
-				A change script transforms the database structure from one version to the next.
-				A change script consists of a series of database changes interleaved with patch mode settings.
+				An application needs a database with a certain defined structure.
+				This structure is defined by the database objects (like tables, views, indexes, constraints, stored procedures and triggers) and fixed reference data that is needed by the application.
+				This structure evolves over time.
+				There are multiple versions of the database structure.
+				The patchtool's function is to track this version and make it possible to transform the database structure from one version to the next version without loosing data.  
+				A transformation from one version to another happens by executing a series of change scripts (called patches).
+				A patch transforms the database structure from one version to the next by executing a series of database changes and patch mode settings.
 			</para>
 			
 		</section>
@@ -48,22 +57,16 @@
 				Database changes form the meat of the patch. They change the structure/configuration of the database and the fixed reference data in it.
 			</para>
 			
-			<variablelist>
+			<itemizedlist>
 				<title>Examples of patch mode settings</title>
-				<varlistentry>
-					<term><computeroutput>--* SET USER</computeroutput></term>
-					<listitem><para>changes the user that is executing the statements that are sent to the database</para></listitem>
-				</varlistentry>
-				<varlistentry>
-					<term><computeroutput>--* MESSAGE START</computeroutput></term>
-					<listitem><para>registers a message that is printed just before the first database change following it is executed</para></listitem>
-				</varlistentry>
-			</variablelist>
+				<listitem><para><computeroutput>--* SET USER &lt;username&gt;</computeroutput></para></listitem>
+				<listitem><para><computeroutput>--* SET MESSAGE "&lt;message&gt;"</computeroutput></para></listitem>
+			</itemizedlist>
 			
 			<para>
 				Patch mode settings change the mode of operation of the patchtool.
 				Patch mode settings are reset at the start of each individual patch.
-				But you can also mark normal SQL as being a patch mode setting:
+				You can also mark SQL as being a patch mode setting:
 			</para>
 			
 <programlisting>--* SESSIONCONFIG
@@ -72,7 +75,14 @@ ALTER SESSION ...
 
 			<para>
 				This changes the mode of the current connection to the database. 
-				Remember that if you change the user with <computeroutput>SET USER</computeroutput> you get another connection, so you may have to repeat the <computeroutput>ALTER SESSION</computeroutput> for each user you use.
+			</para>
+			
+			<para>
+				Patch command are all described in <xref linkend="patchtool-commands"/>.
+			</para>
+			
+			<para>
+				The next section explains why the distinction between changes and settings is so important.
 			</para>
 			
 		</section>
@@ -647,7 +657,7 @@ GO
 			</section>
 			
 			<section xml:id="ignore-sql-error">
-				<title><code>--* IGNORE SQL ERROR XXXXX [, XXXXX [, ...]]</code></title>
+				<title><code>--* IGNORE SQL ERROR &lt;SQL Error&gt; [, &lt;SQL Error&gt; [, ...]]</code></title>
 				
 				<para>
 					Tells the patchtool to ignore certain sql errors.
@@ -661,7 +671,7 @@ GO
 			</section>
 			
 			<section xml:id="set-user">
-				<title><code>--* SET USER XXXXX</code></title>
+				<title><code>--* SET USER &lt;username&gt;</code></title>
 				
 				<para>
 					Tells the patchtool to switch to another database user. The patchtool user will be asked for the password automatically when needed.
@@ -678,6 +688,7 @@ GO
 				<para>
 					Tells the patchtool that statements between this and the ending <code>--* /SESSIONCONFIG</code> should not be regarded as database changes but as patch mode settings.
 					Especially useful around <code>ALTER SESSION</code> which changes the mode of the current connection (the current connection is the connection belonging to the current user.)
+					Remember that if you change the user with <computeroutput>SET USER</computeroutput> you get another connection, so you may have to repeat the <computeroutput>ALTER SESSION</computeroutput> for each user you change to.
 				</para>
 				
 			</section>
@@ -686,7 +697,8 @@ GO
 				<title><code>ASSERT EXISTS "&lt;failure message&gt;" \n &lt;sql select&gt; \n GO</code></title>
 				
 				<para>
-					This rather exotic command can be used to do checks on an existing database that is not yet managed by the patchtool. 
+					This rather exotic command can be used to do checks on an existing database that is not yet managed by the patchtool.
+					Its an assertion that behaves like a database change, in the sense that if the assertion is successful then it is skipped in case the patch is restarted for whatever reason.
 					Example: 
 				</para>
 

@@ -1,3 +1,4 @@
+		Mark connections where a SESSIONCONFIG has been applied to. Close those connections at the end of the patch to reset possible session changes.
 		Add version deprecation
 		Add test for branches and return patches
 		When the current version is not found as source -> then it is deprecated?
