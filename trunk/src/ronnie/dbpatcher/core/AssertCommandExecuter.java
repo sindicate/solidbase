@@ -26,7 +26,7 @@ import com.logicacmg.idt.commons.util.Assert;
  */
 public class AssertCommandExecuter extends CommandListener
 {
-	static private final Pattern assertPattern = Pattern.compile( "\\s*ASSERT\\s+EXISTS\\s+MESSAGE\\s+'([^']*)'\\s+(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern assertPattern = Pattern.compile( "\\s*ASSERT\\s+EXISTS\\s+MESSAGE\\s+['\"]([^']*)['\"]\\s+(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 	@Override
 	protected boolean execute( Database database, Command command ) throws SQLException
