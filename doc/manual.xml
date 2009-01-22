@@ -13,10 +13,6 @@
 	<chapter xml:id="concept">
 		<title>Concept</title>
 		
-		<literallayout>
-			TODO Add missing xml:id's.
-		</literallayout>
-		
 		<section xml:id="database-structure-and-versions">
 			<title>Database structure and versions</title>
 			
@@ -100,8 +96,8 @@ ALTER SESSION ...
 			
 		</section>
 
-		<section>
-			<title>Open patches</title>
+		<section xml:id="extending-patches">
+			<title>Extending patches</title>
 			
 			<para>
 				During development, changes on the databases come unexpected and often.
@@ -110,6 +106,10 @@ ALTER SESSION ...
 				An open patch can be executed but the bump to the new version number will not happen.
 				New changes to the database can be added to the end of this patch, they will automatically be picked up when someone re-executes the patch.
 				When the time comes to officially deliver the patch for execution on a test, acceptance or production database, you can close the patch. 
+			</para>
+			
+			<para>
+				See <xref linkend="open-patches" /> for details on how to do this.
 			</para>
 			
 		</section>
@@ -252,6 +252,17 @@ C:\PROJECTS\BUILDS\dbpatcher\dist>]]></screen>
 			<title>Configuration files</title>
 			
 			<para>
+				A configuration file is used to configure the classpath and one or more database and applications.
+				If more than one database is configured the patchtool user will get the opportunity to select one.
+				If more than one application is configured within the selected database the user will get the opportunity to select one of the applications.
+			</para>
+			
+			<para>
+				If only one database and application is configured, no selection is needed.
+				The patchtool will immediately try to connect to the database, after which the user will get the opportunity to select a target version to patch to. 
+			</para>
+			
+			<para>
 				There are 2 configuration files:
 			</para>
 			
@@ -376,20 +387,16 @@ test.app3.patchfile = dbpatch-derby-example.sql]]></programlisting>
 				</tr>
 			</table>
 			
- 			<literallayout>
-				TODO More than 1 database -> select. More than 1 application -> select. Thus no selection needed when only 1 db and 1 app.
-			</literallayout>
-			
 		</section>
 
-		<section>
+		<section xml:id="using-external-databases-configuration">
 			<title>Using external databases configuration</title>
 			
 			<para>
 				It is possible to replace the normal databases configuration in dbpatcher.properties with an external class or script.
 			</para>
 			
-			<section>
+			<section xml:id="configuring-databases-with-external-class">
 				<title>Configuring databases with an external class</title>
 				
 				<para>
@@ -445,7 +452,7 @@ databases.config.test = value to be read by the databases configuration class]]>
 
 			</section>
 			
-			<section>
+			<section xml:id="configuring-databases-with-external-script">
 				<title>Configuring databases with an external script</title>
 				
 				<para>
@@ -490,16 +497,7 @@ databases.config.test = value to be read by the databases configuration class]]>
 	<chapter xml:id="maintaining-the-patch">
 		<title>Maintaining the patch</title>
 
-		<literallayout>
-			TODO Don't modify historic patches (patches that are already used to change a live database). 
-			TODO Open patches (details).
-			TODO Starting with an existing database.
-			TODO ASSERT EXISTS can be used when using the patchtool on an existing database
-			TODO Creating the 2 version tables. 1 should be available after the 1st statement, the other at the end of the first patch.
-			TODO Patchfile is first looked for in the classpath, and then in the working folder.
-		</literallayout>
-
-		<section>
+		<section xml:id="your-first-patchfile">
 			<title>Your first patchfile</title>
 			
 			<example>
@@ -595,7 +593,8 @@ GO
 			
 			<para>
 				The patchfile starts with a header that defines the patches that are available in the body of the patchfile.
-				In the header it is also possible to mark a specific patch as <code>OPEN</code>, <code>BRANCH</code> or <code>RETURN</code>. TODO More on this below.
+				In the header it is also possible to mark a specific patch as <code>OPEN</code>, <code>BRANCH</code> or <code>RETURN</code>.
+				See <xref linkend="open-patches" /> and <xref linkend="maintaining-branches" />.
 			</para>
 			
 			<para>
@@ -605,21 +604,31 @@ GO
 			</para>
 			
 			<para>
-				When the patch is supposed to be executed on a virgin database (not yet touched by the patchtool) you need the first initial patch from the example.
+				When the patch is supposed to be executed on a clean database or an existing database created without the patchtool you need the first initial patch from the example.
 				This patch creates the tables required by the patchtool, namely <code>DBVERSION</code> and <code>DBVERSIONLOG</code>.
 				Oracle, MySQL, Derby and HSQLDB versions of this initial patch are available. 
 			</para>
 			
 		</section>
 		
-		<section>
+		<section xml:id="patchfile-lookup">
+			<title>Patchfile lookup</title>
+
+			<para>
+				The patchtool first looks for the patchfile in the classpath.
+				If it is not found, it will try to find it in the current working folder.			
+			</para>
+						
+		</section>
+		
+		<section xml:id="patchtool-commands">
 			<title>Patchtool commands</title>
 			
 			<para>
 				This section describes the various patchtool commands available.
 			</para>
 			
-			<section>
+			<section xml:id="set-message">
 				<title><code>--* SET MESSAGE "&lt;message&gt;"</code></title>
 				
 				<para>
@@ -637,7 +646,7 @@ GO
 				
 			</section>
 			
-			<section>
+			<section xml:id="ignore-sql-error">
 				<title><code>--* IGNORE SQL ERROR XXXXX [, XXXXX [, ...]]</code></title>
 				
 				<para>
@@ -651,7 +660,7 @@ GO
 				
 			</section>
 			
-			<section>
+			<section xml:id="set-user">
 				<title><code>--* SET USER XXXXX</code></title>
 				
 				<para>
@@ -663,7 +672,7 @@ GO
 				
 			</section>
 			
-			<section>
+			<section xml:id="sessionconfig">
 				<title><code>--* SESSIONCONFIG</code></title>
 				
 				<para>
@@ -673,9 +682,30 @@ GO
 				
 			</section>
 			
+			<section xml:id="assert-exists">
+				<title><code>ASSERT EXISTS "&lt;failure message&gt;" \n &lt;sql select&gt; \n GO</code></title>
+				
+				<para>
+					This rather exotic command can be used to do checks on an existing database that is not yet managed by the patchtool. 
+					Example: 
+				</para>
+
+				<example>
+					<title>Example ASSERT EXISTS</title>				
+<programlisting>--* // Check old style version
+ASSERT EXISTS MESSAGE 'Expecting old style version 2.0.17'
+SELECT *
+FROM TTS.VERSION_CONTROL
+WHERE VERS_CONT_ID = 'VERSION'
+AND VERS_REG_NUM = 'DHL TTS 2.0.17'
+GO</programlisting>
+				</example>
+				
+			</section>
+			
 		</section>
 
-		<section>
+		<section xml:id="maintaining-branches">
 			<title>Maintaining branches</title>
 			
 			<para>
@@ -701,7 +731,7 @@ GO
 			</para>
 			
 			<example>
-				<title>Example patch header creating a branch</title>
+				<title>Example patch header showing a newly created branch</title>
 <programlisting><![CDATA[--*	PATCHES
 --*     PATCH "" --> "1.0.1"
 --*     PATCH "1.0.1" --> "1.0.2"
@@ -730,7 +760,7 @@ GO
 			</para>
 
 			<example>
-				<title>Example patch header evolving a branch</title>
+				<title>Example patch header showing a evolved branch</title>
 <programlisting><![CDATA[--*	PATCHES
 --*     PATCH "" --> "1.0.1"
 --*     PATCH "1.0.1" --> "1.0.2"
@@ -750,9 +780,55 @@ GO
 
 			<note>
 				<para>
-					As shown in the example above, <code>BRANCH</code> should only be used once to create a branch. TODO See resolving paths
+					As shown in the example above, <code>BRANCH</code> should only be used once to create a branch.
+					See <xref linkend="patch-path-resolving" />
 				</para>
 			</note>
+
+		</section>
+		
+		<section xml:id="open-patches">
+			<title>Open patches</title>
+			
+			<para>
+				As described in <xref linkend="extending-patches" /> you can indicate that a patch is work-in-progress. Example:
+			</para>
+			
+			<example>
+				<title>Example patch header showing a open patch</title>
+<programlisting><![CDATA[--*	PATCHES
+--*     PATCH "" --> "1.0.1"
+--*     PATCH "1.0.1" --> "1.0.2"
+--*     PATCH "1.0.2" --> "1.0.3"
+--*     PATCH "1.0.3" --> "1.0.4"
+--*     PATCH OPEN "1.0.4" --> "1.0.5" // This patch is work-in-progress
+--*	/PATCHES]]></programlisting>
+			</example>
+
+		</section>
+		
+		<section xml:id="guidelines">
+			<title>Guidelines</title>
+			
+			<para>
+				Be careful not to modify patches that have already been applied to a database.
+				It is very important that a specific version of a database stays consistent over time.
+				When you modify a patch you run the risk that you get 2 databases with equal version numbers but with inconsistent structures.
+				Only modify patches in these cases:
+			</para>
+			
+			<itemizedlist>
+				<listitem>
+					<para>
+						Databases that have been patched with the old patch are deleted.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						The old patch and the modified patch result in the same database structure. 
+					</para>
+				</listitem>
+			</itemizedlist>
 
 		</section>
 		
@@ -761,14 +837,43 @@ GO
 	<chapter xml:id="technical-details">
 		<title>Technical details</title>
 		
-		<literallayout>
-			TODO Password masking in java 5 not possible
-			TODO How does the patchtool maintain the version in the database (version, target, statements).
-			TODO Modular implementation, Core, Config, Commandline interface.
-			TODO Creating plugins with the CommandListener.
-			TODO Logging in the versionlog table.
-			TODO How are paths through the version determined by the patchtool?
-		</literallayout>
+		<section xml:id="password-masking">
+			<title>Password masking</title>
+			
+			<para>
+				In java 5 it is not possible to mask passwords on the commandline.
+				Java 6 introduces a new Console class which will be automatically picked up by the patchtool if available.
+				If you are using java 5 to run the patchtool beware that the password will be visible to other persons. 
+			</para>
+			
+		</section>
+		
+		<section xml:id="patchtool-tables">
+			<title>Description of the 2 patchtool tables: DBVERSION and DBVERSIONLOG</title>
+		
+			<para>
+				TODO
+			</para>	
+			
+		</section>
+		
+		<section xml:id="creating-plugins">
+			<title>Creating plugins</title>
+		
+			<para>
+				TODO
+			</para>	
+			
+		</section>
+		
+		<section xml:id="patch-path-resolving">
+			<title>Patch path resolving</title>
+		
+			<para>
+				TODO
+			</para>	
+			
+		</section>
 		
 	</chapter>
 
