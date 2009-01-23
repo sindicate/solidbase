@@ -30,7 +30,7 @@
 				This structure is defined by the database objects (like tables, views, indexes, constraints, stored procedures and triggers) and fixed reference data that is needed by the application.
 				This structure evolves over time.
 				There are multiple versions of the database structure.
-				The patchtool's function is to track this version and make it possible to transform the database structure from one version to the next version without loosing data.  
+				The patchtool's function is to track this version and make it possible to transform the database structure from one version to the next version while maintaining the data contained.
 				A transformation from one version to another happens by executing a series of change scripts (called patches).
 				A patch transforms the database structure from one version to the next by executing a series of database changes and patch mode settings.
 			</para>
@@ -78,11 +78,11 @@ ALTER SESSION ...
 			</para>
 			
 			<para>
-				Patch command are all described in <xref linkend="patchtool-commands"/>.
+				All patch commands are described in <xref linkend="patchtool-commands"/>.
 			</para>
 			
 			<para>
-				The next section explains why the distinction between changes and settings is so important.
+				The next section explains why the distinction between changes and settings is important.
 			</para>
 			
 		</section>
@@ -91,9 +91,9 @@ ALTER SESSION ...
 			<title>Patch failure and recovery</title>
 			
 			<para>
-				Database changes are permanent and thus non-repeatable.
+				Database changes are permanent and should not be repeated.
 				Patch mode settings are not permanent and must be repeated in case of a patch restart.
-				So there are some differences between changes and the one hand and settings on the other with respect to patch failure and restart:
+				So there are some differences between changes on the one hand and settings on the other with respect to patch failure and restart:
 			</para>
 			
 			<para>
@@ -111,7 +111,7 @@ ALTER SESSION ...
 			
 			<para>
 				During development, changes on the databases come unexpected and often.
-				This may lead to a lot of patches and a quickly growing version number.
+				This may result in a lot of patches and a quickly growing version number.
 				If you don't want this you can keep the patch open.
 				An open patch can be executed but the bump to the new version number will not happen.
 				New changes to the database can be added to the end of this patch, they will automatically be picked up when someone re-executes the patch.
