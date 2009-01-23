@@ -1,3 +1,6 @@
+		Even if commandline options are used, still need to read the classpathext from the properties file.
+		Add -dbname and -appname options to the commandline.
+		show only final targets, except when overridden with a property candidates.intermediates.include = yes ????
 		Mark connections where a SESSIONCONFIG has been applied to. Close those connections at the end of the patch to reset possible session changes.
 		Add version deprecation
 		Add test for branches and return patches
