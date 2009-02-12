@@ -19,8 +19,8 @@
 				
 	</chapter>
 
-	<chapter xml:id="concept">
-		<title>Concept</title>
+	<chapter xml:id="concepts">
+		<title>Concepts</title>
 		
 		<section xml:id="database-structure-and-versions">
 			<title>Database structure and versions</title>
@@ -32,16 +32,16 @@
 				There are multiple versions of the database structure.
 				The patchtool's function is to track this version and make it possible to transform the database structure from one version to the next version while maintaining the data contained.
 				A transformation from one version to another happens by executing a series of change scripts (called patches).
-				A patch transforms the database structure from one version to the next by executing a series of database changes and patch mode settings.
+				A patch transforms the database structure from one version to the next by applying a series of database changes.
 			</para>
 			
 		</section>
 		
-		<section xml:id="changes-vs-settings">
-			<title>Database changes vs. patch mode settings</title>
+		<section xml:id="database-changes">
+			<title>Database changes</title>
 			
 			<para>
-				Below are examples of database changes and patch mode settings.
+				Database changes form the meat of the patch. They change the structure/configuration of the database and the fixed reference data in it.
 			</para>
 			
 			<itemizedlist>
@@ -53,36 +53,45 @@
 				<listitem><para><computeroutput>UPDATE &lt;data to conform with the changed data model&gt;</computeroutput></para></listitem>
 			</itemizedlist>
 			
+		</section>
+		
+		<section xml:id="session-configuration">
+			<title>Patch session configuration</title>
+			
 			<para>
-				Database changes form the meat of the patch. They change the structure/configuration of the database and the fixed reference data in it.
+				When applying database changes to the database certain conditions or parameters apply.
+				These conditions and parameters together form the patch session configuration.
+				Examples are:
+				<itemizedlist>
+					<listitem><para>Which user is used to apply the database changes?</para></listitem>
+					<listitem><para>What message should be shown when this database change is applied?</para></listitem>
+					<listitem><para>What date/time format is currently active on the database session?</para></listitem>
+					<listitem><para>Are there any sql errors that should be ignored because they are expected?</para></listitem>
+				</itemizedlist>
+			</para>
+			
+			<para>
+				Patch session configuration can be changed in between the execution of the database changes.
 			</para>
 			
 			<itemizedlist>
-				<title>Examples of patch mode settings</title>
+				<title>Examples of patch session configuration</title>
 				<listitem><para><computeroutput>--* SET USER &lt;username&gt;</computeroutput></para></listitem>
 				<listitem><para><computeroutput>--* SET MESSAGE "&lt;message&gt;"</computeroutput></para></listitem>
-			</itemizedlist>
-			
-			<para>
-				Patch mode settings change the mode of operation of the patchtool.
-				Patch mode settings are reset at the start of each individual patch.
-				You can also mark SQL as being a patch mode setting:
-			</para>
-			
+				<listitem>
 <programlisting>--* SESSIONCONFIG
 ALTER SESSION ...
 --* /SESSIONCONFIG</programlisting>
+				</listitem>
+				<listitem><para><computeroutput>--* IGNORE SQL ERROR &lt;SQL Error&gt;</computeroutput></para></listitem>
+			</itemizedlist>
+			
+			<para>
+				Keep in mind that the patch session configuration is reset at the start of each individual patch.
+			</para>
 
 			<para>
-				This changes the mode of the current connection to the database. 
-			</para>
-			
-			<para>
-				All patch commands are described in <xref linkend="patchtool-commands"/>.
-			</para>
-			
-			<para>
-				The next section explains why the distinction between changes and settings is important.
+				Patch session configuration commands are described in <xref linkend="patch-session-configuration"/>.
 			</para>
 			
 		</section>
@@ -91,17 +100,17 @@ ALTER SESSION ...
 			<title>Patch failure and recovery</title>
 			
 			<para>
-				Database changes are permanent and should not be repeated.
-				Patch mode settings are not permanent and must be repeated in case of a patch restart.
-				So there are some differences between changes on the one hand and settings on the other with respect to patch failure and restart:
+				Database changes are permanent and should not (in most cases can not) be repeated.
+				Patch session configuration is not permanent and must be repeated in case of a patch restart.
+				So there are some differences between database changes on the one hand and session configuration on the other with respect to patch failure and restart:
 			</para>
 			
 			<para>
 				When a patch failure occurs the patchtool remembers what patch was being executed and how many database changes were successful.
-				After fixing the cause of the failure the patchtool can be restarted and it will skip all database changes that were already executed successfully.
-				Patch mode settings however do not behave like this. 
-				Patch mode settings should always be executed from the beginning of each patch.
-				Because of this, patch mode settings are not counted, which means that they do not interfere with counting of the number of successful database changes.
+				After fixing the cause of the failure the patchtool can be restarted and it will skip all database changes that were already successfully applied.
+				Patch session configuration however does not behave like this. 
+				Patch session configuration should always be executed from the beginning of each patch.
+				Because of this, patch session configuration is not counted, which means that it does not interfere with counting of the number of successful database changes.
 			</para>
 			
 		</section>
@@ -112,9 +121,9 @@ ALTER SESSION ...
 			<para>
 				During development, changes on the databases come unexpected and often.
 				This may result in a lot of patches and a quickly growing version number.
-				If you don't want this you can keep the patch open.
-				An open patch can be executed but the bump to the new version number will not happen.
-				New changes to the database can be added to the end of this patch, they will automatically be picked up when someone re-executes the patch.
+				If you do not want this you can keep the patch open.
+				An open patch can be executed but the bump to the new version number will be prevented.
+				New changes to the database can be added at the end of this patch, they will automatically be picked up when someone re-executes the patch.
 				When the time comes to officially deliver the patch for execution on a test, acceptance or production database, you can close the patch. 
 			</para>
 			
@@ -312,11 +321,11 @@ prod.applications = app1, app2
 # database 'prod', application 'app1'
 prod.app1.description = app1 description
 prod.app1.user = sa
-prod.app1.patchfile = dbpatch-hsqldb-example.sql
+prod.app1.patchfile = dbpatch-hsqldb-example1.sql
 
 # database 'prod', application 'app2'
 prod.app2.user = sa
-prod.app2.patchfile = dbpatch-hsqldb-example.sql
+prod.app2.patchfile = dbpatch-hsqldb-example2.sql
 
 # database 'test'
 test.driver = org.apache.derby.jdbc.EmbeddedDriver
@@ -589,7 +598,7 @@ GO
 --* // ========================================================================]]></programlisting>
 			
 			<para>
-				Lines starting with <code>--*</code> are patchtool commands.
+				Lines starting with <code>--*</code> are patch session configuration.
 				Lines starting with <code>--* //</code> are patchtool comments. Such comments are not sent to the database.
 				The rest of the lines represent in most cases normal SQL.
 			</para>
@@ -608,16 +617,14 @@ GO
 			</para>
 			
 			<para>
-				A patch consists of a sequence of SQL statements and patchtool commands.
-				Statements are considered to be database changes and are sent to the database.
-				Patchtool commands are considered to be patch mode settings and are interpreted by the patchtool.
+				A patch consists of a sequence of database changes and patch session configuration.
 			</para>
 			
-			<para>
+			<note><para>
 				When the patch is supposed to be executed on a clean database or an existing database created without the patchtool you need the first initial patch from the example.
 				This patch creates the tables required by the patchtool, namely <code>DBVERSION</code> and <code>DBVERSIONLOG</code>.
 				Oracle, MySQL, Derby and HSQLDB versions of this initial patch are available. 
-			</para>
+			</para></note>
 			
 		</section>
 		
@@ -631,11 +638,11 @@ GO
 						
 		</section>
 		
-		<section xml:id="patchtool-commands">
-			<title>Patchtool commands</title>
+		<section xml:id="patch-session-configuration">
+			<title>Patch session configuration</title>
 			
 			<para>
-				This section describes the various patchtool commands available.
+				This section describes the various patch session configurations available.
 			</para>
 			
 			<section xml:id="set-message">
@@ -686,9 +693,9 @@ GO
 				<title><code>--* SESSIONCONFIG</code></title>
 				
 				<para>
-					Tells the patchtool that statements between this and the ending <code>--* /SESSIONCONFIG</code> should not be regarded as database changes but as patch mode settings.
-					Especially useful around <code>ALTER SESSION</code> which changes the mode of the current connection (the current connection is the connection belonging to the current user.)
-					Remember that if you change the user with <computeroutput>SET USER</computeroutput> you get another connection, so you may have to repeat the <computeroutput>ALTER SESSION</computeroutput> for each user you change to.
+					Tells the patchtool that statements between this and the ending <code>--* /SESSIONCONFIG</code> should not be regarded as database changes but as patch session configuration.
+					Especially useful around <code>ALTER SESSION</code> which changes the current database session (belonging to the current user.)
+					Remember that if you change the user with <computeroutput>SET USER</computeroutput> you get another session, so you may have to repeat the <computeroutput>ALTER SESSION</computeroutput> for each user you change to.
 				</para>
 				
 			</section>
@@ -698,7 +705,7 @@ GO
 				
 				<para>
 					This rather exotic command can be used to do checks on an existing database that is not yet managed by the patchtool.
-					Its an assertion that behaves like a database change, in the sense that if the assertion is successful then it is skipped in case the patch is restarted for whatever reason.
+					It is an assertion that behaves like a database change, in the sense that if the assertion is successful then it is skipped in case the patch is restarted for whatever reason.
 					Example: 
 				</para>
 
@@ -728,18 +735,14 @@ GO</programlisting>
 			
 			<para>
 				With respect to database upgrading there will also come a moment where creation of a branch is inevitable.
-				This moment is defined by the need to implement a database change for the stable branch, but changes are already applied to the trunk.
+				This moment is defined by the need to implement a database change to the stable branch, but database changes are already added to the trunk.
 			</para>
 			
 			<para>
-				A branch in the database patchfile is created by adding two patches that spring from the same version, in essence a fork in the path.
-				The first patch should be left empty, its only purpose is to jump to a new major/minor version number.
+				A branch in the database patchfile is created by adding two patches that spring from the same version, in essence a fork in the patch path.
+				The first patch should be left empty, its only purpose is to increase the major/minor version of the trunk.
 				The second patch contains the changes for the stable branch and is marked with <code>BRANCH</code> instead of <code>PATCH</code>.
 				This creates a dead end, so you need to add another patch marked with <code>RETURN</code> which returns the stable branch to the trunk.
-			</para>
-			
-			<para>
-				As an example you get the patch header displayed below.
 			</para>
 			
 			<example>
@@ -758,10 +761,10 @@ GO</programlisting>
 
 			<para>
 				It is advisable to leave the indicated patch empty (1.0.5 --> 2.0.1), to make sure that you have a suitable version to return to if needed.
-				This makes version 1.0.5 and 2.0.1 of the database identical, which gives the opportunity for the branch to return to an identical database from where it sprung.
+				This makes version 1.0.5 and 2.0.1 identical, which gives the opportunity for the branch to return to an identical database from where it sprung.
 				You cannot achieve this by letting the return patch point to version 1.0.5, because circularities are not allowed.
 				It is not always required to return to an identical database, but it could happen in order to make the return patch as simple as possible.
-				So better safe than sorry.
+				So better to be safe than sorry.
 			</para>
 			
 			<para>
