@@ -754,14 +754,14 @@ GO</programlisting>
 --*     PATCH "1.0.3" --> "1.0.4"
 --*     PATCH "1.0.4" --> "1.0.5"
 --*         BRANCH "1.0.5" --> "1.0.6"
---*         RETURN "1.0.6" --> "2.0.1"
---*     PATCH "1.0.5" --> "2.0.1"      // This patch should be left empty
+--*         RETURN "1.0.6" --> "2.0.0"
+--*     PATCH "1.0.5" --> "2.0.0"      // This patch should be left empty
 --*	/PATCHES]]></programlisting>
 			</example>
 
 			<para>
-				It is advisable to leave the indicated patch empty (1.0.5 --> 2.0.1), to make sure that you have a suitable version to return to if needed.
-				This makes version 1.0.5 and 2.0.1 identical, which gives the opportunity for the branch to return to an identical database from where it sprung.
+				It is advisable to leave the indicated patch (1.0.5 --> 2.0.0) empty, to make sure that you have a suitable version to return to if needed.
+				This makes version 1.0.5 and 2.0.0 identical, which gives the opportunity for the branch to return to an identical database from where it sprung.
 				You cannot achieve this by letting the return patch point to version 1.0.5, because circularities are not allowed.
 				It is not always required to return to an identical database, but it could happen in order to make the return patch as simple as possible.
 				So better to be safe than sorry.
@@ -785,11 +785,11 @@ GO</programlisting>
 --*         BRANCH "1.0.5" --> "1.0.6"
 --*         PATCH "1.0.6" --> "1.0.7"
 --*         PATCH "1.0.7" --> "1.0.8"
---*         RETURN "1.0.8" --> "2.0.2"
---*     PATCH "1.0.5" --> "2.0.1"      // This patch should be left empty
+--*         RETURN "1.0.8" --> "2.0.1"
+--*     PATCH "1.0.5" --> "2.0.0"      // This patch should be left empty
+--*     PATCH "2.0.0" --> "2.0.1"
 --*     PATCH "2.0.1" --> "2.0.2"
 --*     PATCH "2.0.2" --> "2.0.3"
---*     PATCH "2.0.3" --> "2.0.4"
 --*	/PATCHES]]></programlisting>
 			</example>
 
