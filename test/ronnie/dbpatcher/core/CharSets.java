@@ -36,7 +36,7 @@ public class CharSets
 		Assert.assertEquals( Patcher.patchFile.file.getEncoding(), "UTF-8" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false );
+			Set< String > targets = Patcher.getTargets( false, null );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.2" );

@@ -130,12 +130,13 @@ public class Patcher
 	 * Returns all possible targets.
 	 * 
 	 * @param tips If true only the tips of the patch paths are returned.
+	 * @param prefix Only consider versions that start with the given prefix.
 	 * @return
 	 */
-	static public LinkedHashSet< String > getTargets( boolean tips )
+	static public LinkedHashSet< String > getTargets( boolean tips, String prefix )
 	{
 		LinkedHashSet result = new LinkedHashSet();
-		patchFile.collectTargets( dbVersion.getVersion(), dbVersion.getTarget(), tips, result );
+		patchFile.collectTargets( dbVersion.getVersion(), dbVersion.getTarget(), tips, prefix, result );
 		return result;
 	}
 
@@ -151,7 +152,7 @@ public class Patcher
 		if( wildcard )
 		{
 			String targetPrefix = target.substring( 0, target.length() - 1 );
-			Set< String > targets = getTargets( true );
+			Set< String > targets = getTargets( true, targetPrefix );
 			for( String t : targets )
 				if( t.startsWith( targetPrefix ) )
 				{
@@ -169,7 +170,7 @@ public class Patcher
 			return;
 		}
 
-		Set< String > targets = getTargets( false );
+		Set< String > targets = getTargets( false, null );
 		for( String t : targets )
 			if( t.equals( target ) )
 			{
