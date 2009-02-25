@@ -47,7 +47,7 @@ public class DigimeenteTests
 		String output = console.getOutput();
 		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
 		output = output.replaceAll( "C:\\\\\\S+\\\\", "C:\\\\...\\\\" );
-		output = output.replaceAll( "DBPatcher v1\\.0\\.\\d+\\s+\\(C\\) 2006-200\\d R\\.M\\. de Bloois, LogicaCMG", "DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, LogicaCMG" );
+		output = output.replaceAll( "DBPatcher v1\\.0\\.\\d+\\s+\\(C\\) 2006-200\\d R\\.M\\. de Bloois, Logica", "DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, Logica" );
 		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
 		output = output.replaceAll( "\\\r", "" );
 		//		output = output.replaceAll( "\\\t", "\\t" );
@@ -58,7 +58,7 @@ public class DigimeenteTests
 		Assert.assertEquals( output,
 				"Reading property file file:/.../dbpatcher-default.properties\n" +
 				"Reading property file C:\\...\\dbpatcher-digimeente.properties\n" +
-				"DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, LogicaCMG\n" +
+				"DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, Logica\n" +
 				"\n" +
 				"Available database:\n" +
 				"    Zaanstad-slot1\n" +
@@ -102,7 +102,7 @@ public class DigimeenteTests
 		String output = console.getOutput();
 		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
 		output = output.replaceAll( "C:\\\\\\S+\\\\", "C:\\\\...\\\\" );
-		output = output.replaceAll( "DBPatcher v1\\.0\\.\\d+\\s+\\(C\\) 2006-200\\d R\\.M\\. de Bloois, LogicaCMG", "DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, LogicaCMG" );
+		output = output.replaceAll( "DBPatcher v1\\.0\\.\\d+\\s+\\(C\\) 2006-200\\d R\\.M\\. de Bloois, Logica", "DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, Logica" );
 		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
 		output = output.replaceAll( "\\\r", "" );
 		//		output = output.replaceAll( "\\\t", "\\t" );
@@ -113,7 +113,7 @@ public class DigimeenteTests
 		Assert.assertEquals( output,
 				"Reading property file file:/.../dbpatcher-default.properties\n" +
 				"Reading property file C:\\...\\dbpatcher-digimeente2.properties\n" +
-				"DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, LogicaCMG\n" +
+				"DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, Logica\n" +
 				"\n" +
 				"Available database:\n" +
 				"    Zaanstad-slot1\n" +
