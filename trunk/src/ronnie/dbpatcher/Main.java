@@ -163,7 +163,7 @@ public class Main
 			}
 
 			console.println( "DBPatcher v" + configuration.getVersion() );
-			console.println( "(C) 2006-2008 R.M. de Bloois, LogicaCMG" );
+			console.println( "(C) 2006-2009 R.M. de Bloois, Logica" );
 			console.println();
 
 			Patcher.setCallBack( progress );

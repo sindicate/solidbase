@@ -152,7 +152,7 @@ ALTER SESSION ...
 			<example><title>Example interactive mode</title>
 <screen><![CDATA[C:\PROJECTS\BUILDS\dbpatcher\dist>java -jar dbpatcher.jar
 20-1-09 20:47   DBPatcher v1.0.101
-20-1-09 20:47   (C) 2006-2008 R.M. de Bloois, LogicaCMG
+20-1-09 20:47   (C) 2006-2009 R.M. de Bloois, Logica
 
 20-1-09 20:47   Available database:
 20-1-09 20:47       prod (DHL Production)
