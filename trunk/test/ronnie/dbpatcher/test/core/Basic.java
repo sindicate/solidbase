@@ -23,7 +23,7 @@ public class Basic
 		Patcher.openPatchFile( "testpatch1.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false );
+			Set< String > targets = Patcher.getTargets( false, null );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.2" );
@@ -43,7 +43,7 @@ public class Basic
 		Patcher.openPatchFile( "testpatch2.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false );
+			Set< String > targets = Patcher.getTargets( false, null );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.3" );

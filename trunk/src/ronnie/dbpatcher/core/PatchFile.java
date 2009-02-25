@@ -277,12 +277,13 @@ public class PatchFile
 	/**
 	 * Determines all possible target versions from the specified source version.
 	 * 
-	 * @param version
+	 * @param version Current version.
 	 * @param targeting Specifies the direction that has been initiated.
-	 * @param tips Only return tip version
-	 * @param result
+	 * @param tips Only return tip version.
+	 * @param prefix Only consider versions that start with the given prefix.
+	 * @param result All results are added to this set.
 	 */
-	protected void collectTargets( String version, String targeting, boolean tips, Set< String > result )
+	protected void collectTargets( String version, String targeting, boolean tips, String prefix, Set< String > result )
 	{
 		Assert.notNull( result, "'result' must not be null" );
 
@@ -294,13 +295,20 @@ public class PatchFile
 		for( Iterator iter = patches.iterator(); iter.hasNext(); )
 		{
 			Patch patch = (Patch)iter.next();
+
+			// When already targeting a specific version, ignore the rest.
 			if( targeting == null || targeting.equals( patch.getTarget() ) )
 			{
-				if( tips && !patch.isReturnBranch() )
-					result.remove( patch.getSource() );
-				result.add( patch.getTarget() );
+				// Don't add targets that don't start with the given prefix.
+				if( prefix == null || patch.getTarget().startsWith( prefix ) )
+				{
+					// Normal patch --> the source version is not a tip version. Remove it.
+					if( tips && !patch.isReturnBranch() )
+						result.remove( patch.getSource() );
+					result.add( patch.getTarget() );
+				}
 				if( !patch.isOpen() )
-					collectTargets( patch.getTarget(), null, tips, result ); // Recursively determine more patches
+					collectTargets( patch.getTarget(), null, tips, prefix, result ); // Recursively determine more patches
 			}
 		}
 	}
