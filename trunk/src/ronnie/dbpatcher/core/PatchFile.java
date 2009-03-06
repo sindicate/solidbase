@@ -275,7 +275,7 @@ public class PatchFile
 	}
 
 	/**
-	 * Determines all possible target versions from the specified source version.
+	 * Determines all possible target versions from the specified source version. The current version is also considered.
 	 * 
 	 * @param version Current version.
 	 * @param targeting Specifies the direction that has been initiated.
@@ -284,6 +284,16 @@ public class PatchFile
 	 * @param result All results are added to this set.
 	 */
 	protected void collectTargets( String version, String targeting, boolean tips, String prefix, Set< String > result )
+	{
+		Assert.notNull( result, "'result' must not be null" );
+
+		if( targeting == null && version != null )
+			result.add( version );
+
+		collectTargets0( version, targeting, tips, prefix, result );
+	}
+
+	protected void collectTargets0( String version, String targeting, boolean tips, String prefix, Set< String > result )
 	{
 		Assert.notNull( result, "'result' must not be null" );
 
@@ -308,7 +318,7 @@ public class PatchFile
 					result.add( patch.getTarget() );
 				}
 				if( !patch.isOpen() )
-					collectTargets( patch.getTarget(), null, tips, prefix, result ); // Recursively determine more patches
+					collectTargets0( patch.getTarget(), null, tips, prefix, result ); // Recursively determine more patches
 			}
 		}
 	}
