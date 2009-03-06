@@ -287,7 +287,7 @@ public class PatchFile
 	{
 		Assert.notNull( result, "'result' must not be null" );
 
-		if( targeting == null && version != null )
+		if( targeting == null && version != null && ( prefix == null || version.startsWith( prefix ) ) )
 			result.add( version );
 
 		collectTargets0( version, targeting, tips, prefix, result );
