@@ -111,6 +111,7 @@ public class PatchFileTests
 			System.out.println( tip );
 
 		Set< String > expected = new HashSet();
+		expected.add( "1.1" );
 		expected.add( "1.2" );
 		expected.add( "1.3" );
 		expected.add( "1.4" );

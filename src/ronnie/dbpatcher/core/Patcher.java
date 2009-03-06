@@ -148,38 +148,33 @@ public class Patcher
 	 */
 	static public void patch( String target ) throws SQLException
 	{
+		Set< String > targets;
+
 		boolean wildcard = target.endsWith( "*" );
 		if( wildcard )
 		{
 			String targetPrefix = target.substring( 0, target.length() - 1 );
-			Set< String > targets = getTargets( true, targetPrefix );
+			targets = getTargets( true, targetPrefix );
 			for( String t : targets )
 				if( t.startsWith( targetPrefix ) )
 				{
 					patch( dbVersion.getVersion(), t );
 					break;
 				}
-
-			terminateCommandListeners();
-			// TODO Remove the possibility that the version is null?
-			if( dbVersion.getVersion() != null && dbVersion.getVersion().startsWith( targetPrefix ) )
-				callBack.patchingFinished();
-			else
-				throw new SystemException( "Target " + target + " is not a possible target" );
-
-			return;
+		}
+		else
+		{
+			targets = getTargets( false, null );
+			for( String t : targets )
+				if( t.equals( target ) )
+				{
+					patch( dbVersion.getVersion(), t );
+					break;
+				}
 		}
 
-		Set< String > targets = getTargets( false, null );
-		for( String t : targets )
-			if( t.equals( target ) )
-			{
-				patch( dbVersion.getVersion(), t );
-				break;
-			}
-
 		terminateCommandListeners();
-		if( dbVersion.getVersion() != null && dbVersion.getVersion().equals( target ) )
+		if( targets.size() > 0 )
 			callBack.patchingFinished();
 		else
 			throw new SystemException( "Target " + target + " is not a possible target" );

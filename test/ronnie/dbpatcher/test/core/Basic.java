@@ -53,4 +53,27 @@ public class Basic
 			Patcher.end();
 		}
 	}
+
+	@Test
+	public void testOpen() throws IOException, SQLException
+	{
+		Patcher.end();
+
+		Patcher.setCallBack( new TestProgressListener() );
+		// TODO Learn to really shutdown an inmemory database
+		Patcher.setConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testopen" ), "sa", null );
+
+		Patcher.openPatchFile( "testpatch-open.sql" );
+		try
+		{
+			Set< String > targets = Patcher.getTargets( false, null );
+			assert targets.size() > 0;
+
+			Patcher.patch( "1.0.2" );
+		}
+		finally
+		{
+			Patcher.closePatchFile();
+		}
+	}
 }
