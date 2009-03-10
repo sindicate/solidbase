@@ -210,6 +210,9 @@ public class Patcher
 
 	static protected void patch( String version, String target ) throws SQLException
 	{
+		if( target.equals( version ) )
+			return;
+
 		List patches = patchFile.getPatchPath( version, target );
 		Assert.isTrue( patches != null );
 		Assert.isTrue( patches.size() > 0, "No patches found" );
