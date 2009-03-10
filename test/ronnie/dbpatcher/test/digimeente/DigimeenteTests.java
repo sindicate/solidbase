@@ -1,8 +1,5 @@
 package ronnie.dbpatcher.test.digimeente;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import mockit.Mockit;
 
 import org.testng.Assert;
@@ -25,7 +22,7 @@ public class DigimeenteTests
 	}
 
 	@Test
-	public void testDigimeenteCommandLineWithClass() throws FileNotFoundException, IOException
+	public void testDigimeenteCommandLineWithClass() throws Exception
 	{
 		Mockit.tearDownMocks();
 		Mockit.redefineMethods( Configuration.class, new MockConfiguration( "../test/dbpatcher-digimeente.properties" ) );
@@ -42,7 +39,7 @@ public class DigimeenteTests
 		Main.console = console;
 
 		// TODO Rename patchfile to test the -patchfile option
-		Main.main( "-verbose" );
+		Main.main0( "-verbose" );
 
 		String output = console.getOutput();
 		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
@@ -85,7 +82,7 @@ public class DigimeenteTests
 	}
 
 	@Test
-	public void testDigimeenteCommandLineWithScript() throws FileNotFoundException, IOException
+	public void testDigimeenteCommandLineWithScript() throws Exception
 	{
 		Mockit.tearDownMocks();
 		Mockit.redefineMethods( Configuration.class, new MockConfiguration( "../test/dbpatcher-digimeente2.properties" ) );
@@ -97,7 +94,7 @@ public class DigimeenteTests
 
 		Main.console = console;
 
-		Main.main( "-verbose" );
+		Main.main0( "-verbose" );
 
 		String output = console.getOutput();
 		output = output.replaceAll( "file:/\\S+/", "file:/.../" );

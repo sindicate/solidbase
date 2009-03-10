@@ -16,7 +16,7 @@ public class ThroughConsoleTests
 	}
 
 	@Test
-	public void testConsole()
+	public void testConsole() throws Exception
 	{
 		MockConsole console = new MockConsole();
 		console.addAnswer( "prod" );
