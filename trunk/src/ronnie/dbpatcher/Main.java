@@ -270,6 +270,8 @@ public class Main
 				console.println( "SQLState: " + ( (SQLException)t ).getSQLState() );
 
 			console.printStacktrace( t );
+
+			System.exit( 1 );
 		}
 	}
 
