@@ -1,9 +1,7 @@
 package ronnie.dbpatcher;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.SQLException;
@@ -81,182 +79,7 @@ public class Main
 	{
 		try
 		{
-			if( console == null )
-				console = new Console();
-
-			// Configure the commandline options
-
-			Options options = new Options();
-			options.addOption( "verbose", false, "be extra verbose" );
-			options.addOption( "fromant", false, "adds newlines after input requests" );
-			options.addOption( "dumplog", true, "export historical patch results to an xml file" );
-			options.addOption( "driver", true, "sets the jdbc driverclass" );
-			options.addOption( "url", true, "sets the url of the database" );
-			options.addOption( "username", true, "sets the default username to patch with" );
-			options.addOption( "password", true, "sets the password of the default username" );
-			options.addOption( "target", true, "sets the target version" );
-			options.addOption( "patchfile", true, "sets the patch file" );
-			// TODO Add driverjar option
-
-			options.getOption( "dumplog" ).setArgName( "filename" );
-			options.getOption( "driver" ).setArgName( "classname" );
-			options.getOption( "url" ).setArgName( "url" );
-			options.getOption( "username" ).setArgName( "username" );
-			options.getOption( "password" ).setArgName( "password" );
-			options.getOption( "target" ).setArgName( "targetversion" );
-			options.getOption( "patchfile" ).setArgName( "patchfile" );
-
-			// Read the commandline options
-
-			CommandLine line;
-			try
-			{
-				line = new GnuParser().parse( options, args );
-			}
-			catch( ParseException e )
-			{
-				console.println( e.getMessage() );
-				new HelpFormatter().printHelp( "dbpatcher", options, true );
-				return;
-			}
-
-			boolean verbose = line.hasOption( "verbose" );
-			boolean exportlog = line.hasOption( "dumplog" );
-			console.fromAnt = line.hasOption( "fromant" );
-
-			// Validate the commandline options
-
-			if( line.hasOption( "driver" ) || line.hasOption( "url" ) || line.hasOption( "username" ) )
-			{
-				boolean valid = true;
-				if( !line.hasOption( "driver" ) )
-				{
-					console.println( "Missing driver option" );
-					valid = false;
-				}
-				if( !line.hasOption( "url" ) )
-				{
-					console.println( "Missing url option" );
-					valid = false;
-				}
-				if( !line.hasOption( "username" ) )
-				{
-					console.println( "Missing user option" );
-					valid = false;
-				}
-				if( !valid )
-				{
-					new HelpFormatter().printHelp( "dbpatcher", options, true );
-					return;
-				}
-			}
-
-			//
-
-			Progress progress = new Progress( console, verbose );
-			Configuration configuration = new Configuration( progress, pass, line.getOptionValue( "driver" ), line.getOptionValue( "url" ), line.getOptionValue( "username" ), line.getOptionValue( "password" ), line.getOptionValue( "target" ), line.getOptionValue( "patchfile" ) );
-
-			if( pass == 1 )
-			{
-				reload( args, configuration.getDriverJars(), verbose );
-				return;
-			}
-
-			console.println( "DBPatcher v" + configuration.getVersion() );
-			console.println( "(C) 2006-2009 R.M. de Bloois, Logica" );
-			console.println();
-
-			Patcher.setCallBack( progress );
-			String patchFile;
-			if( configuration.getConfigVersion() == 2 )
-			{
-				ronnie.dbpatcher.config.Database selectedDatabase;
-				if( configuration.getDatabases().size() == 0 )
-				{
-					console.println( "There are no databases configured." );
-					return;
-				}
-				else if( configuration.getDatabases().size() > 1 )
-				{
-					console.println( "Available database:" );
-					for( ronnie.dbpatcher.config.Database database : configuration.getDatabases() )
-						if( database.getDescription() != null )
-							console.println( "    " + database.getName() + " (" + database.getDescription() + ")" );
-						else
-							console.println( "    " + database.getName() );
-					console.print( "Select a database from the above: " );
-					String input = console.input();
-					selectedDatabase = configuration.getDatabase( input );
-					console.println();
-				}
-				else
-					selectedDatabase = configuration.getDatabases().get( 0 );
-
-				ronnie.dbpatcher.config.Application selectedApplication;
-				if( selectedDatabase.getApplications().size() > 1 )
-				{
-					console.println( "Available applications in database '" + selectedDatabase.getName() + "':" );
-					for( ronnie.dbpatcher.config.Application application : selectedDatabase.getApplications() )
-						if( application.getDescription() != null )
-							console.println( "    " + application.getName() + " (" + application.getDescription() + ")" );
-						else
-							console.println( "    " + application.getName() );
-					console.print( "Select an application from the above: " );
-					String input = console.input();
-					selectedApplication = selectedDatabase.getApplication( input );
-					console.println();
-				}
-				else
-					selectedApplication = selectedDatabase.getApplications().get( 0 );
-
-				Patcher.setConnection( new Database( selectedDatabase.getDriver(), selectedDatabase.getUrl() ), selectedApplication.getUserName(), null );
-				patchFile = selectedApplication.getPatchFile();
-				console.println( "Connecting to database '" + selectedDatabase.getName() + "', application '" + selectedApplication.getName() + "'..." );
-			}
-			else
-			{
-				Patcher.setConnection( new Database( configuration.getDBDriver(), configuration.getDBUrl() ), configuration.getUser(), configuration.getPassWord() );
-				patchFile = configuration.getPatchFile();
-				if( patchFile == null )
-					patchFile = "dbpatch.sql";
-				console.println( "Connecting to database..." );
-			}
-
-			printCurrentVersion( console );
-
-			if( exportlog )
-			{
-				Patcher.logToXML( line.getOptionValue( "dumplog" ) );
-				return;
-			}
-
-			Patcher.openPatchFile( patchFile );
-			try
-			{
-				if( configuration.getTarget() != null )
-					Patcher.patch( configuration.getTarget() );
-				else
-				{
-					// Need linked set because order is important
-					LinkedHashSet< String > targets = Patcher.getTargets( false, null );
-					if( targets.size() > 0 )
-					{
-						console.println( "Possible targets are: " + list( targets ) );
-						console.print( "Input target version: " );
-						String input = console.input();
-						Patcher.patch( input );
-					}
-					else
-						console.println( "There are no possible targets." );
-					// TODO Distinguish between uptodate and no possible path
-				}
-				console.emptyLine();
-				printCurrentVersion( console );
-			}
-			finally
-			{
-				Patcher.closePatchFile();
-			}
+			main0( args );
 		}
 		catch( Throwable t )
 		{
@@ -276,7 +99,189 @@ public class Main
 	}
 
 
-	static protected void reload( String[] args, List< String > jars, boolean verbose ) throws MalformedURLException, NoSuchMethodException, ClassNotFoundException, IllegalAccessException, InvocationTargetException
+	// Used for testing
+	static public void main0( String... args ) throws Exception
+	{
+		if( console == null )
+			console = new Console();
+
+		// Configure the commandline options
+
+		Options options = new Options();
+		options.addOption( "verbose", false, "be extra verbose" );
+		options.addOption( "fromant", false, "adds newlines after input requests" );
+		options.addOption( "dumplog", true, "export historical patch results to an xml file" );
+		options.addOption( "driver", true, "sets the jdbc driverclass" );
+		options.addOption( "url", true, "sets the url of the database" );
+		options.addOption( "username", true, "sets the default username to patch with" );
+		options.addOption( "password", true, "sets the password of the default username" );
+		options.addOption( "target", true, "sets the target version" );
+		options.addOption( "patchfile", true, "sets the patch file" );
+		// TODO Add driverjar option
+
+		options.getOption( "dumplog" ).setArgName( "filename" );
+		options.getOption( "driver" ).setArgName( "classname" );
+		options.getOption( "url" ).setArgName( "url" );
+		options.getOption( "username" ).setArgName( "username" );
+		options.getOption( "password" ).setArgName( "password" );
+		options.getOption( "target" ).setArgName( "targetversion" );
+		options.getOption( "patchfile" ).setArgName( "patchfile" );
+
+		// Read the commandline options
+
+		CommandLine line;
+		try
+		{
+			line = new GnuParser().parse( options, args );
+		}
+		catch( ParseException e )
+		{
+			console.println( e.getMessage() );
+			new HelpFormatter().printHelp( "dbpatcher", options, true );
+			return;
+		}
+
+		boolean verbose = line.hasOption( "verbose" );
+		boolean exportlog = line.hasOption( "dumplog" );
+		console.fromAnt = line.hasOption( "fromant" );
+
+		// Validate the commandline options
+
+		if( line.hasOption( "driver" ) || line.hasOption( "url" ) || line.hasOption( "username" ) )
+		{
+			boolean valid = true;
+			if( !line.hasOption( "driver" ) )
+			{
+				console.println( "Missing driver option" );
+				valid = false;
+			}
+			if( !line.hasOption( "url" ) )
+			{
+				console.println( "Missing url option" );
+				valid = false;
+			}
+			if( !line.hasOption( "username" ) )
+			{
+				console.println( "Missing user option" );
+				valid = false;
+			}
+			if( !valid )
+			{
+				new HelpFormatter().printHelp( "dbpatcher", options, true );
+				return;
+			}
+		}
+
+		//
+
+		Progress progress = new Progress( console, verbose );
+		Configuration configuration = new Configuration( progress, pass, line.getOptionValue( "driver" ), line.getOptionValue( "url" ), line.getOptionValue( "username" ), line.getOptionValue( "password" ), line.getOptionValue( "target" ), line.getOptionValue( "patchfile" ) );
+
+		if( pass == 1 )
+		{
+			reload( args, configuration.getDriverJars(), verbose );
+			return;
+		}
+
+		console.println( "DBPatcher v" + configuration.getVersion() );
+		console.println( "(C) 2006-2009 R.M. de Bloois, Logica" );
+		console.println();
+
+		Patcher.setCallBack( progress );
+		String patchFile;
+		if( configuration.getConfigVersion() == 2 )
+		{
+			ronnie.dbpatcher.config.Database selectedDatabase;
+			if( configuration.getDatabases().size() == 0 )
+			{
+				console.println( "There are no databases configured." );
+				return;
+			}
+			else if( configuration.getDatabases().size() > 1 )
+			{
+				console.println( "Available database:" );
+				for( ronnie.dbpatcher.config.Database database : configuration.getDatabases() )
+					if( database.getDescription() != null )
+						console.println( "    " + database.getName() + " (" + database.getDescription() + ")" );
+					else
+						console.println( "    " + database.getName() );
+				console.print( "Select a database from the above: " );
+				String input = console.input();
+				selectedDatabase = configuration.getDatabase( input );
+				console.println();
+			}
+			else
+				selectedDatabase = configuration.getDatabases().get( 0 );
+
+			ronnie.dbpatcher.config.Application selectedApplication;
+			if( selectedDatabase.getApplications().size() > 1 )
+			{
+				console.println( "Available applications in database '" + selectedDatabase.getName() + "':" );
+				for( ronnie.dbpatcher.config.Application application : selectedDatabase.getApplications() )
+					if( application.getDescription() != null )
+						console.println( "    " + application.getName() + " (" + application.getDescription() + ")" );
+					else
+						console.println( "    " + application.getName() );
+				console.print( "Select an application from the above: " );
+				String input = console.input();
+				selectedApplication = selectedDatabase.getApplication( input );
+				console.println();
+			}
+			else
+				selectedApplication = selectedDatabase.getApplications().get( 0 );
+
+			Patcher.setConnection( new Database( selectedDatabase.getDriver(), selectedDatabase.getUrl() ), selectedApplication.getUserName(), null );
+			patchFile = selectedApplication.getPatchFile();
+			console.println( "Connecting to database '" + selectedDatabase.getName() + "', application '" + selectedApplication.getName() + "'..." );
+		}
+		else
+		{
+			Patcher.setConnection( new Database( configuration.getDBDriver(), configuration.getDBUrl() ), configuration.getUser(), configuration.getPassWord() );
+			patchFile = configuration.getPatchFile();
+			if( patchFile == null )
+				patchFile = "dbpatch.sql";
+			console.println( "Connecting to database..." );
+		}
+
+		printCurrentVersion( console );
+
+		if( exportlog )
+		{
+			Patcher.logToXML( line.getOptionValue( "dumplog" ) );
+			return;
+		}
+
+		Patcher.openPatchFile( patchFile );
+		try
+		{
+			if( configuration.getTarget() != null )
+				Patcher.patch( configuration.getTarget() );
+			else
+			{
+				// Need linked set because order is important
+				LinkedHashSet< String > targets = Patcher.getTargets( false, null );
+				if( targets.size() > 0 )
+				{
+					console.println( "Possible targets are: " + list( targets ) );
+					console.print( "Input target version: " );
+					String input = console.input();
+					Patcher.patch( input );
+				}
+				else
+					console.println( "There are no possible targets." );
+				// TODO Distinguish between uptodate and no possible path
+			}
+			console.emptyLine();
+			printCurrentVersion( console );
+		}
+		finally
+		{
+			Patcher.closePatchFile();
+		}
+	}
+
+
+	static protected void reload( String[] args, List< String > jars, boolean verbose ) throws Exception
 	{
 		if( jars.isEmpty() )
 		{
@@ -316,9 +321,9 @@ public class Main
 	}
 
 
-	static public void pass2( String[] args )
+	static public void pass2( String[] args ) throws Exception
 	{
 		pass = 2;
-		main( args );
+		main0( args );
 	}
 }

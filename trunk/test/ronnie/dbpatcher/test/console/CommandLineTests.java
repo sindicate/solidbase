@@ -1,12 +1,10 @@
 package ronnie.dbpatcher.test.console;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
-
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import com.logicacmg.idt.commons.SystemException;
 
 import ronnie.dbpatcher.Main;
 import ronnie.dbpatcher.core.Patcher;
@@ -20,14 +18,14 @@ public class CommandLineTests
 	}
 
 	@Test
-	public void testCommandLine()
+	public void testCommandLine() throws Exception
 	{
 		MockConsole console = new MockConsole();
 
 		Main.console = console;
 
 		// TODO Rename patchfile to test the -patchfile option
-		Main.main( "-verbose",
+		Main.main0( "-verbose",
 				"-driver", "org.hsqldb.jdbcDriver",
 				"-url", "jdbc:hsqldb:mem:test2",
 				"-username", "sa",
@@ -67,19 +65,28 @@ public class CommandLineTests
 	}
 
 	@Test
-	public void testCommandLineNotPossible() throws IOException
+	public void testCommandLineNotPossible() throws Exception
 	{
 		MockConsole console = new MockConsole();
 
 		Main.console = console;
 
-		Main.main( "-verbose",
-				"-driver", "org.hsqldb.jdbcDriver",
-				"-url", "jdbc:hsqldb:mem:test2",
-				"-username", "sa",
-				"-password", "",
-				"-target", "100.0.*",
-				"-patchfile", "dbpatch-hsqldb-example.sql" );
+		try
+		{
+			Main.main0( "-verbose",
+					"-driver", "org.hsqldb.jdbcDriver",
+					"-url", "jdbc:hsqldb:mem:test2",
+					"-username", "sa",
+					"-password", "",
+					"-target", "100.0.*",
+					"-patchfile", "dbpatch-hsqldb-example.sql" );
+
+			Assert.fail( "Expected a SystemException" );
+		}
+		catch( SystemException e )
+		{
+			Assert.assertEquals( e.getMessage(), "Target 100.0.* is not a possible target" );
+		}
 
 		String output = console.getOutput();
 		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
@@ -96,14 +103,7 @@ public class CommandLineTests
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
 				"Opening patchfile 'C:\\...\\dbpatch-hsqldb-example.sql'\n" +
-				"    Encoding is 'ISO-8859-1'\n" +
-				"\n"
+				"    Encoding is 'ISO-8859-1'\n"
 		);
-
-		String error = console.getErrorOutput();
-		error = new BufferedReader( new StringReader( error ) ).readLine();
-
-		Assert.assertNotNull( error, "Expected an error" );
-		Assert.assertEquals( error, "com.logicacmg.idt.commons.SystemException: Target 100.0.* is not a possible target" );
 	}
 }
