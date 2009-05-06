@@ -33,15 +33,23 @@ public class Patcher
 {
 	static protected Pattern ignoreSqlErrorPattern = Pattern.compile( "IGNORE[ \\t]+SQL[ \\t]+ERROR[ \\t]+(\\w+([ \\t]*,[ \\t]*\\w+)*)", Pattern.CASE_INSENSITIVE );
 	static protected Pattern ignoreEnd = Pattern.compile( "/IGNORE[ \\t]+SQL[ \\t]+ERROR", Pattern.CASE_INSENSITIVE );
+
 	static protected Pattern setUserPattern = Pattern.compile( "SET[ \\t]+USER[ \\t]+(\\w+)[ \\t]*", Pattern.CASE_INSENSITIVE );
+
 	static protected Pattern startMessagePattern = Pattern.compile( "\\s*(?:SET\\s+MESSAGE|MESSAGE\\s+START)\\s+['\"]([^'\"]*)['\"]\\s*", Pattern.CASE_INSENSITIVE );
+
 	static protected Pattern sessionConfigPattern = Pattern.compile( "SESSIONCONFIG", Pattern.CASE_INSENSITIVE );
 	static protected Pattern sessionConfigPatternEnd = Pattern.compile( "/SESSIONCONFIG", Pattern.CASE_INSENSITIVE );
+
+	static protected Pattern ifHistoryContainsPattern = Pattern.compile( "IF\\s+HISTORY\\s+(NOT\\s+)?CONTAINS\\s+\"([^\"]*)\"", Pattern.CASE_INSENSITIVE );
+	static protected Pattern ifHistoryContainsEnd = Pattern.compile( "/IF", Pattern.CASE_INSENSITIVE );
 
 	static protected List< CommandListener > listeners = new ArrayList();
 	static protected Stack ignoreStack = new Stack();
 	static protected HashSet ignoreSet = new HashSet();
 	static protected boolean dontCount;
+	static protected Stack<Boolean> conditionStack = new Stack();
+	static protected boolean condition = true;
 
 	static protected ProgressListener callBack;
 	static protected String defaultUser;
@@ -287,7 +295,7 @@ public class Patcher
 
 		String startMessage = null;
 
-		// TODO Also reset ignored errors and sessionconfig
+		// TODO Also reset ignored errors and sessionconfig and conditionStack
 		database.setCurrentUser( defaultUser ); // overwrite the default user at the start of each patch
 
 		dbVersion.read();
@@ -322,10 +330,14 @@ public class Patcher
 							setUser( matcher.group( 1 ) );
 						else if( ( matcher = startMessagePattern.matcher( sql ) ).matches() )
 							startMessage = matcher.group( 1 );
-						else if( ( matcher = sessionConfigPattern.matcher( sql ) ).matches() )
+						else if( sessionConfigPattern.matcher( sql ).matches() )
 							enableDontCount();
-						else if( ( matcher = sessionConfigPatternEnd.matcher( sql ) ).matches() )
+						else if( sessionConfigPatternEnd.matcher( sql ).matches() )
 							disableDontCount();
+						else if( ( matcher = ifHistoryContainsPattern.matcher( sql ) ).matches() )
+							ifHistoryContains( matcher.group( 1 ), matcher.group( 2 ) );
+						else if( ifHistoryContainsEnd.matcher( sql ).matches() )
+							ifHistoryContainsEnd();
 						else
 							Assert.fail( "Unknown command [" + sql + "]" );
 					}
@@ -341,7 +353,7 @@ public class Patcher
 				else
 				{
 					count++;
-					if( count > skip )
+					if( count > skip && condition )
 					{
 						Patcher.callBack.executing( command, startMessage );
 						SQLException sqlException = execute( command );
@@ -429,6 +441,21 @@ public class Patcher
 	{
 		Assert.isTrue( dontCount, "Counting already disabled" );
 		dontCount = false;
+	}
+
+	private static void ifHistoryContains( String not, String version )
+	{
+		boolean c = dbVersion.logContains( version );
+		if( not != null )
+			c = !c;
+
+		conditionStack.push( condition );
+		condition = c;
+	}
+
+	private static void ifHistoryContainsEnd()
+	{
+		condition = conditionStack.pop();
 	}
 
 	static public ProgressListener getCallBack()

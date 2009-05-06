@@ -459,4 +459,27 @@ public class DBVersion
 			throw new SystemException( e );
 		}
 	}
+
+	protected boolean logContains( String version )
+	{
+		Connection connection = this.database.getConnection( getUser() );
+		try
+		{
+			PreparedStatement stat = connection.prepareStatement( "SELECT ID FROM DBVERSIONLOG WHERE RESULT = 'COMPLETED VERSION " + version + "'" );
+			try
+			{
+				ResultSet result = stat.executeQuery();
+				return result.next();
+			}
+			finally
+			{
+				stat.close();
+				connection.commit();
+			}
+		}
+		catch( SQLException e )
+		{
+			throw new SystemException( e );
+		}
+	}
 }
