@@ -345,10 +345,10 @@ public class Patcher
 				else if( dontCount )
 				{
 					Patcher.callBack.executing( command, startMessage );
+					startMessage = null;
+
 					execute( command );
 					Patcher.callBack.executed();
-
-					startMessage = null;
 				}
 				else
 				{
@@ -356,6 +356,8 @@ public class Patcher
 					if( count > skip && condition )
 					{
 						Patcher.callBack.executing( command, startMessage );
+						startMessage = null;
+
 						SQLException sqlException = execute( command );
 						if( !patch.isInit() )
 						{
@@ -371,8 +373,6 @@ public class Patcher
 					}
 					else
 						Patcher.callBack.skipped( command );
-
-					startMessage = null;
 				}
 
 				command = patchFile.readStatement();
