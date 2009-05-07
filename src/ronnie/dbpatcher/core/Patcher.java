@@ -445,12 +445,16 @@ public class Patcher
 
 	private static void ifHistoryContains( String not, String version )
 	{
-		boolean c = dbVersion.logContains( version );
-		if( not != null )
-			c = !c;
-
-		conditionStack.push( condition );
-		condition = c;
+		if( condition )
+		{
+			boolean c = dbVersion.logContains( version );
+			if( not != null )
+				c = !c;
+			conditionStack.push( condition );
+			condition = c;
+		}
+		else
+			conditionStack.push( false );
 	}
 
 	private static void ifHistoryContainsEnd()
