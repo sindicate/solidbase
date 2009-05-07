@@ -26,7 +26,7 @@ import com.logicacmg.idt.commons.util.Assert;
  */
 public class AssertCommandExecuter extends CommandListener
 {
-	static private final Pattern assertPattern = Pattern.compile( "\\s*ASSERT\\s+EXISTS\\s+MESSAGE\\s+['\"]([^']*)['\"]\\s+(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern assertPattern = Pattern.compile( "\\s*ASSERT\\s+(EXISTS|EMPTY)\\s+MESSAGE\\s+['\"]([^']*)['\"]\\s+(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 	@Override
 	protected boolean execute( Database database, Command command ) throws SQLException
@@ -37,16 +37,25 @@ public class AssertCommandExecuter extends CommandListener
 		Matcher matcher = assertPattern.matcher( command.getCommand() );
 		if( matcher.matches() )
 		{
-			String message = matcher.group( 1 );
-			String select  = matcher.group( 2 ).trim();
+			String mode = matcher.group( 1 );
+			String message = matcher.group( 2 );
+			String select  = matcher.group( 3 ).trim();
 			Assert.isTrue( select.substring( 0, 7 ).equalsIgnoreCase( "SELECT " ), "Check should be a SELECT" );
 			Connection connection = database.getConnection();
 			Statement statement = connection.createStatement();
 			try
 			{
 				ResultSet result = statement.executeQuery( select );
-				if( !result.next() )
-					Assert.fail( message );
+				if( mode.equalsIgnoreCase( "EXISTS" ) )
+				{
+					if( !result.next() )
+						Assert.fail( message );
+				}
+				else
+				{
+					if( result.next() )
+						Assert.fail( message );
+				}
 				// Resultset is closed when the statement is closed
 			}
 			finally
