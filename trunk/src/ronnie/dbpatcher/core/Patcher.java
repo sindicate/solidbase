@@ -45,6 +45,8 @@ public class Patcher
 	static protected Pattern ifHistoryContainsEnd = Pattern.compile( "/IF", Pattern.CASE_INSENSITIVE );
 
 	static protected List< CommandListener > listeners = new ArrayList();
+
+	// Patch state
 	static protected Stack ignoreStack = new Stack();
 	static protected HashSet ignoreSet = new HashSet();
 	static protected boolean dontCount;
@@ -263,10 +265,7 @@ public class Patcher
 					if( commit )
 						connection.commit();
 					else
-					{
 						connection.rollback();
-						System.out.println( "Rolled back" );
-					}
 				}
 			}
 			catch( SQLException e )
@@ -295,8 +294,13 @@ public class Patcher
 
 		String startMessage = null;
 
-		// TODO Also reset ignored errors and sessionconfig and conditionStack
+		// Reset previous patch state
 		database.setCurrentUser( defaultUser ); // overwrite the default user at the start of each patch
+		ignoreStack.clear();
+		ignoreSet.clear();
+		dontCount = false;
+		conditionStack.clear();
+		condition = true;
 
 		dbVersion.read();
 

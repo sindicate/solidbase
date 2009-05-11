@@ -169,7 +169,7 @@ public class PatchFile
 
 					Patch patch = getPatch( source, target );
 					Assert.isTrue( patch != null, "Patch block found for undefined patch: \"" + source + "\" --> \"" + target + "\"" );
-					// TODO Assert that action is the same
+					// TODO Assert that action is the same, or remove this
 					patch.setPos( pos );
 				}
 			}
