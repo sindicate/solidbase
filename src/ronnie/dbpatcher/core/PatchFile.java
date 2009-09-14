@@ -379,9 +379,15 @@ public class PatchFile
 						if( result.length() > 0 )
 							throw new NonTerminatedStatementException();
 
-						line = line.substring( 3 ).trim();
-						if( !line.startsWith( "//" ))
-							return new Command( line, true );
+						if( !patchStartPattern.matcher( line ).matches() ) // skip patch start
+						{
+							line = line.substring( 3 ).trim();
+							if( !line.startsWith( "//" )) // skip comment
+							{
+								System.out.println( line );
+								return new Command( line, true );
+							}
+						}
 					}
 					else
 					{

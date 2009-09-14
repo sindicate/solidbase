@@ -121,4 +121,26 @@ public class Basic
 			Patcher.closePatchFile();
 		}
 	}
+
+	@Test
+	public void testSharedPatchBlock() throws IOException, SQLException
+	{
+		Patcher.end();
+
+		Patcher.setCallBack( new TestProgressListener() );
+		Patcher.setConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testshared1" ), "sa", null );
+
+		Patcher.openPatchFile( "testpatch-sharedpatch1.sql" );
+		try
+		{
+			Set< String > targets = Patcher.getTargets( false, null );
+			assert targets.size() > 0;
+
+			Patcher.patch( "1.0.2" );
+		}
+		finally
+		{
+			Patcher.closePatchFile();
+		}
+	}
 }
