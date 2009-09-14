@@ -383,10 +383,7 @@ public class PatchFile
 						{
 							line = line.substring( 3 ).trim();
 							if( !line.startsWith( "//" )) // skip comment
-							{
-								System.out.println( line );
 								return new Command( line, true );
-							}
 						}
 					}
 					else
