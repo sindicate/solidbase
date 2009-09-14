@@ -145,7 +145,7 @@
 			<outjar file="${build.home}/stage/dbpatcher2.jar" />
 			<libraryjar file="${java.home}/lib/rt.jar" />
 			<libraryjar file="tools/groovy/groovy-1.5.7.jar" />
-			<libraryjar file="lib/commons-cli-1.1.jar" />
+			<libraryjar file="lib/commons-cli-1.2.jar" />
 			<libraryjar file="lib/commons-collections-3.2.jar" />
 			<libraryjar file="lib/commons-lang-2.3.jar" />
 			<keep access="public" name="ronnie.dbpatcher.Main">
@@ -165,7 +165,7 @@
 		<mkdir dir="${dist.home}" />
 		<jarjar compress="yes" destfile="${dist.home}/dbpatcher.jar">
 			<zipfileset src="${build.home}/stage/dbpatcher2.jar" />
-			<zipfileset src="lib/commons-cli-1.1.jar" />
+			<zipfileset src="lib/commons-cli-1.2.jar" />
 			<zipfileset src="lib/commons-collections-3.2.jar" excludes="META-INF/*.txt" />
 			<zipfileset src="lib/commons-lang-2.3.jar" excludes="META-INF/*.txt" />
 			<rule pattern="com.logicacmg.idt.commons.**" result="dbpatcher.@0" />
