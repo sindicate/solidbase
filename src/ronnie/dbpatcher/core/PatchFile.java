@@ -369,12 +369,16 @@ public class PatchFile
 
 					if( patchEndPattern.matcher( line ).matches() )
 					{
-						Assert.isTrue( result.length() == 0, "Unterminated statement found" );
+						if( result.length() > 0 )
+							throw new NonTerminatedStatementException();
 						return null;
 					}
 
 					if( line.startsWith( "--*" ) )
 					{
+						if( result.length() > 0 )
+							throw new NonTerminatedStatementException();
+
 						line = line.substring( 3 ).trim();
 						if( !line.startsWith( "//" ))
 							return new Command( line, true );

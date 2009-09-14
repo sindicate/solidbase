@@ -7,6 +7,7 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import ronnie.dbpatcher.core.Database;
+import ronnie.dbpatcher.core.NonTerminatedStatementException;
 import ronnie.dbpatcher.core.Patcher;
 
 public class Basic
@@ -70,6 +71,50 @@ public class Basic
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.2" );
+		}
+		finally
+		{
+			Patcher.closePatchFile();
+		}
+	}
+
+	@Test(expectedExceptions=NonTerminatedStatementException.class)
+	public void testUnterminatedCommand1() throws IOException, SQLException
+	{
+		Patcher.end();
+
+		Patcher.setCallBack( new TestProgressListener() );
+		Patcher.setConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testunterminated1" ), "sa", null );
+
+		Patcher.openPatchFile( "testpatch-unterminated1.sql" );
+		try
+		{
+			Set< String > targets = Patcher.getTargets( false, null );
+			assert targets.size() > 0;
+
+			Patcher.patch( "1.0.1" );
+		}
+		finally
+		{
+			Patcher.closePatchFile();
+		}
+	}
+
+	@Test(expectedExceptions=NonTerminatedStatementException.class)
+	public void testUnterminatedCommand2() throws IOException, SQLException
+	{
+		Patcher.end();
+
+		Patcher.setCallBack( new TestProgressListener() );
+		Patcher.setConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testunterminated2" ), "sa", null );
+
+		Patcher.openPatchFile( "testpatch-unterminated2.sql" );
+		try
+		{
+			Set< String > targets = Patcher.getTargets( false, null );
+			assert targets.size() > 0;
+
+			Patcher.patch( "1.0.1" );
 		}
 		finally
 		{
