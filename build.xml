@@ -49,10 +49,6 @@
 		<fileset dir="tools/jarjar" includes="*.jar" />
 	</path>
 
-	<path id="proguard.classpath">
-		<fileset dir="tools/proguard" includes="*.jar" />
-	</path>
-
 	<path id="testng.classpath">
 		<fileset dir="tools/test" includes="*.jar" />
 	</path>
@@ -91,7 +87,6 @@
 	<taskdef resource="testngtasks" classpathref="testng.classpath" />
 	<taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpathref="groovy.classpath" />
 	<taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpathref="jarjar.classpath" />
-	<taskdef resource="proguard/ant/task.properties" classpathref="proguard.classpath" />
 	<taskdef name="fop" classname="org.apache.fop.tools.anttasks.Fop" classpathref="fop.classpath" />
 
 
@@ -156,31 +151,9 @@
 			<zipfileset src="lib/idt-commons-2.0.142.jar" />
 			<keep pattern="ronnie.dbpatcher.Main" />
 		</jarjar>
-		<proguard optimizationpasses="10" verbose="true" note="false">
-			<injar file="${build.home}/stage/dbpatcher1.jar" />
-			<outjar file="${build.home}/stage/dbpatcher2.jar" />
-			<libraryjar file="${java.home}/lib/rt.jar" />
-			<libraryjar file="tools/groovy/groovy-1.5.7.jar" />
-			<libraryjar file="lib/commons-cli-1.2.jar" />
-			<libraryjar file="lib/commons-collections-3.2.jar" />
-			<libraryjar file="lib/commons-lang-2.3.jar" />
-			<keep access="public" name="ronnie.dbpatcher.Main">
-				<method access="public static" type="void" name="main" parameters="java.lang.String[]" />
-				<method access="public static" type="void" name="pass2" parameters="java.lang.String[]" />
-			</keep>
-			<keep access="public" name="ronnie.dbpatcher.config.Configuration">
-				<method access="public" type="java.lang.String" name="getProperty" parameters="java.lang.String" />
-			</keep>
-			<keep access="public" name="ronnie.dbpatcher.config.Database">
-				<method access="public" type="void" name="addApplication" parameters="java.lang.String,java.lang.String,java.lang.String,java.lang.String" />
-			</keep>
-			<keepnames name="*" />
-			<keepattribute name="SourceFile" />
-			<keepattribute name="LineNumberTable" />
-		</proguard>
 		<mkdir dir="${dist.home}" />
 		<jarjar compress="yes" destfile="${dist.home}/dbpatcher.jar">
-			<zipfileset src="${build.home}/stage/dbpatcher2.jar" />
+			<zipfileset src="${build.home}/stage/dbpatcher1.jar" />
 			<zipfileset src="lib/commons-cli-1.2.jar" />
 			<zipfileset src="lib/commons-collections-3.2.jar" excludes="META-INF/*.txt" />
 			<zipfileset src="lib/commons-lang-2.3.jar" excludes="META-INF/*.txt" />
