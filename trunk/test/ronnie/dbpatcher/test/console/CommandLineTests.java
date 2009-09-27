@@ -52,14 +52,14 @@ public class CommandLineTests
 		String output = console.getOutput();
 		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
 		output = output.replaceAll( "C:\\\\\\S+\\\\", "C:\\\\...\\\\" );
-		output = output.replaceAll( "DBPatcher v1\\.0\\.\\d+\\s+\\(C\\) 2006-200\\d R\\.M\\. de Bloois, Logica", "DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, Logica" );
+		output = output.replaceAll( "SolidBase v1\\.0\\.\\d+\\s+\\(C\\) 2006-200\\d R\\.M\\. de Bloois, Logica", "SolidBase v1.0.x (C) 2006-200x R.M. de Bloois, Logica" );
 		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
 		output = output.replaceAll( "\\\r", "" );
 
 		//System.out.println( "[[[" + output + "]]]" );
 
 		Assert.assertEquals( output,
-				"DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, Logica\n" +
+				"SolidBase v1.0.x (C) 2006-200x R.M. de Bloois, Logica\n" +
 				"\n" +
 				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test2, user=sa\n" +
 				"Connecting to database...\n" +
@@ -107,13 +107,13 @@ public class CommandLineTests
 		String output = console.getOutput();
 		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
 		output = output.replaceAll( "C:\\\\\\S+\\\\", "C:\\\\...\\\\" );
-		output = output.replaceAll( "DBPatcher v1\\.0\\.\\d+\\s+\\(C\\) 2006-200\\d R\\.M\\. de Bloois, Logica", "DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, Logica" );
+		output = output.replaceAll( "SolidBase v1\\.0\\.\\d+\\s+\\(C\\) 2006-200\\d R\\.M\\. de Bloois, Logica", "SolidBase v1.0.x (C) 2006-200x R.M. de Bloois, Logica" );
 		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
 		output = output.replaceAll( "\\\r", "" );
 		//output = output.replaceAll( "\\n\\s+at\\s+.+", "" );
 
 		Assert.assertEquals( output,
-				"DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, Logica\n" +
+				"SolidBase v1.0.x (C) 2006-200x R.M. de Bloois, Logica\n" +
 				"\n" +
 				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test2, user=sa\n" +
 				"Connecting to database...\n" +

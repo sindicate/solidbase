@@ -47,16 +47,16 @@ public class ThroughConsoleTests
 		String output = console.getOutput();
 		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
 		output = output.replaceAll( "C:\\\\\\S+\\\\", "C:\\\\...\\\\" );
-		output = output.replaceAll( "DBPatcher v1\\.0\\.\\d+\\s+\\(C\\) 2006-200\\d R\\.M\\. de Bloois, Logica", "DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, Logica" );
+		output = output.replaceAll( "SolidBase v1\\.0\\.\\d+\\s+\\(C\\) 2006-200\\d R\\.M\\. de Bloois, Logica", "SolidBase v1.0.x (C) 2006-200x R.M. de Bloois, Logica" );
 		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
 		output = output.replaceAll( "\\\r", "" );
 
 		//		System.out.println( "[[[" + output + "]]]" );
 
 		Assert.assertEquals( output,
-				"Reading property file file:/.../dbpatcher-default.properties\n" +
-				"Reading property file C:\\...\\dbpatcher.properties\n" +
-				"DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, Logica\n" +
+				"Reading property file file:/.../solidbase-default.properties\n" +
+				"Reading property file C:\\...\\solidbase.properties\n" +
+				"SolidBase v1.0.x (C) 2006-200x R.M. de Bloois, Logica\n" +
 				"\n" +
 				"Available database:\n" +
 				"    prod (DHL Production)\n" +

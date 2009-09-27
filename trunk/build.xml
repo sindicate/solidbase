@@ -16,7 +16,7 @@
    limitations under the License.
 -->
 
-<project basedir="." name="dbpatcher">
+<project basedir="." name="solidbase">
 
 	<!-- Property file -->
 
@@ -33,8 +33,8 @@
 	<property name="test.lib.home" value="tools/test" />
 
 	<!-- Product folders -->
-	<property name="build.home" value="../BUILDS/dbpatcher" />
-	<property name="temp.home" value="../TEMP/dbpatcher" />
+	<property name="build.home" value="../BUILDS/solidbase" />
+	<property name="temp.home" value="../TEMP/solidbase" />
 	<property name="dist.home" value="${build.home}/dist" />
 
 
@@ -131,7 +131,7 @@
 
 	<target name="test" depends="build,buildtest" description="Run all tests">
 		<testng workingDir="${dist.home}" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="2">
-			<jvmarg value="-javaagent:../../../dbpatcher/tools/test/jmockit.jar" />
+			<jvmarg value="-javaagent:${basedir}/tools/test/jmockit.jar" />
 			<jvmarg value="-Xmx256m" />
 			<classfileset dir="${build.home}/test" />
 			<reporter classname="ronnie.dbpatcher.test.TestListener"/>
@@ -146,19 +146,19 @@
 		<groovy src="getsvninfo.groovy" />
 		<echo file="${build.home}/classes/${version.properties}" message="module.version=${release.number}.${svn.revision}" />
 		<mkdir dir="${build.home}/stage" />
-		<jarjar compress="yes" destfile="${build.home}/stage/dbpatcher1.jar">
+		<jarjar compress="yes" destfile="${build.home}/stage/solidbase1.jar">
 			<fileset dir="${build.home}/classes" />
 			<zipfileset src="lib/idt-commons-2.0.142.jar" />
 			<keep pattern="ronnie.dbpatcher.Main" />
 		</jarjar>
 		<mkdir dir="${dist.home}" />
-		<jarjar compress="yes" destfile="${dist.home}/dbpatcher.jar">
-			<zipfileset src="${build.home}/stage/dbpatcher1.jar" />
+		<jarjar compress="yes" destfile="${dist.home}/solidbase.jar">
+			<zipfileset src="${build.home}/stage/solidbase1.jar" />
 			<zipfileset src="lib/commons-cli-1.2.jar" />
 			<zipfileset src="lib/commons-collections-3.2.jar" excludes="META-INF/*.txt" />
 			<zipfileset src="lib/commons-lang-2.3.jar" excludes="META-INF/*.txt" />
-			<rule pattern="com.logicacmg.idt.commons.**" result="dbpatcher.@0" />
-			<rule pattern="org.apache.commons.**" result="dbpatcher.@0" />
+			<rule pattern="com.logicacmg.idt.commons.**" result="solidbase.@0" />
+			<rule pattern="org.apache.commons.**" result="solidbase.@0" />
 			<keep pattern="ronnie.dbpatcher.Main" />
 			<manifest>
 				<attribute name="Main-Class" value="ronnie.dbpatcher.Main" />
@@ -181,13 +181,13 @@
 
 
 	<target name="run" depends="build">
-		<java jar="${dist.home}/dbpatcher.jar" fork="yes" dir="${dist.home}">
+		<java jar="${dist.home}/solidbase.jar" fork="yes" dir="${dist.home}">
 			<arg value="-fromant" />
 			<!--
 			<arg value="-driver" />
 			<arg value="org.apache.derby.jdbc.EmbeddedDriver" />
 			<arg value="-url" />
-			<arg value="jdbc:derby:c:/projects/temp/dbpatcher/db;create=true" />
+			<arg value="jdbc:derby:c:/projects/temp/solidbase/db;create=true" />
 			<arg value="-user" />
 			<arg value="app" />
 			<arg value="-pass" />

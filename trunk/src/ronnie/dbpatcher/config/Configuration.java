@@ -40,8 +40,8 @@ import com.logicacmg.idt.commons.util.Assert;
  */
 public class Configuration
 {
-	static private final String DBPATCHER_PROPERTIES = "dbpatcher.properties";
-	static private final String DBPATCHER_DEFAULT_PROPERTIES = "dbpatcher-default.properties";
+	static private final String DBPATCHER_PROPERTIES = "solidbase.properties";
+	static private final String DBPATCHER_DEFAULT_PROPERTIES = "solidbase-default.properties";
 	static private final String DBPATCHER_VERSION_PROPERTIES = "version.properties";
 
 	protected String version;
