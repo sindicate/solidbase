@@ -159,15 +159,15 @@ ALTER SESSION ...
 			
 			<para>
 				The patchtool is started with the following command:
-				<programlisting>java -jar dbpatcher.jar</programlisting>
+				<programlisting>java -jar solidbase.jar</programlisting>
 				This will start the interactive mode of the patchtool, 
 				which will present the user with some choices regarding the database and application, the target version, 
 				and will ask the user for passwords when needed. 
 			</para>
 			
 			<example><title>Example interactive mode</title>
-<screen><![CDATA[C:\PROJECTS\BUILDS\dbpatcher\dist>java -jar dbpatcher.jar
-20-1-09 20:47   DBPatcher v1.0.101
+<screen><![CDATA[C:\PROJECTS\BUILDS\solidbase\dist>java -jar solidbase.jar
+20-1-09 20:47   SolidBase v1.0.101
 20-1-09 20:47   (C) 2006-2009 R.M. de Bloois, Logica
 
 20-1-09 20:47   Available database:
@@ -183,7 +183,7 @@ ALTER SESSION ...
 20-1-09 20:47   Connecting to database 'prod', application 'app1'...
 20-1-09 20:47   Input password for user 'sa':
 20-1-09 20:47   The database has no version yet.
-20-1-09 20:47   Opening patchfile 'C:\PROJECTS\BUILDS\dbpatcher\dist\dbpatch-hsqldb-example.sql'
+20-1-09 20:47   Opening patchfile 'C:\PROJECTS\BUILDS\solidbase\dist\dbpatch-hsqldb-example.sql'
 20-1-09 20:47       Encoding is 'ISO-8859-1'
 20-1-09 20:47   Possible targets are: 1.0.1, 1.0.2
 20-1-09 20:47   Input target version: 1.0.2
@@ -197,7 +197,7 @@ ALTER SESSION ...
 
 20-1-09 20:47   Current database version is "1.0.2".
 
-C:\PROJECTS\BUILDS\dbpatcher\dist>]]></screen>
+C:\PROJECTS\BUILDS\solidbase\dist>]]></screen>
 			</example>
 			
 		</section>
@@ -213,13 +213,13 @@ C:\PROJECTS\BUILDS\dbpatcher\dist>]]></screen>
 			
 			<itemizedlist>
 				<listitem><para>
-					By configuring the following property in the dbpatcher.properties file:
+					By configuring the following property in the solidbase.properties file:
 					<programlisting>classpathext = ojdbc14.jar;derby-10.2.1.6.jar</programlisting>
 					<note><para>Currently, this does not work when the <code>-driver</code> option is specified on the command line, as the complete property file is skipped in that case.</para></note>
 				</para></listitem>
 				<listitem><para>
 					By adding the jar files to the -cp option when starting java:
-					<programlisting>java -cp dbpatcher.jar;ojdbc14.jar;derby-10.2.1.6.jar ronnie.dbpatcher.Main</programlisting>
+					<programlisting>java -cp solidbase.jar;ojdbc14.jar;derby-10.2.1.6.jar ronnie.dbpatcher.Main</programlisting>
 					As you see, you need to start the patch tool specifying the Main class instead of the jar.
 				</para></listitem>
 			</itemizedlist>
@@ -231,11 +231,11 @@ C:\PROJECTS\BUILDS\dbpatcher\dist>]]></screen>
 			
 			<para>
 				Following is the output of the
-				<programlisting>java -jar dbpatcher.jar -help</programlisting>
+				<programlisting>java -jar solidbase.jar -help</programlisting>
 				command:
 			</para>
 			
-<screen><![CDATA[usage: dbpatcher [-driver <classname>] [-dumplog <filename>] [-fromant]
+<screen><![CDATA[usage: solidbase [-driver <classname>] [-dumplog <filename>] [-fromant]
        [-password <password>] [-patchfile <patchfile>] [-target <targetversion>]
        [-url <url>] [-username <username>] [-verbose]
  -driver <classname>       sets the jdbc driverclass
@@ -256,24 +256,24 @@ C:\PROJECTS\BUILDS\dbpatcher\dist>]]></screen>
  			
  			<example>
  				<title>Command line examples</title>
-				<screen>java -jar dbpatcher.jar</screen>
- 				<para>Starts the patchtool in interactive mode. All configuration is read from the <code>dbpatcher.properties</code>.</para>
-<screen>java -cp dbpatcher.jar;ojdbc14.jar ronnie.dbpatcher.Main 
+				<screen>java -jar solidbase.jar</screen>
+ 				<para>Starts the patchtool in interactive mode. All configuration is read from the <code>solidbase.properties</code>.</para>
+<screen>java -cp solidbase.jar;ojdbc14.jar ronnie.dbpatcher.Main 
   -driver oracle.jdbc.OracleDriver 
   -url jdbc:oracle:thin:@hostname:1521:dbname 
   -username rene</screen>
- 				<para>Starts the patchtool in interactive mode for the given database and user. The <code>dbpatcher.properties</code> is ignored.</para>
-<screen>java -cp dbpatcher.jar;ojdbc14.jar ronnie.dbpatcher.Main 
+ 				<para>Starts the patchtool in interactive mode for the given database and user. The <code>solidbase.properties</code> is ignored.</para>
+<screen>java -cp solidbase.jar;ojdbc14.jar ronnie.dbpatcher.Main 
   -driver oracle.jdbc.OracleDriver 
   -url jdbc:oracle:thin:@hostname:1521:dbname 
   -username rene -password geheim 
   -patchfile oracle-patch.sql -target 2.0.*</screen>
- 				<para>Patches the given database to the last version that start with 2.0. The <code>dbpatcher.properties</code> is ignored.</para>
- <screen>java -cp dbpatcher.jar;ojdbc14.jar ronnie.dbpatcher.Main 
+ 				<para>Patches the given database to the last version that start with 2.0. The <code>solidbase.properties</code> is ignored.</para>
+ <screen>java -cp solidbase.jar;ojdbc14.jar ronnie.dbpatcher.Main 
    -driver oracle.jdbc.OracleDriver 
    -url jdbc:oracle:thin:@hostname:1521:dbname 
    -username rene -dumplog upgrade.log</screen>
- 				<para>Dumps the patch log of the given database. The <code>dbpatcher.properties</code> is ignored.</para>
+ 				<para>Dumps the patch log of the given database. The <code>solidbase.properties</code> is ignored.</para>
  			</example>
  			
 		</section>
@@ -304,18 +304,18 @@ C:\PROJECTS\BUILDS\dbpatcher\dist>]]></screen>
 			<itemizedlist>
 				<listitem>
 					<para>
-						The internal /ronnie/dbpatcher/config/dbpatcher-default.properties;
+						The internal /ronnie/dbpatcher/config/solidbase-default.properties;
 					</para>
 				</listitem>
 				<listitem>
 					<para>
-						dbpatcher.properties in the working folder.
+						solidbase.properties in the working folder.
 					</para>
 				</listitem>
 			</itemizedlist>
 			
 			<para>
-				The dbpatcher.properties overrides properties in the dbpatcher-default.properties. This makes it possible to instrument the jar file with default settings.
+				The solidbase.properties overrides properties in the solidbase-default.properties. This makes it possible to instrument the jar file with default settings.
 			</para>
 			
 			<example><title>Example configuration</title>
@@ -345,7 +345,7 @@ prod.app2.patchfile = dbpatch-hsqldb-example2.sql
 
 # database 'test'
 test.driver = org.apache.derby.jdbc.EmbeddedDriver
-test.url = jdbc:derby:c:/projects/temp/dbpatcher/db;create=true
+test.url = jdbc:derby:c:/projects/temp/solidbase/db;create=true
 test.applications = app3
 
 # database 'test', application 'app3'
@@ -428,7 +428,7 @@ test.app3.patchfile = dbpatch-derby-example.sql]]></programlisting>
 			<title>Using external databases configuration</title>
 			
 			<para>
-				It is possible to replace the normal databases configuration in dbpatcher.properties with an external class or script.
+				It is possible to replace the normal databases configuration in solidbase.properties with an external class or script.
 			</para>
 			
 			<section xml:id="configuring-databases-with-external-class">
@@ -458,7 +458,7 @@ public class CustomDatabasesConfiguration implements DatabasesConfiguration
 
     public void init( Configuration configuration )
     {
-        // You can read configuration from the dbpatcher.properties like this: 
+        // You can read configuration from the solidbase.properties like this: 
         String test = configuration.getProperty( "databases.config.test" );
         
         this.databases = new ArrayList();
@@ -500,7 +500,7 @@ databases.config.test = value to be read by the databases configuration class]]>
 
 import ronnie.dbpatcher.config.Database;
 
-// You can read configuration from the dbpatcher.properties like this: 
+// You can read configuration from the solidbase.properties like this: 
 def test = configuration.getProperty( "databases.config.test" );
 
 def result = []; // Creates a java.util.List

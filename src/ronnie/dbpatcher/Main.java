@@ -153,7 +153,7 @@ public class Main
 		catch( ParseException e )
 		{
 			console.println( e.getMessage() );
-			new HelpFormatter().printHelp( "dbpatcher", options, true );
+			new HelpFormatter().printHelp( "solidbase", options, true );
 			return;
 		}
 
@@ -183,7 +183,7 @@ public class Main
 			}
 			if( !valid )
 			{
-				new HelpFormatter().printHelp( "dbpatcher", options, true );
+				new HelpFormatter().printHelp( "solidbase", options, true );
 				return;
 			}
 		}
@@ -199,7 +199,7 @@ public class Main
 			return;
 		}
 
-		console.println( "DBPatcher v" + configuration.getVersion() );
+		console.println( "SolidBase v" + configuration.getVersion() );
 		console.println( "(C) 2006-2009 R.M. de Bloois, Logica" );
 		console.println();
 

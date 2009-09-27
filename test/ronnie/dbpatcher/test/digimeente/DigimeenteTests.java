@@ -41,11 +41,11 @@ public class DigimeenteTests
 	public void testDigimeenteCommandLineWithClass() throws Exception
 	{
 		Mockit.tearDownMocks();
-		Mockit.redefineMethods( Configuration.class, new MockConfiguration( "../test/dbpatcher-digimeente.properties" ) );
+		Mockit.redefineMethods( Configuration.class, new MockConfiguration( "../test/solidbase-digimeente.properties" ) );
 
 		// Test the mock itself
 		Configuration configuration = new Configuration( new Progress( null, false ), 2, null, null, null, null, null, null );
-		Assert.assertEquals( Manipulator.getConfigurationPropertiesFile( configuration ).getName(), "dbpatcher-digimeente.properties" );
+		Assert.assertEquals( Manipulator.getConfigurationPropertiesFile( configuration ).getName(), "solidbase-digimeente.properties" );
 
 		MockConsole console = new MockConsole();
 		console.addAnswer( "Zaanstad-slot1" );
@@ -60,7 +60,7 @@ public class DigimeenteTests
 		String output = console.getOutput();
 		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
 		output = output.replaceAll( "C:\\\\\\S+\\\\", "C:\\\\...\\\\" );
-		output = output.replaceAll( "DBPatcher v1\\.0\\.\\d+\\s+\\(C\\) 2006-200\\d R\\.M\\. de Bloois, Logica", "DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, Logica" );
+		output = output.replaceAll( "SolidBase v1\\.0\\.\\d+\\s+\\(C\\) 2006-200\\d R\\.M\\. de Bloois, Logica", "SolidBase v1.0.x (C) 2006-200x R.M. de Bloois, Logica" );
 		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
 		output = output.replaceAll( "\\\r", "" );
 		//		output = output.replaceAll( "\\\t", "\\t" );
@@ -69,9 +69,9 @@ public class DigimeenteTests
 		//		System.out.println( "[[[" + output + "]]]" );
 
 		Assert.assertEquals( output,
-				"Reading property file file:/.../dbpatcher-default.properties\n" +
-				"Reading property file C:\\...\\dbpatcher-digimeente.properties\n" +
-				"DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, Logica\n" +
+				"Reading property file file:/.../solidbase-default.properties\n" +
+				"Reading property file C:\\...\\solidbase-digimeente.properties\n" +
+				"SolidBase v1.0.x (C) 2006-200x R.M. de Bloois, Logica\n" +
 				"\n" +
 				"Available database:\n" +
 				"    Zaanstad-slot1\n" +
@@ -101,7 +101,7 @@ public class DigimeenteTests
 	public void testDigimeenteCommandLineWithScript() throws Exception
 	{
 		Mockit.tearDownMocks();
-		Mockit.redefineMethods( Configuration.class, new MockConfiguration( "../test/dbpatcher-digimeente2.properties" ) );
+		Mockit.redefineMethods( Configuration.class, new MockConfiguration( "../test/solidbase-digimeente2.properties" ) );
 
 		MockConsole console = new MockConsole();
 		console.addAnswer( "Zaanstad-slot2" );
@@ -115,7 +115,7 @@ public class DigimeenteTests
 		String output = console.getOutput();
 		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
 		output = output.replaceAll( "C:\\\\\\S+\\\\", "C:\\\\...\\\\" );
-		output = output.replaceAll( "DBPatcher v1\\.0\\.\\d+\\s+\\(C\\) 2006-200\\d R\\.M\\. de Bloois, Logica", "DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, Logica" );
+		output = output.replaceAll( "SolidBase v1\\.0\\.\\d+\\s+\\(C\\) 2006-200\\d R\\.M\\. de Bloois, Logica", "SolidBase v1.0.x (C) 2006-200x R.M. de Bloois, Logica" );
 		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
 		output = output.replaceAll( "\\\r", "" );
 		//		output = output.replaceAll( "\\\t", "\\t" );
@@ -124,9 +124,9 @@ public class DigimeenteTests
 		//		System.out.println( "[[[" + output + "]]]" );
 
 		Assert.assertEquals( output,
-				"Reading property file file:/.../dbpatcher-default.properties\n" +
-				"Reading property file C:\\...\\dbpatcher-digimeente2.properties\n" +
-				"DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, Logica\n" +
+				"Reading property file file:/.../solidbase-default.properties\n" +
+				"Reading property file C:\\...\\solidbase-digimeente2.properties\n" +
+				"SolidBase v1.0.x (C) 2006-200x R.M. de Bloois, Logica\n" +
 				"\n" +
 				"Available database:\n" +
 				"    Zaanstad-slot1\n" +
