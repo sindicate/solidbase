@@ -19,7 +19,6 @@ package ronnie.dbpatcher.core;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import com.logicacmg.idt.commons.SystemException;
 
 public class DatabaseTestUtil
 {

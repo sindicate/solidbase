@@ -23,7 +23,6 @@ import java.sql.Types;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.logicacmg.idt.commons.SystemException;
 
 /**
  * The purpose of this plugin was to capture dbms output and present it to the user while the patch was running. It doesn't work however because

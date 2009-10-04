@@ -27,9 +27,9 @@ import java.util.Properties;
 import ronnie.dbpatcher.config.Configuration;
 import ronnie.dbpatcher.config.Database;
 import ronnie.dbpatcher.config.DatabasesConfiguration;
+import ronnie.dbpatcher.core.Assert;
+import ronnie.dbpatcher.core.SystemException;
 
-import com.logicacmg.idt.commons.SystemException;
-import com.logicacmg.idt.commons.util.Assert;
 
 public class DigimeenteDatabasesConfiguration implements DatabasesConfiguration
 {

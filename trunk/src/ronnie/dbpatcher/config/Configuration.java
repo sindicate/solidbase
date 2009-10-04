@@ -30,8 +30,9 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.logicacmg.idt.commons.SystemException;
-import com.logicacmg.idt.commons.util.Assert;
+import ronnie.dbpatcher.core.Assert;
+import ronnie.dbpatcher.core.SystemException;
+
 
 /**
  *

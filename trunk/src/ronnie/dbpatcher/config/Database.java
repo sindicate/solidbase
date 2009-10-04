@@ -19,8 +19,8 @@ package ronnie.dbpatcher.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import ronnie.dbpatcher.core.SystemException;
 
-import com.logicacmg.idt.commons.SystemException;
 
 public class Database
 {

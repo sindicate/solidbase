@@ -16,7 +16,6 @@
 
 package ronnie.dbpatcher.core;
 
-import com.logicacmg.idt.commons.util.Assert;
 
 /**
  * Represents a single patch in the patch file.

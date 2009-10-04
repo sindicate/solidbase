@@ -28,9 +28,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.collections.map.MultiValueMap;
 
-import com.logicacmg.idt.commons.SystemException;
-import com.logicacmg.idt.commons.io.RandomAccessLineReader;
-import com.logicacmg.idt.commons.util.Assert;
 
 /**
  * This class manages the patch file contents and the paths between versions.

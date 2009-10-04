@@ -21,9 +21,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-import com.logicacmg.idt.commons.SystemException;
-import com.logicacmg.idt.commons.util.Assert;
-
 
 /**
  * Manages connections to the database.

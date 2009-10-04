@@ -26,9 +26,8 @@ import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.logicacmg.idt.commons.io.RandomAccessLineReader;
-
 import ronnie.dbpatcher.test.core.TestProgressListener;
+
 
 public class CharSets
 {

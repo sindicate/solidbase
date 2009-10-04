@@ -35,10 +35,6 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.logicacmg.idt.commons.SystemException;
-import com.logicacmg.idt.commons.io.RandomAccessLineReader;
-import com.logicacmg.idt.commons.util.Assert;
-
 
 /**
  * 
