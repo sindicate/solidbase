@@ -20,10 +20,10 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.logicacmg.idt.commons.SystemException;
-
 import ronnie.dbpatcher.Main;
 import ronnie.dbpatcher.core.Patcher;
+import ronnie.dbpatcher.core.SystemException;
+
 
 public class CommandLineTests
 {

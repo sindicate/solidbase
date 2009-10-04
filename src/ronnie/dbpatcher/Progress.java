@@ -22,8 +22,8 @@ import ronnie.dbpatcher.config.ConfigListener;
 import ronnie.dbpatcher.core.Command;
 import ronnie.dbpatcher.core.PatchFile;
 import ronnie.dbpatcher.core.ProgressListener;
+import ronnie.dbpatcher.core.SystemException;
 
-import com.logicacmg.idt.commons.SystemException;
 
 public class Progress extends ProgressListener implements ConfigListener
 {

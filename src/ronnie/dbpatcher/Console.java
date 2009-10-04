@@ -23,7 +23,8 @@ import java.io.PrintStream;
 import java.text.DateFormat;
 import java.util.Date;
 
-import com.logicacmg.idt.commons.util.Assert;
+import ronnie.dbpatcher.core.Assert;
+
 
 public class Console
 {

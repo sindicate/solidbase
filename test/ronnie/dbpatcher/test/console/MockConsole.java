@@ -26,8 +26,8 @@ import java.util.Queue;
 import org.apache.commons.io.output.TeeOutputStream;
 
 import ronnie.dbpatcher.Console;
+import ronnie.dbpatcher.core.Assert;
 
-import com.logicacmg.idt.commons.util.Assert;
 
 public class MockConsole extends Console
 {

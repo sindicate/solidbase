@@ -23,7 +23,6 @@ import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.logicacmg.idt.commons.util.Assert;
 
 /**
  * This plugin asserts that a given query statement returns results. It generates an error with the given message otherwise. This plugin can be used to check the state of the database. Example:

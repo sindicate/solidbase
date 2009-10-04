@@ -46,14 +46,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 
+import org.apache.commons.lang.StringUtils;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
-import com.logicacmg.idt.commons.SystemException;
-import com.logicacmg.idt.commons.util.Assert;
-import com.logicacmg.idt.commons.util.StringUtil;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
+
 
 /**
  * This class represents the version information in the database. It is able to interpret the data and modify the data.
@@ -347,12 +346,12 @@ public class DBVersion
 			PreparedStatement statement = connection.prepareStatement( "INSERT INTO DBVERSIONLOG ( SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ? )" );
 			try
 			{
-				statement.setString( 1, StringUtil.emptyToNull( source ) );
+				statement.setString( 1, StringUtils.stripToNull( source ) );
 				statement.setString( 2, target );
 				statement.setInt( 3, count );
 				statement.setTimestamp( 4, new Timestamp( System.currentTimeMillis() ) );
-				statement.setString( 5, StringUtil.emptyToNull( command ) );
-				statement.setString( 6, StringUtil.emptyToNull( result ) );
+				statement.setString( 5, StringUtils.stripToNull( command ) );
+				statement.setString( 6, StringUtils.stripToNull( result ) );
 				statement.executeUpdate();
 			}
 			finally

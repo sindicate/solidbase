@@ -35,8 +35,8 @@ import org.apache.commons.cli.ParseException;
 import ronnie.dbpatcher.config.Configuration;
 import ronnie.dbpatcher.core.Database;
 import ronnie.dbpatcher.core.Patcher;
+import ronnie.dbpatcher.core.SystemException;
 
-import com.logicacmg.idt.commons.SystemException;
 
 /**
  *

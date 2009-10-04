@@ -1,5 +1,5 @@
 /*--
- * Copyright 2006 René M. de Bloois
+ * Copyright 2005 René M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,22 @@
  * limitations under the License.
  */
 
-package ronnie.dbpatcher.config;
+package ronnie.dbpatcher.core;
 
-import groovy.lang.Binding;
-import groovy.lang.GroovyShell;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
-
-import ronnie.dbpatcher.core.SystemException;
-
-
-public class GroovyUtil
+/**
+ * Thrown when an assertion failed.
+ *
+ * @since Mar 13, 2005
+ */
+public class AssertionFailedException extends RuntimeException
 {
-	static public Object evaluate( File file, Map binding )
+	/**
+	 * Constructs a <code>AssertionFailedException</code> object with a detail message.
+	 * 
+	 * @param message the detail message.
+	 */
+	public AssertionFailedException( String message )
 	{
-		try
-		{
-			return new GroovyShell( new Binding( binding ) ).evaluate( file );
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
+		super( message );
 	}
 }

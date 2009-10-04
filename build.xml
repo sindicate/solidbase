@@ -148,7 +148,6 @@
 		<mkdir dir="${build.home}/stage" />
 		<jarjar compress="yes" destfile="${build.home}/stage/solidbase1.jar">
 			<fileset dir="${build.home}/classes" />
-			<zipfileset src="lib/idt-commons-2.0.142.jar" />
 			<keep pattern="ronnie.dbpatcher.Main" />
 		</jarjar>
 		<mkdir dir="${dist.home}" />
