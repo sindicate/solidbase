@@ -125,6 +125,7 @@ public class Main
 
 		Options options = new Options();
 		options.addOption( "verbose", false, "be extra verbose" );
+		// TODO Rename to 'batchmode, keep 'fromant' hidden
 		options.addOption( "fromant", false, "adds newlines after input requests" );
 		options.addOption( "dumplog", true, "export historical patch results to an xml file" );
 		options.addOption( "driver", true, "sets the jdbc driverclass" );
