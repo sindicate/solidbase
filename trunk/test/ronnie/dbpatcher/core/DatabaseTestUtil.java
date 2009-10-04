@@ -23,9 +23,9 @@ import com.logicacmg.idt.commons.SystemException;
 
 public class DatabaseTestUtil
 {
-	static public void shutdown( Database database )
+	static public void shutdownHSQLDB() throws SQLException
 	{
-		Connection connection = database.getConnection();
+		Connection connection = Patcher.database.getConnection( "sa" );
 		try
 		{
 			connection.createStatement().executeUpdate( "SHUTDOWN" );
@@ -33,6 +33,10 @@ public class DatabaseTestUtil
 		catch( SQLException e )
 		{
 			throw new SystemException( e );
+		}
+		finally
+		{
+			connection.close();
 		}
 	}
 }
