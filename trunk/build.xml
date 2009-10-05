@@ -25,7 +25,7 @@
 	<!-- Properties -->
 
 	<property name="target-jre" value="1.5" />
-	<property name="version.properties" value="ronnie/dbpatcher/config/version.properties" />
+	<property name="version.properties" value="solidbase/config/version.properties" />
 	<property name="release.number" value="1.0" />
 
 	<!-- Source folders & files -->
@@ -134,7 +134,7 @@
 			<jvmarg value="-javaagent:${basedir}/tools/test/jmockit.jar" />
 			<jvmarg value="-Xmx256m" />
 			<classfileset dir="${build.home}/test" />
-			<reporter classname="ronnie.dbpatcher.test.TestListener"/>
+			<reporter classname="solidbase.test.TestListener"/>
 		</testng>
 	</target>
 
@@ -148,7 +148,7 @@
 		<mkdir dir="${build.home}/stage" />
 		<jarjar compress="yes" destfile="${build.home}/stage/solidbase1.jar">
 			<fileset dir="${build.home}/classes" />
-			<keep pattern="ronnie.dbpatcher.Main" />
+			<keep pattern="solidbase.Main" />
 		</jarjar>
 		<mkdir dir="${dist.home}" />
 		<jarjar compress="yes" destfile="${dist.home}/solidbase.jar">
@@ -156,11 +156,10 @@
 			<zipfileset src="lib/commons-cli-1.2.jar" />
 			<zipfileset src="lib/commons-collections-3.2.jar" excludes="META-INF/*.txt" />
 			<zipfileset src="lib/commons-lang-2.3.jar" excludes="META-INF/*.txt" />
-			<rule pattern="com.logicacmg.idt.commons.**" result="solidbase.@0" />
 			<rule pattern="org.apache.commons.**" result="solidbase.@0" />
-			<keep pattern="ronnie.dbpatcher.Main" />
+			<keep pattern="solidbase.Main" />
 			<manifest>
-				<attribute name="Main-Class" value="ronnie.dbpatcher.Main" />
+				<attribute name="Main-Class" value="solidbase.Main" />
 				<attribute name="Version" value="${release.number}.${svn.revision}" />
 				<attribute name="Project-Name" value="${ant.project.name}" />
 				<attribute name="Built-By" value="${user.name}" />

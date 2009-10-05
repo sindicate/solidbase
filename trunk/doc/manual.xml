@@ -168,7 +168,7 @@ ALTER SESSION ...
 			<example><title>Example interactive mode</title>
 <screen><![CDATA[C:\PROJECTS\BUILDS\solidbase\dist>java -jar solidbase.jar
 20-1-09 20:47   SolidBase v1.0.101
-20-1-09 20:47   (C) 2006-2009 R.M. de Bloois, Logica
+20-1-09 20:47   (C) 2006-2009 René M. de Bloois
 
 20-1-09 20:47   Available database:
 20-1-09 20:47       prod (DHL Production)
@@ -219,7 +219,7 @@ C:\PROJECTS\BUILDS\solidbase\dist>]]></screen>
 				</para></listitem>
 				<listitem><para>
 					By adding the jar files to the -cp option when starting java:
-					<programlisting>java -cp solidbase.jar;ojdbc14.jar;derby-10.2.1.6.jar ronnie.dbpatcher.Main</programlisting>
+					<programlisting>java -cp solidbase.jar;ojdbc14.jar;derby-10.2.1.6.jar solidbase.Main</programlisting>
 					As you see, you need to start the patch tool specifying the Main class instead of the jar.
 				</para></listitem>
 			</itemizedlist>
@@ -258,18 +258,18 @@ C:\PROJECTS\BUILDS\solidbase\dist>]]></screen>
  				<title>Command line examples</title>
 				<screen>java -jar solidbase.jar</screen>
  				<para>Starts the patchtool in interactive mode. All configuration is read from the <code>solidbase.properties</code>.</para>
-<screen>java -cp solidbase.jar;ojdbc14.jar ronnie.dbpatcher.Main 
+<screen>java -cp solidbase.jar;ojdbc14.jar solidbase.Main 
   -driver oracle.jdbc.OracleDriver 
   -url jdbc:oracle:thin:@hostname:1521:dbname 
   -username rene</screen>
  				<para>Starts the patchtool in interactive mode for the given database and user. The <code>solidbase.properties</code> is ignored.</para>
-<screen>java -cp solidbase.jar;ojdbc14.jar ronnie.dbpatcher.Main 
+<screen>java -cp solidbase.jar;ojdbc14.jar solidbase.Main 
   -driver oracle.jdbc.OracleDriver 
   -url jdbc:oracle:thin:@hostname:1521:dbname 
   -username rene -password geheim 
   -patchfile oracle-patch.sql -target 2.0.*</screen>
  				<para>Patches the given database to the last version that start with 2.0. The <code>solidbase.properties</code> is ignored.</para>
- <screen>java -cp solidbase.jar;ojdbc14.jar ronnie.dbpatcher.Main 
+ <screen>java -cp solidbase.jar;ojdbc14.jar solidbase.Main 
    -driver oracle.jdbc.OracleDriver 
    -url jdbc:oracle:thin:@hostname:1521:dbname 
    -username rene -dumplog upgrade.log</screen>
@@ -304,7 +304,7 @@ C:\PROJECTS\BUILDS\solidbase\dist>]]></screen>
 			<itemizedlist>
 				<listitem>
 					<para>
-						The internal /ronnie/dbpatcher/config/solidbase-default.properties;
+						The internal /solidbase/config/solidbase-default.properties;
 					</para>
 				</listitem>
 				<listitem>
@@ -438,7 +438,7 @@ test.app3.patchfile = dbpatch-derby-example.sql]]></programlisting>
 					You need to add a class to the classpath which extends the following interface:
 				</para>
 				
-<programlisting><![CDATA[package ronnie.dbpatcher.config;
+<programlisting><![CDATA[package solidbase.config;
 public interface DatabasesConfiguration
 {
     void init( Configuration configuration );
@@ -448,9 +448,9 @@ public interface DatabasesConfiguration
 				<example><title>Example databases configuration class</title>
 <programlisting><![CDATA[package somePackage;
 
-import ronnie.dbpatcher.config.Configuration;
-import ronnie.dbpatcher.config.Database;
-import ronnie.dbpatcher.config.DatabasesConfiguration;
+import solidbase.config.Configuration;
+import solidbase.config.Database;
+import solidbase.config.DatabasesConfiguration;
 
 public class CustomDatabasesConfiguration implements DatabasesConfiguration
 {
@@ -498,7 +498,7 @@ databases.config.test = value to be read by the databases configuration class]]>
 					<title>Example databases configuration script</title>
 <programlisting><![CDATA[// This is a groovy script called: databasesconfig.groovy
 
-import ronnie.dbpatcher.config.Database;
+import solidbase.config.Database;
 
 // You can read configuration from the solidbase.properties like this: 
 def test = configuration.getProperty( "databases.config.test" );
