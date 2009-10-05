@@ -16,7 +16,7 @@
 
 // use 'configuration' to refer to the Configuration object 
 
-import ronnie.dbpatcher.config.Database;
+import solidbase.config.Database;
 
 // Get the location of the slot properties files
 def location = configuration.getProperty( "databases.config.folder" );

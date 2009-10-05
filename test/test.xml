@@ -19,12 +19,11 @@
 
 <suite name="Suite1" verbose="1">
 	<listeners>
-		<listener class-name="ronnie.dbpatcher.test.TestListener" />
+		<listener class-name="solidbase.test.TestListener" />
 	</listeners>
 	<test name="test">
 		<packages>
-			<package name="ronnie.dbpatcher.*" />
-			<package name="com.logicacmg.idt.*" />
+			<package name="solidbase.*" />
 		</packages>
 	</test>
 </suite>
