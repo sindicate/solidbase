@@ -145,14 +145,9 @@
 		</copy>
 		<groovy src="getsvninfo.groovy" />
 		<echo file="${build.home}/classes/${version.properties}" message="module.version=${release.number}.${svn.revision}" />
-		<mkdir dir="${build.home}/stage" />
-		<jarjar compress="yes" destfile="${build.home}/stage/solidbase1.jar">
-			<fileset dir="${build.home}/classes" />
-			<keep pattern="solidbase.Main" />
-		</jarjar>
 		<mkdir dir="${dist.home}" />
 		<jarjar compress="yes" destfile="${dist.home}/solidbase.jar">
-			<zipfileset src="${build.home}/stage/solidbase1.jar" />
+			<fileset dir="${build.home}/classes" />
 			<zipfileset src="lib/commons-cli-1.2.jar" />
 			<zipfileset src="lib/commons-collections-3.2.jar" excludes="META-INF/*.txt" />
 			<zipfileset src="lib/commons-lang-2.3.jar" excludes="META-INF/*.txt" />
@@ -165,7 +160,7 @@
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Target-JRE" value="${target-jre}" />
 				<attribute name="SVN-url" value="${svn.url}" />
-				<attribute name="SVN-revision" value="${svn.revision}" />
+				<attribute name="SVN-revision" value="${svn.committedRevision}" />
 			</manifest>
 		</jarjar>
 	</target>

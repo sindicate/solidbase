@@ -31,6 +31,7 @@ import solidbase.core.Assert;
 import solidbase.core.SystemException;
 
 
+// TODO Anonymize this class
 public class DigimeenteDatabasesConfiguration implements DatabasesConfiguration
 {
 	protected List< Database > databases;
