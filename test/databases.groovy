@@ -64,19 +64,19 @@ location.eachDir
 		{
 			driver = "oracle.jdbc.OracleDriver";
 			url = "jdbc:oracle:thin:@${hostname}:${port}:${name}";
-			patchFile = "dbpatch-oracle-example.sql";
+			patchFile = "testpatch1-oracle.sql";
 		}
 		else if( type == "mysql" )
 		{
 			driver = "com.mysql.jdbc.Driver";
 			url = "jdbc:mysql://${hostname}:${port}/${name}";
-			patchFile = "dbpatch-mysql-example.sql";
+			patchFile = "testpatch1-mysql.sql";
 		}
 		else if( type == "hsqldb" )
 		{
 			driver = "org.hsqldb.jdbcDriver";
 			url = "jdbc:hsqldb:mem:${name}";
-			patchFile = "dbpatch-hsqldb-example.sql";
+			patchFile = "testpatch1.sql";
 		}
 		else
 			throw new RuntimeException( "Unknown database type: ${type}" );
