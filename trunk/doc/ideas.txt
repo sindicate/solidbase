@@ -1,0 +1,33 @@
+# Version 3 configuration
+
+classpathext: "ojdbc14.jar;derby-10.2.1.6.jar;hsqldb.jar"
+
+databases: {
+	one: {
+		driver: "org.hsqldb.jdbcDriver",
+		url: "jdbc:hsqldb:mem:test1",
+		user: "sa",
+		password: "geheim",
+		patchfile: "dbpatch-hsqldb-example.sql",
+		connections: {
+			queues: { url: "jdbc:hsqldb:mem:test2", user: "sa", password: "geheim" },
+			user: { user: "user", password: "geheim" }
+		}
+	}
+}
+
+of:
+
+classpathext: ojdbc14.jar;derby-10.2.1.6.jar;hsqldb.jar
+databases: one
+databases.one.driver: org.hsqldb.jdbcDriver
+databases.one.url: jdbc:hsqldb:mem:test1
+databases.one.user: sa
+databases.one.password: geheim
+databases.one.patchfile: dbpatch-hsqldb-example.sql
+databases.one.connections: queues, user
+databases.one.connections.queues.url: jdbc:hsqldb:mem:test2 
+databases.one.connections.queues.user: sa
+databases.one.connections.queues.password: geheim 
+databases.one.connections.user.user: user 
+databases.one.connections.user.password: geheim

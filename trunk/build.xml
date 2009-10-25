@@ -25,12 +25,9 @@
 	<!-- Properties -->
 
 	<property name="target-jre" value="1.5" />
-	<property name="version.properties" value="solidbase/config/version.properties" />
 	<property name="release.number" value="1.0" />
 
 	<!-- Source folders & files -->
-	<property name="test.home" value="test" />
-	<property name="test.lib.home" value="tools/test" />
 
 	<!-- Product folders -->
 	<property name="build.home" value="../BUILDS/solidbase" />
@@ -50,7 +47,7 @@
 	</path>
 
 	<path id="testng.classpath">
-		<fileset dir="tools/test" includes="*.jar" />
+		<fileset dir="test/lib" includes="*.jar" />
 	</path>
 
 	<path id="xalan.classpath">
@@ -71,14 +68,13 @@
 
 	<path id="compiletest.classpath">
 		<pathelement location="${build.home}/classes" />
-		<path refid="testng.classpath" />
+		<fileset dir="test/lib" includes="*.jar" />
 		<path refid="compile.classpath" />
 	</path>
 
 	<path id="test.classpath">
 		<pathelement location="${build.home}/test" />
 		<path refid="compiletest.classpath" />
-		<fileset dir="${dist.home}" includes="*.jar" />
 	</path>
 
 
@@ -111,43 +107,43 @@
 		<javac srcdir="src" destdir="${build.home}/classes" source="${target-jre}" target="${target-jre}" optimize="true" debug="true" deprecation="true">
 			<classpath refid="compile.classpath" />
 		</javac>
+		<sync todir="${build.home}/classes">
+			<fileset dir="src" excludes="**/*.java" />
+			<preserveInTarget includes="**/*.class" />
+		</sync>
 	</target>
 
 
 	<target name="compiletest" depends="compile">
 		<mkdir dir="${build.home}/test" />
-		<javac source="${target-jre}" target="${target-jre}" srcdir="${test.home}" destdir="${build.home}/test" debug="true" deprecation="true" optimize="true">
+		<javac source="${target-jre}" target="${target-jre}" srcdir="test" destdir="${build.home}/test" debug="true" deprecation="true" optimize="true">
 			<classpath refid="compiletest.classpath" />
 		</javac>
+		<sync todir="${build.home}/test">
+			<fileset dir="test" excludes="**/*.java" />
+			<preserveInTarget includes="**/*.class" />
+		</sync>
 	</target>
 
 
-	<target name="buildtest" depends="compiletest">
-		<copy preservelastmodified="true" todir="${build.home}/test">
-			<fileset dir="${test.home}" excludes="**/*.java" />
-		</copy>
-	</target>
-
-
-	<target name="test" depends="build,buildtest" description="Run all tests">
-		<testng workingDir="${dist.home}" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="2">
-			<jvmarg value="-javaagent:${basedir}/tools/test/jmockit.jar" />
+	<target name="test" depends="compile,compiletest" description="Run all tests">
+		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="3">
+			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit.jar" />
 			<jvmarg value="-Xmx256m" />
 			<classfileset dir="${build.home}/test" />
-			<reporter classname="solidbase.test.TestListener"/>
+			<!-- <reporter classname="solidbase.test.TestListener"/> -->
 		</testng>
 	</target>
 
 
 	<target name="jar" depends="compile" description="Create jar">
-		<copy todir="${build.home}/classes" preservelastmodified="yes">
-			<fileset dir="src" excludes="**/*.java" />
-		</copy>
 		<groovy src="getsvninfo.groovy" />
-		<echo file="${build.home}/classes/${version.properties}" message="module.version=${release.number}.${svn.revision}" />
+		<mkdir dir="${build.home}/config" />
+		<echo file="${build.home}/config/version.properties" message="module.version=${release.number}.${svn.revision}" />
 		<mkdir dir="${dist.home}" />
 		<jarjar compress="yes" destfile="${dist.home}/solidbase.jar">
-			<fileset dir="${build.home}/classes" />
+			<zipfileset dir="${build.home}/classes" excludes="solidbase/config/version.properties" />
+			<zipfileset file="${build.home}/config/version.properties" prefix="solidbase/config" />
 			<zipfileset src="lib/commons-cli-1.2.jar" />
 			<zipfileset src="lib/commons-collections-3.2.jar" excludes="META-INF/*.txt" />
 			<zipfileset src="lib/commons-lang-2.3.jar" excludes="META-INF/*.txt" />
