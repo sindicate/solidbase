@@ -136,6 +136,15 @@
 	</target>
 
 
+	<target name="testnew" depends="compile,compiletest" description="Run new tests">
+		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="3" groups="new">
+			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit.jar" />
+			<jvmarg value="-Xmx256m" />
+			<classfileset dir="${build.home}/test" />
+		</testng>
+	</target>
+
+
 	<target name="jar" depends="compile" description="Create jar">
 		<groovy src="getsvninfo.groovy" />
 		<mkdir dir="${build.home}/config" />

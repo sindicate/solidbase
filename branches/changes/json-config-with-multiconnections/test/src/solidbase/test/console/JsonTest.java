@@ -23,12 +23,15 @@ import java.io.Reader;
 
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import solidbase.Main;
 
 
 public class JsonTest
 {
-	@Test(groups={"unit"})
+	@Test
 	public void testJson() throws IOException, ParseException
 	{
 		InputStream is = JsonTest.class.getClassLoader().getResourceAsStream( "test1.json" );
@@ -37,15 +40,14 @@ public class JsonTest
 		new JSONParser().parse( reader );
 	}
 
-	/*
-	@Test(groups={"integration"})
+	@Test(groups={"new"})
 	public void testCommandLineJson() throws Exception
 	{
 		MockConsole console = new MockConsole();
 
 		Main.console = console;
 
-		Main.main0( "-verbose", "-jsonconfig", "test1.json" );
+		Main.main0( "-verbose", "-jsonconfigfile", "test1.json" );
 
 		String output = console.getOutput();
 		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
@@ -56,13 +58,16 @@ public class JsonTest
 
 		//System.out.println( "[[[" + output + "]]]" );
 
+		// TODO Get rid of the application 'n.a.'
 		Assert.assertEquals( output,
+				"Reading property file file:/.../solidbase-default.properties\n" +
+				//"Reading property file file:/.../solidbase-default.properties\n" +
 				"SolidBase v1.0.x (C) 2006-200x René M. de Bloois\n" +
 				"\n" +
-				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test2, user=sa\n" +
-				"Connecting to database...\n" +
+				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:testJson, user=sa\n" +
+				"Connecting to database 'one', application 'n.a.'...\n" +
 				"The database has no version yet.\n" +
-				"Opening patchfile 'file:/.../testpatch1.sql'\n" +
+				"Opening patchfile 'file:/.../testpatch-multiconnections.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Patching \"null\" to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
@@ -77,5 +82,4 @@ public class JsonTest
 				"Current database version is \"1.0.2\".\n"
 		);
 	}
-	 */
 }

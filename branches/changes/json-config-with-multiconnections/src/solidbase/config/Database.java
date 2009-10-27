@@ -38,9 +38,11 @@ public class Database
 		this.url = url;
 	}
 
-	public void addApplication( String name, String description, String userName, String patchFile )
+	public Application addApplication( String name, String description, String userName, String password, String patchFile, String target )
 	{
-		this.applications.add( new Application( name, description, userName, patchFile ) );
+		Application application = new Application( name, description, userName, password, patchFile, target );
+		this.applications.add( application );
+		return application;
 	}
 
 	public Application getApplication( String name )

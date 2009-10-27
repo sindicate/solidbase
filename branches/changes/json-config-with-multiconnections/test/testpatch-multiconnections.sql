@@ -68,7 +68,9 @@ GO
 --* PATCH "1.0.1" --> "1.0.2"
 --* // ========================================================================
 
---* DATABASE USER
+--* SELECT CONNECTION USER
+
+--* MESSAGE START 'Creating table USERS'
 
 CREATE TABLE USERS
 (
@@ -78,7 +80,10 @@ CREATE TABLE USERS
 )
 GO
 
---* /DATABASE 
+--* MESSAGE START 'Inserting admin user'
+
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
+GO
 
 --* /PATCH
 

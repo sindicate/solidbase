@@ -19,6 +19,8 @@ package solidbase.config;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,8 +29,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import solidbase.core.Assert;
 import solidbase.core.SystemException;
@@ -70,7 +77,7 @@ public class Configuration
 	}
 
 	// TODO The automatic target should also be added to the properties file
-	public Configuration( ConfigListener progress, int pass, String optionDriver, String optionUrl, String optionUserName, String optionPassWord, String optionTarget, String optionPatchFile )
+	public Configuration( ConfigListener progress, int pass, String optionDriver, String optionUrl, String optionUserName, String optionPassWord, String optionTarget, String optionPatchFile, String jsonConfig )
 	{
 		// Checks
 
@@ -118,6 +125,98 @@ public class Configuration
 			progress.readingPropertyFile( url.toString() );
 			Properties defaultProperties = new Properties();
 			defaultProperties.load( url.openStream() );
+
+			// Load JSON Configuration
+
+			if( jsonConfig != null )
+			{
+				Reader reader = new InputStreamReader( new FileInputStream( jsonConfig ), "UTF-8" );
+				JSONObject object;
+				try
+				{
+					object = (JSONObject)new JSONParser().parse( reader );
+				}
+				catch( ParseException e )
+				{
+					throw new SystemException( e );
+				}
+
+				this.configVersion = 2;
+
+				// driver jars
+				this.driverJars = new ArrayList();
+
+				JSONArray classpathext = (JSONArray)object.get( "classpathext" );
+				if( classpathext != null )
+					for( String driverJar : (List< String >)classpathext )
+					{
+						driverJar = driverJar.trim();
+						if( driverJar.length() > 0 )
+							this.driverJars.add( driverJar );
+					}
+
+				if( pass > 1 )
+				{
+					// read it myself
+					this.databases = new ArrayList< Database >();
+
+					// TODO Better error messages
+
+					Map< String, JSONObject > databasesMap = (JSONObject)object.get( "databases" );
+					Assert.isFalse( databasesMap.isEmpty(), "'databases' not configured in " + jsonConfig );
+					for( Entry< String, JSONObject > databaseEntry : databasesMap.entrySet() )
+					{
+						String databaseName = databaseEntry.getKey().trim();
+						Assert.notBlank( databaseName );
+
+						// per database
+						Map< String, Object > databaseMap = databaseEntry.getValue();
+
+						String databaseDescription = (String)databaseMap.get( "description" );
+						String driver = (String)databaseMap.get( "driver" );
+						String dbUrl = (String)databaseMap.get( "url" );
+
+						if( StringUtils.isBlank( databaseDescription ) )
+							databaseDescription = databaseName;
+						Assert.notBlank( driver, "'" + databaseName + "driver' not configured in " + jsonConfig );
+						Assert.notBlank( dbUrl, "'" + databaseName + "url' not configured in " + jsonConfig );
+
+						Database database = new Database( databaseName, databaseDescription, driver, dbUrl );
+						this.databases.add( database );
+
+						// apps
+						String appName = "n.a.";
+						String userName = (String)databaseMap.get( "user" );
+						String password = (String)databaseMap.get( "password" );
+						String patchFile = (String)databaseMap.get( "patchfile" );
+						String target = (String)databaseMap.get( "target" );
+
+						Assert.notBlank( userName, "'" + databaseName + "." + appName + "user' not configured in " + jsonConfig );
+						Assert.notBlank( patchFile, "'" + databaseName + "." + appName + "patchfile' not configured in " + jsonConfig );
+
+						Application application = database.addApplication( appName, appName, userName, password, patchFile, target );
+
+						// connections
+						Map< String, JSONObject > connections = (Map)databaseMap.get( "connections" );
+						for( Entry< String, JSONObject > connectionEntry : connections.entrySet() )
+						{
+							String name = connectionEntry.getKey();
+							Map< String, String > connection = connectionEntry.getValue();
+							String user = connection.get( "user" );
+							Assert.notBlank( user, "'user' not configured in " + jsonConfig );
+							//							System.out.println( "User: " + user );
+							application.addConnection( name, connection.get( "driver" ), connection.get( "url" ), user, connection.get( "password" ) );
+						}
+						System.out.println( "End" );
+					}
+
+					Collections.sort( this.databases, new Database.Comparator() );
+					for( Database database : this.databases )
+						Collections.sort( database.applications, new Application.Comparator() );
+				}
+
+				return;
+			}
 
 			// Load the properties
 
@@ -238,7 +337,7 @@ public class Configuration
 										Assert.notBlank( userName, "'" + databaseName + "." + appName + ".user' not configured in " + DBPATCHER_PROPERTIES );
 										Assert.notBlank( patchFile, "'" + databaseName + "." + appName + ".patchfile' not configured in " + DBPATCHER_PROPERTIES );
 
-										database.addApplication( appName, appDescription, userName, patchFile );
+										database.addApplication( appName, appDescription, userName, null, patchFile, null );
 									}
 								}
 							}
