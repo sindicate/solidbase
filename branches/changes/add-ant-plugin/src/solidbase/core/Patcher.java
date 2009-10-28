@@ -418,7 +418,7 @@ public class Patcher
 		}
 	}
 
-	static protected void setConnection( Database database )
+	static private void setConnection( Database database )
 	{
 		Patcher.database = database;
 		database.init(); // Reset the current user
