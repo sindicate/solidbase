@@ -33,7 +33,7 @@ public class Conditional
 		Patcher.end();
 
 		Patcher.setCallBack( new TestProgressListener() );
-		Patcher.setConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testBasic" ), "sa", null );
+		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testBasic", "sa", null ) );
 
 		Patcher.openPatchFile( "testpatch3.sql" );
 		try

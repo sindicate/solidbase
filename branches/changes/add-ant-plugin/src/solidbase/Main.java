@@ -33,6 +33,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import solidbase.config.Configuration;
+import solidbase.config.Connection;
 import solidbase.core.Database;
 import solidbase.core.Patcher;
 import solidbase.core.SystemException;
@@ -206,6 +207,7 @@ public class Main
 
 		Patcher.setCallBack( progress );
 		String patchFile;
+		String target;
 		if( configuration.getConfigVersion() == 2 )
 		{
 			solidbase.config.Database selectedDatabase;
@@ -247,14 +249,19 @@ public class Main
 			else
 				selectedApplication = selectedDatabase.getApplications().get( 0 );
 
-			Patcher.setConnection( new Database( selectedDatabase.getDriver(), selectedDatabase.getUrl() ), selectedApplication.getUserName(), null );
+			Patcher.setDefaultConnection( new Database( selectedDatabase.getDriver(), selectedDatabase.getUrl(), selectedApplication.getUserName(), selectedApplication.getPassword() ) );
+			for( Connection connection : selectedApplication.getConnections() )
+				Patcher.addConnection( connection );
+
 			patchFile = selectedApplication.getPatchFile();
+			target = selectedApplication.getTarget();
 			console.println( "Connecting to database '" + selectedDatabase.getName() + "', application '" + selectedApplication.getName() + "'..." );
 		}
 		else
 		{
-			Patcher.setConnection( new Database( configuration.getDBDriver(), configuration.getDBUrl() ), configuration.getUser(), configuration.getPassWord() );
+			Patcher.setDefaultConnection( new Database( configuration.getDBDriver(), configuration.getDBUrl(), configuration.getUser(), configuration.getPassWord() ) );
 			patchFile = configuration.getPatchFile();
+			target = configuration.getTarget();
 			if( patchFile == null )
 				patchFile = "dbpatch.sql";
 			console.println( "Connecting to database..." );
@@ -271,8 +278,8 @@ public class Main
 		Patcher.openPatchFile( patchFile );
 		try
 		{
-			if( configuration.getTarget() != null )
-				Patcher.patch( configuration.getTarget() );
+			if( target != null )
+				Patcher.patch( target ); // TODO Print this target
 			else
 			{
 				// Need linked set because order is important
@@ -300,7 +307,7 @@ public class Main
 
 	static protected void reload( String[] args, List< String > jars, boolean verbose ) throws Exception
 	{
-		if( jars.isEmpty() )
+		if( jars == null || jars.isEmpty() )
 		{
 			// No need to add a new classloader
 			pass2( args );

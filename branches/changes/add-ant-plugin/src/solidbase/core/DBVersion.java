@@ -70,9 +70,9 @@ public class DBVersion
 	protected String version;
 	protected String target;
 	protected int statements;
-	protected String user;
 
 	protected Database database;
+
 
 	protected DBVersion( Database database )
 	{
@@ -141,13 +141,13 @@ public class DBVersion
 	 */
 	protected void read()
 	{
-		Assert.notNull( this.user, "User is not set" );
+		Assert.notNull( this.database.getDefaultUser(), "Default user is not set" );
 		this.read = true;
 
 		this.versionTableExists = false;
 		this.logTableExists = false;
 
-		Connection connection = this.database.getConnection( this.user );
+		Connection connection = this.database.getConnection( this.database.getDefaultUser() );
 		try
 		{
 			try
@@ -227,7 +227,7 @@ public class DBVersion
 
 		try
 		{
-			Connection connection = this.database.getConnection( this.user );
+			Connection connection = this.database.getConnection( this.database.getDefaultUser() );
 			PreparedStatement statement;
 			if( this.versionTableExists )
 				statement = connection.prepareStatement( "UPDATE DBVERSION SET TARGET = ?, STATEMENTS = ?" );
@@ -272,7 +272,7 @@ public class DBVersion
 
 		try
 		{
-			Connection connection = this.database.getConnection( this.user );
+			Connection connection = this.database.getConnection( this.database.getDefaultUser() );
 			PreparedStatement statement = connection.prepareStatement( "UPDATE DBVERSION SET VERSION = ?, TARGET = NULL" );
 			try
 			{
@@ -293,26 +293,6 @@ public class DBVersion
 		{
 			throw new SystemException( e );
 		}
-	}
-
-	/**
-	 * The user/owner/schema of the version tables.
-	 *
-	 * @param user The user.
-	 */
-	protected void setUser( String user )
-	{
-		this.user = user;
-	}
-
-	/**
-	 * Gets the user/owner/schema of the version tables.
-	 *
-	 * @return
-	 */
-	protected String getUser()
-	{
-		return this.user;
 	}
 
 	/**
@@ -342,7 +322,7 @@ public class DBVersion
 
 		try
 		{
-			Connection connection = this.database.getConnection( getUser() );
+			Connection connection = this.database.getConnection( this.database.getDefaultUser() );
 			PreparedStatement statement = connection.prepareStatement( "INSERT INTO DBVERSIONLOG ( SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ? )" );
 			try
 			{
@@ -423,7 +403,7 @@ public class DBVersion
 	{
 		try
 		{
-			Connection connection = this.database.getConnection( getUser() );
+			Connection connection = this.database.getConnection( this.database.getDefaultUser() );
 			Statement stat = connection.createStatement();
 			try
 			{
@@ -477,7 +457,7 @@ public class DBVersion
 
 	protected boolean logContains( String version )
 	{
-		Connection connection = this.database.getConnection( getUser() );
+		Connection connection = this.database.getConnection( this.database.getDefaultUser() );
 		try
 		{
 			PreparedStatement stat = connection.prepareStatement( "SELECT ID FROM DBVERSIONLOG WHERE RESULT = 'COMPLETED VERSION " + version + "'" );

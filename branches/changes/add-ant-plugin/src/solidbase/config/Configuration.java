@@ -238,7 +238,7 @@ public class Configuration
 										Assert.notBlank( userName, "'" + databaseName + "." + appName + ".user' not configured in " + DBPATCHER_PROPERTIES );
 										Assert.notBlank( patchFile, "'" + databaseName + "." + appName + ".patchfile' not configured in " + DBPATCHER_PROPERTIES );
 
-										database.addApplication( appName, appDescription, userName, patchFile );
+										database.addApplication( appName, appDescription, userName, null, patchFile, null );
 									}
 								}
 							}
