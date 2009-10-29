@@ -1,30 +1,23 @@
-package solidbase;
+package solidbase.ant;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
-import solidbase.AntTask.Database.Connection;
+
+import solidbase.ant.AntTask.Database.Connection;
 import solidbase.config.Configuration;
 import solidbase.core.Patcher;
 
 
+// TODO Rename this class
 public class AntTask extends Task
 {
 	protected List< Database > databases = new ArrayList< Database >();
-
-	protected boolean verbose;
-
-	protected Console console;
-
-	public void setVerbose( boolean verbose )
-	{
-		this.verbose = verbose;
-	}
 
 	public Database createDatabase()
 	{
@@ -217,6 +210,29 @@ public class AntTask extends Task
 		}
 	}
 
+	// TODO Split this into logic for the message and the printing itself
+	static protected void printCurrentVersion( Progress progress )
+	{
+		String version = Patcher.getCurrentVersion();
+		String target = Patcher.getCurrentTarget();
+		int statements = Patcher.getCurrentStatements();
+
+		if( version == null )
+		{
+			if( target != null )
+				progress.info( "The database has no version yet, incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
+			else
+				progress.info( "The database has no version yet." );
+		}
+		else
+		{
+			if( target != null )
+				progress.info( "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
+			else
+				progress.info( "Current database version is \"" + version + "\"." );
+		}
+	}
+
 	@Override
 	public void execute()
 	{
@@ -224,16 +240,13 @@ public class AntTask extends Task
 
 		// TODO Validate the xml structure + exactly 1 database
 
-		if( this.console == null )
-			this.console = new Console();
-		this.console.fromAnt = true;
-
-		Progress progress = new Progress( this.console, this.verbose );
+		Project project = getProject();
+		Progress progress = new Progress( getProject(), this );
 		Configuration configuration = new Configuration( progress );
 
-		this.console.println( "SolidBase v" + configuration.getVersion() );
-		this.console.println( "(C) 2006-2009 René M. de Bloois" );
-		this.console.println();
+		progress.info( "SolidBase v" + configuration.getVersion() );
+		progress.info( "(C) 2006-2009 René M. de Bloois" );
+		progress.info( "" );
 
 		Patcher.setCallBack( progress );
 
@@ -246,9 +259,9 @@ public class AntTask extends Task
 		String patchFile = database.getPatchFile();
 		String target = database.getTarget();
 
-		this.console.println( "Connecting to database '" + database.getName() + "'..." );
+		progress.info( "Connecting to database '" + database.getName() + "'..." );
 
-		Main.printCurrentVersion( this.console );
+		printCurrentVersion( progress );
 
 		try
 		{
@@ -258,22 +271,9 @@ public class AntTask extends Task
 				if( target != null )
 					Patcher.patch( target ); // TODO Print this target
 				else
-				{
-					// Need linked set because order is important
-					LinkedHashSet< String > targets = Patcher.getTargets( false, null );
-					if( targets.size() > 0 )
-					{
-						this.console.println( "Possible targets are: " + Main.list( targets ) );
-						this.console.print( "Input target version: " );
-						String input = this.console.input();
-						Patcher.patch( input );
-					}
-					else
-						this.console.println( "There are no possible targets." );
-					// TODO Distinguish between uptodate and no possible path
-				}
-				this.console.emptyLine();
-				Main.printCurrentVersion( this.console );
+					throw new UnsupportedOperationException();
+				progress.info( "" );
+				printCurrentVersion( progress );
 			}
 			finally
 			{
