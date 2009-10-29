@@ -158,6 +158,7 @@
 			<zipfileset src="lib/commons-lang-2.3.jar" excludes="META-INF/*.txt" />
 			<rule pattern="org.apache.commons.**" result="solidbase.@0" />
 			<keep pattern="solidbase.Main" />
+			<keep pattern="solidbase.AntTask" />
 			<manifest>
 				<attribute name="Main-Class" value="solidbase.Main" />
 				<attribute name="Version" value="${release.number}.${svn.revision}" />
@@ -224,6 +225,17 @@
 		<xslt style="tools/docbook/xhtml/docbook.xsl" in="doc/manual.xml" out="${dist.home}/manual.html" classpathref="xalan.classpath" />
 		<xslt style="tools/docbook/fo/docbook.xsl" in="doc/manual.xml" out="${build.home}/manual.fo" classpathref="xalan.classpath" />
 		<fop format="application/pdf" fofile="${build.home}/manual.fo" outfile="${dist.home}/manual.pdf" />
+	</target>
+	
+	
+	<target name="anttask" depends="compile">
+        <taskdef name="solidbase" classname="solidbase.AntTask" classpath="${build.home}/classes"/>
+        <solidbase verbose="true">
+        	<database name="one" driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testJson" user="sa" password="" patchfile="testpatch-multiconnections.sql" target="1.0.*">
+        		<connection name="queues" url="jdbc:hsqldb:mem:queues" user="sa" password="geheim" />
+        		<connection name="user" user="sa" password="" />
+        	</database>
+        </solidbase>
 	</target>
 
 

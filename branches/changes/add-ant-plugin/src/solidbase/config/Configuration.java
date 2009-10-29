@@ -69,6 +69,42 @@ public class Configuration
 		return new File( DBPATCHER_PROPERTIES );
 	}
 
+	// Used from the AntTask
+	public Configuration( ConfigListener progress )
+	{
+		// Checks
+
+		// Load the version properties
+
+		URL url = Configuration.class.getResource( DBPATCHER_VERSION_PROPERTIES );
+		if( url == null )
+			throw new SystemException( "File not found: " + DBPATCHER_VERSION_PROPERTIES );
+
+		try
+		{
+			Properties versionProperties = new Properties();
+			versionProperties.load( url.openStream() );
+
+			this.version = versionProperties.getProperty( "module.version" );
+
+			Assert.isTrue( this.version != null, "module.version not found in version.properties" );
+
+			// Load the default properties
+
+			url = Configuration.class.getResource( DBPATCHER_DEFAULT_PROPERTIES );
+			if( url == null )
+				throw new SystemException( DBPATCHER_DEFAULT_PROPERTIES + " not found in classpath" );
+
+			progress.readingPropertyFile( url.toString() );
+			this.properties = new Properties();
+			this.properties.load( url.openStream() );
+		}
+		catch( IOException e )
+		{
+			throw new SystemException( e );
+		}
+	}
+
 	// TODO The automatic target should also be added to the properties file
 	public Configuration( ConfigListener progress, int pass, String optionDriver, String optionUrl, String optionUserName, String optionPassWord, String optionTarget, String optionPatchFile )
 	{
