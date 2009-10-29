@@ -229,9 +229,9 @@
 	
 	
 	<target name="anttask" depends="compile">
-        <taskdef name="solidbase" classname="solidbase.AntTask" classpath="${build.home}/classes"/>
+        <taskdef name="solidbase" classname="solidbase.AntTask" classpathref="compiletest.classpath" />
         <solidbase verbose="true">
-        	<database name="one" driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testJson" user="sa" password="" patchfile="testpatch-multiconnections.sql" target="1.0.*">
+        	<database name="one" driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testJson" user="sa" password="" patchfile="test/testpatch-multiconnections.sql" target="1.0.*">
         		<connection name="queues" url="jdbc:hsqldb:mem:queues" user="sa" password="geheim" />
         		<connection name="user" user="sa" password="" />
         	</database>

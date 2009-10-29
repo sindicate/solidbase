@@ -1,11 +1,16 @@
 package solidbase;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
+import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
-
+import solidbase.AntTask.Database.Connection;
 import solidbase.config.Configuration;
+import solidbase.core.Patcher;
 
 
 public class AntTask extends Task
@@ -13,7 +18,6 @@ public class AntTask extends Task
 	protected List< Database > databases = new ArrayList< Database >();
 
 	protected boolean verbose;
-	protected boolean dumplog;
 
 	protected Console console;
 
@@ -22,17 +26,42 @@ public class AntTask extends Task
 		this.verbose = verbose;
 	}
 
-	public void setDumplog( boolean dumplog )
-	{
-		this.dumplog = dumplog;
-	}
-
 	public Database createDatabase()
 	{
 		Database database = new Database();
 		this.databases.add( database );
 		return database;
 	}
+
+	/*
+	protected Path classpath;
+
+	public Path createClasspath()
+	{
+		if( this.classpath == null )
+			this.classpath = new Path( getProject() );
+		return this.classpath.createPath();
+	}
+
+	public Path getClasspath()
+	{
+		return this.classpath;
+	}
+
+	public void setClasspath( Path classpath )
+	{
+		if( this.classpath == null )
+			this.classpath = new Path( getProject() );
+		this.classpath.append( classpath );
+	}
+
+	public void setClasspathref( Reference reference )
+	{
+		if( this.classpath == null )
+			this.classpath = new Path( getProject() );
+		this.classpath.createPath().setRefid( reference );
+	}
+	 */
 
 	protected class Database
 	{
@@ -96,7 +125,7 @@ public class AntTask extends Task
 			this.password = password;
 		}
 
-		public String getPatchfile()
+		public String getPatchFile()
 		{
 			return this.patchfile;
 		}
@@ -121,6 +150,11 @@ public class AntTask extends Task
 			Connection connection = new Connection();
 			this.connections.add( connection );
 			return connection;
+		}
+
+		public List< Connection > getConnections()
+		{
+			return this.connections;
 		}
 
 		protected class Connection
@@ -186,7 +220,9 @@ public class AntTask extends Task
 	@Override
 	public void execute()
 	{
-		// TODO Validate the xml structure
+		//log( getClasspath().toString() );
+
+		// TODO Validate the xml structure + exactly 1 database
 
 		if( this.console == null )
 			this.console = new Console();
@@ -198,5 +234,59 @@ public class AntTask extends Task
 		this.console.println( "SolidBase v" + configuration.getVersion() );
 		this.console.println( "(C) 2006-2009 René M. de Bloois" );
 		this.console.println();
+
+		Patcher.setCallBack( progress );
+
+		Database database = this.databases.get( 0 );
+		Patcher.setDefaultConnection( new solidbase.core.Database( database.getDriver(), database.getUrl(), database.getUser(), database.getPassword() ) );
+
+		for( Connection connection : database.getConnections() )
+			Patcher.addConnection( new solidbase.config.Connection( connection.getName(), connection.getDriver(), connection.getUrl(), connection.getUser(), connection.getPassword() ) );
+
+		String patchFile = database.getPatchFile();
+		String target = database.getTarget();
+
+		this.console.println( "Connecting to database '" + database.getName() + "'..." );
+
+		Main.printCurrentVersion( this.console );
+
+		try
+		{
+			Patcher.openPatchFile( patchFile );
+			try
+			{
+				if( target != null )
+					Patcher.patch( target ); // TODO Print this target
+				else
+				{
+					// Need linked set because order is important
+					LinkedHashSet< String > targets = Patcher.getTargets( false, null );
+					if( targets.size() > 0 )
+					{
+						this.console.println( "Possible targets are: " + Main.list( targets ) );
+						this.console.print( "Input target version: " );
+						String input = this.console.input();
+						Patcher.patch( input );
+					}
+					else
+						this.console.println( "There are no possible targets." );
+					// TODO Distinguish between uptodate and no possible path
+				}
+				this.console.emptyLine();
+				Main.printCurrentVersion( this.console );
+			}
+			finally
+			{
+				Patcher.closePatchFile();
+			}
+		}
+		catch( IOException e )
+		{
+			throw new BuildException( e );
+		}
+		catch( SQLException e )
+		{
+			throw new BuildException( e );
+		}
 	}
 }
