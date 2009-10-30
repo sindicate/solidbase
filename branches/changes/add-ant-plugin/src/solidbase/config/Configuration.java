@@ -69,7 +69,7 @@ public class Configuration
 		return new File( DBPATCHER_PROPERTIES );
 	}
 
-	// Used from the AntTask
+	// Used from the UpgradeTask
 	public Configuration( ConfigListener progress )
 	{
 		// Checks

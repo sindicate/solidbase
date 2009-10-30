@@ -50,7 +50,7 @@ public class Main
 	static private int pass = 1;
 
 
-	static protected void printCurrentVersion( Console console )
+	static public String getCurrentVersion()
 	{
 		String version = Patcher.getCurrentVersion();
 		String target = Patcher.getCurrentTarget();
@@ -59,17 +59,12 @@ public class Main
 		if( version == null )
 		{
 			if( target != null )
-				console.println( "The database has no version yet, incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
-			else
-				console.println( "The database has no version yet." );
+				return "The database has no version yet, incompletely patched to version \"" + target + "\" (" + statements + " statements successful).";
+			return "The database has no version yet.";
 		}
-		else
-		{
-			if( target != null )
-				console.println( "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
-			else
-				console.println( "Current database version is \"" + version + "\"." );
-		}
+		if( target != null )
+			return "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful).";
+		return "Current database version is \"" + version + "\".";
 	}
 
 
@@ -267,7 +262,7 @@ public class Main
 			console.println( "Connecting to database..." );
 		}
 
-		printCurrentVersion( console );
+		console.println( getCurrentVersion() );
 
 		if( exportlog )
 		{
@@ -296,7 +291,7 @@ public class Main
 				// TODO Distinguish between uptodate and no possible path
 			}
 			console.emptyLine();
-			printCurrentVersion( console );
+			console.println( getCurrentVersion() );
 		}
 		finally
 		{

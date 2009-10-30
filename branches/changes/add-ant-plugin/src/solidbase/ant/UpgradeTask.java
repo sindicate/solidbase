@@ -9,13 +9,14 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
-import solidbase.ant.AntTask.Database.Connection;
+import solidbase.Main;
+import solidbase.ant.UpgradeTask.Database.Connection;
 import solidbase.config.Configuration;
 import solidbase.core.Patcher;
 
 
 // TODO Rename this class
-public class AntTask extends Task
+public class UpgradeTask extends Task
 {
 	protected List< Database > databases = new ArrayList< Database >();
 
@@ -210,29 +211,6 @@ public class AntTask extends Task
 		}
 	}
 
-	// TODO Split this into logic for the message and the printing itself
-	static protected void printCurrentVersion( Progress progress )
-	{
-		String version = Patcher.getCurrentVersion();
-		String target = Patcher.getCurrentTarget();
-		int statements = Patcher.getCurrentStatements();
-
-		if( version == null )
-		{
-			if( target != null )
-				progress.info( "The database has no version yet, incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
-			else
-				progress.info( "The database has no version yet." );
-		}
-		else
-		{
-			if( target != null )
-				progress.info( "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
-			else
-				progress.info( "Current database version is \"" + version + "\"." );
-		}
-	}
-
 	@Override
 	public void execute()
 	{
@@ -261,7 +239,7 @@ public class AntTask extends Task
 
 		progress.info( "Connecting to database '" + database.getName() + "'..." );
 
-		printCurrentVersion( progress );
+		progress.info( Main.getCurrentVersion() );
 
 		try
 		{
@@ -273,7 +251,7 @@ public class AntTask extends Task
 				else
 					throw new UnsupportedOperationException();
 				progress.info( "" );
-				printCurrentVersion( progress );
+				progress.info( Main.getCurrentVersion() );
 			}
 			finally
 			{

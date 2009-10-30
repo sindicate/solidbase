@@ -229,13 +229,13 @@
 	
 	
 	<target name="anttask" depends="compile">
-        <taskdef name="solidbase" classname="solidbase.ant.AntTask" classpathref="compiletest.classpath" />
-        <solidbase>
+        <taskdef name="solidbase-upgrade" classname="solidbase.ant.UpgradeTask" classpathref="compiletest.classpath" />
+        <solidbase-upgrade>
         	<database name="one" driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testJson" user="sa" password="" patchfile="test/testpatch-multiconnections.sql" target="1.0.*">
         		<connection name="queues" url="jdbc:hsqldb:mem:queues" user="sa" password="geheim" />
         		<connection name="user" user="sa" password="" />
         	</database>
-        </solidbase>
+        </solidbase-upgrade>
 	</target>
 
 
