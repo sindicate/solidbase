@@ -530,7 +530,7 @@ public class Patcher
 	{
 		name = name.toLowerCase();
 		Database database = allDatabases.get( name );
-		Assert.notNull( database, "Database '" + name + "' not known" );
+		Assert.notNull( database, "Database '" + name + "' (case-insensitive) not known" );
 		setConnection( database );
 	}
 

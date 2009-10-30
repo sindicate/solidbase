@@ -1,16 +1,12 @@
 package solidbase.ant;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
 import solidbase.Main;
-import solidbase.ant.UpgradeTask.Database.Connection;
 import solidbase.config.Configuration;
 import solidbase.core.Patcher;
 
@@ -18,14 +14,15 @@ import solidbase.core.Patcher;
 // TODO Rename this class
 public class UpgradeTask extends Task
 {
-	protected List< Database > databases = new ArrayList< Database >();
+	protected String name;
+	protected String driver;
+	protected String url;
+	protected String user;
+	protected String password;
+	protected String patchfile;
+	protected String target;
 
-	public Database createDatabase()
-	{
-		Database database = new Database();
-		this.databases.add( database );
-		return database;
-	}
+	protected List< Connection > connections = new ArrayList< Connection >();
 
 	/*
 	protected Path classpath;
@@ -57,17 +54,95 @@ public class UpgradeTask extends Task
 	}
 	 */
 
-	protected class Database
+	public String getName()
+	{
+		return this.name;
+	}
+
+	public void setName( String name )
+	{
+		this.name = name;
+	}
+
+	public String getDriver()
+	{
+		return this.driver;
+	}
+
+	public void setDriver( String driver )
+	{
+		this.driver = driver;
+	}
+
+	public String getUrl()
+	{
+		return this.url;
+	}
+
+	public void setUrl( String url )
+	{
+		this.url = url;
+	}
+
+	public String getUser()
+	{
+		return this.user;
+	}
+
+	public void setUser( String user )
+	{
+		this.user = user;
+	}
+
+	public String getPassword()
+	{
+		return this.password;
+	}
+
+	public void setPassword( String password )
+	{
+		this.password = password;
+	}
+
+	public String getPatchfile()
+	{
+		return this.patchfile;
+	}
+
+	public void setPatchfile( String patchfile )
+	{
+		this.patchfile = patchfile;
+	}
+
+	public String getTarget()
+	{
+		return this.target;
+	}
+
+	public void setTarget( String target )
+	{
+		this.target = target;
+	}
+
+	public Connection createSecondary()
+	{
+		Connection connection = new Connection();
+		this.connections.add( connection );
+		return connection;
+	}
+
+	public List< Connection > getConnections()
+	{
+		return this.connections;
+	}
+
+	protected class Connection
 	{
 		protected String name;
 		protected String driver;
 		protected String url;
 		protected String user;
 		protected String password;
-		protected String patchfile;
-		protected String target;
-
-		protected List< Connection > connections = new ArrayList< Connection >();
 
 		public String getName()
 		{
@@ -118,107 +193,43 @@ public class UpgradeTask extends Task
 		{
 			this.password = password;
 		}
+	}
 
-		public String getPatchFile()
+
+	protected void validate()
+	{
+		if( this.driver == null )
+			throw new BuildException( "The 'driver' attribute is mandatory for the " + getTaskName() + " task" );
+		if( this.url == null )
+			throw new BuildException( "The 'url' attribute is mandatory for the " + getTaskName() + " task" );
+		if( this.user == null )
+			throw new BuildException( "The 'user' attribute is mandatory for the " + getTaskName() + " task" );
+		if( this.password == null )
+			throw new BuildException( "The 'password' attribute is mandatory for the " + getTaskName() + " task" );
+		if( this.patchfile == null )
+			throw new BuildException( "The 'patchfile' attribute is mandatory for the " + getTaskName() + " task" );
+		if( this.target == null )
+			throw new BuildException( "The 'target' attribute is mandatory for the " + getTaskName() + " task" );
+
+		for( Connection connection : this.connections )
 		{
-			return this.patchfile;
-		}
-
-		public void setPatchfile( String patchfile )
-		{
-			this.patchfile = patchfile;
-		}
-
-		public String getTarget()
-		{
-			return this.target;
-		}
-
-		public void setTarget( String target )
-		{
-			this.target = target;
-		}
-
-		public Connection createConnection()
-		{
-			Connection connection = new Connection();
-			this.connections.add( connection );
-			return connection;
-		}
-
-		public List< Connection > getConnections()
-		{
-			return this.connections;
-		}
-
-		protected class Connection
-		{
-			protected String name;
-			protected String driver;
-			protected String url;
-			protected String user;
-			protected String password;
-
-			public String getName()
-			{
-				return this.name;
-			}
-
-			public void setName( String name )
-			{
-				this.name = name;
-			}
-
-			public String getDriver()
-			{
-				return this.driver;
-			}
-
-			public void setDriver( String driver )
-			{
-				this.driver = driver;
-			}
-
-			public String getUrl()
-			{
-				return this.url;
-			}
-
-			public void setUrl( String url )
-			{
-				this.url = url;
-			}
-
-			public String getUser()
-			{
-				return this.user;
-			}
-
-			public void setUser( String user )
-			{
-				this.user = user;
-			}
-
-			public String getPassword()
-			{
-				return this.password;
-			}
-
-			public void setPassword( String password )
-			{
-				this.password = password;
-			}
+			if( connection.getName() == null )
+				throw new BuildException( "The 'name' attribute is mandatory for a 'connection' element" );
+			if( connection.getUser() == null )
+				throw new BuildException( "The 'user' attribute is mandatory for a 'connection' element" );
+			if( connection.getPassword() == null )
+				throw new BuildException( "The 'password' attribute is mandatory for a 'connection' element" );
+			if( connection.getName().equals( "default" ) )
+				throw new BuildException( "The connection name 'default' is reserved" );
 		}
 	}
+
 
 	@Override
 	public void execute()
 	{
-		//log( getClasspath().toString() );
+		validate();
 
-		// TODO Validate the xml structure + exactly 1 database
-
-		Project project = getProject();
 		Progress progress = new Progress( getProject(), this );
 		Configuration configuration = new Configuration( progress );
 
@@ -228,26 +239,22 @@ public class UpgradeTask extends Task
 
 		Patcher.setCallBack( progress );
 
-		Database database = this.databases.get( 0 );
-		Patcher.setDefaultConnection( new solidbase.core.Database( database.getDriver(), database.getUrl(), database.getUser(), database.getPassword() ) );
+		Patcher.setDefaultConnection( new solidbase.core.Database( this.driver, this.url, this.user, this.password ) );
 
-		for( Connection connection : database.getConnections() )
+		for( Connection connection : this.connections )
 			Patcher.addConnection( new solidbase.config.Connection( connection.getName(), connection.getDriver(), connection.getUrl(), connection.getUser(), connection.getPassword() ) );
 
-		String patchFile = database.getPatchFile();
-		String target = database.getTarget();
-
-		progress.info( "Connecting to database '" + database.getName() + "'..." );
+		progress.info( "Connecting to database..." );
 
 		progress.info( Main.getCurrentVersion() );
 
 		try
 		{
-			Patcher.openPatchFile( patchFile );
+			Patcher.openPatchFile( this.patchfile );
 			try
 			{
-				if( target != null )
-					Patcher.patch( target ); // TODO Print this target
+				if( this.target != null )
+					Patcher.patch( this.target ); // TODO Print this target
 				else
 					throw new UnsupportedOperationException();
 				progress.info( "" );
@@ -258,13 +265,9 @@ public class UpgradeTask extends Task
 				Patcher.closePatchFile();
 			}
 		}
-		catch( IOException e )
+		catch( Exception e )
 		{
-			throw new BuildException( e );
-		}
-		catch( SQLException e )
-		{
-			throw new BuildException( e );
+			throw new BuildException( e.getMessage(), e );
 		}
 	}
 }
