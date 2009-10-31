@@ -24,6 +24,7 @@ import java.text.DateFormat;
 import java.util.Date;
 
 import solidbase.core.Assert;
+import solidbase.core.SystemException;
 
 
 public class Console
@@ -110,12 +111,12 @@ public class Console
 		printlnBare( "" );
 	}
 
-	protected String input() throws IOException
+	protected String input()
 	{
 		return input( false );
 	}
 
-	synchronized protected String input( boolean password ) throws IOException
+	synchronized protected String input( boolean password )
 	{
 		if( this.fromAnt )
 			carriageReturn();
@@ -132,7 +133,14 @@ public class Console
 		{
 			if( this.stdin == null )
 				this.stdin = new BufferedReader( new InputStreamReader( System.in ) );
-			input = this.stdin.readLine();
+			try
+			{
+				input = this.stdin.readLine();
+			}
+			catch( IOException e )
+			{
+				throw new SystemException( e );
+			}
 		}
 
 		Assert.notNull( input, "No more input" );

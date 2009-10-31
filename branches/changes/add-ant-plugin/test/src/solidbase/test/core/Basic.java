@@ -17,7 +17,6 @@
 package solidbase.test.core;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Set;
 
 import org.testng.annotations.Test;
@@ -25,11 +24,12 @@ import org.testng.annotations.Test;
 import solidbase.core.Database;
 import solidbase.core.NonTerminatedStatementException;
 import solidbase.core.Patcher;
+import solidbase.core.SQLExecutionException;
 
 public class Basic
 {
 	@Test
-	public void testBasic() throws IOException, SQLException
+	public void testBasic() throws IOException, SQLExecutionException
 	{
 		Patcher.end();
 
@@ -51,8 +51,8 @@ public class Basic
 		}
 	}
 
-	@Test(dependsOnMethods="testBasic", expectedExceptions=SQLException.class)
-	public void testMissingGo() throws IOException, SQLException
+	@Test(dependsOnMethods="testBasic", expectedExceptions=SQLExecutionException.class)
+	public void testMissingGo() throws IOException, SQLExecutionException
 	{
 		Patcher.setCallBack( new TestProgressListener() );
 		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null ) );
@@ -72,7 +72,7 @@ public class Basic
 	}
 
 	@Test
-	public void testOpen() throws IOException, SQLException
+	public void testOpen() throws IOException, SQLExecutionException
 	{
 		Patcher.end();
 
@@ -95,7 +95,7 @@ public class Basic
 	}
 
 	@Test(expectedExceptions=NonTerminatedStatementException.class)
-	public void testUnterminatedCommand1() throws IOException, SQLException
+	public void testUnterminatedCommand1() throws IOException, SQLExecutionException
 	{
 		Patcher.end();
 
@@ -117,7 +117,7 @@ public class Basic
 	}
 
 	@Test(expectedExceptions=NonTerminatedStatementException.class)
-	public void testUnterminatedCommand2() throws IOException, SQLException
+	public void testUnterminatedCommand2() throws IOException, SQLExecutionException
 	{
 		Patcher.end();
 
@@ -139,7 +139,7 @@ public class Basic
 	}
 
 	@Test
-	public void testSharedPatchBlock() throws IOException, SQLException
+	public void testSharedPatchBlock() throws IOException, SQLExecutionException
 	{
 		Patcher.end();
 

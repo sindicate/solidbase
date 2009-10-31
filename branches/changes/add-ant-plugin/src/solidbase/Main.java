@@ -17,10 +17,11 @@
 package solidbase;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -36,6 +37,7 @@ import solidbase.config.Configuration;
 import solidbase.config.Connection;
 import solidbase.core.Database;
 import solidbase.core.Patcher;
+import solidbase.core.SQLExecutionException;
 import solidbase.core.SystemException;
 
 
@@ -101,9 +103,6 @@ public class Main
 				if( t.getCause() != null )
 					t = t.getCause();
 
-			if( t instanceof SQLException )
-				console.println( "SQLState: " + ( (SQLException)t ).getSQLState() );
-
 			console.printStacktrace( t );
 
 			System.exit( 1 );
@@ -112,7 +111,7 @@ public class Main
 
 
 	// Used for testing
-	static public void main0( String... args ) throws Exception
+	static public void main0( String... args ) throws SQLExecutionException
 	{
 		if( console == null )
 			console = new Console();
@@ -300,7 +299,7 @@ public class Main
 	}
 
 
-	static protected void reload( String[] args, List< String > jars, boolean verbose ) throws Exception
+	static protected void reload( String[] args, List< String > jars, boolean verbose ) throws SQLExecutionException
 	{
 		if( jars == null || jars.isEmpty() )
 		{
@@ -322,7 +321,14 @@ public class Main
 		for( String jar : jars )
 		{
 			File driverJarFile = new File( jar );
-			urls[ i++ ] = driverJarFile.toURI().toURL();
+			try
+			{
+				urls[ i++ ] = driverJarFile.toURI().toURL();
+			}
+			catch( MalformedURLException e )
+			{
+				throw new SystemException( e );
+			}
 			if( verbose )
 				console.println( "Adding jar to classpath: " + urls[ i - 1 ] );
 		}
@@ -334,13 +340,52 @@ public class Main
 		classLoader = new URLClassLoader( urls, Main.class.getClassLoader().getParent() );
 
 		// Execute the main class through the new classloader with reflection
-		Class main = classLoader.loadClass( "solidbase.Main" );
-		Method method = main.getDeclaredMethod( "pass2", String[].class );
-		method.invoke( method, (Object)args );
+		Class main;
+		try
+		{
+			main = classLoader.loadClass( "solidbase.Main" );
+		}
+		catch( ClassNotFoundException e )
+		{
+			throw new SystemException( e );
+		}
+		Method method;
+		try
+		{
+			method = main.getDeclaredMethod( "pass2", String[].class );
+		}
+		catch( SecurityException e )
+		{
+			throw new SystemException( e );
+		}
+		catch( NoSuchMethodException e )
+		{
+			throw new SystemException( e );
+		}
+		try
+		{
+			method.invoke( method, (Object)args );
+		}
+		catch( IllegalArgumentException e )
+		{
+			throw new SystemException( e );
+		}
+		catch( IllegalAccessException e )
+		{
+			throw new SystemException( e );
+		}
+		catch( InvocationTargetException e )
+		{
+//			Throwable t = e.getCause();
+//			if( t instanceof SQLExecutionException )
+//				throw (SQLExecutionException)t;
+//			throw new SystemException( t );
+			throw new SystemException( e.getCause() );
+		}
 	}
 
 
-	static public void pass2( String[] args ) throws Exception
+	static public void pass2( String[] args ) throws SQLExecutionException
 	{
 		pass = 2;
 		main0( args );

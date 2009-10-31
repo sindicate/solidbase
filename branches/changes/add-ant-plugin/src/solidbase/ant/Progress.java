@@ -93,8 +93,7 @@ public class Progress extends ProgressListener implements ConfigListener
 	@Override
 	protected void exception( Command command )
 	{
-		info( "Exception while executing:" );
-		info( command.getCommand() );
+		// The sql is printed by the SQLExecutionException.printStackTrace().
 	}
 
 	@Override

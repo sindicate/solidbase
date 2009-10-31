@@ -48,7 +48,7 @@ public class CharSets
 	}
 
 	@Test
-	public void testUtf8() throws IOException, SQLException
+	public void testUtf8() throws IOException, SQLException, SQLExecutionException
 	{
 		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testUtf8", "sa", null ) );
 
@@ -72,7 +72,7 @@ public class CharSets
 	}
 
 	@Test
-	public void testUtf16Bom() throws IOException, SQLException
+	public void testUtf16Bom() throws IOException, SQLExecutionException
 	{
 		Patcher.openPatchFile( "patch-utf-16-bom-1.sql" );
 		Assert.assertEquals( Patcher.patchFile.file.getEncoding(), "UTF-16LE" );

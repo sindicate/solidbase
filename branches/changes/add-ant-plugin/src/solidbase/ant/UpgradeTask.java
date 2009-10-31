@@ -9,6 +9,7 @@ import org.apache.tools.ant.Task;
 import solidbase.Main;
 import solidbase.config.Configuration;
 import solidbase.core.Patcher;
+import solidbase.core.SQLExecutionException;
 
 
 // TODO Rename this class
@@ -265,9 +266,9 @@ public class UpgradeTask extends Task
 				Patcher.closePatchFile();
 			}
 		}
-		catch( Exception e )
+		catch( SQLExecutionException e )
 		{
-			throw new BuildException( e.getMessage(), e );
+			throw new BuildException( e.getMessage() );
 		}
 	}
 }

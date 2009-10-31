@@ -82,43 +82,50 @@ public class Patcher
 		listeners.add( new OracleDBMSOutputPoller() );
 	}
 
-	static public void openPatchFile( String fileName ) throws IOException
+	static public void openPatchFile( String fileName )
 	{
 		if( fileName == null )
 			fileName = "dbpatch.sql";
 
-		RandomAccessLineReader ralr;
-		URL url = Patcher.class.getResource( "/" + fileName ); // In the classpath
-		if( url != null )
-		{
-			callBack.openingPatchFile( url.toString() );
-			ralr = new RandomAccessLineReader( url );
-		}
-		else
-		{
-			File file = new File( fileName ); // In the current folder
-			callBack.openingPatchFile( file.getAbsolutePath() );
-			ralr = new RandomAccessLineReader( file );
-		}
-
-		patchFile = new PatchFile( ralr );
-
-		callBack.openedPatchFile( patchFile );
-
-		// Need to close in case of an exception during reading
 		try
 		{
-			patchFile.read();
-		}
-		catch( RuntimeException e )
-		{
-			patchFile.close();
-			throw e;
+			RandomAccessLineReader ralr;
+			URL url = Patcher.class.getResource( "/" + fileName ); // In the classpath
+			if( url != null )
+			{
+				callBack.openingPatchFile( url.toString() );
+				ralr = new RandomAccessLineReader( url );
+			}
+			else
+			{
+				File file = new File( fileName ); // In the current folder
+				callBack.openingPatchFile( file.getAbsolutePath() );
+				ralr = new RandomAccessLineReader( file );
+			}
+
+			patchFile = new PatchFile( ralr );
+
+			callBack.openedPatchFile( patchFile );
+
+			// Need to close in case of an exception during reading
+			try
+			{
+				patchFile.read();
+			}
+			catch( RuntimeException e )
+			{
+				patchFile.close();
+				throw e;
+			}
+			catch( IOException e )
+			{
+				patchFile.close();
+				throw e;
+			}
 		}
 		catch( IOException e )
 		{
-			patchFile.close();
-			throw e;
+			throw new SystemException( e );
 		}
 	}
 
@@ -173,7 +180,7 @@ public class Patcher
 	 * @param target
 	 * @throws SQLException
 	 */
-	static public void patch( String target ) throws SQLException
+	static public void patch( String target ) throws SQLExecutionException
 	{
 		Set< String > targets;
 
@@ -231,7 +238,7 @@ public class Patcher
 		callBack.debug( "driverName=" + database.driverName + ", url=" + database.url + ", user=" + database.getDefaultUser() + "" );
 	}
 
-	static protected void patch( String version, String target ) throws SQLException
+	static protected void patch( String version, String target ) throws SQLExecutionException
 	{
 		if( target.equals( version ) )
 			return;
@@ -294,7 +301,7 @@ public class Patcher
 		return null;
 	}
 
-	static protected void patch( Patch patch ) throws SQLException
+	static protected void patch( Patch patch ) throws SQLExecutionException
 	{
 		Assert.notNull( patch, "patch == null" );
 
@@ -414,7 +421,7 @@ public class Patcher
 		catch( SQLException e )
 		{
 			dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command == null ? null : command.getCommand(), e );
-			throw e;
+			throw new SQLExecutionException( command, e );
 		}
 	}
 

@@ -16,14 +16,11 @@
 
 package solidbase;
 
-import java.io.IOException;
-
 import solidbase.config.ConfigListener;
 import solidbase.core.Assert;
 import solidbase.core.Command;
 import solidbase.core.PatchFile;
 import solidbase.core.ProgressListener;
-import solidbase.core.SystemException;
 
 
 public class Progress extends ProgressListener implements ConfigListener
@@ -72,9 +69,7 @@ public class Progress extends ProgressListener implements ConfigListener
 	@Override
 	protected void exception( Command command )
 	{
-		this.console.emptyLine();
-		this.console.println( "Exception while executing:" );
-		this.console.println( command.getCommand() );
+		// The sql is now printed by the SQLExecutionException.printStackTrace().
 	}
 
 	@Override
@@ -100,14 +95,7 @@ public class Progress extends ProgressListener implements ConfigListener
 	{
 		this.console.carriageReturn();
 		this.console.print( "Input password for user '" + user + "': " );
-		try
-		{
-			return this.console.input( true );
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
+		return this.console.input( true );
 	}
 
 	@Override
