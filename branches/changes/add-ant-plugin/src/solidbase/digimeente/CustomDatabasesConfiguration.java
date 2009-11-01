@@ -32,7 +32,7 @@ import solidbase.core.SystemException;
 
 
 // TODO Anonymize this class
-public class DigimeenteDatabasesConfiguration implements DatabasesConfiguration
+public class CustomDatabasesConfiguration implements DatabasesConfiguration
 {
 	protected List< Database > databases;
 
