@@ -15,6 +15,8 @@
  */
 
 import org.tmatesoft.svn.core.wc.*
+import org.apache.tools.ant.BuildException
+
 
 def modifiedcount = 0
 
@@ -31,7 +33,7 @@ clientManager.statusClient.doStatus( "." as File, true, false, false, false, fal
 )
 
 if( modifiedcount > 0 )
-	throw new Exception( "You have uncommitted changes in your working copy, please commit or revert" )
+	throw new BuildException( "You have uncommitted changes in your working copy, please commit or revert" )
 
 // Check that the revisions are all equal
 
@@ -43,6 +45,6 @@ clientManager.WCClient.doInfo( "." as File, null, true,
 		if( revision == null )
 			revision = info.revision
 		else if( info.revision != revision )
-			throw new Exception( "The items in the working copy have unequal revision numbers, please update" )
+			throw new BuildException( "The items in the working copy have unequal revision numbers, please update" )
 	} as ISVNInfoHandler
 )
