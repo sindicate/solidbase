@@ -49,7 +49,7 @@ public class CustomConfigurationTests
 		Assert.assertEquals( Manipulator.getConfigurationPropertiesFile( configuration ).getName(), "solidbase-custom.properties" );
 
 		MockConsole console = new MockConsole();
-		console.addAnswer( "Zaanstad-slot1" );
+		console.addAnswer( "Duckstad-slot1" );
 		console.addAnswer( "" );
 		console.addAnswer( "1.0.2" );
 
@@ -75,11 +75,11 @@ public class CustomConfigurationTests
 				"SolidBase v1.0.x (C) 2006-200x René M. de Bloois\n" +
 				"\n" +
 				"Available database:\n" +
-				"    Zaanstad-slot1\n" +
-				"    Zaanstad-slot2\n" +
+				"    Duckstad-slot1\n" +
+				"    Duckstad-slot2\n" +
 				"Select a database from the above: \n" +
 				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:custom1, user=sa\n" +
-				"Connecting to database 'Zaanstad-slot1', application 'midoffice'...\n" +
+				"Connecting to database 'Duckstad-slot1', application 'midoffice'...\n" +
 				"Input password for user 'sa': The database has no version yet.\n" +
 				"Opening patchfile 'file:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
@@ -105,7 +105,7 @@ public class CustomConfigurationTests
 		Mockit.redefineMethods( Configuration.class, new MockConfiguration( "solidbase-custom2.properties" ) );
 
 		MockConsole console = new MockConsole();
-		console.addAnswer( "Zaanstad-slot2" );
+		console.addAnswer( "Duckstad-slot2" );
 		console.addAnswer( "" );
 		console.addAnswer( "1.0.2" );
 
@@ -130,11 +130,11 @@ public class CustomConfigurationTests
 				"SolidBase v1.0.x (C) 2006-200x René M. de Bloois\n" +
 				"\n" +
 				"Available database:\n" +
-				"    Zaanstad-slot1\n" +
-				"    Zaanstad-slot2\n" +
+				"    Duckstad-slot1\n" +
+				"    Duckstad-slot2\n" +
 				"Select a database from the above: \n" +
 				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:custom2, user=sa\n" +
-				"Connecting to database 'Zaanstad-slot2', application 'midoffice'...\n" +
+				"Connecting to database 'Duckstad-slot2', application 'midoffice'...\n" +
 				"Input password for user 'sa': The database has no version yet.\n" +
 				"Opening patchfile 'file:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
