@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package solidbase;
+package solidbase.ant;
+
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.Task;
 
 import solidbase.config.ConfigListener;
 import solidbase.core.Assert;
@@ -25,83 +28,101 @@ import solidbase.core.ProgressListener;
 
 public class Progress extends ProgressListener implements ConfigListener
 {
-	protected boolean verbose;
-	protected Console console;
+	protected Project project;
+	protected Task task;
+	protected StringBuilder buffer;
 
-	public Progress( Console console, boolean verbose )
+	protected void flush()
 	{
-		this.console = console;
-		this.verbose = verbose;
+		if( this.buffer != null && this.buffer.length() > 0 )
+		{
+			this.project.log( this.task, this.buffer.toString(), Project.MSG_INFO );
+			this.buffer = null;
+		}
+	}
+
+	protected void info( String message )
+	{
+		flush();
+		this.project.log( this.task, message, Project.MSG_INFO );
+	}
+
+	protected void verbose( String message )
+	{
+		flush();
+		this.project.log( this.task, message, Project.MSG_VERBOSE );
+	}
+
+	public Progress( Project project, Task task )
+	{
+		this.project = project;
+		this.task = task;
 	}
 
 	public void readingPropertyFile( String path )
 	{
-		if( this.verbose )
-			this.console.println( "Reading property file " + path );
+		verbose( "Reading property file " + path );
 	}
 
 	@Override
 	protected void openingPatchFile( String patchFile )
 	{
-		this.console.println( "Opening patchfile '" + patchFile + "'" );
+		info( "Opening patchfile '" + patchFile + "'" );
 	}
 
 	@Override
 	public void openedPatchFile( PatchFile patchFile )
 	{
-		this.console.println( "    Encoding is '" + patchFile.getEncoding() + "'" );
+		info( "    Encoding is '" + patchFile.getEncoding() + "'" );
 	}
 
 	@Override
 	protected void patchStarting( String source, String target )
 	{
-		this.console.print( "Patching \"" + source + "\" to \"" + target + "\"" );
+		info( "Patching \"" + source + "\" to \"" + target + "\"" );
 	}
 
 	@Override
 	protected void executing( Command command, String message )
 	{
 		Assert.notNull( message );
-		this.console.carriageReturn();
-		this.console.print( message );
+		flush();
+		this.buffer = new StringBuilder( message );
 	}
 
 	@Override
 	protected void exception( Command command )
 	{
-		// The sql is now printed by the SQLExecutionException.printStackTrace().
+		// The sql is printed by the SQLExecutionException.printStackTrace().
 	}
 
 	@Override
 	protected void executed()
 	{
-		this.console.print( "." );
+		this.buffer.append( '.' );
 	}
 
 	@Override
 	protected void patchFinished()
 	{
-		this.console.println();
+		flush();
 	}
 
 	@Override
 	protected void patchingFinished()
 	{
-		this.console.println( "The database has been patched." );
+		info( "The database has been patched." );
 	}
 
 	@Override
 	protected String requestPassword( String user )
 	{
-		this.console.carriageReturn();
-		this.console.print( "Input password for user '" + user + "': " );
-		return this.console.input( true );
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	protected void debug( String message )
 	{
-		if( this.verbose )
-			this.console.println( "DEBUG: " + message );
+		verbose( "DEBUG: " + message );
 	}
 }

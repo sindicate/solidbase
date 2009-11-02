@@ -86,7 +86,7 @@ location.eachDir
 		if( total > 1 )
 			databaseName += "-" + ( file.name - ".properties" );
 		Database database = new Database( databaseName, description, driver, url );
-		database.addApplication( "midoffice", null, username, patchFile );
+		database.addApplication( "midoffice", null, username, null, patchFile, null );
 
 		result.add( database );
 	}

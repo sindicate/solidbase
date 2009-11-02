@@ -33,6 +33,8 @@ public class Database
 	protected String driverName;
 	protected String url;
 	protected HashMap< String, Connection > connections = new HashMap< String, Connection >();
+	protected String defaultUser;
+	protected String defaultPassword;
 	private String currentUser;
 
 	/**
@@ -41,10 +43,13 @@ public class Database
 	 * @param driverClassName Classname of the driver.
 	 * @param url Url of the database.
 	 */
-	public Database( String driverClassName, String url )
+	public Database( String driverClassName, String url, String defaultUser, String defaultPassword )
 	{
 		this.driverName = driverClassName;
 		this.url = url;
+		this.defaultUser = defaultUser;
+		this.defaultPassword = defaultPassword;
+
 		try
 		{
 			Class.forName( driverClassName );
@@ -53,6 +58,17 @@ public class Database
 		{
 			throw new SystemException( e );
 		}
+	}
+
+
+	/**
+	 * Resets the current user and initializes the connection if a password is known.
+	 */
+	public void init()
+	{
+		this.currentUser = this.defaultUser;
+		if( this.defaultPassword != null )
+			initConnection( this.defaultUser, this.defaultPassword ); // This prevents the password being requested from the user.
 	}
 
 	/**
@@ -134,6 +150,11 @@ public class Database
 	{
 		Assert.notEmpty( user, "User must not be empty" );
 		this.currentUser = user;
+	}
+
+	public String getDefaultUser()
+	{
+		return this.defaultUser;
 	}
 
 	protected void closeConnections()

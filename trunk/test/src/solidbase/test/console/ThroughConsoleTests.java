@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 
 import solidbase.Main;
 import solidbase.core.Patcher;
+import solidbase.test.TestUtil;
 
 
 public class ThroughConsoleTests
@@ -45,19 +46,14 @@ public class ThroughConsoleTests
 
 		Main.pass2( new String[] { "-verbose" } );
 
-		String output = console.getOutput();
-		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
-		output = output.replaceAll( "C:\\\\\\S+\\\\", "C:\\\\...\\\\" );
-		output = output.replaceAll( "SolidBase v1\\.0\\.x\\s+\\(C\\) 2006-200\\d René M\\. de Bloois", "SolidBase v1.0.x (C) 2006-200x René M. de Bloois" );
-		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
-		output = output.replaceAll( "\\\r", "" );
+		String output = TestUtil.generalizeOutput( console.getOutput() );
 
 		//		System.out.println( "[[[" + output + "]]]" );
 
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"Reading property file C:\\...\\solidbase.properties\n" +
-				"SolidBase v1.0.x (C) 2006-200x René M. de Bloois\n" +
+				"SolidBase v1.5.x (C) 2006-200x René M. de Bloois\n" +
 				"\n" +
 				"Available database:\n" +
 				"    prod (DHL Production)\n" +

@@ -16,19 +16,27 @@
 
 package solidbase.config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Application
 {
 	protected String name;
 	protected String description;
 	protected String userName;
+	protected String password;
 	protected String patchFile;
+	protected String target;
+	protected List< Connection > connections = new ArrayList();
 
-	protected Application( String name, String description, String userName, String patchFile )
+	protected Application( String name, String description, String userName, String password, String patchFile, String target )
 	{
 		this.name = name;
 		this.description = description;
 		this.userName = userName;
+		this.password = password;
 		this.patchFile = patchFile;
+		this.target = target;
 	}
 
 	public String getName()
@@ -46,9 +54,24 @@ public class Application
 		return this.userName;
 	}
 
+	public String getPassword()
+	{
+		return this.password;
+	}
+
 	public String getPatchFile()
 	{
 		return this.patchFile;
+	}
+
+	public String getTarget()
+	{
+		return this.target;
+	}
+
+	public void addConnection( String name, String driver, String url, String user, String password )
+	{
+		this.connections.add( new Connection( name, driver, url, user, password ) );
 	}
 
 	static public class Comparator implements java.util.Comparator< Application >
@@ -57,5 +80,10 @@ public class Application
 		{
 			return application1.name.compareTo( application2.name );
 		}
+	}
+
+	public List< Connection > getConnections()
+	{
+		return this.connections;
 	}
 }

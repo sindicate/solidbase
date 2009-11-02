@@ -12,5 +12,8 @@
 	<classpathentry kind="lib" path="test/lib/jmockit.jar"/>
 	<classpathentry kind="lib" path="lib/groovy-all-1.5.7.jar"/>
 	<classpathentry kind="lib" path="lib/json-simple-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/ant.jar"/>
+	<classpathentry kind="lib" path="test/lib/ant-testutil.jar"/>
+	<classpathentry kind="lib" path="test/lib/junit-4.7.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

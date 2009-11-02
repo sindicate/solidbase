@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 import solidbase.Main;
 import solidbase.core.Patcher;
 import solidbase.core.SystemException;
+import solidbase.test.TestUtil;
 
 
 public class CommandLineTests
@@ -49,17 +50,12 @@ public class CommandLineTests
 				"-target", "1.0.*",
 				"-patchfile", "testpatch1.sql" );
 
-		String output = console.getOutput();
-		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
-		output = output.replaceAll( "C:\\\\\\S+\\\\", "C:\\\\...\\\\" );
-		output = output.replaceAll( "SolidBase v1\\.0\\.x\\s+\\(C\\) 2006-200\\d René M\\. de Bloois", "SolidBase v1.0.x (C) 2006-200x René M. de Bloois" );
-		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
-		output = output.replaceAll( "\\\r", "" );
+		String output = TestUtil.generalizeOutput( console.getOutput() );
 
 		//System.out.println( "[[[" + output + "]]]" );
 
 		Assert.assertEquals( output,
-				"SolidBase v1.0.x (C) 2006-200x René M. de Bloois\n" +
+				"SolidBase v1.5.x (C) 2006-200x René M. de Bloois\n" +
 				"\n" +
 				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test2, user=sa\n" +
 				"Connecting to database...\n" +
@@ -104,16 +100,10 @@ public class CommandLineTests
 			Assert.assertEquals( e.getMessage(), "Target 100.0.* is not a possible target" );
 		}
 
-		String output = console.getOutput();
-		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
-		output = output.replaceAll( "C:\\\\\\S+\\\\", "C:\\\\...\\\\" );
-		output = output.replaceAll( "SolidBase v1\\.0\\.x\\s+\\(C\\) 2006-200\\d René M\\. de Bloois", "SolidBase v1.0.x (C) 2006-200x René M. de Bloois" );
-		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
-		output = output.replaceAll( "\\\r", "" );
-		//output = output.replaceAll( "\\n\\s+at\\s+.+", "" );
+		String output = TestUtil.generalizeOutput( console.getOutput() );
 
 		Assert.assertEquals( output,
-				"SolidBase v1.0.x (C) 2006-200x René M. de Bloois\n" +
+				"SolidBase v1.5.x (C) 2006-200x René M. de Bloois\n" +
 				"\n" +
 				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test22, user=sa\n" +
 				"Connecting to database...\n" +
