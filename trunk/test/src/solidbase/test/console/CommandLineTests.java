@@ -62,7 +62,7 @@ public class CommandLineTests
 				"The database has no version yet.\n" +
 				"Opening patchfile 'file:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
-				"Patching \"null\" to \"1.0.1\"\n" +
+				"Patching to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +
 				"DEBUG: version=null, target=1.0.1, statements=2\n" +

@@ -63,13 +63,13 @@ public class ThroughConsoleTests
 				"    app1 (app1 description)\n" +
 				"    app2 (app2)\n" +
 				"Select an application from the above: \n" +
-				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test1, user=sa\n" +
+				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:testtc1, user=sa\n" +
 				"Connecting to database 'prod', application 'app1'...\n" +
 				"Input password for user 'sa': The database has no version yet.\n" +
 				"Opening patchfile 'file:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Possible targets are: 1.0.1, 1.0.2\n" +
-				"Input target version: Patching \"null\" to \"1.0.1\"\n" +
+				"Input target version: Patching to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +
 				"DEBUG: version=null, target=1.0.1, statements=2\n" +
@@ -108,13 +108,13 @@ public class ThroughConsoleTests
 				"    prod (DHL Production)\n" +
 				"    test (test)\n" +
 				"Select a database from the above: \n" +
-				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test1, user=sa\n" +
+				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:testtc2, user=sa\n" +
 				"Connecting to database 'prod', application 'default'...\n" +
 				"Input password for user 'sa': The database has no version yet.\n" +
 				"Opening patchfile 'file:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Possible targets are: 1.0.1, 1.0.2\n" +
-				"Input target version: Patching \"null\" to \"1.0.1\"\n" +
+				"Input target version: Patching to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +
 				"DEBUG: version=null, target=1.0.1, statements=2\n" +
