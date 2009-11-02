@@ -55,7 +55,7 @@ public class CommandLineTests
 		//System.out.println( "[[[" + output + "]]]" );
 
 		Assert.assertEquals( output,
-				"SolidBase v1.0.x (C) 2006-200x René M. de Bloois\n" +
+				"SolidBase v1.5.x (C) 2006-200x René M. de Bloois\n" +
 				"\n" +
 				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test2, user=sa\n" +
 				"Connecting to database...\n" +
@@ -103,7 +103,7 @@ public class CommandLineTests
 		String output = TestUtil.generalizeOutput( console.getOutput() );
 
 		Assert.assertEquals( output,
-				"SolidBase v1.0.x (C) 2006-200x René M. de Bloois\n" +
+				"SolidBase v1.5.x (C) 2006-200x René M. de Bloois\n" +
 				"\n" +
 				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test22, user=sa\n" +
 				"Connecting to database...\n" +
