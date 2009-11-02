@@ -7,7 +7,7 @@ import solidbase.test.TestUtil;
 
 public class UpgradeTaskTests extends BuildFileTest
 {
-	@Test(groups={"new"})
+	@Test
 	public void test()
 	{
 		configureProject( "test-upgradetask.xml" );

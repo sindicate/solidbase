@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir="." name="upgrade">
+
+	<taskdef resource="solidbasetasks" classpath="solidbase.jar;hsqldb.jar" />
+
+	<target name="upgrade">
+		<solidbase-upgrade 
+			driver="org.hsqldb.jdbcDriver" 
+			url="jdbc:hsqldb:mem:testJson" 
+			user="sa" 
+			password="" 
+			patchfile="dbpatch-hsqldb-example.sql" 
+			target="1.0.*"
+		/>
+	</target>
+
+</project>

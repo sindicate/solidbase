@@ -106,7 +106,7 @@ public class Configuration
 	}
 
 	// TODO The automatic target should also be added to the properties file
-	public Configuration( ConfigListener progress, int pass, String optionDriver, String optionUrl, String optionUserName, String optionPassWord, String optionTarget, String optionPatchFile )
+	public Configuration( ConfigListener progress, int pass, String optionDriver, String optionUrl, String optionUserName, String optionPassWord, String optionTarget, String optionPatchFile, String optionPropertiesFile )
 	{
 		// Checks
 
@@ -158,6 +158,10 @@ public class Configuration
 			// Load the properties
 
 			File file = getPropertiesFile();
+			if( optionPropertiesFile != null )
+				file = new File( optionPropertiesFile );
+			else
+				file = getPropertiesFile();
 			progress.readingPropertyFile( file.getAbsolutePath() );
 			this.properties = new Properties( defaultProperties );
 			FileInputStream input = new FileInputStream( file );
@@ -258,24 +262,37 @@ public class Configuration
 
 								// apps
 								String appsProperty = this.properties.getProperty( databaseName + ".applications" );
-								Assert.notBlank( appsProperty, "'" + databaseName + ".applications' not configured in " + DBPATCHER_PROPERTIES );
-
-								for( String appName : appsProperty.split( "," ) )
+								if( appsProperty != null )
 								{
-									appName = appName.trim();
-									if( appName.length() > 0 )
+									for( String appName : appsProperty.split( "," ) )
 									{
-										String appDescription = this.properties.getProperty( databaseName + "." + appName + ".description" );
-										String userName = this.properties.getProperty( databaseName + "." + appName + ".user" );
-										String patchFile = this.properties.getProperty( databaseName + "." + appName + ".patchfile" );
+										appName = appName.trim();
+										if( appName.length() > 0 )
+										{
+											String appDescription = this.properties.getProperty( databaseName + "." + appName + ".description" );
+											String userName = this.properties.getProperty( databaseName + "." + appName + ".user" );
+											String patchFile = this.properties.getProperty( databaseName + "." + appName + ".patchfile" );
 
-										if( StringUtils.isBlank( appDescription ) )
-											appDescription = appName;
-										Assert.notBlank( userName, "'" + databaseName + "." + appName + ".user' not configured in " + DBPATCHER_PROPERTIES );
-										Assert.notBlank( patchFile, "'" + databaseName + "." + appName + ".patchfile' not configured in " + DBPATCHER_PROPERTIES );
+											if( StringUtils.isBlank( appDescription ) )
+												appDescription = appName;
+											Assert.notBlank( userName, "'" + databaseName + "." + appName + ".user' not configured in " + DBPATCHER_PROPERTIES );
+											Assert.notBlank( patchFile, "'" + databaseName + "." + appName + ".patchfile' not configured in " + DBPATCHER_PROPERTIES );
 
-										database.addApplication( appName, appDescription, userName, null, patchFile, null );
+											database.addApplication( appName, appDescription, userName, null, patchFile, null );
+										}
 									}
+								}
+								else
+								{
+									String appName = "default";
+									String appDescription = appName;
+									String userName = this.properties.getProperty( databaseName + ".user" );
+									String patchFile = this.properties.getProperty( databaseName + ".patchfile" );
+
+									Assert.notBlank( userName, "'" + databaseName + ".user' not configured in " + DBPATCHER_PROPERTIES );
+									Assert.notBlank( patchFile, "'" + databaseName + ".patchfile' not configured in " + DBPATCHER_PROPERTIES );
+
+									database.addApplication( appName, appDescription, userName, null, patchFile, null );
 								}
 							}
 						}

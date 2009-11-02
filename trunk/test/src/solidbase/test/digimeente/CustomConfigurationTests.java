@@ -46,7 +46,7 @@ public class CustomConfigurationTests
 		Mockit.redefineMethods( Configuration.class, new MockConfiguration( "solidbase-custom.properties" ) );
 
 		// Test the mock itself
-		Configuration configuration = new Configuration( new Progress( null, false ), 2, null, null, null, null, null, null );
+		Configuration configuration = new Configuration( new Progress( null, false ), 2, null, null, null, null, null, null, null );
 		Assert.assertEquals( Manipulator.getConfigurationPropertiesFile( configuration ).getName(), "solidbase-custom.properties" );
 
 		MockConsole console = new MockConsole();

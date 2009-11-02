@@ -82,4 +82,49 @@ public class ThroughConsoleTests
 				"Current database version is \"1.0.2\".\n"
 		);
 	}
+
+	@Test
+	public void testConsole2() throws Exception
+	{
+		MockConsole console = new MockConsole();
+		console.addAnswer( "prod" );
+		console.addAnswer( "" );
+		console.addAnswer( "1.0.2" );
+
+		Main.console = console;
+
+		Main.pass2( "-verbose", "-config", "solidbase2.properties" );
+
+		String output = TestUtil.generalizeOutput( console.getOutput() );
+
+		//		System.out.println( "[[[" + output + "]]]" );
+
+		Assert.assertEquals( output,
+				"Reading property file file:/.../solidbase-default.properties\n" +
+				"Reading property file C:\\...\\solidbase2.properties\n" +
+				"SolidBase v1.5.x (C) 2006-200x René M. de Bloois\n" +
+				"\n" +
+				"Available database:\n" +
+				"    prod (DHL Production)\n" +
+				"    test (test)\n" +
+				"Select a database from the above: \n" +
+				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test1, user=sa\n" +
+				"Connecting to database 'prod', application 'default'...\n" +
+				"Input password for user 'sa': The database has no version yet.\n" +
+				"Opening patchfile 'file:/.../testpatch1.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
+				"Possible targets are: 1.0.1, 1.0.2\n" +
+				"Input target version: Patching \"null\" to \"1.0.1\"\n" +
+				"Creating table DBVERSION.\n" +
+				"Creating table DBVERSIONLOG.\n" +
+				"DEBUG: version=null, target=1.0.1, statements=2\n" +
+				"Patching \"1.0.1\" to \"1.0.2\"DEBUG: version=1.0.1, target=null, statements=2\n" +
+				"Creating table USERS.\n" +
+				"Inserting admin user.\n" +
+				"DEBUG: version=1.0.1, target=1.0.2, statements=2\n" +
+				"The database has been patched.\n" +
+				"\n" +
+				"Current database version is \"1.0.2\".\n"
+		);
+	}
 }

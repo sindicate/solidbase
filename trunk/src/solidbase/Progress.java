@@ -55,7 +55,10 @@ public class Progress extends ProgressListener implements ConfigListener
 	@Override
 	protected void patchStarting( String source, String target )
 	{
-		this.console.print( "Patching \"" + source + "\" to \"" + target + "\"" );
+		if( source == null )
+			this.console.print( "Patching to \"" + target + "\"" );
+		else
+			this.console.print( "Patching \"" + source + "\" to \"" + target + "\"" );
 	}
 
 	@Override
