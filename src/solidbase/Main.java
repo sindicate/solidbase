@@ -129,6 +129,7 @@ public class Main
 		options.addOption( "password", true, "sets the password of the default username" );
 		options.addOption( "target", true, "sets the target version" );
 		options.addOption( "patchfile", true, "sets the patch file" );
+		options.addOption( "config", true, "specifies the properties file to use" );
 		// TODO Add driverjar option
 
 		options.getOption( "dumplog" ).setArgName( "filename" );
@@ -138,6 +139,7 @@ public class Main
 		options.getOption( "password" ).setArgName( "password" );
 		options.getOption( "target" ).setArgName( "targetversion" );
 		options.getOption( "patchfile" ).setArgName( "patchfile" );
+		options.getOption( "config" ).setArgName( "properties filename" );
 
 		// Read the commandline options
 
@@ -187,7 +189,7 @@ public class Main
 		//
 
 		Progress progress = new Progress( console, verbose );
-		Configuration configuration = new Configuration( progress, pass, line.getOptionValue( "driver" ), line.getOptionValue( "url" ), line.getOptionValue( "username" ), line.getOptionValue( "password" ), line.getOptionValue( "target" ), line.getOptionValue( "patchfile" ) );
+		Configuration configuration = new Configuration( progress, pass, line.getOptionValue( "driver" ), line.getOptionValue( "url" ), line.getOptionValue( "username" ), line.getOptionValue( "password" ), line.getOptionValue( "target" ), line.getOptionValue( "patchfile" ), line.getOptionValue( "config" ) );
 
 		if( pass == 1 )
 		{
@@ -385,7 +387,7 @@ public class Main
 	}
 
 
-	static public void pass2( String[] args ) throws SQLExecutionException
+	static public void pass2( String... args ) throws SQLExecutionException
 	{
 		pass = 2;
 		main0( args );

@@ -79,7 +79,10 @@ public class Progress extends ProgressListener implements ConfigListener
 	@Override
 	protected void patchStarting( String source, String target )
 	{
-		info( "Patching \"" + source + "\" to \"" + target + "\"" );
+		if( source == null )
+			info( "Patching to \"" + target + "\"" );
+		else
+			info( "Patching \"" + source + "\" to \"" + target + "\"" );
 	}
 
 	@Override
