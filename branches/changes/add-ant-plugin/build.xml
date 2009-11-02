@@ -25,7 +25,7 @@
 	<!-- Properties -->
 
 	<property name="target-jre" value="1.5" />
-	<property name="release.number" value="1.0" />
+	<property name="release.number" value="1.5" />
 
 	<!-- Source folders & files -->
 
