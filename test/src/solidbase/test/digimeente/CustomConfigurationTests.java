@@ -27,6 +27,7 @@ import solidbase.Progress;
 import solidbase.config.Configuration;
 import solidbase.config.Manipulator;
 import solidbase.core.Patcher;
+import solidbase.test.TestUtil;
 import solidbase.test.console.MockConsole;
 
 
@@ -58,12 +59,7 @@ public class CustomConfigurationTests
 		// TODO Rename patchfile to test the -patchfile option
 		Main.main0( "-verbose" );
 
-		String output = console.getOutput();
-		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
-		output = output.replaceAll( "C:\\\\\\S+\\\\", "C:\\\\...\\\\" );
-		output = output.replaceAll( "SolidBase v1\\.0\\.x\\s+\\(C\\) 2006-200\\d René M\\. de Bloois", "SolidBase v1.0.x (C) 2006-200x René M. de Bloois" );
-		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
-		output = output.replaceAll( "\\\r", "" );
+		String output = TestUtil.generalizeOutput( console.getOutput() );
 		//		output = output.replaceAll( "\\\t", "\\t" );
 
 		//		new FileOutputStream( new File( "dump.txt" ) ).write( output.getBytes() );
@@ -72,7 +68,7 @@ public class CustomConfigurationTests
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"Reading property file C:\\...\\solidbase-custom.properties\n" +
-				"SolidBase v1.0.x (C) 2006-200x René M. de Bloois\n" +
+				"SolidBase v1.5.x (C) 2006-200x René M. de Bloois\n" +
 				"\n" +
 				"Available database:\n" +
 				"    Duckstad-slot1\n" +
@@ -113,12 +109,7 @@ public class CustomConfigurationTests
 
 		Main.main0( "-verbose" );
 
-		String output = console.getOutput();
-		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
-		output = output.replaceAll( "C:\\\\\\S+\\\\", "C:\\\\...\\\\" );
-		output = output.replaceAll( "SolidBase v1\\.0\\.x\\s+\\(C\\) 2006-200\\d René M\\. de Bloois", "SolidBase v1.0.x (C) 2006-200x René M. de Bloois" );
-		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
-		output = output.replaceAll( "\\\r", "" );
+		String output = TestUtil.generalizeOutput( console.getOutput() );
 		//		output = output.replaceAll( "\\\t", "\\t" );
 
 		//		new FileOutputStream( new File( "dump.txt" ) ).write( output.getBytes() );
@@ -127,7 +118,7 @@ public class CustomConfigurationTests
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"Reading property file C:\\...\\solidbase-custom2.properties\n" +
-				"SolidBase v1.0.x (C) 2006-200x René M. de Bloois\n" +
+				"SolidBase v1.5.x (C) 2006-200x René M. de Bloois\n" +
 				"\n" +
 				"Available database:\n" +
 				"    Duckstad-slot1\n" +

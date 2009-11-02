@@ -17,23 +17,23 @@
 package solidbase.test.core;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Set;
 
 import org.testng.annotations.Test;
 
 import solidbase.core.Database;
 import solidbase.core.Patcher;
+import solidbase.core.SQLExecutionException;
 
 public class Conditional
 {
 	@Test
-	public void testIfHistoryContains() throws IOException, SQLException
+	public void testIfHistoryContains() throws IOException, SQLExecutionException
 	{
 		Patcher.end();
 
 		Patcher.setCallBack( new TestProgressListener() );
-		Patcher.setConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testBasic" ), "sa", null );
+		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testBasic", "sa", null ) );
 
 		Patcher.openPatchFile( "testpatch3.sql" );
 		try

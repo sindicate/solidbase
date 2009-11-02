@@ -105,7 +105,7 @@ public class CustomDatabasesConfiguration implements DatabasesConfiguration
 
 							String fileName = file.getName();
 							Database database = new Database( folder.getName() + "-" + fileName.substring( 0, fileName.length() - 11 ), null, driver, url );
-							database.addApplication( "midoffice", null, username, patchFile );
+							database.addApplication( "midoffice", null, username, null, patchFile, null );
 
 							databases.add( database );
 						}

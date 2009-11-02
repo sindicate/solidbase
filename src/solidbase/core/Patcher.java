@@ -26,10 +26,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -46,7 +48,9 @@ public class Patcher
 	static protected Pattern ignoreSqlErrorPattern = Pattern.compile( "IGNORE[ \\t]+SQL[ \\t]+ERROR[ \\t]+(\\w+([ \\t]*,[ \\t]*\\w+)*)", Pattern.CASE_INSENSITIVE );
 	static protected Pattern ignoreEnd = Pattern.compile( "/IGNORE[ \\t]+SQL[ \\t]+ERROR", Pattern.CASE_INSENSITIVE );
 
+	// TODO Do we need the whitespace at the end?
 	static protected Pattern setUserPattern = Pattern.compile( "SET[ \\t]+USER[ \\t]+(\\w+)[ \\t]*", Pattern.CASE_INSENSITIVE );
+	static protected Pattern selectConnectionPattern = Pattern.compile( "SELECT[ \\t]+CONNECTION[ \\t]+(\\w+)[ \\t]*", Pattern.CASE_INSENSITIVE );
 
 	static protected Pattern startMessagePattern = Pattern.compile( "\\s*(?:SET\\s+MESSAGE|MESSAGE\\s+START)\\s+['\"]([^'\"]*)['\"]\\s*", Pattern.CASE_INSENSITIVE );
 
@@ -66,9 +70,10 @@ public class Patcher
 	static protected boolean condition = true;
 
 	static protected ProgressListener callBack;
-	static protected String defaultUser;
 	static protected PatchFile patchFile;
+	static protected Database defaultDatabase;
 	static protected Database database;
+	static protected Map< String, Database > allDatabases = new HashMap< String, Database >();
 	static protected DBVersion dbVersion;
 
 	static
@@ -77,43 +82,50 @@ public class Patcher
 		listeners.add( new OracleDBMSOutputPoller() );
 	}
 
-	static public void openPatchFile( String fileName ) throws IOException
+	static public void openPatchFile( String fileName )
 	{
 		if( fileName == null )
 			fileName = "dbpatch.sql";
 
-		RandomAccessLineReader ralr;
-		URL url = Patcher.class.getResource( "/" + fileName ); // In the classpath
-		if( url != null )
-		{
-			callBack.openingPatchFile( url.toString() );
-			ralr = new RandomAccessLineReader( url );
-		}
-		else
-		{
-			File file = new File( fileName ); // In the current folder
-			callBack.openingPatchFile( file.getAbsolutePath() );
-			ralr = new RandomAccessLineReader( file );
-		}
-
-		patchFile = new PatchFile( ralr );
-
-		callBack.openedPatchFile( patchFile );
-
-		// Need to close in case of an exception during reading
 		try
 		{
-			patchFile.read();
-		}
-		catch( RuntimeException e )
-		{
-			patchFile.close();
-			throw e;
+			RandomAccessLineReader ralr;
+			URL url = Patcher.class.getResource( "/" + fileName ); // In the classpath
+			if( url != null )
+			{
+				callBack.openingPatchFile( url.toString() );
+				ralr = new RandomAccessLineReader( url );
+			}
+			else
+			{
+				File file = new File( fileName ); // In the current folder
+				callBack.openingPatchFile( file.getAbsolutePath() );
+				ralr = new RandomAccessLineReader( file );
+			}
+
+			patchFile = new PatchFile( ralr );
+
+			callBack.openedPatchFile( patchFile );
+
+			// Need to close in case of an exception during reading
+			try
+			{
+				patchFile.read();
+			}
+			catch( RuntimeException e )
+			{
+				patchFile.close();
+				throw e;
+			}
+			catch( IOException e )
+			{
+				patchFile.close();
+				throw e;
+			}
 		}
 		catch( IOException e )
 		{
-			patchFile.close();
-			throw e;
+			throw new SystemException( e );
 		}
 	}
 
@@ -168,7 +180,7 @@ public class Patcher
 	 * @param target
 	 * @throws SQLException
 	 */
-	static public void patch( String target ) throws SQLException
+	static public void patch( String target ) throws SQLExecutionException
 	{
 		Set< String > targets;
 
@@ -215,22 +227,18 @@ public class Patcher
 	 * @param database
 	 * @param defaultUser
 	 */
-	static public void setConnection( Database database, String defaultUser, String passWord )
+	static public void setDefaultConnection( Database database )
 	{
-		Patcher.database = database;
-		database.setCurrentUser( defaultUser );
-		if( passWord != null )
-			database.initConnection( defaultUser, passWord ); // This prevents the password being requested from the user.
+		Patcher.defaultDatabase = database;
+		Patcher.allDatabases.put( "default", database );
+		database.init(); // Resets the current user and init the connection when password is supplied.
 
 		dbVersion = new DBVersion( database );
-		dbVersion.setUser( defaultUser );
 
-		Patcher.defaultUser = defaultUser; // Overwrites the default user in the Database class at the start of each patch.
-
-		callBack.debug( "driverName=" + database.driverName + ", url=" + database.url + ", user=" + defaultUser + "" );
+		callBack.debug( "driverName=" + database.driverName + ", url=" + database.url + ", user=" + database.getDefaultUser() + "" );
 	}
 
-	static protected void patch( String version, String target ) throws SQLException
+	static protected void patch( String version, String target ) throws SQLExecutionException
 	{
 		if( target.equals( version ) )
 			return;
@@ -293,7 +301,7 @@ public class Patcher
 		return null;
 	}
 
-	static protected void patch( Patch patch ) throws SQLException
+	static protected void patch( Patch patch ) throws SQLExecutionException
 	{
 		Assert.notNull( patch, "patch == null" );
 
@@ -307,7 +315,7 @@ public class Patcher
 		String startMessage = null;
 
 		// Reset previous patch state
-		database.setCurrentUser( defaultUser ); // overwrite the default user at the start of each patch
+		setConnection( defaultDatabase ); // Also resets the current user for the connection
 		ignoreStack.clear();
 		ignoreSet.clear();
 		dontCount = false;
@@ -354,6 +362,8 @@ public class Patcher
 							ifHistoryContains( matcher.group( 1 ), matcher.group( 2 ) );
 						else if( ifHistoryContainsEnd.matcher( sql ).matches() )
 							ifHistoryContainsEnd();
+						else if( ( matcher = selectConnectionPattern.matcher( sql ) ).matches() )
+							selectConnection( matcher.group( 1 ) );
 						else
 							Assert.fail( "Unknown command [" + sql + "]" );
 					}
@@ -411,8 +421,14 @@ public class Patcher
 		catch( SQLException e )
 		{
 			dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command == null ? null : command.getCommand(), e );
-			throw e;
+			throw new SQLExecutionException( command, e );
 		}
+	}
+
+	static private void setConnection( Database database )
+	{
+		Patcher.database = database;
+		database.init(); // Reset the current user
 	}
 
 	static protected void setUser( String user )
@@ -510,5 +526,26 @@ public class Patcher
 		closePatchFile();
 		if( database != null )
 			database.closeConnections();
+
+		// TODO More like these?
+		defaultDatabase = null;
+		database = null;
+		allDatabases = new HashMap< String, Database >();
+	}
+
+	static protected void selectConnection( String name )
+	{
+		name = name.toLowerCase();
+		Database database = allDatabases.get( name );
+		Assert.notNull( database, "Database '" + name + "' (case-insensitive) not known" );
+		setConnection( database );
+	}
+
+	static public void addConnection( solidbase.config.Connection connection )
+	{
+		Assert.notNull( defaultDatabase );
+		String driver = connection.getDriver();
+		String url = connection.getUrl();
+		allDatabases.put( connection.getName(), new Database( driver != null ? driver : defaultDatabase.driverName, url != null ? url : defaultDatabase.url, connection.getUser().toLowerCase(), connection.getPassword() ) );
 	}
 }

@@ -17,7 +17,6 @@
 package solidbase.test.console;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.LinkedList;
@@ -61,7 +60,7 @@ public class MockConsole extends Console
 	}
 
 	@Override
-	public synchronized String input( boolean password ) throws IOException
+	public synchronized String input( boolean password )
 	{
 		String input = this.answerQueue.poll();
 		Assert.notNull( input, "No more input" );

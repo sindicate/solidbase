@@ -1,18 +1,23 @@
 {
-
-"classpathext": [ "ojdbc14.jar", "derby-10.2.1.6.jar", "hsqldb.jar" ],
-"databases": {
-	"one": {
-		"driver": "org.hsqldb.jdbcDriver",
-		"url": "jdbc:hsqldb:mem:test1",
-		"user": "sa",
-		"password": "geheim",
-		"patchfile": "testpatch-multiconnections.sql",
-		"connections": {
-			"queues": { "url": "jdbc:hsqldb:mem:test2", "user": "sa", "password": "geheim" },
-			"user": { "user": "user", "password": "geheim" }
+	"databases": {
+		"one": {
+			"driver": "org.hsqldb.jdbcDriver",
+			"url": "jdbc:hsqldb:mem:testJson",
+			"user": "sa",
+			"password": "",
+			"patchfile": "testpatch-multiconnections.sql",
+			"target": "1.0.*",
+			"connections": {
+				"queues": { 
+					"url": "jdbc:hsqldb:mem:queues", 
+					"user": "sa", 
+					"password": "geheim"
+				},
+				"user": { 
+					"user": "sa", 
+					"password": ""
+				}
+			}
 		}
 	}
-}
-
 }

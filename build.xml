@@ -25,7 +25,7 @@
 	<!-- Properties -->
 
 	<property name="target-jre" value="1.5" />
-	<property name="release.number" value="1.0" />
+	<property name="release.number" value="1.5" />
 
 	<!-- Source folders & files -->
 
@@ -136,6 +136,15 @@
 	</target>
 
 
+	<target name="testnew" depends="compile,compiletest" description="Run new tests">
+		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="3" groups="new">
+			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit.jar" />
+			<jvmarg value="-Xmx256m" />
+			<classfileset dir="${build.home}/test" />
+		</testng>
+	</target>
+
+
 	<target name="jar" depends="compile" description="Create jar">
 		<groovy src="getsvninfo.groovy" />
 		<mkdir dir="${build.home}/config" />
@@ -149,6 +158,7 @@
 			<zipfileset src="lib/commons-lang-2.3.jar" excludes="META-INF/*.txt" />
 			<rule pattern="org.apache.commons.**" result="solidbase.@0" />
 			<keep pattern="solidbase.Main" />
+			<keep pattern="solidbase.ant.UpgradeTask" />
 			<manifest>
 				<attribute name="Main-Class" value="solidbase.Main" />
 				<attribute name="Version" value="${release.number}.${svn.revision}" />
@@ -215,6 +225,15 @@
 		<xslt style="tools/docbook/xhtml/docbook.xsl" in="doc/manual.xml" out="${dist.home}/manual.html" classpathref="xalan.classpath" />
 		<xslt style="tools/docbook/fo/docbook.xsl" in="doc/manual.xml" out="${build.home}/manual.fo" classpathref="xalan.classpath" />
 		<fop format="application/pdf" fofile="${build.home}/manual.fo" outfile="${dist.home}/manual.pdf" />
+	</target>
+	
+	
+	<target name="ant-test" depends="compile">
+        <taskdef resource="solidbasetasks" classpathref="compiletest.classpath" />
+		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testJson" user="sa" password="" patchfile="test/testpatch-multiconnections.sql" target="1.0.*">
+       		<secondary name="queues" url="jdbc:hsqldb:mem:queues" user="sa" password="geheim" />
+       		<secondary name="user" user="sa" password="" />
+        </solidbase-upgrade>
 	</target>
 
 
