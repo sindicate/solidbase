@@ -42,7 +42,7 @@ GO
 
 --* // The patch tool expects to be able to use the DBVERSION table after the *first* sql statement
 
---* MESSAGE START 'Creating table DBVERSIONLOG'
+--* SET MESSAGE 'Creating table DBVERSIONLOG'
 CREATE TABLE DBVERSIONLOG
 (
 	ID INTEGER IDENTITY, -- An index might be needed here to let the identity perform
@@ -70,7 +70,7 @@ GO
 --* PATCH "1.0.1" --> "C-1.0.2"
 --* // ========================================================================
 
---* MESSAGE START 'Creating table USERS'
+--* SET MESSAGE 'Creating table USERS'
 CREATE TABLE USERS
 (
 	USER_ID INT IDENTITY,
@@ -79,7 +79,7 @@ CREATE TABLE USERS
 )
 GO
 
---* MESSAGE START 'Inserting admin user'
+--* SET MESSAGE 'Inserting admin user'
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
 GO
 

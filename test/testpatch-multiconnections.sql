@@ -42,7 +42,7 @@ GO
 
 --* // The patch tool expects to be able to use the DBVERSION table after the *first* sql statement
 
---* MESSAGE START "    Creating table DBVERSIONLOG"
+--* SET MESSAGE "    Creating table DBVERSIONLOG"
 
 CREATE TABLE DBVERSIONLOG
 (
@@ -72,7 +72,7 @@ GO
 
 --* SELECT CONNECTION USER
 
---* MESSAGE START "    Creating table USERS"
+--* SET MESSAGE "    Creating table USERS"
 
 CREATE TABLE USERS
 (
@@ -82,7 +82,7 @@ CREATE TABLE USERS
 )
 GO
 
---* MESSAGE START "    Inserting admin user"
+--* SET MESSAGE "    Inserting admin user"
 
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
 GO
