@@ -16,7 +16,7 @@
    limitations under the License.
 -->
 
-<project basedir="." name="solidbase">
+<project basedir="." name="solidbase" default="dist">
 
 	<!-- Property file -->
 
@@ -32,7 +32,7 @@
 	<!-- Product folders -->
 	<property name="build.home" value="../BUILDS/solidbase" />
 	<property name="temp.home" value="../TEMP/solidbase" />
-	<property name="dist.home" value="${build.home}/dist" />
+	<property name="dist.home" location="${build.home}/dist" />
 
 
 	<!-- Classpaths -->
@@ -95,7 +95,7 @@
 
 	<!-- Targets -->
 
-	<target name="clean" description="Cleans everything">
+	<target name="clean" description="Clean out the output directories ">
 		<delete dir="${build.home}" />
 		<delete dir="${temp.home}" />
 	</target>
@@ -126,7 +126,7 @@
 	</target>
 
 
-	<target name="test" depends="compile,compiletest" description="Run all tests">
+	<target name="test" depends="compile,compiletest" description="Run the tests">
 		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="3">
 			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit.jar" />
 			<jvmarg value="-Xmx256m" />
@@ -145,7 +145,7 @@
 	</target>
 
 
-	<target name="jar" depends="compile" description="Create jar">
+	<target name="jar" depends="compile">
 		<groovy src="getsvninfo.groovy" />
 		<mkdir dir="${build.home}/config" />
 		<echo file="${build.home}/config/version.properties" message="module.version=${release.number}.${svn.revision}" />
@@ -172,7 +172,7 @@
 	</target>
 
 
-	<target name="build" depends="jar">
+	<target name="build" depends="jar" description="Do an (incremental) build">
 		<copy todir="${dist.home}" preservelastmodified="true">
 			<fileset dir="dist" />
 		</copy>
@@ -201,7 +201,16 @@
 	</target>
 
 
-	<target name="dist" depends="checksvnstatus,clean,test,build" />
+	<target name="dist" depends="checksvnstatus,clean,test,build" description="Complete build process to create the distribution files">
+		<fail>
+			<condition>
+				<resourcecount when="ne" count="8">
+					<fileset dir="${dist.home}" includes="build.xml,dbpatch-*-example.sql,hsqldb.jar,solidbase.jar,solidbase.properties" />
+				</resourcecount>
+			</condition>
+		</fail>
+		<echo message="Distribution files created in ${dist.home}" />
+	</target>
 
 
 	<target name="javadoc" depends="compile" description="Generate Javadoc">
