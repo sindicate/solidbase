@@ -7,7 +7,7 @@
 	<target name="upgrade">
 		<solidbase-upgrade 
 			driver="org.hsqldb.jdbcDriver" 
-			url="jdbc:hsqldb:mem:testJson" 
+			url="jdbc:hsqldb:mem:testant" 
 			user="sa" 
 			password="" 
 			patchfile="dbpatch-hsqldb-example.sql" 
