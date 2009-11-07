@@ -16,6 +16,9 @@
 
 package solidbase.test.core;
 
+import java.io.File;
+import java.net.URL;
+
 import solidbase.core.Command;
 import solidbase.core.ProgressListener;
 
@@ -47,7 +50,13 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	protected void openingPatchFile( String patchFile )
+	protected void openingPatchFile( File patchFile )
+	{
+		System.out.println( "OPENINGPATCHFILE: " + patchFile );
+	}
+
+	@Override
+	protected void openingPatchFile( URL patchFile )
 	{
 		System.out.println( "OPENINGPATCHFILE: " + patchFile );
 	}

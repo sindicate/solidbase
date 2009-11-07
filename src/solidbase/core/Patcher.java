@@ -84,22 +84,28 @@ public class Patcher
 
 	static public void openPatchFile( String fileName )
 	{
+		openPatchFile( null, fileName );
+	}
+
+	static public void openPatchFile( File baseDir, String fileName )
+	{
 		if( fileName == null )
 			fileName = "dbpatch.sql";
 
 		try
 		{
 			RandomAccessLineReader ralr;
+			// TODO Should we remove this "/"?
 			URL url = Patcher.class.getResource( "/" + fileName ); // In the classpath
 			if( url != null )
 			{
-				callBack.openingPatchFile( url.toString() );
+				callBack.openingPatchFile( url );
 				ralr = new RandomAccessLineReader( url );
 			}
 			else
 			{
-				File file = new File( fileName ); // In the current folder
-				callBack.openingPatchFile( file.getAbsolutePath() );
+				File file = new File( baseDir, fileName ); // In the current folder
+				callBack.openingPatchFile( file );
 				ralr = new RandomAccessLineReader( file );
 			}
 

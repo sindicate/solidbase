@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
 import solidbase.Main;
@@ -231,7 +232,8 @@ public class UpgradeTask extends Task
 	{
 		validate();
 
-		Progress progress = new Progress( getProject(), this );
+		Project project = getProject();
+		Progress progress = new Progress( project, this );
 		Configuration configuration = new Configuration( progress );
 
 		progress.info( "SolidBase v" + configuration.getVersion() );
@@ -251,7 +253,7 @@ public class UpgradeTask extends Task
 
 		try
 		{
-			Patcher.openPatchFile( this.patchfile );
+			Patcher.openPatchFile( project.getBaseDir(), this.patchfile );
 			try
 			{
 				if( this.target != null )

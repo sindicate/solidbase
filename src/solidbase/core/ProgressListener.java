@@ -16,6 +16,9 @@
 
 package solidbase.core;
 
+import java.io.File;
+import java.net.URL;
+
 /**
  *
  * @author R.M. de Bloois
@@ -23,7 +26,12 @@ package solidbase.core;
  */
 public class ProgressListener
 {
-	protected void openingPatchFile( String patchFile )
+	protected void openingPatchFile( File patchFile )
+	{
+		// could be implemented in subclass
+	}
+
+	protected void openingPatchFile( URL patchFile )
 	{
 		// could be implemented in subclass
 	}

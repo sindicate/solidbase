@@ -16,6 +16,9 @@
 
 package solidbase;
 
+import java.io.File;
+import java.net.URL;
+
 import solidbase.config.ConfigListener;
 import solidbase.core.Assert;
 import solidbase.core.Command;
@@ -41,7 +44,13 @@ public class Progress extends ProgressListener implements ConfigListener
 	}
 
 	@Override
-	protected void openingPatchFile( String patchFile )
+	protected void openingPatchFile( File patchFile )
+	{
+		this.console.println( "Opening patchfile '" + patchFile + "'" );
+	}
+
+	@Override
+	protected void openingPatchFile( URL patchFile )
 	{
 		this.console.println( "Opening patchfile '" + patchFile + "'" );
 	}
