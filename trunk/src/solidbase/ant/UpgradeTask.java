@@ -237,7 +237,8 @@ public class UpgradeTask extends Task
 		Configuration configuration = new Configuration( progress );
 
 		progress.info( "SolidBase v" + configuration.getVersion() );
-		progress.info( "(C) 2006-2009 René M. de Bloois" );
+		// TODO Ant messes up the encoding, try add the é again
+		progress.info( "(C) 2006-2009 Rene M. de Bloois" );
 		progress.info( "" );
 
 		Patcher.setCallBack( progress );
