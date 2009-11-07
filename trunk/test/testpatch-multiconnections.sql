@@ -82,8 +82,14 @@ CREATE TABLE USERS
 )
 GO
 
---* SET MESSAGE "    Inserting admin user"
+--* SET MESSAGE "    Inserting admin users"
 
+--*// Need to do three statements to test if the dots come on one line
+
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
+GO
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
+GO
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
 GO
 
