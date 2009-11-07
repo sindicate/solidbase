@@ -87,20 +87,21 @@ public class Progress extends ProgressListener implements ConfigListener
 	@Override
 	protected void patchStarting( String source, String target )
 	{
+		flush();
 		if( source == null )
-			info( "Patching to \"" + target + "\"" );
+			this.buffer = new StringBuilder( "Patching to \"" + target + "\"" );
 		else
-			info( "Patching \"" + source + "\" to \"" + target + "\"" );
+			this.buffer = new StringBuilder( "Patching \"" + source + "\" to \"" + target + "\"" );
 	}
 
 	@Override
 	protected void executing( Command command, String message )
 	{
-		flush();
 		if( message != null ) // Message can be null, when a message has not been set, but sql is still being executed
+		{
+			flush();
 			this.buffer = new StringBuilder( message );
-		else
-			this.buffer = new StringBuilder();
+		}
 	}
 
 	@Override
@@ -112,6 +113,8 @@ public class Progress extends ProgressListener implements ConfigListener
 	@Override
 	protected void executed()
 	{
+		if( this.buffer == null )
+			this.buffer = new StringBuilder();
 		this.buffer.append( '.' );
 	}
 
