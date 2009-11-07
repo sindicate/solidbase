@@ -23,7 +23,6 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
 import solidbase.config.ConfigListener;
-import solidbase.core.Assert;
 import solidbase.core.Command;
 import solidbase.core.PatchFile;
 import solidbase.core.ProgressListener;
@@ -97,9 +96,11 @@ public class Progress extends ProgressListener implements ConfigListener
 	@Override
 	protected void executing( Command command, String message )
 	{
-		Assert.notNull( message );
 		flush();
-		this.buffer = new StringBuilder( message );
+		if( message != null ) // Message can be null, when a message has not been set, but sql is still being executed
+			this.buffer = new StringBuilder( message );
+		else
+			this.buffer = new StringBuilder();
 	}
 
 	@Override

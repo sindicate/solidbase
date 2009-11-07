@@ -68,7 +68,7 @@ GO
 --* PATCH "1.0.1" --> "1.0.2"
 --* // ========================================================================
 
---* SET MESSAGE 'Creating table USERS'
+--* // We need at least one sql without a message. This is a test too.
 CREATE TABLE USERS
 (
 	USER_ID INT IDENTITY,
