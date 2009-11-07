@@ -16,6 +16,9 @@
 
 package solidbase.ant;
 
+import java.io.File;
+import java.net.URL;
+
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
@@ -65,7 +68,13 @@ public class Progress extends ProgressListener implements ConfigListener
 	}
 
 	@Override
-	protected void openingPatchFile( String patchFile )
+	protected void openingPatchFile( File patchFile )
+	{
+		info( "Opening patchfile '" + patchFile + "'" );
+	}
+
+	@Override
+	protected void openingPatchFile( URL patchFile )
 	{
 		info( "Opening patchfile '" + patchFile + "'" );
 	}
