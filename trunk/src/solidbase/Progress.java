@@ -20,7 +20,6 @@ import java.io.File;
 import java.net.URL;
 
 import solidbase.config.ConfigListener;
-import solidbase.core.Assert;
 import solidbase.core.Command;
 import solidbase.core.PatchFile;
 import solidbase.core.ProgressListener;
@@ -73,9 +72,11 @@ public class Progress extends ProgressListener implements ConfigListener
 	@Override
 	protected void executing( Command command, String message )
 	{
-		Assert.notNull( message );
-		this.console.carriageReturn();
-		this.console.print( message );
+		if( message != null ) // Message can be null, when a message has not been set, but sql is still being executed
+		{
+			this.console.carriageReturn();
+			this.console.print( message );
+		}
 	}
 
 	@Override
