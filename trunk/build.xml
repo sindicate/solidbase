@@ -153,9 +153,10 @@
 		<jarjar compress="yes" destfile="${dist.home}/solidbase.jar">
 			<zipfileset dir="${build.home}/classes" excludes="solidbase/config/version.properties" />
 			<zipfileset file="${build.home}/config/version.properties" prefix="solidbase/config" />
-			<zipfileset src="lib/commons-cli-1.2.jar" />
-			<zipfileset src="lib/commons-collections-3.2.jar" excludes="META-INF/*.txt" />
-			<zipfileset src="lib/commons-lang-2.3.jar" excludes="META-INF/*.txt" />
+			<zipfileset src="lib/commons-cli-1.2.jar" excludes="META-INF/**" />
+			<zipfileset src="lib/commons-collections-3.2.jar" excludes="META-INF/**" />
+			<zipfileset src="lib/commons-lang-2.3.jar" excludes="META-INF/**" />
+			<zipfileset dir="." includes="LICENSE.txt,NOTICE.txt" prefix="META-INF" />
 			<rule pattern="org.apache.commons.**" result="solidbase.@0" />
 			<keep pattern="solidbase.Main" />
 			<keep pattern="solidbase.ant.UpgradeTask" />
