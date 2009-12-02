@@ -76,4 +76,14 @@ public class Command
 	{
 		return this.command;
 	}
+
+	/**
+	 * Sets the command text.
+	 * 
+	 * @param command the command text.
+	 */
+	public void setCommand( String command )
+	{
+		this.command = command;
+	}
 }

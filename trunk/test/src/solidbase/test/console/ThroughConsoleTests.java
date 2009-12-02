@@ -52,7 +52,7 @@ public class ThroughConsoleTests
 
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
-				"Reading property file C:\\...\\solidbase.properties\n" +
+				"Reading property file X:\\...\\solidbase.properties\n" +
 				"SolidBase v1.5.x (C) 2006-200x René M. de Bloois\n" +
 				"\n" +
 				"Available database:\n" +
@@ -101,7 +101,7 @@ public class ThroughConsoleTests
 
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
-				"Reading property file C:\\...\\solidbase2.properties\n" +
+				"Reading property file X:\\...\\solidbase2.properties\n" +
 				"SolidBase v1.5.x (C) 2006-200x René M. de Bloois\n" +
 				"\n" +
 				"Available database:\n" +

@@ -17,7 +17,11 @@
 package solidbase.core;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import org.testng.Assert;
 
 import solidbase.core.Patcher;
 import solidbase.core.SystemException;
@@ -40,5 +44,21 @@ public class DatabaseTestUtil
 		{
 			connection.close();
 		}
+	}
+
+	static public Connection getConnection( Database database )
+	{
+		return database.getConnection();
+	}
+
+	static public void assertRecordCount( Database database, String tableName, int expected ) throws SQLException
+	{
+		String sql = "SELECT COUNT(*) FROM " + tableName;
+		Connection connection = database.getConnection( database.defaultUser );
+		PreparedStatement statement = connection.prepareStatement( sql );
+		ResultSet result = statement.executeQuery();
+		Assert.assertTrue( result.next() );
+		int count = result.getInt( 1 );
+		Assert.assertEquals( count, expected );
 	}
 }

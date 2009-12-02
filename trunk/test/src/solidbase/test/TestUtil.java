@@ -21,7 +21,7 @@ public class TestUtil
 	static public String generalizeOutput( String output )
 	{
 		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
-		output = output.replaceAll( "C:\\\\\\S+\\\\", "C:\\\\...\\\\" );
+		output = output.replaceAll( "[A-Z]:\\\\\\S+\\\\", "X:\\\\...\\\\" );
 		output = output.replaceAll( "SolidBase v1\\.5\\.x\\s+\\(C\\) 2006-200\\d René M\\. de Bloois", "SolidBase v1.5.x (C) 2006-200x René M. de Bloois" );
 		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
 		return output.replaceAll( "\\\r", "" );
