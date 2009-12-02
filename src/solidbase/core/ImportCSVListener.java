@@ -95,7 +95,7 @@ public class ImportCSVListener extends CommandListener
 							if( i > 0 )
 								sql.append( ',' );
 							sql.append( '\'' );
-							sql.append( line[ i ] );
+							sql.append( escape( line[ i ] ) );
 							sql.append( '\'' );
 						}
 						sql.append( ");\n" );
@@ -131,7 +131,7 @@ public class ImportCSVListener extends CommandListener
 							if( i > 0 )
 								sql.append( ',' );
 							sql.append( '\'' );
-							sql.append( line[ i ] );
+							sql.append( escape( line[ i ] ) );
 							sql.append( '\'' );
 						}
 						sql.append( ")\n" );
@@ -197,5 +197,10 @@ public class ImportCSVListener extends CommandListener
 		}
 
 		return true;
+	}
+
+	protected String escape( String s )
+	{
+		return s.replaceAll( "'", "''" );
 	}
 }
