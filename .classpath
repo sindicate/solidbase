@@ -15,5 +15,6 @@
 	<classpathentry kind="lib" path="lib/apache-ant-1.7.1.jar"/>
 	<classpathentry kind="lib" path="test/lib/ant-testutil.jar"/>
 	<classpathentry kind="lib" path="test/lib/junit-4.7.jar"/>
+	<classpathentry kind="lib" path="lib/mindprod-csv"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

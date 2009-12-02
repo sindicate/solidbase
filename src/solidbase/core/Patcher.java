@@ -79,7 +79,8 @@ public class Patcher
 	static
 	{
 		listeners.add( new AssertCommandExecuter() );
-		listeners.add( new OracleDBMSOutputPoller() );
+		//listeners.add( new OracleDBMSOutputPoller() );
+		listeners.add( new ImportCSVListener() );
 	}
 
 	static public void openPatchFile( String fileName )

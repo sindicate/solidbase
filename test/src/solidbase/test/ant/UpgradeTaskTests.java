@@ -90,7 +90,7 @@ public class UpgradeTaskTests extends BuildFileTest
 				"\n" +
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
-				"Opening patchfile 'C:\\...\\testpatch-basedir.sql'\n" +
+				"Opening patchfile 'X:\\...\\testpatch-basedir.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Patching to \"1.0.1\"\n" +
 				"    Creating table DBVERSION.\n" +
