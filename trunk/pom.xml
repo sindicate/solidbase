@@ -57,12 +57,12 @@
 		<repository>
 			<id>solidbase-maven-repository</id>
 			<name>SolidBase Maven Repository</name>
-			<url>dav:https://solidbase.googlecode.com/svn/repository/</url>
+			<url>file:../solidbase-repository</url>
 		</repository>
 		<snapshotRepository>
 			<id>solidbase-maven-snapshot-repository</id>
 			<name>SolidBase Maven Snapshot Repository</name>
-			<url>file:../solidbase-repository</url>
+			<url>file:../solidbase-snapshot-repository</url>
 		</snapshotRepository>
 	</distributionManagement>
 	
