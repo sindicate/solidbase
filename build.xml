@@ -16,8 +16,20 @@
    limitations under the License.
 -->
 
-<project basedir="." name="solidbase" default="dist">
+<project basedir="." name="solidbase" default="dist" xmlns:maven="antlib:org.apache.maven.artifact.ant">
 
+	<!-- Maven -->
+	
+	<path id="maven.classpath">
+		<fileset dir="tools/maven" includes="*.jar" />
+	</path>
+
+	<typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven.classpath" />
+	
+	<maven:dependencies>
+		<pom file="pom.xml" />
+	</maven:dependencies>
+	
 	<!-- Property file -->
 
 	<property file="build.properties" />
@@ -250,4 +262,11 @@
 	</target>
 
 
+	<target name="maven:deploy" depends="dist" description="Deploys to the maven repo">
+		<maven:deploy file="${dist.home}/solidbase.jar">
+			<pom file="pom.xml" />
+		</maven:deploy>
+	</target>
+	
+		
 </project>
