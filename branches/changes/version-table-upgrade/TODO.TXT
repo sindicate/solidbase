@@ -1,0 +1,24 @@
+		Even if commandline options are used, still need to read the classpathext from the properties file.
+		Add -dbname and -appname options to the commandline.
+		show only final targets, except when overridden with a property candidates.intermediates.include = yes ????
+		Add version deprecation
+		Add test for branches and return patches
+		When the current version is not found as source -> then it is deprecated?
+		Add DONTCOUNT test
+		Add test that works without a property file
+		Replace driverjars by classpathextension option
+		Must be able te skip the app configuration
+
+NOT		Add potential target patch
+DONE	Add -target wildcard option
+			examples:
+				-target *
+				-target 1.0.*
+DONE	Add "database is up to date"
+DONE	Add test for open patches
+ISSUE	Mark connections where a SESSIONCONFIG has been applied to. Close those connections at the end of the patch to reset possible session changes.
+ISSUE	Generate SQL output mogelijkheid
+ISSUE	Lock the file when doing a patch
+ISSUE	SET MESSAGE "xxxx'xxxx" is problem
+ISSUE	Cirkel paden mogelijk maken
+ISSUE	Als de database al te ver gepatched is dan moet een melding komen

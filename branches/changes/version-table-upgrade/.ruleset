@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+<ruleset name="SolidBase" xmlns="http://pmd.sf.net/ruleset/1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://pmd.sf.net/ruleset/1.0.0 http://pmd.sf.net/ruleset_xml_schema.xsd"
+	xsi:noNamespaceSchemaLocation="http://pmd.sf.net/ruleset_xml_schema.xsd">
+	
+	<description>SolidBase PMD Configuration</description>
+
+	<!-- De volgende regels gebruiken we -->
+	
+	<rule ref="rulesets/basic.xml">
+		<exclude name="CollapsibleIfStatements" />
+	</rule>
+	<rule ref="rulesets/braces.xml" />
+	<rule ref="rulesets/clone.xml" />
+	<rule ref="rulesets/codesize.xml">
+		<exclude name="NcssMethodCount" />
+		<exclude name="NcssTypeCount" />
+		<exclude name="NcssConstructorCount" />
+		<exclude name="ExcessiveParameterList" />
+		<exclude name="ExcessiveMethodLength" />
+		<exclude name="ExcessiveClassLength" />
+		<exclude name="CyclomaticComplexity" />
+		<exclude name="ExcessivePublicCount" />
+		<exclude name="NPathComplexity" />
+		<exclude name="TooManyFields" />
+		<exclude name="TooManyMethods" />
+	</rule>
+	<rule ref="rulesets/controversial.xml">
+		<exclude name="CallSuperInConstructor" />
+		<exclude name="DataflowAnomalyAnalysis" />
+		<exclude name="AvoidUsingVolatile" />
+		<exclude name="AvoidFinalLocalVariable" />
+		<exclude name="OnlyOneReturn" />
+		<exclude name="BooleanInversion" />
+		<exclude name="DefaultPackage" />
+	</rule>
+	<rule ref="rulesets/coupling.xml">
+		<exclude name="ExcessiveImports" />
+		<exclude name="LooseCoupling" />
+	</rule>
+	<rule ref="rulesets/design.xml">
+		<exclude name="UnnecessaryLocalBeforeReturn" />
+		<exclude name="AvoidDeeplyNestedIfStmts" />
+		<exclude name="ConfusingTernary" />
+		<exclude name="AvoidReassigningParameters" />
+		<exclude name="EmptyMethodInAbstractClassShouldBeAbstract" />
+		<exclude name="ImmutableField" />
+		<exclude name="PositionLiteralsFirstInComparisons" />
+		<exclude name="ReturnEmptyArrayRatherThanNull" />
+		<exclude name="UseNotifyAllInsteadOfNotify" />
+	</rule>
+	<rule ref="rulesets/finalizers.xml" />
+	<rule ref="rulesets/imports.xml" />
+    <rule ref="rulesets/j2ee.xml" />
+    <rule ref="rulesets/javabeans.xml">
+		<exclude name="BeanMembersShouldSerialize" />
+	</rule>
+	<rule ref="rulesets/junit.xml" />
+    <rule ref="rulesets/logging-jakarta-commons.xml" />
+    <rule ref="rulesets/logging-java.xml" />
+	<rule ref="rulesets/migrating.xml">
+		<exclude name="JUnit4TestShouldUseBeforeAnnotation" />
+		<exclude name="JUnit4TestShouldUseAfterAnnotation" />
+		<exclude name="JUnit4TestShouldUseTestAnnotation" />
+		<exclude name="JUnit4SuitesShouldUseSuiteAnnotation" />
+		<exclude name="JUnitUseExpected" />
+	</rule>
+	<rule ref="rulesets/naming.xml">
+		<exclude name="LongVariable" />
+		<exclude name="AbstractNaming" />
+		<exclude name="ShortVariable" />
+	</rule>
+	<rule ref="rulesets/optimizations.xml">
+		<exclude name="LocalVariableCouldBeFinal" />
+		<exclude name="AvoidInstantiatingObjectsInLoops" />
+		<exclude name="MethodArgumentCouldBeFinal" />
+	</rule>
+	<rule ref="rulesets/strictexception.xml" />
+	<rule ref="rulesets/strings.xml">
+		<exclude name="AvoidDuplicateLiterals" />
+	</rule>
+	<rule ref="rulesets/typeresolution.xml">
+		<exclude name="LooseCoupling" />
+	</rule>
+	<rule ref="rulesets/unusedcode.xml" />
+
+	<!-- En nu de aanpassingen -->
+	
+	<rule ref="rulesets/codesize.xml/ExcessiveParameterList">
+		<properties>
+			<property name="minimum" value="11" />
+		</properties>
+	</rule>
+	<rule ref="rulesets/codesize.xml/ExcessiveMethodLength">
+		<properties>
+			<property name="minimum" value="150" />
+		</properties>
+	</rule>
+	<rule ref="rulesets/codesize.xml/ExcessiveClassLength">
+		<properties>
+			<property name="minimum" value="2000" />
+		</properties>
+	</rule>
+	<rule ref="rulesets/codesize.xml/CyclomaticComplexity">
+		<properties>
+			<property name="minimum" value="16" />
+			<property name="reportLevel" value="16" />
+		</properties>
+	</rule>
+	<rule ref="rulesets/codesize.xml/ExcessivePublicCount">
+		<properties>
+			<property name="minimum" value="45" />
+		</properties>
+	</rule>
+	<rule ref="rulesets/design.xml/AvoidDeeplyNestedIfStmts">
+		<properties>
+			<property name="problemDepth" value="6" />
+		</properties>
+	</rule>
+	<rule ref="rulesets/naming.xml/LongVariable">
+		<properties>
+			<property name="minimum" value="75" />
+		</properties>
+	</rule>
+	
+</ruleset>
