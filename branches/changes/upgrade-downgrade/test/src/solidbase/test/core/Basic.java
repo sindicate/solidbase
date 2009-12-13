@@ -17,6 +17,7 @@
 package solidbase.test.core;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Set;
 
 import org.testng.annotations.Test;
@@ -25,9 +26,21 @@ import solidbase.core.Database;
 import solidbase.core.NonTerminatedStatementException;
 import solidbase.core.Patcher;
 import solidbase.core.SQLExecutionException;
+import solidbase.core.SystemException;
 
 public class Basic
 {
+	protected void printSQLState( SystemException e )
+	{
+		Throwable t = e.getCause();
+		if( t instanceof SQLException )
+		{
+			SQLException s = (SQLException)t;
+			System.out.println( "ErrorCode: " + s.getErrorCode() );
+			System.out.println( "SQLState: " + s.getSQLState() );
+		}
+	}
+
 	@Test
 	public void testBasic() throws IOException, SQLExecutionException
 	{
@@ -44,6 +57,11 @@ public class Basic
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.2" );
+		}
+		catch( SystemException e )
+		{
+			printSQLState( e );
+			throw e;
 		}
 		finally
 		{
