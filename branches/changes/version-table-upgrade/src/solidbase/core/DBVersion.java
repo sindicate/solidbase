@@ -42,6 +42,7 @@ import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
@@ -64,12 +65,14 @@ public class DBVersion
 {
 	protected boolean read; // read tried
 	protected boolean valid; // read succeeded
-	protected boolean versionTableExists;
+	protected boolean versionRecordExists;
 	protected boolean logTableExists;
+	protected boolean specColumnExists;
 
 	protected String version;
 	protected String target;
 	protected int statements;
+	protected String spec;
 
 	protected Database database;
 
@@ -91,7 +94,7 @@ public class DBVersion
 
 		Assert.isTrue( this.valid );
 
-		if( !this.versionTableExists )
+		if( !this.versionRecordExists )
 			return null;
 
 		//Assert.notNull( this.version );
@@ -111,7 +114,7 @@ public class DBVersion
 
 		Assert.isTrue( this.valid );
 
-		if( !this.versionTableExists )
+		if( !this.versionRecordExists )
 			return null;
 
 		return this.target;
@@ -129,10 +132,20 @@ public class DBVersion
 
 		Assert.isTrue( this.valid );
 
-		if( !this.versionTableExists )
+		if( !this.versionRecordExists )
 			return 0;
 
 		return this.statements;
+	}
+
+	public String getSpec()
+	{
+		if( !this.read )
+			read();
+
+		Assert.isTrue( this.valid );
+
+		return this.spec;
 	}
 
 	/**
@@ -144,27 +157,43 @@ public class DBVersion
 		Assert.notNull( this.database.getDefaultUser(), "Default user is not set" );
 		this.read = true;
 
-		this.versionTableExists = false;
+		this.versionRecordExists = false;
 		this.logTableExists = false;
+		this.spec = null;
+		this.specColumnExists = false;
 
 		Connection connection = this.database.getConnection( this.database.getDefaultUser() );
 		try
 		{
 			try
 			{
-				PreparedStatement statement = connection.prepareStatement( "SELECT VERSION, TARGET, STATEMENTS FROM DBVERSION" );
+				PreparedStatement statement = connection.prepareStatement( "SELECT * FROM DBVERSION" );
 				try
 				{
 					ResultSet resultSet = statement.executeQuery(); // Resultset is closed when the statement is closed
-					Assert.isTrue( resultSet.next() );
-					this.version = resultSet.getString( 1 );
-					this.target = resultSet.getString( 2 );
-					this.statements = resultSet.getInt( 3 );
-					Assert.isTrue( !resultSet.next() );
+					if( resultSet.next() )
+					{
+						this.version = resultSet.getString( "VERSION" );
+						this.target = resultSet.getString( "TARGET" );
+						this.statements = resultSet.getInt( "STATEMENTS" );
+						this.spec = "1.0";
+						ResultSetMetaData metaData = resultSet.getMetaData();
+						int columns = metaData.getColumnCount();
+						for( int i = 1; i <= columns; i++ )
+							if( metaData.getColumnName( i ).equalsIgnoreCase( "SPEC" ) )
+							{
+								this.specColumnExists = true;
+								this.spec = resultSet.getString( i );
+								Assert.isTrue( this.spec == "1.0" || this.spec.equals( "1.1" ) );
+							}
+						Assert.isTrue( !resultSet.next() );
 
-					Patcher.callBack.debug( "version=" + this.version + ", target=" + this.target + ", statements=" + this.statements );
+						Patcher.callBack.debug( "version=" + this.version + ", target=" + this.target + ", statements=" + this.statements );
 
-					this.versionTableExists = true;
+						this.versionRecordExists = true;
+					}
+					else
+						this.versionRecordExists = false;
 					this.valid = true;
 				}
 				finally
@@ -229,7 +258,7 @@ public class DBVersion
 		{
 			Connection connection = this.database.getConnection( this.database.getDefaultUser() );
 			PreparedStatement statement;
-			if( this.versionTableExists )
+			if( this.versionRecordExists )
 				statement = connection.prepareStatement( "UPDATE DBVERSION SET TARGET = ?, STATEMENTS = ?" );
 			else
 			{
@@ -249,7 +278,7 @@ public class DBVersion
 				connection.commit(); // You can commit even if it fails. Only 1 update done.
 			}
 
-			this.versionTableExists = true;
+			this.versionRecordExists = true;
 
 			this.target = target;
 			this.statements = statements;
@@ -268,12 +297,18 @@ public class DBVersion
 	protected void setVersion( String version )
 	{
 		Assert.notEmpty( version, "Version must not be empty" );
-		Assert.isTrue( this.versionTableExists, "Version table does not exist" );
 
 		try
 		{
 			Connection connection = this.database.getConnection( this.database.getDefaultUser() );
-			PreparedStatement statement = connection.prepareStatement( "UPDATE DBVERSION SET VERSION = ?, TARGET = NULL" );
+			PreparedStatement statement = connection.prepareStatement( "" );
+			if( this.versionRecordExists )
+				statement = connection.prepareStatement( "UPDATE DBVERSION SET VERSION = ?, TARGET = NULL" );
+			else
+			{
+				// Assume that the table has been created by now
+				statement = connection.prepareStatement( "INSERT INTO DBVERSION ( VERSION, TARGET, STATEMENTS ) VALUES ( ?, NULL, 0 )" );
+			}
 			try
 			{
 				statement.setString( 1, version );
@@ -295,6 +330,49 @@ public class DBVersion
 		}
 	}
 
+	public void setSpec( String spec )
+	{
+		Assert.notEmpty( spec, "Spec must not be empty" );
+
+		if( spec.equals( "1.0" ) && !this.specColumnExists )
+		{
+			this.spec = spec;
+			return;
+		}
+
+		try
+		{
+			Connection connection = this.database.getConnection( this.database.getDefaultUser() );
+			PreparedStatement statement;
+			if( this.versionRecordExists )
+				statement = connection.prepareStatement( "UPDATE DBVERSION SET SPEC = ?" );
+			else
+			{
+				// Assume that the table has been created by now
+				statement = connection.prepareStatement( "INSERT INTO DBVERSION ( STATEMENTS, SPEC ) VALUES ( 0, ? )" );
+			}
+			try
+			{
+				statement.setString( 1, spec );
+				int modified = statement.executeUpdate();
+				Assert.isTrue( modified == 1, "Expecting 1 record to be updated, not " + modified );
+			}
+			finally
+			{
+				statement.close();
+				connection.commit(); // You can commit even if it fails. Only 1 update done.
+			}
+
+			this.versionRecordExists = true;
+
+			this.spec = spec;
+		}
+		catch( SQLException e )
+		{
+			throw new SystemException( e );
+		}
+	}
+
 	/**
 	 * Adds a log record to the version log table.
 	 *
@@ -304,7 +382,7 @@ public class DBVersion
 	 * @param command
 	 * @param result
 	 */
-	protected void log( String source, String target, int count, String command, String result )
+	protected void log( String type, String source, String target, int count, String command, String result )
 	{
 		if( !this.logTableExists )
 			return;
@@ -320,18 +398,23 @@ public class DBVersion
 		if( result != null && result.length() > 3000 )
 			result = result.substring( 0, 3000 );
 
+		boolean t = "1.1".equals( this.spec );
+
 		try
 		{
 			Connection connection = this.database.getConnection( this.database.getDefaultUser() );
-			PreparedStatement statement = connection.prepareStatement( "INSERT INTO DBVERSIONLOG ( SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ? )" );
+			PreparedStatement statement = connection.prepareStatement( "INSERT INTO DBVERSIONLOG ( " + ( t ? "TYPE, " : "" ) + "SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( " + ( t ? "?, " : "" ) + "?, ?, ?, ?, ?, ? )" );
 			try
 			{
-				statement.setString( 1, StringUtils.stripToNull( source ) );
-				statement.setString( 2, target );
-				statement.setInt( 3, count );
-				statement.setTimestamp( 4, new Timestamp( System.currentTimeMillis() ) );
-				statement.setString( 5, StringUtils.stripToNull( command ) );
-				statement.setString( 6, StringUtils.stripToNull( result ) );
+				int i = 1;
+				if( t )
+					statement.setString( i++, type );
+				statement.setString( i++, StringUtils.stripToNull( source ) );
+				statement.setString( i++, target );
+				statement.setInt( i++, count );
+				statement.setTimestamp( i++, new Timestamp( System.currentTimeMillis() ) );
+				statement.setString( i++, StringUtils.stripToNull( command ) );
+				statement.setString( i++, StringUtils.stripToNull( result ) );
 				statement.executeUpdate();
 			}
 			finally
@@ -362,7 +445,7 @@ public class DBVersion
 		StringWriter buffer = new StringWriter();
 		e.printStackTrace( new PrintWriter( buffer ) );
 
-		log( source, target, count, command, buffer.toString() );
+		log( "S", source, target, count, command, buffer.toString() );
 	}
 
 	/**
@@ -391,7 +474,7 @@ public class DBVersion
 			buffer.append( "\n" );
 		}
 
-		log( source, target, count, command, buffer.toString() );
+		log( "S", source, target, count, command, buffer.toString() );
 	}
 
 	/**

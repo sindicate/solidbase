@@ -181,6 +181,26 @@ public class Patcher
 		return result;
 	}
 
+	static public void init() throws SQLExecutionException
+	{
+		String spec = dbVersion.getSpec();
+
+		List patches = patchFile.getInitPath( spec );
+		if( patches == null )
+			return;
+
+		Assert.isTrue( patches.size() > 0, "Not expecting an empty list" );
+
+		// INIT blocks get special treatment.
+		for( Iterator iter = patches.iterator(); iter.hasNext(); )
+		{
+			Patch patch = (Patch)iter.next();
+			patch( patch );
+			dbVersion.setSpec( patch.getTarget() );
+			// TODO How do we get a more dramatic error message here, if something goes wrong?
+		}
+	}
+
 	/**
 	 * Patches to the given target version. The target version can end with an '*', indicating whatever tip version that matches the target prefix.
 	 * 
@@ -189,6 +209,8 @@ public class Patcher
 	 */
 	static public void patch( String target ) throws SQLExecutionException
 	{
+		init();
+
 		Set< String > targets;
 
 		boolean wildcard = target.endsWith( "*" );
@@ -391,16 +413,21 @@ public class Patcher
 						Patcher.callBack.executing( command, startMessage );
 						startMessage = null;
 
-						SQLException sqlException = execute( command );
-						if( !patch.isInit() )
+						if( sql.trim().equalsIgnoreCase( "UPGRADE" ) )
+							upgrade( patch );
+						else
 						{
-							dbVersion.setProgress( patch.getTarget(), count );
-							// We have to update the progress even if the logging fails. Otherwise the patch cannot be
-							// restarted. That's why the progress update is first. But some logging will be lost in that case.
-							if( sqlException != null )
-								dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), sqlException );
-							else
-								dbVersion.log( patch.getSource(), patch.getTarget(), count, sql, (String)null );
+							SQLException sqlException = execute( command );
+							if( !patch.isInit() )
+							{
+								dbVersion.setProgress( patch.getTarget(), count );
+								// We have to update the progress even if the logging fails. Otherwise the patch cannot be
+								// restarted. That's why the progress update is first. But some logging will be lost in that case.
+								if( sqlException != null )
+									dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), sqlException );
+								else
+									dbVersion.log( "S", patch.getSource(), patch.getTarget(), count, sql, (String)null );
+							}
 						}
 						Patcher.callBack.executed();
 					}
@@ -417,7 +444,7 @@ public class Patcher
 			if( !patch.isOpen() )
 			{
 				dbVersion.setVersion( patch.getTarget() );
-				dbVersion.log( patch.getSource(), patch.getTarget(), count, null, "COMPLETED VERSION " + patch.getTarget() );
+				dbVersion.log( "B", patch.getSource(), patch.getTarget(), count, null, "COMPLETED VERSION " + patch.getTarget() );
 			}
 		}
 		catch( RuntimeException e )
@@ -430,6 +457,16 @@ public class Patcher
 			dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command == null ? null : command.getCommand(), e );
 			throw new SQLExecutionException( command, e );
 		}
+	}
+
+	static private void upgrade( Patch patch ) throws SQLException
+	{
+		Assert.isFalse( !patch.isInit(), "UPGRADE only allowed in INIT blocks" );
+		Assert.isTrue( patch.getSource().equals( "1.0" ) && patch.getTarget().equals( "1.1" ), "UPGRADE only possible from spec 1.0 to 1.1" );
+
+		execute( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'B' WHERE RESULT LIKE 'COMPLETED VERSION %'", false ) );
+		execute( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'S' WHERE RESULT IS NULL OR RESULT NOT LIKE 'COMPLETED VERSION %'", false ) );
+		execute( new Command( "UPDATE DBVERSION SET SPEC = '1.1'", false ) );
 	}
 
 	static private void setConnection( Database database )
