@@ -63,8 +63,7 @@ import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
  */
 public class DBVersion
 {
-	protected boolean read; // read tried
-	protected boolean valid; // read succeeded
+	protected boolean stale = true;
 	protected boolean versionRecordExists;
 	protected boolean logTableExists;
 	protected boolean specColumnExists;
@@ -76,29 +75,31 @@ public class DBVersion
 
 	protected Database database;
 
-
+	/**
+	 * An instance of this class needs to now in which database the version tables can be found. The default
+	 * connection of this database determines the schema where those tables reside.
+	 * 
+	 * @param database The database that contains the version tables, with its default connection determining the schema.
+	 */
 	protected DBVersion( Database database )
 	{
 		this.database = database;
 	}
 
+	public void setStale()
+	{
+		this.stale = true;
+	}
+
 	/**
-	 * Gets the current version of the database. If the version table does not yet exist it return null.
+	 * Gets the current version of the database. If the version table does not yet exist it returns null.
 	 *
 	 * @return the current version of the database.
 	 */
 	protected String getVersion()
 	{
-		if( !this.read )
-			read();
-
-		Assert.isTrue( this.valid );
-
-		if( !this.versionRecordExists )
-			return null;
-
-		//Assert.notNull( this.version );
-
+		if( this.stale )
+			init();
 		return this.version;
 	}
 
@@ -109,14 +110,8 @@ public class DBVersion
 	 */
 	protected String getTarget()
 	{
-		if( !this.read )
-			read();
-
-		Assert.isTrue( this.valid );
-
-		if( !this.versionRecordExists )
-			return null;
-
+		if( this.stale )
+			init();
 		return this.target;
 	}
 
@@ -127,35 +122,29 @@ public class DBVersion
 	 */
 	protected int getStatements()
 	{
-		if( !this.read )
-			read();
-
-		Assert.isTrue( this.valid );
-
-		if( !this.versionRecordExists )
-			return 0;
-
+		if( this.stale )
+			init();
 		return this.statements;
 	}
 
-	public String getSpec()
+	/**
+	 * Returns the specification version of the version tables.
+	 * 
+	 * @return the specification version of the version tables.
+	 */
+	protected String getSpec()
 	{
-		if( !this.read )
-			read();
-
-		Assert.isTrue( this.valid );
-
+		if( this.stale )
+			init();
 		return this.spec;
 	}
 
 	/**
-	 * Refreshes the data from the database. Is automatically called if needed by {@link #getVersion()}, {@link #getTarget()} and {@link #getStatements()}.
-	 *
+	 * Initializes this instance by trying to read the version tables. It will succeed when one or all of the version tables does not exist.
 	 */
-	protected void read()
+	private void init()
 	{
 		Assert.notNull( this.database.getDefaultUser(), "Default user is not set" );
-		this.read = true;
 
 		this.versionRecordExists = false;
 		this.logTableExists = false;
@@ -192,9 +181,6 @@ public class DBVersion
 
 						this.versionRecordExists = true;
 					}
-					else
-						this.versionRecordExists = false;
-					this.valid = true;
 				}
 				finally
 				{
@@ -205,9 +191,7 @@ public class DBVersion
 			{
 				String sqlState = e.getSQLState();
 				// TODO Make this configurable
-				if( sqlState.equals( "42000" ) /* Oracle */ || sqlState.equals( "42S02" ) /* MySQL */  || sqlState.equals( "42X05" ) /* Derby */  || sqlState.equals( "S0002" ) /* HSQLDB */ )
-					this.valid = true;
-				else
+				if( !( sqlState.equals( "42000" ) /* Oracle */ || sqlState.equals( "42S02" ) /* MySQL */  || sqlState.equals( "42X05" ) /* Derby */  || sqlState.equals( "S0002" ) /* HSQLDB */ ) )
 					throw new SystemException( e );
 			}
 
@@ -242,6 +226,8 @@ public class DBVersion
 				throw new SystemException( e );
 			}
 		}
+
+		this.stale = false;
 	}
 
 	/**
@@ -253,6 +239,9 @@ public class DBVersion
 	protected void setProgress( String target, int statements )
 	{
 		Assert.notEmpty( target, "Target must not be empty" );
+
+		if( this.stale )
+			init();
 
 		try
 		{
@@ -298,6 +287,9 @@ public class DBVersion
 	{
 		Assert.notEmpty( version, "Version must not be empty" );
 
+		if( this.stale )
+			init();
+
 		try
 		{
 			Connection connection = this.database.getConnection( this.database.getDefaultUser() );
@@ -330,9 +322,12 @@ public class DBVersion
 		}
 	}
 
-	public void setSpec( String spec )
+	protected void setSpec( String spec )
 	{
 		Assert.notEmpty( spec, "Spec must not be empty" );
+
+		if( this.stale )
+			init();
 
 		if( spec.equals( "1.0" ) && !this.specColumnExists )
 		{
@@ -384,6 +379,9 @@ public class DBVersion
 	 */
 	protected void log( String type, String source, String target, int count, String command, String result )
 	{
+		if( this.stale )
+			init();
+
 		if( !this.logTableExists )
 			return;
 
@@ -484,6 +482,8 @@ public class DBVersion
 	 */
 	protected void logToXML( OutputStream out, Charset charSet )
 	{
+		// Does not need init()
+
 		try
 		{
 			Connection connection = this.database.getConnection( this.database.getDefaultUser() );

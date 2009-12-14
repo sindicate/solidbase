@@ -250,17 +250,18 @@ public class Patcher
 	}
 
 	/**
-	 * Configures the connection to the database, including the default user.
-	 * Each patch in the patch file starts with this default user.
+	 * Configures the connection to the database, including the default user. Each patch in the patch file starts with
+	 * this database and default user. The version tables are also looked for in this database and the schema identified
+	 * by the default user.
 	 * 
-	 * @param database
-	 * @param defaultUser
+	 * @param database The default database.
 	 */
 	static public void setDefaultConnection( Database database )
 	{
 		Patcher.defaultDatabase = database;
 		Patcher.allDatabases.put( "default", database );
-		database.init(); // Resets the current user and init the connection when password is supplied.
+
+		database.init(); // Resets the current user and initializes the connection when password is supplied.
 
 		dbVersion = new DBVersion( database );
 
@@ -351,8 +352,6 @@ public class Patcher
 		conditionStack.clear();
 		condition = true;
 
-		dbVersion.read();
-
 		Command command = patchFile.readStatement();
 		int count = 0;
 		try
@@ -439,9 +438,13 @@ public class Patcher
 			}
 			Patcher.callBack.patchFinished();
 
-			dbVersion.read();
-
-			if( !patch.isOpen() )
+			dbVersion.setStale(); // TODO With a normal patch, only set stale if not both of the 2 version tables are found
+			if( patch.isInit() )
+			{
+				dbVersion.setSpec( patch.getTarget() );
+				Assert.isFalse( patch.isOpen() );
+			}
+			else if( !patch.isOpen() )
 			{
 				dbVersion.setVersion( patch.getTarget() );
 				dbVersion.log( "B", patch.getSource(), patch.getTarget(), count, null, "COMPLETED VERSION " + patch.getTarget() );
@@ -591,5 +594,10 @@ public class Patcher
 		String driver = connection.getDriver();
 		String url = connection.getUrl();
 		allDatabases.put( connection.getName(), new Database( driver != null ? driver : defaultDatabase.driverName, url != null ? url : defaultDatabase.url, connection.getUser().toLowerCase(), connection.getPassword() ) );
+	}
+
+	static public void connect()
+	{
+		defaultDatabase.getConnection();
 	}
 }

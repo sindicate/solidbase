@@ -70,8 +70,7 @@ public class UpgradeTaskTests extends BuildFileTest
 				"Patching to \"1.0.1\"\n" +
 				"    Creating table DBVERSION.\n" +
 				"    Creating table DBVERSIONLOG.\n" +
-				"Patching \"1.0.1\" to \"1.0.2\"\n" +
-				".\n" + // This dot is on a new line, because there is a debug line in between. But I don't want to record that.
+				"Patching \"1.0.1\" to \"1.0.2\".\n" +
 				"    Inserting admin users...\n" +
 				"The database has been patched.\n" +
 				"\n" +
