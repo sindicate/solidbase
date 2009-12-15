@@ -475,6 +475,17 @@ public class DBVersion
 		log( "S", source, target, count, command, buffer.toString() );
 	}
 
+	public void complete( String source, String target, int count )
+	{
+		if( this.stale )
+			init();
+
+		if( "1.1".equals( this.spec ) )
+			log( "B", source, target, count, null, "COMPLETED" );
+		else
+			log( null, source, target, count, null, "COMPLETED VERSION " + target );
+	}
+
 	/**
 	 * Dumps the current log in XML format to the given output stream.
 	 *
@@ -540,10 +551,16 @@ public class DBVersion
 
 	protected boolean logContains( String version )
 	{
+		String sql;
+		if( "1.1".equals( this.spec ) )
+			sql = "SELECT ID FROM DBVERSIONLOG WHERE TYPE = 'B' AND TARGET = '" + version + "' AND RESULT = 'COMPLETED'";
+		else
+			sql = "SELECT ID FROM DBVERSIONLOG WHERE RESULT = 'COMPLETED VERSION " + version + "'";
+
 		Connection connection = this.database.getConnection( this.database.getDefaultUser() );
 		try
 		{
-			PreparedStatement stat = connection.prepareStatement( "SELECT ID FROM DBVERSIONLOG WHERE RESULT = 'COMPLETED VERSION " + version + "'" );
+			PreparedStatement stat = connection.prepareStatement( sql );
 			try
 			{
 				ResultSet result = stat.executeQuery();

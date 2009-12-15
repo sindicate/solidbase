@@ -447,7 +447,7 @@ public class Patcher
 			else if( !patch.isOpen() )
 			{
 				dbVersion.setVersion( patch.getTarget() );
-				dbVersion.log( "B", patch.getSource(), patch.getTarget(), count, null, "COMPLETED VERSION " + patch.getTarget() );
+				dbVersion.complete( patch.getSource(), patch.getTarget(), count );
 			}
 		}
 		catch( RuntimeException e )
@@ -467,9 +467,9 @@ public class Patcher
 		Assert.isFalse( !patch.isInit(), "UPGRADE only allowed in INIT blocks" );
 		Assert.isTrue( patch.getSource().equals( "1.0" ) && patch.getTarget().equals( "1.1" ), "UPGRADE only possible from spec 1.0 to 1.1" );
 
-		execute( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'B' WHERE RESULT LIKE 'COMPLETED VERSION %'", false ) );
 		execute( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'S' WHERE RESULT IS NULL OR RESULT NOT LIKE 'COMPLETED VERSION %'", false ) );
-		execute( new Command( "UPDATE DBVERSION SET SPEC = '1.1'", false ) );
+		execute( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'B', RESULT = 'COMPLETED' WHERE RESULT LIKE 'COMPLETED VERSION %'", false ) );
+		execute( new Command( "UPDATE DBVERSION SET SPEC = '1.1'", false ) ); // We need this because the column is made NOT NULL in the upgrade init block
 	}
 
 	static private void setConnection( Database database )
