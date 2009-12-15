@@ -17,18 +17,19 @@
 package solidbase.test.core;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Set;
 
 import org.testng.annotations.Test;
 
 import solidbase.core.Database;
 import solidbase.core.Patcher;
-import solidbase.core.SQLExecutionException;
+import solidbase.core.TestUtil;
 
 public class Conditional
 {
 	@Test
-	public void testIfHistoryContains() throws IOException, SQLExecutionException
+	public void testIfHistoryContains() throws IOException, SQLException
 	{
 		Patcher.end();
 
@@ -47,5 +48,7 @@ public class Conditional
 		{
 			Patcher.closePatchFile();
 		}
+
+		TestUtil.verifyVersion( "1.0.2", null, 2, null ); // TODO Should this be 3 statements or 2?
 	}
 }

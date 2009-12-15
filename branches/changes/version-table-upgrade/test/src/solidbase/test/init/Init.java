@@ -17,26 +17,27 @@
 package solidbase.test.init;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Set;
 
 import org.testng.annotations.Test;
 
 import solidbase.core.Database;
 import solidbase.core.Patcher;
-import solidbase.core.SQLExecutionException;
+import solidbase.core.TestUtil;
 import solidbase.test.core.TestProgressListener;
 
 public class Init
 {
 	@Test
-	public void testInit1() throws IOException, SQLExecutionException
+	public void testInit1() throws IOException, SQLException
 	{
 		Patcher.end();
 
 		Patcher.setCallBack( new TestProgressListener() );
 		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init1", "sa", null ) );
 
-		Patcher.openPatchFile( "testpatch-version-table-upgrade-1.sql" );
+		Patcher.openPatchFile( "testpatch1.sql" );
 		try
 		{
 			Set< String > targets = Patcher.getTargets( false, null );
@@ -48,10 +49,12 @@ public class Init
 		{
 			Patcher.closePatchFile();
 		}
+
+		TestUtil.verifyVersion( "1.0.1", null, 2, null );
 	}
 
 	@Test(dependsOnMethods="testInit1")
-	public void testInit2() throws IOException, SQLExecutionException
+	public void testInit2() throws IOException, SQLException
 	{
 		Patcher.end();
 
@@ -70,5 +73,34 @@ public class Init
 		{
 			Patcher.closePatchFile();
 		}
+
+		TestUtil.verifyVersion( "1.0.2", null, 1, "1.1" );
+	}
+
+	@Test
+	public void testInit3() throws IOException, SQLException
+	{
+		Patcher.end();
+
+		Patcher.setCallBack( new TestProgressListener() );
+		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init3", "sa", null ) );
+
+		Patcher.openPatchFile( "testpatch-version-table-upgrade-2.sql" );
+		try
+		{
+			Set< String > targets = Patcher.getTargets( false, null );
+			assert targets.size() > 0;
+
+			Patcher.patch( "" );
+			TestUtil.verifyVersion( null, null, 0, "1.1" );
+
+			Patcher.patch( "1.0.2" );
+			TestUtil.verifyVersion( "1.0.2", null, 1, "1.1" );
+		}
+		finally
+		{
+			Patcher.closePatchFile();
+		}
+
 	}
 }
