@@ -447,7 +447,7 @@ public class Patcher
 			else if( !patch.isOpen() )
 			{
 				dbVersion.setVersion( patch.getTarget() );
-				dbVersion.complete( patch.getSource(), patch.getTarget(), count );
+				dbVersion.logComplete( patch.getSource(), patch.getTarget(), count );
 			}
 		}
 		catch( RuntimeException e )

@@ -42,12 +42,10 @@ import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 
-import org.apache.commons.lang.StringUtils;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
@@ -63,16 +61,50 @@ import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
  */
 public class DBVersion
 {
+	/**
+	 * Need to refresh this instance from the data in the DBVERSION table.
+	 */
 	protected boolean stale = true;
+
+	/**
+	 * Does the DBVERSION table exist and does it contain a record?
+	 */
 	protected boolean versionRecordExists;
+
+	/**
+	 * Does the DBVERSIONLOG table exist?
+	 */
 	protected boolean logTableExists;
+
+	/**
+	 * Does the DBVERSION table contain a SPEC column?
+	 */
 	protected boolean specColumnExists;
 
+	/**
+	 * The current version of the database.
+	 */
 	protected String version;
+
+	/**
+	 * Is the database halfway a new version, and which version is that?
+	 */
 	protected String target;
+
+	/**
+	 * How many statements have been successfully executed for the current target? If the target is null, then not
+	 * relevant, but will contain the number of statements executed for the current version.
+	 */
 	protected int statements;
+
+	/**
+	 * How do the DBVERSION tables look like.
+	 */
 	protected String spec;
 
+	/**
+	 * What's the database and schema that contains the DBVERSION tables.
+	 */
 	protected Database database;
 
 	/**
@@ -86,7 +118,11 @@ public class DBVersion
 		this.database = database;
 	}
 
-	public void setStale()
+	/**
+	 * Signal that this instance is most likely not up to date with the database. This happens when the database is
+	 * initialized or upgraded to a new version of the DBVERSION tables.
+	 */
+	protected void setStale()
 	{
 		this.stale = true;
 	}
@@ -142,16 +178,17 @@ public class DBVersion
 	/**
 	 * Initializes this instance by trying to read the version tables. It will succeed when one or all of the version tables does not exist.
 	 */
-	private void init()
+	protected void init()
 	{
 		Assert.notNull( this.database.getDefaultUser(), "Default user is not set" );
+		Assert.isTrue( this.stale );
 
-		this.versionRecordExists = false;
-		this.logTableExists = false;
+		this.version = null;
+		this.target = null;
+		this.statements = 0;
 		this.spec = null;
-		this.specColumnExists = false;
 
-		Connection connection = this.database.getConnection( this.database.getDefaultUser() );
+		Connection connection = this.database.getConnection();
 		try
 		{
 			try
@@ -160,26 +197,29 @@ public class DBVersion
 				try
 				{
 					ResultSet resultSet = statement.executeQuery(); // Resultset is closed when the statement is closed
+					if( Util.hasColumn( resultSet, "SPEC" ) )
+						this.specColumnExists = true;
+					else
+						Assert.isFalse( this.specColumnExists, "SPEC column in DBVERSION table has disappeared" );
 					if( resultSet.next() )
 					{
 						this.version = resultSet.getString( "VERSION" );
 						this.target = resultSet.getString( "TARGET" );
 						this.statements = resultSet.getInt( "STATEMENTS" );
-						this.spec = "1.0";
-						ResultSetMetaData metaData = resultSet.getMetaData();
-						int columns = metaData.getColumnCount();
-						for( int i = 1; i <= columns; i++ )
-							if( metaData.getColumnName( i ).equalsIgnoreCase( "SPEC" ) )
-							{
-								this.specColumnExists = true;
-								this.spec = resultSet.getString( i );
-								Assert.isTrue( this.spec == "1.0" || this.spec.equals( "1.1" ) );
-							}
+						if( this.specColumnExists )
+							this.spec = resultSet.getString( "SPEC" );
+						else
+							this.spec = "1.0";
+						Assert.isTrue( this.spec == "1.0" || this.spec.equals( "1.1" ) );
 						Assert.isTrue( !resultSet.next() );
 
 						Patcher.callBack.debug( "version=" + this.version + ", target=" + this.target + ", statements=" + this.statements );
 
 						this.versionRecordExists = true;
+					}
+					else
+					{
+						Assert.isFalse( this.versionRecordExists, "Record in DBVERSION has disappeared" );
 					}
 				}
 				finally
@@ -191,8 +231,11 @@ public class DBVersion
 			{
 				String sqlState = e.getSQLState();
 				// TODO Make this configurable
-				if( !( sqlState.equals( "42000" ) /* Oracle */ || sqlState.equals( "42S02" ) /* MySQL */  || sqlState.equals( "42X05" ) /* Derby */  || sqlState.equals( "S0002" ) /* HSQLDB */ ) )
+				if( !( sqlState.equals( "42000" ) /* Oracle */|| sqlState.equals( "42S02" ) /* MySQL */
+						|| sqlState.equals( "42X05" ) /* Derby */|| sqlState.equals( "S0002" ) /* HSQLDB */) )
 					throw new SystemException( e );
+
+				Assert.isFalse( this.versionRecordExists, "DBVERSION table has disappeared" );
 			}
 
 			try
@@ -213,6 +256,7 @@ public class DBVersion
 				String sqlState = e.getSQLState();
 				if( !( sqlState.equals( "42000" ) /* Oracle */ || sqlState.equals( "42S02" ) /* MySQL */ || sqlState.equals( "42X05" ) /* Derby */ || sqlState.equals( "S0002" ) /* HSQLDB */ ) )
 					throw new SystemException( e );
+				Assert.isFalse( this.logTableExists, "DBVERSIONLOG table has disappeared" );
 			}
 		}
 		finally
@@ -239,43 +283,21 @@ public class DBVersion
 	protected void setProgress( String target, int statements )
 	{
 		Assert.notEmpty( target, "Target must not be empty" );
+		Assert.isTrue( statements > 0 );
 
 		if( this.stale )
 			init();
 
-		try
+		if( this.versionRecordExists )
+			execute( "UPDATE DBVERSION SET TARGET = ?, STATEMENTS = ?", new Object[] { target, statements } );
+		else
 		{
-			Connection connection = this.database.getConnection( this.database.getDefaultUser() );
-			PreparedStatement statement;
-			if( this.versionRecordExists )
-				statement = connection.prepareStatement( "UPDATE DBVERSION SET TARGET = ?, STATEMENTS = ?" );
-			else
-			{
-				// Presume that the table has been created by the first SQL statement in the patch
-				statement = connection.prepareStatement( "INSERT INTO DBVERSION ( TARGET, STATEMENTS ) VALUES ( ?, ? )" );
-			}
-			try
-			{
-				statement.setString( 1, target );
-				statement.setInt( 2, statements );
-				int modified = statement.executeUpdate();
-				Assert.isTrue( modified == 1, "Expecting 1 record to be updated, not " + modified );
-			}
-			finally
-			{
-				statement.close();
-				connection.commit(); // You can commit even if it fails. Only 1 update done.
-			}
-
+			execute( "INSERT INTO DBVERSION ( TARGET, STATEMENTS ) VALUES ( ?, ? )", new Object[] { target, statements } );
 			this.versionRecordExists = true;
+		}
 
-			this.target = target;
-			this.statements = statements;
-		}
-		catch( SQLException e )
-		{
-			throw new SystemException( e );
-		}
+		this.target = target;
+		this.statements = statements;
 	}
 
 	/**
@@ -290,104 +312,61 @@ public class DBVersion
 		if( this.stale )
 			init();
 
-		try
+		if( this.versionRecordExists )
+			execute( "UPDATE DBVERSION SET VERSION = ?, TARGET = NULL", new Object[] { version } );
+		else
 		{
-			Connection connection = this.database.getConnection( this.database.getDefaultUser() );
-			PreparedStatement statement = connection.prepareStatement( "" );
-			if( this.versionRecordExists )
-				statement = connection.prepareStatement( "UPDATE DBVERSION SET VERSION = ?, TARGET = NULL" );
-			else
-			{
-				// Assume that the table has been created by now
-				statement = connection.prepareStatement( "INSERT INTO DBVERSION ( VERSION, TARGET, STATEMENTS ) VALUES ( ?, NULL, 0 )" );
-			}
-			try
-			{
-				statement.setString( 1, version );
-				int modified = statement.executeUpdate();
-				Assert.isTrue( modified == 1, "Expecting 1 record to be updated, not " + modified );
-			}
-			finally
-			{
-				statement.close();
-				connection.commit(); // You can commit even if it fails. Only 1 update done.
-			}
+			execute( "INSERT INTO DBVERSION ( VERSION, TARGET, STATEMENTS ) VALUES ( ?, NULL, 0 )", new Object[] { version } );
+			this.versionRecordExists = true;
+		}
 
-			this.version = version;
-			this.target = null;
-		}
-		catch( SQLException e )
-		{
-			throw new SystemException( e );
-		}
+		this.version = version;
+		this.target = null;
 	}
 
+	/**
+	 * Sets the current spec.
+	 * 
+	 * @param spec The spec.
+	 */
 	protected void setSpec( String spec )
 	{
 		Assert.notEmpty( spec, "Spec must not be empty" );
+		Assert.isTrue( spec.equals( "1.1" ), "Only spec 1.1 allowed" );
 
 		if( this.stale )
 			init();
 
-		if( spec.equals( "1.0" ) && !this.specColumnExists )
+		if( this.versionRecordExists )
+			execute( "UPDATE DBVERSION SET SPEC = ?", new Object[] { spec } );
+		else
 		{
-			this.spec = spec;
-			return;
-		}
-
-		try
-		{
-			Connection connection = this.database.getConnection( this.database.getDefaultUser() );
-			PreparedStatement statement;
-			if( this.versionRecordExists )
-				statement = connection.prepareStatement( "UPDATE DBVERSION SET SPEC = ?" );
-			else
-			{
-				// Assume that the table has been created by now
-				statement = connection.prepareStatement( "INSERT INTO DBVERSION ( STATEMENTS, SPEC ) VALUES ( 0, ? )" );
-			}
-			try
-			{
-				statement.setString( 1, spec );
-				int modified = statement.executeUpdate();
-				Assert.isTrue( modified == 1, "Expecting 1 record to be updated, not " + modified );
-			}
-			finally
-			{
-				statement.close();
-				connection.commit(); // You can commit even if it fails. Only 1 update done.
-			}
-
+			execute( "INSERT INTO DBVERSION ( STATEMENTS, SPEC ) VALUES ( 0, ? )", new Object[] { spec } );
 			this.versionRecordExists = true;
+		}
 
-			this.spec = spec;
-		}
-		catch( SQLException e )
-		{
-			throw new SystemException( e );
-		}
+		this.spec = spec;
 	}
 
 	/**
 	 * Adds a log record to the version log table.
-	 *
-	 * @param source
-	 * @param target
-	 * @param count
-	 * @param command
-	 * @param result
+	 * 
+	 * @param type The type of the log entry.
+	 * @param source The source version.
+	 * @param target The target version.
+	 * @param count The statement count.
+	 * @param command The executed statement.
+	 * @param result The result of executing the statement.
 	 */
 	protected void log( String type, String source, String target, int count, String command, String result )
 	{
+		Assert.notEmpty( target, "target must not be empty" );
+
 		if( this.stale )
 			init();
 
 		if( !this.logTableExists )
 			return;
-
-		//		Assert.notEmpty( source, "source must not be empty" );
-		Assert.notEmpty( target, "target must not be empty" );
-		//		Assert.notEmpty( command, "command must not be empty" );
 
 		// Trim strings, maximum length for VARCHAR2 in Oracle is 4000 !BYTES!
 		// Trim more, to make room for UTF8 bytes
@@ -396,45 +375,22 @@ public class DBVersion
 		if( result != null && result.length() > 3000 )
 			result = result.substring( 0, 3000 );
 
-		boolean t = "1.1".equals( this.spec );
-
-		try
-		{
-			Connection connection = this.database.getConnection( this.database.getDefaultUser() );
-			PreparedStatement statement = connection.prepareStatement( "INSERT INTO DBVERSIONLOG ( " + ( t ? "TYPE, " : "" ) + "SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( " + ( t ? "?, " : "" ) + "?, ?, ?, ?, ?, ? )" );
-			try
-			{
-				int i = 1;
-				if( t )
-					statement.setString( i++, type );
-				statement.setString( i++, StringUtils.stripToNull( source ) );
-				statement.setString( i++, target );
-				statement.setInt( i++, count );
-				statement.setTimestamp( i++, new Timestamp( System.currentTimeMillis() ) );
-				statement.setString( i++, StringUtils.stripToNull( command ) );
-				statement.setString( i++, StringUtils.stripToNull( result ) );
-				statement.executeUpdate();
-			}
-			finally
-			{
-				statement.close();
-				connection.commit(); // You can commit even if it fails. Only 1 update done.
-			}
-		}
-		catch( SQLException e )
-		{
-			throw new SystemException( e );
-		}
+		if( "1.1".equals( this.spec ) )
+			execute( "INSERT INTO DBVERSIONLOG ( TYPE, SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ?, ? )",
+					new Object[] { type, source, target, count, new Timestamp( System.currentTimeMillis() ), command, result } );
+		else
+			execute( "INSERT INTO DBVERSIONLOG ( SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ? )",
+					new Object[] { source, target, count, new Timestamp( System.currentTimeMillis() ), command, result } );
 	}
 
 	/**
 	 * Adds a log record to the version log table.
 	 *
-	 * @param source
-	 * @param target
-	 * @param count
-	 * @param command
-	 * @param e
+	 * @param source The source version.
+	 * @param target The target version.
+	 * @param count The statement count.
+	 * @param command The executed statement.
+	 * @param e The exception.
 	 */
 	protected void log( String source, String target, int count, String command, Exception e )
 	{
@@ -449,11 +405,11 @@ public class DBVersion
 	/**
 	 * Adds a log record to the version log table.
 	 *
-	 * @param source
-	 * @param target
-	 * @param count
-	 * @param command
-	 * @param e
+	 * @param source The source version.
+	 * @param target The target version.
+	 * @param count The statement count.
+	 * @param command The executed statement.
+	 * @param e The sql exception.
 	 */
 	protected void logSQLException( String source, String target, int count, String command, SQLException e )
 	{
@@ -475,29 +431,31 @@ public class DBVersion
 		log( "S", source, target, count, command, buffer.toString() );
 	}
 
-	public void complete( String source, String target, int count )
+	/**
+	 * Log a complete block.
+	 * 
+	 * @param source The source version.
+	 * @param target The target version.
+	 * @param count The statement count.
+	 */
+	protected void logComplete( String source, String target, int count )
 	{
-		if( this.stale )
-			init();
-
-		if( "1.1".equals( this.spec ) )
-			log( "B", source, target, count, null, "COMPLETED" );
-		else
-			log( null, source, target, count, null, "COMPLETED VERSION " + target );
+		log( "B", source, target, count, null, "1.1".equals( this.spec ) ? "COMPLETED" : "COMPLETED VERSION " + target );
 	}
 
 	/**
-	 * Dumps the current log in XML format to the given output stream.
+	 * Dumps the current log in XML format to the given output stream, with the given character set.
 	 *
 	 * @param out The outputstream.
+	 * @param charSet The character set.
 	 */
 	protected void logToXML( OutputStream out, Charset charSet )
 	{
-		// Does not need init()
+		// This method does not care about staleness
 
 		try
 		{
-			Connection connection = this.database.getConnection( this.database.getDefaultUser() );
+			Connection connection = this.database.getConnection();
 			Statement stat = connection.createStatement();
 			try
 			{
@@ -549,15 +507,23 @@ public class DBVersion
 		}
 	}
 
+	/**
+	 * Checks if a specific version is in the history of this database.
+	 * 
+	 * @param version The version to be checked.
+	 * @return True if the version is part of this database's history, false otherwise.
+	 */
 	protected boolean logContains( String version )
 	{
+		Assert.isFalse( this.stale );
+
 		String sql;
 		if( "1.1".equals( this.spec ) )
 			sql = "SELECT ID FROM DBVERSIONLOG WHERE TYPE = 'B' AND TARGET = '" + version + "' AND RESULT = 'COMPLETED'";
 		else
 			sql = "SELECT ID FROM DBVERSIONLOG WHERE RESULT = 'COMPLETED VERSION " + version + "'";
 
-		Connection connection = this.database.getConnection( this.database.getDefaultUser() );
+		Connection connection = this.database.getConnection();
 		try
 		{
 			PreparedStatement stat = connection.prepareStatement( sql );
@@ -570,6 +536,38 @@ public class DBVersion
 			{
 				stat.close();
 				connection.commit();
+			}
+		}
+		catch( SQLException e )
+		{
+			throw new SystemException( e );
+		}
+	}
+
+	/**
+	 * Execute the given sql with the given parameters. It asserts that exactly one record is updated.
+	 * 
+	 * @param sql The sql to be executed.
+	 * @param parameters The parameters for the sql.
+	 */
+	protected void execute( String sql, Object[] parameters )
+	{
+		try
+		{
+			Connection connection = this.database.getConnection();
+			PreparedStatement statement = connection.prepareStatement( sql );
+			int i = 1;
+			for( Object parameter : parameters )
+				statement.setObject( i++, parameter );
+			try
+			{
+				int modified = statement.executeUpdate();
+				Assert.isTrue( modified == 1, "Expecting 1 record to be updated, not " + modified );
+			}
+			finally
+			{
+				statement.close();
+				connection.commit(); // You can commit even if it fails. Only 1 update done.
 			}
 		}
 		catch( SQLException e )
