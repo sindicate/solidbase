@@ -329,7 +329,7 @@ public class Patcher
 		conditionStack.clear();
 		condition = true;
 
-		dbVersion.read(); // TODO Why do we do a read here? Add comment.
+		dbVersion.read();
 
 		Command command = patchFile.readStatement();
 		int count = 0;

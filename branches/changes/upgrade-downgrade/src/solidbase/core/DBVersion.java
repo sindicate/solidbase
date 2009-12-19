@@ -66,12 +66,10 @@ public class DBVersion
 	protected boolean valid; // read succeeded
 	protected boolean versionTableExists;
 	protected boolean logTableExists;
-	protected boolean specColumnExists;
 
 	protected String version;
 	protected String target;
 	protected int statements;
-	protected String spec;
 
 	protected Database database;
 
@@ -82,7 +80,7 @@ public class DBVersion
 	}
 
 	/**
-	 * Gets the current version of the database. Will return null when the initial upgrade block is not finished yet.
+	 * Gets the current version of the database. If the version table does not yet exist it return null.
 	 *
 	 * @return the current version of the database.
 	 */
@@ -96,7 +94,8 @@ public class DBVersion
 		if( !this.versionTableExists )
 			return null;
 
-		// this.version might still be null when creation of the DBVERSIONLOG table fails
+		//Assert.notNull( this.version );
+
 		return this.version;
 	}
 
@@ -145,8 +144,8 @@ public class DBVersion
 		Assert.notNull( this.database.getDefaultUser(), "Default user is not set" );
 		this.read = true;
 
-		//if( this.valid )
-		//Assert.isTrue( this.versionTableExists );
+		this.versionTableExists = false;
+		this.logTableExists = false;
 
 		Connection connection = this.database.getConnection( this.database.getDefaultUser() );
 		try
@@ -177,49 +176,10 @@ public class DBVersion
 			{
 				String sqlState = e.getSQLState();
 				// TODO Make this configurable
-				if( sqlState.equals( "42000" ) /* Oracle */ || sqlState.equals( "42S02" ) /* MySQL */  || sqlState.equals( "42X05" ) /* Derby */  || sqlState.equals( "S0002" ) /* HSQLDB */ ) // Table not found error
-				{
-					Assert.isFalse( this.versionTableExists );
-				}
+				if( sqlState.equals( "42000" ) /* Oracle */ || sqlState.equals( "42S02" ) /* MySQL */  || sqlState.equals( "42X05" ) /* Derby */  || sqlState.equals( "S0002" ) /* HSQLDB */ )
+					this.valid = true;
 				else
 					throw new SystemException( e );
-			}
-
-			if( this.versionTableExists )
-			{
-				try
-				{
-					PreparedStatement statement = connection.prepareStatement( "SELECT SPEC FROM DBVERSION" );
-					try
-					{
-						ResultSet resultSet = statement.executeQuery(); // Resultset is closed when the statement is closed
-						Assert.isTrue( resultSet.next() );
-						this.specColumnExists = true;
-						this.spec = resultSet.getString( 1 );
-						Assert.isTrue( !resultSet.next() );
-					}
-					finally
-					{
-						statement.close();
-					}
-				}
-				catch( SQLException e )
-				{
-					String sqlState = e.getSQLState();
-					// TODO Make this configurable
-					// TODO Add Oracle, MySql & Derby
-					if( sqlState.equals( "S0022" ) /* HSQLDB */ ) // Column not found error
-					{
-						Assert.isFalse( this.specColumnExists );
-						this.spec = "1.0";
-					}
-					else
-						throw new SystemException( e );
-				}
-
-				Patcher.callBack.debug( "spec=" + this.spec );
-				if( !( this.spec.equals( "1.0" ) || this.spec.equals( "1.1" ) ) )
-					Assert.fail( "Unrecognized spec " + this.spec );
 			}
 
 			try
@@ -240,10 +200,7 @@ public class DBVersion
 				String sqlState = e.getSQLState();
 				if( !( sqlState.equals( "42000" ) /* Oracle */ || sqlState.equals( "42S02" ) /* MySQL */ || sqlState.equals( "42X05" ) /* Derby */ || sqlState.equals( "S0002" ) /* HSQLDB */ ) )
 					throw new SystemException( e );
-				// version log table does not exist
 			}
-
-			this.valid = true;
 		}
 		finally
 		{
@@ -267,8 +224,6 @@ public class DBVersion
 	protected void setProgress( String target, int statements )
 	{
 		Assert.notEmpty( target, "Target must not be empty" );
-		Assert.isTrue( this.valid );
-		Assert.isTrue( this.versionTableExists );
 
 		try
 		{
@@ -279,7 +234,7 @@ public class DBVersion
 			else
 			{
 				// Presume that the table has been created by the first SQL statement in the patch
-				statement = connection.prepareStatement( "INSERT INTO DBVERSION ( TARGET, STATEMENTS, SPEC ) VALUES ( ?, ?, '1.1' )" );
+				statement = connection.prepareStatement( "INSERT INTO DBVERSION ( TARGET, STATEMENTS ) VALUES ( ?, ? )" );
 			}
 			try
 			{
