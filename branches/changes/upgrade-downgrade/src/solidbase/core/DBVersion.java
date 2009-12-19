@@ -519,9 +519,9 @@ public class DBVersion
 
 		String sql;
 		if( "1.1".equals( this.spec ) )
-			sql = "SELECT TYPE FROM DBVERSIONLOG WHERE TYPE = 'B' AND TARGET = '" + version + "' AND RESULT = 'COMPLETE'";
+			sql = "SELECT 1 FROM DBVERSIONLOG WHERE TYPE = 'B' AND TARGET = '" + version + "' AND RESULT = 'COMPLETE'";
 		else
-			sql = "SELECT TYPE FROM DBVERSIONLOG WHERE RESULT = 'COMPLETED VERSION " + version + "'";
+			sql = "SELECT 1 FROM DBVERSIONLOG WHERE RESULT = 'COMPLETED VERSION " + version + "'";
 
 		Connection connection = this.database.getConnection();
 		try
