@@ -39,7 +39,7 @@ public class Conditional
 		Patcher.openPatchFile( "testpatch-conditional1.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null );
+			Set< String > targets = Patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.2" );
@@ -63,7 +63,7 @@ public class Conditional
 		Patcher.openPatchFile( "testpatch-conditional2.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null );
+			Set< String > targets = Patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.3" );

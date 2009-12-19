@@ -278,7 +278,7 @@ public class Main
 			else
 			{
 				// Need linked set because order is important
-				LinkedHashSet< String > targets = Patcher.getTargets( false, null );
+				LinkedHashSet< String > targets = Patcher.getTargets( false, null, false );
 				if( targets.size() > 0 )
 				{
 					console.println( "Possible targets are: " + list( targets ) );

@@ -40,7 +40,7 @@ public class Init
 		Patcher.openPatchFile( "testpatch1.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null );
+			Set< String > targets = Patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.1" );
@@ -64,7 +64,7 @@ public class Init
 		Patcher.openPatchFile( "testpatch-version-table-upgrade-2.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null );
+			Set< String > targets = Patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.2" );
@@ -88,7 +88,7 @@ public class Init
 		Patcher.openPatchFile( "testpatch-version-table-upgrade-2.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null );
+			Set< String > targets = Patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
 			Patcher.patch( "" );

@@ -42,7 +42,7 @@ public class Basic
 		Patcher.openPatchFile( "testpatch1.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null );
+			Set< String > targets = Patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.2" );
@@ -64,7 +64,7 @@ public class Basic
 		Patcher.openPatchFile( "testpatch2.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null );
+			Set< String > targets = Patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.3" );
@@ -88,7 +88,7 @@ public class Basic
 		Patcher.openPatchFile( "testpatch-open.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null );
+			Set< String > targets = Patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.2" );
@@ -112,7 +112,7 @@ public class Basic
 		Patcher.openPatchFile( "testpatch-unterminated1.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null );
+			Set< String > targets = Patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.1" );
@@ -135,7 +135,7 @@ public class Basic
 		Patcher.openPatchFile( "testpatch-unterminated2.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null );
+			Set< String > targets = Patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.1" );
@@ -160,7 +160,7 @@ public class Basic
 		Patcher.openPatchFile( "testpatch-sharedpatch1.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null );
+			Set< String > targets = Patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.2" );

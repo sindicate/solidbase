@@ -40,7 +40,7 @@ public class Import
 		Patcher.openPatchFile( "testpatch-import1.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null );
+			Set< String > targets = Patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.2" );

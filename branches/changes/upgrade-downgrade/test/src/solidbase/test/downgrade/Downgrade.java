@@ -40,16 +40,19 @@ public class Downgrade
 		Patcher.openPatchFile( "testpatch-downgrade-1.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null );
+			Set< String > targets = Patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
+			Patcher.patch( "1.1.0" );
+			TestUtil.verifyVersion( "1.1.0", null, 1, "1.1" );
+
 			Patcher.patch( "1.0.3" );
+			TestUtil.verifyVersion( "1.0.3", null, 1, "1.1" );
 		}
 		finally
 		{
 			Patcher.closePatchFile();
 		}
 
-		TestUtil.verifyVersion( "1.0.3", null, 1, "1.1" );
 	}
 }

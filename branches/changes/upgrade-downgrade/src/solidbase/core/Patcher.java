@@ -174,10 +174,10 @@ public class Patcher
 	 * @param prefix Only consider versions that start with the given prefix.
 	 * @return
 	 */
-	static public LinkedHashSet< String > getTargets( boolean tips, String prefix )
+	static public LinkedHashSet< String > getTargets( boolean tips, String prefix, boolean downgradeable )
 	{
 		LinkedHashSet result = new LinkedHashSet();
-		patchFile.collectTargets( dbVersion.getVersion(), dbVersion.getTarget(), tips, false, prefix, result );
+		patchFile.collectTargets( dbVersion.getVersion(), dbVersion.getTarget(), tips, downgradeable, prefix, result );
 		return result;
 	}
 
@@ -201,13 +201,18 @@ public class Patcher
 		}
 	}
 
+	static public void patch( String target ) throws SQLExecutionException
+	{
+		patch( target, false );
+	}
+
 	/**
 	 * Patches to the given target version. The target version can end with an '*', indicating whatever tip version that matches the target prefix.
 	 * 
 	 * @param target
 	 * @throws SQLException
 	 */
-	static public void patch( String target ) throws SQLExecutionException
+	static public void patch( String target, boolean downgradeable ) throws SQLExecutionException
 	{
 		init();
 
@@ -217,23 +222,26 @@ public class Patcher
 		if( wildcard )
 		{
 			String targetPrefix = target.substring( 0, target.length() - 1 );
-			targets = getTargets( true, targetPrefix );
+			targets = getTargets( true, targetPrefix, downgradeable );
+			Assert.isTrue( targets.size() <= 1 );
 			for( String t : targets )
 				if( t.startsWith( targetPrefix ) )
 				{
-					patch( dbVersion.getVersion(), t );
+					patch( dbVersion.getVersion(), t, downgradeable );
 					break;
 				}
+			// TODO What if the target is not found?
 		}
 		else
 		{
-			targets = getTargets( false, null );
+			targets = getTargets( false, null, downgradeable );
 			for( String t : targets )
 				if( t.equals( target ) )
 				{
-					patch( dbVersion.getVersion(), t );
+					patch( dbVersion.getVersion(), t, downgradeable );
 					break;
 				}
+			// TODO What if the target is not found?
 		}
 
 		terminateCommandListeners();
@@ -268,12 +276,12 @@ public class Patcher
 		callBack.debug( "driverName=" + database.driverName + ", url=" + database.url + ", user=" + database.getDefaultUser() + "" );
 	}
 
-	static protected void patch( String version, String target ) throws SQLExecutionException
+	static protected void patch( String version, String target, boolean downgradeable ) throws SQLExecutionException
 	{
 		if( target.equals( version ) )
 			return;
 
-		List patches = patchFile.getPatchPath( version, target );
+		List patches = patchFile.getPatchPath( version, target, downgradeable );
 		Assert.isTrue( patches != null );
 		Assert.isTrue( patches.size() > 0, "No patches found" );
 

@@ -246,7 +246,7 @@ public class PatchFile
 	 * @param target
 	 * @return
 	 */
-	protected List getPatchPath( String source, String target )
+	protected List getPatchPath( String source, String target, boolean downgradeable )
 	{
 		// If equal than we are finished
 		// TODO Make source always not null?
@@ -275,7 +275,7 @@ public class PatchFile
 			if( !patch.isSwitch() )
 			{
 				// Recurse
-				List patches2 = getPatchPath( patch.getTarget(), target );
+				List patches2 = getPatchPath( patch.getTarget(), target, downgradeable );
 				if( patches2 != null )
 				{
 					// Found complete path
@@ -295,7 +295,7 @@ public class PatchFile
 			if( patch.isSwitch() )
 			{
 				// Try recursive through the branches
-				List patches2 = getPatchPath( patch.getTarget(), target );
+				List patches2 = getPatchPath( patch.getTarget(), target, downgradeable );
 				if( patches2 != null )
 				{
 					List result = new ArrayList();
@@ -344,45 +344,24 @@ public class PatchFile
 	{
 		Assert.notNull( result, "'result' must not be null" );
 
-		if( !tips && prefix == null )
-			collectReachableVersions( version, targeting, downgrades, result );
-		else
-		{
-			if( targeting == null && version != null && ( prefix == null || version.startsWith( prefix ) ) )
-				result.add( version );
-			collectTargets0( version, targeting, tips, downgrades, prefix, result );
-		}
-	}
+		collectReachableVersions( version, targeting, downgrades, result );
 
-	protected void collectTargets0( String version, String targeting, boolean tips, boolean downgrades, String prefix, Set< String > result )
-	{
-		Assert.notNull( result, "'result' must not be null" );
+		if( prefix != null )
+			for( Iterator iterator = result.iterator(); iterator.hasNext(); )
+				if( !((String)iterator.next()).startsWith( prefix ) )
+					iterator.remove();
 
-		List< Patch > patches = (List)this.patches.get( version ); // Get all patches with the given source
-		if( patches == null )
-			return;
-		Assert.isTrue( patches.size() > 0, "Not expecting an empty list" );
-
-		boolean found = false;
-		for( Patch patch : patches )
-		{
-			if( targeting == null || targeting.equals( patch.getTarget() ) ) // When targeting a specific version, ignore the rest.
+		if( tips )
+			for( Iterator iterator = result.iterator(); iterator.hasNext(); )
 			{
-				found = true;
-				if( !patch.isDowngrade() )
-				{
-					if( prefix == null || patch.getTarget().startsWith( prefix ) ) // Ignore targets that don't start with the given prefix.
-					{
-						if( tips && patch.isUpgrade() ) // Normal patch --> the source version is not a tip version. Remove it.
-							result.remove( patch.getSource() );
-						result.add( patch.getTarget() );
-					}
-					if( !patch.isOpen() )
-						collectTargets0( patch.getTarget(), null, tips, downgrades, prefix, result ); // Recursively determine more patches
-				}
+				String v = (String)iterator.next();
+				List< Patch > patches = (List)this.patches.get( v );
+				if( patches != null )
+					for( Patch patch : patches )
+						if( patch.isUpgrade() )
+							if( prefix == null || patch.getTarget().startsWith( prefix ) )
+								iterator.remove();
 			}
-		}
-		Assert.isTrue( found ); // This is to assert that all goes well when targeting != null
 	}
 
 	protected void collectReachableVersions( String version, String targeting, boolean downgrades, Set< String > result )
@@ -407,7 +386,7 @@ public class PatchFile
 		{
 			Patch patch = queue.pop();
 			if( !result.contains( patch.getTarget() ) ) // Already there?
-				if( !downgrades || !patch.isDowngrade() ) // Downgrades?
+				if( downgrades || !patch.isDowngrade() ) // Downgrades?
 				{
 					result.add( patch.getTarget() );
 					if( !patch.isOpen() ) // Stop when patch is open.
