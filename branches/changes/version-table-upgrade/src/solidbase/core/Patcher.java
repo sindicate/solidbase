@@ -60,26 +60,46 @@ public class Patcher
 	static protected Pattern ifHistoryContainsPattern = Pattern.compile( "IF\\s+HISTORY\\s+(NOT\\s+)?CONTAINS\\s+\"([^\"]*)\"", Pattern.CASE_INSENSITIVE );
 	static protected Pattern ifHistoryContainsEnd = Pattern.compile( "/IF", Pattern.CASE_INSENSITIVE );
 
-	static protected List< CommandListener > listeners = new ArrayList();
+	static protected List< CommandListener > listeners;
 
 	// Patch state
-	static protected Stack ignoreStack = new Stack();
-	static protected HashSet ignoreSet = new HashSet();
+	static protected Stack ignoreStack;
+	static protected HashSet ignoreSet;
 	static protected boolean dontCount;
-	static protected Stack<Boolean> conditionStack = new Stack();
-	static protected boolean condition = true;
+	static protected Stack<Boolean> conditionStack;
+	static protected boolean condition;
 
 	static protected ProgressListener callBack;
 	static protected PatchFile patchFile;
 	static protected Database defaultDatabase;
 	static protected Database database;
-	static protected Map< String, Database > allDatabases = new HashMap< String, Database >();
+	static protected Map< String, Database > allDatabases;
 	static protected DBVersion dbVersion;
 
 	static
 	{
+		initialize();
+	}
+
+	static protected void initialize()
+	{
+		defaultDatabase = null;
+		database = null;
+		allDatabases = new HashMap< String, Database >();
+
+		listeners = new ArrayList();
+
+		ignoreStack = new Stack();
+		ignoreSet = new HashSet();
+		dontCount = false;
+		conditionStack = new Stack();
+		condition = true;
+
+		callBack = null;
+		patchFile = null;
+		dbVersion = null;
+
 		listeners.add( new AssertCommandExecuter() );
-		//listeners.add( new OracleDBMSOutputPoller() );
 		listeners.add( new ImportCSVListener() );
 	}
 
@@ -449,10 +469,10 @@ public class Patcher
 			}
 			else if( !patch.isOpen() )
 			{
-					dbVersion.setVersion( patch.getTarget() );
-					dbVersion.logComplete( patch.getSource(), patch.getTarget(), count );
-				}
+				dbVersion.setVersion( patch.getTarget() );
+				dbVersion.logComplete( patch.getSource(), patch.getTarget(), count );
 			}
+		}
 		catch( RuntimeException e )
 		{
 			dbVersion.log( patch.getSource(), patch.getTarget(), count, command == null ? null : command.getCommand(), e );
@@ -578,22 +598,7 @@ public class Patcher
 		if( database != null )
 			database.closeConnections();
 
-		// TODO More like these?
-		defaultDatabase = null;
-		database = null;
-		allDatabases = new HashMap< String, Database >();
-
-		listeners = new ArrayList();
-
-		ignoreStack = new Stack();
-		ignoreSet = new HashSet();
-		dontCount = false;
-		conditionStack = new Stack();
-		condition = true;
-
-		callBack = null;
-		patchFile = null;
-		dbVersion = null;
+		initialize();
 	}
 
 	static protected void selectConnection( String name )
