@@ -43,10 +43,17 @@ public class Downgrade
 			Set< String > targets = Patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
+			System.out.println( "Patching to 1.1.0" );
 			Patcher.patch( "1.1.0" );
 			TestUtil.verifyVersion( "1.1.0", null, 1, "1.1" );
 
+			System.out.println( "Patching to 1.0.3" );
 			Patcher.patch( "1.0.3" );
+			// TODO Why don't we get an error here?
+			TestUtil.verifyVersion( "1.1.0", null, 1, "1.1" );
+
+			System.out.println( "Patching to 1.0.3" );
+			Patcher.patch( "1.0.3", true );
 			TestUtil.verifyVersion( "1.0.3", null, 1, "1.1" );
 		}
 		finally

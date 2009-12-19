@@ -262,17 +262,15 @@ public class PatchFile
 		}
 
 		// Start with all the patches that start with the given source
-		List patches = (List)this.patches.get( source );
+		List< Patch > patches = (List)this.patches.get( source );
 		if( patches == null )
 			return null;
 
 		Assert.isTrue( patches.size() > 0, "Not expecting an empty list" );
 
-		// Depth first no switches
-		for( Iterator iter = patches.iterator(); iter.hasNext(); )
-		{
-			Patch patch = (Patch)iter.next();
-			if( !patch.isSwitch() )
+		// Depth first normal upgrades
+		for( Patch patch : patches )
+			if( patch.isUpgrade() )
 			{
 				// Recurse
 				List patches2 = getPatchPath( patch.getTarget(), target, downgradeable );
@@ -284,17 +282,14 @@ public class PatchFile
 					result.addAll( patches2 );
 					return result;
 				}
-				// TODO Why no else?
+				// Target not reached
 			}
-		}
 
-		// Switches
-		for( Iterator iter = patches.iterator(); iter.hasNext(); )
-		{
-			Patch patch = (Patch)iter.next();
+		// Depth first only switches
+		for( Patch patch : patches )
 			if( patch.isSwitch() )
 			{
-				// Try recursive through the branches
+				// Recurse
 				List patches2 = getPatchPath( patch.getTarget(), target, downgradeable );
 				if( patches2 != null )
 				{
@@ -303,9 +298,25 @@ public class PatchFile
 					result.addAll( patches2 );
 					return result;
 				}
-				// TODO Why no else?
+				// Target not reached
 			}
-		}
+
+		// Depth first only downgrades
+		if( downgradeable )
+			for( Patch patch : patches )
+				if( patch.isDowngrade() )
+				{
+					// Recurse
+					List patches2 = getPatchPath( patch.getTarget(), target, downgradeable );
+					if( patches2 != null )
+					{
+						List result = new ArrayList();
+						result.add( patch );
+						result.addAll( patches2 );
+						return result;
+					}
+					// Target not reached
+				}
 
 		return null;
 	}
