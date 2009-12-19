@@ -585,6 +585,7 @@ public class Patcher
 		}
 	}
 
+	// TODO This is caused by being a static class
 	static public void end()
 	{
 		closePatchFile();
@@ -595,6 +596,18 @@ public class Patcher
 		defaultDatabase = null;
 		database = null;
 		allDatabases = new HashMap< String, Database >();
+
+		listeners = new ArrayList();
+
+		ignoreStack = new Stack();
+		ignoreSet = new HashSet();
+		dontCount = false;
+		conditionStack = new Stack();
+		condition = true;
+
+		callBack = null;
+		patchFile = null;
+		dbVersion = null;
 	}
 
 	static protected void selectConnection( String name )

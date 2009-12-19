@@ -54,7 +54,7 @@ public class UpgradeTaskTests extends BuildFileTest
 		return this.logBuffer.toString();
 	}
 
-	@Test
+	@Test(groups="new")
 	public void testUpgradeTask()
 	{
 		configureProject( "test-upgradetask.xml" );
@@ -70,8 +70,20 @@ public class UpgradeTaskTests extends BuildFileTest
 				"Patching to \"1.0.1\"\n" +
 				"    Creating table DBVERSION.\n" +
 				"    Creating table DBVERSIONLOG.\n" +
-				"Patching \"1.0.1\" to \"1.0.2\".\n" +
+				"Patching \"1.0.1\" to \"1.1.0\".\n" +
 				"    Inserting admin users...\n" +
+				"The database has been patched.\n" +
+				"\n" +
+				"Current database version is \"1.1.0\".\n" +
+				"SolidBase v1.5.x\n" +
+				"(C) 2006-2009 Rene M. de Bloois\n" +
+				"\n" +
+				"Connecting to database...\n" +
+				"Current database version is \"1.1.0\".\n" +
+				"Opening patchfile 'file:/.../testpatch-multiconnections.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
+				"Patching \"1.1.0\" to \"1.0.1\"\n" +
+				"Patching \"1.0.1\" to \"1.0.2\"\n" +
 				"The database has been patched.\n" +
 				"\n" +
 				"Current database version is \"1.0.2\".\n"

@@ -29,7 +29,7 @@ import solidbase.test.core.TestProgressListener;
 
 public class Downgrade
 {
-	@Test(groups="new")
+	@Test
 	public void testDowngrade() throws IOException, SQLException
 	{
 		Patcher.end();

@@ -389,6 +389,8 @@ public class PatchFile
 			result.add( version );
 
 		List< Patch > patches = (List)this.patches.get( version ); // Get all patches with the given source
+		if( patches == null )
+			return;
 
 		LinkedList< Patch > queue = new LinkedList();
 		if( targeting != null )

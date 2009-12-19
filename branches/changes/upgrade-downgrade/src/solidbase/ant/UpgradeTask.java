@@ -23,6 +23,7 @@ public class UpgradeTask extends Task
 	protected String password;
 	protected String patchfile;
 	protected String target;
+	protected boolean downgradeenabled;
 
 	protected List< Connection > connections = new ArrayList< Connection >();
 
@@ -124,6 +125,16 @@ public class UpgradeTask extends Task
 	public void setTarget( String target )
 	{
 		this.target = target;
+	}
+
+	public boolean isDowngradeenabled()
+	{
+		return this.downgradeenabled;
+	}
+
+	public void setDowngradeenabled( boolean downgradeenabled )
+	{
+		this.downgradeenabled = downgradeenabled;
 	}
 
 	public Connection createSecondary()
@@ -241,37 +252,44 @@ public class UpgradeTask extends Task
 		progress.info( "(C) 2006-2009 Rene M. de Bloois" );
 		progress.info( "" );
 
-		Patcher.setCallBack( progress );
-
-		Patcher.setDefaultConnection( new solidbase.core.Database( this.driver, this.url, this.user, this.password ) );
-
-		for( Connection connection : this.connections )
-			Patcher.addConnection( new solidbase.config.Connection( connection.getName(), connection.getDriver(), connection.getUrl(), connection.getUser(), connection.getPassword() ) );
-
-		progress.info( "Connecting to database..." );
-
-		progress.info( Main.getCurrentVersion() );
-
 		try
 		{
-			Patcher.openPatchFile( project.getBaseDir(), this.patchfile );
+			Patcher.setCallBack( progress );
+
+			Patcher.setDefaultConnection( new solidbase.core.Database( this.driver, this.url, this.user, this.password ) );
+
+			for( Connection connection : this.connections )
+				Patcher.addConnection( new solidbase.config.Connection( connection.getName(), connection.getDriver(), connection.getUrl(), connection.getUser(), connection.getPassword() ) );
+
+			progress.info( "Connecting to database..." );
+
+			progress.info( Main.getCurrentVersion() );
+
 			try
 			{
-				if( this.target != null )
-					Patcher.patch( this.target ); // TODO Print this target
-				else
-					throw new UnsupportedOperationException();
-				progress.info( "" );
-				progress.info( Main.getCurrentVersion() );
+				Patcher.openPatchFile( project.getBaseDir(), this.patchfile );
+				try
+				{
+					if( this.target != null )
+						Patcher.patch( this.target, this.downgradeenabled ); // TODO Print this target
+					else
+						throw new UnsupportedOperationException();
+					progress.info( "" );
+					progress.info( Main.getCurrentVersion() );
+				}
+				finally
+				{
+					Patcher.closePatchFile();
+				}
 			}
-			finally
+			catch( SQLExecutionException e )
 			{
-				Patcher.closePatchFile();
+				throw new BuildException( e.getMessage() );
 			}
 		}
-		catch( SQLExecutionException e )
+		finally
 		{
-			throw new BuildException( e.getMessage() );
+			Patcher.end();
 		}
 	}
 }

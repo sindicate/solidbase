@@ -459,7 +459,7 @@ public class DBVersion
 			Statement stat = connection.createStatement();
 			try
 			{
-				ResultSet result = stat.executeQuery( "SELECT SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT FROM DBVERSIONLOG ORDER BY ID" );
+				ResultSet result = stat.executeQuery( "SELECT SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT FROM DBVERSIONLOG ORDER BY STAMP" );
 
 				OutputFormat format = new OutputFormat( "XML", charSet.name(), true );
 				XMLSerializer serializer = new XMLSerializer( out, format );
@@ -576,6 +576,7 @@ public class DBVersion
 		}
 	}
 
+	// TODO Make this faster with an IN.
 	protected void downgradeHistory( Collection< String > versions )
 	{
 		Assert.isTrue( versions.size() > 0 );
