@@ -17,7 +17,7 @@
 package solidbase.core;
 
 
-public class NonTerminatedStatementException extends SystemException
+public class NonTerminatedStatementException extends RuntimeException
 {
 	public NonTerminatedStatementException()
 	{

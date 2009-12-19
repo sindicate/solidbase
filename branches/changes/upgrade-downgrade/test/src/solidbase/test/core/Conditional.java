@@ -17,25 +17,26 @@
 package solidbase.test.core;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Set;
 
 import org.testng.annotations.Test;
 
 import solidbase.core.Database;
 import solidbase.core.Patcher;
-import solidbase.core.SQLExecutionException;
+import solidbase.core.TestUtil;
 
 public class Conditional
 {
 	@Test
-	public void testIfHistoryContains() throws IOException, SQLExecutionException
+	public void testIfHistoryContains1() throws IOException, SQLException
 	{
 		Patcher.end();
 
 		Patcher.setCallBack( new TestProgressListener() );
 		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testBasic", "sa", null ) );
 
-		Patcher.openPatchFile( "testpatch3.sql" );
+		Patcher.openPatchFile( "testpatch-conditional1.sql" );
 		try
 		{
 			Set< String > targets = Patcher.getTargets( false, null );
@@ -47,5 +48,31 @@ public class Conditional
 		{
 			Patcher.closePatchFile();
 		}
+
+		TestUtil.verifyVersion( "1.0.2", null, 2, null ); // TODO STATEMENTS should be 3.
+	}
+
+	@Test(dependsOnMethods="testIfHistoryContains1")
+	public void testIfHistoryContains2() throws IOException, SQLException
+	{
+		Patcher.end();
+
+		Patcher.setCallBack( new TestProgressListener() );
+		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testBasic", "sa", null ) );
+
+		Patcher.openPatchFile( "testpatch-conditional2.sql" );
+		try
+		{
+			Set< String > targets = Patcher.getTargets( false, null );
+			assert targets.size() > 0;
+
+			Patcher.patch( "1.0.3" );
+		}
+		finally
+		{
+			Patcher.closePatchFile();
+		}
+
+		TestUtil.verifyVersion( "1.0.3", null, 4, "1.1" );
 	}
 }

@@ -45,13 +45,14 @@ public class PatchFile
 
 	static protected final Pattern patchStartMarkerPattern = Pattern.compile( "--\\*[ \t]*(INIT|PATCH|BRANCH|RETURN).*", Pattern.CASE_INSENSITIVE );
 	static protected final Pattern patchStartPattern = Pattern.compile( "--\\*[ \t]*(INIT|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
-	static private final String PATCH_START_SYNTAX_ERROR = "Line should match the following syntax: (INIT|PATCH|BRANCH|RETURN) source=\"...\" target=\"...\"";
+	static private final String PATCH_START_SYNTAX_ERROR = "Line should match the following syntax: (INIT|PATCH|BRANCH|RETURN) \"...\" --> \"...\"";
 
 	static protected final Pattern patchEndPattern = Pattern.compile( "--\\* */(INIT|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
 
 	static protected final Pattern goPattern = Pattern.compile( "GO *", Pattern.CASE_INSENSITIVE );
 
 	protected MultiValueMap patches = new MultiValueMap();
+	protected MultiValueMap inits = new MultiValueMap();
 	protected RandomAccessLineReader file;
 
 
@@ -136,7 +137,10 @@ public class PatchFile
 					boolean returnBranch = "RETURN".equalsIgnoreCase( action );
 					boolean init = "INIT".equalsIgnoreCase( action );
 					Patch patch = new Patch( source, target, branch, returnBranch, open, init );
-					this.patches.put( source, patch );
+					if( init )
+						this.inits.put( source, patch );
+					else
+						this.patches.put( source, patch );
 				}
 				else if( line.equalsIgnoreCase( "/PATCHES" ) )
 				{
@@ -170,17 +174,18 @@ public class PatchFile
 				if( patchStartMarkerPattern.matcher( line ).matches() )
 				{
 					Matcher matcher = patchStartPattern.matcher( line );
-					Assert.isTrue( matcher.matches(), PATCH_START_SYNTAX_ERROR );
-					// String action = matcher.group( 1 );
+					Assert.isTrue( matcher.matches(), PATCH_START_SYNTAX_ERROR, pos );
+					String action = matcher.group( 1 );
 					String source = matcher.group( 2 );
-					if( source.length() == 0 )
-						source = null;
 					String target = matcher.group( 3 );
 					// boolean branch = "BRANCH".equalsIgnoreCase( action );
 					// boolean returnBranch = "RETURN".equalsIgnoreCase( action );
-					// boolean init = "INIT".equalsIgnoreCase( action );
-
-					Patch patch = getPatch( source, target );
+					boolean init = "INIT".equalsIgnoreCase( action );
+					Patch patch;
+					if( init )
+						patch = getInitPatch( source.length() == 0 ? null : source, target );
+					else
+						patch = getPatch( source.length() == 0 ? null : source, target );
 					Assert.isTrue( patch != null, "Patch block found for undefined patch: \"" + source + "\" --> \"" + target + "\"" );
 					// TODO Assert that action is the same, or remove this
 					patch.setPos( pos );
@@ -204,6 +209,25 @@ public class PatchFile
 		Patch result = null;
 
 		List patches = (List)this.patches.get( source );
+		if( patches != null )
+			for( Iterator iter = patches.iterator(); iter.hasNext(); )
+			{
+				Patch patch = (Patch)iter.next();
+				if( patch.getTarget().equals( target ) )
+				{
+					Assert.isTrue( result == null, "Patch definitions are not unique" );
+					result = patch;
+				}
+			}
+
+		return result;
+	}
+
+	protected Patch getInitPatch( String source, String target )
+	{
+		Patch result = null;
+
+		List patches = (List)this.inits.get( source );
 		if( patches != null )
 			for( Iterator iter = patches.iterator(); iter.hasNext(); )
 			{
@@ -263,6 +287,7 @@ public class PatchFile
 					result.addAll( patches2 );
 					return result;
 				}
+				// TODO Why no else?
 			}
 		}
 
@@ -281,9 +306,31 @@ public class PatchFile
 					result.addAll( patches2 );
 					return result;
 				}
+				// TODO Why no else?
 			}
 		}
 
+		return null;
+	}
+
+	protected List getInitPath( String source )
+	{
+		List< Patch > result = new ArrayList< Patch >();
+
+		// Not expecting branches
+
+		// Start with all the patches that start with the given source
+		List patches = (List)this.inits.get( source );
+		while( patches != null )
+		{
+			Assert.isTrue( patches.size() == 1, "Expecting exactly 1" );
+			Patch patch = (Patch)patches.get( 0 );
+			result.add( patch );
+			patches = (List)this.inits.get( patch.getTarget() );
+		}
+
+		if( result.size() > 0 )
+			return result;
 		return null;
 	}
 

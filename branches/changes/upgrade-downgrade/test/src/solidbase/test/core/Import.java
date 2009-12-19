@@ -23,7 +23,7 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import solidbase.core.Database;
-import solidbase.core.DatabaseTestUtil;
+import solidbase.core.TestUtil;
 import solidbase.core.Patcher;
 
 public class Import
@@ -44,12 +44,13 @@ public class Import
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.2" );
-
-			DatabaseTestUtil.assertRecordCount( database, "TEMP", 4 );
 		}
 		finally
 		{
 			Patcher.closePatchFile();
 		}
+
+		TestUtil.verifyVersion( "1.0.2", null, 4, null );
+		TestUtil.assertRecordCount( database, "TEMP", 4 );
 	}
 }

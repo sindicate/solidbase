@@ -84,8 +84,7 @@ public class CustomConfigurationTests
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +
 				"DEBUG: version=null, target=1.0.1, statements=2\n" +
-				"Patching \"1.0.1\" to \"1.0.2\"DEBUG: version=1.0.1, target=null, statements=2\n" +
-				".\n" +
+				"Patching \"1.0.1\" to \"1.0.2\".\n" +
 				"Inserting admin user.\n" +
 				"DEBUG: version=1.0.1, target=1.0.2, statements=2\n" +
 				"The database has been patched.\n" +
@@ -134,8 +133,7 @@ public class CustomConfigurationTests
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +
 				"DEBUG: version=null, target=1.0.1, statements=2\n" +
-				"Patching \"1.0.1\" to \"1.0.2\"DEBUG: version=1.0.1, target=null, statements=2\n" +
-				".\n" +
+				"Patching \"1.0.1\" to \"1.0.2\".\n" +
 				"Inserting admin user.\n" +
 				"DEBUG: version=1.0.1, target=1.0.2, statements=2\n" +
 				"The database has been patched.\n" +
