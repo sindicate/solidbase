@@ -21,6 +21,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -373,6 +374,13 @@ public class PatchFile
 							if( prefix == null || patch.getTarget().startsWith( prefix ) )
 								iterator.remove();
 			}
+	}
+
+	protected LinkedHashSet< String > getReachableVersions( String version, String targeting, boolean downgrades )
+	{
+		LinkedHashSet result = new LinkedHashSet();
+		collectReachableVersions( version, targeting, downgrades, result );
+		return result;
 	}
 
 	protected void collectReachableVersions( String version, String targeting, boolean downgrades, Set< String > result )

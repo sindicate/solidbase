@@ -45,7 +45,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-
+import java.util.Collection;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
@@ -440,7 +440,7 @@ public class DBVersion
 	 */
 	protected void logComplete( String source, String target, int count )
 	{
-		log( "B", source, target, count, null, "1.1".equals( this.spec ) ? "COMPLETED" : "COMPLETED VERSION " + target );
+		log( "B", source, target, count, null, "1.1".equals( this.spec ) ? "COMPLETE" : "COMPLETED VERSION " + target );
 	}
 
 	/**
@@ -519,9 +519,9 @@ public class DBVersion
 
 		String sql;
 		if( "1.1".equals( this.spec ) )
-			sql = "SELECT ID FROM DBVERSIONLOG WHERE TYPE = 'B' AND TARGET = '" + version + "' AND RESULT = 'COMPLETED'";
+			sql = "SELECT TYPE FROM DBVERSIONLOG WHERE TYPE = 'B' AND TARGET = '" + version + "' AND RESULT = 'COMPLETE'";
 		else
-			sql = "SELECT ID FROM DBVERSIONLOG WHERE RESULT = 'COMPLETED VERSION " + version + "'";
+			sql = "SELECT TYPE FROM DBVERSIONLOG WHERE RESULT = 'COMPLETED VERSION " + version + "'";
 
 		Connection connection = this.database.getConnection();
 		try
@@ -568,6 +568,39 @@ public class DBVersion
 			{
 				statement.close();
 				connection.commit(); // You can commit even if it fails. Only 1 update done.
+			}
+		}
+		catch( SQLException e )
+		{
+			throw new SystemException( e );
+		}
+	}
+
+	protected void downgradeHistory( Collection< String > versions )
+	{
+		Assert.isTrue( versions.size() > 0 );
+		try
+		{
+			Connection connection = this.database.getConnection();
+			PreparedStatement statement = connection.prepareStatement( "UPDATE DBVERSIONLOG SET RESULT = 'DOWNGRADED' WHERE TYPE = 'B' AND TARGET = ? AND RESULT = 'COMPLETE'" );
+			boolean commit = false;
+			try
+			{
+				for( String version : versions )
+				{
+					statement.setString( 1, version );
+					int modified = statement.executeUpdate();
+					Assert.isTrue( modified <= 1, "Expecting not more than 1 record to be updated, not " + modified );
+				}
+				commit = true;
+			}
+			finally
+			{
+				statement.close();
+				if( commit )
+					connection.commit();
+				else
+					connection.rollback();
 			}
 		}
 		catch( SQLException e )

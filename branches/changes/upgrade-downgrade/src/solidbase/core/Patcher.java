@@ -452,10 +452,19 @@ public class Patcher
 				dbVersion.setSpec( patch.getTarget() );
 				Assert.isFalse( patch.isOpen() );
 			}
-			else if( !patch.isOpen() )
+			else
 			{
-				dbVersion.setVersion( patch.getTarget() );
-				dbVersion.logComplete( patch.getSource(), patch.getTarget(), count );
+				if( patch.isDowngrade() )
+				{
+					Set versions = patchFile.getReachableVersions( patch.getTarget(), null, false );
+					versions.remove( patch.getTarget() );
+					dbVersion.downgradeHistory( versions );
+				}
+				if( !patch.isOpen() )
+				{
+					dbVersion.setVersion( patch.getTarget() );
+					dbVersion.logComplete( patch.getSource(), patch.getTarget(), count );
+				}
 			}
 		}
 		catch( RuntimeException e )
@@ -476,7 +485,7 @@ public class Patcher
 		Assert.isTrue( patch.getSource().equals( "1.0" ) && patch.getTarget().equals( "1.1" ), "UPGRADE only possible from spec 1.0 to 1.1" );
 
 		execute( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'S' WHERE RESULT IS NULL OR RESULT NOT LIKE 'COMPLETED VERSION %'", false ) );
-		execute( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'B', RESULT = 'COMPLETED' WHERE RESULT LIKE 'COMPLETED VERSION %'", false ) );
+		execute( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'B', RESULT = 'COMPLETE' WHERE RESULT LIKE 'COMPLETED VERSION %'", false ) );
 		execute( new Command( "UPDATE DBVERSION SET SPEC = '1.1'", false ) ); // We need this because the column is made NOT NULL in the upgrade init block
 	}
 

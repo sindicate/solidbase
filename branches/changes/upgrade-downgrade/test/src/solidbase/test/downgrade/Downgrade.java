@@ -46,6 +46,7 @@ public class Downgrade
 			System.out.println( "Patching to 1.1.0" );
 			Patcher.patch( "1.1.0" );
 			TestUtil.verifyVersion( "1.1.0", null, 1, "1.1" );
+			TestUtil.verifyHistoryIncludes( "1.1.0" );
 
 			System.out.println( "Patching to 1.0.3" );
 			Patcher.patch( "1.0.3" );
@@ -55,6 +56,8 @@ public class Downgrade
 			System.out.println( "Patching to 1.0.3" );
 			Patcher.patch( "1.0.3", true );
 			TestUtil.verifyVersion( "1.0.3", null, 1, "1.1" );
+			TestUtil.verifyHistoryIncludes( "1.0.2" );
+			TestUtil.verifyHistoryNotIncludes( "1.1.0" );
 		}
 		finally
 		{

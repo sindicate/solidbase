@@ -78,4 +78,14 @@ public class TestUtil
 			Assert.assertEquals( result.getString( "SPEC" ), spec, "spec:" );
 		Assert.assertFalse( result.next() );
 	}
+
+	public static void verifyHistoryIncludes( String version )
+	{
+		Assert.assertTrue( Patcher.dbVersion.logContains( version ), "Expecting version " + version + " to be part of the history" );
+	}
+
+	public static void verifyHistoryNotIncludes( String version )
+	{
+		Assert.assertFalse( Patcher.dbVersion.logContains( version ), "Not expecting version " + version + " to be part of the history" );
+	}
 }
