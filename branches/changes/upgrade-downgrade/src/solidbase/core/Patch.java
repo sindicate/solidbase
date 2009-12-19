@@ -27,20 +27,18 @@ public class Patch
 {
 	protected String source;
 	protected String target;
-	protected boolean branch;
-	protected boolean returnBranch;
+	protected boolean switsj;
 	protected boolean open;
 	protected boolean init;
+	protected boolean downgrade;
 	protected int pos;
 
-	protected Patch( String source, String target, boolean branch, boolean returnBranch, boolean open, boolean init )
+	protected Patch( String source, String target, boolean switsj, boolean open, boolean init, boolean downgrade )
 	{
-		Assert.isTrue( !( branch && returnBranch ) );
-
 		this.source = source;
 		this.target = target;
-		this.branch = branch;
-		this.returnBranch = returnBranch;
+		this.switsj = switsj;
+		this.downgrade = downgrade;
 		this.open = open;
 		this.init = init;
 		this.pos = -1;
@@ -51,19 +49,9 @@ public class Patch
 	 * 
 	 * @return
 	 */
-	protected boolean isBranch()
+	protected boolean isSwitch()
 	{
-		return this.branch;
-	}
-
-	/**
-	 * Is this patch a return from a branch.
-	 * 
-	 * @return
-	 */
-	protected boolean isReturnBranch()
-	{
-		return this.returnBranch;
+		return this.switsj;
 	}
 
 	/**
@@ -124,5 +112,26 @@ public class Patch
 	protected boolean isInit()
 	{
 		return this.init;
+	}
+
+	/**
+	 * Is this a downgrade.
+	 * 
+	 * @return
+	 */
+	protected boolean isDowngrade()
+	{
+		return this.downgrade;
+	}
+
+	protected boolean isUpgrade()
+	{
+		return !this.downgrade && !this.switsj;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "patch(source:" + this.source + ", target:" + this.target + ", open:" + this.open + ")";
 	}
 }

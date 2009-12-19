@@ -177,7 +177,7 @@ public class Patcher
 	static public LinkedHashSet< String > getTargets( boolean tips, String prefix )
 	{
 		LinkedHashSet result = new LinkedHashSet();
-		patchFile.collectTargets( dbVersion.getVersion(), dbVersion.getTarget(), tips, prefix, result );
+		patchFile.collectTargets( dbVersion.getVersion(), dbVersion.getTarget(), tips, false, prefix, result );
 		return result;
 	}
 
