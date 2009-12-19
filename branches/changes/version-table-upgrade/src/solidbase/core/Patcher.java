@@ -218,12 +218,14 @@ public class Patcher
 		{
 			String targetPrefix = target.substring( 0, target.length() - 1 );
 			targets = getTargets( true, targetPrefix );
+			Assert.isTrue( targets.size() <= 1 );
 			for( String t : targets )
 				if( t.startsWith( targetPrefix ) )
 				{
 					patch( dbVersion.getVersion(), t );
 					break;
 				}
+			// TODO What if the target is not found?
 		}
 		else
 		{
@@ -234,6 +236,7 @@ public class Patcher
 					patch( dbVersion.getVersion(), t );
 					break;
 				}
+			// TODO What if the target is not found?
 		}
 
 		terminateCommandListeners();
@@ -446,10 +449,10 @@ public class Patcher
 			}
 			else if( !patch.isOpen() )
 			{
-				dbVersion.setVersion( patch.getTarget() );
-				dbVersion.logComplete( patch.getSource(), patch.getTarget(), count );
+					dbVersion.setVersion( patch.getTarget() );
+					dbVersion.logComplete( patch.getSource(), patch.getTarget(), count );
+				}
 			}
-		}
 		catch( RuntimeException e )
 		{
 			dbVersion.log( patch.getSource(), patch.getTarget(), count, command == null ? null : command.getCommand(), e );
@@ -468,7 +471,7 @@ public class Patcher
 		Assert.isTrue( patch.getSource().equals( "1.0" ) && patch.getTarget().equals( "1.1" ), "UPGRADE only possible from spec 1.0 to 1.1" );
 
 		execute( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'S' WHERE RESULT IS NULL OR RESULT NOT LIKE 'COMPLETED VERSION %'", false ) );
-		execute( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'B', RESULT = 'COMPLETED' WHERE RESULT LIKE 'COMPLETED VERSION %'", false ) );
+		execute( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'B', RESULT = 'COMPLETE' WHERE RESULT LIKE 'COMPLETED VERSION %'", false ) );
 		execute( new Command( "UPDATE DBVERSION SET SPEC = '1.1'", false ) ); // We need this because the column is made NOT NULL in the upgrade init block
 	}
 
@@ -568,6 +571,7 @@ public class Patcher
 		}
 	}
 
+	// TODO This is caused by being a static class
 	static public void end()
 	{
 		closePatchFile();
@@ -578,6 +582,18 @@ public class Patcher
 		defaultDatabase = null;
 		database = null;
 		allDatabases = new HashMap< String, Database >();
+
+		listeners = new ArrayList();
+
+		ignoreStack = new Stack();
+		ignoreSet = new HashSet();
+		dontCount = false;
+		conditionStack = new Stack();
+		condition = true;
+
+		callBack = null;
+		patchFile = null;
+		dbVersion = null;
 	}
 
 	static protected void selectConnection( String name )

@@ -440,7 +440,7 @@ public class DBVersion
 	 */
 	protected void logComplete( String source, String target, int count )
 	{
-		log( "B", source, target, count, null, "1.1".equals( this.spec ) ? "COMPLETED" : "COMPLETED VERSION " + target );
+		log( "B", source, target, count, null, "1.1".equals( this.spec ) ? "COMPLETE" : "COMPLETED VERSION " + target );
 	}
 
 	/**
@@ -459,7 +459,7 @@ public class DBVersion
 			Statement stat = connection.createStatement();
 			try
 			{
-				ResultSet result = stat.executeQuery( "SELECT SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT FROM DBVERSIONLOG ORDER BY ID" );
+				ResultSet result = stat.executeQuery( "SELECT SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT FROM DBVERSIONLOG ORDER BY STAMP" );
 
 				OutputFormat format = new OutputFormat( "XML", charSet.name(), true );
 				XMLSerializer serializer = new XMLSerializer( out, format );
@@ -519,9 +519,9 @@ public class DBVersion
 
 		String sql;
 		if( "1.1".equals( this.spec ) )
-			sql = "SELECT ID FROM DBVERSIONLOG WHERE TYPE = 'B' AND TARGET = '" + version + "' AND RESULT = 'COMPLETED'";
+			sql = "SELECT TYPE FROM DBVERSIONLOG WHERE TYPE = 'B' AND TARGET = '" + version + "' AND RESULT = 'COMPLETE'";
 		else
-			sql = "SELECT ID FROM DBVERSIONLOG WHERE RESULT = 'COMPLETED VERSION " + version + "'";
+			sql = "SELECT TYPE FROM DBVERSIONLOG WHERE RESULT = 'COMPLETED VERSION " + version + "'";
 
 		Connection connection = this.database.getConnection();
 		try

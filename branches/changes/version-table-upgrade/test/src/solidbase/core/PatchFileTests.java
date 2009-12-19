@@ -28,12 +28,14 @@ import org.testng.annotations.Test;
 import solidbase.core.Patch;
 import solidbase.core.PatchFile;
 import solidbase.core.Patcher;
+import solidbase.test.core.TestProgressListener;
 
 public class PatchFileTests
 {
 	@Test
 	public void testCollectTipVersions1() throws IOException
 	{
+		Patcher.setCallBack( new TestProgressListener() );
 		Patcher.openPatchFile( "testpatch1.sql" );
 		PatchFile patchFile = Patcher.patchFile;
 
@@ -81,6 +83,7 @@ public class PatchFileTests
 	@Test
 	public void testCollectTipVersions2() throws IOException
 	{
+		Patcher.setCallBack( new TestProgressListener() );
 		Patcher.openPatchFile( "testpatch1.sql" );
 		PatchFile patchFile = Patcher.patchFile;
 
@@ -107,6 +110,7 @@ public class PatchFileTests
 	@Test
 	public void testOpenPatch() throws IOException
 	{
+		Patcher.setCallBack( new TestProgressListener() );
 		Patcher.openPatchFile( "testpatch1.sql" );
 		PatchFile patchFile = Patcher.patchFile;
 

@@ -112,9 +112,8 @@ public class PatchFile
 				//					System.out.println( line );
 				if( line.equalsIgnoreCase( "PATCHES" ) )
 				{
-					Assert.isTrue( !withinDefinition, "Already within the definition" );
+					Assert.isFalse( withinDefinition, "Already within the definition" );
 					withinDefinition = true;
-					//					System.out.println( "start" );
 				}
 				else if( line.startsWith( "//" ) )
 				{
@@ -123,7 +122,6 @@ public class PatchFile
 				else if( patchDefinitionMarkerPattern.matcher( line ).matches() )
 				{
 					Assert.isTrue( withinDefinition, "Not within the definition" );
-					//						System.out.println( "patch" );
 
 					Matcher matcher = patchDefinitionPattern.matcher( line );
 					Assert.isTrue( matcher.matches(), PATCH_DEFINITION_SYNTAX_ERROR );
@@ -145,7 +143,6 @@ public class PatchFile
 				else if( line.equalsIgnoreCase( "/PATCHES" ) )
 				{
 					Assert.isTrue( withinDefinition, "Not within the definition" );
-					//					System.out.println( "end" );
 					definitionComplete = true;
 				}
 				else
