@@ -23,7 +23,7 @@ public class UpgradeTask extends Task
 	protected String password;
 	protected String patchfile;
 	protected String target;
-	protected boolean downgradeenabled;
+	protected boolean downgradeallowed;
 
 	protected List< Connection > connections = new ArrayList< Connection >();
 
@@ -127,14 +127,14 @@ public class UpgradeTask extends Task
 		this.target = target;
 	}
 
-	public boolean isDowngradeenabled()
+	public boolean isDowngradeallowed()
 	{
-		return this.downgradeenabled;
+		return this.downgradeallowed;
 	}
 
-	public void setDowngradeenabled( boolean downgradeenabled )
+	public void setDowngradeallowed( boolean downgradeallowed )
 	{
-		this.downgradeenabled = downgradeenabled;
+		this.downgradeallowed = downgradeallowed;
 	}
 
 	public Connection createSecondary()
@@ -271,7 +271,7 @@ public class UpgradeTask extends Task
 				try
 				{
 					if( this.target != null )
-						Patcher.patch( this.target, this.downgradeenabled ); // TODO Print this target
+						Patcher.patch( this.target, this.downgradeallowed ); // TODO Print this target
 					else
 						throw new UnsupportedOperationException();
 					progress.info( "" );

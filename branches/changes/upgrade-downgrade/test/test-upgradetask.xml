@@ -35,7 +35,7 @@
 		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask"
 				user="sa" password=""
 				patchfile="testpatch-multiconnections.sql" target="1.0.*"
-				downgradeenabled="yes" />
+				downgradeallowed="yes" />
 	</target>
 
 

@@ -129,6 +129,7 @@ public class Main
 		options.addOption( "target", true, "sets the target version" );
 		options.addOption( "patchfile", true, "sets the patch file" );
 		options.addOption( "config", true, "specifies the properties file to use" );
+		options.addOption( "downgradeallowed", false, "allow downgrades to reach the target" );
 		// TODO Add driverjar option
 
 		options.getOption( "dumplog" ).setArgName( "filename" );
@@ -157,6 +158,7 @@ public class Main
 		boolean verbose = line.hasOption( "verbose" );
 		boolean exportlog = line.hasOption( "dumplog" );
 		console.fromAnt = line.hasOption( "fromant" );
+		boolean downgradeallowed = line.hasOption( "downgradeallowed" );
 
 		// Validate the commandline options
 
@@ -274,7 +276,7 @@ public class Main
 		try
 		{
 			if( target != null )
-				Patcher.patch( target ); // TODO Print this target
+				Patcher.patch( target, downgradeallowed ); // TODO Print this target
 			else
 			{
 				// Need linked set because order is important
@@ -284,7 +286,7 @@ public class Main
 					console.println( "Possible targets are: " + list( targets ) );
 					console.print( "Input target version: " );
 					String input = console.input();
-					Patcher.patch( input );
+					Patcher.patch( input, downgradeallowed );
 				}
 				else
 					console.println( "There are no possible targets." );
