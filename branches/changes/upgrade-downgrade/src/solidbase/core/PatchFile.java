@@ -181,14 +181,17 @@ public class PatchFile
 					boolean init = "INIT".equalsIgnoreCase( action );
 					Patch patch;
 					if( init )
+					{
 						patch = getInitPatch( source.length() == 0 ? null : source, target );
+						Assert.isTrue( patch != null, "Patch block found for undefined patch: \"" + source + "\" --> \"" + target + "\"" );
+					}
 					else
 					{
 						patch = getPatch( source.length() == 0 ? null : source, target );
+						Assert.isTrue( patch != null, "Patch block found for undefined patch: \"" + source + "\" --> \"" + target + "\"" );
 						Assert.isTrue( patch.switsj == switsj, "Upgrade block type '" + action + "' is defined differently", pos );
 						Assert.isTrue( patch.downgrade == downgrade, "Upgrade block type '" + action + "' is defined differently", pos );
 					}
-					Assert.isTrue( patch != null, "Patch block found for undefined patch: \"" + source + "\" --> \"" + target + "\"" );
 
 					patch.setPos( pos );
 				}
