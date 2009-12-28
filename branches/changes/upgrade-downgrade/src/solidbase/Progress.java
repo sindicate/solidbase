@@ -45,13 +45,13 @@ public class Progress extends ProgressListener implements ConfigListener
 	@Override
 	protected void openingPatchFile( File patchFile )
 	{
-		this.console.println( "Opening patchfile '" + patchFile + "'" );
+		this.console.println( "Opening file '" + patchFile + "'" );
 	}
 
 	@Override
 	protected void openingPatchFile( URL patchFile )
 	{
-		this.console.println( "Opening patchfile '" + patchFile + "'" );
+		this.console.println( "Opening file '" + patchFile + "'" );
 	}
 
 	@Override

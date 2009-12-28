@@ -123,11 +123,11 @@ public class Main
 		options.addOption( "fromant", false, "adds newlines after input requests" );
 		options.addOption( "dumplog", true, "export historical patch results to an xml file" );
 		options.addOption( "driver", true, "sets the jdbc driverclass" );
-		options.addOption( "url", true, "sets the url of the database" );
+		options.addOption( "url", true, "sets the url for the database" );
 		options.addOption( "username", true, "sets the default username to patch with" );
 		options.addOption( "password", true, "sets the password of the default username" );
 		options.addOption( "target", true, "sets the target version" );
-		options.addOption( "patchfile", true, "sets the patch file" );
+		options.addOption( "upgradefile", true, "specifies the file containing the database upgrades" );
 		options.addOption( "config", true, "specifies the properties file to use" );
 		options.addOption( "downgradeallowed", false, "allow downgrades to reach the target" );
 		// TODO Add driverjar option
@@ -137,9 +137,9 @@ public class Main
 		options.getOption( "url" ).setArgName( "url" );
 		options.getOption( "username" ).setArgName( "username" );
 		options.getOption( "password" ).setArgName( "password" );
-		options.getOption( "target" ).setArgName( "targetversion" );
-		options.getOption( "patchfile" ).setArgName( "patchfile" );
-		options.getOption( "config" ).setArgName( "properties filename" );
+		options.getOption( "target" ).setArgName( "version" );
+		options.getOption( "upgradefile" ).setArgName( "filename" );
+		options.getOption( "config" ).setArgName( "filename" );
 
 		// Read the commandline options
 
@@ -190,7 +190,7 @@ public class Main
 		//
 
 		Progress progress = new Progress( console, verbose );
-		Configuration configuration = new Configuration( progress, pass, line.getOptionValue( "driver" ), line.getOptionValue( "url" ), line.getOptionValue( "username" ), line.getOptionValue( "password" ), line.getOptionValue( "target" ), line.getOptionValue( "patchfile" ), line.getOptionValue( "config" ) );
+		Configuration configuration = new Configuration( progress, pass, line.getOptionValue( "driver" ), line.getOptionValue( "url" ), line.getOptionValue( "username" ), line.getOptionValue( "password" ), line.getOptionValue( "target" ), line.getOptionValue( "upgradefile" ), line.getOptionValue( "config" ) );
 
 		if( pass == 1 )
 		{

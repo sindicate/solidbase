@@ -69,13 +69,13 @@ public class Progress extends ProgressListener implements ConfigListener
 	@Override
 	protected void openingPatchFile( File patchFile )
 	{
-		info( "Opening patchfile '" + patchFile + "'" );
+		info( "Opening file '" + patchFile + "'" );
 	}
 
 	@Override
 	protected void openingPatchFile( URL patchFile )
 	{
-		info( "Opening patchfile '" + patchFile + "'" );
+		info( "Opening file '" + patchFile + "'" );
 	}
 
 	@Override

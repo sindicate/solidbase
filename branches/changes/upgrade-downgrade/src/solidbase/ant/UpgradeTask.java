@@ -21,7 +21,7 @@ public class UpgradeTask extends Task
 	protected String url;
 	protected String user;
 	protected String password;
-	protected String patchfile;
+	protected String upgradefile;
 	protected String target;
 	protected boolean downgradeallowed;
 
@@ -107,14 +107,14 @@ public class UpgradeTask extends Task
 		this.password = password;
 	}
 
-	public String getPatchfile()
+	public String getUpgradefile()
 	{
-		return this.patchfile;
+		return this.upgradefile;
 	}
 
-	public void setPatchfile( String patchfile )
+	public void setUpgradefile( String upgradefile )
 	{
-		this.patchfile = patchfile;
+		this.upgradefile = upgradefile;
 	}
 
 	public String getTarget()
@@ -219,8 +219,8 @@ public class UpgradeTask extends Task
 			throw new BuildException( "The 'user' attribute is mandatory for the " + getTaskName() + " task" );
 		if( this.password == null )
 			throw new BuildException( "The 'password' attribute is mandatory for the " + getTaskName() + " task" );
-		if( this.patchfile == null )
-			throw new BuildException( "The 'patchfile' attribute is mandatory for the " + getTaskName() + " task" );
+		if( this.upgradefile == null )
+			throw new BuildException( "The 'upgradefile' attribute is mandatory for the " + getTaskName() + " task" );
 		if( this.target == null )
 			throw new BuildException( "The 'target' attribute is mandatory for the " + getTaskName() + " task" );
 
@@ -267,7 +267,7 @@ public class UpgradeTask extends Task
 
 			try
 			{
-				Patcher.openPatchFile( project.getBaseDir(), this.patchfile );
+				Patcher.openPatchFile( project.getBaseDir(), this.upgradefile );
 				try
 				{
 					if( this.target != null )

@@ -66,7 +66,7 @@ public class ThroughConsoleTests
 				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:testtc1, user=sa\n" +
 				"Connecting to database 'prod', application 'app1'...\n" +
 				"Input password for user 'sa': The database has no version yet.\n" +
-				"Opening patchfile 'file:/.../testpatch1.sql'\n" +
+				"Opening file 'file:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Possible targets are: 1.0.1, 1.0.2\n" +
 				"Input target version: Patching to \"1.0.1\"\n" +
@@ -110,7 +110,7 @@ public class ThroughConsoleTests
 				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:testtc2, user=sa\n" +
 				"Connecting to database 'prod', application 'default'...\n" +
 				"Input password for user 'sa': The database has no version yet.\n" +
-				"Opening patchfile 'file:/.../testpatch1.sql'\n" +
+				"Opening file 'file:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Possible targets are: 1.0.1, 1.0.2\n" +
 				"Input target version: Patching to \"1.0.1\"\n" +

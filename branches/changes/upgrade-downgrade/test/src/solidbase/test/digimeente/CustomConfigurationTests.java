@@ -77,7 +77,7 @@ public class CustomConfigurationTests
 				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:custom1, user=sa\n" +
 				"Connecting to database 'Duckstad-slot1', application 'midoffice'...\n" +
 				"Input password for user 'sa': The database has no version yet.\n" +
-				"Opening patchfile 'file:/.../testpatch1.sql'\n" +
+				"Opening file 'file:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Possible targets are: 1.0.1, 1.0.2\n" +
 				"Input target version: Patching to \"1.0.1\"\n" +
@@ -126,7 +126,7 @@ public class CustomConfigurationTests
 				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:custom2, user=sa\n" +
 				"Connecting to database 'Duckstad-slot2', application 'midoffice'...\n" +
 				"Input password for user 'sa': The database has no version yet.\n" +
-				"Opening patchfile 'file:/.../testpatch1.sql'\n" +
+				"Opening file 'file:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Possible targets are: 1.0.1, 1.0.2\n" +
 				"Input target version: Patching to \"1.0.1\"\n" +
