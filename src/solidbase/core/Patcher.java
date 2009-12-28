@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.sql.Connection;
@@ -588,15 +589,20 @@ public class Patcher
 		Patcher.callBack = callBack;
 	}
 
+	static public void logToXML( OutputStream out )
+	{
+		dbVersion.logToXML( out, Charset.forName( "UTF-8" ) );
+	}
+
 	static public void logToXML( String filename )
 	{
 		if( filename.equals( "-" ) )
-			dbVersion.logToXML( System.out, Charset.defaultCharset() );
+			logToXML( System.out );
 		else
 		{
 			try
 			{
-				dbVersion.logToXML( new FileOutputStream( filename ), Charset.forName( "UTF-8" ) );
+				logToXML( new FileOutputStream( filename ) );
 			}
 			catch( FileNotFoundException e )
 			{

@@ -53,7 +53,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.xml.sax.SAXException;
+import org.apache.commons.lang.StringUtils;
 
 
 /**
@@ -464,41 +464,45 @@ public class DBVersion
 	{
 		// This method does not care about staleness
 
+		boolean spec11 = "1.1".equals( this.spec );
+
 		try
 		{
 			Connection connection = this.database.getConnection();
 			Statement stat = connection.createStatement();
 			try
 			{
-				ResultSet result = stat.executeQuery( "SELECT TYPE, SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT FROM DBVERSIONLOG ORDER BY STAMP" );
+				ResultSet result = stat.executeQuery( "SELECT " + ( spec11 ? "TYPE, " : "" ) + "SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT FROM DBVERSIONLOG ORDER BY STAMP" );
 
 				XMLOutputFactory xof = XMLOutputFactory.newInstance();
-				XMLStreamWriter xtw = xof.createXMLStreamWriter( new OutputStreamWriter( out, charSet ) );
-				xtw.writeStartDocument("UTF-8", "1.0");
-				xtw.writeStartElement( "log" );
+				XMLStreamWriter xml = xof.createXMLStreamWriter( new OutputStreamWriter( out, charSet ) );
+				xml.writeStartDocument("UTF-8", "1.0");
+				xml.writeStartElement( "log" );
 				while( result.next() )
 				{
-					xtw.writeStartElement( "command" );
-					xtw.writeAttribute( "type", result.getString( 1 ) );
-					xtw.writeAttribute( "source", result.getString( 2 ) );
-					xtw.writeAttribute( "target", result.getString( 3 ) );
-					xtw.writeAttribute( "count", String.valueOf( result.getInt( 4 ) ) );
-					xtw.writeAttribute( "stamp", String.valueOf( result.getTimestamp( 5 ) ) );
-					String sql = result.getString( 6 );
+					int i = 1;
+					xml.writeStartElement( "command" );
+					if( spec11 )
+						xml.writeAttribute( "type", result.getString( i++ ) );
+					xml.writeAttribute( "source", StringUtils.defaultString( result.getString( i++ ) ) );
+					xml.writeAttribute( "target", result.getString( i++ ) );
+					xml.writeAttribute( "count", String.valueOf( result.getInt( i++ ) ) );
+					xml.writeAttribute( "stamp", String.valueOf( result.getTimestamp( i++ ) ) );
+					String sql = result.getString( i++ );
 					if( sql != null )
-						xtw.writeCharacters( sql );
-					String res = result.getString( 7 );
+						xml.writeCharacters( sql );
+					String res = result.getString( i++ );
 					if( res != null )
 					{
-						xtw.writeStartElement( "result" );
-						xtw.writeCharacters( res );
-						xtw.writeEndElement();
+						xml.writeStartElement( "result" );
+						xml.writeCharacters( res );
+						xml.writeEndElement();
 					}
-					xtw.writeEndElement();
+					xml.writeEndElement();
 				}
-				xtw.writeEndElement();
-				xtw.writeEndDocument();
-				xtw.close();
+				xml.writeEndElement();
+				xml.writeEndDocument();
+				xml.close();
 			}
 			finally
 			{

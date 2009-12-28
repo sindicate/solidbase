@@ -16,6 +16,7 @@
 
 package solidbase.test.core;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Set;
@@ -74,6 +75,18 @@ public class Basic
 			TestUtil.verifyVersion( "1.0.2", null, 2, null );
 			Patcher.end();
 		}
+	}
+
+	@Test(dependsOnMethods="testMissingGo")
+	public void testDumpXML () throws IOException, SQLException
+	{
+		Patcher.setCallBack( new TestProgressListener() );
+		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null ) );
+
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		Patcher.logToXML( out );
+		String xml = out.toString( "UTF-8" );
+		//System.out.println( xml );
 	}
 
 	@Test
