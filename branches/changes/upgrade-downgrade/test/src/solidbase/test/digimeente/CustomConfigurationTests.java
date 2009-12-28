@@ -80,14 +80,14 @@ public class CustomConfigurationTests
 				"Opening file 'file:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Possible targets are: 1.0.1, 1.0.2\n" +
-				"Input target version: Patching to \"1.0.1\"\n" +
+				"Input target version: Upgrading to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +
 				"DEBUG: version=null, target=1.0.1, statements=2\n" +
-				"Patching \"1.0.1\" to \"1.0.2\".\n" +
+				"Upgrading \"1.0.1\" to \"1.0.2\".\n" +
 				"Inserting admin user.\n" +
 				"DEBUG: version=1.0.1, target=1.0.2, statements=2\n" +
-				"The database has been patched.\n" +
+				"The database is upgraded.\n" +
 				"\n" +
 				"Current database version is \"1.0.2\".\n"
 		);
@@ -129,14 +129,14 @@ public class CustomConfigurationTests
 				"Opening file 'file:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Possible targets are: 1.0.1, 1.0.2\n" +
-				"Input target version: Patching to \"1.0.1\"\n" +
+				"Input target version: Upgrading to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +
 				"DEBUG: version=null, target=1.0.1, statements=2\n" +
-				"Patching \"1.0.1\" to \"1.0.2\".\n" +
+				"Upgrading \"1.0.1\" to \"1.0.2\".\n" +
 				"Inserting admin user.\n" +
 				"DEBUG: version=1.0.1, target=1.0.2, statements=2\n" +
-				"The database has been patched.\n" +
+				"The database is upgraded.\n" +
 				"\n" +
 				"Current database version is \"1.0.2\".\n"
 		);

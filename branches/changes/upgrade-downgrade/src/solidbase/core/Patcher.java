@@ -303,7 +303,7 @@ public class Patcher
 
 		List patches = patchFile.getPatchPath( version, target, downgradeable );
 		Assert.isTrue( patches != null );
-		Assert.isTrue( patches.size() > 0, "No patches found" );
+		Assert.isTrue( patches.size() > 0, "No upgrades found" );
 
 		for( Iterator iter = patches.iterator(); iter.hasNext(); )
 		{

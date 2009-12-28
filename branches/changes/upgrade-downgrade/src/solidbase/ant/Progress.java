@@ -89,9 +89,9 @@ public class Progress extends ProgressListener implements ConfigListener
 	{
 		flush();
 		if( source == null )
-			this.buffer = new StringBuilder( "Patching to \"" + target + "\"" );
+			this.buffer = new StringBuilder( "Upgrading to \"" + target + "\"" );
 		else
-			this.buffer = new StringBuilder( "Patching \"" + source + "\" to \"" + target + "\"" );
+			this.buffer = new StringBuilder( "Upgrading \"" + source + "\" to \"" + target + "\"" );
 	}
 
 	@Override
@@ -127,7 +127,7 @@ public class Progress extends ProgressListener implements ConfigListener
 	@Override
 	protected void patchingFinished()
 	{
-		info( "The database has been patched." );
+		info( "The database is upgraded." );
 	}
 
 	@Override

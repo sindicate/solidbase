@@ -183,14 +183,13 @@ public class PatchFile
 					if( init )
 					{
 						patch = getInitPatch( source.length() == 0 ? null : source, target );
-						Assert.isTrue( patch != null, "Patch block found for undefined patch: \"" + source + "\" --> \"" + target + "\"" );
+						Assert.isTrue( patch != null, "Undefined init block found: \"" + source + "\" --> \"" + target + "\"" );
 					}
 					else
 					{
 						patch = getPatch( source.length() == 0 ? null : source, target );
-						Assert.isTrue( patch != null, "Patch block found for undefined patch: \"" + source + "\" --> \"" + target + "\"" );
-						Assert.isTrue( patch.switsj == switsj, "Upgrade block type '" + action + "' is defined differently", pos );
-						Assert.isTrue( patch.downgrade == downgrade, "Upgrade block type '" + action + "' is defined differently", pos );
+						Assert.isTrue( patch != null, "Undefined upgrade block found: \"" + source + "\" --> \"" + target + "\"" );
+						Assert.isTrue( patch.switsj == switsj && patch.downgrade == downgrade, "Upgrade block type '" + action + "' is different from definition", pos );
 					}
 
 					patch.setPos( pos );
@@ -220,7 +219,7 @@ public class PatchFile
 				Patch patch = (Patch)iter.next();
 				if( patch.getTarget().equals( target ) )
 				{
-					Assert.isTrue( result == null, "Patch definitions are not unique" );
+					Assert.isTrue( result == null, "Duplicate upgrade block found", patch.getPos() );
 					result = patch;
 				}
 			}
@@ -239,7 +238,7 @@ public class PatchFile
 				Patch patch = (Patch)iter.next();
 				if( patch.getTarget().equals( target ) )
 				{
-					Assert.isTrue( result == null, "Patch definitions are not unique" );
+					Assert.isTrue( result == null, "Duplicate init block found", patch.getPos() );
 					result = patch;
 				}
 			}
@@ -438,7 +437,7 @@ public class PatchFile
 	 */
 	protected void gotoPatch( Patch patch )
 	{
-		Assert.isTrue( patch.getPos() >= 0, "Patch block not found" );
+		Assert.isTrue( patch.getPos() >= 0, "Upgrade or init block not found" );
 
 		try
 		{

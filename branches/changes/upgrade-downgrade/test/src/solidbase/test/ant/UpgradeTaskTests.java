@@ -67,12 +67,12 @@ public class UpgradeTaskTests extends BuildFileTest
 				"The database has no version yet.\n" +
 				"Opening file 'file:/.../testpatch-multiconnections.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
-				"Patching to \"1.0.1\"\n" +
+				"Upgrading to \"1.0.1\"\n" +
 				"    Creating table DBVERSION.\n" +
 				"    Creating table DBVERSIONLOG.\n" +
-				"Patching \"1.0.1\" to \"1.1.0\".\n" +
+				"Upgrading \"1.0.1\" to \"1.1.0\".\n" +
 				"    Inserting admin users...\n" +
-				"The database has been patched.\n" +
+				"The database is upgraded.\n" +
 				"\n" +
 				"Current database version is \"1.1.0\".\n" +
 				"SolidBase v1.5.x\n" +
@@ -82,9 +82,9 @@ public class UpgradeTaskTests extends BuildFileTest
 				"Current database version is \"1.1.0\".\n" +
 				"Opening file 'file:/.../testpatch-multiconnections.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
-				"Patching \"1.1.0\" to \"1.0.1\"\n" +
-				"Patching \"1.0.1\" to \"1.0.2\"\n" +
-				"The database has been patched.\n" +
+				"Upgrading \"1.1.0\" to \"1.0.1\"\n" +
+				"Upgrading \"1.0.1\" to \"1.0.2\"\n" +
+				"The database is upgraded.\n" +
 				"\n" +
 				"Current database version is \"1.0.2\".\n"
 		);
@@ -103,13 +103,13 @@ public class UpgradeTaskTests extends BuildFileTest
 				"The database has no version yet.\n" +
 				"Opening file 'X:\\...\\testpatch-basedir.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
-				"Patching to \"1.0.1\"\n" +
+				"Upgrading to \"1.0.1\"\n" +
 				"    Creating table DBVERSION.\n" +
 				"    Creating table DBVERSIONLOG.\n" +
-				"Patching \"1.0.1\" to \"1.0.2\"\n" +
+				"Upgrading \"1.0.1\" to \"1.0.2\"\n" +
 				"    Creating table USERS.\n" +
 				"    Inserting admin user.\n" +
-				"The database has been patched.\n" +
+				"The database is upgraded.\n" +
 				"\n" +
 				"Current database version is \"1.0.2\".\n"
 		);
