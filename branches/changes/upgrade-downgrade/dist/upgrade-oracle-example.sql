@@ -1,3 +1,4 @@
+--* ENCODING "ISO-8859-1"
 
 --* // Copyright 2006 René M. de Bloois
 
@@ -15,44 +16,35 @@
 
 --* // ========================================================================
 
---*	PATCHES
---*		PATCH "" --> "1.0.1"
---*		PATCH "1.0.1" --> "1.0.2"
---*	/PATCHES
 
 
-
-
+--*	DEFINITION
+--*		INIT "" --> "1.1"
+--*		UPGRADE "" --> "1.0.1"
+--*	/DEFINITION
 
 
 
 --* // ========================================================================
---* PATCH "" --> "1.0.1"
+--* INIT "" --> "1.1"
 --* // ========================================================================
 
---* SET MESSAGE 'Creating table DBVERSION'
+--* SET MESSAGE "    Creating table DBVERSION"
 
---* // Create version control table
 CREATE TABLE DBVERSION
 (
+	SPEC VARCHAR2(5) NOT NULL,
 	VERSION VARCHAR2(20),
 	TARGET VARCHAR2(20),
 	STATEMENTS INTEGER NOT NULL
 )
 GO
 
---* // The patch tool expects to be able to use the DBVERSION table after the *first* sql statement
+--* SET MESSAGE "    Creating table DBVERSIONLOG"
 
---* SET MESSAGE 'Creating table DBVERSIONLOG'
-
---* // Create version control log table sequence generator
-CREATE SEQUENCE DBVERSIONLOG_SEQUENCE
-GO
-
---* // Create version control log table
 CREATE TABLE DBVERSIONLOG
 (
-	ID INTEGER NOT NULL,
+	TYPE VARCHAR2(1) NOT NULL,
 	SOURCE VARCHAR2(20),
 	TARGET VARCHAR2(20) NOT NULL,
 	STATEMENT INTEGER NOT NULL,
@@ -62,44 +54,31 @@ CREATE TABLE DBVERSIONLOG
 )
 GO
 
---* // Create version control log table autonumber trigger
-CREATE OR REPLACE TRIGGER DBVERSIONLOG_AUTONUMBER BEFORE INSERT ON DBVERSIONLOG
-REFERENCING NEW AS NEWROW
-FOR EACH ROW
-BEGIN
-	IF :NEWROW.ID IS NULL THEN
-		SELECT DBVERSIONLOG_SEQUENCE.NEXTVAL INTO :NEWROW.ID FROM DUAL;
-	END IF;
-END;
+--* /INIT
+
+
+
+--* // ========================================================================
+--* UPGRADE "" --> "1.0.1"
+--* // ========================================================================
+
+--* SET MESSAGE "    Creating table USERS"
+
+CREATE TABLE USERS
+(
+	USER_USERNAME VARCHAR2(26) NOT NULL,
+	USER_PASSWORD VARCHAR2(30) NOT NULL
+)
 GO
 
---* // The existence of DBVERSIONLOG will automatically be detected at the end of this patch
+--* SET MESSAGE "    Inserting admin user"
 
---* /PATCH
-
-
-
-
-
-
-
---* // ========================================================================
---* PATCH "1.0.1" --> "1.0.2"
---* // ========================================================================
-
---* SET MESSAGE 'Creating EP datamodel'
-
-CREATE TABLE EP_ORGANISATION(
-		ORGANISATIONID                 		VARCHAR2(32) NOT NULL,
-		NAME                           		VARCHAR2(80) NOT NULL,
-		COORDINATOR                    		VARCHAR2(32) NOT NULL,
-		ADDRESS                        		VARCHAR2(80),
-		TELEPHONE                      		VARCHAR2(20),
-		FAX                            		VARCHAR2(20),
-		ENDDATE                        		TIMESTAMP,
-		CONSTRAINT EP_ORGANISATION_PK PRIMARY KEY (ORGANISATIONID))
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' )
 GO
 
---* /PATCH
+--* SET MESSAGE "    Inserting user"
 
---* // ========================================================================
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' )
+GO
+
+--* /UPGRADE
