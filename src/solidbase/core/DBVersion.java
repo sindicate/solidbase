@@ -36,6 +36,7 @@
 package solidbase.core;
 
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
@@ -46,12 +47,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 
-import org.apache.commons.lang.StringUtils;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.AttributesImpl;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
+import org.apache.commons.lang.StringUtils;
 
 
 /**
@@ -398,6 +398,7 @@ public class DBVersion
 	 * Dumps the current log in XML format to the given output stream.
 	 *
 	 * @param out The outputstream.
+	 * @param charSet
 	 */
 	protected void logToXML( OutputStream out, Charset charSet )
 	{
@@ -407,37 +408,35 @@ public class DBVersion
 			Statement stat = connection.createStatement();
 			try
 			{
-				ResultSet result = stat.executeQuery( "SELECT SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT FROM DBVERSIONLOG ORDER BY ID" );
+				ResultSet result = stat.executeQuery( "SELECT TYPE, SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT FROM DBVERSIONLOG ORDER BY STAMP" );
 
-				OutputFormat format = new OutputFormat( "XML", charSet.name(), true );
-				XMLSerializer serializer = new XMLSerializer( out, format );
-
-				serializer.startDocument();
-				serializer.startElement( null, null, "log", null );
-
+				XMLOutputFactory xof = XMLOutputFactory.newInstance();
+				XMLStreamWriter xtw = xof.createXMLStreamWriter( new OutputStreamWriter( out, charSet ) );
+				xtw.writeStartDocument("UTF-8", "1.0");
+				xtw.writeStartElement( "log" );
 				while( result.next() )
 				{
-					AttributesImpl attributes = new AttributesImpl();
-					attributes.addAttribute( null, null, "source", null, result.getString( 1 ) );
-					attributes.addAttribute( null, null, "target", null, result.getString( 2 ) );
-					attributes.addAttribute( null, null, "count", null, String.valueOf( result.getInt( 3 ) ) );
-					attributes.addAttribute( null, null, "stamp", null, String.valueOf( result.getTimestamp( 4 ) ) );
-					serializer.startElement( null, null, "command", attributes );
-					String sql = result.getString( 5 );
+					xtw.writeStartElement( "command" );
+					xtw.writeAttribute( "type", result.getString( 1 ) );
+					xtw.writeAttribute( "source", result.getString( 2 ) );
+					xtw.writeAttribute( "target", result.getString( 3 ) );
+					xtw.writeAttribute( "count", String.valueOf( result.getInt( 4 ) ) );
+					xtw.writeAttribute( "stamp", String.valueOf( result.getTimestamp( 5 ) ) );
+					String sql = result.getString( 6 );
 					if( sql != null )
-						serializer.characters( sql.toCharArray(), 0, sql.length() );
-					String res = result.getString( 6 );
+						xtw.writeCharacters( sql );
+					String res = result.getString( 7 );
 					if( res != null )
 					{
-						serializer.startElement( null, null, "result", null );
-						serializer.characters( res.toCharArray(), 0, res.length() );
-						serializer.endElement( null, null, "result" );
+						xtw.writeStartElement( "result" );
+						xtw.writeCharacters( res );
+						xtw.writeEndElement();
 					}
-					serializer.endElement( null, null, "command" );
+					xtw.writeEndElement();
 				}
-
-				serializer.endElement( null, null, "log" );
-				serializer.endDocument();
+				xtw.writeEndElement();
+				xtw.writeEndDocument();
+				xtw.close();
 			}
 			finally
 			{
@@ -445,7 +444,7 @@ public class DBVersion
 				connection.commit();
 			}
 		}
-		catch( SAXException e )
+		catch( XMLStreamException e )
 		{
 			throw new SystemException( e );
 		}
