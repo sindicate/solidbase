@@ -8,7 +8,7 @@ databases: {
 		url: "jdbc:hsqldb:mem:test1",
 		user: "sa",
 		password: "geheim",
-		patchfile: "dbpatch-hsqldb-example.sql",
+		patchfile: "upgrade-hsqldb-example.sql",
 		connections: {
 			queues: { url: "jdbc:hsqldb:mem:test2", user: "sa", password: "geheim" },
 			user: { user: "user", password: "geheim" }
@@ -24,7 +24,7 @@ databases.one.driver: org.hsqldb.jdbcDriver
 databases.one.url: jdbc:hsqldb:mem:test1
 databases.one.user: sa
 databases.one.password: geheim
-databases.one.patchfile: dbpatch-hsqldb-example.sql
+databases.one.patchfile: upgrade-hsqldb-example.sql
 databases.one.connections: queues, user
 databases.one.connections.queues.url: jdbc:hsqldb:mem:test2 
 databases.one.connections.queues.user: sa

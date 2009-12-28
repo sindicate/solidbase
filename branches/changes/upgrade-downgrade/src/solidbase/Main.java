@@ -260,7 +260,7 @@ public class Main
 			patchFile = configuration.getPatchFile();
 			target = configuration.getTarget();
 			if( patchFile == null )
-				patchFile = "dbpatch.sql";
+				patchFile = "upgrade.sql";
 			console.println( "Connecting to database..." );
 		}
 

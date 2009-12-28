@@ -183,7 +183,7 @@ ALTER SESSION ...
 20-1-09 20:47   Connecting to database 'prod', application 'app1'...
 20-1-09 20:47   Input password for user 'sa':
 20-1-09 20:47   The database has no version yet.
-20-1-09 20:47   Opening file 'C:\PROJECTS\BUILDS\solidbase\dist\dbpatch-hsqldb-example.sql'
+20-1-09 20:47   Opening file 'C:\PROJECTS\BUILDS\solidbase\dist\upgrade-hsqldb-example.sql'
 20-1-09 20:47       Encoding is 'ISO-8859-1'
 20-1-09 20:47   Possible targets are: 1.0.1, 1.0.2
 20-1-09 20:47   Input target version: 1.0.2
@@ -337,11 +337,11 @@ prod.applications = app1, app2
 # database 'prod', application 'app1'
 prod.app1.description = app1 description
 prod.app1.user = sa
-prod.app1.patchfile = dbpatch-hsqldb-example1.sql
+prod.app1.patchfile = upgrade-hsqldb-example1.sql
 
 # database 'prod', application 'app2'
 prod.app2.user = sa
-prod.app2.patchfile = dbpatch-hsqldb-example2.sql
+prod.app2.patchfile = upgrade-hsqldb-example2.sql
 
 # database 'test'
 test.driver = org.apache.derby.jdbc.EmbeddedDriver
@@ -350,7 +350,7 @@ test.applications = app3
 
 # database 'test', application 'app3'
 test.app3.user = app
-test.app3.patchfile = dbpatch-derby-example.sql]]></programlisting>
+test.app3.patchfile = upgrade-derby-example.sql]]></programlisting>
 			</example>
 		
 			<table border="1">

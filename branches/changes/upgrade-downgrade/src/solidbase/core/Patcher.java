@@ -111,7 +111,7 @@ public class Patcher
 	static public void openPatchFile( File baseDir, String fileName )
 	{
 		if( fileName == null )
-			fileName = "dbpatch.sql";
+			fileName = "upgrade.sql";
 
 		try
 		{

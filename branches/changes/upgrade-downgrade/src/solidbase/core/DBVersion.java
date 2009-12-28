@@ -40,6 +40,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.sql.Connection;
+import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -332,17 +333,25 @@ public class DBVersion
 	protected void setSpec( String spec )
 	{
 		Assert.notEmpty( spec, "Spec must not be empty" );
-		Assert.isTrue( spec.equals( "1.1" ), "Only spec 1.1 allowed" );
 
 		if( this.stale )
 			init();
 
-		if( this.versionRecordExists )
-			execute( "UPDATE DBVERSION SET SPEC = ?", new Object[] { spec } );
+		if( spec.equals( "1.0" ) )
+		{
+			Assert.isFalse( this.specColumnExists, "SPEC column should not exist in the DBVERSION table" );
+		}
 		else
 		{
-			execute( "INSERT INTO DBVERSION ( STATEMENTS, SPEC ) VALUES ( 0, ? )", new Object[] { spec } );
-			this.versionRecordExists = true;
+			Assert.isTrue( spec.equals( "1.1" ), "Only spec 1.0 or 1.1 allowed" );
+			Assert.isTrue( this.specColumnExists, "SPEC column should exist in the DBVERSION table" );
+			if( this.versionRecordExists )
+				execute( "UPDATE DBVERSION SET SPEC = ?", new Object[] { spec } );
+			else
+			{
+				execute( "INSERT INTO DBVERSION ( STATEMENTS, SPEC ) VALUES ( 0, ? )", new Object[] { spec } );
+				this.versionRecordExists = true;
+			}
 		}
 
 		this.spec = spec;
@@ -556,9 +565,13 @@ public class DBVersion
 		{
 			Connection connection = this.database.getConnection();
 			PreparedStatement statement = connection.prepareStatement( sql );
+			ParameterMetaData meta = statement.getParameterMetaData();
 			int i = 1;
 			for( Object parameter : parameters )
-				statement.setObject( i++, parameter );
+				if( parameter == null )
+					statement.setNull( i, meta.getParameterType( i++ ) ); // Derby 10.2 wants this
+				else
+					statement.setObject( i++, parameter );
 			try
 			{
 				int modified = statement.executeUpdate();
