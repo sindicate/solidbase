@@ -27,7 +27,7 @@ import solidbase.core.Patcher;
 import solidbase.core.SystemException;
 
 
-public class DatabaseTestUtil
+public class TestUtil
 {
 	static public void shutdownHSQLDB() throws SQLException
 	{
@@ -60,5 +60,32 @@ public class DatabaseTestUtil
 		Assert.assertTrue( result.next() );
 		int count = result.getInt( 1 );
 		Assert.assertEquals( count, expected );
+	}
+
+	static public void verifyVersion( String version, String target, int statements, String spec ) throws SQLException
+	{
+		String sql = "SELECT * FROM DBVERSION";
+		Connection connection = Patcher.database.getConnection();
+		PreparedStatement statement = connection.prepareStatement( sql );
+		ResultSet result = statement.executeQuery();
+		Assert.assertTrue( result.next() );
+		Assert.assertEquals( result.getString( "VERSION" ), version, "version:" );
+		Assert.assertEquals( result.getString( "TARGET" ), target, "target:" );
+		Assert.assertEquals( result.getInt( "STATEMENTS" ), statements, "statements:" );
+		if( spec == null )
+			Assert.assertFalse( Util.hasColumn( result, "SPEC" ), "SPEC column should not exist in the DBVERSION table" );
+		else
+			Assert.assertEquals( result.getString( "SPEC" ), spec, "spec:" );
+		Assert.assertFalse( result.next() );
+	}
+
+	public static void verifyHistoryIncludes( String version )
+	{
+		Assert.assertTrue( Patcher.dbVersion.logContains( version ), "Expecting version " + version + " to be part of the history" );
+	}
+
+	public static void verifyHistoryNotIncludes( String version )
+	{
+		Assert.assertFalse( Patcher.dbVersion.logContains( version ), "Not expecting version " + version + " to be part of the history" );
 	}
 }

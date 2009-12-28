@@ -17,6 +17,7 @@
 package solidbase.test.core;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Set;
 
 import org.testng.annotations.Test;
@@ -25,11 +26,12 @@ import solidbase.core.Database;
 import solidbase.core.NonTerminatedStatementException;
 import solidbase.core.Patcher;
 import solidbase.core.SQLExecutionException;
+import solidbase.core.TestUtil;
 
 public class Basic
 {
 	@Test
-	public void testBasic() throws IOException, SQLExecutionException
+	public void testBasic() throws IOException, SQLException
 	{
 		Patcher.end();
 
@@ -40,7 +42,7 @@ public class Basic
 		Patcher.openPatchFile( "testpatch1.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null );
+			Set< String > targets = Patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.2" );
@@ -49,10 +51,12 @@ public class Basic
 		{
 			Patcher.closePatchFile();
 		}
+
+		TestUtil.verifyVersion( "1.0.2", null, 2, null );
 	}
 
 	@Test(dependsOnMethods="testBasic", expectedExceptions=SQLExecutionException.class)
-	public void testMissingGo() throws IOException, SQLExecutionException
+	public void testMissingGo() throws IOException, SQLException
 	{
 		Patcher.setCallBack( new TestProgressListener() );
 		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null ) );
@@ -60,19 +64,20 @@ public class Basic
 		Patcher.openPatchFile( "testpatch2.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null );
+			Set< String > targets = Patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.3" );
 		}
 		finally
 		{
+			TestUtil.verifyVersion( "1.0.2", null, 2, null );
 			Patcher.end();
 		}
 	}
 
 	@Test
-	public void testOpen() throws IOException, SQLExecutionException
+	public void testOpen() throws IOException, SQLException
 	{
 		Patcher.end();
 
@@ -83,7 +88,7 @@ public class Basic
 		Patcher.openPatchFile( "testpatch-open.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null );
+			Set< String > targets = Patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.2" );
@@ -92,10 +97,12 @@ public class Basic
 		{
 			Patcher.closePatchFile();
 		}
+
+		TestUtil.verifyVersion( "1.0.1", "1.0.2", 2, null );
 	}
 
 	@Test(expectedExceptions=NonTerminatedStatementException.class)
-	public void testUnterminatedCommand1() throws IOException, SQLExecutionException
+	public void testUnterminatedCommand1() throws IOException, SQLException
 	{
 		Patcher.end();
 
@@ -105,19 +112,20 @@ public class Basic
 		Patcher.openPatchFile( "testpatch-unterminated1.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null );
+			Set< String > targets = Patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.1" );
 		}
 		finally
 		{
+			TestUtil.verifyVersion( null, "1.0.1", 1, null );
 			Patcher.closePatchFile();
 		}
 	}
 
 	@Test(expectedExceptions=NonTerminatedStatementException.class)
-	public void testUnterminatedCommand2() throws IOException, SQLExecutionException
+	public void testUnterminatedCommand2() throws IOException, SQLException
 	{
 		Patcher.end();
 
@@ -127,19 +135,22 @@ public class Basic
 		Patcher.openPatchFile( "testpatch-unterminated2.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null );
+			Set< String > targets = Patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.1" );
 		}
 		finally
 		{
+			TestUtil.verifyVersion( null, "1.0.1", 1, null );
 			Patcher.closePatchFile();
 		}
 	}
 
+	// TODO Create test that failes immediately and check that the target is still null
+
 	@Test
-	public void testSharedPatchBlock() throws IOException, SQLExecutionException
+	public void testSharedPatchBlock() throws IOException, SQLException
 	{
 		Patcher.end();
 
@@ -149,7 +160,7 @@ public class Basic
 		Patcher.openPatchFile( "testpatch-sharedpatch1.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null );
+			Set< String > targets = Patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
 			Patcher.patch( "1.0.2" );
@@ -158,5 +169,7 @@ public class Basic
 		{
 			Patcher.closePatchFile();
 		}
+
+		TestUtil.verifyVersion( "1.0.2", null, 2, null );
 	}
 }

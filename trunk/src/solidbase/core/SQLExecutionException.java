@@ -20,6 +20,11 @@ import java.sql.SQLException;
 import java.util.Iterator;
 
 
+/**
+ * This {@link SQLException} combines an SQLException together with the command that caused the exception.
+ * 
+ * @author René M. de Bloois
+ */
 public class SQLExecutionException extends SQLException
 {
 	protected Command command;

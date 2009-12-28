@@ -55,6 +55,21 @@ public class Assert
 	}
 
 	/**
+	 * Assert that the <code>test</code> argument is <code>true</code>. If not, it throws an
+	 * {@link AssertionFailedException} with the given <code>errorMessage</code> and the given linenumber.
+	 * 
+	 * @param test
+	 *            Test argument.
+	 * @param errorMessage
+	 *            The error message.
+	 */
+	static public void isTrue( boolean test, String errorMessage, int linenumber )
+	{
+		if( !test )
+			throwAssertionFailure( errorMessage + ", line " + linenumber, 2 );
+	}
+
+	/**
 	 * Assert that the <code>test</code> argument is <code>false</code>. If not, it throws an
 	 * {@link AssertionFailedException}.
 	 * 

@@ -45,13 +45,13 @@ public class Progress extends ProgressListener implements ConfigListener
 	@Override
 	protected void openingPatchFile( File patchFile )
 	{
-		this.console.println( "Opening patchfile '" + patchFile + "'" );
+		this.console.println( "Opening file '" + patchFile + "'" );
 	}
 
 	@Override
 	protected void openingPatchFile( URL patchFile )
 	{
-		this.console.println( "Opening patchfile '" + patchFile + "'" );
+		this.console.println( "Opening file '" + patchFile + "'" );
 	}
 
 	@Override
@@ -64,9 +64,9 @@ public class Progress extends ProgressListener implements ConfigListener
 	protected void patchStarting( String source, String target )
 	{
 		if( source == null )
-			this.console.print( "Patching to \"" + target + "\"" );
+			this.console.print( "Upgrading to \"" + target + "\"" );
 		else
-			this.console.print( "Patching \"" + source + "\" to \"" + target + "\"" );
+			this.console.print( "Upgrading \"" + source + "\" to \"" + target + "\"" );
 	}
 
 	@Override
@@ -100,7 +100,7 @@ public class Progress extends ProgressListener implements ConfigListener
 	@Override
 	protected void patchingFinished()
 	{
-		this.console.println( "The database has been patched." );
+		this.console.println( "The database is upgraded." );
 	}
 
 	@Override

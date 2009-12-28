@@ -48,7 +48,7 @@ public class CommandLineTests
 				"-username", "sa",
 				"-password", "",
 				"-target", "1.0.*",
-				"-patchfile", "testpatch1.sql" );
+				"-upgradefile", "testpatch1.sql" );
 
 		String output = TestUtil.generalizeOutput( console.getOutput() );
 
@@ -60,17 +60,16 @@ public class CommandLineTests
 				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test2, user=sa\n" +
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
-				"Opening patchfile 'file:/.../testpatch1.sql'\n" +
+				"Opening file 'file:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
-				"Patching to \"1.0.1\"\n" +
+				"Upgrading to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +
 				"DEBUG: version=null, target=1.0.1, statements=2\n" +
-				"Patching \"1.0.1\" to \"1.0.2\"DEBUG: version=1.0.1, target=null, statements=2\n" +
-				".\n" +
+				"Upgrading \"1.0.1\" to \"1.0.2\".\n" +
 				"Inserting admin user.\n" +
 				"DEBUG: version=1.0.1, target=1.0.2, statements=2\n" +
-				"The database has been patched.\n" +
+				"The database is upgraded.\n" +
 				"\n" +
 				"Current database version is \"1.0.2\".\n"
 		);
@@ -91,7 +90,7 @@ public class CommandLineTests
 					"-username", "sa",
 					"-password", "",
 					"-target", "100.0.*",
-					"-patchfile", "testpatch1.sql" );
+					"-upgradefile", "testpatch1.sql" );
 
 			Assert.fail( "Expected a SystemException" );
 		}
@@ -108,7 +107,7 @@ public class CommandLineTests
 				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test22, user=sa\n" +
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
-				"Opening patchfile 'file:/.../testpatch1.sql'\n" +
+				"Opening file 'file:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n"
 		);
 	}

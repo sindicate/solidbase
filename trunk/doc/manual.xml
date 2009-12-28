@@ -183,7 +183,7 @@ ALTER SESSION ...
 20-1-09 20:47   Connecting to database 'prod', application 'app1'...
 20-1-09 20:47   Input password for user 'sa':
 20-1-09 20:47   The database has no version yet.
-20-1-09 20:47   Opening patchfile 'C:\PROJECTS\BUILDS\solidbase\dist\dbpatch-hsqldb-example.sql'
+20-1-09 20:47   Opening file 'C:\PROJECTS\BUILDS\solidbase\dist\upgrade-hsqldb-example.sql'
 20-1-09 20:47       Encoding is 'ISO-8859-1'
 20-1-09 20:47   Possible targets are: 1.0.1, 1.0.2
 20-1-09 20:47   Input target version: 1.0.2
@@ -236,14 +236,14 @@ C:\PROJECTS\BUILDS\solidbase\dist>]]></screen>
 			</para>
 			
 <screen><![CDATA[usage: solidbase [-driver <classname>] [-dumplog <filename>] [-fromant]
-       [-password <password>] [-patchfile <patchfile>] [-target <targetversion>]
+       [-password <password>] [-upgradefile <filename>] [-target <targetversion>]
        [-url <url>] [-username <username>] [-verbose]
  -driver <classname>       sets the jdbc driverclass
  -dumplog <filename>       export historical patch results to an xml file
  -fromant                  adds newlines after input requests
  -password <password>      sets the password of the default username
- -patchfile <patchfile>    sets the patch file
- -target <targetversion>   sets the target version
+ -upgradefile <filename>   specifies the file containing the database upgrades
+ -target <version>         sets the target version
  -url <url>                sets the url of the database
  -username <username>      sets the default username to patch with
  -verbose                  be extra verbose]]></screen>
@@ -267,7 +267,7 @@ C:\PROJECTS\BUILDS\solidbase\dist>]]></screen>
   -driver oracle.jdbc.OracleDriver 
   -url jdbc:oracle:thin:@hostname:1521:dbname 
   -username rene -password geheim 
-  -patchfile oracle-patch.sql -target 2.0.*</screen>
+  -upgradefile oracle-patch.sql -target 2.0.*</screen>
  				<para>Patches the given database to the last version that start with 2.0. The <code>solidbase.properties</code> is ignored.</para>
  <screen>java -cp solidbase.jar;ojdbc14.jar solidbase.Main 
    -driver oracle.jdbc.OracleDriver 
@@ -337,11 +337,11 @@ prod.applications = app1, app2
 # database 'prod', application 'app1'
 prod.app1.description = app1 description
 prod.app1.user = sa
-prod.app1.patchfile = dbpatch-hsqldb-example1.sql
+prod.app1.patchfile = upgrade-hsqldb-example1.sql
 
 # database 'prod', application 'app2'
 prod.app2.user = sa
-prod.app2.patchfile = dbpatch-hsqldb-example2.sql
+prod.app2.patchfile = upgrade-hsqldb-example2.sql
 
 # database 'test'
 test.driver = org.apache.derby.jdbc.EmbeddedDriver
@@ -350,7 +350,7 @@ test.applications = app3
 
 # database 'test', application 'app3'
 test.app3.user = app
-test.app3.patchfile = dbpatch-derby-example.sql]]></programlisting>
+test.app3.patchfile = upgrade-derby-example.sql]]></programlisting>
 			</example>
 		
 			<table border="1">
@@ -465,7 +465,7 @@ public class CustomDatabasesConfiguration implements DatabasesConfiguration
         Database database = new Database( "<name>", "<description or null>", 
                 "<driver>", "<url>" );
         database.addApplication( "<name>", "<description or null>", 
-                "<username>", "<patchfile>" );
+                "<username>", "<upgradefile>" );
         this.databases.add( database );
     }
 
@@ -507,7 +507,7 @@ def result = []; // Creates a java.util.List
 def database = new Database( "<name>", "<description or null>", 
         "<driver>", "<url>" );
 database.addApplication( "<name>", "<description or null>", 
-        "<username>", "<patchfile>" );
+        "<username>", "<upgradefile>" );
 result.add( database );
 
 return result; // Will be picked up by the patchtool
