@@ -60,26 +60,46 @@ public class Patcher
 	static protected Pattern ifHistoryContainsPattern = Pattern.compile( "IF\\s+HISTORY\\s+(NOT\\s+)?CONTAINS\\s+\"([^\"]*)\"", Pattern.CASE_INSENSITIVE );
 	static protected Pattern ifHistoryContainsEnd = Pattern.compile( "/IF", Pattern.CASE_INSENSITIVE );
 
-	static protected List< CommandListener > listeners = new ArrayList();
+	static protected List< CommandListener > listeners;
 
 	// Patch state
-	static protected Stack ignoreStack = new Stack();
-	static protected HashSet ignoreSet = new HashSet();
+	static protected Stack ignoreStack;
+	static protected HashSet ignoreSet;
 	static protected boolean dontCount;
-	static protected Stack<Boolean> conditionStack = new Stack();
-	static protected boolean condition = true;
+	static protected Stack<Boolean> conditionStack;
+	static protected boolean condition;
 
 	static protected ProgressListener callBack;
 	static protected PatchFile patchFile;
 	static protected Database defaultDatabase;
 	static protected Database database;
-	static protected Map< String, Database > allDatabases = new HashMap< String, Database >();
+	static protected Map< String, Database > allDatabases;
 	static protected DBVersion dbVersion;
 
 	static
 	{
+		initialize();
+	}
+
+	static protected void initialize()
+	{
+		defaultDatabase = null;
+		database = null;
+		allDatabases = new HashMap< String, Database >();
+
+		listeners = new ArrayList();
+
+		ignoreStack = new Stack();
+		ignoreSet = new HashSet();
+		dontCount = false;
+		conditionStack = new Stack();
+		condition = true;
+
+		callBack = null;
+		patchFile = null;
+		dbVersion = null;
+
 		listeners.add( new AssertCommandExecuter() );
-		//listeners.add( new OracleDBMSOutputPoller() );
 		listeners.add( new ImportCSVListener() );
 	}
 
@@ -91,7 +111,7 @@ public class Patcher
 	static public void openPatchFile( File baseDir, String fileName )
 	{
 		if( fileName == null )
-			fileName = "dbpatch.sql";
+			fileName = "upgrade.sql";
 
 		try
 		{
@@ -174,11 +194,36 @@ public class Patcher
 	 * @param prefix Only consider versions that start with the given prefix.
 	 * @return
 	 */
-	static public LinkedHashSet< String > getTargets( boolean tips, String prefix )
+	static public LinkedHashSet< String > getTargets( boolean tips, String prefix, boolean downgradeable )
 	{
 		LinkedHashSet result = new LinkedHashSet();
-		patchFile.collectTargets( dbVersion.getVersion(), dbVersion.getTarget(), tips, prefix, result );
+		patchFile.collectTargets( dbVersion.getVersion(), dbVersion.getTarget(), tips, downgradeable, prefix, result );
 		return result;
+	}
+
+	static public void init() throws SQLExecutionException
+	{
+		String spec = dbVersion.getSpec();
+
+		List patches = patchFile.getInitPath( spec );
+		if( patches == null )
+			return;
+
+		Assert.isTrue( patches.size() > 0, "Not expecting an empty list" );
+
+		// INIT blocks get special treatment.
+		for( Iterator iter = patches.iterator(); iter.hasNext(); )
+		{
+			Patch patch = (Patch)iter.next();
+			patch( patch );
+			dbVersion.setSpec( patch.getTarget() );
+			// TODO How do we get a more dramatic error message here, if something goes wrong?
+		}
+	}
+
+	static public void patch( String target ) throws SQLExecutionException
+	{
+		patch( target, false );
 	}
 
 	/**
@@ -187,31 +232,36 @@ public class Patcher
 	 * @param target
 	 * @throws SQLException
 	 */
-	static public void patch( String target ) throws SQLExecutionException
+	static public void patch( String target, boolean downgradeable ) throws SQLExecutionException
 	{
+		init();
+
 		Set< String > targets;
 
 		boolean wildcard = target.endsWith( "*" );
 		if( wildcard )
 		{
 			String targetPrefix = target.substring( 0, target.length() - 1 );
-			targets = getTargets( true, targetPrefix );
+			targets = getTargets( true, targetPrefix, downgradeable );
+			Assert.isTrue( targets.size() <= 1 );
 			for( String t : targets )
 				if( t.startsWith( targetPrefix ) )
 				{
-					patch( dbVersion.getVersion(), t );
+					patch( dbVersion.getVersion(), t, downgradeable );
 					break;
 				}
+			// TODO What if the target is not found?
 		}
 		else
 		{
-			targets = getTargets( false, null );
+			targets = getTargets( false, null, downgradeable );
 			for( String t : targets )
 				if( t.equals( target ) )
 				{
-					patch( dbVersion.getVersion(), t );
+					patch( dbVersion.getVersion(), t, downgradeable );
 					break;
 				}
+			// TODO What if the target is not found?
 		}
 
 		terminateCommandListeners();
@@ -228,31 +278,32 @@ public class Patcher
 	}
 
 	/**
-	 * Configures the connection to the database, including the default user.
-	 * Each patch in the patch file starts with this default user.
+	 * Configures the connection to the database, including the default user. Each patch in the patch file starts with
+	 * this database and default user. The version tables are also looked for in this database and the schema identified
+	 * by the default user.
 	 * 
-	 * @param database
-	 * @param defaultUser
+	 * @param database The default database.
 	 */
 	static public void setDefaultConnection( Database database )
 	{
 		Patcher.defaultDatabase = database;
 		Patcher.allDatabases.put( "default", database );
-		database.init(); // Resets the current user and init the connection when password is supplied.
+
+		database.init(); // Resets the current user and initializes the connection when password is supplied.
 
 		dbVersion = new DBVersion( database );
 
 		callBack.debug( "driverName=" + database.driverName + ", url=" + database.url + ", user=" + database.getDefaultUser() + "" );
 	}
 
-	static protected void patch( String version, String target ) throws SQLExecutionException
+	static protected void patch( String version, String target, boolean downgradeable ) throws SQLExecutionException
 	{
 		if( target.equals( version ) )
 			return;
 
-		List patches = patchFile.getPatchPath( version, target );
+		List patches = patchFile.getPatchPath( version, target, downgradeable );
 		Assert.isTrue( patches != null );
-		Assert.isTrue( patches.size() > 0, "No patches found" );
+		Assert.isTrue( patches.size() > 0, "No upgrades found" );
 
 		for( Iterator iter = patches.iterator(); iter.hasNext(); )
 		{
@@ -329,8 +380,6 @@ public class Patcher
 		conditionStack.clear();
 		condition = true;
 
-		dbVersion.read();
-
 		Command command = patchFile.readStatement();
 		int count = 0;
 		try
@@ -391,16 +440,21 @@ public class Patcher
 						Patcher.callBack.executing( command, startMessage );
 						startMessage = null;
 
-						SQLException sqlException = execute( command );
-						if( !patch.isInit() )
+						if( sql.trim().equalsIgnoreCase( "UPGRADE" ) )
+							upgrade( patch );
+						else
 						{
-							dbVersion.setProgress( patch.getTarget(), count );
-							// We have to update the progress even if the logging fails. Otherwise the patch cannot be
-							// restarted. That's why the progress update is first. But some logging will be lost in that case.
-							if( sqlException != null )
-								dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), sqlException );
-							else
-								dbVersion.log( patch.getSource(), patch.getTarget(), count, sql, (String)null );
+							SQLException sqlException = execute( command );
+							if( !patch.isInit() )
+							{
+								dbVersion.setProgress( patch.getTarget(), count );
+								// We have to update the progress even if the logging fails. Otherwise the patch cannot be
+								// restarted. That's why the progress update is first. But some logging will be lost in that case.
+								if( sqlException != null )
+									dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), sqlException );
+								else
+									dbVersion.log( "S", patch.getSource(), patch.getTarget(), count, sql, (String)null );
+							}
 						}
 						Patcher.callBack.executed();
 					}
@@ -412,12 +466,25 @@ public class Patcher
 			}
 			Patcher.callBack.patchFinished();
 
-			dbVersion.read();
-
-			if( !patch.isOpen() )
+			dbVersion.setStale(); // TODO With a normal patch, only set stale if not both of the 2 version tables are found
+			if( patch.isInit() )
 			{
-				dbVersion.setVersion( patch.getTarget() );
-				dbVersion.log( patch.getSource(), patch.getTarget(), count, null, "COMPLETED VERSION " + patch.getTarget() );
+				dbVersion.setSpec( patch.getTarget() );
+				Assert.isFalse( patch.isOpen() );
+			}
+			else
+			{
+				if( patch.isDowngrade() )
+				{
+					Set versions = patchFile.getReachableVersions( patch.getTarget(), null, false );
+					versions.remove( patch.getTarget() );
+					dbVersion.downgradeHistory( versions );
+				}
+				if( !patch.isOpen() )
+				{
+					dbVersion.setVersion( patch.getTarget() );
+					dbVersion.logComplete( patch.getSource(), patch.getTarget(), count );
+				}
 			}
 		}
 		catch( RuntimeException e )
@@ -430,6 +497,16 @@ public class Patcher
 			dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command == null ? null : command.getCommand(), e );
 			throw new SQLExecutionException( command, e );
 		}
+	}
+
+	static private void upgrade( Patch patch ) throws SQLException
+	{
+		Assert.isFalse( !patch.isInit(), "UPGRADE only allowed in INIT blocks" );
+		Assert.isTrue( patch.getSource().equals( "1.0" ) && patch.getTarget().equals( "1.1" ), "UPGRADE only possible from spec 1.0 to 1.1" );
+
+		execute( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'S' WHERE RESULT IS NULL OR RESULT NOT LIKE 'COMPLETED VERSION %'", false ) );
+		execute( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'B', RESULT = 'COMPLETE' WHERE RESULT LIKE 'COMPLETED VERSION %'", false ) );
+		execute( new Command( "UPDATE DBVERSION SET SPEC = '1.1'", false ) ); // We need this because the column is made NOT NULL in the upgrade init block
 	}
 
 	static private void setConnection( Database database )
@@ -528,16 +605,14 @@ public class Patcher
 		}
 	}
 
+	// TODO This is caused by being a static class
 	static public void end()
 	{
 		closePatchFile();
 		if( database != null )
 			database.closeConnections();
 
-		// TODO More like these?
-		defaultDatabase = null;
-		database = null;
-		allDatabases = new HashMap< String, Database >();
+		initialize();
 	}
 
 	static protected void selectConnection( String name )
@@ -554,5 +629,10 @@ public class Patcher
 		String driver = connection.getDriver();
 		String url = connection.getUrl();
 		allDatabases.put( connection.getName(), new Database( driver != null ? driver : defaultDatabase.driverName, url != null ? url : defaultDatabase.url, connection.getUser().toLowerCase(), connection.getPassword() ) );
+	}
+
+	static public void connect()
+	{
+		defaultDatabase.getConnection();
 	}
 }

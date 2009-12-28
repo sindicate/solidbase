@@ -1,3 +1,4 @@
+--* ENCODING "ISO-8859-1"
 
 --* // Copyright 2006 René M. de Bloois
 
@@ -15,76 +16,53 @@
 
 --* // ========================================================================
 
---*	PATCHES
---*		PATCH "" --> "1.0.1"
---*		UPGRADE "1.0.1" --> "1.0.2"
---*		PATCH "1.0.1" --> "1.1.0"
---*		DOWNGRADE "1.1.0" --> "1.0.1"
---*	/PATCHES
 
 
-
-
+--*	DEFINITION
+--*		INIT "" --> "1.1"
+--*		UPGRADE "" --> "1.0.1"
+--*	/DEFINITION
 
 
 
 --* // ========================================================================
---* PATCH "" --> "1.0.1"
+--* INIT "" --> "1.1"
 --* // ========================================================================
 
 --* SET MESSAGE "    Creating table DBVERSION"
 
 CREATE TABLE DBVERSION
-( 
+(
+	SPEC VARCHAR,
 	VERSION VARCHAR, 
 	TARGET VARCHAR, 
 	STATEMENTS INTEGER NOT NULL 
 )
 GO
 
---* // The patch tool expects to be able to use the DBVERSION table after the *first* sql statement
-
 --* SET MESSAGE "    Creating table DBVERSIONLOG"
 
 CREATE TABLE DBVERSIONLOG
 (
-	ID INTEGER IDENTITY, -- An index might be needed here to let the identity perform
+	TYPE VARCHAR NOT NULL,
 	SOURCE VARCHAR,
 	TARGET VARCHAR NOT NULL,
-	STATEMENT VARCHAR NOT NULL,
+	STATEMENT INTEGER NOT NULL,
 	STAMP TIMESTAMP NOT NULL,
 	COMMAND VARCHAR,
 	RESULT VARCHAR
 )
 GO
 
---* // The existence of DBVERSIONLOG will automatically be detected at the end of this patch
-
---* /PATCH
-
-
-
-
-
-
-
---* UPGRADE "1.0.1" --> "1.0.2"
-
---* /UPGRADE
-
-
-
-
+--* /INIT
 
 
 
 --* // ========================================================================
---* PATCH "1.0.1" --> "1.1.0"
+--* UPGRADE "" --> "1.0.1"
 --* // ========================================================================
 
---* SELECT CONNECTION USER
-
---* // We need at least one sql without a message. This is a test too.
+--* SET MESSAGE "    Creating table USERS"
 
 CREATE TABLE USERS
 (
@@ -94,27 +72,14 @@ CREATE TABLE USERS
 )
 GO
 
---* SET MESSAGE "    Inserting admin users"
+--* SET MESSAGE "    Inserting admin user"
 
---*// Need to do three statements to test if the dots come on one line
-
-INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
-GO
-INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
-GO
-INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' )
 GO
 
---* /PATCH
+--* SET MESSAGE "    Inserting user"
 
---* // ========================================================================
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' )
+GO
 
-
-
-
-
-
-
---* DOWNGRADE "1.1.0" --> "1.0.1"
-
---* /DOWNGRADE
+--* /UPGRADE

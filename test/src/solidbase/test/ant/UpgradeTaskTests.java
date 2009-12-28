@@ -54,7 +54,7 @@ public class UpgradeTaskTests extends BuildFileTest
 		return this.logBuffer.toString();
 	}
 
-	@Test( groups = { "new" } )
+	@Test(groups="new")
 	public void testUpgradeTask()
 	{
 		configureProject( "test-upgradetask.xml" );
@@ -65,21 +65,32 @@ public class UpgradeTaskTests extends BuildFileTest
 				"\n" +
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
-				"Opening patchfile 'file:/.../testpatch-multiconnections.sql'\n" +
+				"Opening file 'file:/.../testpatch-multiconnections.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
-				"Patching to \"1.0.1\"\n" +
+				"Upgrading to \"1.0.1\"\n" +
 				"    Creating table DBVERSION.\n" +
 				"    Creating table DBVERSIONLOG.\n" +
-				"Patching \"1.0.1\" to \"1.0.2\"\n" +
-				".\n" + // This dot is on a new line, because there is a debug line in between. But I don't want to record that.
+				"Upgrading \"1.0.1\" to \"1.1.0\".\n" +
 				"    Inserting admin users...\n" +
-				"The database has been patched.\n" +
+				"The database is upgraded.\n" +
+				"\n" +
+				"Current database version is \"1.1.0\".\n" +
+				"SolidBase v1.5.x\n" +
+				"(C) 2006-2009 Rene M. de Bloois\n" +
+				"\n" +
+				"Connecting to database...\n" +
+				"Current database version is \"1.1.0\".\n" +
+				"Opening file 'file:/.../testpatch-multiconnections.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
+				"Upgrading \"1.1.0\" to \"1.0.1\"\n" +
+				"Upgrading \"1.0.1\" to \"1.0.2\"\n" +
+				"The database is upgraded.\n" +
 				"\n" +
 				"Current database version is \"1.0.2\".\n"
 		);
 	}
 
-	@Test( groups = { "new" } )
+	@Test
 	public void testUpgradeTaskBaseDir()
 	{
 		configureProject( "test-upgradetask.xml" );
@@ -90,15 +101,15 @@ public class UpgradeTaskTests extends BuildFileTest
 				"\n" +
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
-				"Opening patchfile 'X:\\...\\testpatch-basedir.sql'\n" +
+				"Opening file 'X:\\...\\testpatch-basedir.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
-				"Patching to \"1.0.1\"\n" +
+				"Upgrading to \"1.0.1\"\n" +
 				"    Creating table DBVERSION.\n" +
 				"    Creating table DBVERSIONLOG.\n" +
-				"Patching \"1.0.1\" to \"1.0.2\"\n" +
+				"Upgrading \"1.0.1\" to \"1.0.2\"\n" +
 				"    Creating table USERS.\n" +
 				"    Inserting admin user.\n" +
-				"The database has been patched.\n" +
+				"The database is upgraded.\n" +
 				"\n" +
 				"Current database version is \"1.0.2\".\n"
 		);

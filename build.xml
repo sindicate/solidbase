@@ -223,7 +223,7 @@
 		<fail>
 			<condition>
 				<resourcecount when="ne" count="8">
-					<fileset dir="${dist.home}" includes="build.xml,dbpatch-*-example.sql,hsqldb.jar,solidbase.jar,solidbase.properties" />
+					<fileset dir="${dist.home}" includes="build.xml,upgrade-*-example.sql,hsqldb.jar,solidbase.jar,solidbase.properties" />
 				</resourcecount>
 			</condition>
 		</fail>

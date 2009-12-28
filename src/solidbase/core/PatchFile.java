@@ -21,6 +21,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -39,19 +41,20 @@ public class PatchFile
 {
 	static protected final Pattern encodingPattern = Pattern.compile( "^--\\*[ \t]*ENCODING[ \t]+\"([^\"]*)\"[ \t]*$", Pattern.CASE_INSENSITIVE );
 
-	static protected final Pattern patchDefinitionMarkerPattern = Pattern.compile( "(INIT|PATCH|BRANCH|RETURN)[ \t]+.*", Pattern.CASE_INSENSITIVE );
-	static protected final Pattern patchDefinitionPattern = Pattern.compile( "(INIT|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
-	private static final String PATCH_DEFINITION_SYNTAX_ERROR = "Line should match the following syntax: (INIT|PATCH|BRANCH|RETURN) [OPEN] \"...\" --> \"...\"";
+	static protected final Pattern patchDefinitionMarkerPattern = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)[ \t]+.*", Pattern.CASE_INSENSITIVE );
+	static protected final Pattern patchDefinitionPattern = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
+	private static final String PATCH_DEFINITION_SYNTAX_ERROR = "Line should match the following syntax: (INIT|UPGRADE|SWITCH|DOWNGRADE) [OPEN] \"...\" --> \"...\"";
 
-	static protected final Pattern patchStartMarkerPattern = Pattern.compile( "--\\*[ \t]*(INIT|PATCH|BRANCH|RETURN).*", Pattern.CASE_INSENSITIVE );
-	static protected final Pattern patchStartPattern = Pattern.compile( "--\\*[ \t]*(INIT|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
-	static private final String PATCH_START_SYNTAX_ERROR = "Line should match the following syntax: (INIT|PATCH|BRANCH|RETURN) source=\"...\" target=\"...\"";
+	static protected final Pattern patchStartMarkerPattern = Pattern.compile( "--\\*[ \t]*(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN).*", Pattern.CASE_INSENSITIVE );
+	static protected final Pattern patchStartPattern = Pattern.compile( "--\\*[ \t]*(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
+	static private final String PATCH_START_SYNTAX_ERROR = "Line should match the following syntax: (INIT|UPGRADE|SWITCH|DOWNGRADE) \"...\" --> \"...\"";
 
-	static protected final Pattern patchEndPattern = Pattern.compile( "--\\* */(INIT|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
+	static protected final Pattern patchEndPattern = Pattern.compile( "--\\* */(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
 
 	static protected final Pattern goPattern = Pattern.compile( "GO *", Pattern.CASE_INSENSITIVE );
 
 	protected MultiValueMap patches = new MultiValueMap();
+	protected MultiValueMap inits = new MultiValueMap();
 	protected RandomAccessLineReader file;
 
 
@@ -108,12 +111,10 @@ public class PatchFile
 			{
 				Assert.isTrue( line.startsWith( "--*" ), "Line should start with --*" );
 				line = line.substring( 3 ).trim();
-				//					System.out.println( line );
-				if( line.equalsIgnoreCase( "PATCHES" ) )
+				if( line.equalsIgnoreCase( "DEFINITION" ) || line.equalsIgnoreCase( "PATCHES" ) )
 				{
-					Assert.isTrue( !withinDefinition, "Already within the definition" );
+					Assert.isFalse( withinDefinition, "Already within the definition" );
 					withinDefinition = true;
-					//					System.out.println( "start" );
 				}
 				else if( line.startsWith( "//" ) )
 				{
@@ -122,7 +123,6 @@ public class PatchFile
 				else if( patchDefinitionMarkerPattern.matcher( line ).matches() )
 				{
 					Assert.isTrue( withinDefinition, "Not within the definition" );
-					//						System.out.println( "patch" );
 
 					Matcher matcher = patchDefinitionPattern.matcher( line );
 					Assert.isTrue( matcher.matches(), PATCH_DEFINITION_SYNTAX_ERROR );
@@ -132,16 +132,18 @@ public class PatchFile
 					if( source.length() == 0 )
 						source = null;
 					String target = matcher.group( 4 );
-					boolean branch = "BRANCH".equalsIgnoreCase( action );
-					boolean returnBranch = "RETURN".equalsIgnoreCase( action );
 					boolean init = "INIT".equalsIgnoreCase( action );
-					Patch patch = new Patch( source, target, branch, returnBranch, open, init );
-					this.patches.put( source, patch );
+					boolean switsj = "SWITCH".equalsIgnoreCase( action ) || "BRANCH".equalsIgnoreCase( action ) || "RETURN".equalsIgnoreCase( action );
+					boolean downgrade = "DOWNGRADE".equalsIgnoreCase( action );
+					Patch patch = new Patch( source, target, switsj, open, init, downgrade );
+					if( init )
+						this.inits.put( source, patch );
+					else
+						this.patches.put( source, patch );
 				}
-				else if( line.equalsIgnoreCase( "/PATCHES" ) )
+				else if( line.equalsIgnoreCase( "/DEFINITION" ) || line.equalsIgnoreCase( "/PATCHES" ) )
 				{
 					Assert.isTrue( withinDefinition, "Not within the definition" );
-					//					System.out.println( "end" );
 					definitionComplete = true;
 				}
 				else
@@ -170,19 +172,26 @@ public class PatchFile
 				if( patchStartMarkerPattern.matcher( line ).matches() )
 				{
 					Matcher matcher = patchStartPattern.matcher( line );
-					Assert.isTrue( matcher.matches(), PATCH_START_SYNTAX_ERROR );
-					// String action = matcher.group( 1 );
+					Assert.isTrue( matcher.matches(), PATCH_START_SYNTAX_ERROR, pos );
+					String action = matcher.group( 1 );
 					String source = matcher.group( 2 );
-					if( source.length() == 0 )
-						source = null;
 					String target = matcher.group( 3 );
-					// boolean branch = "BRANCH".equalsIgnoreCase( action );
-					// boolean returnBranch = "RETURN".equalsIgnoreCase( action );
-					// boolean init = "INIT".equalsIgnoreCase( action );
+					boolean switsj = "SWITCH".equalsIgnoreCase( action ) || "BRANCH".equalsIgnoreCase( action ) || "RETURN".equalsIgnoreCase( action );
+					boolean downgrade = "DOWNGRADE".equalsIgnoreCase( action );
+					boolean init = "INIT".equalsIgnoreCase( action );
+					Patch patch;
+					if( init )
+					{
+						patch = getInitPatch( source.length() == 0 ? null : source, target );
+						Assert.isTrue( patch != null, "Undefined init block found: \"" + source + "\" --> \"" + target + "\"" );
+					}
+					else
+					{
+						patch = getPatch( source.length() == 0 ? null : source, target );
+						Assert.isTrue( patch != null, "Undefined upgrade block found: \"" + source + "\" --> \"" + target + "\"" );
+						Assert.isTrue( patch.switsj == switsj && patch.downgrade == downgrade, "Upgrade block type '" + action + "' is different from definition", pos );
+					}
 
-					Patch patch = getPatch( source, target );
-					Assert.isTrue( patch != null, "Patch block found for undefined patch: \"" + source + "\" --> \"" + target + "\"" );
-					// TODO Assert that action is the same, or remove this
 					patch.setPos( pos );
 				}
 			}
@@ -210,7 +219,26 @@ public class PatchFile
 				Patch patch = (Patch)iter.next();
 				if( patch.getTarget().equals( target ) )
 				{
-					Assert.isTrue( result == null, "Patch definitions are not unique" );
+					Assert.isTrue( result == null, "Duplicate upgrade block found", patch.getPos() );
+					result = patch;
+				}
+			}
+
+		return result;
+	}
+
+	protected Patch getInitPatch( String source, String target )
+	{
+		Patch result = null;
+
+		List patches = (List)this.inits.get( source );
+		if( patches != null )
+			for( Iterator iter = patches.iterator(); iter.hasNext(); )
+			{
+				Patch patch = (Patch)iter.next();
+				if( patch.getTarget().equals( target ) )
+				{
+					Assert.isTrue( result == null, "Duplicate init block found", patch.getPos() );
 					result = patch;
 				}
 			}
@@ -225,7 +253,7 @@ public class PatchFile
 	 * @param target
 	 * @return
 	 */
-	protected List getPatchPath( String source, String target )
+	protected List getPatchPath( String source, String target, boolean downgradeable )
 	{
 		// If equal than we are finished
 		// TODO Make source always not null?
@@ -241,20 +269,18 @@ public class PatchFile
 		}
 
 		// Start with all the patches that start with the given source
-		List patches = (List)this.patches.get( source );
+		List< Patch > patches = (List)this.patches.get( source );
 		if( patches == null )
 			return null;
 
 		Assert.isTrue( patches.size() > 0, "Not expecting an empty list" );
 
-		// Depth first no branches
-		for( Iterator iter = patches.iterator(); iter.hasNext(); )
-		{
-			Patch patch = (Patch)iter.next();
-			if( !patch.isBranch() )
+		// Depth first normal upgrades
+		for( Patch patch : patches )
+			if( patch.isUpgrade() )
 			{
 				// Recurse
-				List patches2 = getPatchPath( patch.getTarget(), target );
+				List patches2 = getPatchPath( patch.getTarget(), target, downgradeable );
 				if( patches2 != null )
 				{
 					// Found complete path
@@ -263,17 +289,15 @@ public class PatchFile
 					result.addAll( patches2 );
 					return result;
 				}
+				// Target not reached
 			}
-		}
 
-		// Branches
-		for( Iterator iter = patches.iterator(); iter.hasNext(); )
-		{
-			Patch patch = (Patch)iter.next();
-			if( patch.isBranch() )
+		// Depth first only switches
+		for( Patch patch : patches )
+			if( patch.isSwitch() )
 			{
-				// Try recursive through the branches
-				List patches2 = getPatchPath( patch.getTarget(), target );
+				// Recurse
+				List patches2 = getPatchPath( patch.getTarget(), target, downgradeable );
 				if( patches2 != null )
 				{
 					List result = new ArrayList();
@@ -281,9 +305,47 @@ public class PatchFile
 					result.addAll( patches2 );
 					return result;
 				}
+				// Target not reached
 			}
+
+		// Depth first only downgrades
+		if( downgradeable )
+			for( Patch patch : patches )
+				if( patch.isDowngrade() )
+				{
+					// Recurse
+					List patches2 = getPatchPath( patch.getTarget(), target, downgradeable );
+					if( patches2 != null )
+					{
+						List result = new ArrayList();
+						result.add( patch );
+						result.addAll( patches2 );
+						return result;
+					}
+					// Target not reached
+				}
+
+		return null;
+	}
+
+	protected List getInitPath( String source )
+	{
+		List< Patch > result = new ArrayList< Patch >();
+
+		// Not expecting branches
+
+		// Start with all the patches that start with the given source
+		List patches = (List)this.inits.get( source );
+		while( patches != null )
+		{
+			Assert.isTrue( patches.size() == 1, "Expecting exactly 1" );
+			Patch patch = (Patch)patches.get( 0 );
+			result.add( patch );
+			patches = (List)this.inits.get( patch.getTarget() );
 		}
 
+		if( result.size() > 0 )
+			return result;
 		return null;
 	}
 
@@ -296,43 +358,75 @@ public class PatchFile
 	 * @param prefix Only consider versions that start with the given prefix.
 	 * @param result All results are added to this set.
 	 */
-	protected void collectTargets( String version, String targeting, boolean tips, String prefix, Set< String > result )
+	protected void collectTargets( String version, String targeting, boolean tips, boolean downgrades, String prefix, Set< String > result )
 	{
 		Assert.notNull( result, "'result' must not be null" );
 
-		if( targeting == null && version != null && ( prefix == null || version.startsWith( prefix ) ) )
-			result.add( version );
+		collectReachableVersions( version, targeting, downgrades, result );
 
-		collectTargets0( version, targeting, tips, prefix, result );
+		if( prefix != null )
+			for( Iterator iterator = result.iterator(); iterator.hasNext(); )
+				if( !((String)iterator.next()).startsWith( prefix ) )
+					iterator.remove();
+
+		if( tips )
+			for( Iterator iterator = result.iterator(); iterator.hasNext(); )
+			{
+				String v = (String)iterator.next();
+				List< Patch > patches = (List)this.patches.get( v );
+				if( patches != null )
+					for( Patch patch : patches )
+						if( patch.isUpgrade() )
+							if( prefix == null || patch.getTarget().startsWith( prefix ) )
+								iterator.remove();
+			}
 	}
 
-	protected void collectTargets0( String version, String targeting, boolean tips, String prefix, Set< String > result )
+	protected LinkedHashSet< String > getReachableVersions( String version, String targeting, boolean downgrades )
 	{
-		Assert.notNull( result, "'result' must not be null" );
+		LinkedHashSet result = new LinkedHashSet();
+		collectReachableVersions( version, targeting, downgrades, result );
+		return result;
+	}
 
-		List patches = (List)this.patches.get( version );
+	protected void collectReachableVersions( String version, String targeting, boolean downgrades, Set< String > result )
+	{
+		if( targeting == null && version != null )
+			result.add( version );
+
+		List< Patch > patches = (List)this.patches.get( version ); // Get all patches with the given source
 		if( patches == null )
 			return;
-		Assert.isTrue( patches.size() > 0, "Not expecting an empty list" );
 
-		for( Iterator iter = patches.iterator(); iter.hasNext(); )
+		LinkedList< Patch > queue = new LinkedList();
+		if( targeting != null )
 		{
-			Patch patch = (Patch)iter.next();
+			for( Patch patch : patches )
+				if( targeting.equals( patch.getTarget() ) )
+					queue.push( patch );
+			Assert.isFalse( queue.isEmpty() );
+		}
+		else
+			queue.addAll( patches );
 
-			// When already targeting a specific version, ignore the rest.
-			if( targeting == null || targeting.equals( patch.getTarget() ) )
-			{
-				// Don't add targets that don't start with the given prefix.
-				if( prefix == null || patch.getTarget().startsWith( prefix ) )
+		while( !queue.isEmpty() )
+		{
+			Patch patch = queue.pop();
+			if( !result.contains( patch.getTarget() ) ) // Already there?
+				if( downgrades || !patch.isDowngrade() ) // Downgrades?
 				{
-					// Normal patch --> the source version is not a tip version. Remove it.
-					if( tips && !patch.isReturnBranch() )
-						result.remove( patch.getSource() );
 					result.add( patch.getTarget() );
+					if( !patch.isOpen() ) // Stop when patch is open.
+					{
+						patches = (List)this.patches.get( patch.getTarget() );
+						if( patches != null )
+						{
+							int size = patches.size();
+							while( size > 0 )
+								queue.push( patches.get( --size ) );
+						}
+					}
 				}
-				if( !patch.isOpen() )
-					collectTargets0( patch.getTarget(), null, tips, prefix, result ); // Recursively determine more patches
-			}
 		}
 	}
 
@@ -343,7 +437,7 @@ public class PatchFile
 	 */
 	protected void gotoPatch( Patch patch )
 	{
-		Assert.isTrue( patch.getPos() >= 0, "Patch block not found" );
+		Assert.isTrue( patch.getPos() >= 0, "Upgrade or init block not found" );
 
 		try
 		{

@@ -24,12 +24,6 @@ package solidbase.core;
  */
 public class SystemException extends RuntimeException
 {
-	// This constructor should not be used
-	protected SystemException()
-	{
-		super();
-	}
-
 	/**
 	 * 
 	 * @param message

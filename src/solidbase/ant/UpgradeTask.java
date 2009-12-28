@@ -21,8 +21,9 @@ public class UpgradeTask extends Task
 	protected String url;
 	protected String user;
 	protected String password;
-	protected String patchfile;
+	protected String upgradefile;
 	protected String target;
+	protected boolean downgradeallowed;
 
 	protected List< Connection > connections = new ArrayList< Connection >();
 
@@ -106,14 +107,14 @@ public class UpgradeTask extends Task
 		this.password = password;
 	}
 
-	public String getPatchfile()
+	public String getUpgradefile()
 	{
-		return this.patchfile;
+		return this.upgradefile;
 	}
 
-	public void setPatchfile( String patchfile )
+	public void setUpgradefile( String upgradefile )
 	{
-		this.patchfile = patchfile;
+		this.upgradefile = upgradefile;
 	}
 
 	public String getTarget()
@@ -124,6 +125,16 @@ public class UpgradeTask extends Task
 	public void setTarget( String target )
 	{
 		this.target = target;
+	}
+
+	public boolean isDowngradeallowed()
+	{
+		return this.downgradeallowed;
+	}
+
+	public void setDowngradeallowed( boolean downgradeallowed )
+	{
+		this.downgradeallowed = downgradeallowed;
 	}
 
 	public Connection createSecondary()
@@ -208,8 +219,8 @@ public class UpgradeTask extends Task
 			throw new BuildException( "The 'user' attribute is mandatory for the " + getTaskName() + " task" );
 		if( this.password == null )
 			throw new BuildException( "The 'password' attribute is mandatory for the " + getTaskName() + " task" );
-		if( this.patchfile == null )
-			throw new BuildException( "The 'patchfile' attribute is mandatory for the " + getTaskName() + " task" );
+		if( this.upgradefile == null )
+			throw new BuildException( "The 'upgradefile' attribute is mandatory for the " + getTaskName() + " task" );
 		if( this.target == null )
 			throw new BuildException( "The 'target' attribute is mandatory for the " + getTaskName() + " task" );
 
@@ -241,37 +252,44 @@ public class UpgradeTask extends Task
 		progress.info( "(C) 2006-2009 Rene M. de Bloois" );
 		progress.info( "" );
 
-		Patcher.setCallBack( progress );
-
-		Patcher.setDefaultConnection( new solidbase.core.Database( this.driver, this.url, this.user, this.password ) );
-
-		for( Connection connection : this.connections )
-			Patcher.addConnection( new solidbase.config.Connection( connection.getName(), connection.getDriver(), connection.getUrl(), connection.getUser(), connection.getPassword() ) );
-
-		progress.info( "Connecting to database..." );
-
-		progress.info( Main.getCurrentVersion() );
-
 		try
 		{
-			Patcher.openPatchFile( project.getBaseDir(), this.patchfile );
+			Patcher.setCallBack( progress );
+
+			Patcher.setDefaultConnection( new solidbase.core.Database( this.driver, this.url, this.user, this.password ) );
+
+			for( Connection connection : this.connections )
+				Patcher.addConnection( new solidbase.config.Connection( connection.getName(), connection.getDriver(), connection.getUrl(), connection.getUser(), connection.getPassword() ) );
+
+			progress.info( "Connecting to database..." );
+
+			progress.info( Main.getCurrentVersion() );
+
 			try
 			{
-				if( this.target != null )
-					Patcher.patch( this.target ); // TODO Print this target
-				else
-					throw new UnsupportedOperationException();
-				progress.info( "" );
-				progress.info( Main.getCurrentVersion() );
+				Patcher.openPatchFile( project.getBaseDir(), this.upgradefile );
+				try
+				{
+					if( this.target != null )
+						Patcher.patch( this.target, this.downgradeallowed ); // TODO Print this target
+					else
+						throw new UnsupportedOperationException();
+					progress.info( "" );
+					progress.info( Main.getCurrentVersion() );
+				}
+				finally
+				{
+					Patcher.closePatchFile();
+				}
 			}
-			finally
+			catch( SQLExecutionException e )
 			{
-				Patcher.closePatchFile();
+				throw new BuildException( e.getMessage() );
 			}
 		}
-		catch( SQLExecutionException e )
+		finally
 		{
-			throw new BuildException( e.getMessage() );
+			Patcher.end();
 		}
 	}
 }

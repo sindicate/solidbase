@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.test.core;
+package solidbase.test.downgrade;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -23,34 +23,46 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import solidbase.core.Database;
-import solidbase.core.TestUtil;
 import solidbase.core.Patcher;
+import solidbase.core.TestUtil;
+import solidbase.test.core.TestProgressListener;
 
-public class Import
+public class Downgrade
 {
 	@Test
-	public void testImport() throws IOException, SQLException
+	public void testDowngrade() throws IOException, SQLException
 	{
 		Patcher.end();
 
 		Patcher.setCallBack( new TestProgressListener() );
-		Database database = new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:import3", "sa", null );
-		Patcher.setDefaultConnection( database );
+		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:downgrade1", "sa", null ) );
 
-		Patcher.openPatchFile( "testpatch-import1.sql" );
+		Patcher.openPatchFile( "testpatch-downgrade-1.sql" );
 		try
 		{
 			Set< String > targets = Patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
-			Patcher.patch( "1.0.2" );
+			System.out.println( "Patching to 1.1.0" );
+			Patcher.patch( "1.1.0" );
+			TestUtil.verifyVersion( "1.1.0", null, 1, "1.1" );
+			TestUtil.verifyHistoryIncludes( "1.1.0" );
+
+			System.out.println( "Patching to 1.0.3" );
+			Patcher.patch( "1.0.3" );
+			// TODO Why don't we get an error here?
+			TestUtil.verifyVersion( "1.1.0", null, 1, "1.1" );
+
+			System.out.println( "Patching to 1.0.3" );
+			Patcher.patch( "1.0.3", true );
+			TestUtil.verifyVersion( "1.0.3", null, 1, "1.1" );
+			TestUtil.verifyHistoryIncludes( "1.0.2" );
+			TestUtil.verifyHistoryNotIncludes( "1.1.0" );
 		}
 		finally
 		{
 			Patcher.closePatchFile();
 		}
 
-		TestUtil.verifyVersion( "1.0.2", null, 4, null );
-		TestUtil.assertRecordCount( database, "TEMP", 4 );
 	}
 }

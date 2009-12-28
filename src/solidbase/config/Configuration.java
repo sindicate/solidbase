@@ -271,12 +271,12 @@ public class Configuration
 										{
 											String appDescription = this.properties.getProperty( databaseName + "." + appName + ".description" );
 											String userName = this.properties.getProperty( databaseName + "." + appName + ".user" );
-											String patchFile = this.properties.getProperty( databaseName + "." + appName + ".patchfile" );
+											String patchFile = this.properties.getProperty( databaseName + "." + appName + ".upgradefile" );
 
 											if( StringUtils.isBlank( appDescription ) )
 												appDescription = appName;
 											Assert.notBlank( userName, "'" + databaseName + "." + appName + ".user' not configured in " + DBPATCHER_PROPERTIES );
-											Assert.notBlank( patchFile, "'" + databaseName + "." + appName + ".patchfile' not configured in " + DBPATCHER_PROPERTIES );
+											Assert.notBlank( patchFile, "'" + databaseName + "." + appName + ".upgradefile' not configured in " + DBPATCHER_PROPERTIES );
 
 											database.addApplication( appName, appDescription, userName, null, patchFile, null );
 										}
@@ -287,10 +287,10 @@ public class Configuration
 									String appName = "default";
 									String appDescription = appName;
 									String userName = this.properties.getProperty( databaseName + ".user" );
-									String patchFile = this.properties.getProperty( databaseName + ".patchfile" );
+									String patchFile = this.properties.getProperty( databaseName + ".upgradefile" );
 
 									Assert.notBlank( userName, "'" + databaseName + ".user' not configured in " + DBPATCHER_PROPERTIES );
-									Assert.notBlank( patchFile, "'" + databaseName + ".patchfile' not configured in " + DBPATCHER_PROPERTIES );
+									Assert.notBlank( patchFile, "'" + databaseName + ".upgradefile' not configured in " + DBPATCHER_PROPERTIES );
 
 									database.addApplication( appName, appDescription, userName, null, patchFile, null );
 								}

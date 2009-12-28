@@ -106,4 +106,6 @@ GO
 
 --* /IF
 
+--* // No actual executed statement here. This is to test that DBVERSION.STATEMENTS becomes 3.
+
 --* /PATCH
