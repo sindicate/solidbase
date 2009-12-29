@@ -41,7 +41,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.sql.Connection;
-import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -569,11 +568,14 @@ public class DBVersion
 		{
 			Connection connection = this.database.getConnection();
 			PreparedStatement statement = connection.prepareStatement( sql );
-			ParameterMetaData meta = statement.getParameterMetaData();
 			int i = 1;
 			for( Object parameter : parameters )
 				if( parameter == null )
-					statement.setNull( i, meta.getParameterType( i++ ) ); // Derby 10.2 wants this
+					// Derby does not allow setObject(null), so we need to use setNull() with a type obtained from getParameterMetaData().
+					// But getParameterMetaData() is not supported by the Oracle JDBC driver.
+					// As we know that only character columns will be nullable, we choose to use setString() with a null.
+					// This works with Oracle and Derby alike. Maybe it even works with number columns.
+					statement.setString( i++, null );
 				else
 					statement.setObject( i++, parameter );
 			try
