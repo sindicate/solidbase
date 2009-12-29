@@ -456,6 +456,9 @@ public class Patcher
 								else
 									dbVersion.log( "S", patch.getSource(), patch.getTarget(), count, sql, (String)null );
 							}
+							else
+								if( sqlException != null )
+									throw sqlException;
 						}
 						Patcher.callBack.executed();
 					}
@@ -488,12 +491,7 @@ public class Patcher
 				}
 			}
 		}
-		catch( RuntimeException e )
-		{
-			dbVersion.log( patch.getSource(), patch.getTarget(), count, command == null ? null : command.getCommand(), e );
-			throw e;
-		}
-		catch( SQLException e )
+		catch( SQLException e ) // TODO This should not be around everything. Only around the real patch commands.
 		{
 			dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command == null ? null : command.getCommand(), e );
 			throw new SQLExecutionException( command, e );
