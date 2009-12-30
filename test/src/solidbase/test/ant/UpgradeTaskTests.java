@@ -126,26 +126,32 @@ public class UpgradeTaskTests extends BuildFileTest
 
 		public void buildStarted( BuildEvent event )
 		{
+			// Not needed
 		}
 
 		public void buildFinished( BuildEvent event )
 		{
+			// Not needed
 		}
 
 		public void targetStarted( BuildEvent event )
 		{
+			// Not needed
 		}
 
 		public void targetFinished( BuildEvent event )
 		{
+			// Not needed
 		}
 
 		public void taskStarted( BuildEvent event )
 		{
+			// Not needed
 		}
 
 		public void taskFinished( BuildEvent event )
 		{
+			// Not needed
 		}
 
 		public void messageLogged( BuildEvent event )

@@ -17,7 +17,6 @@
 package solidbase.core;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -41,55 +40,88 @@ import solidbase.core.Patch.Type;
  */
 public class PatchFile
 {
-	static protected final Pattern encodingPattern = Pattern.compile( "^--\\*[ \t]*ENCODING[ \t]+\"([^\"]*)\"[ \t]*$", Pattern.CASE_INSENSITIVE );
+	static private final Pattern encodingPattern = Pattern.compile( "^--\\*[ \t]*ENCODING[ \t]+\"([^\"]*)\"[ \t]*$", Pattern.CASE_INSENSITIVE );
 
-	static protected final Pattern patchDefinitionMarkerPattern = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)[ \t]+.*", Pattern.CASE_INSENSITIVE );
-	static protected final Pattern patchDefinitionPattern = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
-	private static final String PATCH_DEFINITION_SYNTAX_ERROR = "Line should match the following syntax: (INIT|UPGRADE|SWITCH|DOWNGRADE) [OPEN] \"...\" --> \"...\"";
+	static private final Pattern patchDefinitionMarkerPattern = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)[ \t]+.*", Pattern.CASE_INSENSITIVE );
+	static private final Pattern patchDefinitionPattern = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
+	static private final String PATCH_DEFINITION_SYNTAX_ERROR = "Line should match the following syntax: (INIT|UPGRADE|SWITCH|DOWNGRADE) [OPEN] \"...\" --> \"...\"";
 
-	static protected final Pattern patchStartMarkerPattern = Pattern.compile( "--\\*[ \t]*(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN).*", Pattern.CASE_INSENSITIVE );
-	static protected final Pattern patchStartPattern = Pattern.compile( "--\\*[ \t]*(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
+	static private final Pattern patchStartMarkerPattern = Pattern.compile( "--\\*[ \t]*(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN).*", Pattern.CASE_INSENSITIVE );
+	static private final Pattern patchStartPattern = Pattern.compile( "--\\*[ \t]*(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
 	static private final String PATCH_START_SYNTAX_ERROR = "Line should match the following syntax: (INIT|UPGRADE|SWITCH|DOWNGRADE) \"...\" --> \"...\"";
 
-	static protected final Pattern patchEndPattern = Pattern.compile( "--\\* */(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
+	static private final Pattern patchEndPattern = Pattern.compile( "--\\* */(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
 
-	static protected final Pattern goPattern = Pattern.compile( "GO *", Pattern.CASE_INSENSITIVE );
+	static private final Pattern goPattern = Pattern.compile( "GO *", Pattern.CASE_INSENSITIVE );
 
+	/**
+	 * All normal patches in a map indexed by source version.
+	 */
 	protected MultiValueMap patches = new MultiValueMap();
+
+	/**
+	 * All init patches in a map indexed by source version.
+	 */
 	protected MultiValueMap inits = new MultiValueMap();
+
+	/**
+	 * The underlying file.
+	 */
 	protected RandomAccessLineReader file;
 
 
-	protected PatchFile( RandomAccessLineReader file ) throws IOException
+	/**
+	 * Creates an new instance of a patch file.
+	 * 
+	 * @param file The reader which is used to read the contents of the file.
+	 */
+	protected PatchFile( RandomAccessLineReader file )
 	{
 		this.file = file;
 
-		String line = file.readLine();
-		//System.out.println( "First line [" + line + "]" );
-		StringBuilder s = new StringBuilder();
-		char[] chars = line.toCharArray();
-		for( char c : chars )
-			if( c != 0 )
-				s.append( c );
-
-		line = s.toString();
-		//System.out.println( "First line (fixed) [" + line + "]" );
-		Matcher matcher = encodingPattern.matcher( line );
-		if( matcher.matches() )
+		try
 		{
-			file.reOpen( matcher.group( 1 ) );
-			file.readLine(); // skip the first line
+			String line = file.readLine();
+			//System.out.println( "First line [" + line + "]" );
+			StringBuilder s = new StringBuilder();
+			char[] chars = line.toCharArray();
+			for( char c : chars )
+				if( c != 0 )
+					s.append( c );
+
+			line = s.toString();
+			//System.out.println( "First line (fixed) [" + line + "]" );
+			Matcher matcher = encodingPattern.matcher( line );
+			if( matcher.matches() )
+			{
+				file.reOpen( matcher.group( 1 ) );
+				file.readLine(); // skip the first line
+			}
+			else
+				file.gotoLine( 1 );
 		}
-		else
-			file.gotoLine( 1 );
+		catch( IOException e )
+		{
+			throw new SystemException( e );
+		}
 	}
 
 
-	protected void close() throws IOException
+	/**
+	 * Close the patch file. This will also close the underlying file.
+	 */
+	protected void close()
 	{
 		if( this.file != null )
 		{
-			this.file.close();
+			try
+			{
+				this.file.close();
+			}
+			catch( IOException e )
+			{
+				throw new SystemException( e );
+			}
 			this.file = null;
 		}
 	}
@@ -97,16 +129,22 @@ public class PatchFile
 
 	/**
 	 * Reads and analyzes the patch file. The result is that the patches map is filled with the available patches.
-	 * 
-	 * @throws IOException
 	 */
-	protected void read() throws IOException
+	protected void read()
 	{
 		boolean withinDefinition = false;
 		boolean definitionComplete = false;
 		while( !definitionComplete )
 		{
-			String line = this.file.readLine();
+			String line;
+			try
+			{
+				line = this.file.readLine();
+			}
+			catch( IOException e )
+			{
+				throw new SystemException( e );
+			}
 			Assert.isTrue( line != null, "End-of-file found before reading a complete definition" );
 
 			if( line.trim().length() > 0 )
@@ -155,6 +193,12 @@ public class PatchFile
 	}
 
 
+	/**
+	 * Translates a patch type string to a type enum.
+	 * 
+	 * @param type A patch type string.
+	 * @return The corresponding type enum.
+	 */
 	protected Type stringToType( String type )
 	{
 		if( "UPGRADE".equalsIgnoreCase( type ) || "PATCH".equalsIgnoreCase( type ) )
@@ -169,55 +213,60 @@ public class PatchFile
 		return null;
 	}
 
+
 	/**
 	 * Scans for patches in the file. Called by {@link #read()}.
-	 * 
-	 * @throws IOException
 	 */
-	protected void scan() throws IOException
+	protected void scan()
 	{
-		int pos = this.file.getLineNumber();
-		String line = this.file.readLine();
-
-		while( line != null )
+		try
 		{
-			if( line.startsWith( "--*" ) )
+			String line = this.file.readLine();
+			while( line != null )
 			{
-				if( patchStartMarkerPattern.matcher( line ).matches() )
+				if( line.startsWith( "--*" ) )
 				{
-					Matcher matcher = patchStartPattern.matcher( line );
-					Assert.isTrue( matcher.matches(), PATCH_START_SYNTAX_ERROR, pos );
-					String action = matcher.group( 1 );
-					String source = matcher.group( 2 );
-					String target = matcher.group( 3 );
-					Type type = stringToType( action );
-					Patch patch;
-					if( type == Type.INIT )
+					if( patchStartMarkerPattern.matcher( line ).matches() )
 					{
-						patch = getInitPatch( source.length() == 0 ? null : source, target );
-						Assert.isTrue( patch != null, "Undefined init block found: \"" + source + "\" --> \"" + target + "\"" );
+						int pos = this.file.getLineNumber() - 1;
+						Matcher matcher = patchStartPattern.matcher( line );
+						Assert.isTrue( matcher.matches(), PATCH_START_SYNTAX_ERROR, pos );
+						String action = matcher.group( 1 );
+						String source = matcher.group( 2 );
+						String target = matcher.group( 3 );
+						Type type = stringToType( action );
+						Patch patch;
+						if( type == Type.INIT )
+						{
+							patch = getInitPatch( source.length() == 0 ? null : source, target );
+							Assert.isTrue( patch != null, "Undefined init block found: \"" + source + "\" --> \"" + target + "\"" );
+						}
+						else
+						{
+							patch = getPatch( source.length() == 0 ? null : source, target );
+							Assert.isTrue( patch != null, "Undefined upgrade block found: \"" + source + "\" --> \"" + target + "\"" );
+							Assert.isTrue( patch.getType() == type, "Upgrade block type '" + action + "' is different from definition", pos );
+						}
+						patch.setLineNumber( pos );
 					}
-					else
-					{
-						patch = getPatch( source.length() == 0 ? null : source, target );
-						Assert.isTrue( patch != null, "Undefined upgrade block found: \"" + source + "\" --> \"" + target + "\"" );
-						Assert.isTrue( patch.getType() == type, "Upgrade block type '" + action + "' is different from definition", pos );
-					}
-					patch.setPos( pos );
 				}
-			}
 
-			pos = this.file.getLineNumber();
-			line = this.file.readLine();
+				line = this.file.readLine();
+			}
+		}
+		catch( IOException e )
+		{
+			throw new SystemException( e );
 		}
 	}
 
+
 	/**
-	 * Returns the patch belonging to the specified source and target. Also check for duplicates.
+	 * Returns the patch belonging to the specified source and target. Also checks for duplicates.
 	 * 
-	 * @param source
-	 * @param target
-	 * @return
+	 * @param source The source version.
+	 * @param target The target version.
+	 * @return The corresponding patch.
 	 */
 	protected Patch getPatch( String source, String target )
 	{
@@ -230,7 +279,7 @@ public class PatchFile
 				Patch patch = (Patch)iter.next();
 				if( patch.getTarget().equals( target ) )
 				{
-					Assert.isTrue( result == null, "Duplicate upgrade block found", patch.getPos() );
+					Assert.isTrue( result == null, "Duplicate upgrade block found", patch.getLineNumber() );
 					result = patch;
 				}
 			}
@@ -238,6 +287,14 @@ public class PatchFile
 		return result;
 	}
 
+
+	/**
+	 * Returns the patch belonging to the specified source and target. Also checks for duplicates.
+	 * 
+	 * @param source The source version.
+	 * @param target The target version.
+	 * @return The corresponding patch.
+	 */
 	protected Patch getInitPatch( String source, String target )
 	{
 		Patch result = null;
@@ -249,7 +306,7 @@ public class PatchFile
 				Patch patch = (Patch)iter.next();
 				if( patch.getTarget().equals( target ) )
 				{
-					Assert.isTrue( result == null, "Duplicate init block found", patch.getPos() );
+					Assert.isTrue( result == null, "Duplicate init block found", patch.getLineNumber() );
 					result = patch;
 				}
 			}
@@ -257,14 +314,16 @@ public class PatchFile
 		return result;
 	}
 
+
 	/**
 	 * Returns a patch path for the specified source and target.
 	 * 
-	 * @param source
-	 * @param target
-	 * @return
+	 * @param source The source version.
+	 * @param target The target version.
+	 * @param downgradesAllowed Allow downgrades in the resulting path.
+	 * @return A list of patches that correspond to the given source and target versions.
 	 */
-	protected List getPatchPath( String source, String target, boolean downgradeable )
+	protected List getPatchPath( String source, String target, boolean downgradesAllowed )
 	{
 		// If equal than we are finished
 		// TODO Make source always not null?
@@ -291,7 +350,7 @@ public class PatchFile
 			if( patch.isUpgrade() )
 			{
 				// Recurse
-				List patches2 = getPatchPath( patch.getTarget(), target, downgradeable );
+				List patches2 = getPatchPath( patch.getTarget(), target, downgradesAllowed );
 				if( patches2 != null )
 				{
 					// Found complete path
@@ -308,7 +367,7 @@ public class PatchFile
 			if( patch.isSwitch() )
 			{
 				// Recurse
-				List patches2 = getPatchPath( patch.getTarget(), target, downgradeable );
+				List patches2 = getPatchPath( patch.getTarget(), target, downgradesAllowed );
 				if( patches2 != null )
 				{
 					List result = new ArrayList();
@@ -320,12 +379,12 @@ public class PatchFile
 			}
 
 		// Depth first only downgrades
-		if( downgradeable )
+		if( downgradesAllowed )
 			for( Patch patch : patches )
 				if( patch.isDowngrade() )
 				{
 					// Recurse
-					List patches2 = getPatchPath( patch.getTarget(), target, downgradeable );
+					List patches2 = getPatchPath( patch.getTarget(), target, downgradesAllowed );
 					if( patches2 != null )
 					{
 						List result = new ArrayList();
@@ -339,6 +398,13 @@ public class PatchFile
 		return null;
 	}
 
+
+	/**
+	 * Returns an init patch path for the specified source. As initialization is always done to the latest version, no target is needed.
+	 * 
+	 * @param source The source version.
+	 * @return A list of init patches that correspond to the given source.
+	 */
 	protected List getInitPath( String source )
 	{
 		List< Patch > result = new ArrayList< Patch >();
@@ -360,20 +426,22 @@ public class PatchFile
 		return null;
 	}
 
+
 	/**
 	 * Determines all possible target versions from the specified source version. The current version is also considered.
 	 * 
 	 * @param version Current version.
-	 * @param targeting Specifies the direction that has been initiated.
-	 * @param tips Only return tip version.
+	 * @param targeting Indicates that we are already targeting a specific version.
+	 * @param tips Only return tip versions.
+	 * @param downgradesAllowed Allow downgrades.
 	 * @param prefix Only consider versions that start with the given prefix.
 	 * @param result All results are added to this set.
 	 */
-	protected void collectTargets( String version, String targeting, boolean tips, boolean downgrades, String prefix, Set< String > result )
+	protected void collectTargets( String version, String targeting, boolean tips, boolean downgradesAllowed, String prefix, Set< String > result )
 	{
 		Assert.notNull( result, "'result' must not be null" );
 
-		collectReachableVersions( version, targeting, downgrades, result );
+		collectReachableVersions( version, targeting, downgradesAllowed, result );
 
 		if( prefix != null )
 			for( Iterator iterator = result.iterator(); iterator.hasNext(); )
@@ -393,19 +461,37 @@ public class PatchFile
 			}
 	}
 
-	protected LinkedHashSet< String > getReachableVersions( String version, String targeting, boolean downgrades )
+
+	/**
+	 * Gets all versions that are reachable from the given source version.
+	 * 
+	 * @param source The source version.
+	 * @param targeting Indicates that we are already targeting a specific version.
+	 * @param downgradesAllowed Allow downgrades.
+	 * @return Returns an ordered set of versions that are reachable from the given source version.
+	 */
+	protected LinkedHashSet< String > getReachableVersions( String source, String targeting, boolean downgradesAllowed )
 	{
 		LinkedHashSet result = new LinkedHashSet();
-		collectReachableVersions( version, targeting, downgrades, result );
+		collectReachableVersions( source, targeting, downgradesAllowed, result );
 		return result;
 	}
 
-	protected void collectReachableVersions( String version, String targeting, boolean downgrades, Set< String > result )
-	{
-		if( targeting == null && version != null )
-			result.add( version );
 
-		List< Patch > patches = (List)this.patches.get( version ); // Get all patches with the given source
+	/**
+	 * Retrieves all versions that are reachable from the given source version.
+	 * 
+	 * @param source The source version.
+	 * @param targeting Already targeting a specific version.
+	 * @param downgradesAllowed Allow downgrades.
+	 * @param result This set gets filled with all versions that are reachable from the given source version.
+	 */
+	protected void collectReachableVersions( String source, String targeting, boolean downgradesAllowed, Set< String > result )
+	{
+		if( targeting == null && source != null )
+			result.add( source );
+
+		List< Patch > patches = (List)this.patches.get( source ); // Get all patches with the given source
 		if( patches == null )
 			return;
 
@@ -424,7 +510,7 @@ public class PatchFile
 		{
 			Patch patch = queue.pop();
 			if( !result.contains( patch.getTarget() ) ) // Already there?
-				if( downgrades || !patch.isDowngrade() ) // Downgrades?
+				if( downgradesAllowed || !patch.isDowngrade() ) // Downgrades?
 				{
 					result.add( patch.getTarget() );
 					if( !patch.isOpen() ) // Stop when patch is open.
@@ -444,15 +530,15 @@ public class PatchFile
 	/**
 	 * Jump to the position in the patch file where the given patch starts.
 	 * 
-	 * @param patch
+	 * @param patch The patch to jump to.
 	 */
 	protected void gotoPatch( Patch patch )
 	{
-		Assert.isTrue( patch.getPos() >= 0, "Upgrade or init block not found" );
+		Assert.isTrue( patch.getLineNumber() >= 0, "Upgrade or init block not found" );
 
 		try
 		{
-			this.file.gotoLine( patch.getPos() );
+			this.file.gotoLine( patch.getLineNumber() );
 			String line = this.file.readLine();
 			//			System.out.println( line );
 			Assert.isTrue( patchStartMarkerPattern.matcher( line ).matches() );
@@ -464,10 +550,9 @@ public class PatchFile
 	}
 
 	/**
-	 * Reads a statement from the patch file or null when no more statements are available in the current patch.
+	 * Reads a statement from the patch file.
 	 * 
-	 * @return
-	 * @throws UnsupportedEncodingException
+	 * @return A statement from the patch file or null when no more statements are available.
 	 */
 	protected Command readStatement()
 	{
@@ -529,6 +614,11 @@ public class PatchFile
 	}
 
 
+	/**
+	 * Gets the encoding of the patch file.
+	 * 
+	 * @return The encoding of the patch file.
+	 */
 	public String getEncoding()
 	{
 		return this.file.getEncoding();

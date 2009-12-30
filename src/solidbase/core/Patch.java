@@ -25,27 +25,76 @@ package solidbase.core;
  */
 public class Patch
 {
-	public enum Type { INIT, UPGRADE, SWITCH, DOWNGRADE };
+	/**
+	 * The possible types of a patch.
+	 */
+	public enum Type
+	{
+		/**
+		 * An init patch is used to create or maintain the DBVERSION and DBVERSIONLOG tables.
+		 */
+		INIT,
+		/**
+		 * An upgrade patch is used to upgrade the database.
+		 */
+		UPGRADE,
+		/**
+		 * A switch patch is used to switch between upgrade paths (branches).
+		 */
+		SWITCH,
+		/**
+		 * A downgrade patch is used during development to downgrade the database. For example, this makes it possible
+		 * to switch back to a previous stable branch.
+		 */
+		DOWNGRADE
+	}
 
+	/**
+	 * The type of this patch.
+	 */
 	protected Type type;
-	protected String source;
-	protected String target;
-	protected boolean open;
-	protected int pos;
 
+	/**
+	 * The source version of this patch.
+	 */
+	protected String source;
+
+	/**
+	 * The target version of this patch.
+	 */
+	protected String target;
+
+	/**
+	 * Is this patch open (unfinished).
+	 */
+	protected boolean open;
+
+	/**
+	 * The line number of this patch.
+	 */
+	protected int lineNumber;
+
+	/**
+	 * Constructs a new patch.
+	 * 
+	 * @param type The type of the patch.
+	 * @param source The source version of this patch.
+	 * @param target The target version of this patch.
+	 * @param open Is this patch open (unfinished).
+	 */
 	protected Patch( Type type, String source, String target, boolean open )
 	{
 		this.type = type;
 		this.source = source;
 		this.target = target;
 		this.open = open;
-		this.pos = -1;
+		this.lineNumber = -1;
 	}
 
 	/**
-	 * Is this patch a branch.
+	 * Is this patch a switch.
 	 * 
-	 * @return
+	 * @return True if this patch is a switch, false otherwise.
 	 */
 	protected boolean isSwitch()
 	{
@@ -55,7 +104,7 @@ public class Patch
 	/**
 	 * Gets the source version.
 	 * 
-	 * @return
+	 * @return The source version.
 	 */
 	public String getSource()
 	{
@@ -65,7 +114,7 @@ public class Patch
 	/**
 	 * Gets the target version.
 	 * 
-	 * @return
+	 * @return The target version.
 	 */
 	public String getTarget()
 	{
@@ -73,29 +122,29 @@ public class Patch
 	}
 
 	/**
-	 * Sets the byte position in the file for this patch.
+	 * Sets the line number in the file for this patch.
 	 * 
-	 * @param pos
+	 * @param lineNumber The line number.
 	 */
-	protected void setPos( int pos )
+	protected void setLineNumber( int lineNumber )
 	{
-		this.pos = pos;
+		this.lineNumber = lineNumber;
 	}
 
 	/**
-	 * Gets the byte position in the file for this patch.
+	 * Gets the line number in the file for this patch.
 	 * 
-	 * @return
+	 * @return The line number in the file for this patch.
 	 */
-	protected int getPos()
+	protected int getLineNumber()
 	{
-		return this.pos;
+		return this.lineNumber;
 	}
 
 	/**
 	 * Is this patch open.
 	 * 
-	 * @return
+	 * @return True if this patch is open (unfinished), false otherwise.
 	 */
 	protected boolean isOpen()
 	{
@@ -103,9 +152,9 @@ public class Patch
 	}
 
 	/**
-	 * Is this the init patch.
+	 * Is this an init patch.
 	 * 
-	 * @return
+	 * @return True if this patch is an init patch, false otherwise.
 	 */
 	protected boolean isInit()
 	{
@@ -113,15 +162,20 @@ public class Patch
 	}
 
 	/**
-	 * Is this a downgrade.
+	 * Is this a downgrade patch.
 	 * 
-	 * @return
+	 * @return True if this patch is a downgrade patch, false otherwise.
 	 */
 	protected boolean isDowngrade()
 	{
 		return this.type == Type.DOWNGRADE;
 	}
 
+	/**
+	 * Is this patch is normal upgrade patch?
+	 * 
+	 * @return True if this patch is a normal upgrade patch, false otherwise.
+	 */
 	protected boolean isUpgrade()
 	{
 		return this.type == Type.UPGRADE;
@@ -133,6 +187,11 @@ public class Patch
 		return "patch(source:" + this.source + ", target:" + this.target + ", open:" + this.open + ")";
 	}
 
+	/**
+	 * Returns the type of this patch.
+	 * 
+	 * @return The type of this patch.
+	 */
 	public Type getType()
 	{
 		return this.type;
