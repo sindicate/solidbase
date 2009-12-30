@@ -43,7 +43,7 @@ public class OracleDBMSOutputPoller extends CommandListener
 	@Override
 	protected boolean execute( Database database, Command command ) throws SQLException
 	{
-		if( command.isNonRepeatable() )
+		if( command.isPersistent() )
 			return false;
 
 		Matcher matcher = enablePattern.matcher( command.getCommand() );

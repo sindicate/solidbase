@@ -327,7 +327,7 @@ public class Patcher
 	// count == 0 --> non counting
 	static protected void execute( Patch patch, Command command, int count ) throws SQLExecutionException
 	{
-		Assert.isTrue( command.isNonRepeatable() );
+		Assert.isTrue( command.isPersistent() );
 
 		String sql = command.getCommand();
 		if( sql.length() > 0 )
@@ -412,7 +412,7 @@ public class Patcher
 		{
 			String sql = command.getCommand();
 
-			if( command.isRepeatable() ) // TODO Rename to isDBPatcherCommand
+			if( command.isTransient() )
 			{
 				boolean done = false;
 				for( Iterator iter = listeners.iterator(); iter.hasNext(); )
