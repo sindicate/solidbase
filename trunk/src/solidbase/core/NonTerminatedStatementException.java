@@ -21,5 +21,6 @@ public class NonTerminatedStatementException extends RuntimeException
 {
 	public NonTerminatedStatementException()
 	{
+		super();
 	}
 }

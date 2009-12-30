@@ -145,11 +145,6 @@ public class Patcher
 				patchFile.close();
 				throw e;
 			}
-			catch( IOException e )
-			{
-				patchFile.close();
-				throw e;
-			}
 		}
 		catch( IOException e )
 		{
@@ -160,16 +155,7 @@ public class Patcher
 	static public void closePatchFile()
 	{
 		if( patchFile != null )
-		{
-			try
-			{
-				patchFile.close();
-			}
-			catch( IOException e )
-			{
-				throw new SystemException( e );
-			}
-		}
+			patchFile.close();
 		patchFile = null;
 	}
 
