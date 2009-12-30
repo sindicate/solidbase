@@ -40,7 +40,7 @@ public class SQLExecutionException extends SQLException
 	@Override
 	public String getMessage()
 	{
-		return this.sqlException.getMessage() + "\nSQLState: " + this.sqlException.getSQLState() + "\nWhile executing: " + this.command.getCommand();
+		return this.sqlException.getMessage() + "\nSQLState: " + this.sqlException.getSQLState() + "\nWhile executing line " + this.command.getLineNumber() + ": " + this.command.getCommand();
 	}
 
 	@Override

@@ -479,7 +479,7 @@ public class Patcher
 					Patcher.callBack.executing( command, startMessage );
 					startMessage = null;
 					if( sql.trim().equalsIgnoreCase( "UPGRADE" ) )
-						upgrade( patch );
+						upgrade( patch, command );
 					else
 						execute( patch, command, count );
 					Patcher.callBack.executed();
@@ -514,14 +514,15 @@ public class Patcher
 		}
 	}
 
-	static private void upgrade( Patch patch ) throws SQLExecutionException
+	static private void upgrade( Patch patch, Command command ) throws SQLExecutionException
 	{
 		Assert.isFalse( !patch.isInit(), "UPGRADE only allowed in INIT blocks" );
 		Assert.isTrue( patch.getSource().equals( "1.0" ) && patch.getTarget().equals( "1.1" ), "UPGRADE only possible from spec 1.0 to 1.1" );
 
-		execute( patch, new Command( "UPDATE DBVERSIONLOG SET TYPE = 'S' WHERE RESULT IS NULL OR RESULT NOT LIKE 'COMPLETED VERSION %'", false ), 0 );
-		execute( patch, new Command( "UPDATE DBVERSIONLOG SET TYPE = 'B', RESULT = 'COMPLETE' WHERE RESULT LIKE 'COMPLETED VERSION %'", false ), 0 );
-		execute( patch, new Command( "UPDATE DBVERSION SET SPEC = '1.1'", false ), 0 ); // We need this because the column is made NOT NULL in the upgrade init block
+		int pos = command.getLineNumber();
+		execute( patch, new Command( "UPDATE DBVERSIONLOG SET TYPE = 'S' WHERE RESULT IS NULL OR RESULT NOT LIKE 'COMPLETED VERSION %'", false, pos ), 0 );
+		execute( patch, new Command( "UPDATE DBVERSIONLOG SET TYPE = 'B', RESULT = 'COMPLETE' WHERE RESULT LIKE 'COMPLETED VERSION %'", false, pos ), 0 );
+		execute( patch, new Command( "UPDATE DBVERSION SET SPEC = '1.1'", false, pos ), 0 ); // We need this because the column is made NOT NULL in the upgrade init block
 	}
 
 	static private void setConnection( Database database )
