@@ -51,7 +51,7 @@ public class ImportCSVListener extends CommandListener
 	@Override
 	protected boolean execute( Database database, Command command ) throws SQLException
 	{
-		if( command.isRepeatable() )
+		if( command.isTransient() )
 			return false;
 
 		Matcher matcher = importPattern.matcher( command.getCommand() );

@@ -46,7 +46,7 @@ public class AssertCommandExecuter extends CommandListener
 	@Override
 	protected boolean execute( Database database, Command command ) throws SQLException
 	{
-		if( command.isRepeatable() )
+		if( command.isTransient() )
 			return false;
 
 		Matcher matcher = assertPattern.matcher( command.getCommand() );

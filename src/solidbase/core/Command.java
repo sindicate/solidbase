@@ -33,7 +33,7 @@ package solidbase.core;
 public class Command
 {
 	protected String command;
-	protected boolean repeatable;
+	protected boolean isTransient;
 	protected int lineNumber;
 
 	/**
@@ -42,32 +42,32 @@ public class Command
 	 * @param command The text of the command.
 	 * @param repeatable The repeatability of the command.
 	 */
-	protected Command( String command, boolean repeatable, int lineNumber )
+	protected Command( String command, boolean isTransient, int lineNumber )
 	{
 		Assert.isTrue( lineNumber > 0 );
 		this.command = command;
-		this.repeatable = repeatable;
+		this.isTransient = isTransient;
 		this.lineNumber = lineNumber;
 	}
 
 	/**
-	 * Indicates if the command is repeatable or not.
+	 * Indicates if the command is transient or not.
 	 * 
-	 * @return true if the command is repeatable, false otherwise.
+	 * @return true if the command is transient, false otherwise.
 	 */
-	public boolean isRepeatable()
+	public boolean isTransient()
 	{
-		return this.repeatable;
+		return this.isTransient;
 	}
 
 	/**
-	 * Indicates if the command is repeatable or not.
+	 * Indicates if the command is persistent or not.
 	 * 
-	 * @return true if the command is non-repeatable, false otherwise.
+	 * @return true if the command is persistent, false otherwise.
 	 */
-	public boolean isNonRepeatable() // TODO Rename to isDatabaseCommand
+	public boolean isPersistent()
 	{
-		return !this.repeatable;
+		return !this.isTransient;
 	}
 
 	/**

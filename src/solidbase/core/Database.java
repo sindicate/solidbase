@@ -129,7 +129,7 @@ public class Database
 	}
 
 	/**
-	 * Gets a connection for the default user from the cache. If a connection for the default user is not found in the cache, this method will
+	 * Gets a connection for the current user from the cache. If a connection for this user is not found in the cache, this method will
 	 * request a password by calling the method {@link ProgressListener#requestPassword(String)} of {@link Patcher#callBack}. The connection is cached for later use.
 	 *
 	 * @return the connection.
