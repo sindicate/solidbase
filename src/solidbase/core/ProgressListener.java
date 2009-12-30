@@ -41,7 +41,7 @@ public class ProgressListener
 		// could be implemented in subclass
 	}
 
-	protected void patchStarting( String source, String target )
+	protected void patchStarting( Patch patch )
 	{
 		// could be implemented in subclass
 	}

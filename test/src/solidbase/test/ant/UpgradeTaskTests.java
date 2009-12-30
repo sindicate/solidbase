@@ -82,7 +82,7 @@ public class UpgradeTaskTests extends BuildFileTest
 				"Current database version is \"1.1.0\".\n" +
 				"Opening file 'file:/.../testpatch-multiconnections.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
-				"Upgrading \"1.1.0\" to \"1.0.1\"\n" +
+				"Downgrading \"1.1.0\" to \"1.0.1\"\n" +
 				"Upgrading \"1.0.1\" to \"1.0.2\"\n" +
 				"The database is upgraded.\n" +
 				"\n" +

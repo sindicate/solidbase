@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 import solidbase.core.Patch;
 import solidbase.core.PatchFile;
 import solidbase.core.Patcher;
+import solidbase.core.Patch.Type;
 import solidbase.test.core.TestProgressListener;
 
 public class PatchFileTests
@@ -40,19 +41,19 @@ public class PatchFileTests
 		PatchFile patchFile = Patcher.patchFile;
 
 		Map< String, Patch > patches = patchFile.patches;
-		patches.put( "1.1", new Patch( "1.1", "1.2", false, false, false, false ) );
-		patches.put( "1.2", new Patch( "1.2", "1.3", false, false, false, false ) );
-		patches.put( "1.3", new Patch( "1.3", "1.4", true, false, false, false ) );
-		patches.put( "1.3", new Patch( "1.3", "2.1", false, false, false, false ) );
-		patches.put( "1.4", new Patch( "1.4", "1.5", false, false, false, false ) );
-		patches.put( "1.5", new Patch( "1.5", "2.1", true, false, false, false ) );
-		patches.put( "2.1", new Patch( "2.1", "2.2", false, false, false, false ) );
-		patches.put( "2.2", new Patch( "2.2", "2.3", false, false, false, false ) );
-		patches.put( "2.3", new Patch( "2.3", "2.4", true, false, false, false ) );
-		patches.put( "2.3", new Patch( "2.3", "3.1", false, false, false, false ) );
-		patches.put( "2.4", new Patch( "2.4", "2.5", false, false, false, false ) );
-		patches.put( "2.5", new Patch( "2.5", "3.1", true, false, false, false ) );
-		patches.put( "3.1", new Patch( "3.1", "3.2", false, false, false, false ) );
+		patches.put( "1.1", new Patch( Type.UPGRADE, "1.1", "1.2", false ) );
+		patches.put( "1.2", new Patch( Type.UPGRADE, "1.2", "1.3", false ) );
+		patches.put( "1.3", new Patch( Type.SWITCH, "1.3", "1.4", false ) );
+		patches.put( "1.3", new Patch( Type.UPGRADE, "1.3", "2.1", false ) );
+		patches.put( "1.4", new Patch( Type.UPGRADE, "1.4", "1.5", false ) );
+		patches.put( "1.5", new Patch( Type.SWITCH, "1.5", "2.1", false ) );
+		patches.put( "2.1", new Patch( Type.UPGRADE, "2.1", "2.2", false ) );
+		patches.put( "2.2", new Patch( Type.UPGRADE, "2.2", "2.3", false ) );
+		patches.put( "2.3", new Patch( Type.SWITCH, "2.3", "2.4", false ) );
+		patches.put( "2.3", new Patch( Type.UPGRADE, "2.3", "3.1", false ) );
+		patches.put( "2.4", new Patch( Type.UPGRADE, "2.4", "2.5", false ) );
+		patches.put( "2.5", new Patch( Type.SWITCH, "2.5", "3.1", false ) );
+		patches.put( "3.1", new Patch( Type.UPGRADE, "3.1", "3.2", false ) );
 
 		Set< String > result = new HashSet();
 		patchFile.collectTargets( "1.1", null, true, false, null, result );
@@ -88,13 +89,13 @@ public class PatchFileTests
 		PatchFile patchFile = Patcher.patchFile;
 
 		Map< String, Patch > patches = patchFile.patches = new MultiValueMap();
-		patches.put( "1.1", new Patch( "1.1", "1.2", false, false, false, false ) );
-		patches.put( "1.2", new Patch( "1.2", "1.3", false, false, false, false ) );
-		patches.put( "1.3", new Patch( "1.3", "1.4", false, false, false, false ) );
-		patches.put( "1.4", new Patch( "1.4", "2.1", false, false, false, false ) );
-		patches.put( "2.1", new Patch( "2.1", "2.2", false, false, false, false ) );
-		patches.put( "2.2", new Patch( "2.2", "2.3", false, false, false, false ) );
-		patches.put( "2.3", new Patch( "2.3", "2.4", false, false, false, false ) );
+		patches.put( "1.1", new Patch( Type.UPGRADE, "1.1", "1.2", false ) );
+		patches.put( "1.2", new Patch( Type.UPGRADE, "1.2", "1.3", false ) );
+		patches.put( "1.3", new Patch( Type.UPGRADE, "1.3", "1.4", false ) );
+		patches.put( "1.4", new Patch( Type.UPGRADE, "1.4", "2.1", false ) );
+		patches.put( "2.1", new Patch( Type.UPGRADE, "2.1", "2.2", false ) );
+		patches.put( "2.2", new Patch( Type.UPGRADE, "2.2", "2.3", false ) );
+		patches.put( "2.3", new Patch( Type.UPGRADE, "2.3", "2.4", false ) );
 
 		Set< String > result = new HashSet();
 		patchFile.collectTargets( "1.1", null, true, false, "1.", result );
@@ -115,19 +116,19 @@ public class PatchFileTests
 		PatchFile patchFile = Patcher.patchFile;
 
 		Map< String, Patch > patches = patchFile.patches;
-		patches.put( "1.1", new Patch( "1.1", "1.2", false, false, false, false ) );
-		patches.put( "1.2", new Patch( "1.2", "1.3", false, false, false, false ) );
-		patches.put( "1.3", new Patch( "1.3", "1.4", true, false, false, false ) );
-		patches.put( "1.3", new Patch( "1.3", "2.1", false, false, false, false ) );
-		patches.put( "1.4", new Patch( "1.4", "1.5", false, false, false, false ) );
-		patches.put( "1.5", new Patch( "1.5", "2.1", true, false, false, false ) );
-		patches.put( "2.1", new Patch( "2.1", "2.2", false, true, false, false ) );
-		patches.put( "2.2", new Patch( "2.2", "2.3", false, false, false, false ) );
-		patches.put( "2.3", new Patch( "2.3", "2.4", true, false, false, false ) );
-		patches.put( "2.3", new Patch( "2.3", "3.1", false, false, false, false ) );
-		patches.put( "2.4", new Patch( "2.4", "2.5", false, false, false, false ) );
-		patches.put( "2.5", new Patch( "2.5", "3.1", true, false, false, false ) );
-		patches.put( "3.1", new Patch( "3.1", "3.2", false, false, false, false ) );
+		patches.put( "1.1", new Patch( Type.UPGRADE, "1.1", "1.2", false ) );
+		patches.put( "1.2", new Patch( Type.UPGRADE, "1.2", "1.3", false ) );
+		patches.put( "1.3", new Patch( Type.SWITCH, "1.3", "1.4", false ) );
+		patches.put( "1.3", new Patch( Type.UPGRADE, "1.3", "2.1", false ) );
+		patches.put( "1.4", new Patch( Type.UPGRADE, "1.4", "1.5", false ) );
+		patches.put( "1.5", new Patch( Type.SWITCH, "1.5", "2.1", false ) );
+		patches.put( "2.1", new Patch( Type.UPGRADE, "2.1", "2.2", true ) );
+		patches.put( "2.2", new Patch( Type.UPGRADE, "2.2", "2.3", false ) );
+		patches.put( "2.3", new Patch( Type.SWITCH, "2.3", "2.4", false ) );
+		patches.put( "2.3", new Patch( Type.UPGRADE, "2.3", "3.1", false ) );
+		patches.put( "2.4", new Patch( Type.UPGRADE, "2.4", "2.5", false ) );
+		patches.put( "2.5", new Patch( Type.SWITCH, "2.5", "3.1", false ) );
+		patches.put( "3.1", new Patch( Type.UPGRADE, "3.1", "3.2", false ) );
 
 		Set< String > result = new HashSet();
 		patchFile.collectTargets( "1.1", null, false, false, null, result );

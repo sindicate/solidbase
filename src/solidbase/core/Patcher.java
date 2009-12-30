@@ -364,7 +364,7 @@ public class Patcher
 	{
 		Assert.notNull( patch, "patch == null" );
 
-		Patcher.callBack.patchStarting( patch.getSource(), patch.getTarget() );
+		Patcher.callBack.patchStarting( patch );
 
 		patchFile.gotoPatch( patch );
 		int skip = dbVersion.getStatements();

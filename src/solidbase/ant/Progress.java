@@ -24,6 +24,7 @@ import org.apache.tools.ant.Task;
 
 import solidbase.config.ConfigListener;
 import solidbase.core.Command;
+import solidbase.core.Patch;
 import solidbase.core.PatchFile;
 import solidbase.core.ProgressListener;
 
@@ -85,13 +86,28 @@ public class Progress extends ProgressListener implements ConfigListener
 	}
 
 	@Override
-	protected void patchStarting( String source, String target )
+	protected void patchStarting( Patch patch )
 	{
 		flush();
-		if( source == null )
-			this.buffer = new StringBuilder( "Upgrading to \"" + target + "\"" );
+		switch( patch.getType() )
+		{
+			case INIT:
+				this.buffer = new StringBuilder( "Initializing" );
+				break;
+			case UPGRADE:
+				this.buffer = new StringBuilder( "Upgrading" );
+				break;
+			case SWITCH:
+				this.buffer = new StringBuilder( "Switching" );
+				break;
+			case DOWNGRADE:
+				this.buffer = new StringBuilder( "Downgrading" );
+				break;
+		}
+		if( patch.getSource() == null )
+			this.buffer.append( " to \"" + patch.getTarget() + "\"" );
 		else
-			this.buffer = new StringBuilder( "Upgrading \"" + source + "\" to \"" + target + "\"" );
+			this.buffer.append( " \"" + patch.getSource() + "\" to \"" + patch.getTarget() + "\"" );
 	}
 
 	@Override

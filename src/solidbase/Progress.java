@@ -21,6 +21,7 @@ import java.net.URL;
 
 import solidbase.config.ConfigListener;
 import solidbase.core.Command;
+import solidbase.core.Patch;
 import solidbase.core.PatchFile;
 import solidbase.core.ProgressListener;
 
@@ -61,12 +62,27 @@ public class Progress extends ProgressListener implements ConfigListener
 	}
 
 	@Override
-	protected void patchStarting( String source, String target )
+	protected void patchStarting( Patch patch )
 	{
-		if( source == null )
-			this.console.print( "Upgrading to \"" + target + "\"" );
+		switch( patch.getType() )
+		{
+			case INIT:
+				this.console.print( "Initializing" );
+				break;
+			case UPGRADE:
+				this.console.print( "Upgrading" );
+				break;
+			case SWITCH:
+				this.console.print( "Switching" );
+				break;
+			case DOWNGRADE:
+				this.console.print( "Downgrading" );
+				break;
+		}
+		if( patch.getSource() == null )
+			this.console.print( " to \"" + patch.getTarget() + "\"" );
 		else
-			this.console.print( "Upgrading \"" + source + "\" to \"" + target + "\"" );
+			this.console.print( " \"" + patch.getSource() + "\" to \"" + patch.getTarget() + "\"" );
 	}
 
 	@Override
