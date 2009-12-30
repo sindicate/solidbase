@@ -472,44 +472,54 @@ public class PatchFile
 	protected Command readStatement()
 	{
 		StringBuilder result = new StringBuilder();
+		int pos = 0; // No line found yet
 
 		while( true )
 		{
 			try
 			{
 				String line = this.file.readLine();
-				Assert.isTrue( line != null, "Premature end of file found" );
+				Assert.notNull( line, "Premature end of file found" );
 
-				if( line.trim().length() > 0 )
+				if( line.trim().length() == 0 )
+					continue;
+
+				if( goPattern.matcher( line ).matches() )
 				{
-					if( goPattern.matcher( line ).matches() )
-						return new Command( result.toString(), false );
+					if( pos == 0 )
+						pos = this.file.getLineNumber() - 1;
+					return new Command( result.toString(), false, pos );
+				}
 
-					if( patchEndPattern.matcher( line ).matches() )
+				if( patchEndPattern.matcher( line ).matches() )
+				{
+					if( result.length() > 0 )
+						throw new NonTerminatedStatementException();
+					return null;
+				}
+
+				if( line.startsWith( "--*" ) )
+				{
+					if( result.length() > 0 )
+						throw new NonTerminatedStatementException();
+
+					if( !patchStartPattern.matcher( line ).matches() ) // skip patch start
 					{
-						if( result.length() > 0 )
-							throw new NonTerminatedStatementException();
-						return null;
-					}
-
-					if( line.startsWith( "--*" ) )
-					{
-						if( result.length() > 0 )
-							throw new NonTerminatedStatementException();
-
-						if( !patchStartPattern.matcher( line ).matches() ) // skip patch start
+						line = line.substring( 3 ).trim();
+						if( !line.startsWith( "//" )) // skip comment
 						{
-							line = line.substring( 3 ).trim();
-							if( !line.startsWith( "//" )) // skip comment
-								return new Command( line, true );
+							if( pos == 0 )
+								pos = this.file.getLineNumber() - 1;
+							return new Command( line, true, pos );
 						}
 					}
-					else
-					{
-						result.append( line );
-						result.append( "\n" );
-					}
+					continue;
 				}
+
+				if( pos == 0 )
+					pos = this.file.getLineNumber() - 1;
+				result.append( line );
+				result.append( '\n' );
 			}
 			catch( IOException e )
 			{

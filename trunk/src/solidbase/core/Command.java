@@ -34,6 +34,7 @@ public class Command
 {
 	protected String command;
 	protected boolean repeatable;
+	protected int lineNumber;
 
 	/**
 	 * Constructs the command.
@@ -41,10 +42,12 @@ public class Command
 	 * @param command The text of the command.
 	 * @param repeatable The repeatability of the command.
 	 */
-	protected Command( String command, boolean repeatable )
+	protected Command( String command, boolean repeatable, int lineNumber )
 	{
+		Assert.isTrue( lineNumber > 0 );
 		this.command = command;
 		this.repeatable = repeatable;
+		this.lineNumber = lineNumber;
 	}
 
 	/**
@@ -85,5 +88,10 @@ public class Command
 	public void setCommand( String command )
 	{
 		this.command = command;
+	}
+
+	public int getLineNumber()
+	{
+		return this.lineNumber;
 	}
 }
