@@ -313,51 +313,76 @@ public class Patcher
 		}
 	}
 
-	static protected SQLException execute( Command command ) throws SQLException
+	static protected boolean executeListeners( Command command ) throws SQLException
+	{
+		for( Iterator iter = listeners.iterator(); iter.hasNext(); )
+		{
+			CommandListener listener = (CommandListener)iter.next();
+			if( listener.execute( database, command ) )
+				return true;
+		}
+		return false;
+	}
+
+	// count == 0 --> non counting
+	static protected void execute( Patch patch, Command command, int count ) throws SQLExecutionException
 	{
 		Assert.isTrue( command.isNonRepeatable() );
 
 		String sql = command.getCommand();
 		if( sql.length() > 0 )
 		{
-			for( Iterator iter = listeners.iterator(); iter.hasNext(); )
-			{
-				CommandListener listener = (CommandListener)iter.next();
-				if( listener.execute( database, command ) )
-					return null;
-			}
-
 			try
 			{
-				Connection connection = database.getConnection();
-				Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
-				Statement statement = connection.createStatement();
-				boolean commit = false;
-				try
+				if( !executeListeners( command ) )
 				{
-					statement.execute( sql );
-					commit = true;
-				}
-				finally
-				{
-					statement.close();
-					if( commit )
-						connection.commit();
-					else
-						connection.rollback();
+					Connection connection = database.getConnection();
+					Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
+					Statement statement = connection.createStatement();
+					boolean commit = false;
+					try
+					{
+						statement.execute( sql );
+						commit = true;
+					}
+					finally
+					{
+						statement.close();
+						if( commit )
+							connection.commit();
+						else
+							connection.rollback();
+					}
 				}
 			}
 			catch( SQLException e )
 			{
+				if( patch.isInit() )
+				{
+					Patcher.callBack.exception( command );
+					throw new SQLExecutionException( command, e );
+				}
+				dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), e );
 				String error = e.getSQLState();
-				if( ignoreSet.contains( error ) )
-					return e;
-				Patcher.callBack.exception( command );
-				throw e;
+				if( !ignoreSet.contains( error ) )
+				{
+					Patcher.callBack.exception( command );
+					throw new SQLExecutionException( command, e );
+				}
+			}
+
+			if( !patch.isInit() )
+			{
+				if( count > 0 )
+				{
+					// We have to update the progress even if the logging fails. Otherwise the patch cannot be
+					// restarted. That's why the progress update is first. But some logging will be lost in that case.
+					dbVersion.setProgress( patch.getTarget(), count );
+					dbVersion.log( "S", patch.getSource(), patch.getTarget(), count, sql, (String)null );
+				}
+				return;
 			}
 		}
-
-		return null;
 	}
 
 	static protected void patch( Patch patch ) throws SQLExecutionException
@@ -383,129 +408,120 @@ public class Patcher
 
 		Command command = patchFile.readStatement();
 		int count = 0;
-		try
+		while( command != null )
 		{
-			while( command != null )
-			{
-				String sql = command.getCommand();
+			String sql = command.getCommand();
 
-				if( command.isRepeatable() ) // TODO Rename to isDBPatcherCommand
+			if( command.isRepeatable() ) // TODO Rename to isDBPatcherCommand
+			{
+				boolean done = false;
+				for( Iterator iter = listeners.iterator(); iter.hasNext(); )
 				{
-					boolean done = false;
-					for( Iterator iter = listeners.iterator(); iter.hasNext(); )
+					CommandListener listener = (CommandListener)iter.next();
+					try
 					{
-						CommandListener listener = (CommandListener)iter.next();
 						done = listener.execute( database, command );
-						if( done )
-							break;
 					}
-
-					if( !done )
+					catch( SQLException e )
 					{
-						Matcher matcher;
-						if( ( matcher = ignoreSqlErrorPattern.matcher( sql ) ).matches() )
-							pushIgnores( matcher.group( 1 ) );
-						else if( ignoreEnd.matcher( sql ).matches() )
-							popIgnores();
-						else if( ( matcher = setUserPattern.matcher( sql ) ).matches() )
-							setUser( matcher.group( 1 ) );
-						else if( ( matcher = startMessagePattern.matcher( sql ) ).matches() )
-							startMessage = matcher.group( 1 );
-						else if( sessionConfigPattern.matcher( sql ).matches() )
-							enableDontCount();
-						else if( sessionConfigPatternEnd.matcher( sql ).matches() )
-							disableDontCount();
-						else if( ( matcher = ifHistoryContainsPattern.matcher( sql ) ).matches() )
-							ifHistoryContains( matcher.group( 1 ), matcher.group( 2 ) );
-						else if( ifHistoryContainsEnd.matcher( sql ).matches() )
-							ifHistoryContainsEnd();
-						else if( ( matcher = selectConnectionPattern.matcher( sql ) ).matches() )
-							selectConnection( matcher.group( 1 ) );
-						else
-							Assert.fail( "Unknown command [" + sql + "]" );
-					}
-				}
-				else if( dontCount )
-				{
-					Patcher.callBack.executing( command, startMessage );
-					startMessage = null;
-
-					execute( command );
-					Patcher.callBack.executed();
-				}
-				else
-				{
-					count++;
-					if( count > skip && condition )
-					{
-						Patcher.callBack.executing( command, startMessage );
-						startMessage = null;
-
-						if( sql.trim().equalsIgnoreCase( "UPGRADE" ) )
-							upgrade( patch );
-						else
+						// TODO The listener should use Patcher.execute() so that we don't need the catch here.
+						if( !patch.isInit() )
 						{
-							SQLException sqlException = execute( command );
-							if( !patch.isInit() )
-							{
-								dbVersion.setProgress( patch.getTarget(), count );
-								// We have to update the progress even if the logging fails. Otherwise the patch cannot be
-								// restarted. That's why the progress update is first. But some logging will be lost in that case.
-								if( sqlException != null )
-									dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), sqlException );
-								else
-									dbVersion.log( "S", patch.getSource(), patch.getTarget(), count, sql, (String)null );
-							}
-							else
-								if( sqlException != null )
-									throw sqlException;
+							dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), e );
+							String error = e.getSQLState();
+							if( ignoreSet.contains( error ) )
+								return;
 						}
-						Patcher.callBack.executed();
+						Patcher.callBack.exception( command );
+						throw new SQLExecutionException( command, e );
 					}
-					else
-						Patcher.callBack.skipped( command );
+					if( done )
+						break;
 				}
 
-				command = patchFile.readStatement();
+				if( !done )
+				{
+					Matcher matcher;
+					if( ( matcher = ignoreSqlErrorPattern.matcher( sql ) ).matches() )
+						pushIgnores( matcher.group( 1 ) );
+					else if( ignoreEnd.matcher( sql ).matches() )
+						popIgnores();
+					else if( ( matcher = setUserPattern.matcher( sql ) ).matches() )
+						setUser( matcher.group( 1 ) );
+					else if( ( matcher = startMessagePattern.matcher( sql ) ).matches() )
+						startMessage = matcher.group( 1 );
+					else if( sessionConfigPattern.matcher( sql ).matches() )
+						enableDontCount();
+					else if( sessionConfigPatternEnd.matcher( sql ).matches() )
+						disableDontCount();
+					else if( ( matcher = ifHistoryContainsPattern.matcher( sql ) ).matches() )
+						ifHistoryContains( matcher.group( 1 ), matcher.group( 2 ) );
+					else if( ifHistoryContainsEnd.matcher( sql ).matches() )
+						ifHistoryContainsEnd();
+					else if( ( matcher = selectConnectionPattern.matcher( sql ) ).matches() )
+						selectConnection( matcher.group( 1 ) );
+					else
+						Assert.fail( "Unknown command [" + sql + "]" );
+				}
 			}
-			Patcher.callBack.patchFinished();
-
-			dbVersion.setStale(); // TODO With a normal patch, only set stale if not both of the 2 version tables are found
-			if( patch.isInit() )
+			else if( dontCount )
 			{
-				dbVersion.setSpec( patch.getTarget() );
-				Assert.isFalse( patch.isOpen() );
+				Patcher.callBack.executing( command, startMessage );
+				startMessage = null;
+				execute( patch, command, 0 );
+				Patcher.callBack.executed();
 			}
 			else
 			{
-				if( patch.isDowngrade() )
+				count++;
+				if( count > skip && condition )
 				{
-					Set versions = patchFile.getReachableVersions( patch.getTarget(), null, false );
-					versions.remove( patch.getTarget() );
-					dbVersion.downgradeHistory( versions );
+					Patcher.callBack.executing( command, startMessage );
+					startMessage = null;
+					if( sql.trim().equalsIgnoreCase( "UPGRADE" ) )
+						upgrade( patch );
+					else
+						execute( patch, command, count );
+					Patcher.callBack.executed();
 				}
-				if( !patch.isOpen() )
-				{
-					dbVersion.setVersion( patch.getTarget() );
-					dbVersion.logComplete( patch.getSource(), patch.getTarget(), count );
-				}
+				else
+					Patcher.callBack.skipped( command );
 			}
+
+			command = patchFile.readStatement();
 		}
-		catch( SQLException e ) // TODO This should not be around everything. Only around the real patch commands.
+		Patcher.callBack.patchFinished();
+
+		dbVersion.setStale(); // TODO With a normal patch, only set stale if not both of the 2 version tables are found
+		if( patch.isInit() )
 		{
-			dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command == null ? null : command.getCommand(), e );
-			throw new SQLExecutionException( command, e );
+			dbVersion.setSpec( patch.getTarget() );
+			Assert.isFalse( patch.isOpen() );
+		}
+		else
+		{
+			if( patch.isDowngrade() )
+			{
+				Set versions = patchFile.getReachableVersions( patch.getTarget(), null, false );
+				versions.remove( patch.getTarget() );
+				dbVersion.downgradeHistory( versions );
+			}
+			if( !patch.isOpen() )
+			{
+				dbVersion.setVersion( patch.getTarget() );
+				dbVersion.logComplete( patch.getSource(), patch.getTarget(), count );
+			}
 		}
 	}
 
-	static private void upgrade( Patch patch ) throws SQLException
+	static private void upgrade( Patch patch ) throws SQLExecutionException
 	{
 		Assert.isFalse( !patch.isInit(), "UPGRADE only allowed in INIT blocks" );
 		Assert.isTrue( patch.getSource().equals( "1.0" ) && patch.getTarget().equals( "1.1" ), "UPGRADE only possible from spec 1.0 to 1.1" );
 
-		execute( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'S' WHERE RESULT IS NULL OR RESULT NOT LIKE 'COMPLETED VERSION %'", false ) );
-		execute( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'B', RESULT = 'COMPLETE' WHERE RESULT LIKE 'COMPLETED VERSION %'", false ) );
-		execute( new Command( "UPDATE DBVERSION SET SPEC = '1.1'", false ) ); // We need this because the column is made NOT NULL in the upgrade init block
+		execute( patch, new Command( "UPDATE DBVERSIONLOG SET TYPE = 'S' WHERE RESULT IS NULL OR RESULT NOT LIKE 'COMPLETED VERSION %'", false ), 0 );
+		execute( patch, new Command( "UPDATE DBVERSIONLOG SET TYPE = 'B', RESULT = 'COMPLETE' WHERE RESULT LIKE 'COMPLETED VERSION %'", false ), 0 );
+		execute( patch, new Command( "UPDATE DBVERSION SET SPEC = '1.1'", false ), 0 ); // We need this because the column is made NOT NULL in the upgrade init block
 	}
 
 	static private void setConnection( Database database )
