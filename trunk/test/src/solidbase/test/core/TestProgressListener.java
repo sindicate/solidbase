@@ -20,6 +20,7 @@ import java.io.File;
 import java.net.URL;
 
 import solidbase.core.Command;
+import solidbase.core.Patch;
 import solidbase.core.ProgressListener;
 
 public class TestProgressListener extends ProgressListener
@@ -68,9 +69,9 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	protected void patchStarting( String source, String target )
+	protected void patchStarting( Patch patch )
 	{
-		System.out.println( "PATCHSTARTING: " + source + " - " + target );
+		System.out.println( "PATCHSTARTING: " + patch.getSource() + " - " + patch.getTarget() );
 	}
 
 	@Override

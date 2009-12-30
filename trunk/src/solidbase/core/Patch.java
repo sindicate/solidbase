@@ -25,22 +25,20 @@ package solidbase.core;
  */
 public class Patch
 {
+	public enum Type { INIT, UPGRADE, SWITCH, DOWNGRADE };
+
+	protected Type type;
 	protected String source;
 	protected String target;
-	protected boolean switsj;
 	protected boolean open;
-	protected boolean init;
-	protected boolean downgrade;
 	protected int pos;
 
-	protected Patch( String source, String target, boolean switsj, boolean open, boolean init, boolean downgrade )
+	protected Patch( Type type, String source, String target, boolean open )
 	{
+		this.type = type;
 		this.source = source;
 		this.target = target;
-		this.switsj = switsj;
-		this.downgrade = downgrade;
 		this.open = open;
-		this.init = init;
 		this.pos = -1;
 	}
 
@@ -51,7 +49,7 @@ public class Patch
 	 */
 	protected boolean isSwitch()
 	{
-		return this.switsj;
+		return this.type == Type.SWITCH;
 	}
 
 	/**
@@ -59,7 +57,7 @@ public class Patch
 	 * 
 	 * @return
 	 */
-	protected String getSource()
+	public String getSource()
 	{
 		return this.source;
 	}
@@ -69,7 +67,7 @@ public class Patch
 	 * 
 	 * @return
 	 */
-	protected String getTarget()
+	public String getTarget()
 	{
 		return this.target;
 	}
@@ -111,7 +109,7 @@ public class Patch
 	 */
 	protected boolean isInit()
 	{
-		return this.init;
+		return this.type == Type.INIT;
 	}
 
 	/**
@@ -121,17 +119,22 @@ public class Patch
 	 */
 	protected boolean isDowngrade()
 	{
-		return this.downgrade;
+		return this.type == Type.DOWNGRADE;
 	}
 
 	protected boolean isUpgrade()
 	{
-		return !this.downgrade && !this.switsj;
+		return this.type == Type.UPGRADE;
 	}
 
 	@Override
 	public String toString()
 	{
 		return "patch(source:" + this.source + ", target:" + this.target + ", open:" + this.open + ")";
+	}
+
+	public Type getType()
+	{
+		return this.type;
 	}
 }

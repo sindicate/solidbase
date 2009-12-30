@@ -30,6 +30,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.collections.map.MultiValueMap;
 
+import solidbase.core.Patch.Type;
+
 
 /**
  * This class manages the patch file contents and the paths between versions.
@@ -132,11 +134,9 @@ public class PatchFile
 					if( source.length() == 0 )
 						source = null;
 					String target = matcher.group( 4 );
-					boolean init = "INIT".equalsIgnoreCase( action );
-					boolean switsj = "SWITCH".equalsIgnoreCase( action ) || "BRANCH".equalsIgnoreCase( action ) || "RETURN".equalsIgnoreCase( action );
-					boolean downgrade = "DOWNGRADE".equalsIgnoreCase( action );
-					Patch patch = new Patch( source, target, switsj, open, init, downgrade );
-					if( init )
+					Type type = stringToType( action );
+					Patch patch = new Patch( type, source, target, open );
+					if( type == Type.INIT )
 						this.inits.put( source, patch );
 					else
 						this.patches.put( source, patch );
@@ -154,6 +154,20 @@ public class PatchFile
 		scan();
 	}
 
+
+	protected Type stringToType( String type )
+	{
+		if( "UPGRADE".equalsIgnoreCase( type ) || "PATCH".equalsIgnoreCase( type ) )
+			return Type.UPGRADE;
+		if( "SWITCH".equalsIgnoreCase( type ) || "BRANCH".equalsIgnoreCase( type ) || "RETURN".equalsIgnoreCase( type ) )
+			return Type.SWITCH;
+		if( "DOWNGRADE".equalsIgnoreCase( type ) )
+			return Type.DOWNGRADE;
+		if( "INIT".equalsIgnoreCase( type ) )
+			return Type.INIT;
+		Assert.fail( "Unexpected block type '" + type + "'" );
+		return null;
+	}
 
 	/**
 	 * Scans for patches in the file. Called by {@link #read()}.
@@ -176,11 +190,9 @@ public class PatchFile
 					String action = matcher.group( 1 );
 					String source = matcher.group( 2 );
 					String target = matcher.group( 3 );
-					boolean switsj = "SWITCH".equalsIgnoreCase( action ) || "BRANCH".equalsIgnoreCase( action ) || "RETURN".equalsIgnoreCase( action );
-					boolean downgrade = "DOWNGRADE".equalsIgnoreCase( action );
-					boolean init = "INIT".equalsIgnoreCase( action );
+					Type type = stringToType( action );
 					Patch patch;
-					if( init )
+					if( type == Type.INIT )
 					{
 						patch = getInitPatch( source.length() == 0 ? null : source, target );
 						Assert.isTrue( patch != null, "Undefined init block found: \"" + source + "\" --> \"" + target + "\"" );
@@ -189,9 +201,8 @@ public class PatchFile
 					{
 						patch = getPatch( source.length() == 0 ? null : source, target );
 						Assert.isTrue( patch != null, "Undefined upgrade block found: \"" + source + "\" --> \"" + target + "\"" );
-						Assert.isTrue( patch.switsj == switsj && patch.downgrade == downgrade, "Upgrade block type '" + action + "' is different from definition", pos );
+						Assert.isTrue( patch.getType() == type, "Upgrade block type '" + action + "' is different from definition", pos );
 					}
-
 					patch.setPos( pos );
 				}
 			}
