@@ -17,10 +17,18 @@
 package solidbase.core;
 
 
-public class NonTerminatedStatementException extends RuntimeException
+public class UnterminatedStatementException extends RuntimeException
 {
-	public NonTerminatedStatementException()
+	protected int lineNumber;
+
+	public UnterminatedStatementException( int lineNumber )
 	{
-		super();
+		this.lineNumber = lineNumber;
+	}
+
+	@Override
+	public String getMessage()
+	{
+		return "Unterminated statement found at line " + this.lineNumber;
 	}
 }
