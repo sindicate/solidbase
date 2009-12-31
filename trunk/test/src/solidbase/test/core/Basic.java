@@ -24,7 +24,7 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import solidbase.core.Database;
-import solidbase.core.NonTerminatedStatementException;
+import solidbase.core.UnterminatedStatementException;
 import solidbase.core.Patcher;
 import solidbase.core.SQLExecutionException;
 import solidbase.core.TestUtil;
@@ -114,7 +114,7 @@ public class Basic
 		TestUtil.verifyVersion( "1.0.1", "1.0.2", 2, null );
 	}
 
-	@Test(expectedExceptions=NonTerminatedStatementException.class)
+	@Test(expectedExceptions=UnterminatedStatementException.class)
 	public void testUnterminatedCommand1() throws IOException, SQLException
 	{
 		Patcher.end();
@@ -137,7 +137,7 @@ public class Basic
 		}
 	}
 
-	@Test(expectedExceptions=NonTerminatedStatementException.class)
+	@Test(expectedExceptions=UnterminatedStatementException.class)
 	public void testUnterminatedCommand2() throws IOException, SQLException
 	{
 		Patcher.end();

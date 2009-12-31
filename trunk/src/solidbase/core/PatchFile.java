@@ -579,14 +579,14 @@ public class PatchFile
 				if( patchEndPattern.matcher( line ).matches() )
 				{
 					if( result.length() > 0 )
-						throw new NonTerminatedStatementException();
+						throw new UnterminatedStatementException( this.file.getLineNumber() - 1 );
 					return null;
 				}
 
 				if( line.startsWith( "--*" ) )
 				{
 					if( result.length() > 0 )
-						throw new NonTerminatedStatementException();
+						throw new UnterminatedStatementException( this.file.getLineNumber() - 1 );
 
 					if( !patchStartPattern.matcher( line ).matches() ) // skip patch start
 					{
