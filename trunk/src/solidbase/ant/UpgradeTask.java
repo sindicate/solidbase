@@ -9,6 +9,7 @@ import org.apache.tools.ant.Task;
 
 import solidbase.Main;
 import solidbase.config.Configuration;
+import solidbase.core.FatalException;
 import solidbase.core.Patcher;
 import solidbase.core.SQLExecutionException;
 
@@ -265,27 +266,28 @@ public class UpgradeTask extends Task
 
 			progress.info( Main.getCurrentVersion() );
 
+			Patcher.openPatchFile( project.getBaseDir(), this.upgradefile );
 			try
 			{
-				Patcher.openPatchFile( project.getBaseDir(), this.upgradefile );
-				try
-				{
-					if( this.target != null )
-						Patcher.patch( this.target, this.downgradeallowed ); // TODO Print this target
-					else
-						throw new UnsupportedOperationException();
-					progress.info( "" );
-					progress.info( Main.getCurrentVersion() );
-				}
-				finally
-				{
-					Patcher.closePatchFile();
-				}
+				if( this.target != null )
+					Patcher.patch( this.target, this.downgradeallowed ); // TODO Print this target
+				else
+					throw new UnsupportedOperationException();
+				progress.info( "" );
+				progress.info( Main.getCurrentVersion() );
 			}
-			catch( SQLExecutionException e )
+			finally
 			{
-				throw new BuildException( e.getMessage() );
+				Patcher.closePatchFile();
 			}
+		}
+		catch( SQLExecutionException e )
+		{
+			throw new BuildException( e.getMessage() );
+		}
+		catch( FatalException e )
+		{
+			throw new BuildException( e.getMessage() );
 		}
 		finally
 		{
