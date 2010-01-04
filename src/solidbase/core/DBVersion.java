@@ -212,8 +212,9 @@ public class DBVersion
 							this.spec = resultSet.getString( "SPEC" );
 						else
 							this.spec = "1.0";
-						Assert.isTrue( this.spec == "1.0" || this.spec.equals( "1.1" ) );
-						Assert.isTrue( !resultSet.next() );
+						if( !this.spec.equals( "1.0" ) && !this.spec.equals( "1.1" ) )
+							throw new FatalException( "Spec " + this.spec + " not recognized." );
+						Assert.isFalse( resultSet.next() );
 
 						Patcher.callBack.debug( "version=" + this.version + ", target=" + this.target + ", statements=" + this.statements );
 
@@ -456,8 +457,8 @@ public class DBVersion
 	/**
 	 * Dumps the current log in XML format to the given output stream, with the given character set.
 	 *
-	 * @param out The outputstream.
-	 * @param charSet
+	 * @param out The outputstream to which the xml will be written.
+	 * @param charSet The requested character set.
 	 */
 	protected void logToXML( OutputStream out, Charset charSet )
 	{
@@ -595,6 +596,11 @@ public class DBVersion
 		}
 	}
 
+	/**
+	 * Mark the given versions as 'DOWNGRADED' in the DBVERSIONLOG table.
+	 * 
+	 * @param versions The versions to be downgraded.
+	 */
 	// TODO Make this faster with an IN.
 	protected void downgradeHistory( Collection< String > versions )
 	{
