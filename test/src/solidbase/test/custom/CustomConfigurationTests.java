@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.test.digimeente;
+package solidbase.test.custom;
 
 import mockit.Mockit;
 
