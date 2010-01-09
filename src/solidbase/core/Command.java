@@ -40,7 +40,8 @@ public class Command
 	 * Constructs the command.
 	 * 
 	 * @param command The text of the command.
-	 * @param repeatable The repeatability of the command.
+	 * @param isTransient Is it a transient command?
+	 * @param lineNumber The line number in the upgrade file where this command starts.
 	 */
 	protected Command( String command, boolean isTransient, int lineNumber )
 	{
