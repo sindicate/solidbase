@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.digimeente;
+package solidbase.custom;
 
 import java.io.File;
 import java.io.FileInputStream;
