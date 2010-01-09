@@ -27,7 +27,7 @@ import java.sql.SQLException;
 abstract public class CommandListener
 {
 	/**
-	 * Called when a command from the patch file needs to be executed. Commands can be repeatable or non-repeatable commands (see {@link Command#isRepeatable()}). This method should
+	 * Called when a command from the patch file needs to be executed. Commands can be repeatable or non-repeatable commands (see {@link Command#isTransient}). This method should
 	 * return true when it wants to indicate to the patchtool that it should stop processing this command.
 	 *
 	 * @param command The command that needs to be executed.

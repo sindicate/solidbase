@@ -46,35 +46,85 @@ import java.util.regex.Pattern;
  */
 public class Patcher
 {
-	static protected Pattern ignoreSqlErrorPattern = Pattern.compile( "IGNORE[ \\t]+SQL[ \\t]+ERROR[ \\t]+(\\w+([ \\t]*,[ \\t]*\\w+)*)", Pattern.CASE_INSENSITIVE );
-	static protected Pattern ignoreEnd = Pattern.compile( "/IGNORE[ \\t]+SQL[ \\t]+ERROR", Pattern.CASE_INSENSITIVE );
+	static private Pattern ignoreSqlErrorPattern = Pattern.compile( "IGNORE[ \\t]+SQL[ \\t]+ERROR[ \\t]+(\\w+([ \\t]*,[ \\t]*\\w+)*)", Pattern.CASE_INSENSITIVE );
+	static private Pattern ignoreEnd = Pattern.compile( "/IGNORE[ \\t]+SQL[ \\t]+ERROR", Pattern.CASE_INSENSITIVE );
 
 	// TODO Do we need the whitespace at the end?
-	static protected Pattern setUserPattern = Pattern.compile( "SET[ \\t]+USER[ \\t]+(\\w+)[ \\t]*", Pattern.CASE_INSENSITIVE );
-	static protected Pattern selectConnectionPattern = Pattern.compile( "SELECT[ \\t]+CONNECTION[ \\t]+(\\w+)[ \\t]*", Pattern.CASE_INSENSITIVE );
+	static private Pattern setUserPattern = Pattern.compile( "SET[ \\t]+USER[ \\t]+(\\w+)[ \\t]*", Pattern.CASE_INSENSITIVE );
+	static private Pattern selectConnectionPattern = Pattern.compile( "SELECT[ \\t]+CONNECTION[ \\t]+(\\w+)[ \\t]*", Pattern.CASE_INSENSITIVE );
 
-	static protected Pattern startMessagePattern = Pattern.compile( "\\s*(?:SET\\s+MESSAGE|MESSAGE\\s+START)\\s+['\"]([^'\"]*)['\"]\\s*", Pattern.CASE_INSENSITIVE );
+	static private Pattern startMessagePattern = Pattern.compile( "\\s*(?:SET\\s+MESSAGE|MESSAGE\\s+START)\\s+['\"]([^'\"]*)['\"]\\s*", Pattern.CASE_INSENSITIVE );
 
-	static protected Pattern sessionConfigPattern = Pattern.compile( "SESSIONCONFIG", Pattern.CASE_INSENSITIVE );
-	static protected Pattern sessionConfigPatternEnd = Pattern.compile( "/SESSIONCONFIG", Pattern.CASE_INSENSITIVE );
+	static private Pattern sessionConfigPattern = Pattern.compile( "SESSIONCONFIG", Pattern.CASE_INSENSITIVE );
+	static private Pattern sessionConfigPatternEnd = Pattern.compile( "/SESSIONCONFIG", Pattern.CASE_INSENSITIVE );
 
-	static protected Pattern ifHistoryContainsPattern = Pattern.compile( "IF\\s+HISTORY\\s+(NOT\\s+)?CONTAINS\\s+\"([^\"]*)\"", Pattern.CASE_INSENSITIVE );
-	static protected Pattern ifHistoryContainsEnd = Pattern.compile( "/IF", Pattern.CASE_INSENSITIVE );
+	static private Pattern ifHistoryContainsPattern = Pattern.compile( "IF\\s+HISTORY\\s+(NOT\\s+)?CONTAINS\\s+\"([^\"]*)\"", Pattern.CASE_INSENSITIVE );
+	static private Pattern ifHistoryContainsEnd = Pattern.compile( "/IF", Pattern.CASE_INSENSITIVE );
 
+	/**
+	 * A list of command listeners. A listener listens to the statements being executed and is able to intercept specific ones.
+	 */
 	static protected List< CommandListener > listeners;
 
 	// Patch state
-	static protected Stack ignoreStack;
-	static protected HashSet ignoreSet;
-	static protected boolean dontCount;
-	static protected Stack<Boolean> conditionStack;
-	static protected boolean condition;
 
+	/**
+	 * Errors that should be ignored.
+	 */
+	static protected Stack ignoreStack;
+
+	/**
+	 * Errors that should be ignored. This set is kept in sync with the {@link Patcher#ignoreStack}.
+	 */
+	static protected HashSet ignoreSet;
+
+	/**
+	 * Indicates that the statements are transient and should not be counted.
+	 */
+	static protected boolean dontCount;
+
+	/**
+	 * Together with {@link Patcher#conditionFalseCounter} this enables nested conditions. As long as nested conditions
+	 * evaluate to true the {@link Patcher#conditionTrueCounter} gets incremented. After the first nested condition
+	 * evaluates to false, the {@link Patcher#conditionFalseCounter} get incremented.
+	 */
+	static protected int conditionTrueCounter;
+
+	/**
+	 * Together with {@link Patcher#conditionTrueCounter} this enables nested conditions. As long as nested conditions
+	 * evaluate to true the {@link Patcher#conditionTrueCounter} gets incremented. After the first nested condition
+	 * evaluates to false, the {@link Patcher#conditionFalseCounter} get incremented.
+	 */
+	static protected int conditionFalseCounter;
+
+	/**
+	 * The progress listener.
+	 */
 	static protected ProgressListener callBack;
+
+	/**
+	 * The upgrade file being executed.
+	 */
 	static protected PatchFile patchFile;
+
+	/**
+	 * The default database. At the start of each change set, this database is put into {@link Patcher#database} to become the current database.
+	 */
 	static protected Database defaultDatabase;
+
+	/**
+	 * The current database. Gets reset to the default database at the start of each change set.
+	 */
 	static protected Database database;
+
+	/**
+	 * All configured databases. This is used when the upgrade file selects a different database by name.
+	 */
 	static protected Map< String, Database > allDatabases;
+
+	/**
+	 * The class that manages the DBVERSION and DBVERSIONLOG table.
+	 */
 	static protected DBVersion dbVersion;
 
 	static
@@ -82,6 +132,9 @@ public class Patcher
 		initialize();
 	}
 
+	/**
+	 * Initialize the patcher.
+	 */
 	static protected void initialize()
 	{
 		defaultDatabase = null;
@@ -93,8 +146,7 @@ public class Patcher
 		ignoreStack = new Stack();
 		ignoreSet = new HashSet();
 		dontCount = false;
-		conditionStack = new Stack();
-		condition = true;
+		conditionTrueCounter = conditionFalseCounter = 0;
 
 		callBack = null;
 		patchFile = null;
@@ -104,11 +156,22 @@ public class Patcher
 		listeners.add( new ImportCSVListener() );
 	}
 
+	/**
+	 * Open the specified upgrade file.
+	 * 
+	 * @param fileName The name and path of the upgrade file.
+	 */
 	static public void openPatchFile( String fileName )
 	{
 		openPatchFile( null, fileName );
 	}
 
+	/**
+	 * Open the specified upgrade file in the specified folder.
+	 * 
+	 * @param baseDir The base folder from where to look. May be null.
+	 * @param fileName The name and path of the upgrade file.
+	 */
 	static public void openPatchFile( File baseDir, String fileName )
 	{
 		if( fileName == null )
@@ -152,6 +215,9 @@ public class Patcher
 		}
 	}
 
+	/**
+	 * Close the upgrade file.
+	 */
 	static public void closePatchFile()
 	{
 		if( patchFile != null )
@@ -159,27 +225,43 @@ public class Patcher
 		patchFile = null;
 	}
 
+	/**
+	 * Get the current version of the database.
+	 * 
+	 * @return The current version of the database.
+	 */
 	static public String getCurrentVersion()
 	{
 		return dbVersion.getVersion();
 	}
 
+	/**
+	 * Get the current target.
+	 * 
+	 * @return The current target.
+	 */
 	static public String getCurrentTarget()
 	{
 		return dbVersion.getTarget();
 	}
 
+	/**
+	 * Get the number of persistent statements executed successfully.
+	 * 
+	 * @return The number of persistent statements executed successfully.
+	 */
 	static public int getCurrentStatements()
 	{
 		return dbVersion.getStatements();
 	}
 
 	/**
-	 * Returns all possible targets.
+	 * Returns all possible targets from the current version.
 	 * 
-	 * @param tips If true only the tips of the patch paths are returned.
-	 * @param prefix Only consider versions that start with the given prefix.
-	 * @return
+	 * @param tips If true only the tips of the upgrade paths are returned.
+	 * @param prefix Only return targets that start with the given prefix.
+	 * @param downgradeable Also consider downgrade paths.
+	 * @return All possible targets from the current version.
 	 */
 	static public LinkedHashSet< String > getTargets( boolean tips, String prefix, boolean downgradeable )
 	{
@@ -188,6 +270,11 @@ public class Patcher
 		return result;
 	}
 
+	/**
+	 * Use the 'init' change sets to upgrade the DBVERSION and DBVERSIONLOG tables to the newest specification.
+	 * 
+	 * @throws SQLExecutionException Thrown when the execution of an SQL statement fails.
+	 */
 	static public void init() throws SQLExecutionException
 	{
 		String spec = dbVersion.getSpec();
@@ -389,8 +476,7 @@ public class Patcher
 		ignoreStack.clear();
 		ignoreSet.clear();
 		dontCount = false;
-		conditionStack.clear();
-		condition = true;
+		conditionFalseCounter = conditionTrueCounter = 0;
 
 		Command command = patchFile.readStatement();
 		int count = 0;
@@ -460,7 +546,7 @@ public class Patcher
 			else
 			{
 				count++;
-				if( count > skip && condition )
+				if( count > skip && conditionFalseCounter == 0 )
 				{
 					Patcher.callBack.executing( command, startMessage );
 					startMessage = null;
@@ -563,21 +649,29 @@ public class Patcher
 
 	private static void ifHistoryContains( String not, String version )
 	{
-		if( condition )
+		if( conditionFalseCounter == 0 )
 		{
 			boolean c = dbVersion.logContains( version );
 			if( not != null )
 				c = !c;
-			conditionStack.push( condition );
-			condition = c;
+			if( c )
+				conditionTrueCounter++;
+			else
+				conditionFalseCounter++;
 		}
 		else
-			conditionStack.push( false );
+			conditionFalseCounter++;
 	}
 
 	private static void ifHistoryContainsEnd()
 	{
-		condition = conditionStack.pop();
+		if( conditionFalseCounter > 0 )
+			conditionFalseCounter--;
+		else
+		{
+			Assert.isTrue( conditionTrueCounter > 0 );
+			conditionTrueCounter--;
+		}
 	}
 
 	static public ProgressListener getCallBack()
