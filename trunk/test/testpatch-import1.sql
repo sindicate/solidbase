@@ -68,10 +68,16 @@ IMPORT CSV INTO TEMP
 	"1", "2", "3"
 GO
 
-IMPORT CSV INTO TEMP
-	"1", "2", "3"
-	"1", "2", "3"
-	"1", "2", "3"
+IMPORT CSV SEPERATED BY TAB INTO TEMP
+"1"	"2"	"3"
+"1"	"2"	"3"
+"1"	"2"	"3"
+GO
+
+IMPORT CSV SEPERATED BY ; INTO TEMP
+"1"; "2"; "3"
+"1"; "2"; "3"
+"1"; "2"; "3"
 GO
 
 --* /PATCH

@@ -46,7 +46,7 @@ import com.mindprod.csv.CSVReader;
 // TODO Make this more strict, like assert that the number of values stays the same in the CSV data
 public class ImportCSVListener extends CommandListener
 {
-	static private final Pattern importPattern = Pattern.compile( "\\s*IMPORT\\s+CSV\\s+INTO\\s+([^\\s]+)(\\s+AS\\s+BLOCK)?(\\s+AS\\s+VALUESLIST)?\\s+(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern importPattern = Pattern.compile( "\\s*IMPORT\\s+CSV\\s+(SEPERATED BY (\\S|TAB)\\s+)?INTO\\s+([^\\s]+)(\\s+AS\\s+PLBLOCK)?(\\s+AS\\s+VALUESLIST)?\\n(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 	@Override
 	protected boolean execute( Database database, Command command ) throws SQLException
@@ -58,10 +58,22 @@ public class ImportCSVListener extends CommandListener
 		if( !matcher.matches() )
 			return false;
 
-		String tableName = matcher.group( 1 );
-		String asBlock = matcher.group( 2 );
-		String asValues = matcher.group( 3 );
-		String data = matcher.group( 4 );
+		String sep = matcher.group( 2 );
+		char seperator;
+		if( sep == null )
+			seperator = ',';
+		else if( sep.equalsIgnoreCase( "TAB" ) )
+			seperator = '\t';
+		else
+		{
+			Assert.isTrue( sep.length() == 1, "Seperator should be 1 character long", command.getLineNumber() );
+			seperator = sep.charAt( 0 );
+		}
+		String tableName = matcher.group( 3 );
+		String asBlock = matcher.group( 4 );
+		String asValues = matcher.group( 5 );
+		String data = matcher.group( 6 );
+
 		Connection connection = database.getConnection();
 		Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
 		PreparedStatement statement = null;
@@ -69,7 +81,7 @@ public class ImportCSVListener extends CommandListener
 		boolean commit = false;
 		try
 		{
-			CSVReader reader = new CSVReader( new StringReader( data ), ',', '"', "#", true, false, true );
+			CSVReader reader = new CSVReader( new StringReader( data ), seperator, '"', "#", true, false, true );
 			try
 			{
 				String[] line;
@@ -199,6 +211,12 @@ public class ImportCSVListener extends CommandListener
 		return true;
 	}
 
+	/**
+	 * Converts ' to ''.
+	 * 
+	 * @param s The sql to escape.
+	 * @return Escaped sql.
+	 */
 	protected String escape( String s )
 	{
 		return s.replaceAll( "'", "''" );

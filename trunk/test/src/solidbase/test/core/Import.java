@@ -50,7 +50,7 @@ public class Import
 			Patcher.closePatchFile();
 		}
 
-		TestUtil.verifyVersion( "1.0.2", null, 4, null );
-		TestUtil.assertRecordCount( database, "TEMP", 4 );
+		TestUtil.verifyVersion( "1.0.2", null, 5, null );
+		TestUtil.assertRecordCount( database, "TEMP", 7 );
 	}
 }
