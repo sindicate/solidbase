@@ -18,7 +18,7 @@ package solidbase.core;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -315,6 +315,72 @@ public class PatchFile
 	}
 
 
+	protected class GetPatchPath2Result
+	{
+		protected boolean hasDowngrade;
+		protected int switches;
+		protected List< Patch > path;
+
+		protected GetPatchPath2Result()
+		{
+			this.path = new ArrayList< Patch >();
+		}
+
+		protected GetPatchPath2Result( Patch patch, GetPatchPath2Result result )
+		{
+			this.path = new ArrayList< Patch >();
+			this.path.add( patch );
+			this.path.addAll( result.path );
+
+			for( Patch p : this.path )
+				calc( p );
+		}
+
+		protected void calc( Patch patch )
+		{
+			if( patch.isDowngrade() )
+				this.hasDowngrade = true;
+			else if( patch.isSwitch() )
+				this.switches++;
+		}
+
+		protected void add( Patch patch )
+		{
+			this.path.add( patch );
+			calc( patch );
+		}
+
+		protected void add( GetPatchPath2Result other )
+		{
+			this.path.addAll( other.path );
+
+			for( Patch p : other.path )
+				calc( p );
+		}
+
+		protected boolean betterThan( GetPatchPath2Result other )
+		{
+			if( other.hasDowngrade )
+			{
+				if( !this.hasDowngrade )
+					return true;
+			}
+			else
+			{
+				if( this.hasDowngrade )
+					return false;
+			}
+
+			if( other.switches > this.switches )
+				return true;
+			if( other.switches < this.switches )
+				return false;
+			Assert.fail( "Couldn't decide between 2 upgrade paths" );
+			return false;
+		}
+	}
+
+
 	/**
 	 * Returns a patch path for the specified source and target.
 	 * 
@@ -323,79 +389,76 @@ public class PatchFile
 	 * @param downgradesAllowed Allow downgrades in the resulting path.
 	 * @return A list of patches that correspond to the given source and target versions.
 	 */
-	protected List getPatchPath( String source, String target, boolean downgradesAllowed )
+	protected List< Patch > getPatchPath( String source, String target, boolean downgradesAllowed )
 	{
+		Set< String > done = new HashSet();
+		done.add( source );
+		GetPatchPath2Result result = getPatchPath0( source, target, downgradesAllowed, done );
+		if( result == null )
+			return null;
+		return result.path;
+	}
+
+
+	protected GetPatchPath2Result getPatchPath0( String source, String target, boolean downgradesAllowed, Set< String > done )
+	{
+		GetPatchPath2Result result = new GetPatchPath2Result();
+
 		// If equal than we are finished
-		// TODO Make source always not null?
 		if( source == null )
 		{
 			if( target == null )
-				return Collections.EMPTY_LIST;
+				return result;
 		}
 		else
 		{
 			if( source.equals( target ) )
-				return Collections.EMPTY_LIST;
+				return result;
 		}
 
 		// Start with all the patches that start with the given source
 		List< Patch > patches = (List)this.patches.get( source );
+		while( patches != null && patches.size() == 1 )
+		{
+			Patch patch = patches.get( 0 );
+			if( done.contains( patch.getTarget() ) )
+				return null;
+			done.add( patch.getTarget() );
+			result.add( patch );
+			if( target.equals( patch.getTarget() ) )
+				return result; // Done
+			patches = (List)this.patches.get( patch.getTarget() );
+		}
+
+		// If no patch then return null
 		if( patches == null )
 			return null;
 
-		Assert.isTrue( patches.size() > 0, "Not expecting an empty list" );
+		GetPatchPath2Result selected = null;
 
-		// Depth first normal upgrades
 		for( Patch patch : patches )
-			if( patch.isUpgrade() )
+		{
+			if( done.contains( patch.getTarget() ) )
+				continue;
+			Set< String > done2 = new HashSet();
+			done2.addAll( done );
+			done2.add( patch.getTarget() );
+			GetPatchPath2Result r = getPatchPath0( patch.getTarget(), target, downgradesAllowed, done2 );
+			if( r != null )
 			{
-				// Recurse
-				List patches2 = getPatchPath( patch.getTarget(), target, downgradesAllowed );
-				if( patches2 != null )
-				{
-					// Found complete path
-					List result = new ArrayList();
-					result.add( patch );
-					result.addAll( patches2 );
-					return result;
-				}
-				// Target not reached
+				r = new GetPatchPath2Result( patch, r );
+				if( selected == null )
+					selected = r;
+				else if( r.betterThan( selected ) )
+					selected = r;
 			}
+		}
 
-		// Depth first only switches
-		for( Patch patch : patches )
-			if( patch.isSwitch() )
-			{
-				// Recurse
-				List patches2 = getPatchPath( patch.getTarget(), target, downgradesAllowed );
-				if( patches2 != null )
-				{
-					List result = new ArrayList();
-					result.add( patch );
-					result.addAll( patches2 );
-					return result;
-				}
-				// Target not reached
-			}
+		if( selected == null )
+			return null;
 
-		// Depth first only downgrades
-		if( downgradesAllowed )
-			for( Patch patch : patches )
-				if( patch.isDowngrade() )
-				{
-					// Recurse
-					List patches2 = getPatchPath( patch.getTarget(), target, downgradesAllowed );
-					if( patches2 != null )
-					{
-						List result = new ArrayList();
-						result.add( patch );
-						result.addAll( patches2 );
-						return result;
-					}
-					// Target not reached
-				}
-
-		return null;
+		result.add( selected );
+		return result;
 	}
 
 
@@ -457,7 +520,10 @@ public class PatchFile
 					for( Patch patch : patches )
 						if( patch.isUpgrade() )
 							if( prefix == null || patch.getTarget().startsWith( prefix ) )
+							{
 								iterator.remove();
+								break;
+							}
 			}
 	}
 
