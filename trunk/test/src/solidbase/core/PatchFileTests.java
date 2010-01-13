@@ -18,6 +18,7 @@ package solidbase.core;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,9 +26,6 @@ import org.apache.commons.collections.map.MultiValueMap;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import solidbase.core.Patch;
-import solidbase.core.PatchFile;
-import solidbase.core.Patcher;
 import solidbase.core.Patch.Type;
 import solidbase.test.core.TestProgressListener;
 
@@ -43,16 +41,16 @@ public class PatchFileTests
 		Map< String, Patch > patches = patchFile.patches;
 		patches.put( "1.1", new Patch( Type.UPGRADE, "1.1", "1.2", false ) );
 		patches.put( "1.2", new Patch( Type.UPGRADE, "1.2", "1.3", false ) );
-		patches.put( "1.3", new Patch( Type.SWITCH, "1.3", "1.4", false ) );
-		patches.put( "1.3", new Patch( Type.UPGRADE, "1.3", "2.1", false ) );
+		patches.put( "1.3", new Patch( Type.UPGRADE, "1.3", "1.4", false ) ); // branch
 		patches.put( "1.4", new Patch( Type.UPGRADE, "1.4", "1.5", false ) );
 		patches.put( "1.5", new Patch( Type.SWITCH, "1.5", "2.1", false ) );
+		patches.put( "1.3", new Patch( Type.UPGRADE, "1.3", "2.1", false ) );
 		patches.put( "2.1", new Patch( Type.UPGRADE, "2.1", "2.2", false ) );
 		patches.put( "2.2", new Patch( Type.UPGRADE, "2.2", "2.3", false ) );
-		patches.put( "2.3", new Patch( Type.SWITCH, "2.3", "2.4", false ) );
-		patches.put( "2.3", new Patch( Type.UPGRADE, "2.3", "3.1", false ) );
+		patches.put( "2.3", new Patch( Type.UPGRADE, "2.3", "2.4", false ) ); // branch
 		patches.put( "2.4", new Patch( Type.UPGRADE, "2.4", "2.5", false ) );
 		patches.put( "2.5", new Patch( Type.SWITCH, "2.5", "3.1", false ) );
+		patches.put( "2.3", new Patch( Type.UPGRADE, "2.3", "3.1", false ) );
 		patches.put( "3.1", new Patch( Type.UPGRADE, "3.1", "3.2", false ) );
 
 		Set< String > result = new HashSet();
@@ -79,6 +77,12 @@ public class PatchFileTests
 		expected.add( "3.2" );
 
 		Assert.assertEquals( result, expected );
+
+		// Check the path
+
+		List< Patch > path = patchFile.getPatchPath( "1.3", "2.1", false );
+		Assert.assertEquals( path.size(), 1 );
+		Assert.assertEquals( path.get( 0 ).getTarget(), "2.1" );
 	}
 
 	@Test
@@ -118,16 +122,16 @@ public class PatchFileTests
 		Map< String, Patch > patches = patchFile.patches;
 		patches.put( "1.1", new Patch( Type.UPGRADE, "1.1", "1.2", false ) );
 		patches.put( "1.2", new Patch( Type.UPGRADE, "1.2", "1.3", false ) );
-		patches.put( "1.3", new Patch( Type.SWITCH, "1.3", "1.4", false ) );
-		patches.put( "1.3", new Patch( Type.UPGRADE, "1.3", "2.1", false ) );
+		patches.put( "1.3", new Patch( Type.UPGRADE, "1.3", "1.4", false ) ); // branch
 		patches.put( "1.4", new Patch( Type.UPGRADE, "1.4", "1.5", false ) );
 		patches.put( "1.5", new Patch( Type.SWITCH, "1.5", "2.1", false ) );
-		patches.put( "2.1", new Patch( Type.UPGRADE, "2.1", "2.2", true ) );
+		patches.put( "1.3", new Patch( Type.UPGRADE, "1.3", "2.1", false ) );
+		patches.put( "2.1", new Patch( Type.UPGRADE, "2.1", "2.2", true ) ); // open
 		patches.put( "2.2", new Patch( Type.UPGRADE, "2.2", "2.3", false ) );
-		patches.put( "2.3", new Patch( Type.SWITCH, "2.3", "2.4", false ) );
-		patches.put( "2.3", new Patch( Type.UPGRADE, "2.3", "3.1", false ) );
+		patches.put( "2.3", new Patch( Type.UPGRADE, "2.3", "2.4", false ) ); // branch
 		patches.put( "2.4", new Patch( Type.UPGRADE, "2.4", "2.5", false ) );
 		patches.put( "2.5", new Patch( Type.SWITCH, "2.5", "3.1", false ) );
+		patches.put( "2.3", new Patch( Type.UPGRADE, "2.3", "3.1", false ) );
 		patches.put( "3.1", new Patch( Type.UPGRADE, "3.1", "3.2", false ) );
 
 		Set< String > result = new HashSet();
