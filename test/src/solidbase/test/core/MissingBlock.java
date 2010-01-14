@@ -26,7 +26,7 @@ import solidbase.core.FatalException;
 import solidbase.core.Patcher;
 import solidbase.core.TestUtil;
 
-public class DoubleBlock
+public class MissingBlock
 {
 	@Test
 	public void testBasic() throws IOException, SQLException
@@ -37,13 +37,33 @@ public class DoubleBlock
 
 		try
 		{
-			Patcher.openPatchFile( "testpatch-doubleblock.sql" );
+			Patcher.openPatchFile( "testpatch-missingblock.sql" );
 			Assert.fail( "Expected an exception" );
 		}
 		catch( FatalException e )
 		{
 			TestUtil.assertPatchFileClosed();
-			Assert.assertTrue( e.getMessage().contains( "Double upgrade block" ) );
+			Assert.assertTrue( e.getMessage().contains( "not found" ) );
+		}
+	}
+
+	@Test
+	public void testMissingInitBlock() throws IOException, SQLException
+	{
+		Patcher.end();
+
+		Patcher.setCallBack( new TestProgressListener() );
+
+		try
+		{
+			Patcher.openPatchFile( "testpatch-missinginitblock.sql" );
+			Assert.fail( "Expected an exception" );
+		}
+		catch( FatalException e )
+		{
+			TestUtil.assertPatchFileClosed();
+			Assert.assertTrue( e.getMessage().contains( "not found" ) );
+			Assert.assertFalse( e.getMessage().contains( "null" ) );
 		}
 	}
 }

@@ -28,6 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.collections.map.MultiValueMap;
+import org.apache.commons.lang.StringUtils;
 
 import solidbase.core.Patch.Type;
 
@@ -190,6 +191,22 @@ public class PatchFile
 		}
 
 		scan();
+
+		Iterator< Patch > iterator = this.patches.values().iterator();
+		while( iterator.hasNext() )
+		{
+			Patch patch = iterator.next();
+			if( patch.getLineNumber() < 0 )
+				throw new FatalException( "Upgrade block \"" + StringUtils.defaultString( patch.getSource() ) + "\" --> \"" + patch.getTarget() + "\" not found" );
+		}
+
+		iterator = this.inits.values().iterator();
+		while( iterator.hasNext() )
+		{
+			Patch patch = iterator.next();
+			if( patch.getLineNumber() < 0 )
+				throw new FatalException( "Init block \"" + StringUtils.defaultString( patch.getSource() ) + "\" --> \"" + patch.getTarget() + "\" not found" );
+		}
 	}
 
 
@@ -248,9 +265,9 @@ public class PatchFile
 							if( patch == null )
 								throw new FatalException( "Undefined upgrade block found: \"" + source + "\" --> \"" + target + "\" at line " + pos );
 							if( patch.getType() != type )
-								throw new FatalException( "Upgrade block type '" + action + "' is different from definition at line " + pos );
+								throw new FatalException( "Upgrade block type '" + action + "' is different from its definition at line " + pos );
 						}
-						if( patch.getLineNumber() > 0 )
+						if( patch.getLineNumber() >= 0 )
 							throw new FatalException( "Double upgrade block \"" + source + "\" --> \"" + target + "\" found at line " + pos );
 						patch.setLineNumber( pos );
 					}
