@@ -88,4 +88,9 @@ public class TestUtil
 	{
 		Assert.assertFalse( Patcher.dbVersion.logContains( version ), "Not expecting version " + version + " to be part of the history" );
 	}
+
+	static public void assertPatchFileClosed()
+	{
+		Assert.assertNull( Patcher.patchFile.file );
+	}
 }
