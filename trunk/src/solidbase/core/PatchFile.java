@@ -239,14 +239,19 @@ public class PatchFile
 						if( type == Type.INIT )
 						{
 							patch = getInitPatch( source.length() == 0 ? null : source, target );
-							Assert.isTrue( patch != null, "Undefined init block found: \"" + source + "\" --> \"" + target + "\"" );
+							if( patch == null )
+								throw new FatalException( "Undefined init block found: \"" + source + "\" --> \"" + target + "\" at line " + pos );
 						}
 						else
 						{
 							patch = getPatch( source.length() == 0 ? null : source, target );
-							Assert.isTrue( patch != null, "Undefined upgrade block found: \"" + source + "\" --> \"" + target + "\"" );
-							Assert.isTrue( patch.getType() == type, "Upgrade block type '" + action + "' is different from definition", pos );
+							if( patch == null )
+								throw new FatalException( "Undefined upgrade block found: \"" + source + "\" --> \"" + target + "\" at line " + pos );
+							if( patch.getType() != type )
+								throw new FatalException( "Upgrade block type '" + action + "' is different from definition at line " + pos );
 						}
+						if( patch.getLineNumber() > 0 )
+							throw new FatalException( "Double upgrade block \"" + source + "\" --> \"" + target + "\" found at line " + pos );
 						patch.setLineNumber( pos );
 					}
 				}
