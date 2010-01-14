@@ -15,7 +15,7 @@ In most projects there is no clear policy for Java exception handling. This docu
 
 == Concept ==
 
-_From: http://dev2dev.bea.com/pub/a/2006/11/effective-exceptions.html_
+_From: http://dev2dev.bea.com/pub/a/2006/11/effective-exceptions.html _
 
 Barry Ruzek introduces the notion of Faults and Contingencies.
 
@@ -51,7 +51,7 @@ The general rules for doing basic exception handling are:
 
 The following are some of the generally accepted principles of exception handling: 
 
-_From: http://www-106.ibm.com/developerworks/java/library/j-ejbexcept.html_
+_From: http://www-106.ibm.com/developerworks/java/library/j-ejbexcept.html _
 
  * If you can't handle an exception, don't catch it;
  * If you catch an exception, don't swallow it;
@@ -64,7 +64,7 @@ Item 1 is obviously in conflict with item 3. The practical solution is a trade-o
 
 These general rules do not solve the following problems that arise in large object oriented systems:
 
-_Abstracted from: http://www.octopull.demon.co.uk/java/ExceptionalJava.html_
+_Abstracted from: http://www.octopull.demon.co.uk/java/ExceptionalJava.html _
 
  * breaking encapsulation. Methods are implemented that throw exceptions that make no sense to the caller of that method;
  * loss of information. Wrapping the exceptions that make no sense in another general exception has the side effect of making it difficult to detect the distinction between different problems programmatically.
@@ -82,7 +82,7 @@ The method could do one of two things:
 
 So here are the additional rules:
 
-_From: http://www.octopull.demon.co.uk/java/ExceptionalJava.html_
+_From: http://www.octopull.demon.co.uk/java/ExceptionalJava.html _
 
  # The exceptions that a method declares in its throws clause should make sense to the caller of that method; \\(was: “It is the responsibility of the Class Designer to identify issues that would result in a checked exception being thrown from a class method. Those reviewing the class design check that this has been done correctly. Exception specifications are not changed during implementation without first seeking agreement that the class design is in error.”)
  # exceptions that propagate from public methods are expected to be of types that belong to the package containing the method;
