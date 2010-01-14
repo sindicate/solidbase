@@ -1,0 +1,175 @@
+= Best Practice Exception Handling in Java =
+
+== History ==
+
+|| *Version* || *Author* || *When* || *Comment* ||
+|| Version 1.2 || René M. de Bloois || Jan 17, 2007 || After reading 'Effective Java Exceptions' by Barry Ruzek, added the 'Concept' paragraph ||
+|| Version 1.1 || René M. de Bloois || Nov 28, 2006 || First version in Wiki form instead of MS Word ||
+|| version 1.0 || René M. de Bloois || Jan 11, 2005 || ||
+
+*TODO:* Apply the knowledge received from 'Effective Java Exceptions' to the rest of this document.
+
+== Introduction ==
+
+In most projects there is no clear policy for Java exception handling. This document will give a guideline to best practice exception handling in java based systems.
+
+== Concept ==
+
+_From: http://dev2dev.bea.com/pub/a/2006/11/effective-exceptions.html_
+
+Barry Ruzek introduces the notion of Faults and Contingencies.
+
+ * *Contingency:* An expected condition demanding an alternative response from a method that can be expressed in terms of the method's intended purpose. The caller of the method expects these kinds of conditions and has a strategy for coping with them.
+ * *Fault*: An unplanned condition that prevents a method from achieving its intended purpose that cannot be described without reference to the method's internal implementation.
+
+Contingency conditions map to checked exceptions, faults map to unchecked exceptions:
+
+|| *Condition* || *Contingency* || *Fault* ||
+|| *Is considered to be* || A part of the design || A nasty surprise ||
+|| *Is expected to happen* || Regularly but rarely || Never ||
+|| *Who cares about it* || The upstream code that invokes the method || The people who need to fix the problem ||
+|| *Examples* || Alternative return modes || Programming bugs, hardware malfunctions, configuration mistakes, missing files, unavailable servers ||
+|| *Best Mapping* || A checked exception || An unchecked exception ||
+
+Contingencies will be handled by the caller, possibly treating it as a fault by wrapping it in an unchecked exception.
+
+Faults will be picked up by a Fault Barrier, which logs it and generates a generic response, optionally including the unchecked exception itself. Experience tells us that showing the stack trace is better than showing a message which does not tell us anything.
+
+== Common Mistakes ==
+
+First we describe the common mistakes and rules to prevent those mistakes. After that we will describe the problems that arise in large systems, that are not prevented by those rules and what further rules should be introduced when building large systems.
+
+Some examples of basic programming mistakes regarding exception handling are:
+
+ * Swallowing exceptions;
+ * Logging the same exception in multiple places;
+ * Exceptions that are too general.
+
+The general rules for doing basic exception handling are:
+
+== Principles of exception handling ==
+
+The following are some of the generally accepted principles of exception handling: 
+
+_From: http://www-106.ibm.com/developerworks/java/library/j-ejbexcept.html_
+
+ * If you can't handle an exception, don't catch it;
+ * If you catch an exception, don't swallow it;
+ * Catch an exception as close as possible to its source;
+ * Log an exception where you catch it, unless you plan to rethrow it;
+ * Structure your methods according to how fine-grained your exception handling must be;
+ * Use as many typed exceptions as you need, particularly for application exceptions. 
+
+Item 1 is obviously in conflict with item 3. The practical solution is a trade-off between how close to the source you catch an exception and how far you let it fall before you've completely lost the intent or content of the original exception. 
+
+These general rules do not solve the following problems that arise in large object oriented systems:
+
+_Abstracted from: http://www.octopull.demon.co.uk/java/ExceptionalJava.html_
+
+ * breaking encapsulation. Methods are implemented that throw exceptions that make no sense to the caller of that method;
+ * loss of information. Wrapping the exceptions that make no sense in another general exception has the side effect of making it difficult to detect the distinction between different problems programmatically.
+ * Information overload. Letting the original exceptions propagate up the call stack leads to incoherent sets of exceptions in the throws clauses of methods, until developers get fed up and introduce “throws Exception”.
+ * Overriding a method from a superclass that does not throw exceptions. This could be a valid situation when there is no sensible reason to the caller why the method should fail.
+
+The additional rules to solve the above problems center around one concept:
+
+A method received a checked exception but it doesn’t know how to handle it and the method can not declare it because it does not make sense to the method’s caller.
+
+The method could do one of two things:
+
+ * The exception is a programming error or a system malfunction and should be hidden. Wrap the exception in a RuntimeException (or a subclass of RuntimeException, like the SystemException described below), effectively letting the exception disappear and resurface in the main routine that will log it and possibly display it to the user;
+ * Translate the exception. The meaning of the exception does make sense to the caller but not to the caller's caller because it is simply the wrong class. Wrap the exception in a new exception that is of the right class.
+
+So here are the additional rules:
+
+_From: http://www.octopull.demon.co.uk/java/ExceptionalJava.html_
+
+ # The exceptions that a method declares in its throws clause should make sense to the caller of that method; \\(was: “It is the responsibility of the Class Designer to identify issues that would result in a checked exception being thrown from a class method. Those reviewing the class design check that this has been done correctly. Exception specifications are not changed during implementation without first seeking agreement that the class design is in error.”)
+ # exceptions that propagate from public methods are expected to be of types that belong to the package containing the method;
+ # within a package there are distinct types of exceptions for distinct issues;
+ # if a checked exception is thrown (to indicate an operation failure) by a method in one package it is not to be propagated by a calling method in a second package. Instead the exception is caught and "translated". Translation converts the exception into: an appropriate return status for the method, a checked exception appropriate to the calling package or an unchecked exception recognised by the system. (Translation to another exception type frequently involves "wrapping".)
+ # empty catch-blocks are not used to "eat" or ignore exceptions. In the rare cases where ignoring an exception is correct the empty statement block should contain a comment that makes the reasoning behind ignoring the exception clear.
+
+The SQLException is a good example of the above issue. The SQLException is a checked exception because it makes sense to a method that uses JDBC to access a database. But it does not make sense to a caller further up the call stack.
+
+The problem with SQLException is that it contains at least three error codes that could be perceived as business logic exceptions:
+
+ # detail data found when deleting a master record, and 
+ # no master record found when inserting a detail record, and
+ # the record that is inserted violates a uniqueness constraint.
+
+The logic that deals with this exception should be something like this:
+
+{{{
+try
+{
+	…
+}
+catch( SQLException e )
+{
+	throw translateSQLException( e );
+}
+}}}
+
+{{{
+static public DatastoreConstraintException translateSQLException(
+SQLException e )
+{
+	switch( e.getErrorCode( ) )
+	{
+            case 1:
+                return new NotUniqueException( );
+            case 1400:
+                return new MandatoryAttributeException( );
+            case 2290: // check constraint violation
+                return new GeneralConstraintException( );
+            case 2291:
+                return new MasterDataNotFoundException( );
+            case 2292:
+                return new DetailDataFoundException( );
+	}
+	return new SystemException( e ); // which is a RuntimeException
+}
+}}}
+
+==Further discussion ==
+
+Superclasses of exceptions should only be introduced when it is descriptive enough and will be used on its own. Which means that there is a group of exceptions that will be handled in an identical way, but there is still the possibility to identify the individual subclasses if needed.
+
+Exceptions that are caused by the caller and could be prevented by the caller should be runtime exceptions (for example, giving null as a parameter value where it is not allowed). Corrective action would not be to catch the exception but prevent the exception from occurring.
+
+== Appendix A. Proposed exception hierarchy ==
+
+  * Exception
+    * !DatastoreConstraintException
+      * !NotUniqueException
+      * !MasterDataNotFoundException
+      * !MandatoryAttributeException
+      * !GeneralConstraintException
+      * !DetailDataFoundException
+    * !AuthenticationFailedException
+    * !ExportFailedException
+    * !RuntimeException
+      * !SystemException
+      * !ConfigurationException
+      * !AssertionFailedException
+      * !NotAuthorizedException
+      * !InvalidStateTransitionException
+      * !OptimisticLockingException
+
+== Appendix B. Rules for exception handling in large java-based systems ==
+
+ # If you can't handle an exception, don't catch it;
+ # if you catch an exception, don't swallow it;
+ # catch an exception as close as possible to its source;
+ # log an exception where you catch it, unless you plan to rethrow it;
+ # structure your methods according to how fine-grained your exception handling must be;
+ # use as many typed exceptions as you need, particularly for application exceptions;
+ # exceptions declared by a method in its throws clause should make as much sense as the method’s return value or parameters;
+ # exceptions that propagate from public methods are expected to be of types that belong to the package containing the method;
+ # within a package there are distinct types of exception for distinct issues;
+ # if a checked exception is thrown by a method in one package it is not to be propagated by a calling method in a second package. Instead the exception is caught and "translated". Translation converts the exception into: 
+  * an appropriate return status for the method;
+  * a checked exception appropriate to the calling package, or
+  * an unchecked exception recognised by the system;
+ # empty catch-blocks are not used to ignore exceptions. In the rare cases where ignoring an exception is correct the empty statement block should contain a comment that makes the reasoning behind ignoring the exception clear.
