@@ -268,7 +268,7 @@
 	</target>
 
 
-	<target name="maven:deploy" description="Deploys to the maven repo">
+	<target name="maven:deploy" depends="clean,test,build" description="Deploys to the maven repo">
 		<maven:deploy file="${dist.home}/solidbase.jar">
 			<pom file="pom.xml" />
 		</maven:deploy>
