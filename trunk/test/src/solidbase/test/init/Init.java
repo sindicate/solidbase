@@ -74,7 +74,7 @@ public class Init
 			Patcher.closePatchFile();
 		}
 
-		TestUtil.verifyVersion( "1.0.2", null, 1, "1.1" );
+		TestUtil.verifyVersion( "1.0.2", null, 1, "1.1.1" );
 	}
 
 	@Test
@@ -92,10 +92,10 @@ public class Init
 			assert targets.size() > 0;
 
 			Patcher.patch( "" );
-			TestUtil.verifyVersion( null, null, 0, "1.1" );
+			TestUtil.verifyVersion( null, null, 0, "1.1.1" );
 
 			Patcher.patch( "1.0.2" );
-			TestUtil.verifyVersion( "1.0.2", null, 1, "1.1" );
+			TestUtil.verifyVersion( "1.0.2", null, 1, "1.1.1" );
 		}
 		finally
 		{
