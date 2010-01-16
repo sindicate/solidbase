@@ -12,7 +12,7 @@
             indent="no"/>
 
 <!-- ********************************************************************
-     $Id: docbook.xsl 7939 2008-03-23 04:32:34Z xmldoc $
+     $Id: docbook.xsl 8399 2009-04-08 07:37:42Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -120,6 +120,9 @@
   <xsl:attribute name="link">#0000FF</xsl:attribute>
   <xsl:attribute name="vlink">#840084</xsl:attribute>
   <xsl:attribute name="alink">#0000FF</xsl:attribute>
+  <xsl:if test="starts-with($writing.mode, 'rl')">
+    <xsl:attribute name="dir">rtl</xsl:attribute>
+  </xsl:if>
 </xsl:template>
 
 <xsl:template name="head.content">
@@ -338,9 +341,7 @@ body { background-image: url('</xsl:text>
          toss the namespace and continue.  Use the docbook5 namespaced
          stylesheets for DocBook5 if you don't want to use this feature.-->
     <!-- include extra test for Xalan quirk -->
-    <xsl:when test="(function-available('exsl:node-set') or
-                     contains(system-property('xsl:vendor'),
-                       'Apache Software Foundation'))
+    <xsl:when test="$exsl.node.set.available != 0
                     and (*/self::ng:* or */self::db:*)">
       <xsl:call-template name="log.message">
         <xsl:with-param name="level">Note</xsl:with-param>

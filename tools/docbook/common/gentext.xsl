@@ -5,7 +5,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: gentext.xsl 6910 2007-06-28 23:23:30Z xmldoc $
+     $Id: gentext.xsl 8396 2009-04-07 07:41:35Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -198,6 +198,11 @@
 <xsl:template match="bridgehead" mode="is.autonumber">
   <xsl:value-of select="$section.autolabel"/>
 </xsl:template>
+
+<xsl:template match="procedure" mode="is.autonumber">
+  <xsl:value-of select="$formal.procedures"/>
+</xsl:template>
+
 
 <xsl:template match="*" mode="object.xref.template">
   <xsl:param name="purpose"/>
@@ -738,7 +743,7 @@
       <xsl:when test="$titletype != ''">
         <xsl:value-of select="$xref.label-title.separator"/>
       </xsl:when>
-      <xsl:when test="$pagetype != ''">
+      <xsl:when test="$pagetype != '' and $pagetype != 'nopage'">
         <xsl:value-of select="$xref.label-page.separator"/>
       </xsl:when>
     </xsl:choose>

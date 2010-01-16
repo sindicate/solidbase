@@ -274,5 +274,13 @@
 		</maven:deploy>
 	</target>
 	
+	
+	<!-- This will delete all files but not the folders. Use this when you want to integrate a new version of the docbook xsl tool -->
+	<target name="delete-docbook-tool">
+		<delete>
+			<fileset dir="tools/docbook" includes="**/*" />
+		</delete>
+	</target>
+	
 		
 </project>

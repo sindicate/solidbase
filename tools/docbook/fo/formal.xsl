@@ -4,7 +4,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: formal.xsl 7447 2007-09-14 22:14:55Z bobstayton $
+     $Id: formal.xsl 8417 2009-04-24 16:20:18Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -130,13 +130,16 @@
     <xsl:call-template name="pi.dbfo_keep-together"/>
   </xsl:variable>
 
-  <!-- These don't have a pgwide attribute, so may use a PI -->
+  <!-- Some don't have a pgwide attribute, so may use a PI -->
   <xsl:variable name="pgwide.pi">
     <xsl:call-template name="pi.dbfo_pgwide"/>
   </xsl:variable>
 
   <xsl:variable name="pgwide">
     <xsl:choose>
+      <xsl:when test="@pgwide">
+        <xsl:value-of select="@pgwide"/>
+      </xsl:when>
       <xsl:when test="$pgwide.pi">
         <xsl:value-of select="$pgwide.pi"/>
       </xsl:when>
