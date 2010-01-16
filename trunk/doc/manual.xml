@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V5.0//EN" "../tools/docbook/docbook-5.0b5.dtd">
 
 <!--
    Copyright 2006 René M. de Bloois
@@ -17,7 +16,9 @@
    limitations under the License.
 -->
 
-<book xmlns="http://docbook.org/ns/docbook">
+<book xmlns="http://docbook.org/ns/docbook"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd">
 
 	<info>
 		<title>Database Patch Tool User's Manual</title>

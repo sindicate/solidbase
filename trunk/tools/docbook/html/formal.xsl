@@ -3,7 +3,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: formal.xsl 8000 2008-04-15 01:06:41Z abdelazer $
+     $Id: formal.xsl 8310 2009-03-11 08:29:45Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -186,13 +186,13 @@
     </xsl:when>
     <xsl:otherwise>
       <!-- do not use xsl:copy because of XHTML's needs -->
-      <table>
-        <xsl:copy-of select="@*[not(local-name()='id')]"/>
+      <xsl:element name="table" namespace="">
+        <xsl:apply-templates select="@*" mode="htmlTableAtt"/>
         <xsl:attribute name="id">
           <xsl:call-template name="object.id"/>
         </xsl:attribute>
         <xsl:call-template name="htmlTable"/>
-      </table>
+      </xsl:element>
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>
@@ -327,10 +327,13 @@
       </xsl:call-template>
     </xsl:when>
     <xsl:otherwise>
-      <table>
-        <xsl:copy-of select="@*"/>
+      <xsl:element name="table" namespace="">
+        <xsl:apply-templates select="@*" mode="htmlTableAtt"/>
+        <xsl:attribute name="id">
+          <xsl:call-template name="object.id"/>
+        </xsl:attribute>
         <xsl:call-template name="htmlTable"/>
-      </table>
+      </xsl:element>
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>
