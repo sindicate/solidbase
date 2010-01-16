@@ -290,7 +290,7 @@ public class Patcher
 		{
 			Patch patch = (Patch)iter.next();
 			patch( patch );
-			dbVersion.setSpec( patch.getTarget() );
+			dbVersion.updateSpec( patch.getTarget() );
 			// TODO How do we get a more dramatic error message here, if something goes wrong?
 		}
 	}
@@ -450,7 +450,7 @@ public class Patcher
 				{
 					// We have to update the progress even if the logging fails. Otherwise the patch cannot be
 					// restarted. That's why the progress update is first. But some logging will be lost in that case.
-					dbVersion.setProgress( patch.getTarget(), count );
+					dbVersion.updateProgress( patch.getTarget(), count );
 					dbVersion.log( "S", patch.getSource(), patch.getTarget(), count, sql, (String)null );
 				}
 				return;
@@ -567,7 +567,7 @@ public class Patcher
 		dbVersion.setStale(); // TODO With a normal patch, only set stale if not both of the 2 version tables are found
 		if( patch.isInit() )
 		{
-			dbVersion.setSpec( patch.getTarget() );
+			dbVersion.updateSpec( patch.getTarget() );
 			Assert.isFalse( patch.isOpen() );
 		}
 		else
@@ -580,7 +580,7 @@ public class Patcher
 			}
 			if( !patch.isOpen() )
 			{
-				dbVersion.setVersion( patch.getTarget() );
+				dbVersion.updateVersion( patch.getTarget() );
 				dbVersion.logComplete( patch.getSource(), patch.getTarget(), count );
 			}
 		}

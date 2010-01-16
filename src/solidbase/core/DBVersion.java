@@ -47,6 +47,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -63,6 +65,8 @@ import org.apache.commons.lang.StringUtils;
  */
 public class DBVersion
 {
+	static private Pattern specPattern = Pattern.compile( "(\\d.\\d)(.\\d)?" );
+
 	/**
 	 * Need to refresh this instance from the data in the DBVERSION table.
 	 */
@@ -100,7 +104,13 @@ public class DBVersion
 	protected int statements;
 
 	/**
-	 * How do the DBVERSION tables look like.
+	 * The effective specification version number configured in the upgrade file. This is the first 2 numbers from the
+	 * {@link #spec}. It determines what the DBVERSION tables look like.
+	 */
+	protected String effectiveSpec;
+
+	/**
+	 * The actual specification version number configured in the upgrade file.
 	 */
 	protected String spec;
 
@@ -168,13 +178,29 @@ public class DBVersion
 	/**
 	 * Returns the specification version of the version tables.
 	 * 
-	 * @return the specification version of the version tables.
+	 * @return The specification version of the version tables.
 	 */
 	protected String getSpec()
 	{
 		if( this.stale )
 			init();
 		return this.spec;
+	}
+
+	/**
+	 * Sets the specification version of the version tables.
+	 * 
+	 * @param spec The specification version of the version tables.
+	 */
+	protected void setSpec( String spec )
+	{
+		Matcher matcher = specPattern.matcher( spec );
+		Assert.isTrue( matcher.matches() );
+		String eSpec = matcher.group( 1 );
+		if( !eSpec.equals( "1.0" ) && !eSpec.equals( "1.1" ) )
+			throw new FatalException( "Spec " + spec + " not recognized. Allowed specs are 1.0[.x] or 1.1[.x]." );
+		this.spec = spec;
+		this.effectiveSpec = eSpec;
 	}
 
 	/**
@@ -188,7 +214,6 @@ public class DBVersion
 		this.version = null;
 		this.target = null;
 		this.statements = 0;
-		this.spec = null;
 
 		Connection connection = this.database.getConnection();
 		try
@@ -209,11 +234,9 @@ public class DBVersion
 						this.target = resultSet.getString( "TARGET" );
 						this.statements = resultSet.getInt( "STATEMENTS" );
 						if( this.specColumnExists )
-							this.spec = resultSet.getString( "SPEC" );
+							setSpec( resultSet.getString( "SPEC" ) );
 						else
-							this.spec = "1.0";
-						if( !this.spec.equals( "1.0" ) && !this.spec.equals( "1.1" ) )
-							throw new FatalException( "Spec " + this.spec + " not recognized." );
+							setSpec( "1.0" );
 						Assert.isFalse( resultSet.next() );
 
 						Patcher.callBack.debug( "version=" + this.version + ", target=" + this.target + ", statements=" + this.statements );
@@ -283,7 +306,7 @@ public class DBVersion
 	 * @param target The target version.
 	 * @param statements The number of statements executed.
 	 */
-	protected void setProgress( String target, int statements )
+	protected void updateProgress( String target, int statements )
 	{
 		Assert.notEmpty( target, "Target must not be empty" );
 		Assert.isTrue( statements > 0 );
@@ -308,7 +331,7 @@ public class DBVersion
 	 *
 	 * @param version The version.
 	 */
-	protected void setVersion( String version )
+	protected void updateVersion( String version )
 	{
 		Assert.notEmpty( version, "Version must not be empty" );
 
@@ -332,20 +355,22 @@ public class DBVersion
 	 * 
 	 * @param spec The spec.
 	 */
-	protected void setSpec( String spec )
+	protected void updateSpec( String spec )
 	{
 		Assert.notEmpty( spec, "Spec must not be empty" );
 
 		if( this.stale )
 			init();
 
-		if( spec.equals( "1.0" ) )
+		setSpec( spec );
+
+		if( this.effectiveSpec.equals( "1.0" ) )
 		{
-			Assert.isFalse( this.specColumnExists, "SPEC column should not exist in the DBVERSION table" );
+			Assert.isFalse( this.specColumnExists, "When effective spec is 1.0, a SPEC column should not exist in the DBVERSION table" );
 		}
 		else
 		{
-			Assert.isTrue( spec.equals( "1.1" ), "Only spec 1.0 or 1.1 allowed" );
+			Assert.isTrue( this.effectiveSpec.equals( "1.1" ), "Only spec 1.0 or 1.1 allowed" );
 			Assert.isTrue( this.specColumnExists, "SPEC column should exist in the DBVERSION table" );
 			if( this.versionRecordExists )
 				execute( "UPDATE DBVERSION SET SPEC = ?", new Object[] { spec } );
@@ -356,7 +381,6 @@ public class DBVersion
 			}
 		}
 
-		this.spec = spec;
 	}
 
 	/**
@@ -386,7 +410,7 @@ public class DBVersion
 		if( result != null && result.length() > 3000 )
 			result = result.substring( 0, 3000 );
 
-		if( "1.1".equals( this.spec ) )
+		if( "1.1".equals( this.effectiveSpec ) )
 			execute( "INSERT INTO DBVERSIONLOG ( TYPE, SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ?, ? )",
 					new Object[] { type, source, target, count, new Timestamp( System.currentTimeMillis() ), command, result } );
 		else
@@ -451,7 +475,7 @@ public class DBVersion
 	 */
 	protected void logComplete( String source, String target, int count )
 	{
-		log( "B", source, target, count, null, "1.1".equals( this.spec ) ? "COMPLETE" : "COMPLETED VERSION " + target );
+		log( "B", source, target, count, null, "1.1".equals( this.effectiveSpec ) ? "COMPLETE" : "COMPLETED VERSION " + target );
 	}
 
 	/**
@@ -464,7 +488,7 @@ public class DBVersion
 	{
 		// This method does not care about staleness
 
-		boolean spec11 = "1.1".equals( this.spec );
+		boolean spec11 = "1.1".equals( this.effectiveSpec );
 
 		try
 		{
@@ -531,7 +555,7 @@ public class DBVersion
 		Assert.isFalse( this.stale );
 
 		String sql;
-		if( "1.1".equals( this.spec ) )
+		if( "1.1".equals( this.effectiveSpec ) )
 			sql = "SELECT 1 FROM DBVERSIONLOG WHERE TYPE = 'B' AND TARGET = '" + version + "' AND RESULT = 'COMPLETE'";
 		else
 			sql = "SELECT 1 FROM DBVERSIONLOG WHERE RESULT = 'COMPLETED VERSION " + version + "'";
