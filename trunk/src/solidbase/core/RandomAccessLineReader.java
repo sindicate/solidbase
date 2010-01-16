@@ -42,7 +42,7 @@ public class RandomAccessLineReader
 	protected BufferedReader reader;
 	protected int currentLineNumber;
 	protected String encoding = CHARSET_DEFAULT;
-	protected int bomSize;
+	protected byte[] bom;
 
 	/**
 	 * Creates a new line reader from the given url.
@@ -66,7 +66,7 @@ public class RandomAccessLineReader
 
 			detectEncoding( line );
 
-			if( this.bomSize > 0 )
+			if( this.bom != null )
 				reOpen();
 		}
 		catch( IOException e )
@@ -103,8 +103,8 @@ public class RandomAccessLineReader
 		close();
 
 		InputStream is = this.url.openStream();
-		if( this.bomSize > 0 )
-			is.read( new byte[ this.bomSize ] ); // Skip some bytes
+		if( this.bom != null )
+			is.read( new byte[ this.bom.length ] ); // Skip some bytes
 		this.reader = new BufferedReader( new InputStreamReader( is, this.encoding ) );
 		this.currentLineNumber = 1;
 	}
@@ -130,19 +130,19 @@ public class RandomAccessLineReader
 			if( bytes.length >= 3 && bytes[ 0 ] == -17 && bytes[ 1 ] == -69 && bytes[ 2 ] == -65 )
 			{
 				this.encoding = CHARSET_UTF8;
-				this.bomSize = 3;
+				this.bom = new byte[] { -17, -69, -65 };
 				return;
 			}
 			if( bytes[ 0 ] == -2 && bytes[ 1 ] == -1 )
 			{
 				this.encoding = CHARSET_UTF16BE;
-				this.bomSize = 2;
+				this.bom = new byte[] { -2, -1 };
 				return;
 			}
 			if( bytes[ 0 ] == -1 && bytes[ 1 ] == -2 )
 			{
 				this.encoding = CHARSET_UTF16LE;
-				this.bomSize = 2;
+				this.bom = new byte[] { -1, -2 };
 				return;
 			}
 		}
@@ -228,5 +228,15 @@ public class RandomAccessLineReader
 	public String getEncoding()
 	{
 		return this.encoding;
+	}
+
+	/**
+	 * Returns the current character encoding.
+	 * 
+	 * @return the current character encoding.
+	 */
+	public byte[] getBOM()
+	{
+		return this.bom;
 	}
 }

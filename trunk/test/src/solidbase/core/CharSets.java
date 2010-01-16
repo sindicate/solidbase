@@ -75,6 +75,7 @@ public class CharSets
 	public void testUtf16Bom() throws IOException, SQLExecutionException
 	{
 		Patcher.openPatchFile( "patch-utf-16-bom-1.sql" );
+		Assert.assertEquals( Patcher.patchFile.file.getBOM(), new byte[] { -1, -2 } );
 		Assert.assertEquals( Patcher.patchFile.file.getEncoding(), "UTF-16LE" );
 	}
 
@@ -82,6 +83,7 @@ public class CharSets
 	public void testUtf16BomAndExplicit() throws IOException, SQLException
 	{
 		Patcher.openPatchFile( "patch-utf-16-bom-2.sql" );
+		Assert.assertEquals( Patcher.patchFile.file.getBOM(), new byte[] { -1, -2 } );
 		Assert.assertEquals( Patcher.patchFile.file.getEncoding(), "UTF-16LE" );
 
 		RandomAccessLineReader reader = Patcher.patchFile.file;
@@ -101,6 +103,7 @@ public class CharSets
 	public void testUtf16NoBom() throws IOException, SQLException
 	{
 		Patcher.openPatchFile( "patch-utf-16-nobom-1.sql" );
+		Assert.assertNull( Patcher.patchFile.file.getBOM() );
 		Assert.assertEquals( Patcher.patchFile.file.getEncoding(), "UTF-16LE" );
 
 		RandomAccessLineReader reader = Patcher.patchFile.file;
