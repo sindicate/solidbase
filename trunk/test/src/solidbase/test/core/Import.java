@@ -31,26 +31,19 @@ public class Import
 	@Test
 	public void testImport() throws IOException, SQLException
 	{
-		Patcher.end();
+		TestProgressListener progress = new TestProgressListener();
+		Database database = new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:import3", "sa", null, progress );
+		Patcher patcher = new Patcher( progress, database );
 
-		Patcher.setCallBack( new TestProgressListener() );
-		Database database = new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:import3", "sa", null );
-		Patcher.setDefaultConnection( database );
+		patcher.openPatchFile( "testpatch-import1.sql" );
+		Set< String > targets = patcher.getTargets( false, null, false );
+		assert targets.size() > 0;
 
-		Patcher.openPatchFile( "testpatch-import1.sql" );
-		try
-		{
-			Set< String > targets = Patcher.getTargets( false, null, false );
-			assert targets.size() > 0;
+		patcher.patch( "1.0.2" );
 
-			Patcher.patch( "1.0.2" );
-		}
-		finally
-		{
-			Patcher.closePatchFile();
-		}
-
-		TestUtil.verifyVersion( "1.0.2", null, 5, null );
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 5, null );
 		TestUtil.assertRecordCount( database, "TEMP", 7 );
+
+		patcher.end();
 	}
 }

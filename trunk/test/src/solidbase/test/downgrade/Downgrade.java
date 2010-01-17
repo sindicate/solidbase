@@ -32,37 +32,30 @@ public class Downgrade
 	@Test
 	public void testDowngrade() throws IOException, SQLException
 	{
-		Patcher.end();
+		TestProgressListener progress = new TestProgressListener();
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:downgrade1", "sa", null, progress ) );
 
-		Patcher.setCallBack( new TestProgressListener() );
-		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:downgrade1", "sa", null ) );
+		patcher.openPatchFile( "testpatch-downgrade-1.sql" );
 
-		Patcher.openPatchFile( "testpatch-downgrade-1.sql" );
-		try
-		{
-			Set< String > targets = Patcher.getTargets( false, null, false );
-			assert targets.size() > 0;
+		Set< String > targets = patcher.getTargets( false, null, false );
+		assert targets.size() > 0;
 
-			System.out.println( "Patching to 1.1.0" );
-			Patcher.patch( "1.1.0" );
-			TestUtil.verifyVersion( "1.1.0", null, 1, "1.1" );
-			TestUtil.verifyHistoryIncludes( "1.1.0" );
+		System.out.println( "Patching to 1.1.0" );
+		patcher.patch( "1.1.0" );
+		TestUtil.verifyVersion( patcher, "1.1.0", null, 1, "1.1" );
+		TestUtil.verifyHistoryIncludes( patcher, "1.1.0" );
 
-			System.out.println( "Patching to 1.0.3" );
-			Patcher.patch( "1.0.3" );
-			// TODO Why don't we get an error here?
-			TestUtil.verifyVersion( "1.1.0", null, 1, "1.1" );
+		System.out.println( "Patching to 1.0.3" );
+		patcher.patch( "1.0.3" );
+		// TODO Why don't we get an error here?
+		TestUtil.verifyVersion( patcher, "1.1.0", null, 1, "1.1" );
 
-			System.out.println( "Patching to 1.0.3" );
-			Patcher.patch( "1.0.3", true );
-			TestUtil.verifyVersion( "1.0.3", null, 1, "1.1" );
-			TestUtil.verifyHistoryIncludes( "1.0.2" );
-			TestUtil.verifyHistoryNotIncludes( "1.1.0" );
-		}
-		finally
-		{
-			Patcher.closePatchFile();
-		}
+		System.out.println( "Patching to 1.0.3" );
+		patcher.patch( "1.0.3", true );
+		TestUtil.verifyVersion( patcher, "1.0.3", null, 1, "1.1" );
+		TestUtil.verifyHistoryIncludes( patcher, "1.0.2" );
+		TestUtil.verifyHistoryNotIncludes( patcher, "1.1.0" );
 
+		patcher.end();
 	}
 }

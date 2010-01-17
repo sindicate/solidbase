@@ -19,26 +19,18 @@ package solidbase.test.custom;
 import mockit.Mockit;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import solidbase.Main;
 import solidbase.Progress;
 import solidbase.config.Configuration;
 import solidbase.config.Manipulator;
-import solidbase.core.Patcher;
 import solidbase.test.TestUtil;
 import solidbase.test.console.MockConsole;
 
 
 public class CustomConfigurationTests
 {
-	@BeforeMethod
-	protected void init()
-	{
-		Patcher.end();
-	}
-
 	@Test
 	public void testCommandLineWithClass() throws Exception
 	{

@@ -29,9 +29,9 @@ import solidbase.core.SystemException;
 
 public class TestUtil
 {
-	static public void shutdownHSQLDB() throws SQLException
+	static public void shutdownHSQLDB( Patcher patcher ) throws SQLException
 	{
-		Connection connection = Patcher.currentDatabase.getConnection( "sa" );
+		Connection connection = patcher.currentDatabase.getConnection( "sa" );
 		try
 		{
 			connection.createStatement().executeUpdate( "SHUTDOWN" );
@@ -62,10 +62,10 @@ public class TestUtil
 		Assert.assertEquals( count, expected );
 	}
 
-	static public void verifyVersion( String version, String target, int statements, String spec ) throws SQLException
+	static public void verifyVersion( Patcher patcher, String version, String target, int statements, String spec ) throws SQLException
 	{
 		String sql = "SELECT * FROM DBVERSION";
-		Connection connection = Patcher.currentDatabase.getConnection();
+		Connection connection = patcher.currentDatabase.getConnection();
 		PreparedStatement statement = connection.prepareStatement( sql );
 		ResultSet result = statement.executeQuery();
 		Assert.assertTrue( result.next() );
@@ -79,18 +79,18 @@ public class TestUtil
 		Assert.assertFalse( result.next() );
 	}
 
-	public static void verifyHistoryIncludes( String version )
+	public static void verifyHistoryIncludes( Patcher patcher, String version )
 	{
-		Assert.assertTrue( Patcher.dbVersion.logContains( version ), "Expecting version " + version + " to be part of the history" );
+		Assert.assertTrue( patcher.dbVersion.logContains( version ), "Expecting version " + version + " to be part of the history" );
 	}
 
-	public static void verifyHistoryNotIncludes( String version )
+	public static void verifyHistoryNotIncludes( Patcher patcher, String version )
 	{
-		Assert.assertFalse( Patcher.dbVersion.logContains( version ), "Not expecting version " + version + " to be part of the history" );
+		Assert.assertFalse( patcher.dbVersion.logContains( version ), "Not expecting version " + version + " to be part of the history" );
 	}
 
-	static public void assertPatchFileClosed()
+	static public void assertPatchFileClosed( Patcher patcher )
 	{
-		Assert.assertNull( Patcher.patchFile.file );
+		Assert.assertNull( patcher.patchFile.file );
 	}
 }

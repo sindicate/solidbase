@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Set;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidbase.core.Database;
@@ -34,129 +35,115 @@ public class Basic
 	@Test
 	public void testBasic() throws IOException, SQLException
 	{
-		Patcher.end();
-
-		Patcher.setCallBack( new TestProgressListener() );
+		TestProgressListener progress = new TestProgressListener();
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
 		// TODO Learn to really shutdown an inmemory database
-		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null ) );
 
-		Patcher.openPatchFile( "testpatch1.sql" );
-		try
-		{
-			Set< String > targets = Patcher.getTargets( false, null, false );
-			assert targets.size() > 0;
+		patcher.openPatchFile( "testpatch1.sql" );
+		Set< String > targets = patcher.getTargets( false, null, false );
+		assert targets.size() > 0;
 
-			Patcher.patch( "1.0.2" );
-		}
-		finally
-		{
-			Patcher.closePatchFile();
-		}
+		patcher.patch( "1.0.2" );
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null );
 
-		TestUtil.verifyVersion( "1.0.2", null, 2, null );
+		patcher.end();
 	}
 
-	@Test(dependsOnMethods="testBasic", expectedExceptions=SQLExecutionException.class)
+	@Test(dependsOnMethods="testBasic")
 	public void testMissingGo() throws IOException, SQLException
 	{
-		Patcher.setCallBack( new TestProgressListener() );
-		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null ) );
+		TestProgressListener progress = new TestProgressListener();
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
 
-		Patcher.openPatchFile( "testpatch2.sql" );
+		patcher.openPatchFile( "testpatch2.sql" );
+		Set< String > targets = patcher.getTargets( false, null, false );
+		assert targets.size() > 0;
+
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null, false );
-			assert targets.size() > 0;
-
-			Patcher.patch( "1.0.3" );
+			patcher.patch( "1.0.3" );
+			Assert.fail();
 		}
-		finally
+		catch( SQLExecutionException e )
 		{
-			TestUtil.verifyVersion( "1.0.2", null, 2, null );
-			Patcher.end();
+			System.out.println( e.getMessage() );
+			Assert.assertTrue( e.getMessage().contains( "Unexpected token: / in statement [/]" ) );
 		}
+
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null );
+		patcher.end();
 	}
 
 	@Test(dependsOnMethods="testMissingGo")
 	public void testDumpXML () throws IOException, SQLException
 	{
-		Patcher.setCallBack( new TestProgressListener() );
-		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null ) );
+		TestProgressListener progress = new TestProgressListener();
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		Patcher.logToXML( out );
+		patcher.logToXML( out );
 		String xml = out.toString( "UTF-8" );
 		//System.out.println( xml );
+
+		patcher.end();
 	}
 
 	@Test
 	public void testOpen() throws IOException, SQLException
 	{
-		Patcher.end();
+		TestProgressListener progress = new TestProgressListener();
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testopen", "sa", null, progress ) );
 
-		Patcher.setCallBack( new TestProgressListener() );
-		// TODO Learn to really shutdown an inmemory database
-		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testopen", "sa", null ) );
+		patcher.openPatchFile( "testpatch-open.sql" );
+		Set< String > targets = patcher.getTargets( false, null, false );
+		assert targets.size() > 0;
 
-		Patcher.openPatchFile( "testpatch-open.sql" );
-		try
-		{
-			Set< String > targets = Patcher.getTargets( false, null, false );
-			assert targets.size() > 0;
+		patcher.patch( "1.0.2" );
 
-			Patcher.patch( "1.0.2" );
-		}
-		finally
-		{
-			Patcher.closePatchFile();
-		}
+		TestUtil.verifyVersion( patcher, "1.0.1", "1.0.2", 2, null );
 
-		TestUtil.verifyVersion( "1.0.1", "1.0.2", 2, null );
+		patcher.end();
 	}
 
 	@Test(expectedExceptions=UnterminatedStatementException.class)
 	public void testUnterminatedCommand1() throws IOException, SQLException
 	{
-		Patcher.end();
+		TestProgressListener progress = new TestProgressListener();
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testunterminated1", "sa", null, progress ) );
 
-		Patcher.setCallBack( new TestProgressListener() );
-		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testunterminated1", "sa", null ) );
-
-		Patcher.openPatchFile( "testpatch-unterminated1.sql" );
+		patcher.openPatchFile( "testpatch-unterminated1.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null, false );
+			Set< String > targets = patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
-			Patcher.patch( "1.0.1" );
+			patcher.patch( "1.0.1" );
 		}
 		finally
 		{
-			TestUtil.verifyVersion( null, "1.0.1", 1, null );
-			Patcher.closePatchFile();
+			TestUtil.verifyVersion( patcher, null, "1.0.1", 1, null );
+			patcher.end();
 		}
 	}
 
 	@Test(expectedExceptions=UnterminatedStatementException.class)
 	public void testUnterminatedCommand2() throws IOException, SQLException
 	{
-		Patcher.end();
+		TestProgressListener progress = new TestProgressListener();
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testunterminated2", "sa", null, progress ) );
 
-		Patcher.setCallBack( new TestProgressListener() );
-		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testunterminated2", "sa", null ) );
-
-		Patcher.openPatchFile( "testpatch-unterminated2.sql" );
+		patcher.openPatchFile( "testpatch-unterminated2.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null, false );
+			Set< String > targets = patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
-			Patcher.patch( "1.0.1" );
+			patcher.patch( "1.0.1" );
 		}
 		finally
 		{
-			TestUtil.verifyVersion( null, "1.0.1", 1, null );
-			Patcher.closePatchFile();
+			TestUtil.verifyVersion( patcher, null, "1.0.1", 1, null );
+			patcher.end();
 		}
 	}
 
@@ -165,24 +152,22 @@ public class Basic
 	@Test
 	public void testSharedPatchBlock() throws IOException, SQLException
 	{
-		Patcher.end();
+		TestProgressListener progress = new TestProgressListener();
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testshared1", "sa", null, progress ) );
 
-		Patcher.setCallBack( new TestProgressListener() );
-		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testshared1", "sa", null ) );
-
-		Patcher.openPatchFile( "testpatch-sharedpatch1.sql" );
+		patcher.openPatchFile( "testpatch-sharedpatch1.sql" );
 		try
 		{
-			Set< String > targets = Patcher.getTargets( false, null, false );
+			Set< String > targets = patcher.getTargets( false, null, false );
 			assert targets.size() > 0;
 
-			Patcher.patch( "1.0.2" );
+			patcher.patch( "1.0.2" );
 		}
 		finally
 		{
-			Patcher.closePatchFile();
+			patcher.closePatchFile();
 		}
 
-		TestUtil.verifyVersion( "1.0.2", null, 2, null );
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null );
 	}
 }
