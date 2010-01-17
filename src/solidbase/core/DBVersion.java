@@ -120,14 +120,22 @@ public class DBVersion
 	protected Database database;
 
 	/**
+	 * The progress listener.
+	 */
+	protected ProgressListener callBack;
+
+	/**
 	 * An instance of this class needs to now in which database the version tables can be found. The default
 	 * connection of this database determines the schema where those tables reside.
 	 * 
 	 * @param database The database that contains the version tables, with its default connection determining the schema.
+	 * @param callBack To receive debug messages.
 	 */
-	protected DBVersion( Database database )
+	// TODO We only need a debug listener
+	protected DBVersion( Database database, ProgressListener callBack )
 	{
 		this.database = database;
+		this.callBack = callBack;
 	}
 
 	/**
@@ -239,7 +247,7 @@ public class DBVersion
 							setSpec( "1.0" );
 						Assert.isFalse( resultSet.next() );
 
-						Patcher.callBack.debug( "version=" + this.version + ", target=" + this.target + ", statements=" + this.statements );
+						this.callBack.debug( "version=" + this.version + ", target=" + this.target + ", statements=" + this.statements );
 
 						this.versionRecordExists = true;
 					}

@@ -17,23 +17,15 @@
 package solidbase.test.console;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import solidbase.Main;
-import solidbase.core.Patcher;
 import solidbase.core.SystemException;
 import solidbase.test.TestUtil;
 
 
 public class CommandLineTests
 {
-	@BeforeMethod
-	protected void init()
-	{
-		Patcher.end();
-	}
-
 	@Test
 	public void testCommandLine() throws Exception
 	{

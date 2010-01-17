@@ -32,75 +32,51 @@ public class Init
 	@Test
 	public void testInit1() throws IOException, SQLException
 	{
-		Patcher.end();
+		TestProgressListener progress = new TestProgressListener();
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init1", "sa", null, progress ) );
 
-		Patcher.setCallBack( new TestProgressListener() );
-		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init1", "sa", null ) );
+		patcher.openPatchFile( "testpatch1.sql" );
+		Set< String > targets = patcher.getTargets( false, null, false );
+		assert targets.size() > 0;
 
-		Patcher.openPatchFile( "testpatch1.sql" );
-		try
-		{
-			Set< String > targets = Patcher.getTargets( false, null, false );
-			assert targets.size() > 0;
+		patcher.patch( "1.0.1" );
+		TestUtil.verifyVersion( patcher, "1.0.1", null, 2, null );
 
-			Patcher.patch( "1.0.1" );
-		}
-		finally
-		{
-			Patcher.closePatchFile();
-		}
-
-		TestUtil.verifyVersion( "1.0.1", null, 2, null );
+		patcher.end();
 	}
 
 	@Test(dependsOnMethods="testInit1")
 	public void testInit2() throws IOException, SQLException
 	{
-		Patcher.end();
+		TestProgressListener progress = new TestProgressListener();
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init1", "sa", null, progress ) );
 
-		Patcher.setCallBack( new TestProgressListener() );
-		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init1", "sa", null ) );
+		patcher.openPatchFile( "testpatch-version-table-upgrade-2.sql" );
+		Set< String > targets = patcher.getTargets( false, null, false );
+		assert targets.size() > 0;
 
-		Patcher.openPatchFile( "testpatch-version-table-upgrade-2.sql" );
-		try
-		{
-			Set< String > targets = Patcher.getTargets( false, null, false );
-			assert targets.size() > 0;
+		patcher.patch( "1.0.2" );
 
-			Patcher.patch( "1.0.2" );
-		}
-		finally
-		{
-			Patcher.closePatchFile();
-		}
-
-		TestUtil.verifyVersion( "1.0.2", null, 1, "1.1.1" );
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 1, "1.1.1" );
+		patcher.end();
 	}
 
 	@Test
 	public void testInit3() throws IOException, SQLException
 	{
-		Patcher.end();
+		TestProgressListener progress = new TestProgressListener();
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init3", "sa", null, progress ) );
 
-		Patcher.setCallBack( new TestProgressListener() );
-		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init3", "sa", null ) );
+		patcher.openPatchFile( "testpatch-version-table-upgrade-2.sql" );
+		Set< String > targets = patcher.getTargets( false, null, false );
+		assert targets.size() > 0;
 
-		Patcher.openPatchFile( "testpatch-version-table-upgrade-2.sql" );
-		try
-		{
-			Set< String > targets = Patcher.getTargets( false, null, false );
-			assert targets.size() > 0;
+		patcher.patch( "" );
+		TestUtil.verifyVersion( patcher, null, null, 0, "1.1.1" );
 
-			Patcher.patch( "" );
-			TestUtil.verifyVersion( null, null, 0, "1.1.1" );
+		patcher.patch( "1.0.2" );
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 1, "1.1.1" );
 
-			Patcher.patch( "1.0.2" );
-			TestUtil.verifyVersion( "1.0.2", null, 1, "1.1.1" );
-		}
-		finally
-		{
-			Patcher.closePatchFile();
-		}
-
+		patcher.end();
 	}
 }

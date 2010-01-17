@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package solidbase.test.core;
+package solidbase.core;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -23,47 +24,25 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidbase.core.FatalException;
-import solidbase.core.Patcher;
-import solidbase.core.TestUtil;
+import solidbase.core.PatchFile;
+import solidbase.core.RandomAccessLineReader;
 
-public class MissingBlock
+public class DoubleBlock
 {
 	@Test
-	public void testBasic() throws IOException, SQLException
+	public void testDoubleBlock() throws IOException, SQLException
 	{
-		Patcher.end();
-
-		Patcher.setCallBack( new TestProgressListener() );
-
+		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch-doubleblock.sql" ) );
+		PatchFile patchFile = new PatchFile( ralr );
 		try
 		{
-			Patcher.openPatchFile( "testpatch-missingblock.sql" );
+			patchFile.read();
 			Assert.fail( "Expected an exception" );
 		}
 		catch( FatalException e )
 		{
-			TestUtil.assertPatchFileClosed();
-			Assert.assertTrue( e.getMessage().contains( "not found" ) );
-		}
-	}
-
-	@Test
-	public void testMissingInitBlock() throws IOException, SQLException
-	{
-		Patcher.end();
-
-		Patcher.setCallBack( new TestProgressListener() );
-
-		try
-		{
-			Patcher.openPatchFile( "testpatch-missinginitblock.sql" );
-			Assert.fail( "Expected an exception" );
-		}
-		catch( FatalException e )
-		{
-			TestUtil.assertPatchFileClosed();
-			Assert.assertTrue( e.getMessage().contains( "not found" ) );
-			Assert.assertFalse( e.getMessage().contains( "null" ) );
+			patchFile.close();
+			Assert.assertTrue( e.getMessage().contains( "Double upgrade block" ) );
 		}
 	}
 }

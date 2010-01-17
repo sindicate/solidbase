@@ -31,48 +31,32 @@ public class Conditional
 	@Test
 	public void testIfHistoryContains1() throws IOException, SQLException
 	{
-		Patcher.end();
+		TestProgressListener progress = new TestProgressListener();
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testBasic", "sa", null, progress ) );
 
-		Patcher.setCallBack( new TestProgressListener() );
-		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testBasic", "sa", null ) );
+		patcher.openPatchFile( "testpatch-conditional1.sql" );
+		Set< String > targets = patcher.getTargets( false, null, false );
+		assert targets.size() > 0;
 
-		Patcher.openPatchFile( "testpatch-conditional1.sql" );
-		try
-		{
-			Set< String > targets = Patcher.getTargets( false, null, false );
-			assert targets.size() > 0;
+		patcher.patch( "1.0.2" );
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null ); // TODO STATEMENTS should be 3.
 
-			Patcher.patch( "1.0.2" );
-		}
-		finally
-		{
-			Patcher.closePatchFile();
-		}
-
-		TestUtil.verifyVersion( "1.0.2", null, 2, null ); // TODO STATEMENTS should be 3.
+		patcher.end();
 	}
 
 	@Test(dependsOnMethods="testIfHistoryContains1")
 	public void testIfHistoryContains2() throws IOException, SQLException
 	{
-		Patcher.end();
+		TestProgressListener progress = new TestProgressListener();
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testBasic", "sa", null, progress ) );
 
-		Patcher.setCallBack( new TestProgressListener() );
-		Patcher.setDefaultConnection( new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testBasic", "sa", null ) );
+		patcher.openPatchFile( "testpatch-conditional2.sql" );
+		Set< String > targets = patcher.getTargets( false, null, false );
+		assert targets.size() > 0;
 
-		Patcher.openPatchFile( "testpatch-conditional2.sql" );
-		try
-		{
-			Set< String > targets = Patcher.getTargets( false, null, false );
-			assert targets.size() > 0;
+		patcher.patch( "1.0.3" );
+		TestUtil.verifyVersion( patcher, "1.0.3", null, 4, "1.1" );
 
-			Patcher.patch( "1.0.3" );
-		}
-		finally
-		{
-			Patcher.closePatchFile();
-		}
-
-		TestUtil.verifyVersion( "1.0.3", null, 4, "1.1" );
+		patcher.end();
 	}
 }

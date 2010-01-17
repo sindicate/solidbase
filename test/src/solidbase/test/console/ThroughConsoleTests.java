@@ -17,22 +17,14 @@
 package solidbase.test.console;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import solidbase.Main;
-import solidbase.core.Patcher;
 import solidbase.test.TestUtil;
 
 
 public class ThroughConsoleTests
 {
-	@BeforeMethod
-	protected void init()
-	{
-		Patcher.end();
-	}
-
 	@Test
 	public void testConsole() throws Exception
 	{

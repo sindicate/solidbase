@@ -9,6 +9,7 @@ import org.apache.tools.ant.Task;
 
 import solidbase.Main;
 import solidbase.config.Configuration;
+import solidbase.core.Database;
 import solidbase.core.FatalException;
 import solidbase.core.Patcher;
 import solidbase.core.SQLExecutionException;
@@ -253,32 +254,29 @@ public class UpgradeTask extends Task
 		progress.info( "(C) 2006-2009 Rene M. de Bloois" );
 		progress.info( "" );
 
+		Patcher patcher = new Patcher( progress, new Database( this.driver, this.url, this.user, this.password, progress ) );
 		try
 		{
-			Patcher.setCallBack( progress );
-
-			Patcher.setDefaultConnection( new solidbase.core.Database( this.driver, this.url, this.user, this.password ) );
-
 			for( Connection connection : this.connections )
-				Patcher.addConnection( new solidbase.config.Connection( connection.getName(), connection.getDriver(), connection.getUrl(), connection.getUser(), connection.getPassword() ) );
+				patcher.addConnection( new solidbase.config.Connection( connection.getName(), connection.getDriver(), connection.getUrl(), connection.getUser(), connection.getPassword() ) );
 
 			progress.info( "Connecting to database..." );
 
-			progress.info( Main.getCurrentVersion() );
+			progress.info( Main.getCurrentVersion( patcher ) );
 
-			Patcher.openPatchFile( project.getBaseDir(), this.upgradefile );
+			patcher.openPatchFile( project.getBaseDir(), this.upgradefile );
 			try
 			{
 				if( this.target != null )
-					Patcher.patch( this.target, this.downgradeallowed ); // TODO Print this target
+					patcher.patch( this.target, this.downgradeallowed ); // TODO Print this target
 				else
 					throw new UnsupportedOperationException();
 				progress.info( "" );
-				progress.info( Main.getCurrentVersion() );
+				progress.info( Main.getCurrentVersion( patcher ) );
 			}
 			finally
 			{
-				Patcher.closePatchFile();
+				patcher.closePatchFile();
 			}
 		}
 		catch( SQLExecutionException e )
@@ -291,7 +289,7 @@ public class UpgradeTask extends Task
 		}
 		finally
 		{
-			Patcher.end();
+			patcher.end();
 		}
 	}
 }

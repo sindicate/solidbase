@@ -52,11 +52,11 @@ public class Main
 	static private int pass = 1;
 
 
-	static public String getCurrentVersion()
+	static public String getCurrentVersion( Patcher patcher )
 	{
-		String version = Patcher.getCurrentVersion();
-		String target = Patcher.getCurrentTarget();
-		int statements = Patcher.getCurrentStatements();
+		String version = patcher.getCurrentVersion();
+		String target = patcher.getCurrentTarget();
+		int statements = patcher.getCurrentStatements();
 
 		if( version == null )
 		{
@@ -202,102 +202,104 @@ public class Main
 		console.println( "(C) 2006-2009 René M. de Bloois" );
 		console.println();
 
-		Patcher.setCallBack( progress );
-		String patchFile;
-		String target;
-		if( configuration.getConfigVersion() == 2 )
-		{
-			solidbase.config.Database selectedDatabase;
-			if( configuration.getDatabases().size() == 0 )
-			{
-				console.println( "There are no databases configured." );
-				return;
-			}
-			else if( configuration.getDatabases().size() > 1 )
-			{
-				console.println( "Available database:" );
-				for( solidbase.config.Database database : configuration.getDatabases() )
-					if( database.getDescription() != null )
-						console.println( "    " + database.getName() + " (" + database.getDescription() + ")" );
-					else
-						console.println( "    " + database.getName() );
-				console.print( "Select a database from the above: " );
-				String input = console.input();
-				selectedDatabase = configuration.getDatabase( input );
-				console.println();
-			}
-			else
-				selectedDatabase = configuration.getDatabases().get( 0 );
-
-			solidbase.config.Application selectedApplication;
-			if( selectedDatabase.getApplications().size() > 1 )
-			{
-				console.println( "Available applications in database '" + selectedDatabase.getName() + "':" );
-				for( solidbase.config.Application application : selectedDatabase.getApplications() )
-					if( application.getDescription() != null )
-						console.println( "    " + application.getName() + " (" + application.getDescription() + ")" );
-					else
-						console.println( "    " + application.getName() );
-				console.print( "Select an application from the above: " );
-				String input = console.input();
-				selectedApplication = selectedDatabase.getApplication( input );
-				console.println();
-			}
-			else
-				selectedApplication = selectedDatabase.getApplications().get( 0 );
-
-			Patcher.setDefaultConnection( new Database( selectedDatabase.getDriver(), selectedDatabase.getUrl(), selectedApplication.getUserName(), selectedApplication.getPassword() ) );
-			for( Connection connection : selectedApplication.getConnections() )
-				Patcher.addConnection( connection );
-
-			patchFile = selectedApplication.getPatchFile();
-			target = selectedApplication.getTarget();
-			console.println( "Connecting to database '" + selectedDatabase.getName() + "', application '" + selectedApplication.getName() + "'..." );
-		}
-		else
-		{
-			Patcher.setDefaultConnection( new Database( configuration.getDBDriver(), configuration.getDBUrl(), configuration.getUser(), configuration.getPassWord() ) );
-			patchFile = configuration.getPatchFile();
-			target = configuration.getTarget();
-			if( patchFile == null )
-				patchFile = "upgrade.sql";
-			console.println( "Connecting to database..." );
-		}
-
-		console.println( getCurrentVersion() );
-
-		if( exportlog )
-		{
-			Patcher.logToXML( line.getOptionValue( "dumplog" ) );
-			return;
-		}
-
-		Patcher.openPatchFile( patchFile );
+		Patcher patcher = null;
 		try
 		{
+			String patchFile;
+			String target;
+			if( configuration.getConfigVersion() == 2 )
+			{
+				solidbase.config.Database selectedDatabase;
+				if( configuration.getDatabases().size() == 0 )
+				{
+					console.println( "There are no databases configured." );
+					return;
+				}
+				else if( configuration.getDatabases().size() > 1 )
+				{
+					console.println( "Available database:" );
+					for( solidbase.config.Database database : configuration.getDatabases() )
+						if( database.getDescription() != null )
+							console.println( "    " + database.getName() + " (" + database.getDescription() + ")" );
+						else
+							console.println( "    " + database.getName() );
+					console.print( "Select a database from the above: " );
+					String input = console.input();
+					selectedDatabase = configuration.getDatabase( input );
+					console.println();
+				}
+				else
+					selectedDatabase = configuration.getDatabases().get( 0 );
+
+				solidbase.config.Application selectedApplication;
+				if( selectedDatabase.getApplications().size() > 1 )
+				{
+					console.println( "Available applications in database '" + selectedDatabase.getName() + "':" );
+					for( solidbase.config.Application application : selectedDatabase.getApplications() )
+						if( application.getDescription() != null )
+							console.println( "    " + application.getName() + " (" + application.getDescription() + ")" );
+						else
+							console.println( "    " + application.getName() );
+					console.print( "Select an application from the above: " );
+					String input = console.input();
+					selectedApplication = selectedDatabase.getApplication( input );
+					console.println();
+				}
+				else
+					selectedApplication = selectedDatabase.getApplications().get( 0 );
+
+				patcher = new Patcher( progress, new Database( selectedDatabase.getDriver(), selectedDatabase.getUrl(), selectedApplication.getUserName(), selectedApplication.getPassword(), progress ) );
+				for( Connection connection : selectedApplication.getConnections() )
+					patcher.addConnection( connection );
+
+				patchFile = selectedApplication.getPatchFile();
+				target = selectedApplication.getTarget();
+				console.println( "Connecting to database '" + selectedDatabase.getName() + "', application '" + selectedApplication.getName() + "'..." );
+			}
+			else
+			{
+				patcher = new Patcher( progress, new Database( configuration.getDBDriver(), configuration.getDBUrl(), configuration.getUser(), configuration.getPassWord(), progress ) );
+				patchFile = configuration.getPatchFile();
+				target = configuration.getTarget();
+				if( patchFile == null )
+					patchFile = "upgrade.sql";
+				console.println( "Connecting to database..." );
+			}
+
+			console.println( getCurrentVersion( patcher ) );
+
+			if( exportlog )
+			{
+				patcher.logToXML( line.getOptionValue( "dumplog" ) );
+				return;
+			}
+
+			patcher.openPatchFile( patchFile );
+
 			if( target != null )
-				Patcher.patch( target, downgradeallowed ); // TODO Print this target
+				patcher.patch( target, downgradeallowed ); // TODO Print this target
 			else
 			{
 				// Need linked set because order is important
-				LinkedHashSet< String > targets = Patcher.getTargets( false, null, false );
+				LinkedHashSet< String > targets = patcher.getTargets( false, null, false );
 				if( targets.size() > 0 )
 				{
 					console.println( "Possible targets are: " + list( targets ) );
 					console.print( "Input target version: " );
 					String input = console.input();
-					Patcher.patch( input, downgradeallowed );
+					patcher.patch( input, downgradeallowed );
 				}
 				else
 					console.println( "There are no possible targets." );
 				// TODO Distinguish between uptodate and no possible path
 			}
 			console.emptyLine();
-			console.println( getCurrentVersion() );
+			console.println( getCurrentVersion( patcher ) );
 		}
 		finally
 		{
-			Patcher.closePatchFile();
+			if( patcher != null )
+				patcher.end();
 		}
 	}
 

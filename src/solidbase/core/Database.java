@@ -38,17 +38,23 @@ public class Database
 	private String currentUser;
 
 	/**
+	 * The progress listener.
+	 */
+	protected ProgressListener callBack;
+
+	/**
 	 * Constructs a Database object for a specific database url. This object will manage multiple connections to this database.
 	 *
 	 * @param driverClassName Classname of the driver.
 	 * @param url Url of the database.
 	 */
-	public Database( String driverClassName, String url, String defaultUser, String defaultPassword )
+	public Database( String driverClassName, String url, String defaultUser, String defaultPassword, ProgressListener callBack )
 	{
 		this.driverName = driverClassName;
 		this.url = url;
 		this.defaultUser = defaultUser;
 		this.defaultPassword = defaultPassword;
+		this.callBack = callBack;
 
 		try
 		{
@@ -121,7 +127,7 @@ public class Database
 		Connection connection = this.connections.get( user );
 		if( connection == null )
 		{
-			String password = Patcher.callBack.requestPassword( user );
+			String password = this.callBack.requestPassword( user );
 			connection = getConnection( this.url, user, password );
 			this.connections.put( user, connection );
 		}

@@ -16,6 +16,7 @@
 
 package solidbase.core;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -27,16 +28,16 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidbase.core.Patch.Type;
-import solidbase.test.core.TestProgressListener;
 
 public class PatchFileTests
 {
 	@Test
 	public void testCollectTipVersions1() throws IOException
 	{
-		Patcher.setCallBack( new TestProgressListener() );
-		Patcher.openPatchFile( "testpatch1.sql" );
-		PatchFile patchFile = Patcher.patchFile;
+		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch1.sql" ) );
+		PatchFile patchFile = new PatchFile( ralr );
+		patchFile.read();
+		patchFile.close();
 
 		Map< String, Patch > patches = patchFile.patches;
 		patches.put( "1.1", new Patch( Type.UPGRADE, "1.1", "1.2", false ) );
@@ -88,9 +89,10 @@ public class PatchFileTests
 	@Test
 	public void testCollectTipVersions2() throws IOException
 	{
-		Patcher.setCallBack( new TestProgressListener() );
-		Patcher.openPatchFile( "testpatch1.sql" );
-		PatchFile patchFile = Patcher.patchFile;
+		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch1.sql" ) );
+		PatchFile patchFile = new PatchFile( ralr );
+		patchFile.read();
+		patchFile.close();
 
 		Map< String, Patch > patches = patchFile.patches = new MultiValueMap();
 		patches.put( "1.1", new Patch( Type.UPGRADE, "1.1", "1.2", false ) );
@@ -115,9 +117,10 @@ public class PatchFileTests
 	@Test
 	public void testOpenPatch() throws IOException
 	{
-		Patcher.setCallBack( new TestProgressListener() );
-		Patcher.openPatchFile( "testpatch1.sql" );
-		PatchFile patchFile = Patcher.patchFile;
+		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch1.sql" ) );
+		PatchFile patchFile = new PatchFile( ralr );
+		patchFile.read();
+		patchFile.close();
 
 		Map< String, Patch > patches = patchFile.patches;
 		patches.put( "1.1", new Patch( Type.UPGRADE, "1.1", "1.2", false ) );
