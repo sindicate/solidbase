@@ -21,35 +21,32 @@
 	xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd">
 
 	<info>
-		<title>Database Patch Tool User's Manual</title>
-		<subtitle>A tool to manage the controlled upgrade of database structures</subtitle>
-		<author><personname>René M. de Bloois</personname></author>
-		<productname>Database Patch Tool</productname>
+		<title>SolidBase</title>
+		<subtitle>A database change and version control tool using SQL and markup.</subtitle>
+		<author>
+			<personname>René M. de Bloois</personname>
+			<email>rene.de.bloois@gmail.com</email>
+		</author>
+		<productname>SolidBase</productname>
+		<copyright>
+			<year>2006</year>
+			<holder>René M. de Bloois</holder>
+		</copyright>
 	</info>
-
-	<chapter xml:id="audience">
-		<title>Audience</title>
-
-		<para>
-			TODO Audience &amp; why use the patchtool
-		</para>
-				
-	</chapter>
 
 	<chapter xml:id="concepts">
 		<title>Concepts</title>
 		
 		<section xml:id="database-structure-and-versions">
-			<title>Database structure and versions</title>
+			<title>Database evolution</title>
 			
 			<para>
-				An application needs a database with a certain defined structure.
-				This structure is defined by the database objects (like tables, views, indexes, constraints, stored procedures and triggers) and fixed reference data that is needed by the application.
-				This structure evolves over time.
-				There are multiple versions of the database structure.
-				The patchtool's function is to track this version and make it possible to transform the database structure from one version to the next version while maintaining the data contained.
-				A transformation from one version to another happens by executing a series of change scripts (called patches).
-				A patch transforms the database structure from one version to the next by applying a series of database changes.
+				Applications need a database with a certain configuration.
+				This configuration is defined by the database objects (tables, indexes, constraints, stored procedures, views, triggers, etc.), fixed reference data that is needed by the applications, and database parameters.
+				This configuration evolves, there are multiple successive versions of a database configuration.
+				SolidBase's function is to track these versions and make it possible to transform the database configuration from one version to the next while maintaining the data contained in it.
+				An upgrade from one version to another happens through the execution of a series of changes.
+				Changes are bundled in packages that carry the database from one version to the next by applying a series of changes in the form of SQL.
 			</para>
 			
 		</section>
@@ -58,11 +55,11 @@
 			<title>Database changes</title>
 			
 			<para>
-				Database changes form the meat of the patch. They change the structure/configuration of the database and the fixed reference data in it.
+				A change package consists of one or more database configuration changes.
 			</para>
 			
 			<itemizedlist>
-				<title>Examples of database changes</title>
+				<title>Examples of database configuration changes</title>
 				<listitem><para><computeroutput>CREATE TABLE ...</computeroutput></para></listitem>
 				<listitem><para><computeroutput>CREATE INDEX ...</computeroutput></para></listitem>
 				<listitem><para><computeroutput>ALTER TABLE ADD COLUMN ...</computeroutput></para></listitem>
@@ -73,30 +70,29 @@
 		</section>
 		
 		<section xml:id="session-configuration">
-			<title>Patch session configuration</title>
+			<!-- Options, Hints, Advice, Indication, Instruction, Guidance, Directive, Direction, Control -->
+			<title>Context parameters</title>
 			
 			<para>
-				When applying database changes to the database certain conditions or parameters apply.
-				These conditions and parameters together form the patch session configuration.
+				Database changes are executed in a specific context.
+				This context consists of the parameters set within SolidBase, the parameters set on the connection to the database, and the global parameters defined in the database.
 				Examples are:
 				<itemizedlist>
 					<listitem><para>Which user is used to apply the database changes?</para></listitem>
-					<listitem><para>What message should be shown when this database change is applied?</para></listitem>
-					<listitem><para>What date/time format is currently active on the database session?</para></listitem>
-					<listitem><para>Are there any sql errors that should be ignored because they are expected?</para></listitem>
+					<listitem><para>What date/time format is currently active?</para></listitem>
+					<listitem><para>Should specific sql errors be ignored because they are expected?</para></listitem>
 				</itemizedlist>
 			</para>
 			
 			<para>
-				Patch session configuration can be changed in between the execution of the database changes.
+				Context parameters can be changed in between the execution of the database changes.
 			</para>
 			
 			<itemizedlist>
-				<title>Examples of patch session configuration</title>
+				<title>Examples of changing context parameters</title>
 				<listitem><para><computeroutput>--* SET USER &lt;username&gt;</computeroutput></para></listitem>
-				<listitem><para><computeroutput>--* SET MESSAGE "&lt;message&gt;"</computeroutput></para></listitem>
 				<listitem>
-<programlisting>--* SESSIONCONFIG
+<programlisting>--* SESSIONCONFIG, maybe introduce something like: --* >ALTER SESSION
 ALTER SESSION ...
 --* /SESSIONCONFIG</programlisting>
 				</listitem>
@@ -104,11 +100,11 @@ ALTER SESSION ...
 			</itemizedlist>
 			
 			<para>
-				Keep in mind that the patch session configuration is reset at the start of each individual patch.
+				Keep in mind that the context is reset at the start of each change package.
 			</para>
 
 			<para>
-				Patch session configuration commands are described in <xref linkend="patch-session-configuration"/>.
+				SolidBase context parameters are described in <xref linkend="patch-session-configuration"/>.
 			</para>
 			
 		</section>
@@ -140,7 +136,7 @@ ALTER SESSION ...
 				This may result in a lot of patches and a quickly growing version number.
 				If you do not want this you can keep the patch open.
 				An open patch can be executed but the bump to the new version number will be prevented.
-				New changes to the database can be added at the end of this patch, they will automatically be picked up when someone re-executes the patch.
+				New changes to the database can be added at the end of this patch, they will automatically be picked up when the patch is re-executed.
 				When the time comes to officially deliver the patch for execution on a test, acceptance or production database, you can close the patch. 
 			</para>
 			

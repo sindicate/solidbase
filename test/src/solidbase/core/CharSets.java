@@ -63,7 +63,7 @@ public class CharSets
 			Patcher.closePatchFile();
 		}
 
-		Connection connection = Patcher.database.getConnection( "sa" );
+		Connection connection = Patcher.currentDatabase.getConnection( "sa" );
 		Statement stat = connection.createStatement();
 		ResultSet result = stat.executeQuery( "SELECT * FROM USERS" );
 		assert result.next();
