@@ -528,10 +528,16 @@ public class PatchFile
 
 		collectReachableVersions( version, targeting, downgradesAllowed, result );
 
+		if( result.size() == 0 )
+			throw new FatalException( "Database version " + version + " does not exist in the upgrade file." );
+
 		if( prefix != null )
-			for( Iterator iterator = result.iterator(); iterator.hasNext(); )
-				if( !((String)iterator.next()).startsWith( prefix ) )
+			for( Iterator< String > iterator = result.iterator(); iterator.hasNext(); )
+			{
+				String s = iterator.next();
+				if( s == null || !s.startsWith( prefix ) )
 					iterator.remove();
+			}
 
 		if( tips )
 			for( Iterator iterator = result.iterator(); iterator.hasNext(); )
@@ -576,12 +582,12 @@ public class PatchFile
 	 */
 	protected void collectReachableVersions( String source, String targeting, boolean downgradesAllowed, Set< String > result )
 	{
-		if( targeting == null && source != null )
-			result.add( source );
-
 		List< Patch > patches = (List)this.patches.get( source ); // Get all patches with the given source
 		if( patches == null )
 			return;
+
+		if( targeting == null )
+			result.add( source ); // There are patches found, which means that the source is recognized.
 
 		LinkedList< Patch > queue = new LinkedList();
 		if( targeting != null )
