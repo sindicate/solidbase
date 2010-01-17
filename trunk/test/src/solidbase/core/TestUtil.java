@@ -31,7 +31,7 @@ public class TestUtil
 {
 	static public void shutdownHSQLDB() throws SQLException
 	{
-		Connection connection = Patcher.database.getConnection( "sa" );
+		Connection connection = Patcher.currentDatabase.getConnection( "sa" );
 		try
 		{
 			connection.createStatement().executeUpdate( "SHUTDOWN" );
@@ -65,7 +65,7 @@ public class TestUtil
 	static public void verifyVersion( String version, String target, int statements, String spec ) throws SQLException
 	{
 		String sql = "SELECT * FROM DBVERSION";
-		Connection connection = Patcher.database.getConnection();
+		Connection connection = Patcher.currentDatabase.getConnection();
 		PreparedStatement statement = connection.prepareStatement( sql );
 		ResultSet result = statement.executeQuery();
 		Assert.assertTrue( result.next() );

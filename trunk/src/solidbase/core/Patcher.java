@@ -67,7 +67,12 @@ public class Patcher
 	 */
 	static protected List< CommandListener > listeners;
 
-	// Patch state
+	// Context
+
+	/**
+	 * The message that should be shown when a statement is executed.
+	 */
+	static protected String startMessage;
 
 	/**
 	 * Errors that should be ignored.
@@ -75,7 +80,7 @@ public class Patcher
 	static protected Stack ignoreStack;
 
 	/**
-	 * Errors that should be ignored. This set is kept in sync with the {@link Patcher#ignoreStack}.
+	 * Errors that should be ignored. This set is kept in sync with the {@link #ignoreStack}.
 	 */
 	static protected HashSet ignoreSet;
 
@@ -109,19 +114,19 @@ public class Patcher
 	static protected PatchFile patchFile;
 
 	/**
-	 * The default database. At the start of each change set, this database is put into {@link Patcher#database} to become the current database.
+	 * The default database. At the start of each change set, this database is put into {@link Patcher#currentDatabase} to become the current database.
 	 */
 	static protected Database defaultDatabase;
 
 	/**
 	 * The current database. Gets reset to the default database at the start of each change set.
 	 */
-	static protected Database database;
+	static protected Database currentDatabase;
 
 	/**
 	 * All configured databases. This is used when the upgrade file selects a different database by name.
 	 */
-	static protected Map< String, Database > allDatabases;
+	static protected Map< String, Database > databases;
 
 	/**
 	 * The class that manages the DBVERSION and DBVERSIONLOG table.
@@ -139,8 +144,8 @@ public class Patcher
 	static protected void initialize()
 	{
 		defaultDatabase = null;
-		database = null;
-		allDatabases = new HashMap< String, Database >();
+		currentDatabase = null;
+		databases = new HashMap< String, Database >();
 
 		listeners = new ArrayList();
 
@@ -155,6 +160,19 @@ public class Patcher
 
 		listeners.add( new AssertCommandExecuter() );
 		listeners.add( new ImportCSVListener() );
+	}
+
+	/**
+	 * Resets the upgrade context. This is called before the execution of each changeset.
+	 */
+	static protected void reset()
+	{
+		setConnection( defaultDatabase ); // Also resets the current user for the connection
+		startMessage = null;
+		ignoreStack = new Stack();
+		ignoreSet = new HashSet();
+		dontCount = false;
+		conditionTrueCounter = conditionFalseCounter = 0;
 	}
 
 	/**
@@ -362,7 +380,7 @@ public class Patcher
 	static public void setDefaultConnection( Database database )
 	{
 		Patcher.defaultDatabase = database;
-		Patcher.allDatabases.put( "default", database );
+		Patcher.databases.put( "default", database );
 
 		database.init(); // Resets the current user and initializes the connection when password is supplied.
 
@@ -392,7 +410,7 @@ public class Patcher
 		for( Iterator iter = listeners.iterator(); iter.hasNext(); )
 		{
 			CommandListener listener = (CommandListener)iter.next();
-			if( listener.execute( database, command ) )
+			if( listener.execute( currentDatabase, command ) )
 				return true;
 		}
 		return false;
@@ -410,7 +428,7 @@ public class Patcher
 			{
 				if( !executeListeners( command ) )
 				{
-					Connection connection = database.getConnection();
+					Connection connection = currentDatabase.getConnection();
 					Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
 					Statement statement = connection.createStatement();
 					boolean commit = false;
@@ -470,14 +488,7 @@ public class Patcher
 		if( dbVersion.getTarget() == null )
 			skip = 0;
 
-		String startMessage = null;
-
-		// Reset previous patch state
-		setConnection( defaultDatabase ); // Also resets the current user for the connection
-		ignoreStack.clear();
-		ignoreSet.clear();
-		dontCount = false;
-		conditionFalseCounter = conditionTrueCounter = 0;
+		reset();
 
 		Command command = patchFile.readStatement();
 		int count = 0;
@@ -493,7 +504,7 @@ public class Patcher
 					CommandListener listener = (CommandListener)iter.next();
 					try
 					{
-						done = listener.execute( database, command );
+						done = listener.execute( currentDatabase, command );
 					}
 					catch( SQLException e )
 					{
@@ -600,13 +611,13 @@ public class Patcher
 
 	static private void setConnection( Database database )
 	{
-		Patcher.database = database;
+		currentDatabase = database;
 		database.init(); // Reset the current user
 	}
 
 	static protected void setUser( String user )
 	{
-		database.setCurrentUser( user );
+		currentDatabase.setCurrentUser( user );
 	}
 
 	static protected void pushIgnores( String ignores )
@@ -711,8 +722,8 @@ public class Patcher
 	static public void end()
 	{
 		closePatchFile();
-		if( database != null )
-			database.closeConnections();
+		if( currentDatabase != null )
+			currentDatabase.closeConnections();
 
 		initialize();
 	}
@@ -720,7 +731,7 @@ public class Patcher
 	static protected void selectConnection( String name )
 	{
 		name = name.toLowerCase();
-		Database database = allDatabases.get( name );
+		Database database = databases.get( name );
 		Assert.notNull( database, "Database '" + name + "' (case-insensitive) not known" );
 		setConnection( database );
 	}
@@ -730,7 +741,7 @@ public class Patcher
 		Assert.notNull( defaultDatabase );
 		String driver = connection.getDriver();
 		String url = connection.getUrl();
-		allDatabases.put( connection.getName(), new Database( driver != null ? driver : defaultDatabase.driverName, url != null ? url : defaultDatabase.url, connection.getUser().toLowerCase(), connection.getPassword() ) );
+		databases.put( connection.getName(), new Database( driver != null ? driver : defaultDatabase.driverName, url != null ? url : defaultDatabase.url, connection.getUser().toLowerCase(), connection.getPassword() ) );
 	}
 
 	static public void connect()
