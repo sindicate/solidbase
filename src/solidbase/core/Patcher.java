@@ -38,6 +38,8 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.ObjectUtils;
+
 
 /**
  * 
@@ -136,10 +138,10 @@ public class Patcher
 	/**
 	 * Construct a new instance of the patcher.
 	 * 
-	 * @param listener
+	 * @param listener Listens to the progress.
 	 * @param database The default database to use. This database also contains a default user. Version tables will be looked for in this database in the schema identified by the default user.
 	 */
-	public Patcher( ProgressListener listener, Database database )
+	public Patcher( ProgressListener listener, Database database ) // TODO Reorder the arguments
 	{
 		this.callBack = listener;
 
@@ -350,7 +352,7 @@ public class Patcher
 		{
 			targets = getTargets( false, null, downgradeable );
 			for( String t : targets )
-				if( t.equals( target ) )
+				if( ObjectUtils.equals( t, target ) )
 				{
 					patch( this.dbVersion.getVersion(), t, downgradeable );
 					break;

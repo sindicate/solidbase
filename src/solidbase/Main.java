@@ -78,11 +78,14 @@ public class Main
 		for( Iterator iter = list.iterator(); iter.hasNext(); )
 		{
 			Object object = iter.next();
-			if( first )
-				first = false;
-			else
-				buffer.append( ", " );
-			buffer.append( object );
+			if( object != null )
+			{
+				if( first )
+					first = false;
+				else
+					buffer.append( ", " );
+				buffer.append( object );
+			}
 		}
 
 		return buffer.toString();
