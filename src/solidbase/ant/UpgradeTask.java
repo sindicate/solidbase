@@ -251,7 +251,7 @@ public class UpgradeTask extends Task
 
 		progress.info( "SolidBase v" + configuration.getVersion() );
 		// TODO Ant messes up the encoding, try add the é again
-		progress.info( "(C) 2006-2009 Rene M. de Bloois" );
+		progress.info( "(C) 2006-2010 Rene M. de Bloois" );
 		progress.info( "" );
 
 		Patcher patcher = new Patcher( progress, new Database( this.driver, this.url, this.user, this.password, progress ) );

@@ -202,7 +202,7 @@ public class Main
 		}
 
 		console.println( "SolidBase v" + configuration.getVersion() );
-		console.println( "(C) 2006-2009 René M. de Bloois" );
+		console.println( "(C) 2006-2010 René M. de Bloois" ); // TODO Now we have three copies, which is bad.
 		console.println();
 
 		Patcher patcher = null;

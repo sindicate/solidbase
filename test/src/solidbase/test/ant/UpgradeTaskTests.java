@@ -60,8 +60,7 @@ public class UpgradeTaskTests extends BuildFileTest
 		configureProject( "test-upgradetask.xml" );
 		executeTarget( "ant-test" );
 		String log = TestUtil.generalizeOutput( getLog() );
-		Assert.assertEquals( log, "SolidBase v1.5.x\n" +
-				"(C) 2006-2009 Rene M. de Bloois\n" +
+		Assert.assertEquals( log, "SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
@@ -75,8 +74,7 @@ public class UpgradeTaskTests extends BuildFileTest
 				"The database is upgraded.\n" +
 				"\n" +
 				"Current database version is \"1.1.0\".\n" +
-				"SolidBase v1.5.x\n" +
-				"(C) 2006-2009 Rene M. de Bloois\n" +
+				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
 				"Connecting to database...\n" +
 				"Current database version is \"1.1.0\".\n" +
@@ -96,8 +94,7 @@ public class UpgradeTaskTests extends BuildFileTest
 		configureProject( "test-upgradetask.xml" );
 		executeTarget( "ant-basedir-test" );
 		String log = TestUtil.generalizeOutput( getLog() );
-		Assert.assertEquals( log, "SolidBase v1.5.x\n" +
-				"(C) 2006-2009 Rene M. de Bloois\n" +
+		Assert.assertEquals( log, "SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +

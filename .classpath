@@ -16,5 +16,7 @@
 	<classpathentry kind="lib" path="test/lib/ant-testutil.jar"/>
 	<classpathentry kind="lib" path="test/lib/junit-4.7.jar"/>
 	<classpathentry kind="lib" path="lib/mindprod-csv"/>
+	<classpathentry kind="lib" path="lib/maven-plugin-api-2.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/maven-project-2.0.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
