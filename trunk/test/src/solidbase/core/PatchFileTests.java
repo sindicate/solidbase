@@ -119,7 +119,6 @@ public class PatchFileTests
 	{
 		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch1.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
-		patchFile.read();
 		patchFile.close();
 
 		Map< String, Patch > patches = patchFile.patches;
@@ -137,10 +136,13 @@ public class PatchFileTests
 		patches.put( "2.3", new Patch( Type.UPGRADE, "2.3", "3.1", false ) );
 		patches.put( "3.1", new Patch( Type.UPGRADE, "3.1", "3.2", false ) );
 
+		patchFile.versions.addAll( patches.keySet() );
+		patchFile.versions.add( "3.2" );
+
 		Set< String > result = new HashSet();
 		patchFile.collectTargets( "1.1", null, false, false, null, result );
-		for( String tip : result )
-			System.out.println( tip );
+		for( String target : result )
+			System.out.println( target );
 
 		Set< String > expected = new HashSet();
 		expected.add( "1.1" );
