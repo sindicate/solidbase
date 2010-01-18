@@ -60,7 +60,7 @@ public class CustomConfigurationTests
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"Reading property file X:\\...\\solidbase-custom.properties\n" +
-				"SolidBase v1.5.x (C) 2006-200x René M. de Bloois\n" +
+				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
 				"Available database:\n" +
 				"    Duckstad-slot1\n" +
@@ -109,7 +109,7 @@ public class CustomConfigurationTests
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"Reading property file X:\\...\\solidbase-custom2.properties\n" +
-				"SolidBase v1.5.x (C) 2006-200x René M. de Bloois\n" +
+				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
 				"Available database:\n" +
 				"    Duckstad-slot1\n" +
