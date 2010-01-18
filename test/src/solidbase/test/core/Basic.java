@@ -50,6 +50,24 @@ public class Basic
 	}
 
 	@Test(dependsOnMethods="testBasic")
+	public void testRepeat() throws IOException, SQLException
+	{
+		TestProgressListener progress = new TestProgressListener();
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
+
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null );
+
+		patcher.openPatchFile( "testpatch1.sql" );
+		Set< String > targets = patcher.getTargets( false, null, false );
+		assert targets.size() > 0;
+
+		patcher.patch( "1.0.2" );
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null );
+
+		patcher.end();
+	}
+
+	@Test(dependsOnMethods="testRepeat")
 	public void testMissingGo() throws IOException, SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();

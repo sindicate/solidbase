@@ -61,6 +61,11 @@ public class PatchFile
 	protected MultiValueMap patches = new MultiValueMap();
 
 	/**
+	 * Contains all known versions from the upgrade file.
+	 */
+	protected Set< String > versions = new HashSet< String >();
+
+	/**
 	 * All init patches in a map indexed by source version.
 	 */
 	protected MultiValueMap inits = new MultiValueMap();
@@ -178,7 +183,11 @@ public class PatchFile
 					if( type == Type.INIT )
 						this.inits.put( source, patch );
 					else
+					{
 						this.patches.put( source, patch );
+						this.versions.add( source );
+						this.versions.add( target );
+					}
 				}
 				else if( line.equalsIgnoreCase( "/DEFINITION" ) || line.equalsIgnoreCase( "/PATCHES" ) )
 				{
@@ -582,12 +591,12 @@ public class PatchFile
 	 */
 	protected void collectReachableVersions( String source, String targeting, boolean downgradesAllowed, Set< String > result )
 	{
+		if( targeting == null && this.versions.contains( source ) )
+			result.add( source ); // The source is recognized.
+
 		List< Patch > patches = (List)this.patches.get( source ); // Get all patches with the given source
 		if( patches == null )
 			return;
-
-		if( targeting == null )
-			result.add( source ); // There are patches found, which means that the source is recognized.
 
 		LinkedList< Patch > queue = new LinkedList();
 		if( targeting != null )
