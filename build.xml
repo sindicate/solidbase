@@ -44,7 +44,7 @@
 	<!-- Source folders & files -->
 
 	<!-- Product folders -->
-	<property name="build.home" value="../BUILDS/solidbase" />
+	<property name="build.home" location="../BUILDS/solidbase" />
 	<property name="temp.home" value="../TEMP/solidbase" />
 	<property name="dist.home" location="${build.home}/dist" />
 
@@ -90,6 +90,10 @@
 	<path id="test.classpath">
 		<pathelement location="${build.home}/test" />
 		<path refid="compiletest.classpath" />
+	</path>
+
+	<path id="maven2.classpath">
+		<fileset dir="tools/maven/boot" includes="*.jar" />
 	</path>
 
 
@@ -280,6 +284,18 @@
 		<delete>
 			<fileset dir="tools/docbook" includes="**/*" />
 		</delete>
+	</target>
+	
+	
+	<target name="mvn">
+		<mkdir dir="${build.home}/../solidbase-user" />
+		<java classname="org.codehaus.classworlds.Launcher" classpathref="maven2.classpath" fork="yes">
+			<jvmarg value="-Dclassworlds.conf=tools/maven/bin/m2.conf" />
+			<jvmarg value="-Duser.home=${build.home}/../solidbase-user" />
+			<arg value="--batch-mode" />
+			<arg value="clean" />
+			<arg value="install" />
+		</java>
 	</target>
 	
 		
