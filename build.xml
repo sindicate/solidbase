@@ -289,9 +289,10 @@
 	
 	<target name="mvn">
 		<mkdir dir="${build.home}/../solidbase-user" />
-		<java classname="org.codehaus.classworlds.Launcher" classpathref="maven2.classpath" fork="yes">
-			<jvmarg value="-Dclassworlds.conf=tools/maven/bin/m2.conf" />
+		<java dir="test/mavenplugin" classname="org.codehaus.classworlds.Launcher" classpathref="maven2.classpath" fork="yes">
+			<jvmarg value="-Dclassworlds.conf=${basedir}/tools/maven/bin/m2.conf" />
 			<jvmarg value="-Duser.home=${build.home}/../solidbase-user" />
+			<jvmarg value="-Dmaven.home=${basedir}/tools/maven" />
 			<arg value="--batch-mode" />
 			<arg value="clean" />
 			<arg value="install" />
