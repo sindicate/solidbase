@@ -287,15 +287,53 @@
 	</target>
 	
 	
-	<target name="mvn">
+	<!-- Example maven macro
+	<macrodef name="maven">
+		<attribute name="options" default="" />
+		<attribute name="goal" />
+		<attribute name="basedir" />
+		<attribute name="resultproperty" default="maven.result" />
+		<element name="args" implicit="true" optional="true" />
+		<sequential>
+			<java classname="org.codehaus.classworlds.Launcher" fork="true" dir="@{basedir}" resultproperty="@{resultproperty}">
+				<jvmarg value="-Xmx512m" />
+				<classpath>
+	  				<fileset dir="${maven.home}/boot">
+						<include name="*.jar" />
+	  				</fileset>
+	  				<fileset dir="${maven.home}/lib">
+						<include name="*.jar" />
+	  				</fileset>
+				</classpath>
+				<sysproperty key="classworlds.conf" value="${maven.home}/bin/m2.conf" />
+				<sysproperty key="maven.home" value="${maven.home}" />
+				<arg line="-B @{options} @{goal}" />
+	  		</java>
+		</sequential>
+	</macrodef>
+	
+	<maven basedir="${basedir}" options="${maven.opts}" goal="install" resultproperty="maven.build.result" />
+	-->
+
+	
+	<target name="mvn" depends="build">
 		<mkdir dir="${build.home}/../solidbase-user" />
-		<java dir="test/mavenplugin" classname="org.codehaus.classworlds.Launcher" classpathref="maven2.classpath" fork="yes">
+		<delete dir="${build.home}/remote" />
+		<delete dir="D:/PROJECTS/java/BUILDS/solidbase-user/.m2/repository/solidbase" />
+		<maven:deploy file="${dist.home}/solidbase.jar">
+			<pom file="pom-plugin.xml" />
+			<remotesnapshotrepository url="file:///D:/PROJECTS/java/BUILDS/solidbase/remote" />
+			<localrepository path="D:/PROJECTS/java/BUILDS/solidbase-user/.m2/repository" />
+		</maven:deploy>
+		<mkdir dir="${build.home}/testplugin" />
+		<filter token="remoterepo" value="file:///${build.home}/remote" />
+		<copy filtering="yes" file="test/mavenplugin/pom.xml" todir="${build.home}/testplugin" />
+		<java dir="${build.home}/testplugin" classname="org.codehaus.classworlds.Launcher" classpathref="maven2.classpath" fork="yes">
 			<jvmarg value="-Dclassworlds.conf=${basedir}/tools/maven/bin/m2.conf" />
 			<jvmarg value="-Duser.home=${build.home}/../solidbase-user" />
 			<jvmarg value="-Dmaven.home=${basedir}/tools/maven" />
 			<arg value="--batch-mode" />
-			<arg value="clean" />
-			<arg value="install" />
+			<arg value="solidbase:upgrade" />
 		</java>
 	</target>
 	
