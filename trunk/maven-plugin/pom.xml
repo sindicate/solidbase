@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><project>
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>solidbase.mojo</groupId>
+	<groupId>solidbase</groupId>
 	<artifactId>solidbase-maven-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
 	<name>Solidbase Maven Plugin</name>
@@ -144,4 +144,17 @@
 		</dependency>
 	</dependencies>
     
+	<distributionManagement>
+		<repository>
+			<id>solidbase-maven-repository</id>
+			<name>SolidBase Maven Repository</name>
+			<url>file:../../solidbase-repository</url>
+		</repository>
+		<snapshotRepository>
+			<id>solidbase-maven-snapshot-repository</id>
+			<name>SolidBase Maven Snapshot Repository</name>
+			<url>file:../../solidbase-snapshot-repository</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 </project>

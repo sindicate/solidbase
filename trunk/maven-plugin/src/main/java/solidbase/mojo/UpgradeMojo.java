@@ -15,14 +15,27 @@ import solidbase.core.SQLExecutionException;
 
 import java.io.File;
 
+
 /**
  * @author Ruud de Jong
+ * @author René de Bloois
  * @goal upgrade
  * @phase process-resources
  */
-public class UpgradeMojo extends AbstractMojo {
+public class UpgradeMojo extends AbstractMojo
+{
+	/**
+	 * The Maven Project Object
+	 * 
+	 * @parameter expression="${project}"
+	 * @required
+	 * @readonly
+	 */
+	private MavenProject project;
+	
 	/**
 	 * Database driver class.
+	 * 
 	 * @parameter expression="${driver}
 	 * @required
 	 */
@@ -30,6 +43,7 @@ public class UpgradeMojo extends AbstractMojo {
 
 	/**
 	 * Database URL.
+	 * 
 	 * @parameter expression="${url}
 	 * @required
 	 */
@@ -37,6 +51,7 @@ public class UpgradeMojo extends AbstractMojo {
 
 	/**
 	 * Database user.
+	 * 
 	 * @parameter expression="${user}
 	 * @required
 	 */
@@ -44,6 +59,7 @@ public class UpgradeMojo extends AbstractMojo {
 
 	/**
 	 * Database password.
+	 * 
 	 * @parameter expression="${password}
 	 * @required
 	 */
@@ -51,6 +67,7 @@ public class UpgradeMojo extends AbstractMojo {
 
 	/**
 	 * File containing the upgrade.
+	 * 
 	 * @parameter expression="${upgradefile}
 	 * @required
 	 */
@@ -58,31 +75,30 @@ public class UpgradeMojo extends AbstractMojo {
 
 	/**
 	 * Target to upgrade the database to.
+	 * 
 	 * @parameter expression="${target}
 	 * @required
 	 */
 	private String target;
 
 	/**
-	 * The Maven Project Object
-	 *
-	 * @parameter expression="${project}"
-	 * @required
-	 * @readonly
+	 * Allow downgrades to reach the target.
+	 * 
+	 * @parameter expression="${downgradeallowed}"
 	 */
-	private MavenProject project;
 	private boolean downgradeallowed;
 
-	public void execute() throws MojoExecutionException, MojoFailureException {
-		validate();
+	public void execute() throws MojoExecutionException, MojoFailureException
+	{
+		//validate();
 
 		Progress progress = new Progress( getLog() );
 
 		Configuration configuration = new Configuration( progress );
 
-		getLog().info("SolidBase v" + configuration.getVersion());
-		getLog().info("(C) 2006-2009 RenÃ© M. de Bloois");
-		getLog().info("");
+		getLog().info( "SolidBase v" + configuration.getVersion() );
+		getLog().info( "(C) 2006-2009 Rene M. de Bloois" ); // TODO Diacritics don't work.
+		getLog().info( "" );
 
 		Patcher patcher = new Patcher( progress, new Database( this.driver, this.url, this.user, this.password, progress ) );
 		try
@@ -124,7 +140,9 @@ public class UpgradeMojo extends AbstractMojo {
 		}
 	}
 
-	private void validate() throws MojoExecutionException {
+	/*
+	private void validate() throws MojoExecutionException
+	{
 		if( this.driver == null )
 			throw new MojoExecutionException( "The 'driver' attribute is mandatory." );
 		if( this.url == null )
@@ -138,4 +156,5 @@ public class UpgradeMojo extends AbstractMojo {
 		if( this.target == null )
 			throw new MojoExecutionException( "The 'target' attribute is mandatory." );
 	}
+	*/
 }
