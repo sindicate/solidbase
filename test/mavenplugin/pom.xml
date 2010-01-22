@@ -8,14 +8,15 @@
 	<groupId>solidbase</groupId>
 	<artifactId>mavenplugintest</artifactId>
 	<version>1.0</version>
-	<packaging>pom</packaging>
-	
+	<packaging>jar</packaging>
+
+	<!--	
 	<repositories>
 		<repository>
 			<id>solidbase-snapshots</id>
 			<name>SolidBase Snapshot Repository</name>
 			<layout>default</layout>
-			<url>file:///D:/PROJECTS/java/solidbase-snapshot-repository/</url>
+			<url>file:///D:/PROJECTS/java/BUILDS/solidbase/remote</url>
 			<releases>
 				<enabled>false</enabled>
 			</releases>
@@ -24,6 +25,22 @@
 			</snapshots>
 		</repository>
 	</repositories>
+	-->
+	  
+	<pluginRepositories>
+		<pluginRepository>
+			<id>solidbase-snapshots</id>
+			<name>SolidBase Snapshot Repository</name>
+			<layout>default</layout>
+			<url>file:///D:/PROJECTS/java/BUILDS/solidbase/remote</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
 
 	<build>
 		<plugins>
@@ -36,14 +53,6 @@
 	</build>
   
 	<!-- 	
-	<dependencies>
-		<dependency>
-			<groupId>org.apache.maven.wagon</groupId>
-			<artifactId>wagon-webdav</artifactId>
-			<version>1.0-beta-2</version>
-		</dependency>
-	</dependencies>
-	
 	<build>
 		<extensions>
 			<extension>
