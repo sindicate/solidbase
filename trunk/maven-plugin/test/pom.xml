@@ -25,6 +25,7 @@
 			</snapshots>
 		</repository>
 	</repositories>
+	-->
 	  
 	<pluginRepositories>
 		<pluginRepository>
@@ -40,13 +41,12 @@
 			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
-	-->
 
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>solidbase</groupId>
-				<artifactId>solidbase-maven-plugin</artifactId>
+				<artifactId>solidbase</artifactId>
 				<version>1.5-SNAPSHOT</version>
 				<dependencies>
 					<dependency>
