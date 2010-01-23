@@ -61,7 +61,6 @@ public class UpgradeMojo extends AbstractMojo
 	 * Database password.
 	 * 
 	 * @parameter expression="${password}
-	 * @required
 	 */
 	private String password;
 
@@ -100,7 +99,7 @@ public class UpgradeMojo extends AbstractMojo
 		getLog().info( "(C) 2006-2009 Rene M. de Bloois" ); // TODO Diacritics don't work.
 		getLog().info( "" );
 
-		Patcher patcher = new Patcher( progress, new Database( this.driver, this.url, this.user, this.password, progress ) );
+		Patcher patcher = new Patcher( progress, new Database( this.driver, this.url, this.user, this.password == null ? "" : this.password, progress ) );
 		try
 		{
 			patcher.setCallBack( progress );

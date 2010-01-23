@@ -43,7 +43,7 @@
 				<parameter>
 					<name>password</name>
 					<type>java.lang.String</type>
-					<required>true</required>
+					<required>false</required>
 					<editable>true</editable>
 					<description>Database password.</description>
 				</parameter>

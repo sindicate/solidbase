@@ -32,7 +32,7 @@
 			<id>solidbase-snapshots</id>
 			<name>SolidBase Snapshot Repository</name>
 			<layout>default</layout>
-			<url>file:///D:/PROJECTS/java/solidbase-snapshot-repository</url>
+			<url>file:///D:/PROJECTS/java/BUILDS/solidbase/remote</url>
 			<releases>
 				<enabled>false</enabled>
 			</releases>
@@ -50,17 +50,17 @@
 				<version>1.5-SNAPSHOT</version>
 				<dependencies>
 					<dependency>
-					<groupId>org.apache.derby</groupId>
-					<artifactId>derby</artifactId>
-					<version>10.2.1.6</version>
+					<groupId>hsqldb</groupId>
+					<artifactId>hsqldb</artifactId>
+					<version>1.8.0.7</version>
 					</dependency>
 				</dependencies>
 				<configuration>
-					<driver>org.apache.derby.jdbc.EmbeddedDriver</driver>
-					<url>jdbc:derby:testant;create=true</url>
-					<user>app</user>
-					<password>x</password>
-					<upgradefile>upgrade-derby-example.sql</upgradefile>
+					<driver>org.hsqldb.jdbcDriver</driver>
+					<url>jdbc:hsqldb:mem:testplugin</url>
+					<user>sa</user>
+					<password></password>
+					<upgradefile>upgrade-hsqldb-example.sql</upgradefile>
 					<target>1.0.*</target>
 				</configuration>
 			</plugin>
