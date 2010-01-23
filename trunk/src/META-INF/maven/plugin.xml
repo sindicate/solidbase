@@ -31,7 +31,7 @@
 					<type>boolean</type>
 					<required>false</required>
 					<editable>true</editable>
-					<description>Target to upgrade the database to.</description>
+					<description>Allow downgrades to reach the target.</description>
 				</parameter>
 				<parameter>
 					<name>driver</name>

@@ -182,6 +182,9 @@
 			<keep pattern="solidbase.Main" />
 			<keep pattern="solidbase.ant.UpgradeTask" />
 			<manifest>
+				<attribute name="Implementation-Title" value="SolidBase" />
+				<attribute name="Implementation-Version" value="${release.number}.${svn.revision}" />
+				<attribute name="Implementation-Vendor-Id" value="org.solidbase" />
 				<attribute name="Main-Class" value="solidbase.Main" />
 				<attribute name="Version" value="${release.number}.${svn.revision}" />
 				<attribute name="Project-Name" value="${ant.project.name}" />
