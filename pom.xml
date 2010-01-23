@@ -8,8 +8,11 @@
 	<groupId>solidbase</groupId>
 	<artifactId>solidbase</artifactId>
 	<version>1.5-SNAPSHOT</version>
-	<packaging>jar</packaging>
-	
+
+    <prerequisites>
+        <maven>2.0.1</maven>
+    </prerequisites>
+
 	<name>SolidBase</name>
 	<inceptionYear>2006</inceptionYear>
 	<description>A database change and version control tool using SQL and markup (not XML).</description>
@@ -33,26 +36,19 @@
 		<connection>scm:svn:http://code.google.com/p/solidbase/source/browse/trunk/</connection>
 	</scm>
 
-	<!-- 	
 	<dependencies>
 		<dependency>
-			<groupId>org.apache.maven.wagon</groupId>
-			<artifactId>wagon-webdav</artifactId>
-			<version>1.0-beta-2</version>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-plugin-api</artifactId>
+			<version>2.0.8</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-project</artifactId>
+			<version>2.0.8</version>
 		</dependency>
 	</dependencies>
-	
-	<build>
-		<extensions>
-			<extension>
-				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-webdav</artifactId>
-				<version>1.0-beta-2</version>
-			</extension>
-		</extensions>
-	</build>
-	-->
-
+    
 	<distributionManagement>
 		<repository>
 			<id>solidbase-maven-repository</id>
@@ -65,5 +61,5 @@
 			<url>file:../solidbase-snapshot-repository</url>
 		</snapshotRepository>
 	</distributionManagement>
-	
+
 </project>

@@ -128,7 +128,6 @@
 			<fileset dir="src" excludes="**/*.java" />
 			<preserveInTarget includes="**/*.class" />
 		</sync>
-		<!-- <copy file="pom-plugin.xml" tofile="${build.home}/classes/META-INF/maven/solidbase/solidbase/pom.xml" preservelastmodified="yes" /> -->
 	</target>
 
 
@@ -284,7 +283,7 @@
 	
 	<target name="maven:install" depends="build" description="Deploys to the local repo">
 		<maven:install file="${dist.home}/solidbase.jar">
-			<pom file="pom-plugin.xml" />
+			<pom file="pom.xml" />
 		</maven:install>
 	</target>
 	
@@ -331,7 +330,7 @@
 		<delete dir="${build.home}/remote" />
 		<delete dir="D:/PROJECTS/java/BUILDS/solidbase-user/.m2/repository/solidbase" />
 		<maven:deploy file="${dist.home}/solidbase.jar">
-			<pom file="pom-plugin.xml" />
+			<pom file="pom.xml" />
 			<remotesnapshotrepository url="file:///D:/PROJECTS/java/BUILDS/solidbase/remote" />
 			<localrepository path="D:/PROJECTS/java/BUILDS/solidbase-user/.m2/repository" />
 		</maven:deploy>

@@ -4,7 +4,7 @@
 
 	<description></description>
 	<groupId>solidbase</groupId>
-	<artifactId>solidbase-maven-plugin</artifactId>
+	<artifactId>solidbase</artifactId>
 	<version>1.5-SNAPSHOT</version>
 	<goalPrefix>solidbase</goalPrefix>
 	<isolatedRealm>false</isolatedRealm>
