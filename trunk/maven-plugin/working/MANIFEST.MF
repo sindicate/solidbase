@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven
+Built-By: Rene
+Build-Jdk: 1.6.0_18
+Implementation-Title: Solidbase Maven Plugin
+Implementation-Version: 1.5-SNAPSHOT
+Implementation-Vendor-Id: solidbase
+
