@@ -123,13 +123,12 @@
 	<target name="compile">
 		<echo message="java.home=${java.home}" />
 		<mkdir dir="${build.home}/classes" />
-		<javac srcdir="src" destdir="${build.home}/classes" source="${target-jre}" target="${target-jre}" optimize="true" debug="true" deprecation="true">
-			<classpath refid="compile.classpath" />
-		</javac>
+		<javac srcdir="src:maven-plugin/src/main/java" destdir="${build.home}/classes" source="${target-jre}" target="${target-jre}" optimize="true" debug="true" deprecation="true" classpathref="compile.classpath" />
 		<sync todir="${build.home}/classes">
 			<fileset dir="src" excludes="**/*.java" />
 			<preserveInTarget includes="**/*.class" />
 		</sync>
+		<!-- <copy file="pom-plugin.xml" tofile="${build.home}/classes/META-INF/maven/solidbase/solidbase/pom.xml" preservelastmodified="yes" /> -->
 	</target>
 
 
@@ -181,6 +180,7 @@
 			<rule pattern="com.mindprod.**" result="solidbase.@0" />
 			<keep pattern="solidbase.Main" />
 			<keep pattern="solidbase.ant.UpgradeTask" />
+			<keep pattern="solidbase.mojo.UpgradeMojo" />
 			<manifest>
 				<attribute name="Implementation-Title" value="SolidBase" />
 				<attribute name="Implementation-Version" value="${release.number}.${svn.revision}" />
@@ -279,6 +279,13 @@
 		<maven:deploy file="${dist.home}/solidbase.jar">
 			<pom file="pom.xml" />
 		</maven:deploy>
+	</target>
+	
+	
+	<target name="maven:install" depends="build" description="Deploys to the local repo">
+		<maven:install file="${dist.home}/solidbase.jar">
+			<pom file="pom-plugin.xml" />
+		</maven:install>
 	</target>
 	
 	
