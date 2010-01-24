@@ -174,7 +174,7 @@
 			<rule pattern="com.mindprod.**" result="solidbase.@0" />
 			<keep pattern="solidbase.Main" />
 			<keep pattern="solidbase.ant.UpgradeTask" />
-			<keep pattern="solidbase.mojo.UpgradeMojo" />
+			<keep pattern="solidbase.maven.UpgradeMojo" />
 			<manifest>
 				<attribute name="Implementation-Title" value="SolidBase" />
 				<attribute name="Implementation-Version" value="${release.number}.${svn.revision}" />
