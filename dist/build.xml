@@ -5,25 +5,17 @@
 	<taskdef resource="solidbasetasks" classpath="solidbase.jar;hsqldb.jar;derby-10.2.1.6.jar" />
 
 	<target name="upgrade">
-		<solidbase-upgrade 
-			driver="org.hsqldb.jdbcDriver" 
-			url="jdbc:hsqldb:mem:testant" 
-			user="sa" 
-			password="" 
-			upgradefile="upgrade-hsqldb-example.sql" 
-			target="1.0.*"
-		/>
+		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testant" 
+				user="sa" password="" 
+				upgradefile="upgrade-hsqldb-example.sql" target="1.0.*">
+       		<secondary name="queues" url="jdbc:hsqldb:mem:queues" user="sa" password="" />
+		</solidbase-upgrade>
 	</target>
 
 	<target name="upgrade-derby">
-		<solidbase-upgrade 
-			driver="org.apache.derby.jdbc.EmbeddedDriver" 
-			url="jdbc:derby:testant;create=true" 
-			user="app" 
-			password="" 
-			upgradefile="upgrade-derby-example.sql" 
-			target="1.0.*"
-		/>
+		<solidbase-upgrade driver="org.apache.derby.jdbc.EmbeddedDriver" url="jdbc:derby:testant;create=true" 
+			user="app" password="" 
+			upgradefile="upgrade-derby-example.sql" target="1.0.*" />
 	</target>
 
 </project>
