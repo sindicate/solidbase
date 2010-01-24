@@ -8,7 +8,7 @@
 		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testant" 
 				user="sa" password="" 
 				upgradefile="upgrade-hsqldb-example.sql" target="1.0.*">
-       		<secondary name="queues" url="jdbc:hsqldb:mem:queues" user="sa" password="" />
+			<secondary name="queues" url="jdbc:hsqldb:mem:queues" user="sa" password="" />
 		</solidbase-upgrade>
 	</target>
 
