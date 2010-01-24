@@ -5,7 +5,7 @@
 	<description></description>
 	<groupId>solidbase</groupId>
 	<artifactId>solidbase</artifactId>
-	<version>1.5-SNAPSHOT</version>
+	<version>1.5.0-SNAPSHOT</version>
 	<goalPrefix>solidbase</goalPrefix>
 	<isolatedRealm>false</isolatedRealm>
 	<inheritedByDefault>true</inheritedByDefault>
@@ -20,7 +20,7 @@
 			<aggregator>false</aggregator>
 			<requiresOnline>false</requiresOnline>
 			<inheritedByDefault>true</inheritedByDefault>
-			<phase>process-resources</phase>
+			<!-- <phase>process-resources</phase> -->
 			<implementation>solidbase.mojo.UpgradeMojo</implementation>
 			<language>java</language>
 			<instantiationStrategy>per-lookup</instantiationStrategy>
@@ -95,92 +95,5 @@
 			</configuration>
 		</mojo>
 	</mojos>
-	
-	<dependencies>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-plugin-api</artifactId>
-			<type>jar</type>
-			<version>2.0.8</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-project</artifactId>
-			<type>jar</type>
-			<version>2.0.8</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-settings</artifactId>
-			<type>jar</type>
-			<version>2.0.8</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-model</artifactId>
-			<type>jar</type>
-			<version>2.0.8</version>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.plexus</groupId>
-			<artifactId>plexus-utils</artifactId>
-			<type>jar</type>
-			<version>1.4.6</version>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.plexus</groupId>
-			<artifactId>plexus-container-default</artifactId>
-			<type>jar</type>
-			<version>1.0-alpha-9-stable-1</version>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<type>jar</type>
-			<version>3.8.1</version>
-		</dependency>
-		<dependency>
-			<groupId>classworlds</groupId>
-			<artifactId>classworlds</artifactId>
-			<type>jar</type>
-			<version>1.1-alpha-2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-profile</artifactId>
-			<type>jar</type>
-			<version>2.0.8</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-artifact-manager</artifactId>
-			<type>jar</type>
-			<version>2.0.8</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-repository-metadata</artifactId>
-			<type>jar</type>
-			<version>2.0.8</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-artifact</artifactId>
-			<type>jar</type>
-			<version>2.0.8</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.maven.wagon</groupId>
-			<artifactId>wagon-provider-api</artifactId>
-			<type>jar</type>
-			<version>1.0-beta-2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-plugin-registry</artifactId>
-			<type>jar</type>
-			<version>2.0.8</version>
-		</dependency>
-	</dependencies>
 
 </plugin>
