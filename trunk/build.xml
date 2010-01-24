@@ -221,7 +221,7 @@
 	</target>
 
 
-	<target name="dist" depends="checksvnstatus,clean,test,build" description="Complete build process to create the distribution files">
+	<target name="dist" depends="checksvnstatus,clean,test,build,test-maven-plugin" description="Complete build process to create the distribution files">
 		<fail>
 			<condition>
 				<resourcecount when="ne" count="8">
@@ -270,9 +270,7 @@
 	</target>
 
 
-	<target name="maven:deploy" depends="" description="Deploys to the remote repo">
-		<replaceregexp file="pom.xml" match="&lt;version&gt;(\w|\.|-)*&lt;/version&gt;" replace="&lt;version&gt;${release.number}&lt;/version&gt;" />
-		<replaceregexp file="src/META-INF/maven/plugin.xml" match="&lt;version&gt;(\w|\.|-)*&lt;/version&gt;" replace="&lt;version&gt;${release.number}&lt;/version&gt;" />
+	<target name="maven:deploy" depends="build" description="Deploys to the remote repo">
 		<maven:deploy file="${dist.home}/solidbase.jar">
 			<pom file="pom.xml" />
 		</maven:deploy>
@@ -285,6 +283,15 @@
 		</maven:install>
 	</target>
 	
+	
+
+	<!--
+	<target name="maven:release">
+		<replaceregexp file="pom.xml" match="&lt;version&gt;(\w|\.|-)*&lt;/version&gt;" replace="&lt;version&gt;${release.number}&lt;/version&gt;" />
+		<replaceregexp file="src/META-INF/maven/plugin.xml" match="&lt;version&gt;(\w|\.|-)*&lt;/version&gt;" replace="&lt;version&gt;${release.number}&lt;/version&gt;" />
+		
+	</target>
+	-->
 	
 	<!-- This will delete all files but not the folders. Use this when you want to integrate a new version of the docbook xsl tool -->
 	<target name="delete-docbook-tool">
@@ -326,20 +333,20 @@
 	<target name="test-maven-plugin" depends="build">
 		
 		<!-- Deploy -->
-		<mkdir dir="${build.home}/../solidbase-user" /> <!-- Will contain the local maven repo -->
-		<delete dir="${build.home}/../solidbase-user/.m2/repository/solidbase" /> <!-- Remove solidbase from the local repo -->
+		<mkdir dir="${build.home}/mavenuser" /> <!-- Will contain the local maven repo -->
+		<delete dir="${build.home}/mavenuser/.m2/repository/solidbase" /> <!-- Remove solidbase from the local repo -->
 		<delete dir="${build.home}/remote" /> <!-- Delete the remote repo -->
 		<maven:deploy file="${dist.home}/solidbase.jar"> <!-- Deploy to the remote repo -->
 			<pom file="pom.xml" />
-			<remotesnapshotrepository url="file:///D:/PROJECTS/java/BUILDS/solidbase/remote" />
-			<localrepository path="${build.home}/../solidbase-user/.m2/repository" />
+			<remoterepository url="file:///D:/PROJECTS/java/BUILDS/solidbase/remote" />
+			<localrepository path="${build.home}/mavenuser/.m2/repository" />
 		</maven:deploy>
-		<delete dir="${build.home}/../solidbase-user/.m2/repository/solidbase" /> <!-- Remove solidbase from the local repo -->
+		<delete dir="${build.home}/mavenuser/.m2/repository/solidbase" /> <!-- Remove solidbase from the local repo -->
 		
 		<!-- Test with our own private maven tool -->
-		<java dir="maven-plugin/test" classname="org.codehaus.classworlds.Launcher" classpathref="maven2.classpath" fork="yes">
+		<java dir="maven-plugin/test" classname="org.codehaus.classworlds.Launcher" classpathref="maven2.classpath" fork="yes" failonerror="yes">
 			<jvmarg value="-Dclassworlds.conf=${basedir}/tools/maven/bin/m2.conf" />
-			<jvmarg value="-Duser.home=${build.home}/../solidbase-user" /> <!-- Use our own user folder -->
+			<jvmarg value="-Duser.home=${build.home}/mavenuser" /> <!-- Use our own user folder -->
 			<jvmarg value="-Dmaven.home=${basedir}/tools/maven" />
 			<arg value="--batch-mode" />
 			<arg value="solidbase:upgrade" />
