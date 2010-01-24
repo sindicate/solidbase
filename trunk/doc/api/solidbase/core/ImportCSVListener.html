@@ -7,7 +7,7 @@
 ImportCSVListener
 </TITLE>
 
-<META NAME="date" CONTENT="2010-01-09">
+
 
 <LINK REL ="stylesheet" TYPE="text/css" HREF="../../stylesheet.css" TITLE="Style">
 
@@ -154,7 +154,7 @@ This plugin executes IMPORT CSV statements.
 <TD><CODE><B><A HREF="../../solidbase/core/ImportCSVListener.html#escape(java.lang.String)">escape</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;s)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Converts ' to ''.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -242,8 +242,11 @@ escape</H3>
 <PRE>
 protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>escape</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;s)</PRE>
 <DL>
+<DD>Converts ' to ''.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - The sql to escape.
+<DT><B>Returns:</B><DD>Escaped sql.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

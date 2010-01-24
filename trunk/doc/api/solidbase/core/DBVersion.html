@@ -7,7 +7,7 @@
 DBVersion
 </TITLE>
 
-<META NAME="date" CONTENT="2010-01-09">
+
 
 <LINK REL ="stylesheet" TYPE="text/css" HREF="../../stylesheet.css" TITLE="Style">
 
@@ -123,11 +123,27 @@ This class represents the version information in the database. It is able to int
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#callBack">callBack</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The progress listener.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#database">database</A></B></CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;What's the database and schema that contains the DBVERSION tables.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#effectiveSpec">effectiveSpec</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The effective specification version number configured in the upgrade file.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -143,7 +159,7 @@ This class represents the version information in the database. It is able to int
 <TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#spec">spec</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;How do the DBVERSION tables look like.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The actual specification version number configured in the upgrade file.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -167,7 +183,8 @@ This class represents the version information in the database. It is able to int
 <TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#statements">statements</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;How many statements have been successfully executed for the current target?</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;How many statements have been successfully executed for the current target? If the target is null, then not
+ relevant, but will contain the number of statements executed for the current version.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -206,7 +223,8 @@ This class represents the version information in the database. It is able to int
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected </CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#DBVersion(solidbase.core.Database)">DBVersion</A></B>(<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#DBVersion(solidbase.core.Database, solidbase.core.ProgressListener)">DBVersion</A></B>(<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database,
+          <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;callBack)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An instance of this class needs to now in which database the version tables can be found.</TD>
@@ -345,19 +363,10 @@ This class represents the version information in the database. It is able to int
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#setProgress(java.lang.String, int)">setProgress</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target,
-            int&nbsp;statements)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets the number of statements executed and the target version.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#setSpec(java.lang.String)">setSpec</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;spec)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets the current spec.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets the specification version of the version tables.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -370,7 +379,24 @@ This class represents the version information in the database. It is able to int
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#setVersion(java.lang.String)">setVersion</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;version)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#updateProgress(java.lang.String, int)">updateProgress</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target,
+               int&nbsp;statements)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets the number of statements executed and the target version.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#updateSpec(java.lang.String)">updateSpec</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;spec)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets the current spec.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#updateVersion(java.lang.String)">updateVersion</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;version)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets the current version.</TD>
@@ -483,12 +509,25 @@ protected int <B>statements</B></PRE>
 </DL>
 <HR>
 
+<A NAME="effectiveSpec"><!-- --></A><H3>
+effectiveSpec</H3>
+<PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>effectiveSpec</B></PRE>
+<DL>
+<DD>The effective specification version number configured in the upgrade file. This is the first 2 numbers from the
+ <A HREF="../../solidbase/core/DBVersion.html#spec"><CODE>spec</CODE></A>. It determines what the DBVERSION tables look like.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
 <A NAME="spec"><!-- --></A><H3>
 spec</H3>
 <PRE>
 protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>spec</B></PRE>
 <DL>
-<DD>How do the DBVERSION tables look like.
+<DD>The actual specification version number configured in the upgrade file.
 <P>
 <DL>
 </DL>
@@ -505,6 +544,18 @@ protected <A HREF="../../solidbase/core/Database.html" title="class in solidbase
 <DL>
 </DL>
 </DL>
+<HR>
+
+<A NAME="callBack"><!-- --></A><H3>
+callBack</H3>
+<PRE>
+protected <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A> <B>callBack</B></PRE>
+<DL>
+<DD>The progress listener.
+<P>
+<DL>
+</DL>
+</DL>
 
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 
@@ -516,16 +567,17 @@ protected <A HREF="../../solidbase/core/Database.html" title="class in solidbase
 </TR>
 </TABLE>
 
-<A NAME="DBVersion(solidbase.core.Database)"><!-- --></A><H3>
+<A NAME="DBVersion(solidbase.core.Database, solidbase.core.ProgressListener)"><!-- --></A><H3>
 DBVersion</H3>
 <PRE>
-protected <B>DBVersion</B>(<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database)</PRE>
+protected <B>DBVersion</B>(<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database,
+                    <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;callBack)</PRE>
 <DL>
 <DD>An instance of this class needs to now in which database the version tables can be found. The default
  connection of this database determines the schema where those tables reside.
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>database</CODE> - The database that contains the version tables, with its default connection determining the schema.</DL>
+<DT><B>Parameters:</B><DD><CODE>database</CODE> - The database that contains the version tables, with its default connection determining the schema.<DD><CODE>callBack</CODE> - To receive debug messages.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -603,7 +655,20 @@ protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html
 <P>
 <DD><DL>
 
-<DT><B>Returns:</B><DD>the specification version of the version tables.</DL>
+<DT><B>Returns:</B><DD>The specification version of the version tables.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setSpec(java.lang.String)"><!-- --></A><H3>
+setSpec</H3>
+<PRE>
+protected void <B>setSpec</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;spec)</PRE>
+<DL>
+<DD>Sets the specification version of the version tables.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>spec</CODE> - The specification version of the version tables.</DL>
 </DD>
 </DL>
 <HR>
@@ -621,11 +686,11 @@ protected void <B>init</B>()</PRE>
 </DL>
 <HR>
 
-<A NAME="setProgress(java.lang.String, int)"><!-- --></A><H3>
-setProgress</H3>
+<A NAME="updateProgress(java.lang.String, int)"><!-- --></A><H3>
+updateProgress</H3>
 <PRE>
-protected void <B>setProgress</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target,
-                           int&nbsp;statements)</PRE>
+protected void <B>updateProgress</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target,
+                              int&nbsp;statements)</PRE>
 <DL>
 <DD>Sets the number of statements executed and the target version.
 <P>
@@ -635,10 +700,10 @@ protected void <B>setProgress</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/a
 </DL>
 <HR>
 
-<A NAME="setVersion(java.lang.String)"><!-- --></A><H3>
-setVersion</H3>
+<A NAME="updateVersion(java.lang.String)"><!-- --></A><H3>
+updateVersion</H3>
 <PRE>
-protected void <B>setVersion</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;version)</PRE>
+protected void <B>updateVersion</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;version)</PRE>
 <DL>
 <DD>Sets the current version.
 <P>
@@ -648,10 +713,10 @@ protected void <B>setVersion</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/ap
 </DL>
 <HR>
 
-<A NAME="setSpec(java.lang.String)"><!-- --></A><H3>
-setSpec</H3>
+<A NAME="updateSpec(java.lang.String)"><!-- --></A><H3>
+updateSpec</H3>
 <PRE>
-protected void <B>setSpec</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;spec)</PRE>
+protected void <B>updateSpec</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;spec)</PRE>
 <DL>
 <DD>Sets the current spec.
 <P>

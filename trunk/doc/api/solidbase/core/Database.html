@@ -7,7 +7,7 @@
 Database
 </TITLE>
 
-<META NAME="date" CONTENT="2010-01-09">
+
 
 <LINK REL ="stylesheet" TYPE="text/css" HREF="../../stylesheet.css" TITLE="Style">
 
@@ -123,6 +123,14 @@ Manages connections to the database.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/Database.html#callBack">callBack</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The progress listener.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/HashMap.html?is-external=true" title="class or interface in java.util">HashMap</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/Database.html#connections">connections</A></B></CODE>
 
@@ -172,10 +180,11 @@ Manages connections to the database.
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../solidbase/core/Database.html#Database(java.lang.String, java.lang.String, java.lang.String, java.lang.String)">Database</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;driverClassName,
+<TD><CODE><B><A HREF="../../solidbase/core/Database.html#Database(java.lang.String, java.lang.String, java.lang.String, java.lang.String, solidbase.core.ProgressListener)">Database</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;driverClassName,
          <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;url,
          <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;defaultUser,
-         <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;defaultPassword)</CODE>
+         <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;defaultPassword,
+         <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;callBack)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs a Database object for a specific database url.</TD>
@@ -328,6 +337,18 @@ protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html
 <DL>
 </DL>
 </DL>
+<HR>
+
+<A NAME="callBack"><!-- --></A><H3>
+callBack</H3>
+<PRE>
+protected <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A> <B>callBack</B></PRE>
+<DL>
+<DD>The progress listener.
+<P>
+<DL>
+</DL>
+</DL>
 
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 
@@ -339,13 +360,14 @@ protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html
 </TR>
 </TABLE>
 
-<A NAME="Database(java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+<A NAME="Database(java.lang.String, java.lang.String, java.lang.String, java.lang.String, solidbase.core.ProgressListener)"><!-- --></A><H3>
 Database</H3>
 <PRE>
 public <B>Database</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;driverClassName,
                 <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;url,
                 <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;defaultUser,
-                <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;defaultPassword)</PRE>
+                <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;defaultPassword,
+                <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;callBack)</PRE>
 <DL>
 <DD>Constructs a Database object for a specific database url. This object will manage multiple connections to this database.
 <P>

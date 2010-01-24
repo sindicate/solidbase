@@ -7,7 +7,7 @@
 RandomAccessLineReader
 </TITLE>
 
-<META NAME="date" CONTENT="2010-01-09">
+
 
 <LINK REL ="stylesheet" TYPE="text/css" HREF="../../stylesheet.css" TITLE="Style">
 
@@ -121,8 +121,8 @@ A line reader that automatically detects character encoding through the BOM and 
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;int</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/RandomAccessLineReader.html#bomSize">bomSize</A></B></CODE>
+<CODE>protected &nbsp;byte[]</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/RandomAccessLineReader.html#bom">bom</A></B></CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -246,6 +246,14 @@ A line reader that automatically detects character encoding through the BOM and 
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Detects the encoding by looking at the first 2, 3 or 4 bytes.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;byte[]</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/RandomAccessLineReader.html#getBOM()">getBOM</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the current character encoding.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -408,10 +416,10 @@ protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html
 </DL>
 <HR>
 
-<A NAME="bomSize"><!-- --></A><H3>
-bomSize</H3>
+<A NAME="bom"><!-- --></A><H3>
+bom</H3>
 <PRE>
-protected int <B>bomSize</B></PRE>
+protected byte[] <B>bom</B></PRE>
 <DL>
 <DL>
 </DL>
@@ -585,6 +593,20 @@ public void <B>gotoLine</B>(int&nbsp;lineNumber)
 getEncoding</H3>
 <PRE>
 public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getEncoding</B>()</PRE>
+<DL>
+<DD>Returns the current character encoding.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the current character encoding.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getBOM()"><!-- --></A><H3>
+getBOM</H3>
+<PRE>
+public byte[] <B>getBOM</B>()</PRE>
 <DL>
 <DD>Returns the current character encoding.
 <P>
