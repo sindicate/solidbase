@@ -18,7 +18,7 @@
 
 <project basedir="." name="solidbase" default="dist" xmlns:maven="antlib:org.apache.maven.artifact.ant">
 
-	<!-- Maven -->
+	<!-- Maven Ant Task -->
 	
 	<path id="maven.classpath">
 		<fileset dir="tools/maven" includes="*.jar" />
@@ -26,11 +26,7 @@
 
 	<typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven.classpath" />
 	
-	<!--
-	<maven:dependencies>
-		<pom file="pom.xml" />
-	</maven:dependencies>
-	-->
+	<!-- <maven:dependencies><pom file="pom.xml" /></maven:dependencies> -->
 	
 	<!-- Property file -->
 
@@ -39,7 +35,6 @@
 	<!-- Properties -->
 
 	<property name="target-jre" value="1.5" />
-	<property name="release.number" value="1.5" />
 
 	<!-- Source folders & files -->
 
@@ -165,7 +160,7 @@
 	<target name="jar" depends="compile">
 		<groovy src="getsvninfo.groovy" />
 		<mkdir dir="${build.home}/config" />
-		<echo file="${build.home}/config/version.properties" message="module.version=${release.number}.${svn.revision}" />
+		<echo file="${build.home}/config/version.properties" message="module.version=${release.number}-rev${svn.revision}" />
 		<mkdir dir="${dist.home}" />
 		<jarjar compress="yes" destfile="${dist.home}/solidbase.jar">
 			<zipfileset dir="${build.home}/classes" excludes="solidbase/config/version.properties" />
@@ -203,10 +198,11 @@
 	</target>
 
 
+	<!--
 	<target name="run" depends="build">
 		<java jar="${dist.home}/solidbase.jar" fork="yes" dir="${dist.home}">
 			<arg value="-fromant" />
-			<!--
+			<!-
 			<arg value="-driver" />
 			<arg value="org.apache.derby.jdbc.EmbeddedDriver" />
 			<arg value="-url" />
@@ -215,10 +211,10 @@
 			<arg value="app" />
 			<arg value="-pass" />
 			<arg value="" />
-			-->
+			->
 		</java>
 	</target>
-
+	-->
 
 	<target name="checksvnstatus">
 		<groovy src="checksvnstatus.groovy" />
@@ -265,7 +261,7 @@
 	</target>
 	
 	
-	<target name="ant-test" depends="compile">
+	<target name="test-ant-task" depends="compile">
         <taskdef resource="solidbasetasks" classpathref="compiletest.classpath" />
 		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testJson" user="sa" password="" patchfile="test/testpatch-multiconnections.sql" target="1.0.*">
        		<secondary name="queues" url="jdbc:hsqldb:mem:queues" user="sa" password="geheim" />
@@ -274,7 +270,9 @@
 	</target>
 
 
-	<target name="maven:deploy" depends="clean,test,build" description="Deploys to the maven repo">
+	<target name="maven:deploy" depends="" description="Deploys to the remote repo">
+		<replaceregexp file="pom.xml" match="&lt;version&gt;(\w|\.|-)*&lt;/version&gt;" replace="&lt;version&gt;${release.number}&lt;/version&gt;" />
+		<replaceregexp file="src/META-INF/maven/plugin.xml" match="&lt;version&gt;(\w|\.|-)*&lt;/version&gt;" replace="&lt;version&gt;${release.number}&lt;/version&gt;" />
 		<maven:deploy file="${dist.home}/solidbase.jar">
 			<pom file="pom.xml" />
 		</maven:deploy>
@@ -338,13 +336,10 @@
 		</maven:deploy>
 		<delete dir="${build.home}/../solidbase-user/.m2/repository/solidbase" /> <!-- Remove solidbase from the local repo -->
 		
-		<!-- Use -->
-		<mkdir dir="${build.home}/testplugin" />
-		<!-- <copy filtering="yes" file="maven-plugin/test/pom.xml" todir="${build.home}/testplugin" /> --> <!-- Copy pom.xml to test folder -->
-		<!-- <copy file="maven-plugin/test/upgrade-derby-example.sql" todir="${build.home}/testplugin" /> --> <!-- Copy upgrade file to test folder -->
+		<!-- Test with our own private maven tool -->
 		<java dir="maven-plugin/test" classname="org.codehaus.classworlds.Launcher" classpathref="maven2.classpath" fork="yes">
 			<jvmarg value="-Dclassworlds.conf=${basedir}/tools/maven/bin/m2.conf" />
-			<jvmarg value="-Duser.home=${build.home}/../solidbase-user" />
+			<jvmarg value="-Duser.home=${build.home}/../solidbase-user" /> <!-- Use our own user folder -->
 			<jvmarg value="-Dmaven.home=${basedir}/tools/maven" />
 			<arg value="--batch-mode" />
 			<arg value="solidbase:upgrade" />
