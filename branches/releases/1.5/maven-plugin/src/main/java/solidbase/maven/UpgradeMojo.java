@@ -1,4 +1,4 @@
-package solidbase.mojo;
+package solidbase.maven;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -96,7 +96,7 @@ public class UpgradeMojo extends AbstractMojo
 		Configuration configuration = new Configuration( progress );
 
 		getLog().info( "SolidBase v" + configuration.getVersion() );
-		getLog().info( "(C) 2006-2009 Rene M. de Bloois" ); // TODO Diacritics don't work.
+		getLog().info( "(C) 2006-2010 Rene M. de Bloois" ); // TODO Diacritics don't work.
 		getLog().info( "" );
 
 		Patcher patcher = new Patcher( progress, new Database( this.driver, this.url, this.user, this.password == null ? "" : this.password, progress ) );

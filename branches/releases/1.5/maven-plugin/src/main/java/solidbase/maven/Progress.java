@@ -1,4 +1,4 @@
-package solidbase.mojo;
+package solidbase.maven;
 
 import org.apache.maven.plugin.logging.Log;
 import solidbase.config.ConfigListener;

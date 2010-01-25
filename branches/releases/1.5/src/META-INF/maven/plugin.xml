@@ -21,7 +21,7 @@
 			<requiresOnline>false</requiresOnline>
 			<inheritedByDefault>true</inheritedByDefault>
 			<!-- <phase>process-resources</phase> -->
-			<implementation>solidbase.mojo.UpgradeMojo</implementation>
+			<implementation>solidbase.maven.UpgradeMojo</implementation>
 			<language>java</language>
 			<instantiationStrategy>per-lookup</instantiationStrategy>
 			<executionStrategy>once-per-session</executionStrategy>

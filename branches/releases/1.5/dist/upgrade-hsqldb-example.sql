@@ -21,6 +21,7 @@
 --*	DEFINITION
 --*		INIT "" --> "1.1"
 --*		UPGRADE "" --> "1.0.1"
+--*		UPGRADE "1.0.1" --> "1.0.2"
 --*	/DEFINITION
 
 
@@ -83,6 +84,25 @@ GO
 --* SET MESSAGE "    Inserting user"
 
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' )
+GO
+
+--* /UPGRADE
+
+
+
+--* // ========================================================================
+--* UPGRADE "1.0.1" --> "1.0.2"
+--* // ========================================================================
+
+--* SET MESSAGE "    Creating queue"
+
+--* SELECT CONNECTION QUEUES
+
+CREATE TABLE QUEUE1
+(
+	PRIORITY INT NOT NULL,
+	MESSAGE VARCHAR NOT NULL
+)
 GO
 
 --* /UPGRADE
