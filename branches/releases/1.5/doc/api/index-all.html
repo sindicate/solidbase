@@ -124,7 +124,7 @@ Method in class solidbase.core.<A HREF="./solidbase/core/PatchFile.GetPatchPath2
 <DD>&nbsp;
 <DT><A HREF="./solidbase/core/RandomAccessLineReader.html#bom"><B>bom</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A>
-<DD>&nbsp;
+<DD>The Byte Order Mark found at the beginning of the stream.
 <DT><A HREF="./solidbase/ant/Progress.html#buffer"><B>buffer</B></A> - 
 Variable in class solidbase.ant.<A HREF="./solidbase/ant/Progress.html" title="class in solidbase.ant">Progress</A>
 <DD>&nbsp;
@@ -142,36 +142,33 @@ Variable in class solidbase.core.<A HREF="./solidbase/core/Database.html" title=
 <DT><A HREF="./solidbase/core/DBVersion.html#callBack"><B>callBack</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/DBVersion.html" title="class in solidbase.core">DBVersion</A>
 <DD>The progress listener.
-<DT><A HREF="./solidbase/core/Patcher.html#callBack"><B>callBack</B></A> - 
-Variable in class solidbase.core.<A HREF="./solidbase/core/Patcher.html" title="class in solidbase.core">Patcher</A>
-<DD>The progress listener.
 <DT><A HREF="./solidbase/Console.html#carriageReturn()"><B>carriageReturn()</B></A> - 
 Method in class solidbase.<A HREF="./solidbase/Console.html" title="class in solidbase">Console</A>
 <DD>&nbsp;
 <DT><A HREF="./solidbase/core/RandomAccessLineReader.html#CHARSET_DEFAULT"><B>CHARSET_DEFAULT</B></A> - 
 Static variable in class solidbase.core.<A HREF="./solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A>
-<DD>&nbsp;
+<DD>Constant for the default character set, which is ISO-8859-1.
 <DT><A HREF="./solidbase/core/RandomAccessLineReader.html#CHARSET_ISO"><B>CHARSET_ISO</B></A> - 
 Static variable in class solidbase.core.<A HREF="./solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A>
-<DD>&nbsp;
+<DD>Constant for the ISO-8859-1 character set.
 <DT><A HREF="./solidbase/core/RandomAccessLineReader.html#CHARSET_UTF16BE"><B>CHARSET_UTF16BE</B></A> - 
 Static variable in class solidbase.core.<A HREF="./solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A>
-<DD>&nbsp;
+<DD>Constant for the UTF-16BE character set.
 <DT><A HREF="./solidbase/core/RandomAccessLineReader.html#CHARSET_UTF16LE"><B>CHARSET_UTF16LE</B></A> - 
 Static variable in class solidbase.core.<A HREF="./solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A>
-<DD>&nbsp;
+<DD>Constant for the UTF-16LE character set.
 <DT><A HREF="./solidbase/core/RandomAccessLineReader.html#CHARSET_UTF8"><B>CHARSET_UTF8</B></A> - 
 Static variable in class solidbase.core.<A HREF="./solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A>
-<DD>&nbsp;
+<DD>Constant for the UTF-8 character set.
 <DT><A HREF="./solidbase/core/PatchFile.html#close()"><B>close()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/PatchFile.html" title="class in solidbase.core">PatchFile</A>
 <DD>Close the patch file.
 <DT><A HREF="./solidbase/core/RandomAccessLineReader.html#close()"><B>close()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A>
-<DD>Close the reader and the underlying stream.
+<DD>Close the reader.
 <DT><A HREF="./solidbase/core/Database.html#closeConnections()"><B>closeConnections()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/Database.html" title="class in solidbase.core">Database</A>
-<DD>&nbsp;
+<DD>Close all open connections that are maintained by this instance of <A HREF="./solidbase/core/Database.html" title="class in solidbase.core"><CODE>Database</CODE></A>.
 <DT><A HREF="./solidbase/core/Patcher.html#closePatchFile()"><B>closePatchFile()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/Patcher.html" title="class in solidbase.core">Patcher</A>
 <DD>Close the upgrade file.
@@ -184,16 +181,17 @@ Method in class solidbase.core.<A HREF="./solidbase/core/PatchFile.html" title="
 <DT><A HREF="./solidbase/core/PatchFile.html#collectTargets(java.lang.String, java.lang.String, boolean, boolean, java.lang.String, java.util.Set)"><B>collectTargets(String, String, boolean, boolean, String, Set&lt;String&gt;)</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/PatchFile.html" title="class in solidbase.core">PatchFile</A>
 <DD>Determines all possible target versions from the specified source version.
-<DT><A HREF="./solidbase/core/Command.html" title="class in solidbase.core"><B>Command</B></A> - Class in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>Represents a command in the patchfile.<DT><A HREF="./solidbase/core/Command.html#Command(java.lang.String, boolean, int)"><B>Command(String, boolean, int)</B></A> - 
+<DT><A HREF="./solidbase/core/Command.html" title="class in solidbase.core"><B>Command</B></A> - Class in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>
+ Represents a command in the upgrade file.<DT><A HREF="./solidbase/core/Command.html#Command(java.lang.String, boolean, int)"><B>Command(String, boolean, int)</B></A> - 
 Constructor for class solidbase.core.<A HREF="./solidbase/core/Command.html" title="class in solidbase.core">Command</A>
-<DD>Constructs the command.
+<DD>Instantiates a command.
 <DT><A HREF="./solidbase/core/Command.html#command"><B>command</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/Command.html" title="class in solidbase.core">Command</A>
-<DD>&nbsp;
+<DD>The text of the command.
 <DT><A HREF="./solidbase/core/SQLExecutionException.html#command"><B>command</B></A> - 
 Variable in exception solidbase.core.<A HREF="./solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A>
 <DD>&nbsp;
-<DT><A HREF="./solidbase/core/CommandListener.html" title="class in solidbase.core"><B>CommandListener</B></A> - Class in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>A CommandListener listens to commands in the patch file as they are being executed.<DT><A HREF="./solidbase/core/CommandListener.html#CommandListener()"><B>CommandListener()</B></A> - 
+<DT><A HREF="./solidbase/core/CommandListener.html" title="class in solidbase.core"><B>CommandListener</B></A> - Class in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>A CommandListener listens to commands from the upgrade file as they are being processed.<DT><A HREF="./solidbase/core/CommandListener.html#CommandListener()"><B>CommandListener()</B></A> - 
 Constructor for class solidbase.core.<A HREF="./solidbase/core/CommandListener.html" title="class in solidbase.core">CommandListener</A>
 <DD>&nbsp;
 <DT><A HREF="./solidbase/config/Application.Comparator.html#compare(solidbase.config.Application, solidbase.config.Application)"><B>compare(Application, Application)</B></A> - 
@@ -234,7 +232,7 @@ Variable in class solidbase.config.<A HREF="./solidbase/config/Application.html"
 <DD>&nbsp;
 <DT><A HREF="./solidbase/core/Database.html#connections"><B>connections</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/Database.html" title="class in solidbase.core">Database</A>
-<DD>&nbsp;
+<DD>A map of connections indexed by user name.
 <DT><A HREF="./solidbase/Console.html" title="class in solidbase"><B>Console</B></A> - Class in <A HREF="./solidbase/package-summary.html">solidbase</A><DD>&nbsp;<DT><A HREF="./solidbase/Console.html#Console()"><B>Console()</B></A> - 
 Constructor for class solidbase.<A HREF="./solidbase/Console.html" title="class in solidbase">Console</A>
 <DD>&nbsp;
@@ -252,7 +250,7 @@ Variable in class solidbase.core.<A HREF="./solidbase/core/Patcher.html" title="
 <DD>The current database.
 <DT><A HREF="./solidbase/core/RandomAccessLineReader.html#currentLineNumber"><B>currentLineNumber</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A>
-<DD>&nbsp;
+<DD>The current line the reader is positioned on.
 <DT><A HREF="./solidbase/custom/CustomDatabasesConfiguration.html" title="class in solidbase.custom"><B>CustomDatabasesConfiguration</B></A> - Class in <A HREF="./solidbase/custom/package-summary.html">solidbase.custom</A><DD>&nbsp;<DT><A HREF="./solidbase/custom/CustomDatabasesConfiguration.html#CustomDatabasesConfiguration()"><B>CustomDatabasesConfiguration()</B></A> - 
 Constructor for class solidbase.custom.<A HREF="./solidbase/custom/CustomDatabasesConfiguration.html" title="class in solidbase.custom">CustomDatabasesConfiguration</A>
 <DD>&nbsp;
@@ -266,7 +264,7 @@ Constructor for class solidbase.config.<A HREF="./solidbase/config/Database.html
 <DD>&nbsp;
 <DT><A HREF="./solidbase/core/Database.html" title="class in solidbase.core"><B>Database</B></A> - Class in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>Manages connections to the database.<DT><A HREF="./solidbase/core/Database.html#Database(java.lang.String, java.lang.String, java.lang.String, java.lang.String, solidbase.core.ProgressListener)"><B>Database(String, String, String, String, ProgressListener)</B></A> - 
 Constructor for class solidbase.core.<A HREF="./solidbase/core/Database.html" title="class in solidbase.core">Database</A>
-<DD>Constructs a Database object for a specific database url.
+<DD>Constructor for a specific database and default user.
 <DT><A HREF="./solidbase/core/DBVersion.html#database"><B>database</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/DBVersion.html" title="class in solidbase.core">DBVersion</A>
 <DD>What's the database and schema that contains the DBVERSION tables.
@@ -314,10 +312,10 @@ Variable in class solidbase.core.<A HREF="./solidbase/core/Patcher.html" title="
 <DD>The default database.
 <DT><A HREF="./solidbase/core/Database.html#defaultPassword"><B>defaultPassword</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/Database.html" title="class in solidbase.core">Database</A>
-<DD>&nbsp;
+<DD>The password belonging to the default user.
 <DT><A HREF="./solidbase/core/Database.html#defaultUser"><B>defaultUser</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/Database.html" title="class in solidbase.core">Database</A>
-<DD>&nbsp;
+<DD>The default user name to use for this database.
 <DT><A HREF="./solidbase/config/Application.html#description"><B>description</B></A> - 
 Variable in class solidbase.config.<A HREF="./solidbase/config/Application.html" title="class in solidbase.config">Application</A>
 <DD>&nbsp;
@@ -326,7 +324,7 @@ Variable in class solidbase.config.<A HREF="./solidbase/config/Database.html" ti
 <DD>&nbsp;
 <DT><A HREF="./solidbase/core/RandomAccessLineReader.html#detectEncoding(java.lang.String)"><B>detectEncoding(String)</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A>
-<DD>Detects the encoding by looking at the first 2, 3 or 4 bytes.
+<DD>Detects the encoding of the stream by looking at the first 2, 3 or 4 bytes.
 <DT><A HREF="./solidbase/core/Patcher.html#disableDontCount()"><B>disableDontCount()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/Patcher.html" title="class in solidbase.core">Patcher</A>
 <DD>&nbsp;
@@ -359,7 +357,7 @@ Variable in class solidbase.config.<A HREF="./solidbase/config/Configuration.htm
 <DD>&nbsp;
 <DT><A HREF="./solidbase/core/Database.html#driverName"><B>driverName</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/Database.html" title="class in solidbase.core">Database</A>
-<DD>&nbsp;
+<DD>The class name of the driver to be used to access the database.
 </DL>
 <HR>
 <A NAME="_E_"><!-- --></A><H2>
@@ -379,7 +377,7 @@ Static variable in class solidbase.core.<A HREF="./solidbase/core/OracleDBMSOutp
 <DD>&nbsp;
 <DT><A HREF="./solidbase/core/RandomAccessLineReader.html#encoding"><B>encoding</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A>
-<DD>&nbsp;
+<DD>The encoding of the stream.
 <DT><A HREF="./solidbase/core/Patcher.html#end()"><B>end()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/Patcher.html" title="class in solidbase.core">Patcher</A>
 <DD>&nbsp;
@@ -412,7 +410,7 @@ Method in class solidbase.core.<A HREF="./solidbase/core/AssertCommandExecuter.h
 <DD>&nbsp;
 <DT><A HREF="./solidbase/core/CommandListener.html#execute(solidbase.core.Database, solidbase.core.Command)"><B>execute(Database, Command)</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/CommandListener.html" title="class in solidbase.core">CommandListener</A>
-<DD>Called when a command from the patch file needs to be executed.
+<DD>Called when a command from the upgrade file needs to be executed.
 <DT><A HREF="./solidbase/core/DBVersion.html#execute(java.lang.String, java.lang.Object[])"><B>execute(String, Object[])</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/DBVersion.html" title="class in solidbase.core">DBVersion</A>
 <DD>Execute the given sql with the given parameters.
@@ -491,7 +489,7 @@ Method in class solidbase.config.<A HREF="./solidbase/config/Database.html" titl
 <DD>&nbsp;
 <DT><A HREF="./solidbase/core/RandomAccessLineReader.html#getBOM()"><B>getBOM()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A>
-<DD>Returns the current character encoding.
+<DD>Returns the Byte Order Mark found in the stream.
 <DT><A HREF="./solidbase/core/Patcher.html#getCallBack()"><B>getCallBack()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/Patcher.html" title="class in solidbase.core">Patcher</A>
 <DD>&nbsp;
@@ -502,14 +500,14 @@ Method in class solidbase.core.<A HREF="./solidbase/core/Command.html" title="cl
 Method in class solidbase.config.<A HREF="./solidbase/config/Configuration.html" title="class in solidbase.config">Configuration</A>
 <DD>&nbsp;
 <DT><A HREF="./solidbase/core/Database.html#getConnection(java.lang.String, java.lang.String, java.lang.String)"><B>getConnection(String, String, String)</B></A> - 
-Method in class solidbase.core.<A HREF="./solidbase/core/Database.html" title="class in solidbase.core">Database</A>
-<DD>Gets a new connection from the DriverManager with the given url, user and password.
+Static method in class solidbase.core.<A HREF="./solidbase/core/Database.html" title="class in solidbase.core">Database</A>
+<DD>Returns a new connection for the given URL, user name and password.
 <DT><A HREF="./solidbase/core/Database.html#getConnection(java.lang.String)"><B>getConnection(String)</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/Database.html" title="class in solidbase.core">Database</A>
-<DD>Gets a cached connection for the given user.
+<DD>Returns a connection for the given user name.
 <DT><A HREF="./solidbase/core/Database.html#getConnection()"><B>getConnection()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/Database.html" title="class in solidbase.core">Database</A>
-<DD>Gets a connection for the current user from the cache.
+<DD>Returns a connection for the current user.
 <DT><A HREF="./solidbase/ant/UpgradeTask.html#getConnections()"><B>getConnections()</B></A> - 
 Method in class solidbase.ant.<A HREF="./solidbase/ant/UpgradeTask.html" title="class in solidbase.ant">UpgradeTask</A>
 <DD>&nbsp;
@@ -551,7 +549,7 @@ Method in class solidbase.config.<A HREF="./solidbase/config/Configuration.html"
 <DD>&nbsp;
 <DT><A HREF="./solidbase/core/Database.html#getDefaultUser()"><B>getDefaultUser()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/Database.html" title="class in solidbase.core">Database</A>
-<DD>&nbsp;
+<DD>Return the default user.
 <DT><A HREF="./solidbase/config/Application.html#getDescription()"><B>getDescription()</B></A> - 
 Method in class solidbase.config.<A HREF="./solidbase/config/Application.html" title="class in solidbase.config">Application</A>
 <DD>&nbsp;
@@ -578,7 +576,7 @@ Method in class solidbase.core.<A HREF="./solidbase/core/PatchFile.html" title="
 <DD>Gets the encoding of the patch file.
 <DT><A HREF="./solidbase/core/RandomAccessLineReader.html#getEncoding()"><B>getEncoding()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A>
-<DD>Returns the current character encoding.
+<DD>Returns the current character encoding of the stream.
 <DT><A HREF="./solidbase/core/SQLExecutionException.html#getErrorCode()"><B>getErrorCode()</B></A> - 
 Method in exception solidbase.core.<A HREF="./solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A>
 <DD>&nbsp;
@@ -590,7 +588,7 @@ Method in class solidbase.core.<A HREF="./solidbase/core/PatchFile.html" title="
 <DD>Returns an init patch path for the specified source.
 <DT><A HREF="./solidbase/core/Command.html#getLineNumber()"><B>getLineNumber()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/Command.html" title="class in solidbase.core">Command</A>
-<DD>&nbsp;
+<DD>Returns the line number in the upgrade file where the command is found.
 <DT><A HREF="./solidbase/core/Patch.html#getLineNumber()"><B>getLineNumber()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>
 <DD>Gets the line number in the file for this patch.
@@ -734,7 +732,7 @@ Method in class solidbase.core.<A HREF="./solidbase/core/DBVersion.html" title="
 <DD>Gets the current version of the database.
 <DT><A HREF="./solidbase/core/RandomAccessLineReader.html#gotoLine(int)"><B>gotoLine(int)</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A>
-<DD>Repositions the stream so that the given line number is the one that is read next.
+<DD>Repositions the stream so that the given line number is the one that is to be read next.
 <DT><A HREF="./solidbase/core/PatchFile.html#gotoPatch(solidbase.core.Patch)"><B>gotoPatch(Patch)</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/PatchFile.html" title="class in solidbase.core">PatchFile</A>
 <DD>Jump to the position in the patch file where the given patch starts.
@@ -786,7 +784,7 @@ Method in class solidbase.custom.<A HREF="./solidbase/custom/CustomDatabasesConf
 <DD>&nbsp;
 <DT><A HREF="./solidbase/core/Database.html#initConnection(java.lang.String, java.lang.String)"><B>initConnection(String, String)</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/Database.html" title="class in solidbase.core">Database</A>
-<DD>Initializes and caches a connection for the given user and password.
+<DD>Sets up a connection for the given user name.
 <DT><A HREF="./solidbase/core/PatchFile.html#inits"><B>inits</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/PatchFile.html" title="class in solidbase.core">PatchFile</A>
 <DD>All init patches in a map indexed by source version.
@@ -831,7 +829,7 @@ Method in class solidbase.core.<A HREF="./solidbase/core/Patch.html" title="clas
 <DD>Is this patch a switch.
 <DT><A HREF="./solidbase/core/Command.html#isTransient"><B>isTransient</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/Command.html" title="class in solidbase.core">Command</A>
-<DD>&nbsp;
+<DD>Is the command transient or not?
 <DT><A HREF="./solidbase/core/Command.html#isTransient()"><B>isTransient()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/Command.html" title="class in solidbase.core">Command</A>
 <DD>Indicates if the command is transient or not.
@@ -865,7 +863,7 @@ Variable in class solidbase.<A HREF="./solidbase/Console.html" title="class in s
 <DL>
 <DT><A HREF="./solidbase/core/Command.html#lineNumber"><B>lineNumber</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/Command.html" title="class in solidbase.core">Command</A>
-<DD>&nbsp;
+<DD>The line number in the upgrade file where the command is found.
 <DT><A HREF="./solidbase/core/Patch.html#lineNumber"><B>lineNumber</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>
 <DD>The line number of this patch.
@@ -1054,7 +1052,7 @@ Method in class solidbase.core.<A HREF="./solidbase/core/Patcher.html" title="cl
 <DT><A HREF="./solidbase/core/Patcher.html#patch(solidbase.core.Patch)"><B>patch(Patch)</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/Patcher.html" title="class in solidbase.core">Patcher</A>
 <DD>&nbsp;
-<DT><A HREF="./solidbase/core/Patch.Type.html" title="enum in solidbase.core"><B>Patch.Type</B></A> - Enum in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>The possible types of a patch.<DT><A HREF="./solidbase/core/Patcher.html" title="class in solidbase.core"><B>Patcher</B></A> - Class in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>&nbsp;<DT><A HREF="./solidbase/core/Patcher.html#Patcher(solidbase.core.ProgressListener, solidbase.core.Database)"><B>Patcher(ProgressListener, Database)</B></A> - 
+<DT><A HREF="./solidbase/core/Patch.Type.html" title="enum in solidbase.core"><B>Patch.Type</B></A> - Enum in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>The possible types of a patch.<DT><A HREF="./solidbase/core/Patcher.html" title="class in solidbase.core"><B>Patcher</B></A> - Class in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>This class is the coordinator.<DT><A HREF="./solidbase/core/Patcher.html#Patcher(solidbase.core.ProgressListener, solidbase.core.Database)"><B>Patcher(ProgressListener, Database)</B></A> - 
 Constructor for class solidbase.core.<A HREF="./solidbase/core/Patcher.html" title="class in solidbase.core">Patcher</A>
 <DD>Construct a new instance of the patcher.
 <DT><A HREF="./solidbase/core/PatchFile.html#patches"><B>patches</B></A> - 
@@ -1147,6 +1145,9 @@ Method in class solidbase.<A HREF="./solidbase/Console.html" title="class in sol
 <DT><A HREF="./solidbase/ant/Progress.html" title="class in solidbase.ant"><B>Progress</B></A> - Class in <A HREF="./solidbase/ant/package-summary.html">solidbase.ant</A><DD>&nbsp;<DT><A HREF="./solidbase/ant/Progress.html#Progress(org.apache.tools.ant.Project, org.apache.tools.ant.Task)"><B>Progress(Project, Task)</B></A> - 
 Constructor for class solidbase.ant.<A HREF="./solidbase/ant/Progress.html" title="class in solidbase.ant">Progress</A>
 <DD>&nbsp;
+<DT><A HREF="./solidbase/core/Patcher.html#progress"><B>progress</B></A> - 
+Variable in class solidbase.core.<A HREF="./solidbase/core/Patcher.html" title="class in solidbase.core">Patcher</A>
+<DD>The progress listener.
 <DT><A HREF="./solidbase/maven/Progress.html" title="class in solidbase.maven"><B>Progress</B></A> - Class in <A HREF="./solidbase/maven/package-summary.html">solidbase.maven</A><DD>&nbsp;<DT><A HREF="./solidbase/maven/Progress.html#Progress(org.apache.maven.plugin.logging.Log)"><B>Progress(Log)</B></A> - 
 Constructor for class solidbase.maven.<A HREF="./solidbase/maven/Progress.html" title="class in solidbase.maven">Progress</A>
 <DD>&nbsp;
@@ -1172,7 +1173,7 @@ Method in class solidbase.core.<A HREF="./solidbase/core/Patcher.html" title="cl
 <DL>
 <DT><A HREF="./solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core"><B>RandomAccessLineReader</B></A> - Class in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>A line reader that automatically detects character encoding through the BOM and is able to reposition itself on a line.<DT><A HREF="./solidbase/core/RandomAccessLineReader.html#RandomAccessLineReader(java.net.URL)"><B>RandomAccessLineReader(URL)</B></A> - 
 Constructor for class solidbase.core.<A HREF="./solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A>
-<DD>Creates a new line reader from the given url.
+<DD>Creates a new line reader from the given URL.
 <DT><A HREF="./solidbase/core/RandomAccessLineReader.html#RandomAccessLineReader(java.io.File)"><B>RandomAccessLineReader(File)</B></A> - 
 Constructor for class solidbase.core.<A HREF="./solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A>
 <DD>Creates a new line reader from the given file.
@@ -1181,7 +1182,7 @@ Method in class solidbase.core.<A HREF="./solidbase/core/PatchFile.html" title="
 <DD>Reads and analyzes the patch file.
 <DT><A HREF="./solidbase/core/RandomAccessLineReader.html#reader"><B>reader</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A>
-<DD>&nbsp;
+<DD>The reader used to read from the URL.
 <DT><A HREF="./solidbase/ant/Progress.html#readingPropertyFile(java.lang.String)"><B>readingPropertyFile(String)</B></A> - 
 Method in class solidbase.ant.<A HREF="./solidbase/ant/Progress.html" title="class in solidbase.ant">Progress</A>
 <DD>&nbsp;
@@ -1196,7 +1197,7 @@ Method in class solidbase.<A HREF="./solidbase/Progress.html" title="class in so
 <DD>&nbsp;
 <DT><A HREF="./solidbase/core/RandomAccessLineReader.html#readLine()"><B>readLine()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A>
-<DD>Reads a line and increments the current line number.
+<DD>Reads a line from the stream.
 <DT><A HREF="./solidbase/core/PatchFile.html#readStatement()"><B>readStatement()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/PatchFile.html" title="class in solidbase.core">PatchFile</A>
 <DD>Reads a statement from the patch file.
@@ -1249,7 +1250,7 @@ Method in class solidbase.core.<A HREF="./solidbase/core/Command.html" title="cl
 <DD>Sets the command text.
 <DT><A HREF="./solidbase/core/Database.html#setCurrentUser(java.lang.String)"><B>setCurrentUser(String)</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/Database.html" title="class in solidbase.core">Database</A>
-<DD>Sets the default user.
+<DD>Sets the current user.
 <DT><A HREF="./solidbase/ant/UpgradeTask.html#setDowngradeallowed(boolean)"><B>setDowngradeallowed(boolean)</B></A> - 
 Method in class solidbase.ant.<A HREF="./solidbase/ant/UpgradeTask.html" title="class in solidbase.ant">UpgradeTask</A>
 <DD>&nbsp;
@@ -1343,13 +1344,13 @@ Variable in class solidbase.core.<A HREF="./solidbase/core/PatchFile.GetPatchPat
 <DD>&nbsp;
 <DT><A HREF="./solidbase/core/SystemException.html" title="class in solidbase.core"><B>SystemException</B></A> - Exception in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>Use this <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/RuntimeException.html?is-external=true" title="class or interface in java.lang"><CODE>RuntimeException</CODE></A> to wrap a checked exception that you can't handle and don't want to declare.<DT><A HREF="./solidbase/core/SystemException.html#SystemException(java.lang.String)"><B>SystemException(String)</B></A> - 
 Constructor for exception solidbase.core.<A HREF="./solidbase/core/SystemException.html" title="class in solidbase.core">SystemException</A>
-<DD>&nbsp;
+<DD>Creates an instance of this exception.
 <DT><A HREF="./solidbase/core/SystemException.html#SystemException(java.lang.String, java.lang.Throwable)"><B>SystemException(String, Throwable)</B></A> - 
 Constructor for exception solidbase.core.<A HREF="./solidbase/core/SystemException.html" title="class in solidbase.core">SystemException</A>
-<DD>&nbsp;
+<DD>Creates an instance of this exception.
 <DT><A HREF="./solidbase/core/SystemException.html#SystemException(java.lang.Throwable)"><B>SystemException(Throwable)</B></A> - 
 Constructor for exception solidbase.core.<A HREF="./solidbase/core/SystemException.html" title="class in solidbase.core">SystemException</A>
-<DD>&nbsp;
+<DD>Creates an instance of this exception.
 </DL>
 <HR>
 <A NAME="_T_"><!-- --></A><H2>
@@ -1375,7 +1376,7 @@ Variable in class solidbase.ant.<A HREF="./solidbase/ant/Progress.html" title="c
 <DD>&nbsp;
 <DT><A HREF="./solidbase/core/CommandListener.html#terminate()"><B>terminate()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/CommandListener.html" title="class in solidbase.core">CommandListener</A>
-<DD>Gives the listener a chance to cleanup after itself.
+<DD>Gives this listener a chance to cleanup.
 <DT><A HREF="./solidbase/core/OracleDBMSOutputPoller.html#terminate()"><B>terminate()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/OracleDBMSOutputPoller.html" title="class in solidbase.core">OracleDBMSOutputPoller</A>
 <DD>&nbsp;
@@ -1435,10 +1436,10 @@ Variable in class solidbase.config.<A HREF="./solidbase/config/Database.html" ti
 <DD>&nbsp;
 <DT><A HREF="./solidbase/core/Database.html#url"><B>url</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/Database.html" title="class in solidbase.core">Database</A>
-<DD>&nbsp;
+<DD>The URL of the database.
 <DT><A HREF="./solidbase/core/RandomAccessLineReader.html#url"><B>url</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A>
-<DD>&nbsp;
+<DD>The URL to read from.
 <DT><A HREF="./solidbase/ant/UpgradeTask.Connection.html#user"><B>user</B></A> - 
 Variable in class solidbase.ant.<A HREF="./solidbase/ant/UpgradeTask.Connection.html" title="class in solidbase.ant">UpgradeTask.Connection</A>
 <DD>&nbsp;

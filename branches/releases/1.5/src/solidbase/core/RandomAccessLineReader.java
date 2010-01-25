@@ -32,23 +32,61 @@ import java.net.URL;
  */
 public class RandomAccessLineReader
 {
+	/**
+	 * Constant for the ISO-8859-1 character set.
+	 */
 	static final public String CHARSET_ISO = "ISO-8859-1";
+
+	/**
+	 * Constant for the UTF-8 character set.
+	 */
 	static final public String CHARSET_UTF8 = "UTF-8";
+
+	/**
+	 * Constant for the UTF-16BE character set.
+	 */
 	static final public String CHARSET_UTF16BE = "UTF-16BE";
+
+	/**
+	 * Constant for the UTF-16LE character set.
+	 */
 	static final public String CHARSET_UTF16LE = "UTF-16LE";
+
+	/**
+	 * Constant for the default character set, which is ISO-8859-1.
+	 */
 	static final public String CHARSET_DEFAULT = CHARSET_ISO;
 
+	/**
+	 * The URL to read from.
+	 */
 	protected URL url;
+
+	/**
+	 * The reader used to read from the URL.
+	 */
 	protected BufferedReader reader;
+
+	/**
+	 * The current line the reader is positioned on.
+	 */
 	protected int currentLineNumber;
+
+	/**
+	 * The encoding of the stream.
+	 */
 	protected String encoding = CHARSET_DEFAULT;
+
+	/**
+	 * The Byte Order Mark found at the beginning of the stream.
+	 */
 	protected byte[] bom;
 
 	/**
-	 * Creates a new line reader from the given url.
+	 * Creates a new line reader from the given URL.
 	 * 
-	 * @param url a url.
-	 * @throws IOException
+	 * @param url The URL to read from.
+	 * @throws IOException When a {@link IOException} occurs.
 	 */
 	public RandomAccessLineReader( URL url ) throws IOException
 	{
@@ -84,8 +122,8 @@ public class RandomAccessLineReader
 	/**
 	 * Creates a new line reader from the given file.
 	 * 
-	 * @param file a file.
-	 * @throws IOException
+	 * @param file The file to read from.
+	 * @throws IOException When a {@link IOException} occurs.
 	 */
 	public RandomAccessLineReader( File file ) throws IOException
 	{
@@ -95,8 +133,8 @@ public class RandomAccessLineReader
 	/**
 	 * Reopens itself to reset the position or change the character encoding.
 	 * 
-	 * @throws UnsupportedEncodingException
-	 * @throws IOException
+	 * @throws UnsupportedEncodingException When an {@link UnsupportedEncodingException} occurs.
+	 * @throws IOException When an {@link IOException} occurs.
 	 */
 	protected void reOpen() throws UnsupportedEncodingException, IOException
 	{
@@ -110,10 +148,10 @@ public class RandomAccessLineReader
 	}
 
 	/**
-	 * Detects the encoding by looking at the first 2, 3 or 4 bytes.
+	 * Detects the encoding of the stream by looking at the first 2, 3 or 4 bytes.
 	 * 
-	 * @param firstLine
-	 * @throws UnsupportedEncodingException
+	 * @param firstLine The first line read from the stream.
+	 * @throws UnsupportedEncodingException When an {@link UnsupportedEncodingException} occurs.
 	 */
 	protected void detectEncoding( String firstLine ) throws UnsupportedEncodingException
 	{
@@ -152,8 +190,8 @@ public class RandomAccessLineReader
 	 * Reopen the stream to change the character decoding.
 	 * 
 	 * @param encoding the requested encoding.
-	 * @throws UnsupportedEncodingException
-	 * @throws IOException
+	 * @throws UnsupportedEncodingException When an {@link UnsupportedEncodingException} occurs.
+	 * @throws IOException When an {@link IOException} occurs.
 	 */
 	public void reOpen( String encoding ) throws UnsupportedEncodingException, IOException
 	{
@@ -162,9 +200,9 @@ public class RandomAccessLineReader
 	}
 
 	/**
-	 * Close the reader and the underlying stream.
+	 * Close the reader. Other streams used by this reader are also closed.
 	 * 
-	 * @throws IOException
+	 * @throws IOException When an {@link IOException} occurs.
 	 */
 	public void close() throws IOException
 	{
@@ -176,10 +214,10 @@ public class RandomAccessLineReader
 	}
 
 	/**
-	 * Reads a line and increments the current line number.
+	 * Reads a line from the stream. The line number count is incremented.
 	 * 
-	 * @return the line that is read or null of there are no more lines.
-	 * @throws IOException
+	 * @return The line that is read or null of there are no more lines.
+	 * @throws IOException When an {@link IOException} occurs.
 	 */
 	public String readLine() throws IOException
 	{
@@ -192,7 +230,7 @@ public class RandomAccessLineReader
 	/**
 	 * Returns the current line number. The current line number is the line that is about to be read.
 	 * 
-	 * @return the current line number.
+	 * @return The current line number.
 	 */
 	public int getLineNumber()
 	{
@@ -202,10 +240,10 @@ public class RandomAccessLineReader
 	}
 
 	/**
-	 * Repositions the stream so that the given line number is the one that is read next. The underlying stream may be reopened if needed.
+	 * Repositions the stream so that the given line number is the one that is to be read next. The underlying stream will be reopened if needed.
 	 * 
-	 * @param lineNumber the line number that you want to read next.
-	 * @throws IOException
+	 * @param lineNumber the number of the line that will be read next.
+	 * @throws IOException When an {@link IOException} occurs.
 	 */
 	public void gotoLine( int lineNumber ) throws IOException
 	{
@@ -221,9 +259,9 @@ public class RandomAccessLineReader
 	}
 
 	/**
-	 * Returns the current character encoding.
+	 * Returns the current character encoding of the stream.
 	 * 
-	 * @return the current character encoding.
+	 * @return The current character encoding of the stream.
 	 */
 	public String getEncoding()
 	{
@@ -231,9 +269,9 @@ public class RandomAccessLineReader
 	}
 
 	/**
-	 * Returns the current character encoding.
+	 * Returns the Byte Order Mark found in the stream.
 	 * 
-	 * @return the current character encoding.
+	 * @return The Byte Order Mark found. Will be null if no BOM was present.
 	 */
 	public byte[] getBOM()
 	{

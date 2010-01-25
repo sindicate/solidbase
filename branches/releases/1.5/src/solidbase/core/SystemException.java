@@ -25,8 +25,9 @@ package solidbase.core;
 public class SystemException extends RuntimeException
 {
 	/**
+	 * Creates an instance of this exception.
 	 * 
-	 * @param message
+	 * @param message The message for this exception.
 	 */
 	public SystemException( String message )
 	{
@@ -34,9 +35,10 @@ public class SystemException extends RuntimeException
 	}
 
 	/**
+	 * Creates an instance of this exception.
 	 * 
-	 * @param message
-	 * @param cause
+	 * @param message The message for this exception.
+	 * @param cause The exception that caused this exception to be thrown.
 	 */
 	public SystemException( String message, Throwable cause )
 	{
@@ -44,8 +46,9 @@ public class SystemException extends RuntimeException
 	}
 
 	/**
+	 * Creates an instance of this exception.
 	 * 
-	 * @param cause
+	 * @param cause The exception that caused this exception to be thrown.
 	 */
 	public SystemException( Throwable cause )
 	{

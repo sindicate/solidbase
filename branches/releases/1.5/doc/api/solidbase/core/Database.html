@@ -135,7 +135,7 @@ Manages connections to the database.
 <TD><CODE><B><A HREF="../../solidbase/core/Database.html#connections">connections</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A map of connections indexed by user name.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -143,7 +143,7 @@ Manages connections to the database.
 <TD><CODE><B><A HREF="../../solidbase/core/Database.html#defaultPassword">defaultPassword</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The password belonging to the default user.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -151,7 +151,7 @@ Manages connections to the database.
 <TD><CODE><B><A HREF="../../solidbase/core/Database.html#defaultUser">defaultUser</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The default user name to use for this database.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -159,7 +159,7 @@ Manages connections to the database.
 <TD><CODE><B><A HREF="../../solidbase/core/Database.html#driverName">driverName</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The class name of the driver to be used to access the database.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -167,7 +167,7 @@ Manages connections to the database.
 <TD><CODE><B><A HREF="../../solidbase/core/Database.html#url">url</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The URL of the database.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -187,7 +187,7 @@ Manages connections to the database.
          <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;callBack)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs a Database object for a specific database url.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructor for a specific database and default user.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -205,7 +205,7 @@ Manages connections to the database.
 <TD><CODE><B><A HREF="../../solidbase/core/Database.html#closeConnections()">closeConnections</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Close all open connections that are maintained by this instance of <A HREF="../../solidbase/core/Database.html" title="class in solidbase.core"><CODE>Database</CODE></A>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -213,7 +213,7 @@ Manages connections to the database.
 <TD><CODE><B><A HREF="../../solidbase/core/Database.html#getConnection()">getConnection</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets a connection for the current user from the cache.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a connection for the current user.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -221,17 +221,17 @@ Manages connections to the database.
 <TD><CODE><B><A HREF="../../solidbase/core/Database.html#getConnection(java.lang.String)">getConnection</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;user)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets a cached connection for the given user.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a connection for the given user name.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</A></CODE></FONT></TD>
+<CODE>protected static&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/Database.html#getConnection(java.lang.String, java.lang.String, java.lang.String)">getConnection</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;url,
               <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;user,
               <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;password)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets a new connection from the DriverManager with the given url, user and password.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a new connection for the given URL, user name and password.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -239,7 +239,7 @@ Manages connections to the database.
 <TD><CODE><B><A HREF="../../solidbase/core/Database.html#getDefaultUser()">getDefaultUser</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Return the default user.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -253,10 +253,10 @@ Manages connections to the database.
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/Database.html#initConnection(java.lang.String, java.lang.String)">initConnection</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;user,
-               <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;passWord)</CODE>
+               <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;password)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initializes and caches a connection for the given user and password.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets up a connection for the given user name.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -264,7 +264,7 @@ Manages connections to the database.
 <TD><CODE><B><A HREF="../../solidbase/core/Database.html#setCurrentUser(java.lang.String)">setCurrentUser</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;user)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets the default user.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets the current user.</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -294,6 +294,8 @@ driverName</H3>
 <PRE>
 protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>driverName</B></PRE>
 <DL>
+<DD>The class name of the driver to be used to access the database.
+<P>
 <DL>
 </DL>
 </DL>
@@ -304,6 +306,8 @@ url</H3>
 <PRE>
 protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>url</B></PRE>
 <DL>
+<DD>The URL of the database.
+<P>
 <DL>
 </DL>
 </DL>
@@ -314,6 +318,8 @@ connections</H3>
 <PRE>
 protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/HashMap.html?is-external=true" title="class or interface in java.util">HashMap</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</A>&gt; <B>connections</B></PRE>
 <DL>
+<DD>A map of connections indexed by user name.
+<P>
 <DL>
 </DL>
 </DL>
@@ -324,6 +330,8 @@ defaultUser</H3>
 <PRE>
 protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>defaultUser</B></PRE>
 <DL>
+<DD>The default user name to use for this database.
+<P>
 <DL>
 </DL>
 </DL>
@@ -334,6 +342,8 @@ defaultPassword</H3>
 <PRE>
 protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>defaultPassword</B></PRE>
 <DL>
+<DD>The password belonging to the default user.
+<P>
 <DL>
 </DL>
 </DL>
@@ -369,10 +379,10 @@ public <B>Database</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lan
                 <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;defaultPassword,
                 <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;callBack)</PRE>
 <DL>
-<DD>Constructs a Database object for a specific database url. This object will manage multiple connections to this database.
+<DD>Constructor for a specific database and default user. This object will manage multiple connections to this database.
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>driverClassName</CODE> - Classname of the driver.<DD><CODE>url</CODE> - Url of the database.</DL>
+<DT><B>Parameters:</B><DD><CODE>driverClassName</CODE> - Driver class name for the database.<DD><CODE>url</CODE> - URL for the database.<DD><CODE>defaultUser</CODE> - The default user name.<DD><CODE>defaultPassword</CODE> - The password belonging to the default user.<DD><CODE>callBack</CODE> - The progress listener.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -401,15 +411,15 @@ public void <B>init</B>()</PRE>
 <A NAME="getConnection(java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
 getConnection</H3>
 <PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</A> <B>getConnection</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;url,
-                                   <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;user,
-                                   <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;password)</PRE>
+protected static <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</A> <B>getConnection</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;url,
+                                          <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;user,
+                                          <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;password)</PRE>
 <DL>
-<DD>Gets a new connection from the DriverManager with the given url, user and password. The returned connection has autocommit off.
+<DD>Returns a new connection for the given URL, user name and password. The connection has auto commit disabled.
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>url</CODE> - The database connection url.<DD><CODE>user</CODE> - The connection user.<DD><CODE>password</CODE> - The password of the user.
-<DT><B>Returns:</B><DD>the connection.</DL>
+<DT><B>Parameters:</B><DD><CODE>url</CODE> - URL for the database.<DD><CODE>user</CODE> - The user name.<DD><CODE>password</CODE> - The password of the user.
+<DT><B>Returns:</B><DD>A new connection with auto commit disabled.</DL>
 </DD>
 </DL>
 <HR>
@@ -418,12 +428,12 @@ protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/Connection.h
 initConnection</H3>
 <PRE>
 protected void <B>initConnection</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;user,
-                              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;passWord)</PRE>
+                              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;password)</PRE>
 <DL>
-<DD>Initializes and caches a connection for the given user and password.
+<DD>Sets up a connection for the given user name. Does nothing if the connection is already initiated.
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>user</CODE> - The username.<DD><CODE>passWord</CODE> - The password.</DL>
+<DT><B>Parameters:</B><DD><CODE>user</CODE> - The user name.<DD><CODE>password</CODE> - The password.</DL>
 </DD>
 </DL>
 <HR>
@@ -433,12 +443,13 @@ getConnection</H3>
 <PRE>
 protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</A> <B>getConnection</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;user)</PRE>
 <DL>
-<DD>Gets a cached connection for the given user. If a connection for the given user is not found in the cache, this method will
- request a password by calling the method <A HREF="../../solidbase/core/ProgressListener.html#requestPassword(java.lang.String)"><CODE>ProgressListener.requestPassword(String)</CODE></A> of <A HREF="../../solidbase/core/Patcher.html#callBack"><CODE>Patcher.callBack</CODE></A>. The connection is cached for later use.
+<DD>Returns a connection for the given user name. Connections are cached per user. If a connection for the given user
+ is not found in the cache, a password will be requested by calling
+ <A HREF="../../solidbase/core/ProgressListener.html#requestPassword(java.lang.String)"><CODE>ProgressListener.requestPassword(String)</CODE></A> referenced by <A HREF="../../solidbase/core/Patcher.html#progress"><CODE>Patcher.progress</CODE></A>.
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>user</CODE> - The user name.
-<DT><B>Returns:</B><DD>the connection</DL>
+<DT><B>Returns:</B><DD>The connection for the given user name.</DL>
 </DD>
 </DL>
 <HR>
@@ -448,12 +459,13 @@ getConnection</H3>
 <PRE>
 protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</A> <B>getConnection</B>()</PRE>
 <DL>
-<DD>Gets a connection for the current user from the cache. If a connection for this user is not found in the cache, this method will
- request a password by calling the method <A HREF="../../solidbase/core/ProgressListener.html#requestPassword(java.lang.String)"><CODE>ProgressListener.requestPassword(String)</CODE></A> of <A HREF="../../solidbase/core/Patcher.html#callBack"><CODE>Patcher.callBack</CODE></A>. The connection is cached for later use.
+<DD>Returns a connection for the current user. Connections are cached per user. If a connection for the current user
+ is not found in the cache, a password will be requested by calling
+ <A HREF="../../solidbase/core/ProgressListener.html#requestPassword(java.lang.String)"><CODE>ProgressListener.requestPassword(String)</CODE></A> referenced by <A HREF="../../solidbase/core/Patcher.html#progress"><CODE>Patcher.progress</CODE></A>.
 <P>
 <DD><DL>
 
-<DT><B>Returns:</B><DD>the connection.<DT><B>See Also:</B><DD><A HREF="../../solidbase/core/Database.html#getConnection(java.lang.String)"><CODE>getConnection(String)</CODE></A></DL>
+<DT><B>Returns:</B><DD>The connection for the current user.<DT><B>See Also:</B><DD><A HREF="../../solidbase/core/Database.html#getConnection(java.lang.String)"><CODE>getConnection(String)</CODE></A></DL>
 </DD>
 </DL>
 <HR>
@@ -463,10 +475,10 @@ setCurrentUser</H3>
 <PRE>
 protected void <B>setCurrentUser</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;user)</PRE>
 <DL>
-<DD>Sets the default user.
+<DD>Sets the current user.
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>user</CODE> - </DL>
+<DT><B>Parameters:</B><DD><CODE>user</CODE> - The user name that should made current.</DL>
 </DD>
 </DL>
 <HR>
@@ -476,8 +488,11 @@ getDefaultUser</H3>
 <PRE>
 public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getDefaultUser</B>()</PRE>
 <DL>
+<DD>Return the default user.
+<P>
 <DD><DL>
-</DL>
+
+<DT><B>Returns:</B><DD>The name of the default user.</DL>
 </DD>
 </DL>
 <HR>
@@ -487,6 +502,8 @@ closeConnections</H3>
 <PRE>
 protected void <B>closeConnections</B>()</PRE>
 <DL>
+<DD>Close all open connections that are maintained by this instance of <A HREF="../../solidbase/core/Database.html" title="class in solidbase.core"><CODE>Database</CODE></A>.
+<P>
 <DD><DL>
 </DL>
 </DD>

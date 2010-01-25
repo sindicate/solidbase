@@ -16,7 +16,6 @@
 
 package solidbase.test.init;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Set;
 
@@ -30,7 +29,7 @@ import solidbase.test.core.TestProgressListener;
 public class Init
 {
 	@Test
-	public void testInit1() throws IOException, SQLException
+	public void testInit1() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init1", "sa", null, progress ) );
@@ -46,7 +45,7 @@ public class Init
 	}
 
 	@Test(dependsOnMethods="testInit1")
-	public void testInit2() throws IOException, SQLException
+	public void testInit2() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init1", "sa", null, progress ) );
@@ -62,7 +61,7 @@ public class Init
 	}
 
 	@Test
-	public void testInit3() throws IOException, SQLException
+	public void testInit3() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init3", "sa", null, progress ) );

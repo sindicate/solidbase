@@ -42,13 +42,17 @@ import org.apache.commons.lang.ObjectUtils;
 
 
 /**
+ * This class is the coordinator. It requests an upgrade path from the {@link PatchFile}, and reads commands from it. It
+ * calls the {@link CommandListener}s, updates the DBVERSION and DBVERSIONLOG tables through {@link DBVersion}, calls
+ * the {@link Database} to execute statements through JDBC, and shows progress to the user by calling
+ * {@link ProgressListener}.
  * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
 public class Patcher
 {
-	// Don't need whitespace at the end
+	// Don't need whitespace at the end of the Patterns
 
 	static private Pattern ignoreSqlErrorPattern = Pattern.compile( "IGNORE\\s+SQL\\s+ERROR\\s+(\\w+(\\s*,\\s*\\w+)*)", Pattern.CASE_INSENSITIVE );
 	static private Pattern ignoreEnd = Pattern.compile( "/IGNORE\\s+SQL\\s+ERROR", Pattern.CASE_INSENSITIVE );
@@ -69,7 +73,7 @@ public class Patcher
 	 */
 	protected List< CommandListener > listeners;
 
-	// Context
+	// The fields below are all part of the upgrade context. It's reset at the start of each change package.
 
 	/**
 	 * The message that should be shown when a statement is executed.
@@ -77,7 +81,7 @@ public class Patcher
 	protected String startMessage;
 
 	/**
-	 * Errors that should be ignored.
+	 * Errors that should be ignored. @{link #ignoreSet} is kept in sync with this stack.
 	 */
 	protected Stack ignoreStack;
 
@@ -108,7 +112,7 @@ public class Patcher
 	/**
 	 * The progress listener.
 	 */
-	protected ProgressListener callBack;
+	protected ProgressListener progress;
 
 	/**
 	 * The upgrade file being executed.
@@ -116,12 +120,12 @@ public class Patcher
 	protected PatchFile patchFile;
 
 	/**
-	 * The default database. At the start of each change set, this database is put into {@link Patcher#currentDatabase} to become the current database.
+	 * The default database. At the start of each change package, this database is put into {@link Patcher#currentDatabase} to become the current database.
 	 */
 	protected Database defaultDatabase;
 
 	/**
-	 * The current database. Gets reset to the default database at the start of each change set.
+	 * The current database. Gets reset to the default database at the start of each change package.
 	 */
 	protected Database currentDatabase;
 
@@ -139,11 +143,12 @@ public class Patcher
 	 * Construct a new instance of the patcher.
 	 * 
 	 * @param listener Listens to the progress.
-	 * @param database The default database to use. This database also contains a default user. Version tables will be looked for in this database in the schema identified by the default user.
+	 * @param database The default database to use. This database also contains a default user. Version tables will be
+	 *        looked for in this database in the schema identified by the default user.
 	 */
 	public Patcher( ProgressListener listener, Database database ) // TODO Reorder the arguments
 	{
-		this.callBack = listener;
+		this.progress = listener;
 
 		this.defaultDatabase = database;
 		this.databases = new HashMap< String, Database >();
@@ -152,7 +157,7 @@ public class Patcher
 
 		database.init(); // Resets the current user and initializes the connection when password is supplied.
 
-		this.dbVersion = new DBVersion( database, this.callBack );
+		this.dbVersion = new DBVersion( database, this.progress );
 
 		this.listeners = new ArrayList();
 		this.listeners.add( new AssertCommandExecuter() );
@@ -162,7 +167,7 @@ public class Patcher
 
 		this.patchFile = null; // TODO Should be argument to the constructor
 
-		this.callBack.debug( "driverName=" + database.driverName + ", url=" + database.url + ", user=" + database.getDefaultUser() + "" );
+		this.progress.debug( "driverName=" + database.driverName + ", url=" + database.url + ", user=" + database.getDefaultUser() + "" );
 	}
 
 	/**
@@ -206,19 +211,19 @@ public class Patcher
 			URL url = Patcher.class.getResource( "/" + fileName ); // In the classpath
 			if( url != null )
 			{
-				this.callBack.openingPatchFile( url );
+				this.progress.openingPatchFile( url );
 				ralr = new RandomAccessLineReader( url );
 			}
 			else
 			{
 				File file = new File( baseDir, fileName ); // In the current folder
-				this.callBack.openingPatchFile( file );
+				this.progress.openingPatchFile( file );
 				ralr = new RandomAccessLineReader( file );
 			}
 
 			this.patchFile = new PatchFile( ralr );
 
-			this.callBack.openedPatchFile( this.patchFile );
+			this.progress.openedPatchFile( this.patchFile );
 
 			// Need to close in case of an exception during reading
 			try
@@ -325,8 +330,9 @@ public class Patcher
 	/**
 	 * Patches to the given target version. The target version can end with an '*', indicating whatever tip version that matches the target prefix.
 	 * 
-	 * @param target
-	 * @throws SQLException
+	 * @param target The target requested.
+	 * @param downgradeable Indicates that downgrade paths are allowed to reach the given target.
+	 * @throws SQLExecutionException When the execution of a command throws an {@link SQLException}.
 	 */
 	public void patch( String target, boolean downgradeable ) throws SQLExecutionException
 	{
@@ -362,7 +368,7 @@ public class Patcher
 
 		terminateCommandListeners();
 		if( targets.size() > 0 )
-			this.callBack.patchingFinished();
+			this.progress.patchingFinished();
 		else
 			throw new SystemException( "Target " + target + " is not a possible target" );
 	}
@@ -379,7 +385,6 @@ public class Patcher
 			return;
 
 		List patches = this.patchFile.getPatchPath( version, target, downgradeable );
-		Assert.isTrue( patches != null );
 		Assert.isTrue( patches.size() > 0, "No upgrades found" );
 
 		for( Iterator iter = patches.iterator(); iter.hasNext(); )
@@ -435,14 +440,14 @@ public class Patcher
 			{
 				if( patch.isInit() )
 				{
-					this.callBack.exception( command );
+					this.progress.exception( command );
 					throw new SQLExecutionException( command, e );
 				}
 				this.dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), e );
 				String error = e.getSQLState();
 				if( !this.ignoreSet.contains( error ) )
 				{
-					this.callBack.exception( command );
+					this.progress.exception( command );
 					throw new SQLExecutionException( command, e );
 				}
 			}
@@ -465,7 +470,7 @@ public class Patcher
 	{
 		Assert.notNull( patch, "patch == null" );
 
-		this.callBack.patchStarting( patch );
+		this.progress.patchStarting( patch );
 
 		this.patchFile.gotoPatch( patch );
 		int skip = this.dbVersion.getStatements();
@@ -500,7 +505,7 @@ public class Patcher
 							if( this.ignoreSet.contains( error ) )
 								return;
 						}
-						this.callBack.exception( command );
+						this.progress.exception( command );
 						throw new SQLExecutionException( command, e );
 					}
 					if( done )
@@ -534,31 +539,31 @@ public class Patcher
 			}
 			else if( this.dontCount )
 			{
-				this.callBack.executing( command, this.startMessage );
+				this.progress.executing( command, this.startMessage );
 				this.startMessage = null;
 				execute( patch, command, 0 );
-				this.callBack.executed();
+				this.progress.executed();
 			}
 			else
 			{
 				count++;
 				if( count > skip && this.conditionFalseCounter == 0 )
 				{
-					this.callBack.executing( command, this.startMessage );
+					this.progress.executing( command, this.startMessage );
 					this.startMessage = null;
 					if( sql.trim().equalsIgnoreCase( "UPGRADE" ) )
 						upgrade( patch, command );
 					else
 						execute( patch, command, count );
-					this.callBack.executed();
+					this.progress.executed();
 				}
 				else
-					this.callBack.skipped( command );
+					this.progress.skipped( command );
 			}
 
 			command = this.patchFile.readStatement();
 		}
-		this.callBack.patchFinished();
+		this.progress.patchFinished();
 
 		this.dbVersion.setStale(); // TODO With a normal patch, only set stale if not both of the 2 version tables are found
 		if( patch.isInit() )
@@ -596,7 +601,7 @@ public class Patcher
 	private void setConnection( Database database )
 	{
 		this.currentDatabase = database;
-		database.init(); // Reset the current user
+		database.init(); // Reset the current user TODO Create a test for this.
 	}
 
 	protected void setUser( String user )
@@ -672,12 +677,12 @@ public class Patcher
 
 	public ProgressListener getCallBack()
 	{
-		return this.callBack;
+		return this.progress;
 	}
 
 	public void setCallBack( ProgressListener callBack )
 	{
-		this.callBack = callBack;
+		this.progress = callBack;
 	}
 
 	public void logToXML( OutputStream out )
@@ -723,7 +728,7 @@ public class Patcher
 		Assert.notNull( this.defaultDatabase );
 		String driver = connection.getDriver();
 		String url = connection.getUrl();
-		this.databases.put( connection.getName(), new Database( driver != null ? driver : this.defaultDatabase.driverName, url != null ? url : this.defaultDatabase.url, connection.getUser().toLowerCase(), connection.getPassword(), this.callBack ) );
+		this.databases.put( connection.getName(), new Database( driver != null ? driver : this.defaultDatabase.driverName, url != null ? url : this.defaultDatabase.url, connection.getUser().toLowerCase(), connection.getPassword(), this.progress ) );
 	}
 
 	public void connect()

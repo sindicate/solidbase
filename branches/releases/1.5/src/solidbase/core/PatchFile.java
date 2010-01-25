@@ -151,7 +151,8 @@ public class PatchFile
 			{
 				throw new SystemException( e );
 			}
-			Assert.isTrue( line != null, "End-of-file found before reading a complete definition" );
+			if( line == null )
+				throw new FatalException( "Unexpected EOF found at line " + this.file.getLineNumber() );
 
 			if( line.trim().length() > 0 )
 			{

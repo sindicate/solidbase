@@ -114,11 +114,9 @@ public class UpgradeTaskTests extends BuildFileTest
 
 	protected class MyAntTestListener implements BuildListener
 	{
-		private int logLevel;
-
 		public MyAntTestListener( int logLevel )
 		{
-			this.logLevel = logLevel;
+			// Not needed
 		}
 
 		public void buildStarted( BuildEvent event )

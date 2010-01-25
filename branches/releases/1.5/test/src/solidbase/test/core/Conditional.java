@@ -16,7 +16,6 @@
 
 package solidbase.test.core;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Set;
 
@@ -29,7 +28,7 @@ import solidbase.core.TestUtil;
 public class Conditional
 {
 	@Test
-	public void testIfHistoryContains1() throws IOException, SQLException
+	public void testIfHistoryContains1() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testBasic", "sa", null, progress ) );
@@ -45,7 +44,7 @@ public class Conditional
 	}
 
 	@Test(dependsOnMethods="testIfHistoryContains1")
-	public void testIfHistoryContains2() throws IOException, SQLException
+	public void testIfHistoryContains2() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testBasic", "sa", null, progress ) );

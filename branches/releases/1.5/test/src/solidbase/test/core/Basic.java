@@ -17,7 +17,6 @@
 package solidbase.test.core;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Set;
 
@@ -33,7 +32,7 @@ import solidbase.core.TestUtil;
 public class Basic
 {
 	@Test
-	public void testBasic() throws IOException, SQLException
+	public void testBasic() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
@@ -50,7 +49,7 @@ public class Basic
 	}
 
 	@Test(dependsOnMethods="testBasic")
-	public void testRepeat() throws IOException, SQLException
+	public void testRepeat() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
@@ -68,7 +67,7 @@ public class Basic
 	}
 
 	@Test(dependsOnMethods="testRepeat")
-	public void testMissingGo() throws IOException, SQLException
+	public void testMissingGo() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
@@ -93,21 +92,21 @@ public class Basic
 	}
 
 	@Test(dependsOnMethods="testMissingGo")
-	public void testDumpXML () throws IOException, SQLException
+	public void testDumpXML ()
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		patcher.logToXML( out );
-		String xml = out.toString( "UTF-8" );
-		//System.out.println( xml );
+//		String xml = out.toString( "UTF-8" );
+//		System.out.println( xml );
 
 		patcher.end();
 	}
 
 	@Test
-	public void testOpen() throws IOException, SQLException
+	public void testOpen() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testopen", "sa", null, progress ) );
@@ -124,7 +123,7 @@ public class Basic
 	}
 
 	@Test(expectedExceptions=UnterminatedStatementException.class)
-	public void testUnterminatedCommand1() throws IOException, SQLException
+	public void testUnterminatedCommand1() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testunterminated1", "sa", null, progress ) );
@@ -145,7 +144,7 @@ public class Basic
 	}
 
 	@Test(expectedExceptions=UnterminatedStatementException.class)
-	public void testUnterminatedCommand2() throws IOException, SQLException
+	public void testUnterminatedCommand2() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testunterminated2", "sa", null, progress ) );
@@ -168,7 +167,7 @@ public class Basic
 	// TODO Create test that failes immediately and check that the target is still null
 
 	@Test
-	public void testSharedPatchBlock() throws IOException, SQLException
+	public void testSharedPatchBlock() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testshared1", "sa", null, progress ) );

@@ -16,7 +16,6 @@
 
 package solidbase.test.core;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Set;
 
@@ -29,7 +28,7 @@ import solidbase.core.Patcher;
 public class Import
 {
 	@Test
-	public void testImport() throws IOException, SQLException
+	public void testImport() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Database database = new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:import3", "sa", null, progress );
