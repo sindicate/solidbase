@@ -19,6 +19,11 @@ package solidbase.config;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 
+ * @author René M. de Bloois
+ */
+@Deprecated
 public class Application
 {
 	protected String name;

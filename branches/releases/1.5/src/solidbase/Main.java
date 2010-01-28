@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -42,16 +43,30 @@ import solidbase.core.SystemException;
 
 
 /**
- *
+ * This class contains the main method for the command line version of SolidBase.
+ * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
 public class Main
 {
+	/**
+	 * The console for communication with the user.
+	 */
 	static public Console console;
+
+	/**
+	 * The current boot phase.
+	 */
 	static private int pass = 1;
 
 
+	/**
+	 * Returns the current version of the database in a user presentable form.
+	 * 
+	 * @param patcher The coordinator object.
+	 * @return The current version of the database in a user presentable form.
+	 */
 	static public String getCurrentVersion( Patcher patcher )
 	{
 		String version = patcher.getCurrentVersion();
@@ -70,6 +85,12 @@ public class Main
 	}
 
 
+	/**
+	 * Transforms a collection of strings into a comma separated string.
+	 * 
+	 * @param list The collection of strings that need to be transformed into a comma separated string.
+	 * @return A collection of strings into a comma separated string.
+	 */
 	static protected String list( Collection list )
 	{
 		StringBuffer buffer = new StringBuffer();
@@ -92,6 +113,11 @@ public class Main
 	}
 
 
+	/**
+	 * The main method for the command line version of SolidBase.
+	 * 
+	 * @param args The arguments from the command line.
+	 */
 	static public void main( String... args )
 	{
 		try
@@ -113,7 +139,13 @@ public class Main
 	}
 
 
-	// Used for testing
+	/**
+	 * For internal (testing) use only: a main method that does not catch and print exceptions.
+	 * 
+	 * @param args The arguments from the command line.
+	 * @throws SQLExecutionException When an {@link SQLException} is thrown during execution of a database change.
+	 */
+	// TODO Make this protected.
 	static public void main0( String... args ) throws SQLExecutionException
 	{
 		if( console == null )
@@ -307,6 +339,14 @@ public class Main
 	}
 
 
+	/**
+	 * Reload SolidBase with an extended classpath. Calls {@link #pass2(String...)} when it's done.
+	 * 
+	 * @param args The arguments from the command line.
+	 * @param jars The jars that need to be added to the classpath.
+	 * @param verbose Show more information.
+	 * @throws SQLExecutionException When an {@link SQLException} is thrown during execution of a database change.
+	 */
 	static protected void reload( String[] args, List< String > jars, boolean verbose ) throws SQLExecutionException
 	{
 		if( jars == null || jars.isEmpty() )
@@ -393,6 +433,12 @@ public class Main
 	}
 
 
+	/**
+	 * Gets called after reloading with an extended classpath.
+	 * 
+	 * @param args The arguments from the command line.
+	 * @throws SQLExecutionException When an {@link SQLException} is thrown during execution of a database change.
+	 */
 	static public void pass2( String... args ) throws SQLExecutionException
 	{
 		pass = 2;

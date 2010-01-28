@@ -35,7 +35,8 @@ import solidbase.core.SystemException;
 
 
 /**
- *
+ * This class represents all the configuration.
+ * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
@@ -45,31 +46,91 @@ public class Configuration
 	static private final String DBPATCHER_DEFAULT_PROPERTIES = "solidbase-default.properties";
 	static private final String DBPATCHER_VERSION_PROPERTIES = "version.properties";
 
+	/**
+	 * The version of SolidBase.
+	 */
 	protected String version;
+
+	/**
+	 * Are we running the command line version of SolidBase within Apache Ant?
+	 */
 	protected boolean fromAnt;
+
+	/**
+	 * The contents of the properties file. Default this is solidbase.properties in the current folder, with missing
+	 * properties coming from solidbase-default in the classpath.
+	 */
 	protected Properties properties;
 
 	// Version 2 configuration
+
+	/**
+	 * A list of jars that need to be added to the classpath.
+	 */
 	protected List< String > driverJars;
+
+	/**
+	 * A list of configured databases.
+	 */
 	protected List< Database > databases;
 
 	// Version 1 configuration
+
+	/**
+	 * Version of the properties format. Version 1 is deprecated, use version 2.
+	 */
 	protected int configVersion;
+
+	/**
+	 * Properties format 1: url of the database.
+	 */
 	protected String dbUrl;
+
+	/**
+	 * Properties format 1: driver class name for the database.
+	 */
 	protected String dbDriver;
+
+	/**
+	 * Properties format 1: jar file that needs to be added to the classpath.
+	 */
 	protected String dbDriverJar;
+
+	/**
+	 * Properties format 1: username for the database.
+	 */
 	protected String userName;
+
+	/**
+	 * Properties format 1: password for the database.
+	 */
 	protected String passWord;
+
+	/**
+	 * Properties format 1: target version to upgrade to.
+	 */
 	protected String target;
+
+	/**
+	 * Properties format 1: the upgrade file to be used.
+	 */
 	protected String patchFile;
 
-	// Needed for testing
+	/**
+	 * Returns the path of the properties file. Can be relative or absolute. Needed for testing.
+	 * 
+	 * @return the path of the properties file.
+	 */
 	protected File getPropertiesFile()
 	{
 		return new File( DBPATCHER_PROPERTIES );
 	}
 
-	// Used from the UpgradeTask
+	/**
+	 * Create a new configuration object. This constructor is used by the Ant Task and the Maven Plugin.
+	 * 
+	 * @param progress The listener that listens to config events.
+	 */
 	public Configuration( ConfigListener progress )
 	{
 		// Checks
@@ -105,6 +166,19 @@ public class Configuration
 		}
 	}
 
+	/**
+	 * Create a new configuration object. This constructor is used by the command line version of SolidBase.
+	 * 
+	 * @param progress The listener that listens to config events.
+	 * @param pass Are we in pass 1 or pass 2 of booting?
+	 * @param optionDriver The optional driver class name for the database.
+	 * @param optionUrl The optional url for the database.
+	 * @param optionUserName The optional username for the database.
+	 * @param optionPassWord The optional password for the database.
+	 * @param optionTarget The optional target to upgrade to.
+	 * @param optionPatchFile The optional upgrade file to use.
+	 * @param optionPropertiesFile  The optional path of the properties file.
+	 */
 	// TODO The automatic target should also be added to the properties file
 	public Configuration( ConfigListener progress, int pass, String optionDriver, String optionUrl, String optionUserName, String optionPassWord, String optionTarget, String optionPatchFile, String optionPropertiesFile )
 	{
@@ -322,36 +396,66 @@ public class Configuration
 		}
 	}
 
-
+	/**
+	 * Returns the driver class name.
+	 * 
+	 * @return The driver class name.
+	 */
 	public String getDBDriver()
 	{
 		Assert.isTrue( this.configVersion == 1, "Only supported with config version 1" );
 		return this.dbDriver;
 	}
 
+	/**
+	 * Returns the url of the database.
+	 * 
+	 * @return The url of the database.
+	 */
 	public String getDBUrl()
 	{
 		Assert.isTrue( this.configVersion == 1, "Only supported with config version 1" );
 		return this.dbUrl;
 	}
 
+	/**
+	 * Returns the version of SolidBase.
+	 * 
+	 * @return The version of SolidBase.
+	 */
 	public String getVersion()
 	{
 		return this.version;
 	}
 
+	/**
+	 * Returns the jar file that contains the database driver.
+	 * 
+	 * @return the jar file that contains the database driver.
+	 */
 	public String getDBDriverJar()
 	{
 		Assert.isTrue( this.configVersion == 1, "Only supported with config version 1" );
 		return this.dbDriverJar;
 	}
 
+	/**
+	 * Returns the user name for the database.
+	 * 
+	 * @return The user name for the database.
+	 */
 	public String getUser()
 	{
 		Assert.isTrue( this.configVersion == 1, "Only supported with config version 1" );
 		return this.userName;
 	}
 
+	/**
+	 * Returns the database with the given name.
+	 * 
+	 * @param name The name for the database to return.
+	 * @return The database with the given name. If the database is not found it throws a {@link SystemException}.
+	 */
 	public Database getDatabase( String name )
 	{
 		for( Database database : this.databases )
@@ -360,11 +464,21 @@ public class Configuration
 		throw new SystemException( "Database [" + name + "] not configured." );
 	}
 
+	/**
+	 * Are we running the command line version from within Apache Ant?
+	 * 
+	 * @return True if we are running the command line version from within Apache Ant, false otherwise.
+	 */
 	public boolean isFromAnt()
 	{
 		return this.fromAnt;
 	}
 
+	/**
+	 * Returns all the driver jar file names.
+	 * 
+	 * @return All the driver jar file names.
+	 */
 	public List< String > getDriverJars()
 	{
 		if( this.configVersion == 1 )
@@ -376,37 +490,73 @@ public class Configuration
 		return this.driverJars;
 	}
 
+	/**
+	 * Returns all the database.
+	 * 
+	 * @return All the database.
+	 */
 	public List< Database > getDatabases()
 	{
 		Assert.isTrue( this.configVersion == 2, "Only supported with config version 2" );
 		return this.databases;
 	}
 
+	/**
+	 * Returns the version of the properties format.
+	 * 
+	 * @return The version of the properties format.
+	 */
 	public int getConfigVersion()
 	{
 		return this.configVersion;
 	}
 
+	/**
+	 * Returns the user name for the database.
+	 * 
+	 * @return The user name for the database.
+	 */
 	public String getUserName()
 	{
 		return this.userName;
 	}
 
+	/**
+	 * Returns the password for the database.
+	 * 
+	 * @return The password for the database.
+	 */
 	public String getPassWord()
 	{
 		return this.passWord;
 	}
 
+	/**
+	 * Returns the target to upgrade to.
+	 * 
+	 * @return The target to upgrade to.
+	 */
 	public String getTarget()
 	{
 		return this.target;
 	}
 
+	/**
+	 * Returns the upgrade file to use.
+	 * 
+	 * @return The upgrade file to use.
+	 */
 	public String getPatchFile()
 	{
 		return this.patchFile;
 	}
 
+	/**
+	 * Returns the property with the given name from the properties file.
+	 * 
+	 * @param name The name for the property.
+	 * @return The property with the given name from the properties file.
+	 */
 	public String getProperty( String name )
 	{
 		return this.properties.getProperty( name );

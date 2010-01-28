@@ -22,14 +22,47 @@ import java.util.List;
 import solidbase.core.SystemException;
 
 
+/**
+ * A configured database.
+ * 
+ * @author René M. de Bloois
+ */
 public class Database
 {
+	/**
+	 * The name of the database.
+	 */
 	protected String name;
+
+	/**
+	 * A description of the database.
+	 */
 	protected String description;
+
+	/**
+	 * The driver for the database.
+	 */
 	protected String driver;
+
+	/**
+	 * The url of the database.
+	 */
 	protected String url;
+
+	/**
+	 * A list of applications contained within the database.
+	 */
 	protected List< Application > applications = new ArrayList();
 
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param name The name of the database.
+	 * @param description An optional description of the database.
+	 * @param driver The driver for the database.
+	 * @param url The url of the database.
+	 */
 	public Database( String name, String description, String driver, String url )
 	{
 		this.name = name;
@@ -38,6 +71,17 @@ public class Database
 		this.url = url;
 	}
 
+	/**
+	 * Adds an application to the database.
+	 * 
+	 * @param name The name of the application.
+	 * @param description An optional description of the application.
+	 * @param userName The user name for the connection.
+	 * @param password The password for the connection.
+	 * @param patchFile The upgrade file for the application.
+	 * @param target The target version to upgrade to.
+	 * @return The application object.
+	 */
 	public Application addApplication( String name, String description, String userName, String password, String patchFile, String target )
 	{
 		Application application = new Application( name, description, userName, password, patchFile, target );
@@ -45,6 +89,12 @@ public class Database
 		return application;
 	}
 
+	/**
+	 * Returns the application with the given name.
+	 * 
+	 * @param name The name of the application to return.
+	 * @return The application with the given name.
+	 */
 	public Application getApplication( String name )
 	{
 		for( Application application : this.applications )
@@ -53,31 +103,61 @@ public class Database
 		throw new SystemException( "Application [" + name + "] not configured for database [" + this.name + "]." );
 	}
 
+	/**
+	 * Returns the name of the database.
+	 * 
+	 * @return The name of the database.
+	 */
 	public String getName()
 	{
 		return this.name;
 	}
 
+	/**
+	 * Returns the description of the database.
+	 * 
+	 * @return The description of the database.
+	 */
 	public String getDescription()
 	{
 		return this.description;
 	}
 
+	/**
+	 * Returns the driver for this database.
+	 * 
+	 * @return The driver for this database.
+	 */
 	public String getDriver()
 	{
 		return this.driver;
 	}
 
+	/**
+	 * Returns the url of the database.
+	 * 
+	 * @return The url of the database.
+	 */
 	public String getUrl()
 	{
 		return this.url;
 	}
 
+	/**
+	 * Returns a list of all the applications contained in the database.
+	 * 
+	 * @return A list of all the applications contained in the database.
+	 */
 	public List< Application > getApplications()
 	{
 		return this.applications;
 	}
 
+	/**
+	 * A comparator to sort databases by name.
+	 * 
+	 * @author René M. de Bloois
+	 */
 	static public class Comparator implements java.util.Comparator< Database >
 	{
 		public int compare( Database database1, Database database2 )

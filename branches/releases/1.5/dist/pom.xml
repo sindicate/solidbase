@@ -44,6 +44,7 @@
 				</configuration>
 				<executions>
 					<execution>
+						<id>solidbase-upgrade</id>
 						<phase>pre-integration-test</phase>
 						<goals><goal>upgrade</goal></goals>
 					</execution>

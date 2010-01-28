@@ -26,11 +26,30 @@ import solidbase.core.PatchFile;
 import solidbase.core.ProgressListener;
 
 
+/**
+ * Implements the progress listener for the command line version of SolidBase.
+ * 
+ * @author René M. de Bloois
+ */
 public class Progress extends ProgressListener implements ConfigListener
 {
+	/**
+	 * Show extra information?
+	 */
 	protected boolean verbose;
+
+	/**
+	 * The console to use.
+	 */
 	protected Console console;
 
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param console The console to use.
+	 * @param verbose Show extra information?
+	 */
 	public Progress( Console console, boolean verbose )
 	{
 		this.console = console;
