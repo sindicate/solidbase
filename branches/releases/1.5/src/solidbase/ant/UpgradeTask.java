@@ -136,67 +136,132 @@ public class UpgradeTask extends Task
 		return this.url;
 	}
 
+	/**
+	 * Sets the url to be configured.
+	 * 
+	 * @param url The url to be configured.
+	 */
 	public void setUrl( String url )
 	{
 		this.url = url;
 	}
 
+	/**
+	 * Returns the configured user name.
+	 * 
+	 * @return The configured user name.
+	 */
 	public String getUsername()
 	{
 		return this.username;
 	}
 
+	/**
+	 * Sets the user name to configure.
+	 * 
+	 * @param username The user name to configure.
+	 */
 	public void setUsername( String username )
 	{
 		this.username = username;
 	}
 
+	/**
+	 * Sets the user name to configure.
+	 * 
+	 * @param username The user name to configure.
+	 */
 	@Deprecated
 	public void setUser( String username )
 	{
 		this.username = username;
 	}
 
+	/**
+	 * Returns the configured password.
+	 * 
+	 * @return The configured password.
+	 */
 	public String getPassword()
 	{
 		return this.password;
 	}
 
+	/**
+	 * Sets the password to configure.
+	 * 
+	 * @param password The password to configure.
+	 */
 	public void setPassword( String password )
 	{
 		this.password = password;
 	}
 
+	/**
+	 * Returns the configured upgrade file.
+	 * 
+	 * @return the configured upgrade file.
+	 */
 	public String getUpgradefile()
 	{
 		return this.upgradefile;
 	}
 
+	/**
+	 * Sets the upgrade file to configure.
+	 * 
+	 * @param upgradefile The upgrade file to configure.
+	 */
 	public void setUpgradefile( String upgradefile )
 	{
 		this.upgradefile = upgradefile;
 	}
 
+	/**
+	 * Returns the configured target.
+	 * 
+	 * @return The configured target.
+	 */
 	public String getTarget()
 	{
 		return this.target;
 	}
 
+	/**
+	 * Sets the target to configure.
+	 * 
+	 * @param target The target to configure.
+	 */
 	public void setTarget( String target )
 	{
 		this.target = target;
 	}
 
+	/**
+	 * Returns if downgrades are allowed or not.
+	 * 
+	 * @return True if downgrades are allowed, false otherwise.
+	 */
 	public boolean isDowngradeallowed()
 	{
 		return this.downgradeallowed;
 	}
 
+	/**
+	 * Sets if downgrades are allowed or not.
+	 * 
+	 * @param downgradeallowed Are downgrades allowed?
+	 */
 	public void setDowngradeallowed( boolean downgradeallowed )
 	{
 		this.downgradeallowed = downgradeallowed;
 	}
 
+	/**
+	 * Creates a secondary connection.
+	 * 
+	 * @return The secondary connection created.
+	 */
 	public Connection createSecondary()
 	{
 		Connection connection = new Connection();
@@ -204,76 +269,163 @@ public class UpgradeTask extends Task
 		return connection;
 	}
 
+	/**
+	 * Returns all configured secondary connections.
+	 * 
+	 * @return All configured connections.
+	 */
 	public List< Connection > getConnections()
 	{
 		return this.connections;
 	}
 
+	/**
+	 * Connection object used to configure the Ant Task.
+	 * 
+	 * @author René M. de Bloois
+	 */
 	protected class Connection
 	{
+		/**
+		 * The configured name of the secondary connection.
+		 */
 		protected String name;
+
+		/**
+		 * The configured database driver of the secondary connection.
+		 */
 		protected String driver;
+
+		/**
+		 * The configured database url of the secondary connection.
+		 */
 		protected String url;
+
+		/**
+		 * The configured user name of the secondary connection.
+		 */
 		protected String username;
+
+		/**
+		 * The configured password of the secondary connection.
+		 */
 		protected String password;
 
+		/**
+		 * Returns the configured name of the secondary connection.
+		 * 
+		 * @return The configured name of the secondary connection.
+		 */
 		public String getName()
 		{
 			return this.name;
 		}
 
+		/**
+		 * Sets the name of the secondary connection to configure.
+		 * 
+		 * @param name The name of the secondary connection to configure.
+		 */
 		public void setName( String name )
 		{
 			this.name = name;
 		}
 
+		/**
+		 * Returns the configured database driver of the secondary connection.
+		 * 
+		 * @return The configured database driver of the secondary connection.
+		 */
 		public String getDriver()
 		{
 			return this.driver;
 		}
 
+		/**
+		 * Sets the database driver of the secondary connection to configure.
+		 * 
+		 * @param driver The database driver of the secondary connection to configure.
+		 */
 		public void setDriver( String driver )
 		{
 			this.driver = driver;
 		}
 
+		/**
+		 * Returns the configured database url of the secondary connection.
+		 * 
+		 * @return The configured database url of the secondary connection.
+		 */
 		public String getUrl()
 		{
 			return this.url;
 		}
 
+		/**
+		 * Sets the database url of the secondary connection to configure.
+		 * 
+		 * @param url The database url of the secondary connection to configure.
+		 */
 		public void setUrl( String url )
 		{
 			this.url = url;
 		}
 
+		/**
+		 * Returns the configured user name of the secondary connection.
+		 * 
+		 * @return The configured user name of the secondary connection.
+		 */
 		public String getUsername()
 		{
 			return this.username;
 		}
 
+		/**
+		 * Sets the user name of the secondary connection to configure.
+		 * 
+		 * @param username The user name of the secondary connection to configure.
+		 */
 		public void setUsername( String username )
 		{
 			this.username = username;
 		}
 
+		/**
+		 * Sets the user name of the secondary connection to configure.
+		 * 
+		 * @param username The user name of the secondary connection to configure.
+		 */
+		@Deprecated
 		public void setUser( String username )
 		{
 			this.username = username;
 		}
 
+		/**
+		 * Returns the configured password of the secondary connection.
+		 * 
+		 * @return The configured password of the secondary connection.
+		 */
 		public String getPassword()
 		{
 			return this.password;
 		}
 
+		/**
+		 * Sets the password of the secondary connection to configure.
+		 * 
+		 * @param password The password of the secondary connection to configure.
+		 */
 		public void setPassword( String password )
 		{
 			this.password = password;
 		}
 	}
 
-
+	/**
+	 * Validates the configuration of the Ant Task.
+	 */
 	protected void validate()
 	{
 		if( this.driver == null )

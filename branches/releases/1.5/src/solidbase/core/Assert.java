@@ -62,6 +62,8 @@ public class Assert
 	 *            Test argument.
 	 * @param errorMessage
 	 *            The error message.
+	 * @param linenumber
+	 *            The line number to show in the error message.
 	 */
 	static public void isTrue( boolean test, String errorMessage, int linenumber )
 	{

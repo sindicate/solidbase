@@ -55,7 +55,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;PREV CLASS&nbsp;
-&nbsp;<A HREF="../../solidbase/maven/UpgradeMojo.html" title="class in solidbase.maven"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/maven/Secondary.html" title="class in solidbase.maven"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/maven/Progress.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="Progress.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -249,15 +249,15 @@ Implements the progress listener for the Maven plugin.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/maven/Progress.html#readingPropertyFile(java.lang.String)">readingPropertyFile</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/maven/Progress.html#readingConfigFile(java.lang.String)">readingConfigFile</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Called when a config file is about to be read.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/maven/Progress.html#requestPassword(java.lang.String)">requestPassword</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;user)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/maven/Progress.html#requestPassword(java.lang.String)">requestPassword</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;username)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Request a password for the given user name.</TD>
@@ -348,16 +348,19 @@ public <B>Progress</B>(org.apache.maven.plugin.logging.Log&nbsp;log)</PRE>
 </TR>
 </TABLE>
 
-<A NAME="readingPropertyFile(java.lang.String)"><!-- --></A><H3>
-readingPropertyFile</H3>
+<A NAME="readingConfigFile(java.lang.String)"><!-- --></A><H3>
+readingConfigFile</H3>
 <PRE>
-public void <B>readingPropertyFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</PRE>
+public void <B>readingConfigFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</PRE>
 <DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../solidbase/config/ConfigListener.html#readingConfigFile(java.lang.String)">ConfigListener</A></CODE></B></DD>
+<DD>Called when a config file is about to be read.
+<P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../solidbase/config/ConfigListener.html#readingPropertyFile(java.lang.String)">readingPropertyFile</A></CODE> in interface <CODE><A HREF="../../solidbase/config/ConfigListener.html" title="interface in solidbase.config">ConfigListener</A></CODE></DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../solidbase/config/ConfigListener.html#readingConfigFile(java.lang.String)">readingConfigFile</A></CODE> in interface <CODE><A HREF="../../solidbase/config/ConfigListener.html" title="interface in solidbase.config">ConfigListener</A></CODE></DL>
 </DD>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>path</CODE> - The path of the config file.</DL>
 </DD>
 </DL>
 <HR>
@@ -519,7 +522,7 @@ protected void <B>patchingFinished</B>()</PRE>
 <A NAME="requestPassword(java.lang.String)"><!-- --></A><H3>
 requestPassword</H3>
 <PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>requestPassword</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;user)</PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>requestPassword</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;username)</PRE>
 <DL>
 <DD><B>Description copied from class: <CODE><A HREF="../../solidbase/core/ProgressListener.html#requestPassword(java.lang.String)">ProgressListener</A></CODE></B></DD>
 <DD>Request a password for the given user name.
@@ -528,7 +531,7 @@ protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html
 <DT><B>Overrides:</B><DD><CODE><A HREF="../../solidbase/core/ProgressListener.html#requestPassword(java.lang.String)">requestPassword</A></CODE> in class <CODE><A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></CODE></DL>
 </DD>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>user</CODE> - The user name for which a password needs to be requested.
+<DT><B>Parameters:</B><DD><CODE>username</CODE> - The user name for which a password needs to be requested.
 <DT><B>Returns:</B><DD>The password that is requested.</DL>
 </DD>
 </DL>
@@ -580,7 +583,7 @@ protected void <B>debug</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/jav
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;PREV CLASS&nbsp;
-&nbsp;<A HREF="../../solidbase/maven/UpgradeMojo.html" title="class in solidbase.maven"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/maven/Secondary.html" title="class in solidbase.maven"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/maven/Progress.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="Progress.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;

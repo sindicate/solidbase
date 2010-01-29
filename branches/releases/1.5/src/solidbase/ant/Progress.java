@@ -98,7 +98,7 @@ public class Progress extends ProgressListener implements ConfigListener
 		this.project.log( this.task, message, Project.MSG_VERBOSE );
 	}
 
-	public void readingPropertyFile( String path )
+	public void readingConfigFile( String path )
 	{
 		verbose( "Reading property file " + path );
 	}

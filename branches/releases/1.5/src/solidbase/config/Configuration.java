@@ -156,7 +156,7 @@ public class Configuration
 			if( url == null )
 				throw new SystemException( DBPATCHER_DEFAULT_PROPERTIES + " not found in classpath" );
 
-			progress.readingPropertyFile( url.toString() );
+			progress.readingConfigFile( url.toString() );
 			this.properties = new Properties();
 			this.properties.load( url.openStream() );
 		}
@@ -225,7 +225,7 @@ public class Configuration
 			if( url == null )
 				throw new SystemException( DBPATCHER_DEFAULT_PROPERTIES + " not found in classpath" );
 
-			progress.readingPropertyFile( url.toString() );
+			progress.readingConfigFile( url.toString() );
 			Properties defaultProperties = new Properties();
 			defaultProperties.load( url.openStream() );
 
@@ -236,7 +236,7 @@ public class Configuration
 				file = new File( optionPropertiesFile );
 			else
 				file = getPropertiesFile();
-			progress.readingPropertyFile( file.getAbsolutePath() );
+			progress.readingConfigFile( file.getAbsolutePath() );
 			this.properties = new Properties( defaultProperties );
 			FileInputStream input = new FileInputStream( file );
 			try

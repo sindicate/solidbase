@@ -56,7 +56,7 @@ public class Progress extends ProgressListener implements ConfigListener
 		this.verbose = verbose;
 	}
 
-	public void readingPropertyFile( String path )
+	public void readingConfigFile( String path )
 	{
 		if( this.verbose )
 			this.console.println( "Reading property file " + path );

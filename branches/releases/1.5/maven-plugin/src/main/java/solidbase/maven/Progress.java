@@ -90,7 +90,7 @@ public class Progress extends ProgressListener implements ConfigListener
 		this.log.debug( message );
 	}
 
-	public void readingPropertyFile( String path )
+	public void readingConfigFile( String path )
 	{
 		verbose( "Reading property file " + path );
 	}

@@ -106,7 +106,14 @@ Class FatalException</H2>
 </PRE>
 
 <P>
+Represents an expected failure caused by a system check. As it is expected, a stacktrace is not required. The failure
+ message is enough to identify corrective actions.
+<P>
+
+<P>
 <DL>
+<DT><B>Author:</B></DT>
+  <DD>René M. de Bloois</DD>
 <DT><B>See Also:</B><DD><A HREF="../../serialized-form.html#solidbase.core.FatalException">Serialized Form</A></DL>
 <HR>
 
@@ -124,7 +131,7 @@ Class FatalException</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/FatalException.html#FatalException(java.lang.String)">FatalException</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A fatal exception is always caused by an explicit check in the code.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructor.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -173,11 +180,10 @@ FatalException</H3>
 <PRE>
 public <B>FatalException</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</PRE>
 <DL>
-<DD>A fatal exception is always caused by an explicit check in the code. So it is a situation which is expected but
- is not recoverable. No stacktrace should be presented to the user.
+<DD>Constructor.
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>message</CODE> - The message for the user.</DL>
+<DT><B>Parameters:</B><DD><CODE>message</CODE> - The failure message.</DL>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
 <HR>

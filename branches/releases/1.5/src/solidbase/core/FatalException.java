@@ -16,13 +16,18 @@
 
 package solidbase.core;
 
+/**
+ * Represents an expected failure caused by a system check. As it is expected, a stacktrace is not required. The failure
+ * message is enough to identify corrective actions.
+ * 
+ * @author René M. de Bloois
+ */
 public class FatalException extends RuntimeException
 {
 	/**
-	 * A fatal exception is always caused by an explicit check in the code. So it is a situation which is expected but
-	 * is not recoverable. No stacktrace should be presented to the user.
+	 * Constructor.
 	 * 
-	 * @param message The message for the user.
+	 * @param message The failure message.
 	 */
 	public FatalException( String message )
 	{

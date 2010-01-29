@@ -274,10 +274,10 @@ Implements the progress listener for the Apache Ant task.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/ant/Progress.html#readingPropertyFile(java.lang.String)">readingPropertyFile</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/ant/Progress.html#readingConfigFile(java.lang.String)">readingConfigFile</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Called when a config file is about to be read.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -442,16 +442,19 @@ protected void <B>verbose</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/j
 </DL>
 <HR>
 
-<A NAME="readingPropertyFile(java.lang.String)"><!-- --></A><H3>
-readingPropertyFile</H3>
+<A NAME="readingConfigFile(java.lang.String)"><!-- --></A><H3>
+readingConfigFile</H3>
 <PRE>
-public void <B>readingPropertyFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</PRE>
+public void <B>readingConfigFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</PRE>
 <DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../solidbase/config/ConfigListener.html#readingConfigFile(java.lang.String)">ConfigListener</A></CODE></B></DD>
+<DD>Called when a config file is about to be read.
+<P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../solidbase/config/ConfigListener.html#readingPropertyFile(java.lang.String)">readingPropertyFile</A></CODE> in interface <CODE><A HREF="../../solidbase/config/ConfigListener.html" title="interface in solidbase.config">ConfigListener</A></CODE></DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../solidbase/config/ConfigListener.html#readingConfigFile(java.lang.String)">readingConfigFile</A></CODE> in interface <CODE><A HREF="../../solidbase/config/ConfigListener.html" title="interface in solidbase.config">ConfigListener</A></CODE></DL>
 </DD>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>path</CODE> - The path of the config file.</DL>
 </DD>
 </DL>
 <HR>
