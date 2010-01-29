@@ -103,6 +103,14 @@ Class CustomDatabasesConfiguration</H2>
 </PRE>
 
 <P>
+This is an example implementation of <A HREF="../../solidbase/config/DatabasesConfiguration.html" title="interface in solidbase.config"><CODE>DatabasesConfiguration</CODE></A>.
+<P>
+
+<P>
+<DL>
+<DT><B>Author:</B></DT>
+  <DD>René M. de Bloois</DD>
+</DL>
 <HR>
 
 <P>
@@ -154,7 +162,7 @@ Class CustomDatabasesConfiguration</H2>
 <TD><CODE><B><A HREF="../../solidbase/custom/CustomDatabasesConfiguration.html#getDatabases()">getDatabases</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the list of configured database.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -162,7 +170,7 @@ Class CustomDatabasesConfiguration</H2>
 <TD><CODE><B><A HREF="../../solidbase/custom/CustomDatabasesConfiguration.html#init(solidbase.config.Configuration)">init</A></B>(<A HREF="../../solidbase/config/Configuration.html" title="class in solidbase.config">Configuration</A>&nbsp;configuration)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets called first to initialize the custom configuration.</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -228,11 +236,14 @@ init</H3>
 <PRE>
 public void <B>init</B>(<A HREF="../../solidbase/config/Configuration.html" title="class in solidbase.config">Configuration</A>&nbsp;configuration)</PRE>
 <DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../solidbase/config/DatabasesConfiguration.html#init(solidbase.config.Configuration)">DatabasesConfiguration</A></CODE></B></DD>
+<DD>Gets called first to initialize the custom configuration.
+<P>
 <DD><DL>
 <DT><B>Specified by:</B><DD><CODE><A HREF="../../solidbase/config/DatabasesConfiguration.html#init(solidbase.config.Configuration)">init</A></CODE> in interface <CODE><A HREF="../../solidbase/config/DatabasesConfiguration.html" title="interface in solidbase.config">DatabasesConfiguration</A></CODE></DL>
 </DD>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>configuration</CODE> - The <A HREF="../../solidbase/config/Configuration.html" title="class in solidbase.config"><CODE>Configuration</CODE></A> class that contains the configuration.</DL>
 </DD>
 </DL>
 <HR>
@@ -242,11 +253,15 @@ getDatabases</H3>
 <PRE>
 public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/config/Database.html" title="class in solidbase.config">Database</A>&gt; <B>getDatabases</B>()</PRE>
 <DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../solidbase/config/DatabasesConfiguration.html#getDatabases()">DatabasesConfiguration</A></CODE></B></DD>
+<DD>Returns the list of configured database.
+<P>
 <DD><DL>
 <DT><B>Specified by:</B><DD><CODE><A HREF="../../solidbase/config/DatabasesConfiguration.html#getDatabases()">getDatabases</A></CODE> in interface <CODE><A HREF="../../solidbase/config/DatabasesConfiguration.html" title="interface in solidbase.config">DatabasesConfiguration</A></CODE></DL>
 </DD>
 <DD><DL>
-</DL>
+
+<DT><B>Returns:</B><DD>The list of configured database.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

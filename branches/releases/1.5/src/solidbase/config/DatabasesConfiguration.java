@@ -18,8 +18,29 @@ package solidbase.config;
 
 import java.util.List;
 
+
+/**
+ * This class can be used in custom configuration. When the property <code>databases.config.class</code> is configured
+ * in the properties file, this class will be used to configure the available databases. First
+ * {@link #init(Configuration)} will be called to initialize the custom configuration, and after that
+ * {@link #getDatabases()} will be called to retrieve the configured databases. When more then one databases are
+ * configured in the command line version of SolidBase, the user will be presented a choice of databases to upgrade.
+ * 
+ * @author René M. de Bloois
+ */
 public interface DatabasesConfiguration
 {
+	/**
+	 * Gets called first to initialize the custom configuration.
+	 * 
+	 * @param configuration The {@link Configuration} class that contains the configuration.
+	 */
 	void init( Configuration configuration );
+
+	/**
+	 * Returns the list of configured databases.
+	 * 
+	 * @return The list of configured databases.
+	 */
 	List< Database > getDatabases();
 }

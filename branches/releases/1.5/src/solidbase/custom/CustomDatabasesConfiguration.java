@@ -31,9 +31,16 @@ import solidbase.core.Assert;
 import solidbase.core.SystemException;
 
 
-// TODO Anonymize this class
+/**
+ * This is an example implementation of {@link DatabasesConfiguration}.
+ * 
+ * @author René M. de Bloois
+ */
 public class CustomDatabasesConfiguration implements DatabasesConfiguration
 {
+	/**
+	 * The list of configured databases.
+	 */
 	protected List< Database > databases;
 
 	public void init( Configuration configuration )

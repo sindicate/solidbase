@@ -6,15 +6,15 @@
 
 	<target name="upgrade">
 		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testant" 
-				user="sa" password="" 
+				username="sa" password="" 
 				upgradefile="upgrade-hsqldb-example.sql" target="1.0.*">
-			<secondary name="queues" url="jdbc:hsqldb:mem:queues" user="sa" password="" />
+			<secondary name="queues" url="jdbc:hsqldb:mem:queues" username="sa" password="" />
 		</solidbase-upgrade>
 	</target>
 
 	<target name="upgrade-derby">
 		<solidbase-upgrade driver="org.apache.derby.jdbc.EmbeddedDriver" url="jdbc:derby:testant;create=true" 
-			user="app" password="" 
+			username="app" password="" 
 			upgradefile="upgrade-derby-example.sql" target="1.0.*" />
 	</target>
 

@@ -99,6 +99,16 @@ Interface DatabasesConfiguration</H2>
 </PRE>
 
 <P>
+This class can be used in custom configuration. When the property <code>databases.config.class</code> is configured in the properties file, this class will be used to configure the available databases.
+ First <A HREF="../../solidbase/config/DatabasesConfiguration.html#init(solidbase.config.Configuration)"><CODE>init(Configuration)</CODE></A> will be called to initialize the custom configuration, and after that <A HREF="../../solidbase/config/DatabasesConfiguration.html#getDatabases()"><CODE>getDatabases()</CODE></A> will be called to retrieve the configured database.
+ When more then one databases are configured in the command line version of SolidBase, the user will be presented a choice of databases to upgrade.
+<P>
+
+<P>
+<DL>
+<DT><B>Author:</B></DT>
+  <DD>René M. de Bloois</DD>
+</DL>
 <HR>
 
 <P>
@@ -117,7 +127,7 @@ Interface DatabasesConfiguration</H2>
 <TD><CODE><B><A HREF="../../solidbase/config/DatabasesConfiguration.html#getDatabases()">getDatabases</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the list of configured database.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -125,7 +135,7 @@ Interface DatabasesConfiguration</H2>
 <TD><CODE><B><A HREF="../../solidbase/config/DatabasesConfiguration.html#init(solidbase.config.Configuration)">init</A></B>(<A HREF="../../solidbase/config/Configuration.html" title="class in solidbase.config">Configuration</A>&nbsp;configuration)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets called first to initialize the custom configuration.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -146,8 +156,10 @@ init</H3>
 <PRE>
 void <B>init</B>(<A HREF="../../solidbase/config/Configuration.html" title="class in solidbase.config">Configuration</A>&nbsp;configuration)</PRE>
 <DL>
+<DD>Gets called first to initialize the custom configuration.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>configuration</CODE> - The <A HREF="../../solidbase/config/Configuration.html" title="class in solidbase.config"><CODE>Configuration</CODE></A> class that contains the configuration.</DL>
 </DD>
 </DL>
 <HR>
@@ -157,8 +169,11 @@ getDatabases</H3>
 <PRE>
 <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/config/Database.html" title="class in solidbase.config">Database</A>&gt; <B>getDatabases</B>()</PRE>
 <DL>
+<DD>Returns the list of configured database.
+<P>
 <DD><DL>
-</DL>
+
+<DT><B>Returns:</B><DD>The list of configured database.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

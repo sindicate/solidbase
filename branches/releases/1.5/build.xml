@@ -138,7 +138,7 @@
 	</target>
 
 
-	<target name="test" depends="compile,compiletest" description="Run the tests">
+	<target name="test" depends="compile,compiletest,test-maven-plugin" description="Run the tests">
 		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="3">
 			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit.jar" />
 			<jvmarg value="-Xmx256m" />

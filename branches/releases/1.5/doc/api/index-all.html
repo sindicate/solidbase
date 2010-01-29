@@ -251,7 +251,7 @@ Variable in class solidbase.core.<A HREF="./solidbase/core/Patcher.html" title="
 <DT><A HREF="./solidbase/core/RandomAccessLineReader.html#currentLineNumber"><B>currentLineNumber</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A>
 <DD>The current line the reader is positioned on.
-<DT><A HREF="./solidbase/custom/CustomDatabasesConfiguration.html" title="class in solidbase.custom"><B>CustomDatabasesConfiguration</B></A> - Class in <A HREF="./solidbase/custom/package-summary.html">solidbase.custom</A><DD>&nbsp;<DT><A HREF="./solidbase/custom/CustomDatabasesConfiguration.html#CustomDatabasesConfiguration()"><B>CustomDatabasesConfiguration()</B></A> - 
+<DT><A HREF="./solidbase/custom/CustomDatabasesConfiguration.html" title="class in solidbase.custom"><B>CustomDatabasesConfiguration</B></A> - Class in <A HREF="./solidbase/custom/package-summary.html">solidbase.custom</A><DD>This is an example implementation of <A HREF="./solidbase/config/DatabasesConfiguration.html" title="interface in solidbase.config"><CODE>DatabasesConfiguration</CODE></A>.<DT><A HREF="./solidbase/custom/CustomDatabasesConfiguration.html#CustomDatabasesConfiguration()"><B>CustomDatabasesConfiguration()</B></A> - 
 Constructor for class solidbase.custom.<A HREF="./solidbase/custom/CustomDatabasesConfiguration.html" title="class in solidbase.custom">CustomDatabasesConfiguration</A>
 <DD>&nbsp;
 </DL>
@@ -280,7 +280,7 @@ Variable in class solidbase.core.<A HREF="./solidbase/core/Patcher.html" title="
 <DT><A HREF="./solidbase/custom/CustomDatabasesConfiguration.html#databases"><B>databases</B></A> - 
 Variable in class solidbase.custom.<A HREF="./solidbase/custom/CustomDatabasesConfiguration.html" title="class in solidbase.custom">CustomDatabasesConfiguration</A>
 <DD>&nbsp;
-<DT><A HREF="./solidbase/config/DatabasesConfiguration.html" title="interface in solidbase.config"><B>DatabasesConfiguration</B></A> - Interface in <A HREF="./solidbase/config/package-summary.html">solidbase.config</A><DD>&nbsp;<DT><A HREF="./solidbase/config/Configuration.html#dbDriver"><B>dbDriver</B></A> - 
+<DT><A HREF="./solidbase/config/DatabasesConfiguration.html" title="interface in solidbase.config"><B>DatabasesConfiguration</B></A> - Interface in <A HREF="./solidbase/config/package-summary.html">solidbase.config</A><DD>This class can be used in custom configuration.<DT><A HREF="./solidbase/config/Configuration.html#dbDriver"><B>dbDriver</B></A> - 
 Variable in class solidbase.config.<A HREF="./solidbase/config/Configuration.html" title="class in solidbase.config">Configuration</A>
 <DD>Properties format 1: driver class name for the database.
 <DT><A HREF="./solidbase/config/Configuration.html#dbDriverJar"><B>dbDriverJar</B></A> - 
@@ -528,7 +528,7 @@ Method in class solidbase.config.<A HREF="./solidbase/config/Configuration.html"
 <DD>Returns all the database.
 <DT><A HREF="./solidbase/config/DatabasesConfiguration.html#getDatabases()"><B>getDatabases()</B></A> - 
 Method in interface solidbase.config.<A HREF="./solidbase/config/DatabasesConfiguration.html" title="interface in solidbase.config">DatabasesConfiguration</A>
-<DD>&nbsp;
+<DD>Returns the list of configured database.
 <DT><A HREF="./solidbase/custom/CustomDatabasesConfiguration.html#getDatabases()"><B>getDatabases()</B></A> - 
 Method in class solidbase.custom.<A HREF="./solidbase/custom/CustomDatabasesConfiguration.html" title="class in solidbase.custom">CustomDatabasesConfiguration</A>
 <DD>&nbsp;
@@ -763,7 +763,7 @@ Method in class solidbase.ant.<A HREF="./solidbase/ant/Progress.html" title="cla
 <DD>Log an info message to the project's log.
 <DT><A HREF="./solidbase/config/DatabasesConfiguration.html#init(solidbase.config.Configuration)"><B>init(Configuration)</B></A> - 
 Method in interface solidbase.config.<A HREF="./solidbase/config/DatabasesConfiguration.html" title="interface in solidbase.config">DatabasesConfiguration</A>
-<DD>&nbsp;
+<DD>Gets called first to initialize the custom configuration.
 <DT><A HREF="./solidbase/core/Database.html#init()"><B>init()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/Database.html" title="class in solidbase.core">Database</A>
 <DD>Resets the current user and initializes the connection if a password is known.

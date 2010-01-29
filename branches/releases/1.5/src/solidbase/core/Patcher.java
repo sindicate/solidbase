@@ -300,7 +300,7 @@ public class Patcher
 	/**
 	 * Use the 'init' change sets to upgrade the DBVERSION and DBVERSIONLOG tables to the newest specification.
 	 * 
-	 * @throws SQLExecutionException Thrown when the execution of an SQL statement fails.
+	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
 	public void init() throws SQLExecutionException
 	{
@@ -322,6 +322,12 @@ public class Patcher
 		}
 	}
 
+	/**
+	 * Patch to the given target.
+	 * 
+	 * @param target The target to patch to.
+	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
+	 */
 	public void patch( String target ) throws SQLExecutionException
 	{
 		patch( target, false );
@@ -373,27 +379,42 @@ public class Patcher
 			throw new SystemException( "Target " + target + " is not a possible target" );
 	}
 
+	/**
+	 * Gives listeners a chance to cleanup.
+	 */
 	protected void terminateCommandListeners()
 	{
 		for( CommandListener listener : this.listeners )
 			listener.terminate();
 	}
 
+	/**
+	 * Upgrade the database from the given version to the given target.
+	 * 
+	 * @param version The current version of the database.
+	 * @param target The target to upgrade to.
+	 * @param downgradeable Allow downgrades to reach the target
+	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
+	 */
 	protected void patch( String version, String target, boolean downgradeable ) throws SQLExecutionException
 	{
 		if( target.equals( version ) )
 			return;
 
-		List patches = this.patchFile.getPatchPath( version, target, downgradeable );
-		Assert.isTrue( patches.size() > 0, "No upgrades found" );
+		Path path = this.patchFile.getPatchPath( version, target, downgradeable );
+		Assert.isTrue( path.size() > 0, "No upgrades found" );
 
-		for( Iterator iter = patches.iterator(); iter.hasNext(); )
-		{
-			Patch patch = (Patch)iter.next();
+		for( Patch patch : path )
 			patch( patch );
-		}
 	}
 
+	/**
+	 * Give the listeners a chance to react to the given command.
+	 * 
+	 * @param command The command to be executed.
+	 * @return True if a listener has processed the command, false otherwise.
+	 * @throws SQLException If the database throws an exception.
+	 */
 	protected boolean executeListeners( Command command ) throws SQLException
 	{
 		for( Iterator iter = this.listeners.iterator(); iter.hasNext(); )
@@ -405,7 +426,14 @@ public class Patcher
 		return false;
 	}
 
-	// count == 0 --> non counting
+	/**
+	 * Execute the given command, coming from the given patch.
+	 * 
+	 * @param patch The patch that contains the command to be executed.
+	 * @param command The command to be executed.
+	 * @param count The number of the command within the complete patch. Will be 0 for transient commands.
+	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
+	 */
 	protected void execute( Patch patch, Command command, int count ) throws SQLExecutionException
 	{
 		Assert.isTrue( command.isPersistent() );
@@ -466,6 +494,12 @@ public class Patcher
 		}
 	}
 
+	/**
+	 * Execute a patch.
+	 * 
+	 * @param patch The patch to be executed.
+	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
+	 */
 	protected void patch( Patch patch ) throws SQLExecutionException
 	{
 		Assert.notNull( patch, "patch == null" );
@@ -530,7 +564,7 @@ public class Patcher
 					else if( ( matcher = ifHistoryContainsPattern.matcher( sql ) ).matches() )
 						ifHistoryContains( matcher.group( 1 ), matcher.group( 2 ) );
 					else if( ifHistoryContainsEnd.matcher( sql ).matches() )
-						ifHistoryContainsEnd();
+						popCondition();
 					else if( ( matcher = selectConnectionPattern.matcher( sql ) ).matches() )
 						selectConnection( matcher.group( 1 ) );
 					else
@@ -604,11 +638,21 @@ public class Patcher
 		database.init(); // Reset the current user TODO Create a test for this.
 	}
 
+	/**
+	 * Changes the current user. The database will stay constant.
+	 * 
+	 * @param user The user to make current.
+	 */
 	protected void setUser( String user )
 	{
 		this.currentDatabase.setCurrentUser( user );
 	}
 
+	/**
+	 * Adds a comma separated list of SQLStates to be ignored. See {@link SQLException#getSQLState()}.
+	 * 
+	 * @param ignores A comma separated list of errors to be ignored.
+	 */
 	protected void pushIgnores( String ignores )
 	{
 		String[] ss = ignores.split( "," );
@@ -618,12 +662,18 @@ public class Patcher
 		refreshIgnores();
 	}
 
+	/**
+	 * Remove the last added list of ignores.
+	 */
 	protected void popIgnores()
 	{
 		this.ignoreStack.pop();
 		refreshIgnores();
 	}
 
+	/**
+	 * Synchronize the set of ignores with the queue's contents.
+	 */
 	protected void refreshIgnores()
 	{
 		HashSet ignores = new HashSet();
@@ -636,18 +686,30 @@ public class Patcher
 		this.ignoreSet = ignores;
 	}
 
+	/**
+	 * Persistent commands should be considered transient.
+	 */
 	protected void enableDontCount()
 	{
 		Assert.isFalse( this.dontCount, "Counting already enabled" );
 		this.dontCount = true;
 	}
 
+	/**
+	 * Persistent commands should be considered persistent again.
+	 */
 	protected void disableDontCount()
 	{
 		Assert.isTrue( this.dontCount, "Counting already disabled" );
 		this.dontCount = false;
 	}
 
+	/**
+	 * If history does not contain the given version then start skipping the persistent commands. If <code>not</code> is true then this logic is reversed.
+	 * 
+	 * @param not True causes reversed logic.
+	 * @param version The version to look for in the history.
+	 */
 	private void ifHistoryContains( String not, String version )
 	{
 		if( this.conditionFalseCounter == 0 )
@@ -664,7 +726,10 @@ public class Patcher
 			this.conditionFalseCounter++;
 	}
 
-	private void ifHistoryContainsEnd()
+	/**
+	 * Pop a condition from the stack. If only true conditions remain, skipping of persistent commands is terminated.
+	 */
+	private void popCondition()
 	{
 		if( this.conditionFalseCounter > 0 )
 			this.conditionFalseCounter--;
@@ -675,21 +740,41 @@ public class Patcher
 		}
 	}
 
+	/**
+	 * Returns the progress listener.
+	 * 
+	 * @return The progress listener.
+	 */
 	public ProgressListener getCallBack()
 	{
 		return this.progress;
 	}
 
+	/**
+	 * Sets the progress listener.
+	 * 
+	 * @param callBack The progress listener.
+	 */
 	public void setCallBack( ProgressListener callBack )
 	{
 		this.progress = callBack;
 	}
 
+	/**
+	 * Write the history to the given output stream.
+	 * 
+	 * @param out The output stream to write to.
+	 */
 	public void logToXML( OutputStream out )
 	{
 		this.dbVersion.logToXML( out, Charset.forName( "UTF-8" ) );
 	}
 
+	/**
+	 * Write the history to the given file name.
+	 * 
+	 * @param filename The file name to write to.
+	 */
 	public void logToXML( String filename )
 	{
 		if( filename.equals( "-" ) )
@@ -707,7 +792,10 @@ public class Patcher
 		}
 	}
 
-	// TODO This is caused by being a static class
+	/**
+	 * Closes open files and closes connections.
+	 */
+	// TODO No signal to the listeners here?
 	public void end()
 	{
 		closePatchFile();
@@ -715,6 +803,11 @@ public class Patcher
 			this.currentDatabase.closeConnections();
 	}
 
+	/**
+	 * Makes current another configured connection.
+	 * 
+	 * @param name The name of the connection to select.
+	 */
 	protected void selectConnection( String name )
 	{
 		name = name.toLowerCase();
@@ -723,6 +816,11 @@ public class Patcher
 		setConnection( database );
 	}
 
+	/**
+	 * Add a configured connection.
+	 * 
+	 * @param connection A configured connection.
+	 */
 	public void addConnection( solidbase.config.Connection connection )
 	{
 		Assert.notNull( this.defaultDatabase );
@@ -731,6 +829,9 @@ public class Patcher
 		this.databases.put( connection.getName(), new Database( driver != null ? driver : this.defaultDatabase.driverName, url != null ? url : this.defaultDatabase.url, connection.getUser().toLowerCase(), connection.getPassword(), this.progress ) );
 	}
 
+	/**
+	 * Initializes the default connection.
+	 */
 	public void connect()
 	{
 		this.defaultDatabase.getConnection();

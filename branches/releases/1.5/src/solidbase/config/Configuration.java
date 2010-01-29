@@ -344,12 +344,14 @@ public class Configuration
 										if( appName.length() > 0 )
 										{
 											String appDescription = this.properties.getProperty( databaseName + "." + appName + ".description" );
-											String userName = this.properties.getProperty( databaseName + "." + appName + ".user" );
+											String userName = this.properties.getProperty( databaseName + "." + appName + ".username" );
+											if( userName == null )
+												userName = this.properties.getProperty( databaseName + "." + appName + ".user" );
 											String patchFile = this.properties.getProperty( databaseName + "." + appName + ".upgradefile" );
 
 											if( StringUtils.isBlank( appDescription ) )
 												appDescription = appName;
-											Assert.notBlank( userName, "'" + databaseName + "." + appName + ".user' not configured in " + DBPATCHER_PROPERTIES );
+											Assert.notBlank( userName, "'" + databaseName + "." + appName + ".username' not configured in " + DBPATCHER_PROPERTIES );
 											Assert.notBlank( patchFile, "'" + databaseName + "." + appName + ".upgradefile' not configured in " + DBPATCHER_PROPERTIES );
 
 											database.addApplication( appName, appDescription, userName, null, patchFile, null );
@@ -360,10 +362,12 @@ public class Configuration
 								{
 									String appName = "default";
 									String appDescription = appName;
-									String userName = this.properties.getProperty( databaseName + ".user" );
+									String userName = this.properties.getProperty( databaseName + ".username" );
+									if( userName == null )
+										userName = this.properties.getProperty( databaseName + ".user" );
 									String patchFile = this.properties.getProperty( databaseName + ".upgradefile" );
 
-									Assert.notBlank( userName, "'" + databaseName + ".user' not configured in " + DBPATCHER_PROPERTIES );
+									Assert.notBlank( userName, "'" + databaseName + ".username' not configured in " + DBPATCHER_PROPERTIES );
 									Assert.notBlank( patchFile, "'" + databaseName + ".upgradefile' not configured in " + DBPATCHER_PROPERTIES );
 
 									database.addApplication( appName, appDescription, userName, null, patchFile, null );
@@ -384,7 +388,9 @@ public class Configuration
 				this.dbDriverJar = this.properties.getProperty( "database.driver.jar" );
 				this.dbDriver = this.properties.getProperty( "database.driver" );
 				this.dbUrl = this.properties.getProperty( "database.url" );
-				this.userName = this.properties.getProperty( "database.user" );
+				this.userName = this.properties.getProperty( "database.username" );
+				if( this.userName == null )
+					this.userName = this.properties.getProperty( "database.user" );
 
 				Assert.isTrue( this.dbUrl != null, "database.url not found in " + DBPATCHER_PROPERTIES );
 				Assert.isTrue( this.dbDriver != null, "database.driver not found in " + DBPATCHER_PROPERTIES );

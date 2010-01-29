@@ -31,70 +31,106 @@ import solidbase.core.Patcher;
 import solidbase.core.SQLExecutionException;
 
 
-// TODO Rename this class
+/**
+ * The Upgrade Ant Task.
+ * 
+ * @author René M. de Bloois
+ */
 public class UpgradeTask extends Task
 {
-	protected String name;
+	/**
+	 * Field to store the configured driver.
+	 */
 	protected String driver;
+
+	/**
+	 * Field to store the configured url.
+	 */
 	protected String url;
-	protected String user;
+
+	/**
+	 * Field to store the configured user name.
+	 */
+	protected String username;
+
+	/**
+	 * Field to store the configured password.
+	 */
 	protected String password;
+
+	/**
+	 * Field to store the configured upgrade file.
+	 */
 	protected String upgradefile;
+
+	/**
+	 * Field to store the configured target.
+	 */
 	protected String target;
+
+	/**
+	 * Field to store the configured downgrade allowed option.
+	 */
 	protected boolean downgradeallowed;
 
+	/**
+	 * Field to store the nested collection of secondary connections.
+	 */
 	protected List< Connection > connections = new ArrayList< Connection >();
 
-	/*
-	protected Path classpath;
+//	protected Path classpath;
+//
+//	public Path createClasspath()
+//	{
+//		if( this.classpath == null )
+//			this.classpath = new Path( getProject() );
+//		return this.classpath.createPath();
+//	}
+//
+//	public Path getClasspath()
+//	{
+//		return this.classpath;
+//	}
+//
+//	public void setClasspath( Path classpath )
+//	{
+//		if( this.classpath == null )
+//			this.classpath = new Path( getProject() );
+//		this.classpath.append( classpath );
+//	}
+//
+//	public void setClasspathref( Reference reference )
+//	{
+//		if( this.classpath == null )
+//			this.classpath = new Path( getProject() );
+//		this.classpath.createPath().setRefid( reference );
+//	}
 
-	public Path createClasspath()
-	{
-		if( this.classpath == null )
-			this.classpath = new Path( getProject() );
-		return this.classpath.createPath();
-	}
-
-	public Path getClasspath()
-	{
-		return this.classpath;
-	}
-
-	public void setClasspath( Path classpath )
-	{
-		if( this.classpath == null )
-			this.classpath = new Path( getProject() );
-		this.classpath.append( classpath );
-	}
-
-	public void setClasspathref( Reference reference )
-	{
-		if( this.classpath == null )
-			this.classpath = new Path( getProject() );
-		this.classpath.createPath().setRefid( reference );
-	}
+	/**
+	 * Returns the configured driver.
+	 * 
+	 * @return The configured driver.
 	 */
-
-	public String getName()
-	{
-		return this.name;
-	}
-
-	public void setName( String name )
-	{
-		this.name = name;
-	}
-
 	public String getDriver()
 	{
 		return this.driver;
 	}
 
+	/**
+	 * Sets the driver to be configured.
+	 * 
+	 * @param driver The driver to be configured.
+	 */
 	public void setDriver( String driver )
 	{
 		this.driver = driver;
 	}
 
+	/**
+	 * Returns the configured url.
+	 * 
+	 * @return The configured url.
+	 */
 	public String getUrl()
 	{
 		return this.url;
@@ -105,14 +141,20 @@ public class UpgradeTask extends Task
 		this.url = url;
 	}
 
-	public String getUser()
+	public String getUsername()
 	{
-		return this.user;
+		return this.username;
 	}
 
-	public void setUser( String user )
+	public void setUsername( String username )
 	{
-		this.user = user;
+		this.username = username;
+	}
+
+	@Deprecated
+	public void setUser( String username )
+	{
+		this.username = username;
 	}
 
 	public String getPassword()
@@ -233,7 +275,7 @@ public class UpgradeTask extends Task
 			throw new BuildException( "The 'driver' attribute is mandatory for the " + getTaskName() + " task" );
 		if( this.url == null )
 			throw new BuildException( "The 'url' attribute is mandatory for the " + getTaskName() + " task" );
-		if( this.user == null )
+		if( this.username == null )
 			throw new BuildException( "The 'user' attribute is mandatory for the " + getTaskName() + " task" );
 		if( this.password == null )
 			throw new BuildException( "The 'password' attribute is mandatory for the " + getTaskName() + " task" );
@@ -270,7 +312,7 @@ public class UpgradeTask extends Task
 		progress.info( "(C) 2006-2010 Rene M. de Bloois" );
 		progress.info( "" );
 
-		Patcher patcher = new Patcher( progress, new Database( this.driver, this.url, this.user, this.password, progress ) );
+		Patcher patcher = new Patcher( progress, new Database( this.driver, this.url, this.username, this.password, progress ) );
 		try
 		{
 			for( Connection connection : this.connections )

@@ -37,7 +37,7 @@
 				<configuration>
 					<driver>org.hsqldb.jdbcDriver</driver>
 					<url>jdbc:hsqldb:mem:testplugin</url>
-					<user>sa</user>
+					<username>sa</username>
 					<password></password>
 					<upgradefile>upgrade-hsqldb-example.sql</upgradefile>
 					<target>1.0.*</target>

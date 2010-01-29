@@ -175,7 +175,7 @@ public class Progress extends ProgressListener implements ConfigListener
 	}
 
 	@Override
-	protected String requestPassword( String user )
+	protected String requestPassword( String username )
 	{
 		throw new UnsupportedOperationException();
 	}

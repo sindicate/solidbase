@@ -66,12 +66,12 @@ public class UpgradeMojo extends AbstractMojo
 	private String url;
 
 	/**
-	 * Database user.
+	 * Database username.
 	 * 
-	 * @parameter expression="${user}
+	 * @parameter expression="${username}
 	 * @required
 	 */
-	private String user;
+	private String username;
 
 	/**
 	 * Database password.
@@ -115,12 +115,12 @@ public class UpgradeMojo extends AbstractMojo
 		getLog().info( "(C) 2006-2010 Rene M. de Bloois" ); // TODO Diacritics don't work.
 		getLog().info( "" );
 
-		Patcher patcher = new Patcher( progress, new Database( this.driver, this.url, this.user, this.password == null ? "" : this.password, progress ) );
+		Patcher patcher = new Patcher( progress, new Database( this.driver, this.url, this.username, this.password == null ? "" : this.password, progress ) );
 		try
 		{
 			patcher.setCallBack( progress );
 
-			patcher.addConnection( new solidbase.config.Connection( "Some name", this.driver, this.url, this.user, this.password ) );
+			patcher.addConnection( new solidbase.config.Connection( "Some name", this.driver, this.url, this.username, this.password ) );
 
 			progress.info( "Connecting to database..." );
 
