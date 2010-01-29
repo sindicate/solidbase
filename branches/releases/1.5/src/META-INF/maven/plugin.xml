@@ -82,6 +82,13 @@
 					<editable>true</editable>
 					<description>User to connect to the database.</description>
 				</parameter>
+				<parameter>
+					<name>connections</name>
+					<type>java.lang.Secondary[]</type>
+					<required>false</required>
+					<editable>true</editable>
+					<description>Secondary connections.</description>
+				</parameter>
 			</parameters>
 			<configuration>
 				<project implementation="org.apache.maven.project.MavenProject">${project}</project>

@@ -41,6 +41,14 @@
 					<password></password>
 					<upgradefile>upgrade-hsqldb-example.sql</upgradefile>
 					<target>1.0.*</target>
+					<connections>
+						<secondary>
+							<name>queues</name>
+							<url>jdbc:hsqldb:mem:queues</url>
+							<username>sa</username>
+							<password></password>
+						</secondary>
+					</connections>
 				</configuration>
 			</plugin>
 		</plugins>

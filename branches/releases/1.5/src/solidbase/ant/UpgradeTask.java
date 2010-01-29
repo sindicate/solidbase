@@ -214,7 +214,7 @@ public class UpgradeTask extends Task
 		protected String name;
 		protected String driver;
 		protected String url;
-		protected String user;
+		protected String username;
 		protected String password;
 
 		public String getName()
@@ -247,14 +247,19 @@ public class UpgradeTask extends Task
 			this.url = url;
 		}
 
-		public String getUser()
+		public String getUsername()
 		{
-			return this.user;
+			return this.username;
 		}
 
-		public void setUser( String user )
+		public void setUsername( String username )
 		{
-			this.user = user;
+			this.username = username;
+		}
+
+		public void setUser( String username )
+		{
+			this.username = username;
 		}
 
 		public String getPassword()
@@ -288,7 +293,7 @@ public class UpgradeTask extends Task
 		{
 			if( connection.getName() == null )
 				throw new BuildException( "The 'name' attribute is mandatory for a 'connection' element" );
-			if( connection.getUser() == null )
+			if( connection.getUsername() == null )
 				throw new BuildException( "The 'user' attribute is mandatory for a 'connection' element" );
 			if( connection.getPassword() == null )
 				throw new BuildException( "The 'password' attribute is mandatory for a 'connection' element" );
@@ -316,7 +321,7 @@ public class UpgradeTask extends Task
 		try
 		{
 			for( Connection connection : this.connections )
-				patcher.addConnection( new solidbase.config.Connection( connection.getName(), connection.getDriver(), connection.getUrl(), connection.getUser(), connection.getPassword() ) );
+				patcher.addConnection( new solidbase.config.Connection( connection.getName(), connection.getDriver(), connection.getUrl(), connection.getUsername(), connection.getPassword() ) );
 
 			progress.info( "Connecting to database..." );
 
