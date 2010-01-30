@@ -130,8 +130,9 @@ public class UpgradeMojo extends AbstractMojo
 		validate();
 
 		Progress progress = new Progress( getLog() );
-		Configuration configuration = new Configuration( progress );
+		Configuration configuration = new Configuration( progress ); // TODO Remove this use of Configuration
 
+		// TODO Centralize this
 		getLog().info( "SolidBase v" + configuration.getVersion() );
 		getLog().info( "(C) 2006-2010 Rene M. de Bloois" ); // TODO Diacritics don't work.
 		getLog().info( "" );

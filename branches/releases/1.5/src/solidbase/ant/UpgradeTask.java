@@ -462,7 +462,7 @@ public class UpgradeTask extends Task
 
 		Project project = getProject();
 		Progress progress = new Progress( project, this );
-		Configuration configuration = new Configuration( progress );
+		Configuration configuration = new Configuration( progress ); // TODO Remove this use of Configuration
 
 		progress.info( "SolidBase v" + configuration.getVersion() );
 		// TODO Ant messes up the encoding, try add the é again

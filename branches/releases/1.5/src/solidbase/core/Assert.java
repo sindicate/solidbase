@@ -131,6 +131,14 @@ public class Assert
 	}
 
 	/**
+	 * Throws an {@link AssertionFailedException}.
+	 */
+	static public void fail()
+	{
+		throwAssertionFailure( null, 2 );
+	}
+
+	/**
 	 * Assert that String argument s is not null and not "". If not, it throws an {@link AssertionFailedException}.
 	 * 
 	 * @param test

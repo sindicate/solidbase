@@ -54,7 +54,16 @@ public class Database
 	 * Constructor.
 	 * 
 	 * @param name The name of the database.
-	 * @param description An optional description of the database.
+	 */
+	public Database( String name )
+	{
+		this.name = name;
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param name The name of the database.
 	 * @param driver The driver for the database.
 	 * @param url The url of the database.
 	 * @param userName The user name for the connection to the database.
@@ -66,6 +75,46 @@ public class Database
 		this.driver = driver;
 		this.url = url;
 		this.userName = userName;
+		this.password = password;
+	}
+
+	/**
+	 * Sets the driver for the database.
+	 * 
+	 * @param driver The driver for the database.
+	 */
+	public void setDriver( String driver )
+	{
+		this.driver = driver;
+	}
+
+	/**
+	 * Sets the url of the database.
+	 * 
+	 * @param url The url of the database.
+	 */
+	public void setUrl( String url )
+	{
+		this.url = url;
+	}
+
+	/**
+	 * Sets the user name for the connection to the database.
+	 * 
+	 * @param userName The user name for the connection to the database.
+	 */
+	public void setUserName( String userName )
+	{
+		this.userName = userName;
+	}
+
+	/**
+	 * Sets the password for the connection to the database.
+	 * 
+	 * @param password The password for the connection to the database.
+	 */
+	public void setPassword( String password )
+	{
 		this.password = password;
 	}
 

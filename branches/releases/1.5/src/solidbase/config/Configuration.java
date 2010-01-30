@@ -21,10 +21,17 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+
 import solidbase.core.Assert;
 import solidbase.core.FatalException;
 import solidbase.core.SystemException;
@@ -41,6 +48,8 @@ public class Configuration
 	static private final String DBPATCHER_PROPERTIES = "solidbase.properties";
 	static private final String DBPATCHER_DEFAULT_PROPERTIES = "solidbase-default.properties";
 	static private final String DBPATCHER_VERSION_PROPERTIES = "version.properties";
+
+	static private final Pattern propertyPattern = Pattern.compile( "^connection\\.([^\\s\\.]+)\\.(driver|url|username|password)$" );
 
 	/**
 	 * The version of SolidBase.
@@ -66,7 +75,7 @@ public class Configuration
 	/**
 	 * A list of configured databases.
 	 */
-	protected List< Database > secondaryDatabases = new ArrayList< Database >();
+	protected Map< String, Database > secondaryDatabases = new HashMap< String, Database >();
 
 	/**
 	 * The default database.
@@ -216,11 +225,7 @@ public class Configuration
 			if( !"1.0".equals( s ) )
 				throw new FatalException( "Expecting properties-version 1.0 in the properties file" );
 
-			// Version 2 configuration
-
-			// driver jars
 			this.driverJars = new ArrayList();
-
 			String driversProperty = this.properties.getProperty( "classpathext" );
 			if( driversProperty != null )
 				for( String driverJar : driversProperty.split( ";" ) )
@@ -232,49 +237,64 @@ public class Configuration
 
 			if( pass > 1 )
 			{
-				String driver = this.properties.getProperty( "driver" );
-				String dbUrl = this.properties.getProperty( "url" );
-				String userName = this.properties.getProperty( "username" );
-				String password = this.properties.getProperty( "password" );
-				String patchFile = this.properties.getProperty( "upgradefile" );
-				String target = this.properties.getProperty( "target" );
+				String driver = this.properties.getProperty( "connection.driver" );
+				String dbUrl = this.properties.getProperty( "connection.url" );
+				String userName = this.properties.getProperty( "connection.username" );
+				String password = this.properties.getProperty( "connection.password" );
+				String patchFile = this.properties.getProperty( "upgrade.file" );
+				String target = this.properties.getProperty( "upgrade.target" );
 
 				if( StringUtils.isBlank( driver ) )
-					throw new FatalException( "Property 'driver' must be specified in " + DBPATCHER_PROPERTIES );
+					throw new FatalException( "Property 'connection.driver' must be specified in " + DBPATCHER_PROPERTIES );
 				if( StringUtils.isBlank( dbUrl ) )
-					throw new FatalException( "Property 'url' must be specified in " + DBPATCHER_PROPERTIES );
+					throw new FatalException( "Property 'connection.url' must be specified in " + DBPATCHER_PROPERTIES );
 				if( StringUtils.isBlank( userName ) )
-					throw new FatalException( "Property 'username' must be specified in " + DBPATCHER_PROPERTIES );
+					throw new FatalException( "Property 'connection.username' must be specified in " + DBPATCHER_PROPERTIES );
 				if( StringUtils.isBlank( patchFile ) )
-					throw new FatalException( "Property 'upgradefile' must be specified in " + DBPATCHER_PROPERTIES );
+					throw new FatalException( "Property 'upgrade.file' must be specified in " + DBPATCHER_PROPERTIES );
 				if( StringUtils.isBlank( target ) )
-					throw new FatalException( "Property 'target' must be specified in " + DBPATCHER_PROPERTIES );
+					throw new FatalException( "Property 'upgrade.target' must be specified in " + DBPATCHER_PROPERTIES );
 
 				this.defaultDatabase = new Database( "default", driver, dbUrl, userName, password );
 				this.patchFile = patchFile;
 				this.target = target;
 
-				String databasesProperty = this.properties.getProperty( "secondary-connections" );
-				if( databasesProperty != null )
-					for( String databaseName : databasesProperty.split( "," ) )
+				for( Entry entry : this.properties.entrySet() )
+				{
+					String key = (String)entry.getKey();
+					Matcher matcher = propertyPattern.matcher( key );
+					if( matcher.matches() )
 					{
-						databaseName = databaseName.trim();
-						if( databaseName.equals( "default" ) )
-							throw new FatalException( "The secondary connection name 'default' is not allowed" );
-						if( databaseName.length() > 0 )
+						String name = matcher.group( 1 );
+						String prop = matcher.group( 2 );
+						String value = (String)entry.getValue();
+						Database database = this.secondaryDatabases.get( name );
+						if( database == null )
 						{
-							// per database
-							driver = this.properties.getProperty( databaseName + ".driver" );
-							dbUrl = this.properties.getProperty( databaseName + ".url" );
-							userName = this.properties.getProperty( databaseName + ".username" );
-							password = this.properties.getProperty( databaseName + ".password" );
-
-							if( StringUtils.isBlank( userName ) )
-								throw new FatalException( "Property '" + databaseName + ".username' must be specified in " + DBPATCHER_PROPERTIES );
-
-							this.secondaryDatabases.add( new Database( databaseName, driver, dbUrl, userName, password ) );
+							database = new Database( name );
+							this.secondaryDatabases.put( name, database );
 						}
+						if( prop.equals( "driver" ) )
+							database.setDriver( value );
+						else if( prop.equals( "url" ) )
+							database.setUrl( value );
+						else if( prop.equals( "username" ) )
+							database.setUserName( value );
+						else if( prop.equals( "password" ) )
+							database.setPassword( value );
+						else
+							Assert.fail();
 					}
+				}
+
+				// Validate them
+				for( Database database : this.secondaryDatabases.values() )
+				{
+					if( database.getName().equals( "default" ) )
+						throw new FatalException( "The secondary connection name 'default' is not allowed" );
+					if( StringUtils.isBlank( database.getUserName() ) )
+						throw new FatalException( "Property 'connection." + database.getName() + ".username' must be specified in " + DBPATCHER_PROPERTIES );
+				}
 			}
 		}
 		catch( IOException e )
@@ -292,20 +312,6 @@ public class Configuration
 	{
 		return this.version;
 	}
-
-//	/**
-//	 * Returns the database with the given name.
-//	 *
-//	 * @param name The name for the database to return.
-//	 * @return The database with the given name. If the database is not found it throws a {@link SystemException}.
-//	 */
-//	public Database getDatabase( String name )
-//	{
-//		for( Database database : this.database2s )
-//			if( database.name.equals( name ) )
-//				return database;
-//		throw new SystemException( "Database [" + name + "] not configured." );
-//	}
 
 	/**
 	 * Are we running the command line version from within Apache Ant?
@@ -332,9 +338,9 @@ public class Configuration
 	 * 
 	 * @return All the database.
 	 */
-	public List< Database > getSecondaryDatabases()
+	public Collection< Database > getSecondaryDatabases()
 	{
-		return this.secondaryDatabases;
+		return this.secondaryDatabases.values();
 	}
 
 	/**
