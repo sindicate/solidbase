@@ -38,7 +38,7 @@ import solidbase.core.SystemException;
 
 
 /**
- * This class represents all the configuration.
+ * This class represents all the configuration from the commandline or from the properties file.
  * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
@@ -47,14 +47,8 @@ public class Configuration
 {
 	static private final String DBPATCHER_PROPERTIES = "solidbase.properties";
 	static private final String DBPATCHER_DEFAULT_PROPERTIES = "solidbase-default.properties";
-	static private final String DBPATCHER_VERSION_PROPERTIES = "version.properties";
 
 	static private final Pattern propertyPattern = Pattern.compile( "^connection\\.([^\\s\\.]+)\\.(driver|url|username|password)$" );
-
-	/**
-	 * The version of SolidBase.
-	 */
-	protected String version;
 
 	/**
 	 * Are we running the command line version of SolidBase within Apache Ant?
@@ -109,26 +103,11 @@ public class Configuration
 	 */
 	public Configuration( ConfigListener progress )
 	{
-		// Checks
-
-		// Load the version properties
-
-		URL url = Configuration.class.getResource( DBPATCHER_VERSION_PROPERTIES );
-		if( url == null )
-			throw new SystemException( "File not found: " + DBPATCHER_VERSION_PROPERTIES );
-
 		try
 		{
-			Properties versionProperties = new Properties();
-			versionProperties.load( url.openStream() );
-
-			this.version = versionProperties.getProperty( "module.version" );
-
-			Assert.isTrue( this.version != null, "module.version not found in version.properties" );
-
 			// Load the default properties
 
-			url = Configuration.class.getResource( DBPATCHER_DEFAULT_PROPERTIES );
+			URL url = Configuration.class.getResource( DBPATCHER_DEFAULT_PROPERTIES );
 			if( url == null )
 				throw new SystemException( DBPATCHER_DEFAULT_PROPERTIES + " not found in classpath" );
 
@@ -165,21 +144,8 @@ public class Configuration
 		else
 			Assert.isTrue( optionUrl == null && optionUserName == null );
 
-		// Load the version properties
-
-		URL url = Configuration.class.getResource( DBPATCHER_VERSION_PROPERTIES );
-		if( url == null )
-			throw new SystemException( "File not found: " + DBPATCHER_VERSION_PROPERTIES );
-
 		try
 		{
-			Properties versionProperties = new Properties();
-			versionProperties.load( url.openStream() );
-
-			this.version = versionProperties.getProperty( "module.version" );
-
-			Assert.isTrue( this.version != null, "module.version not found in version.properties" );
-
 			// Process the commandline options
 
 			if( optionDriver != null )
@@ -192,7 +158,7 @@ public class Configuration
 
 			// Load the default properties
 
-			url = Configuration.class.getResource( DBPATCHER_DEFAULT_PROPERTIES );
+			URL url = Configuration.class.getResource( DBPATCHER_DEFAULT_PROPERTIES );
 			if( url == null )
 				throw new SystemException( DBPATCHER_DEFAULT_PROPERTIES + " not found in classpath" );
 
@@ -301,16 +267,6 @@ public class Configuration
 		{
 			throw new SystemException( e );
 		}
-	}
-
-	/**
-	 * Returns the version of SolidBase.
-	 * 
-	 * @return The version of SolidBase.
-	 */
-	public String getVersion()
-	{
-		return this.version;
 	}
 
 	/**

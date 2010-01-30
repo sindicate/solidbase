@@ -24,7 +24,7 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
 import solidbase.Main;
-import solidbase.config.Configuration;
+import solidbase.Version;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
 import solidbase.core.Patcher;
@@ -462,11 +462,10 @@ public class UpgradeTask extends Task
 
 		Project project = getProject();
 		Progress progress = new Progress( project, this );
-		Configuration configuration = new Configuration( progress ); // TODO Remove this use of Configuration
 
-		progress.info( "SolidBase v" + configuration.getVersion() );
-		// TODO Ant messes up the encoding, try add the é again
-		progress.info( "(C) 2006-2010 Rene M. de Bloois" );
+		String[] info = Version.getInfo();
+		progress.info( info[ 0 ] );
+		progress.info( info[ 1 ] );
 		progress.info( "" );
 
 		Patcher patcher = new Patcher( progress, new Database( this.driver, this.url, this.username, this.password, progress ) );

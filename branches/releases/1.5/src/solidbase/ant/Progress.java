@@ -22,7 +22,6 @@ import java.net.URL;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
-import solidbase.config.ConfigListener;
 import solidbase.core.Command;
 import solidbase.core.Patch;
 import solidbase.core.PatchFile;
@@ -34,7 +33,7 @@ import solidbase.core.ProgressListener;
  * 
  * @author René M. de Bloois
  */
-public class Progress extends ProgressListener implements ConfigListener
+public class Progress extends ProgressListener
 {
 	/**
 	 * The Ant project.
@@ -96,11 +95,6 @@ public class Progress extends ProgressListener implements ConfigListener
 	{
 		flush();
 		this.project.log( this.task, message, Project.MSG_VERBOSE );
-	}
-
-	public void readingConfigFile( String path )
-	{
-		verbose( "Reading property file " + path );
 	}
 
 	@Override

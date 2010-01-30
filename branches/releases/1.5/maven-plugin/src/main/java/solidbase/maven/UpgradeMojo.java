@@ -21,7 +21,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import solidbase.Main;
-import solidbase.config.Configuration;
+import solidbase.Version;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
 import solidbase.core.Patcher;
@@ -130,11 +130,10 @@ public class UpgradeMojo extends AbstractMojo
 		validate();
 
 		Progress progress = new Progress( getLog() );
-		Configuration configuration = new Configuration( progress ); // TODO Remove this use of Configuration
 
-		// TODO Centralize this
-		getLog().info( "SolidBase v" + configuration.getVersion() );
-		getLog().info( "(C) 2006-2010 Rene M. de Bloois" ); // TODO Diacritics don't work.
+		String[] info = Version.getInfo();
+		getLog().info( info[ 0 ] );
+		getLog().info( info[ 1 ] );
 		getLog().info( "" );
 
 		Patcher patcher = new Patcher( progress, new Database( this.driver, this.url, this.username, this.password == null ? "" : this.password, progress ) );

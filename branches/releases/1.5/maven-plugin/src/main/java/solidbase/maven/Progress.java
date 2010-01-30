@@ -17,7 +17,6 @@
 package solidbase.maven;
 
 import org.apache.maven.plugin.logging.Log;
-import solidbase.config.ConfigListener;
 import solidbase.core.Command;
 import solidbase.core.Patch;
 import solidbase.core.PatchFile;
@@ -33,19 +32,19 @@ import java.net.URL;
  * @author Ruud de Jong
  * @author René M. de Bloois
  */
-public class Progress extends ProgressListener implements ConfigListener
+public class Progress extends ProgressListener
 {
 	/**
 	 * The Maven log.
 	 */
 	protected Log log;
-	
+
 	/**
 	 * Buffer to collect output before logging.
 	 */
 	protected StringBuilder buffer;
 
-	
+
 	/**
 	 * Constructor.
 	 * 
@@ -88,11 +87,6 @@ public class Progress extends ProgressListener implements ConfigListener
 	{
 		flush();
 		this.log.debug( message );
-	}
-
-	public void readingConfigFile( String path )
-	{
-		verbose( "Reading property file " + path );
 	}
 
 	@Override

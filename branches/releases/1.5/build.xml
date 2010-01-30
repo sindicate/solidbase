@@ -160,12 +160,12 @@
 	<target name="jar" depends="compile">
 		<groovy src="getsvninfo.groovy" />
 		<mkdir dir="${build.home}/config" />
-		<echo file="${build.home}/config/version.properties" message="module.version=${release.number}-rev${svn.revision}" />
+		<echo file="${build.home}/config/version.properties" message="solidbase.version=${release.number}-rev${svn.revision}" />
 		<mkdir dir="${dist.home}" />
 		<jarjar compress="yes" destfile="${dist.home}/solidbase.jar">
-			<zipfileset dir="${build.home}/classes" excludes="solidbase/config/version.properties" />
+			<zipfileset dir="${build.home}/classes" excludes="solidbase/version.properties" />
 			<zipfileset dir="lib/mindprod-csv" />
-			<zipfileset file="${build.home}/config/version.properties" prefix="solidbase/config" />
+			<zipfileset file="${build.home}/config/version.properties" prefix="solidbase" />
 			<zipfileset src="lib/commons-cli-1.2.jar" excludes="META-INF/**" />
 			<zipfileset src="lib/commons-collections-3.2.jar" excludes="META-INF/**" />
 			<zipfileset src="lib/commons-lang-2.3.jar" excludes="META-INF/**" />
