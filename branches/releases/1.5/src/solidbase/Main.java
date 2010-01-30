@@ -25,7 +25,6 @@ import java.net.URLClassLoader;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -236,85 +235,42 @@ public class Main
 		console.println( "(C) 2006-2010 René M. de Bloois" ); // TODO Now we have three copies, which is bad.
 		console.println();
 
-		Patcher patcher = null;
+		Patcher patcher = new Patcher( progress );
 		try
 		{
-			String patchFile;
-			String target;
-			if( configuration.getConfigVersion() == 2 )
-			{
-				solidbase.config.Database selectedDatabase;
-				if( configuration.getDatabases().size() == 0 )
-				{
-					console.println( "There are no databases configured." );
-					return;
-				}
-				else if( configuration.getDatabases().size() > 1 )
-				{
-					console.println( "Available database:" );
-					for( solidbase.config.Database database : configuration.getDatabases() )
-						if( database.getDescription() != null )
-							console.println( "    " + database.getName() + " (" + database.getDescription() + ")" );
-						else
-							console.println( "    " + database.getName() );
-					console.print( "Select a database from the above: " );
-					String input = console.input();
-					selectedDatabase = configuration.getDatabase( input );
-					console.println();
-				}
-				else
-					selectedDatabase = configuration.getDatabases().get( 0 );
-
-				patcher = new Patcher( progress, new Database( selectedDatabase.getDriver(), selectedDatabase.getUrl(), selectedDatabase.getUserName(), selectedDatabase.getPassword(), progress ) );
-
-				patchFile = selectedDatabase.getUpgradeFile();
-				target = configuration.getTarget();
-				console.println( "Connecting to database '" + selectedDatabase.getName() + "'..." );
-			}
-			else
-			{
-				patcher = new Patcher( progress, new Database( configuration.getDBDriver(), configuration.getDBUrl(), configuration.getUser(), configuration.getPassWord(), progress ) );
-				patchFile = configuration.getPatchFile();
-				target = configuration.getTarget();
-				if( patchFile == null )
-					patchFile = "upgrade.sql";
-				console.println( "Connecting to database..." );
-			}
-
-			console.println( getCurrentVersion( patcher ) );
-
 			if( exportlog )
 			{
 				patcher.logToXML( line.getOptionValue( "dumplog" ) );
 				return;
 			}
 
-			patcher.openPatchFile( patchFile );
+			solidbase.config.Database defoult = configuration.getDefaultDatabase();
+			patcher.addDatabase( "default", new Database( defoult.getDriver(), defoult.getUrl(), defoult.getUserName(), defoult.getPassword(), progress ) );
+			for( solidbase.config.Database database : configuration.getSecondaryDatabases() )
+				patcher.addDatabase( database.getName(),
+						new Database( database.getDriver() == null ? defoult.getDriver() : database.getDriver(),
+								database.getUrl() == null ? defoult.getUrl() : database.getUrl(),
+										database.getUserName(), database.getPassword(), progress ) );
 
-			if( target != null )
-				patcher.patch( target, downgradeallowed ); // TODO Print this target
-			else
-			{
-				// Need linked set because order is important
-				LinkedHashSet< String > targets = patcher.getTargets( false, null, false );
-				if( targets.size() > 0 )
-				{
-					console.println( "Possible targets are: " + list( targets ) );
-					console.print( "Input target version: " );
-					String input = console.input();
-					patcher.patch( input, downgradeallowed );
-				}
-				else
-					console.println( "There are no possible targets." );
-				// TODO Distinguish between uptodate and no possible path
-			}
-			console.emptyLine();
+			console.println( "Connecting to database..." );
+
 			console.println( getCurrentVersion( patcher ) );
+
+			patcher.openPatchFile( configuration.getPatchFile() );
+			try
+			{
+				patcher.patch( configuration.getTarget(), downgradeallowed ); // TODO Print this target
+				console.emptyLine();
+				console.println( getCurrentVersion( patcher ) );
+			}
+			finally
+			{
+				patcher.closePatchFile();
+			}
 		}
 		finally
 		{
-			if( patcher != null )
-				patcher.end();
+			patcher.end();
 		}
 	}
 

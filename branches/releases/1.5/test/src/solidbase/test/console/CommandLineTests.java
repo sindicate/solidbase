@@ -49,7 +49,6 @@ public class CommandLineTests
 		Assert.assertEquals( output,
 				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
-				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test2, user=sa\n" +
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
 				"Opening file 'file:/.../testpatch1.sql'\n" +
@@ -96,7 +95,6 @@ public class CommandLineTests
 		Assert.assertEquals( output,
 				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
-				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:test22, user=sa\n" +
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
 				"Opening file 'file:/.../testpatch1.sql'\n" +

@@ -22,7 +22,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import solidbase.Main;
 import solidbase.config.Configuration;
-import solidbase.config.Connection;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
 import solidbase.core.Patcher;
@@ -142,7 +141,10 @@ public class UpgradeMojo extends AbstractMojo
 		{
 			if( this.connections != null )
 				for( Secondary secondary : this.connections )
-					patcher.addConnection( new Connection( secondary.getName(), secondary.getDriver(), secondary.getUrl(), secondary.getUsername(), secondary.getPassword() == null ? "" : secondary.getPassword() ) );
+					patcher.addDatabase( secondary.getName(),
+							new Database( secondary.getDriver() == null ? this.driver : secondary.getDriver(),
+									secondary.getUrl() == null ? this.url : secondary.getUrl(),
+											secondary.getUsername(), secondary.getPassword() == null ? "" : secondary.getPassword(), progress ) );
 
 			progress.info( "Connecting to database..." );
 

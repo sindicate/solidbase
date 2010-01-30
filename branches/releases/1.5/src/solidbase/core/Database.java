@@ -76,6 +76,9 @@ public class Database
 	 */
 	public Database( String driverClassName, String url, String defaultUser, String defaultPassword, ProgressListener callBack )
 	{
+		Assert.notNull( driverClassName );
+		Assert.notNull( url );
+
 		this.driverName = driverClassName;
 		this.url = url;
 		this.defaultUser = defaultUser;

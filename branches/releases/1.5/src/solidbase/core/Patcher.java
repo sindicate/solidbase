@@ -143,31 +143,30 @@ public class Patcher
 	 * Construct a new instance of the patcher.
 	 * 
 	 * @param listener Listens to the progress.
-	 * @param database The default database to use. This database also contains a default user. Version tables will be
-	 *        looked for in this database in the schema identified by the default user.
 	 */
-	public Patcher( ProgressListener listener, Database database ) // TODO Reorder the arguments
+	public Patcher( ProgressListener listener )
 	{
 		this.progress = listener;
 
-		this.defaultDatabase = database;
 		this.databases = new HashMap< String, Database >();
-		this.databases.put( "default", database );
-		this.currentDatabase = null;
-
-		database.init(); // Resets the current user and initializes the connection when password is supplied.
-
-		this.dbVersion = new DBVersion( database, this.progress );
 
 		this.listeners = new ArrayList();
 		this.listeners.add( new AssertCommandExecuter() );
 		this.listeners.add( new ImportCSVListener() );
 
 		reset();
+	}
 
-		this.patchFile = null; // TODO Should be argument to the constructor
-
-		this.progress.debug( "driverName=" + database.driverName + ", url=" + database.url + ", user=" + database.getDefaultUser() + "" );
+	/**
+	 * Construct a new instance of the patcher.
+	 * 
+	 * @param listener Listens to the progress.
+	 * @param database The default database.
+	 */
+	public Patcher( ProgressListener listener, Database database )
+	{
+		this( listener );
+		addDatabase( "default", database );
 	}
 
 	/**
@@ -259,6 +258,7 @@ public class Patcher
 	 */
 	public String getCurrentVersion()
 	{
+		Assert.notNull( this.dbVersion, "default database may not have been configured" );
 		return this.dbVersion.getVersion();
 	}
 
@@ -342,6 +342,8 @@ public class Patcher
 	 */
 	public void patch( String target, boolean downgradeable ) throws SQLExecutionException
 	{
+		Assert.notNull( target );
+
 		init();
 
 		Set< String > targets;
@@ -635,7 +637,8 @@ public class Patcher
 	private void setConnection( Database database )
 	{
 		this.currentDatabase = database;
-		database.init(); // Reset the current user TODO Create a test for this.
+		if( database != null )
+			database.init(); // Reset the current user TODO Create a test for this.
 	}
 
 	/**
@@ -817,16 +820,21 @@ public class Patcher
 	}
 
 	/**
-	 * Add a configured connection.
+	 * Add a database.
 	 * 
-	 * @param connection A configured connection.
+	 * @param name The name of the database.
+	 * @param database The database.
 	 */
-	public void addConnection( solidbase.config.Connection connection )
+	public void addDatabase( String name, Database database )
 	{
-		Assert.notNull( this.defaultDatabase );
-		String driver = connection.getDriver();
-		String url = connection.getUrl();
-		this.databases.put( connection.getName(), new Database( driver != null ? driver : this.defaultDatabase.driverName, url != null ? url : this.defaultDatabase.url, connection.getUser().toLowerCase(), connection.getPassword(), this.progress ) );
+		this.databases.put( name, database );
+
+		if( name.equals( "default" ) )
+		{
+			this.defaultDatabase = database;
+			setConnection( database ); // Also resets the current user for the connection
+			this.dbVersion = new DBVersion( database, this.progress );
+		}
 	}
 
 	/**

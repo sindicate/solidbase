@@ -473,7 +473,10 @@ public class UpgradeTask extends Task
 		try
 		{
 			for( Connection connection : this.connections )
-				patcher.addConnection( new solidbase.config.Connection( connection.getName(), connection.getDriver(), connection.getUrl(), connection.getUsername(), connection.getPassword() ) );
+				patcher.addDatabase( connection.getName(),
+						new Database( connection.getDriver() == null ? this.driver : connection.getDriver(),
+								connection.getUrl() == null ? this.url : connection.getUrl(),
+										connection.getUsername(), connection.getPassword(), progress ) );
 
 			progress.info( "Connecting to database..." );
 

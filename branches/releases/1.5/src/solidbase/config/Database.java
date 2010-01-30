@@ -30,11 +30,6 @@ public class Database
 	protected String name;
 
 	/**
-	 * A description of the database.
-	 */
-	protected String description;
-
-	/**
 	 * The driver for the database.
 	 */
 	protected String driver;
@@ -54,11 +49,6 @@ public class Database
 	 */
 	protected String password;
 
-	/**
-	 * The upgrade file.
-	 */
-	protected String upgradeFile;
-
 
 	/**
 	 * Constructor.
@@ -69,17 +59,14 @@ public class Database
 	 * @param url The url of the database.
 	 * @param userName The user name for the connection to the database.
 	 * @param password The optional password for the connection to the database.
-	 * @param upgradeFile The upgrade file.
 	 */
-	public Database( String name, String description, String driver, String url, String userName, String password, String upgradeFile )
+	public Database( String name, String driver, String url, String userName, String password )
 	{
 		this.name = name;
-		this.description = description;
 		this.driver = driver;
 		this.url = url;
 		this.userName = userName;
 		this.password = password;
-		this.upgradeFile = upgradeFile;
 	}
 
 	/**
@@ -90,16 +77,6 @@ public class Database
 	public String getName()
 	{
 		return this.name;
-	}
-
-	/**
-	 * Returns the description of the database.
-	 * 
-	 * @return The description of the database.
-	 */
-	public String getDescription()
-	{
-		return this.description;
 	}
 
 	/**
@@ -140,16 +117,6 @@ public class Database
 	public String getPassword()
 	{
 		return this.password;
-	}
-
-	/**
-	 * Returns the upgrade file.
-	 * 
-	 * @return The upgrade file.
-	 */
-	public String getUpgradeFile()
-	{
-		return this.upgradeFile;
 	}
 
 	/**
