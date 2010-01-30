@@ -81,12 +81,11 @@ location.eachDir
 		else
 			throw new RuntimeException( "Unknown database type: ${type}" );
 
-		// Define the database & application
+		// Define the database
 		String databaseName = folder.name;
 		if( total > 1 )
 			databaseName += "-" + ( file.name - ".properties" );
-		Database database = new Database( databaseName, description, driver, url );
-		database.addApplication( "midoffice", null, username, null, patchFile, null );
+		Database database = new Database( databaseName, description, driver, url, username, null, patchFile );
 
 		result.add( database );
 	}

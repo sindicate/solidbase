@@ -325,60 +325,25 @@ public class Configuration
 								String databaseDescription = this.properties.getProperty( databaseName + ".description" );
 								String driver = this.properties.getProperty( databaseName + ".driver" );
 								String dbUrl = this.properties.getProperty( databaseName + ".url" );
-
+								String userName = this.properties.getProperty( databaseName + ".username" );
+								if( userName == null )
+									userName = this.properties.getProperty( databaseName + ".user" );
+								String password = this.properties.getProperty( databaseName + ".password" );
+								String patchFile = this.properties.getProperty( databaseName + ".upgradefile" );
 								if( StringUtils.isBlank( databaseDescription ) )
 									databaseDescription = databaseName;
+
+								// TODO These should be FatalExceptions
 								Assert.notBlank( driver, "'" + databaseName + ".driver' not configured in " + DBPATCHER_PROPERTIES );
 								Assert.notBlank( dbUrl, "'" + databaseName + ".url' not configured in " + DBPATCHER_PROPERTIES );
+								Assert.notBlank( userName, "'" + databaseName + ".username' not configured in " + DBPATCHER_PROPERTIES );
+								Assert.notBlank( patchFile, "'" + databaseName + ".upgradefile' not configured in " + DBPATCHER_PROPERTIES );
 
-								Database database = new Database( databaseName, databaseDescription, driver, dbUrl );
+								Database database = new Database( databaseName, databaseDescription, driver, dbUrl, userName,password, patchFile );
 								this.databases.add( database );
-
-								// apps
-								String appsProperty = this.properties.getProperty( databaseName + ".applications" );
-								if( appsProperty != null )
-								{
-									for( String appName : appsProperty.split( "," ) )
-									{
-										appName = appName.trim();
-										if( appName.length() > 0 )
-										{
-											String appDescription = this.properties.getProperty( databaseName + "." + appName + ".description" );
-											String userName = this.properties.getProperty( databaseName + "." + appName + ".username" );
-											if( userName == null )
-												userName = this.properties.getProperty( databaseName + "." + appName + ".user" );
-											String patchFile = this.properties.getProperty( databaseName + "." + appName + ".upgradefile" );
-
-											if( StringUtils.isBlank( appDescription ) )
-												appDescription = appName;
-											Assert.notBlank( userName, "'" + databaseName + "." + appName + ".username' not configured in " + DBPATCHER_PROPERTIES );
-											Assert.notBlank( patchFile, "'" + databaseName + "." + appName + ".upgradefile' not configured in " + DBPATCHER_PROPERTIES );
-
-											database.addApplication( appName, appDescription, userName, null, patchFile, null );
-										}
-									}
-								}
-								else
-								{
-									String appName = "default";
-									String appDescription = appName;
-									String userName = this.properties.getProperty( databaseName + ".username" );
-									if( userName == null )
-										userName = this.properties.getProperty( databaseName + ".user" );
-									String patchFile = this.properties.getProperty( databaseName + ".upgradefile" );
-
-									Assert.notBlank( userName, "'" + databaseName + ".username' not configured in " + DBPATCHER_PROPERTIES );
-									Assert.notBlank( patchFile, "'" + databaseName + ".upgradefile' not configured in " + DBPATCHER_PROPERTIES );
-
-									database.addApplication( appName, appDescription, userName, null, patchFile, null );
-								}
 							}
 						}
 					}
-
-					Collections.sort( this.databases, new Database.Comparator() );
-					for( Database database : this.databases )
-						Collections.sort( database.applications, new Application.Comparator() );
 				}
 			}
 			else

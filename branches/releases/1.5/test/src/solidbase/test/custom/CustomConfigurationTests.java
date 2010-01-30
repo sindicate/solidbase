@@ -67,7 +67,7 @@ public class CustomConfigurationTests
 				"    Duckstad-slot2\n" +
 				"Select a database from the above: \n" +
 				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:custom1, user=sa\n" +
-				"Connecting to database 'Duckstad-slot1', application 'midoffice'...\n" +
+				"Connecting to database 'Duckstad-slot1'...\n" +
 				"Input password for user 'sa': The database has no version yet.\n" +
 				"Opening file 'file:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
@@ -116,7 +116,7 @@ public class CustomConfigurationTests
 				"    Duckstad-slot2\n" +
 				"Select a database from the above: \n" +
 				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:custom2, user=sa\n" +
-				"Connecting to database 'Duckstad-slot2', application 'midoffice'...\n" +
+				"Connecting to database 'Duckstad-slot2'...\n" +
 				"Input password for user 'sa': The database has no version yet.\n" +
 				"Opening file 'file:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +

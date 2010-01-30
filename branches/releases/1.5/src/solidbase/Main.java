@@ -35,7 +35,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import solidbase.config.Configuration;
-import solidbase.config.Connection;
 import solidbase.core.Database;
 import solidbase.core.Patcher;
 import solidbase.core.SQLExecutionException;
@@ -266,30 +265,11 @@ public class Main
 				else
 					selectedDatabase = configuration.getDatabases().get( 0 );
 
-				solidbase.config.Application selectedApplication;
-				if( selectedDatabase.getApplications().size() > 1 )
-				{
-					console.println( "Available applications in database '" + selectedDatabase.getName() + "':" );
-					for( solidbase.config.Application application : selectedDatabase.getApplications() )
-						if( application.getDescription() != null )
-							console.println( "    " + application.getName() + " (" + application.getDescription() + ")" );
-						else
-							console.println( "    " + application.getName() );
-					console.print( "Select an application from the above: " );
-					String input = console.input();
-					selectedApplication = selectedDatabase.getApplication( input );
-					console.println();
-				}
-				else
-					selectedApplication = selectedDatabase.getApplications().get( 0 );
+				patcher = new Patcher( progress, new Database( selectedDatabase.getDriver(), selectedDatabase.getUrl(), selectedDatabase.getUserName(), selectedDatabase.getPassword(), progress ) );
 
-				patcher = new Patcher( progress, new Database( selectedDatabase.getDriver(), selectedDatabase.getUrl(), selectedApplication.getUserName(), selectedApplication.getPassword(), progress ) );
-				for( Connection connection : selectedApplication.getConnections() )
-					patcher.addConnection( connection );
-
-				patchFile = selectedApplication.getPatchFile();
-				target = selectedApplication.getTarget();
-				console.println( "Connecting to database '" + selectedDatabase.getName() + "', application '" + selectedApplication.getName() + "'..." );
+				patchFile = selectedDatabase.getUpgradeFile();
+				target = configuration.getTarget();
+				console.println( "Connecting to database '" + selectedDatabase.getName() + "'..." );
 			}
 			else
 			{

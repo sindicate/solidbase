@@ -16,11 +16,6 @@
 
 package solidbase.config;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import solidbase.core.SystemException;
-
 
 /**
  * A configured database.
@@ -50,9 +45,19 @@ public class Database
 	protected String url;
 
 	/**
-	 * A list of applications contained within the database.
+	 * The username for the connection to the database.
 	 */
-	protected List< Application > applications = new ArrayList();
+	protected String userName;
+
+	/**
+	 * The password for the connection to the database.
+	 */
+	protected String password;
+
+	/**
+	 * The upgrade file.
+	 */
+	protected String upgradeFile;
 
 
 	/**
@@ -62,45 +67,19 @@ public class Database
 	 * @param description An optional description of the database.
 	 * @param driver The driver for the database.
 	 * @param url The url of the database.
+	 * @param userName The user name for the connection to the database.
+	 * @param password The optional password for the connection to the database.
+	 * @param upgradeFile The upgrade file.
 	 */
-	public Database( String name, String description, String driver, String url )
+	public Database( String name, String description, String driver, String url, String userName, String password, String upgradeFile )
 	{
 		this.name = name;
 		this.description = description;
 		this.driver = driver;
 		this.url = url;
-	}
-
-	/**
-	 * Adds an application to the database.
-	 * 
-	 * @param name The name of the application.
-	 * @param description An optional description of the application.
-	 * @param userName The user name for the connection.
-	 * @param password The password for the connection.
-	 * @param patchFile The upgrade file for the application.
-	 * @param target The target version to upgrade to.
-	 * @return The application object.
-	 */
-	public Application addApplication( String name, String description, String userName, String password, String patchFile, String target )
-	{
-		Application application = new Application( name, description, userName, password, patchFile, target );
-		this.applications.add( application );
-		return application;
-	}
-
-	/**
-	 * Returns the application with the given name.
-	 * 
-	 * @param name The name of the application to return.
-	 * @return The application with the given name.
-	 */
-	public Application getApplication( String name )
-	{
-		for( Application application : this.applications )
-			if( application.name.equals( name ) )
-				return application;
-		throw new SystemException( "Application [" + name + "] not configured for database [" + this.name + "]." );
+		this.userName = userName;
+		this.password = password;
+		this.upgradeFile = upgradeFile;
 	}
 
 	/**
@@ -144,13 +123,33 @@ public class Database
 	}
 
 	/**
-	 * Returns a list of all the applications contained in the database.
+	 * Returns the user name for the connection to the database.
 	 * 
-	 * @return A list of all the applications contained in the database.
+	 * @return The user name for the connection to the database.
 	 */
-	public List< Application > getApplications()
+	public String getUserName()
 	{
-		return this.applications;
+		return this.userName;
+	}
+
+	/**
+	 * Returns the user name for the connection to the database.
+	 * 
+	 * @return The user name for the connection to the database.
+	 */
+	public String getPassword()
+	{
+		return this.password;
+	}
+
+	/**
+	 * Returns the upgrade file.
+	 * 
+	 * @return The upgrade file.
+	 */
+	public String getUpgradeFile()
+	{
+		return this.upgradeFile;
 	}
 
 	/**

@@ -111,8 +111,7 @@ public class CustomDatabasesConfiguration implements DatabasesConfiguration
 								throw new SystemException( "Unknown database type: " + type );
 
 							String fileName = file.getName();
-							Database database = new Database( folder.getName() + "-" + fileName.substring( 0, fileName.length() - 11 ), null, driver, url );
-							database.addApplication( "midoffice", null, username, null, patchFile, null );
+							Database database = new Database( folder.getName() + "-" + fileName.substring( 0, fileName.length() - 11 ), null, driver, url, username, null, patchFile );
 
 							databases.add( database );
 						}

@@ -30,7 +30,6 @@ public class ThroughConsoleTests
 	{
 		MockConsole console = new MockConsole();
 		console.addAnswer( "prod" );
-		console.addAnswer( "app1" );
 		console.addAnswer( "" );
 		console.addAnswer( "1.0.2" );
 
@@ -51,12 +50,8 @@ public class ThroughConsoleTests
 				"    prod (DHL Production)\n" +
 				"    test (test)\n" +
 				"Select a database from the above: \n" +
-				"Available applications in database 'prod':\n" +
-				"    app1 (app1 description)\n" +
-				"    app2 (app2)\n" +
-				"Select an application from the above: \n" +
 				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:testtc1, user=sa\n" +
-				"Connecting to database 'prod', application 'app1'...\n" +
+				"Connecting to database 'prod'...\n" +
 				"Input password for user 'sa': The database has no version yet.\n" +
 				"Opening file 'file:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
@@ -100,7 +95,7 @@ public class ThroughConsoleTests
 				"    test (test)\n" +
 				"Select a database from the above: \n" +
 				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:testtc2, user=sa\n" +
-				"Connecting to database 'prod', application 'default'...\n" +
+				"Connecting to database 'prod'...\n" +
 				"Input password for user 'sa': The database has no version yet.\n" +
 				"Opening file 'file:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
