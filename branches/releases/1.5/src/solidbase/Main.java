@@ -23,8 +23,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -32,9 +30,10 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-
 import solidbase.config.Configuration;
+import solidbase.core.Assert;
 import solidbase.core.Database;
+import solidbase.core.FatalException;
 import solidbase.core.Patcher;
 import solidbase.core.SQLExecutionException;
 import solidbase.core.SystemException;
@@ -54,61 +53,9 @@ public class Main
 	static public Console console;
 
 	/**
-	 * The current boot phase.
+	 * The current boot phase. Used to create a new class loader with an extended class path.
 	 */
 	static private int pass = 1;
-
-
-	/**
-	 * Returns the current version of the database in a user presentable form.
-	 * 
-	 * @param patcher The coordinator object.
-	 * @return The current version of the database in a user presentable form.
-	 */
-	static public String getCurrentVersion( Patcher patcher )
-	{
-		String version = patcher.getCurrentVersion();
-		String target = patcher.getCurrentTarget();
-		int statements = patcher.getCurrentStatements();
-
-		if( version == null )
-		{
-			if( target != null )
-				return "The database has no version yet, incompletely patched to version \"" + target + "\" (" + statements + " statements successful).";
-			return "The database has no version yet.";
-		}
-		if( target != null )
-			return "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful).";
-		return "Current database version is \"" + version + "\".";
-	}
-
-
-	/**
-	 * Transforms a collection of strings into a comma separated string.
-	 * 
-	 * @param list The collection of strings that need to be transformed into a comma separated string.
-	 * @return A collection of strings into a comma separated string.
-	 */
-	static protected String list( Collection list )
-	{
-		StringBuffer buffer = new StringBuffer();
-
-		boolean first = true;
-		for( Iterator iter = list.iterator(); iter.hasNext(); )
-		{
-			Object object = iter.next();
-			if( object != null )
-			{
-				if( first )
-					first = false;
-				else
-					buffer.append( ", " );
-				buffer.append( object );
-			}
-		}
-
-		return buffer.toString();
-	}
 
 
 	/**
@@ -124,14 +71,9 @@ public class Main
 		}
 		catch( Throwable t )
 		{
+			// Fancy stuff is done in pass2(). Checking type of exception does not work because of the new classloader we create.
 			console.println();
-
-			if( t instanceof SystemException )
-				if( t.getCause() != null )
-					t = t.getCause();
-
 			console.printStacktrace( t );
-
 			System.exit( 1 );
 		}
 	}
@@ -255,14 +197,14 @@ public class Main
 
 			console.println( "Connecting to database..." );
 
-			console.println( getCurrentVersion( patcher ) );
+			console.println( patcher.getVersionStatement() );
 
 			patcher.openPatchFile( configuration.getPatchFile() );
 			try
 			{
 				patcher.patch( configuration.getTarget(), downgradeallowed ); // TODO Print this target
 				console.emptyLine();
-				console.println( getCurrentVersion( patcher ) );
+				console.println( patcher.getVersionStatement() );
 			}
 			finally
 			{
@@ -361,10 +303,6 @@ public class Main
 		}
 		catch( InvocationTargetException e )
 		{
-//			Throwable t = e.getCause();
-//			if( t instanceof SQLExecutionException )
-//				throw (SQLExecutionException)t;
-//			throw new SystemException( t );
 			throw new SystemException( e.getCause() );
 		}
 	}
@@ -378,7 +316,28 @@ public class Main
 	 */
 	static public void pass2( String... args ) throws SQLExecutionException
 	{
-		pass = 2;
-		main0( args );
+		try
+		{
+			pass = 2;
+			main0( args );
+		}
+		catch( Throwable t )
+		{
+			console.println();
+
+			if( t instanceof SystemException )
+				if( t.getCause() != null )
+				{
+					t = t.getCause();
+					Assert.isFalse( t instanceof SystemException );
+				}
+
+			if( t instanceof FatalException )
+				console.println( "ERROR: " + t.getMessage() );
+			else
+				console.printStacktrace( t );
+
+			System.exit( 1 );
+		}
 	}
 }

@@ -192,7 +192,7 @@ public class Configuration
 				throw new FatalException( "Expecting properties-version 1.0 in the properties file" );
 
 			this.driverJars = new ArrayList();
-			String driversProperty = this.properties.getProperty( "classpathext" );
+			String driversProperty = this.properties.getProperty( "classpath.ext" );
 			if( driversProperty != null )
 				for( String driverJar : driversProperty.split( ";" ) )
 				{

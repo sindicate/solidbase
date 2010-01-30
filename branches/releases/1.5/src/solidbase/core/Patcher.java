@@ -570,7 +570,7 @@ public class Patcher
 					else if( ( matcher = selectConnectionPattern.matcher( sql ) ).matches() )
 						selectConnection( matcher.group( 1 ) );
 					else
-						Assert.fail( "Unknown command [" + sql + "]" );
+						throw new FatalException( "Unknown command " + sql + ", at line " + command.getLineNumber() );
 				}
 			}
 			else if( this.dontCount )
@@ -843,5 +843,15 @@ public class Patcher
 	public void connect()
 	{
 		this.defaultDatabase.getConnection();
+	}
+
+	/**
+	 * Returns a statement of the current version of the database in a user presentable form.
+	 * 
+	 * @return A statement of the current version of the database in a user presentable form.
+	 */
+	public String getVersionStatement()
+	{
+		return this.dbVersion.getVersionStatement();
 	}
 }

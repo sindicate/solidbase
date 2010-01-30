@@ -20,7 +20,6 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import solidbase.Main;
 import solidbase.Version;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
@@ -148,7 +147,7 @@ public class UpgradeMojo extends AbstractMojo
 
 			progress.info( "Connecting to database..." );
 
-			progress.info( Main.getCurrentVersion( patcher ) );
+			progress.info( patcher.getVersionStatement() );
 
 			patcher.openPatchFile( this.project.getBasedir(), this.upgradefile );
 			try
@@ -158,7 +157,7 @@ public class UpgradeMojo extends AbstractMojo
 				else
 					throw new UnsupportedOperationException();
 				progress.info( "" );
-				progress.info( Main.getCurrentVersion( patcher ) );
+				progress.info( patcher.getVersionStatement() );
 			}
 			finally
 			{

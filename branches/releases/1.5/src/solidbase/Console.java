@@ -29,7 +29,7 @@ import solidbase.core.SystemException;
 
 /**
  * Represents the console. In java 6, the {@link System#console()} is used. In older versions of java,
- * {@link System#out}, {@link System#in} and {@link System#err} are used.
+ * {@link System#out}, {@link System#in} and {@link System#err} are used. Used by the command line version of SolidBase.
  * 
  * @author René M. de Bloois
  */

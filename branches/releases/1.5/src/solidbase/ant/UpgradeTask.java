@@ -23,7 +23,6 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
-import solidbase.Main;
 import solidbase.Version;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
@@ -479,7 +478,7 @@ public class UpgradeTask extends Task
 
 			progress.info( "Connecting to database..." );
 
-			progress.info( Main.getCurrentVersion( patcher ) );
+			progress.info( patcher.getVersionStatement() );
 
 			patcher.openPatchFile( project.getBaseDir(), this.upgradefile );
 			try
@@ -489,7 +488,7 @@ public class UpgradeTask extends Task
 				else
 					throw new UnsupportedOperationException();
 				progress.info( "" );
-				progress.info( Main.getCurrentVersion( patcher ) );
+				progress.info( patcher.getVersionStatement() );
 			}
 			finally
 			{
