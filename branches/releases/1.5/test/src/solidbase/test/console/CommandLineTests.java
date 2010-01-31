@@ -51,7 +51,7 @@ public class CommandLineTests
 				"\n" +
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
-				"Opening file 'file:/.../testpatch1.sql'\n" +
+				"Opening file 'testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Upgrading to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
@@ -97,7 +97,7 @@ public class CommandLineTests
 				"\n" +
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
-				"Opening file 'file:/.../testpatch1.sql'\n" +
+				"Opening file 'testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n"
 		);
 	}

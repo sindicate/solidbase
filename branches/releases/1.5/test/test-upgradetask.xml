@@ -33,7 +33,7 @@
        		<secondary name="user" username="sa" password="" />
         </solidbase-upgrade>
 		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask"
-				user="sa" password=""
+				username="sa" password=""
 				upgradefile="testpatch-multiconnections.sql" target="1.0.*"
 				downgradeallowed="yes" />
 	</target>

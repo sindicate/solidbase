@@ -83,7 +83,7 @@
 	</path>
 
 	<path id="test.classpath">
-		<pathelement location="${build.home}/test" />
+		<pathelement location="${build.home}/testclasses" />
 		<path refid="compiletest.classpath" />
 	</path>
 
@@ -127,13 +127,12 @@
 
 
 	<target name="compiletest" depends="compile">
-		<mkdir dir="${build.home}/test" />
-		<javac source="${target-jre}" target="${target-jre}" srcdir="test" destdir="${build.home}/test" debug="true" deprecation="true" optimize="true">
+		<mkdir dir="${build.home}/testclasses" />
+		<javac source="${target-jre}" target="${target-jre}" srcdir="test/src" destdir="${build.home}/testclasses" debug="true" deprecation="true" optimize="true">
 			<classpath refid="compiletest.classpath" />
 		</javac>
 		<sync todir="${build.home}/test">
-			<fileset dir="test" excludes="**/*.java" />
-			<preserveInTarget includes="**/*.class" />
+			<fileset dir="test" excludes="src/**,lib/**" />
 		</sync>
 	</target>
 
@@ -142,7 +141,7 @@
 		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="3">
 			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit.jar" />
 			<jvmarg value="-Xmx256m" />
-			<classfileset dir="${build.home}/test" />
+			<classfileset dir="${build.home}/testclasses" />
 			<!-- <reporter classname="solidbase.test.TestListener"/> -->
 		</testng>
 	</target>
@@ -152,7 +151,7 @@
 		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="3" groups="new">
 			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit.jar" />
 			<jvmarg value="-Xmx256m" />
-			<classfileset dir="${build.home}/test" />
+			<classfileset dir="${build.home}/testclasses" />
 		</testng>
 	</target>
 
