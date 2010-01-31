@@ -64,7 +64,7 @@ public class UpgradeTaskTests extends BuildFileTest
 				"\n" +
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
-				"Opening file 'file:/.../testpatch-multiconnections.sql'\n" +
+				"Opening file 'X:\\...\\testpatch-multiconnections.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Upgrading to \"1.0.1\"\n" +
 				"    Creating table DBVERSION.\n" +
@@ -78,7 +78,7 @@ public class UpgradeTaskTests extends BuildFileTest
 				"\n" +
 				"Connecting to database...\n" +
 				"Current database version is \"1.1.0\".\n" +
-				"Opening file 'file:/.../testpatch-multiconnections.sql'\n" +
+				"Opening file 'X:\\...\\testpatch-multiconnections.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Downgrading \"1.1.0\" to \"1.0.1\"\n" +
 				"Upgrading \"1.0.1\" to \"1.0.2\"\n" +
@@ -114,11 +114,9 @@ public class UpgradeTaskTests extends BuildFileTest
 
 	protected class MyAntTestListener implements BuildListener
 	{
-		private int logLevel;
-
 		public MyAntTestListener( int logLevel )
 		{
-			this.logLevel = logLevel;
+			// Not needed
 		}
 
 		public void buildStarted( BuildEvent event )

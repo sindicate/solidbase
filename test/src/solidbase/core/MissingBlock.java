@@ -18,8 +18,6 @@ package solidbase.core;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -30,7 +28,7 @@ import solidbase.core.RandomAccessLineReader;
 public class MissingBlock
 {
 	@Test
-	public void testBasic() throws IOException, SQLException
+	public void testBasic() throws IOException
 	{
 		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch-missingblock.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
@@ -47,7 +45,7 @@ public class MissingBlock
 	}
 
 	@Test
-	public void testMissingInitBlock() throws IOException, SQLException
+	public void testMissingInitBlock() throws IOException
 	{
 		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch-missinginitblock.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );

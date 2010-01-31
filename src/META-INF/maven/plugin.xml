@@ -5,7 +5,7 @@
 	<description></description>
 	<groupId>solidbase</groupId>
 	<artifactId>solidbase</artifactId>
-	<version>1.5.0</version>
+	<version>1.5.1</version>
 	<goalPrefix>solidbase</goalPrefix>
 	<isolatedRealm>false</isolatedRealm>
 	<inheritedByDefault>true</inheritedByDefault>
@@ -38,21 +38,21 @@
 					<type>java.lang.String</type>
 					<required>true</required>
 					<editable>true</editable>
-					<description>Database driver class.</description>
+					<description>Database driver class name.</description>
 				</parameter>
 				<parameter>
 					<name>password</name>
 					<type>java.lang.String</type>
 					<required>false</required>
 					<editable>true</editable>
-					<description>Database password.</description>
+					<description>Password of the user to connect to the database.</description>
 				</parameter>
 				<parameter>
 					<name>project</name>
 					<type>org.apache.maven.project.MavenProject</type>
 					<required>true</required>
 					<editable>false</editable>
-					<description>The Maven Project Object</description>
+					<description>The Maven Project</description>
 				</parameter>
 				<parameter>
 					<name>target</name>
@@ -73,14 +73,21 @@
 					<type>java.lang.String</type>
 					<required>true</required>
 					<editable>true</editable>
-					<description>Database URL.</description>
+					<description>Url of the database.</description>
 				</parameter>
 				<parameter>
-					<name>user</name>
+					<name>username</name>
 					<type>java.lang.String</type>
 					<required>true</required>
 					<editable>true</editable>
-					<description>Database user.</description>
+					<description>User to connect to the database.</description>
+				</parameter>
+				<parameter>
+					<name>connections</name>
+					<type>java.lang.Secondary[]</type>
+					<required>false</required>
+					<editable>true</editable>
+					<description>Secondary connections.</description>
 				</parameter>
 			</parameters>
 			<configuration>
@@ -89,7 +96,7 @@
 				<downgradeallowed implementation="boolean">${downgradeallowed}</downgradeallowed>
 				<target implementation="java.lang.String">${target}</target>
 				<driver implementation="java.lang.String">${driver}</driver>
-				<user implementation="java.lang.String">${user}</user>
+				<username implementation="java.lang.String">${username}</username>
 				<password implementation="java.lang.String">${password}</password>
 				<url implementation="java.lang.String">${url}</url>
 			</configuration>

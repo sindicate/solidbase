@@ -62,6 +62,8 @@ public class Assert
 	 *            Test argument.
 	 * @param errorMessage
 	 *            The error message.
+	 * @param linenumber
+	 *            The line number to show in the error message.
 	 */
 	static public void isTrue( boolean test, String errorMessage, int linenumber )
 	{
@@ -126,6 +128,14 @@ public class Assert
 	static public void fail( String errorMessage )
 	{
 		throwAssertionFailure( errorMessage, 2 );
+	}
+
+	/**
+	 * Throws an {@link AssertionFailedException}.
+	 */
+	static public void fail()
+	{
+		throwAssertionFailure( null, 2 );
 	}
 
 	/**

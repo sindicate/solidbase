@@ -106,7 +106,9 @@ Class SystemException</H2>
 </PRE>
 
 <P>
-Use this <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/RuntimeException.html?is-external=true" title="class or interface in java.lang"><CODE>RuntimeException</CODE></A> to wrap a checked exception that you can't handle and don't want to declare.
+Use this exception for throwing system faults. System faults are not expected and are caused by programming bugs,
+ hardware malfunctions, configuration mistakes, missing files, unavailable servers, etc. The upstream code (the
+ callers of the method) have no interest in the condition that led to this exception being thrown.
 <P>
 
 <P>
@@ -132,20 +134,20 @@ Use this <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/RuntimeExcep
 <TD><CODE><B><A HREF="../../solidbase/core/SystemException.html#SystemException(java.lang.String)">SystemException</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs a new system exception with the specified detail message.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../solidbase/core/SystemException.html#SystemException(java.lang.String, java.lang.Throwable)">SystemException</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message,
                 <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</A>&nbsp;cause)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs a new system exception with the specified detail message and cause.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../solidbase/core/SystemException.html#SystemException(java.lang.Throwable)">SystemException</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</A>&nbsp;cause)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs a new system exception with the specified cause.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -194,8 +196,10 @@ SystemException</H3>
 <PRE>
 public <B>SystemException</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</PRE>
 <DL>
+<DD>Constructs a new system exception with the specified detail message.
+<P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>message</CODE> - </DL>
+<DT><B>Parameters:</B><DD><CODE>message</CODE> - The detail message.</DL>
 </DL>
 <HR>
 
@@ -205,8 +209,10 @@ SystemException</H3>
 public <B>SystemException</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message,
                        <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</A>&nbsp;cause)</PRE>
 <DL>
+<DD>Constructs a new system exception with the specified detail message and cause.
+<P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>message</CODE> - <DD><CODE>cause</CODE> - </DL>
+<DT><B>Parameters:</B><DD><CODE>message</CODE> - The detail message.<DD><CODE>cause</CODE> - The cause.</DL>
 </DL>
 <HR>
 
@@ -215,8 +221,10 @@ SystemException</H3>
 <PRE>
 public <B>SystemException</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</A>&nbsp;cause)</PRE>
 <DL>
+<DD>Constructs a new system exception with the specified cause.
+<P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>cause</CODE> - </DL>
+<DT><B>Parameters:</B><DD><CODE>cause</CODE> - The cause.</DL>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
 <HR>

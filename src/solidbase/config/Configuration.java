@@ -21,21 +21,25 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
 import solidbase.core.Assert;
+import solidbase.core.FatalException;
 import solidbase.core.SystemException;
 
 
 /**
- *
+ * This class represents all the configuration from the commandline or from the properties file.
+ * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
@@ -43,59 +47,71 @@ public class Configuration
 {
 	static private final String DBPATCHER_PROPERTIES = "solidbase.properties";
 	static private final String DBPATCHER_DEFAULT_PROPERTIES = "solidbase-default.properties";
-	static private final String DBPATCHER_VERSION_PROPERTIES = "version.properties";
 
-	protected String version;
+	static private final Pattern propertyPattern = Pattern.compile( "^connection\\.([^\\s\\.]+)\\.(driver|url|username|password)$" );
+
+	/**
+	 * Are we running the command line version of SolidBase within Apache Ant?
+	 */
 	protected boolean fromAnt;
+
+	/**
+	 * The contents of the properties file. Default this is solidbase.properties in the current folder, with missing
+	 * properties coming from solidbase-default in the classpath.
+	 */
 	protected Properties properties;
 
-	// Version 2 configuration
+	/**
+	 * A list of jars that need to be added to the classpath.
+	 */
 	protected List< String > driverJars;
-	protected List< Database > databases;
 
-	// Version 1 configuration
-	protected int configVersion;
-	protected String dbUrl;
-	protected String dbDriver;
-	protected String dbDriverJar;
-	protected String userName;
-	protected String passWord;
+	/**
+	 * A list of configured databases.
+	 */
+	protected Map< String, Database > secondaryDatabases = new HashMap< String, Database >();
+
+	/**
+	 * The default database.
+	 */
+	protected Database defaultDatabase;
+
+	/**
+	 * Target version to upgrade to.
+	 */
 	protected String target;
+
+	/**
+	 * The upgrade file to be used.
+	 */
 	protected String patchFile;
 
-	// Needed for testing
+	/**
+	 * Returns the path of the properties file. Can be relative or absolute. Needed for testing.
+	 * 
+	 * @return the path of the properties file.
+	 */
 	protected File getPropertiesFile()
 	{
 		return new File( DBPATCHER_PROPERTIES );
 	}
 
-	// Used from the UpgradeTask
+	/**
+	 * Create a new configuration object. This constructor is used by the Ant Task and the Maven Plugin.
+	 * 
+	 * @param progress The listener that listens to config events.
+	 */
 	public Configuration( ConfigListener progress )
 	{
-		// Checks
-
-		// Load the version properties
-
-		URL url = Configuration.class.getResource( DBPATCHER_VERSION_PROPERTIES );
-		if( url == null )
-			throw new SystemException( "File not found: " + DBPATCHER_VERSION_PROPERTIES );
-
 		try
 		{
-			Properties versionProperties = new Properties();
-			versionProperties.load( url.openStream() );
-
-			this.version = versionProperties.getProperty( "module.version" );
-
-			Assert.isTrue( this.version != null, "module.version not found in version.properties" );
-
 			// Load the default properties
 
-			url = Configuration.class.getResource( DBPATCHER_DEFAULT_PROPERTIES );
+			URL url = Configuration.class.getResource( DBPATCHER_DEFAULT_PROPERTIES );
 			if( url == null )
 				throw new SystemException( DBPATCHER_DEFAULT_PROPERTIES + " not found in classpath" );
 
-			progress.readingPropertyFile( url.toString() );
+			progress.readingConfigFile( url.toString() );
 			this.properties = new Properties();
 			this.properties.load( url.openStream() );
 		}
@@ -105,6 +121,19 @@ public class Configuration
 		}
 	}
 
+	/**
+	 * Create a new configuration object. This constructor is used by the command line version of SolidBase.
+	 * 
+	 * @param progress The listener that listens to config events.
+	 * @param pass Are we in pass 1 or pass 2 of booting?
+	 * @param optionDriver The optional driver class name for the database.
+	 * @param optionUrl The optional url for the database.
+	 * @param optionUserName The optional username for the database.
+	 * @param optionPassWord The optional password for the database.
+	 * @param optionTarget The optional target to upgrade to.
+	 * @param optionPatchFile The optional upgrade file to use.
+	 * @param optionPropertiesFile  The optional path of the properties file.
+	 */
 	// TODO The automatic target should also be added to the properties file
 	public Configuration( ConfigListener progress, int pass, String optionDriver, String optionUrl, String optionUserName, String optionPassWord, String optionTarget, String optionPatchFile, String optionPropertiesFile )
 	{
@@ -115,43 +144,25 @@ public class Configuration
 		else
 			Assert.isTrue( optionUrl == null && optionUserName == null );
 
-		// Load the version properties
-
-		URL url = Configuration.class.getResource( DBPATCHER_VERSION_PROPERTIES );
-		if( url == null )
-			throw new SystemException( "File not found: " + DBPATCHER_VERSION_PROPERTIES );
-
 		try
 		{
-			Properties versionProperties = new Properties();
-			versionProperties.load( url.openStream() );
-
-			this.version = versionProperties.getProperty( "module.version" );
-
-			Assert.isTrue( this.version != null, "module.version not found in version.properties" );
-
 			// Process the commandline options
 
 			if( optionDriver != null )
 			{
-				this.configVersion = 1;
-				this.dbDriver = optionDriver;
-				this.dbUrl = optionUrl;
-				this.userName = optionUserName;
-				this.passWord = optionPassWord;
+				this.defaultDatabase = new Database( "default", optionDriver, optionUrl, optionUserName, optionPassWord );
 				this.target = optionTarget;
 				this.patchFile = optionPatchFile;
-
 				return; // No need to read the properties
 			}
 
 			// Load the default properties
 
-			url = Configuration.class.getResource( DBPATCHER_DEFAULT_PROPERTIES );
+			URL url = Configuration.class.getResource( DBPATCHER_DEFAULT_PROPERTIES );
 			if( url == null )
 				throw new SystemException( DBPATCHER_DEFAULT_PROPERTIES + " not found in classpath" );
 
-			progress.readingPropertyFile( url.toString() );
+			progress.readingConfigFile( url.toString() );
 			Properties defaultProperties = new Properties();
 			defaultProperties.load( url.openStream() );
 
@@ -162,7 +173,7 @@ public class Configuration
 				file = new File( optionPropertiesFile );
 			else
 				file = getPropertiesFile();
-			progress.readingPropertyFile( file.getAbsolutePath() );
+			progress.readingConfigFile( file.getAbsolutePath() );
 			this.properties = new Properties( defaultProperties );
 			FileInputStream input = new FileInputStream( file );
 			try
@@ -176,144 +187,80 @@ public class Configuration
 
 			// Read the config version
 
-			this.configVersion = 1;
-			String s = this.properties.getProperty( "config-version" );
-			if( s != null )
-			{
-				this.configVersion = Integer.parseInt( s );
-				Assert.isTrue( this.configVersion >= 1 && this.configVersion <= 2, "config-version can only be 1 or 2" );
-			}
+			String s = this.properties.getProperty( "properties-version" );
+			if( !"1.0".equals( s ) )
+				throw new FatalException( "Expecting properties-version 1.0 in the properties file" );
 
-			if( this.configVersion == 2 )
-			{
-				// Version 2 configuration
-
-				// driver jars
-				this.driverJars = new ArrayList();
-
-				String driversProperty = this.properties.getProperty( "classpathext" );
-				if( driversProperty != null )
-					for( String driverJar : driversProperty.split( ";" ) )
-					{
-						driverJar = driverJar.trim();
-						if( driverJar.length() > 0 )
-							this.driverJars.add( driverJar );
-					}
-
-				if( pass > 1 )
+			this.driverJars = new ArrayList();
+			String driversProperty = this.properties.getProperty( "classpath.ext" );
+			if( driversProperty != null )
+				for( String driverJar : driversProperty.split( ";" ) )
 				{
-					String databaseConfigClass = this.properties.getProperty( "databases.config.class" );
-					String databaseConfigScript = this.properties.getProperty( "databases.config.script" );
-
-					if( databaseConfigClass != null ) // databases configuration plugin
-					{
-						try
-						{
-							Class cls = Class.forName( databaseConfigClass );
-							DatabasesConfiguration config = (DatabasesConfiguration)cls.newInstance();
-							config.init( this );
-							this.databases = config.getDatabases();
-						}
-						catch( ClassNotFoundException e )
-						{
-							throw new SystemException( e );
-						}
-						catch( InstantiationException e )
-						{
-							throw new SystemException( e );
-						}
-						catch( IllegalAccessException e )
-						{
-							throw new SystemException( e );
-						}
-					}
-					else if( databaseConfigScript != null ) // databases configuration script
-					{
-						// Use seperate GroovyUtil class to prevent linking to groovy when groovy is not needed.
-						Map binding = new HashMap();
-						binding.put( "configuration", this );
-						this.databases = (List)GroovyUtil.evaluate( new File( databaseConfigScript ), binding );
-						Assert.notNull( this.databases, "Did not receive a result from the databases configuration script" );
-					}
-					else
-					{
-						// read it myself
-						this.databases = new ArrayList< Database >();
-
-						String databasesProperty = this.properties.getProperty( "databases" );
-						Assert.notBlank( databasesProperty, "'databases' not configured in " + DBPATCHER_PROPERTIES );
-						for( String databaseName : databasesProperty.split( "," ) )
-						{
-							databaseName = databaseName.trim();
-							if( databaseName.length() > 0 )
-							{
-								// per database
-								String databaseDescription = this.properties.getProperty( databaseName + ".description" );
-								String driver = this.properties.getProperty( databaseName + ".driver" );
-								String dbUrl = this.properties.getProperty( databaseName + ".url" );
-
-								if( StringUtils.isBlank( databaseDescription ) )
-									databaseDescription = databaseName;
-								Assert.notBlank( driver, "'" + databaseName + ".driver' not configured in " + DBPATCHER_PROPERTIES );
-								Assert.notBlank( dbUrl, "'" + databaseName + ".url' not configured in " + DBPATCHER_PROPERTIES );
-
-								Database database = new Database( databaseName, databaseDescription, driver, dbUrl );
-								this.databases.add( database );
-
-								// apps
-								String appsProperty = this.properties.getProperty( databaseName + ".applications" );
-								if( appsProperty != null )
-								{
-									for( String appName : appsProperty.split( "," ) )
-									{
-										appName = appName.trim();
-										if( appName.length() > 0 )
-										{
-											String appDescription = this.properties.getProperty( databaseName + "." + appName + ".description" );
-											String userName = this.properties.getProperty( databaseName + "." + appName + ".user" );
-											String patchFile = this.properties.getProperty( databaseName + "." + appName + ".upgradefile" );
-
-											if( StringUtils.isBlank( appDescription ) )
-												appDescription = appName;
-											Assert.notBlank( userName, "'" + databaseName + "." + appName + ".user' not configured in " + DBPATCHER_PROPERTIES );
-											Assert.notBlank( patchFile, "'" + databaseName + "." + appName + ".upgradefile' not configured in " + DBPATCHER_PROPERTIES );
-
-											database.addApplication( appName, appDescription, userName, null, patchFile, null );
-										}
-									}
-								}
-								else
-								{
-									String appName = "default";
-									String appDescription = appName;
-									String userName = this.properties.getProperty( databaseName + ".user" );
-									String patchFile = this.properties.getProperty( databaseName + ".upgradefile" );
-
-									Assert.notBlank( userName, "'" + databaseName + ".user' not configured in " + DBPATCHER_PROPERTIES );
-									Assert.notBlank( patchFile, "'" + databaseName + ".upgradefile' not configured in " + DBPATCHER_PROPERTIES );
-
-									database.addApplication( appName, appDescription, userName, null, patchFile, null );
-								}
-							}
-						}
-					}
-
-					Collections.sort( this.databases, new Database.Comparator() );
-					for( Database database : this.databases )
-						Collections.sort( database.applications, new Application.Comparator() );
+					driverJar = driverJar.trim();
+					if( driverJar.length() > 0 )
+						this.driverJars.add( driverJar );
 				}
-			}
-			else
+
+			if( pass > 1 )
 			{
-				// Version 1 configuration
+				String driver = this.properties.getProperty( "connection.driver" );
+				String dbUrl = this.properties.getProperty( "connection.url" );
+				String userName = this.properties.getProperty( "connection.username" );
+				String password = this.properties.getProperty( "connection.password" );
+				String patchFile = this.properties.getProperty( "upgrade.file" );
+				String target = this.properties.getProperty( "upgrade.target" );
 
-				this.dbDriverJar = this.properties.getProperty( "database.driver.jar" );
-				this.dbDriver = this.properties.getProperty( "database.driver" );
-				this.dbUrl = this.properties.getProperty( "database.url" );
-				this.userName = this.properties.getProperty( "database.user" );
+				if( StringUtils.isBlank( driver ) )
+					throw new FatalException( "Property 'connection.driver' must be specified in " + DBPATCHER_PROPERTIES );
+				if( StringUtils.isBlank( dbUrl ) )
+					throw new FatalException( "Property 'connection.url' must be specified in " + DBPATCHER_PROPERTIES );
+				if( StringUtils.isBlank( userName ) )
+					throw new FatalException( "Property 'connection.username' must be specified in " + DBPATCHER_PROPERTIES );
+				if( StringUtils.isBlank( patchFile ) )
+					throw new FatalException( "Property 'upgrade.file' must be specified in " + DBPATCHER_PROPERTIES );
+				if( StringUtils.isBlank( target ) )
+					throw new FatalException( "Property 'upgrade.target' must be specified in " + DBPATCHER_PROPERTIES );
 
-				Assert.isTrue( this.dbUrl != null, "database.url not found in " + DBPATCHER_PROPERTIES );
-				Assert.isTrue( this.dbDriver != null, "database.driver not found in " + DBPATCHER_PROPERTIES );
+				this.defaultDatabase = new Database( "default", driver, dbUrl, userName, password );
+				this.patchFile = patchFile;
+				this.target = target;
+
+				for( Entry entry : this.properties.entrySet() )
+				{
+					String key = (String)entry.getKey();
+					Matcher matcher = propertyPattern.matcher( key );
+					if( matcher.matches() )
+					{
+						String name = matcher.group( 1 );
+						String prop = matcher.group( 2 );
+						String value = (String)entry.getValue();
+						Database database = this.secondaryDatabases.get( name );
+						if( database == null )
+						{
+							database = new Database( name );
+							this.secondaryDatabases.put( name, database );
+						}
+						if( prop.equals( "driver" ) )
+							database.setDriver( value );
+						else if( prop.equals( "url" ) )
+							database.setUrl( value );
+						else if( prop.equals( "username" ) )
+							database.setUserName( value );
+						else if( prop.equals( "password" ) )
+							database.setPassword( value );
+						else
+							Assert.fail();
+					}
+				}
+
+				// Validate them
+				for( Database database : this.secondaryDatabases.values() )
+				{
+					if( database.getName().equals( "default" ) )
+						throw new FatalException( "The secondary connection name 'default' is not allowed" );
+					if( StringUtils.isBlank( database.getUserName() ) )
+						throw new FatalException( "Property 'connection." + database.getName() + ".username' must be specified in " + DBPATCHER_PROPERTIES );
+				}
 			}
 		}
 		catch( IOException e )
@@ -322,91 +269,72 @@ public class Configuration
 		}
 	}
 
-
-	public String getDBDriver()
-	{
-		Assert.isTrue( this.configVersion == 1, "Only supported with config version 1" );
-		return this.dbDriver;
-	}
-
-	public String getDBUrl()
-	{
-		Assert.isTrue( this.configVersion == 1, "Only supported with config version 1" );
-		return this.dbUrl;
-	}
-
-	public String getVersion()
-	{
-		return this.version;
-	}
-
-	public String getDBDriverJar()
-	{
-		Assert.isTrue( this.configVersion == 1, "Only supported with config version 1" );
-		return this.dbDriverJar;
-	}
-
-	public String getUser()
-	{
-		Assert.isTrue( this.configVersion == 1, "Only supported with config version 1" );
-		return this.userName;
-	}
-
-	public Database getDatabase( String name )
-	{
-		for( Database database : this.databases )
-			if( database.name.equals( name ) )
-				return database;
-		throw new SystemException( "Database [" + name + "] not configured." );
-	}
-
+	/**
+	 * Are we running the command line version from within Apache Ant?
+	 * 
+	 * @return True if we are running the command line version from within Apache Ant, false otherwise.
+	 */
 	public boolean isFromAnt()
 	{
 		return this.fromAnt;
 	}
 
+	/**
+	 * Returns all the driver jar file names.
+	 * 
+	 * @return All the driver jar file names.
+	 */
 	public List< String > getDriverJars()
 	{
-		if( this.configVersion == 1 )
-		{
-			if( this.dbDriverJar != null )
-				return Arrays.asList( this.dbDriverJar );
-			return Collections.EMPTY_LIST;
-		}
 		return this.driverJars;
 	}
 
-	public List< Database > getDatabases()
+	/**
+	 * Returns all the database.
+	 * 
+	 * @return All the database.
+	 */
+	public Collection< Database > getSecondaryDatabases()
 	{
-		Assert.isTrue( this.configVersion == 2, "Only supported with config version 2" );
-		return this.databases;
+		return this.secondaryDatabases.values();
 	}
 
-	public int getConfigVersion()
+	/**
+	 * Returns the default database.
+	 * 
+	 * @return The default database.
+	 */
+	public Database getDefaultDatabase()
 	{
-		return this.configVersion;
+		return this.defaultDatabase;
 	}
 
-	public String getUserName()
-	{
-		return this.userName;
-	}
-
-	public String getPassWord()
-	{
-		return this.passWord;
-	}
-
+	/**
+	 * Returns the target to upgrade to.
+	 * 
+	 * @return The target to upgrade to.
+	 */
 	public String getTarget()
 	{
 		return this.target;
 	}
 
+	/**
+	 * Returns the upgrade file to use.
+	 * 
+	 * @return The upgrade file to use.
+	 */
 	public String getPatchFile()
 	{
 		return this.patchFile;
 	}
 
+	/**
+	 * Returns the property with the given name from the properties file.
+	 * 
+	 * @param name The name for the property.
+	 * @return The property with the given name from the properties file.
+	 */
 	public String getProperty( String name )
 	{
 		return this.properties.getProperty( name );

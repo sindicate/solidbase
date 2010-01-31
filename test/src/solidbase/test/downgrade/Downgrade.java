@@ -16,7 +16,6 @@
 
 package solidbase.test.downgrade;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Set;
 
@@ -30,7 +29,7 @@ import solidbase.test.core.TestProgressListener;
 public class Downgrade
 {
 	@Test
-	public void testDowngrade() throws IOException, SQLException
+	public void testDowngrade() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:downgrade1", "sa", null, progress ) );

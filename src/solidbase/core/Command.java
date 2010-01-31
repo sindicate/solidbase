@@ -17,31 +17,56 @@
 package solidbase.core;
 
 /**
- * <p>Represents a command in the patchfile. A command can be repeatable or non-repeatable. Repeatable commands start with <code>--*</code>. Example of a repeatable command is:</p>
- * <blockquote><pre>
- * --* SET USER SYSTEM</pre></blockquote>
- * <p>Repeatable commands are executed as they are encountered even when the patchtool is in the process of skipping non-repeatable commands.</p>
- * <p>Example of a non-repeatable command:</p>
- * <blockquote><pre>
- * DROP TABLE REJECTED_SHIPMENTS PURGE
- * GO</pre></blockquote>
- * <p>Non-repeatable commands are DDL (data definition language) most of the time.</p>
+ * <p>
+ * Represents a command in the upgrade file. A command can be transient or persistent. Transient commands start with
+ * <code>--*</code>. Example of a transient command is:
+ * </p>
+ * <blockquote>
+ * <pre>
+ * --* SET USER A_USER
+ * </pre>
+ * </blockquote>
+ * <p>
+ * Transient commands are executed as they are encountered even when a patch package fails and is re-processed.
+ * </p>
+ * <p>
+ * Example of a persistent command:
+ * </p>
+ * <blockquote>
+ * <pre>
+ * DROP TABLE A_TABLE
+ * GO
+ * </pre>
+ * </blockquote>
+ * <p>
+ * </p>
  * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:13:28 PM
  */
 public class Command
 {
+	/**
+	 * The text of the command.
+	 */
 	protected String command;
+
+	/**
+	 * Is the command transient or not?
+	 */
 	protected boolean isTransient;
+
+	/**
+	 * The line number in the upgrade file where the command is found.
+	 */
 	protected int lineNumber;
 
 	/**
-	 * Constructs the command.
+	 * Instantiates a command.
 	 * 
 	 * @param command The text of the command.
-	 * @param isTransient Is it a transient command?
-	 * @param lineNumber The line number in the upgrade file where this command starts.
+	 * @param isTransient Is the command transient or not?
+	 * @param lineNumber The line number in the upgrade file where the command is found.
 	 */
 	protected Command( String command, boolean isTransient, int lineNumber )
 	{
@@ -91,6 +116,11 @@ public class Command
 		this.command = command;
 	}
 
+	/**
+	 * Returns the line number in the upgrade file where the command is found.
+	 * 
+	 * @return The line number in the upgrade file where the command is found.
+	 */
 	public int getLineNumber()
 	{
 		return this.lineNumber;

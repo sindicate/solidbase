@@ -54,7 +54,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../solidbase/core/PatchFile.GetPatchPath2Result.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../solidbase/core/Path.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/ProgressListener.html" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -103,6 +103,10 @@ Class ProgressListener</H2>
 </PRE>
 
 <P>
+Listener adapter.
+<P>
+
+<P>
 <DL>
 <DT><B>Since:</B></DT>
   <DD>Apr 14, 2006</DD>
@@ -143,7 +147,7 @@ Class ProgressListener</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/ProgressListener.html#debug(java.lang.String)">debug</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A debug message is given.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -151,7 +155,7 @@ Class ProgressListener</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/ProgressListener.html#exception(solidbase.core.Command)">exception</A></B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An exception occured during execution of the given command.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -159,7 +163,7 @@ Class ProgressListener</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/ProgressListener.html#executed()">executed</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A command is succesfully executed.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -168,7 +172,7 @@ Class ProgressListener</H2>
           <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;About to execute to given command with the given message for the user.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -176,7 +180,7 @@ Class ProgressListener</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/ProgressListener.html#openedPatchFile(solidbase.core.PatchFile)">openedPatchFile</A></B>(<A HREF="../../solidbase/core/PatchFile.html" title="class in solidbase.core">PatchFile</A>&nbsp;patchFile)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An upgrade file is opened.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -184,7 +188,7 @@ Class ProgressListener</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/ProgressListener.html#openingPatchFile(java.io.File)">openingPatchFile</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A>&nbsp;patchFile)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An upgrade file is about to be opened.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -192,7 +196,7 @@ Class ProgressListener</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/ProgressListener.html#openingPatchFile(java.net.URL)">openingPatchFile</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net">URL</A>&nbsp;patchFile)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An upgrade file is about to be opened.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -200,7 +204,7 @@ Class ProgressListener</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/ProgressListener.html#patchFinished()">patchFinished</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A change set is completed.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -208,7 +212,7 @@ Class ProgressListener</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/ProgressListener.html#patchingFinished()">patchingFinished</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The upgrade is completed.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -216,7 +220,7 @@ Class ProgressListener</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/ProgressListener.html#patchStarting(solidbase.core.Patch)">patchStarting</A></B>(<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>&nbsp;patch)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The given change set is about to be processed.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -224,7 +228,7 @@ Class ProgressListener</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/ProgressListener.html#requestPassword(java.lang.String)">requestPassword</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;user)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Request a password for the given user name.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -232,7 +236,7 @@ Class ProgressListener</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/ProgressListener.html#skipped(solidbase.core.Command)">skipped</A></B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A command is skipped because it has been processed earlier in an upgrade that did not complete.</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -279,8 +283,10 @@ openingPatchFile</H3>
 <PRE>
 protected void <B>openingPatchFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A>&nbsp;patchFile)</PRE>
 <DL>
+<DD>An upgrade file is about to be opened.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>patchFile</CODE> - The upgrade file that is about the open.</DL>
 </DD>
 </DL>
 <HR>
@@ -290,8 +296,10 @@ openingPatchFile</H3>
 <PRE>
 protected void <B>openingPatchFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net">URL</A>&nbsp;patchFile)</PRE>
 <DL>
+<DD>An upgrade file is about to be opened.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>patchFile</CODE> - The upgrade file that is about the open.</DL>
 </DD>
 </DL>
 <HR>
@@ -301,8 +309,10 @@ openedPatchFile</H3>
 <PRE>
 public void <B>openedPatchFile</B>(<A HREF="../../solidbase/core/PatchFile.html" title="class in solidbase.core">PatchFile</A>&nbsp;patchFile)</PRE>
 <DL>
+<DD>An upgrade file is opened.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>patchFile</CODE> - The upgrade file that is opened.</DL>
 </DD>
 </DL>
 <HR>
@@ -312,8 +322,10 @@ patchStarting</H3>
 <PRE>
 protected void <B>patchStarting</B>(<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>&nbsp;patch)</PRE>
 <DL>
+<DD>The given change set is about to be processed.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>patch</CODE> - The change set that is about to be started.</DL>
 </DD>
 </DL>
 <HR>
@@ -324,8 +336,10 @@ executing</H3>
 protected void <B>executing</B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command,
                          <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</PRE>
 <DL>
+<DD>About to execute to given command with the given message for the user.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>command</CODE> - The command that is about to be executed.<DD><CODE>message</CODE> - The message that is set.</DL>
 </DD>
 </DL>
 <HR>
@@ -335,8 +349,10 @@ exception</H3>
 <PRE>
 protected void <B>exception</B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)</PRE>
 <DL>
+<DD>An exception occured during execution of the given command.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>command</CODE> - The command during which an exception occured.</DL>
 </DD>
 </DL>
 <HR>
@@ -346,6 +362,8 @@ executed</H3>
 <PRE>
 protected void <B>executed</B>()</PRE>
 <DL>
+<DD>A command is succesfully executed.
+<P>
 <DD><DL>
 </DL>
 </DD>
@@ -357,6 +375,8 @@ patchFinished</H3>
 <PRE>
 protected void <B>patchFinished</B>()</PRE>
 <DL>
+<DD>A change set is completed.
+<P>
 <DD><DL>
 </DL>
 </DD>
@@ -368,6 +388,8 @@ patchingFinished</H3>
 <PRE>
 protected void <B>patchingFinished</B>()</PRE>
 <DL>
+<DD>The upgrade is completed.
+<P>
 <DD><DL>
 </DL>
 </DD>
@@ -379,8 +401,11 @@ requestPassword</H3>
 <PRE>
 protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>requestPassword</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;user)</PRE>
 <DL>
+<DD>Request a password for the given user name.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>user</CODE> - The user name for which a password needs to be requested.
+<DT><B>Returns:</B><DD>The password that is requested.</DL>
 </DD>
 </DL>
 <HR>
@@ -390,8 +415,10 @@ skipped</H3>
 <PRE>
 protected void <B>skipped</B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)</PRE>
 <DL>
+<DD>A command is skipped because it has been processed earlier in an upgrade that did not complete.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>command</CODE> - The command that is skipped.</DL>
 </DD>
 </DL>
 <HR>
@@ -401,8 +428,10 @@ debug</H3>
 <PRE>
 protected void <B>debug</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</PRE>
 <DL>
+<DD>A debug message is given.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>message</CODE> - The debug message.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
@@ -435,7 +464,7 @@ protected void <B>debug</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/jav
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../solidbase/core/PatchFile.GetPatchPath2Result.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../solidbase/core/Path.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/ProgressListener.html" target="_top"><B>FRAMES</B></A>  &nbsp;

@@ -55,7 +55,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../solidbase/core/Patcher.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/core/PatchFile.GetPatchPath2Result.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/core/Path.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/PatchFile.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="PatchFile.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -75,7 +75,7 @@ function windowTitle()
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
 DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
@@ -113,24 +113,7 @@ This class manages the patch file contents and the paths between versions.
 <HR>
 
 <P>
-<!-- ======== NESTED CLASS SUMMARY ======== -->
-
-<A NAME="nested_class_summary"><!-- --></A>
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
-<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
-<B>Nested Class Summary</B></FONT></TH>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;class</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.GetPatchPath2Result.html" title="class in solidbase.core">PatchFile.GetPatchPath2Result</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
-</TR>
-</TABLE>
-&nbsp;<!-- =========== FIELD SUMMARY =========== -->
+<!-- =========== FIELD SUMMARY =========== -->
 
 <A NAME="field_summary"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
@@ -266,24 +249,24 @@ This class manages the patch file contents and the paths between versions.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>&gt;</CODE></FONT></TD>
+<CODE>protected &nbsp;<A HREF="../../solidbase/core/Path.html" title="class in solidbase.core">Path</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#getPatchPath(java.lang.String, java.lang.String, boolean)">getPatchPath</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;source,
              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target,
              boolean&nbsp;downgradesAllowed)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a patch path for the specified source and target.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Determine the best path between a source version and a target version.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="../../solidbase/core/PatchFile.GetPatchPath2Result.html" title="class in solidbase.core">PatchFile.GetPatchPath2Result</A></CODE></FONT></TD>
+<CODE>protected &nbsp;<A HREF="../../solidbase/core/Path.html" title="class in solidbase.core">Path</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#getPatchPath0(java.lang.String, java.lang.String, boolean, java.util.Set)">getPatchPath0</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;source,
               <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target,
               boolean&nbsp;downgradesAllowed,
-              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;done)</CODE>
+              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;targetsProcessed)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Determine the best path between a source version and a target version.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -522,15 +505,16 @@ protected <A HREF="../../solidbase/core/Patch.html" title="class in solidbase.co
 <A NAME="getPatchPath(java.lang.String, java.lang.String, boolean)"><!-- --></A><H3>
 getPatchPath</H3>
 <PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>&gt; <B>getPatchPath</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;source,
-                                   <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target,
-                                   boolean&nbsp;downgradesAllowed)</PRE>
+protected <A HREF="../../solidbase/core/Path.html" title="class in solidbase.core">Path</A> <B>getPatchPath</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;source,
+                            <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target,
+                            boolean&nbsp;downgradesAllowed)</PRE>
 <DL>
-<DD>Returns a patch path for the specified source and target.
+<DD>Determine the best path between a source version and a target version.
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>source</CODE> - The source version.<DD><CODE>target</CODE> - The target version.<DD><CODE>downgradesAllowed</CODE> - Allow downgrades in the resulting path.
-<DT><B>Returns:</B><DD>A list of patches that correspond to the given source and target versions.</DL>
+<DT><B>Returns:</B><DD>The best path between a source version and a target version. This path can be empty when the source and
+         target are equal. The result will be null if there is no path.</DL>
 </DD>
 </DL>
 <HR>
@@ -538,13 +522,17 @@ protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?i
 <A NAME="getPatchPath0(java.lang.String, java.lang.String, boolean, java.util.Set)"><!-- --></A><H3>
 getPatchPath0</H3>
 <PRE>
-protected <A HREF="../../solidbase/core/PatchFile.GetPatchPath2Result.html" title="class in solidbase.core">PatchFile.GetPatchPath2Result</A> <B>getPatchPath0</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;source,
-                                                      <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target,
-                                                      boolean&nbsp;downgradesAllowed,
-                                                      <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;done)</PRE>
+protected <A HREF="../../solidbase/core/Path.html" title="class in solidbase.core">Path</A> <B>getPatchPath0</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;source,
+                             <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target,
+                             boolean&nbsp;downgradesAllowed,
+                             <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;targetsProcessed)</PRE>
 <DL>
+<DD>Determine the best path between a source version and a target version.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>source</CODE> - The source version.<DD><CODE>target</CODE> - The target version.<DD><CODE>downgradesAllowed</CODE> - Allow downgrades in the resulting path.<DD><CODE>targetsProcessed</CODE> - A set of targets that have already been processed. This prevents endless loops.
+<DT><B>Returns:</B><DD>The best path between a source version and a target version. This path can be empty when the source and
+         target are equal. The result will be null if there is no path.</DL>
 </DD>
 </DL>
 <HR>
@@ -683,7 +671,7 @@ public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../solidbase/core/Patcher.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/core/PatchFile.GetPatchPath2Result.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/core/Path.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/PatchFile.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="PatchFile.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -703,7 +691,7 @@ public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
 DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>

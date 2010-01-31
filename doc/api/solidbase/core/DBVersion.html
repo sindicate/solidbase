@@ -290,6 +290,14 @@ This class represents the version information in the database. It is able to int
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#getVersionStatement()">getVersionStatement</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a statement of the current version of the database in a user presentable form.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#init()">init</A></B>()</CODE>
 
@@ -844,6 +852,20 @@ protected void <B>downgradeHistory</B>(<A HREF="http://java.sun.com/j2se/1.5.0/d
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>versions</CODE> - The versions to be downgraded.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getVersionStatement()"><!-- --></A><H3>
+getVersionStatement</H3>
+<PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getVersionStatement</B>()</PRE>
+<DL>
+<DD>Returns a statement of the current version of the database in a user presentable form.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>A statement of the current version of the database in a user presentable form.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

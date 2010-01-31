@@ -25,15 +25,15 @@
 	
 
 	<target name="ant-test">
-        <taskdef name="solidbase-upgrade" classname="solidbase.ant.UpgradeTask" classpathref="test.classpath" />
+		<taskdef resource="solidbasetasks" classpathref="test.classpath" />
 		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask"
 				user="sa" password=""
 				upgradefile="testpatch-multiconnections.sql" target="1.1.*">
-       		<secondary name="queues" url="jdbc:hsqldb:mem:queues" user="sa" password="geheim" />
-       		<secondary name="user" user="sa" password="" />
+       		<secondary name="queues" url="jdbc:hsqldb:mem:queues" username="sa" password="geheim" />
+       		<secondary name="user" username="sa" password="" />
         </solidbase-upgrade>
-		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask"
-				user="sa" password=""
+		<upgradedb driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask"
+				username="sa" password=""
 				upgradefile="testpatch-multiconnections.sql" target="1.0.*"
 				downgradeallowed="yes" />
 	</target>

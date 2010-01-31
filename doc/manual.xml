@@ -333,11 +333,11 @@ prod.applications = app1, app2
 
 # database 'prod', application 'app1'
 prod.app1.description = app1 description
-prod.app1.user = sa
+prod.app1.username = sa
 prod.app1.patchfile = upgrade-hsqldb-example1.sql
 
 # database 'prod', application 'app2'
-prod.app2.user = sa
+prod.app2.username = sa
 prod.app2.patchfile = upgrade-hsqldb-example2.sql
 
 # database 'test'
@@ -346,7 +346,7 @@ test.url = jdbc:derby:c:/projects/temp/solidbase/db;create=true
 test.applications = app3
 
 # database 'test', application 'app3'
-test.app3.user = app
+test.app3.username = app
 test.app3.patchfile = upgrade-derby-example.sql]]></programlisting>
 			</example>
 		
@@ -408,9 +408,9 @@ test.app3.patchfile = upgrade-derby-example.sql]]></programlisting>
 					<td>Description for this application</td>
 				</tr>
 				<tr>
-					<td>&lt;dbname&gt;.&lt;appname&gt;.user</td>
+					<td>&lt;dbname&gt;.&lt;appname&gt;.username</td>
 					<td></td>
-					<td>User needed to connect to this application</td>
+					<td>User name needed to connect to this application</td>
 				</tr>
 				<tr>
 					<td>&lt;dbname&gt;.&lt;appname&gt;.patchfile</td>
@@ -603,7 +603,7 @@ GO
 --* SET MESSAGE "Inserting admin user"
 
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD )
-VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
+VALUES ( 'admin', '*****' )
 GO
 
 --* /PATCH

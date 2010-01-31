@@ -35,10 +35,10 @@ import java.util.regex.Pattern;
  */
 public class OracleDBMSOutputPoller extends CommandListener
 {
-	static protected Pattern disablePattern = Pattern.compile( "\\s*DISABLE\\s+DBMSOUTPUT\\s*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
-	static protected Pattern enablePattern = Pattern.compile( "\\s*ENABLE\\s+DBMSOUTPUT\\s*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private Pattern disablePattern = Pattern.compile( "\\s*DISABLE\\s+DBMSOUTPUT\\s*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private Pattern enablePattern = Pattern.compile( "\\s*ENABLE\\s+DBMSOUTPUT\\s*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
-	protected Poller poller;
+	private Poller poller;
 
 	@Override
 	protected boolean execute( Database database, Command command ) throws SQLException
@@ -106,11 +106,11 @@ public class OracleDBMSOutputPoller extends CommandListener
 		}
 	}
 
-	static protected class Poller extends Thread
+	static private class Poller extends Thread
 	{
-		protected Connection connection;
+		private Connection connection;
 
-		protected Poller( Connection connection )
+		Poller( Connection connection )
 		{
 			this.connection = connection;
 		}

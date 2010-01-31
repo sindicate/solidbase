@@ -19,7 +19,6 @@ package solidbase.core;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,8 +28,19 @@ import org.testng.annotations.Test;
 
 import solidbase.core.Patch.Type;
 
+
+/**
+ * Tests {@link PatchFile}.
+ * 
+ * @author René M. de Bloois
+ */
 public class PatchFileTests
 {
+	/**
+	 * Tests whether the {@link PatchFile} returns the correct set of tip targets.
+	 * 
+	 * @throws IOException Whenever it needs to.
+	 */
 	@Test
 	public void testCollectTipVersions1() throws IOException
 	{
@@ -81,11 +91,16 @@ public class PatchFileTests
 
 		// Check the path
 
-		List< Patch > path = patchFile.getPatchPath( "1.3", "2.1", false );
+		Path path = patchFile.getPatchPath( "1.3", "2.1", false );
 		Assert.assertEquals( path.size(), 1 );
-		Assert.assertEquals( path.get( 0 ).getTarget(), "2.1" );
+		Assert.assertEquals( path.iterator().next().getTarget(), "2.1" );
 	}
 
+	/**
+	 * Tests whether the {@link PatchFile} returns the correct set of tip targets. This one specifies a target wildcard.
+	 * 
+	 * @throws IOException Whenever it needs to.
+	 */
 	@Test
 	public void testCollectTipVersions2() throws IOException
 	{
@@ -114,6 +129,11 @@ public class PatchFileTests
 		Assert.assertEquals( result, expected );
 	}
 
+	/**
+	 * Tests whether {@link PatchFile} returns the correct set of targets. This one has an open patch.
+	 * 
+	 * @throws IOException Whenever it needs to.
+	 */
 	@Test
 	public void testOpenPatch() throws IOException
 	{

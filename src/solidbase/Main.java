@@ -22,9 +22,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -32,66 +30,39 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-
 import solidbase.config.Configuration;
-import solidbase.config.Connection;
+import solidbase.core.Assert;
 import solidbase.core.Database;
+import solidbase.core.FatalException;
 import solidbase.core.Patcher;
 import solidbase.core.SQLExecutionException;
 import solidbase.core.SystemException;
 
 
 /**
- *
+ * This class contains the main method for the command line version of SolidBase.
+ * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
 public class Main
 {
+	/**
+	 * The console for communication with the user.
+	 */
 	static public Console console;
+
+	/**
+	 * The current boot phase. Used to create a new class loader with an extended class path.
+	 */
 	static private int pass = 1;
 
 
-	static public String getCurrentVersion( Patcher patcher )
-	{
-		String version = patcher.getCurrentVersion();
-		String target = patcher.getCurrentTarget();
-		int statements = patcher.getCurrentStatements();
-
-		if( version == null )
-		{
-			if( target != null )
-				return "The database has no version yet, incompletely patched to version \"" + target + "\" (" + statements + " statements successful).";
-			return "The database has no version yet.";
-		}
-		if( target != null )
-			return "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful).";
-		return "Current database version is \"" + version + "\".";
-	}
-
-
-	static protected String list( Collection list )
-	{
-		StringBuffer buffer = new StringBuffer();
-
-		boolean first = true;
-		for( Iterator iter = list.iterator(); iter.hasNext(); )
-		{
-			Object object = iter.next();
-			if( object != null )
-			{
-				if( first )
-					first = false;
-				else
-					buffer.append( ", " );
-				buffer.append( object );
-			}
-		}
-
-		return buffer.toString();
-	}
-
-
+	/**
+	 * The main method for the command line version of SolidBase.
+	 * 
+	 * @param args The arguments from the command line.
+	 */
 	static public void main( String... args )
 	{
 		try
@@ -100,20 +71,21 @@ public class Main
 		}
 		catch( Throwable t )
 		{
+			// Fancy stuff is done in pass2(). Checking type of exception does not work because of the new classloader we create.
 			console.println();
-
-			if( t instanceof SystemException )
-				if( t.getCause() != null )
-					t = t.getCause();
-
 			console.printStacktrace( t );
-
 			System.exit( 1 );
 		}
 	}
 
 
-	// Used for testing
+	/**
+	 * For internal (testing) use only: a main method that does not catch and print exceptions.
+	 * 
+	 * @param args The arguments from the command line.
+	 * @throws SQLExecutionException When an {@link SQLException} is thrown during execution of a database change.
+	 */
+	// TODO Make this protected.
 	static public void main0( String... args ) throws SQLExecutionException
 	{
 		if( console == null )
@@ -201,112 +173,59 @@ public class Main
 			return;
 		}
 
-		console.println( "SolidBase v" + configuration.getVersion() );
-		console.println( "(C) 2006-2010 René M. de Bloois" ); // TODO Now we have three copies, which is bad.
+		String[] info = Version.getInfo();
+		console.println( info[ 0 ] );
+		console.println( info[ 1 ] );
 		console.println();
 
-		Patcher patcher = null;
+		Patcher patcher = new Patcher( progress );
 		try
 		{
-			String patchFile;
-			String target;
-			if( configuration.getConfigVersion() == 2 )
-			{
-				solidbase.config.Database selectedDatabase;
-				if( configuration.getDatabases().size() == 0 )
-				{
-					console.println( "There are no databases configured." );
-					return;
-				}
-				else if( configuration.getDatabases().size() > 1 )
-				{
-					console.println( "Available database:" );
-					for( solidbase.config.Database database : configuration.getDatabases() )
-						if( database.getDescription() != null )
-							console.println( "    " + database.getName() + " (" + database.getDescription() + ")" );
-						else
-							console.println( "    " + database.getName() );
-					console.print( "Select a database from the above: " );
-					String input = console.input();
-					selectedDatabase = configuration.getDatabase( input );
-					console.println();
-				}
-				else
-					selectedDatabase = configuration.getDatabases().get( 0 );
-
-				solidbase.config.Application selectedApplication;
-				if( selectedDatabase.getApplications().size() > 1 )
-				{
-					console.println( "Available applications in database '" + selectedDatabase.getName() + "':" );
-					for( solidbase.config.Application application : selectedDatabase.getApplications() )
-						if( application.getDescription() != null )
-							console.println( "    " + application.getName() + " (" + application.getDescription() + ")" );
-						else
-							console.println( "    " + application.getName() );
-					console.print( "Select an application from the above: " );
-					String input = console.input();
-					selectedApplication = selectedDatabase.getApplication( input );
-					console.println();
-				}
-				else
-					selectedApplication = selectedDatabase.getApplications().get( 0 );
-
-				patcher = new Patcher( progress, new Database( selectedDatabase.getDriver(), selectedDatabase.getUrl(), selectedApplication.getUserName(), selectedApplication.getPassword(), progress ) );
-				for( Connection connection : selectedApplication.getConnections() )
-					patcher.addConnection( connection );
-
-				patchFile = selectedApplication.getPatchFile();
-				target = selectedApplication.getTarget();
-				console.println( "Connecting to database '" + selectedDatabase.getName() + "', application '" + selectedApplication.getName() + "'..." );
-			}
-			else
-			{
-				patcher = new Patcher( progress, new Database( configuration.getDBDriver(), configuration.getDBUrl(), configuration.getUser(), configuration.getPassWord(), progress ) );
-				patchFile = configuration.getPatchFile();
-				target = configuration.getTarget();
-				if( patchFile == null )
-					patchFile = "upgrade.sql";
-				console.println( "Connecting to database..." );
-			}
-
-			console.println( getCurrentVersion( patcher ) );
-
 			if( exportlog )
 			{
 				patcher.logToXML( line.getOptionValue( "dumplog" ) );
 				return;
 			}
 
-			patcher.openPatchFile( patchFile );
+			solidbase.config.Database defoult = configuration.getDefaultDatabase();
+			patcher.addDatabase( "default", new Database( defoult.getDriver(), defoult.getUrl(), defoult.getUserName(), defoult.getPassword(), progress ) );
+			for( solidbase.config.Database database : configuration.getSecondaryDatabases() )
+				patcher.addDatabase( database.getName(),
+						new Database( database.getDriver() == null ? defoult.getDriver() : database.getDriver(),
+								database.getUrl() == null ? defoult.getUrl() : database.getUrl(),
+										database.getUserName(), database.getPassword(), progress ) );
 
-			if( target != null )
-				patcher.patch( target, downgradeallowed ); // TODO Print this target
-			else
+			console.println( "Connecting to database..." );
+
+			console.println( patcher.getVersionStatement() );
+
+			patcher.openPatchFile( configuration.getPatchFile() );
+			try
 			{
-				// Need linked set because order is important
-				LinkedHashSet< String > targets = patcher.getTargets( false, null, false );
-				if( targets.size() > 0 )
-				{
-					console.println( "Possible targets are: " + list( targets ) );
-					console.print( "Input target version: " );
-					String input = console.input();
-					patcher.patch( input, downgradeallowed );
-				}
-				else
-					console.println( "There are no possible targets." );
-				// TODO Distinguish between uptodate and no possible path
+				patcher.patch( configuration.getTarget(), downgradeallowed ); // TODO Print this target
+				console.emptyLine();
+				console.println( patcher.getVersionStatement() );
 			}
-			console.emptyLine();
-			console.println( getCurrentVersion( patcher ) );
+			finally
+			{
+				patcher.closePatchFile();
+			}
 		}
 		finally
 		{
-			if( patcher != null )
-				patcher.end();
+			patcher.end();
 		}
 	}
 
 
+	/**
+	 * Reload SolidBase with an extended classpath. Calls {@link #pass2(String...)} when it's done.
+	 * 
+	 * @param args The arguments from the command line.
+	 * @param jars The jars that need to be added to the classpath.
+	 * @param verbose Show more information.
+	 * @throws SQLExecutionException When an {@link SQLException} is thrown during execution of a database change.
+	 */
 	static protected void reload( String[] args, List< String > jars, boolean verbose ) throws SQLExecutionException
 	{
 		if( jars == null || jars.isEmpty() )
@@ -384,18 +303,41 @@ public class Main
 		}
 		catch( InvocationTargetException e )
 		{
-//			Throwable t = e.getCause();
-//			if( t instanceof SQLExecutionException )
-//				throw (SQLExecutionException)t;
-//			throw new SystemException( t );
 			throw new SystemException( e.getCause() );
 		}
 	}
 
 
+	/**
+	 * Gets called after reloading with an extended classpath.
+	 * 
+	 * @param args The arguments from the command line.
+	 * @throws SQLExecutionException When an {@link SQLException} is thrown during execution of a database change.
+	 */
 	static public void pass2( String... args ) throws SQLExecutionException
 	{
-		pass = 2;
-		main0( args );
+		try
+		{
+			pass = 2;
+			main0( args );
+		}
+		catch( Throwable t )
+		{
+			console.println();
+
+			if( t instanceof SystemException )
+				if( t.getCause() != null )
+				{
+					t = t.getCause();
+					Assert.isFalse( t instanceof SystemException );
+				}
+
+			if( t instanceof FatalException )
+				console.println( "ERROR: " + t.getMessage() );
+			else
+				console.printStacktrace( t );
+
+			System.exit( 1 );
+		}
 	}
 }

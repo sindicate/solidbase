@@ -1,19 +1,30 @@
+/*--
+ * Copyright 2010 René M. de Bloois
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package solidbase.maven;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import solidbase.Main;
-import solidbase.config.ConfigListener;
-import solidbase.config.Configuration;
+import solidbase.Version;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
 import solidbase.core.Patcher;
-import solidbase.core.ProgressListener;
 import solidbase.core.SQLExecutionException;
-
-import java.io.File;
 
 
 /**
@@ -32,7 +43,7 @@ public class UpgradeMojo extends AbstractMojo
 	 * @readonly
 	 */
 	private MavenProject project;
-	
+
 	/**
 	 * Database driver class.
 	 * 
@@ -50,12 +61,12 @@ public class UpgradeMojo extends AbstractMojo
 	private String url;
 
 	/**
-	 * Database user.
+	 * Database username.
 	 * 
-	 * @parameter expression="${user}
+	 * @parameter expression="${username}
 	 * @required
 	 */
-	private String user;
+	private String username;
 
 	/**
 	 * Database password.
@@ -87,28 +98,56 @@ public class UpgradeMojo extends AbstractMojo
 	 */
 	private boolean downgradeallowed;
 
+	/**
+	 * An array of secondary connections.
+	 */
+	private Secondary[] connections;
+
+	/**
+	 * Validate the configuration of the plugin.
+	 * 
+	 * @throws MojoExecutionException Whenever a configuration item is missing.
+	 */
+	protected void validate() throws MojoExecutionException
+	{
+		// The rest is checked by Maven itself
+
+		if( this.connections != null )
+			for( Secondary secondary : this.connections )
+			{
+				if( secondary.getName() == null )
+					throw new MojoExecutionException( "The 'name' attribute is mandatory for a 'secondary' element" );
+				if( secondary.getUsername() == null )
+					throw new MojoExecutionException( "The 'user' attribute is mandatory for a 'secondary' element" );
+				if( secondary.getName().equals( "default" ) )
+					throw new MojoExecutionException( "The secondary name 'default' is reserved" );
+			}
+	}
+
 	public void execute() throws MojoExecutionException, MojoFailureException
 	{
-		//validate();
+		validate();
 
 		Progress progress = new Progress( getLog() );
 
-		Configuration configuration = new Configuration( progress );
-
-		getLog().info( "SolidBase v" + configuration.getVersion() );
-		getLog().info( "(C) 2006-2010 Rene M. de Bloois" ); // TODO Diacritics don't work.
+		String[] info = Version.getInfo();
+		getLog().info( info[ 0 ] );
+		getLog().info( info[ 1 ] );
 		getLog().info( "" );
 
-		Patcher patcher = new Patcher( progress, new Database( this.driver, this.url, this.user, this.password == null ? "" : this.password, progress ) );
+		Patcher patcher = new Patcher( progress, new Database( this.driver, this.url, this.username, this.password == null ? "" : this.password, progress ) );
 		try
 		{
-			patcher.setCallBack( progress );
-
-			patcher.addConnection( new solidbase.config.Connection( "Some name", this.driver, this.url, this.user, this.password ) );
+			if( this.connections != null )
+				for( Secondary secondary : this.connections )
+					patcher.addDatabase( secondary.getName(),
+							new Database( secondary.getDriver() == null ? this.driver : secondary.getDriver(),
+									secondary.getUrl() == null ? this.url : secondary.getUrl(),
+											secondary.getUsername(), secondary.getPassword() == null ? "" : secondary.getPassword(), progress ) );
 
 			progress.info( "Connecting to database..." );
 
-			progress.info( Main.getCurrentVersion( patcher ) );
+			progress.info( patcher.getVersionStatement() );
 
 			patcher.openPatchFile( this.project.getBasedir(), this.upgradefile );
 			try
@@ -118,7 +157,7 @@ public class UpgradeMojo extends AbstractMojo
 				else
 					throw new UnsupportedOperationException();
 				progress.info( "" );
-				progress.info( Main.getCurrentVersion( patcher ) );
+				progress.info( patcher.getVersionStatement() );
 			}
 			finally
 			{
@@ -138,22 +177,4 @@ public class UpgradeMojo extends AbstractMojo
 			patcher.end();
 		}
 	}
-
-	/*
-	private void validate() throws MojoExecutionException
-	{
-		if( this.driver == null )
-			throw new MojoExecutionException( "The 'driver' attribute is mandatory." );
-		if( this.url == null )
-			throw new MojoExecutionException( "The 'url' attribute is mandatory." );
-		if( this.user == null )
-			throw new MojoExecutionException( "The 'user' attribute is mandatory." );
-		if( this.password == null )
-			throw new MojoExecutionException( "The 'password' attribute is mandatory." );
-		if( this.upgradefile == null )
-			throw new MojoExecutionException( "The 'upgradefile' attribute is mandatory." );
-		if( this.target == null )
-			throw new MojoExecutionException( "The 'target' attribute is mandatory." );
-	}
-	*/
 }

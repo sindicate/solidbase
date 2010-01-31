@@ -1,5 +1,5 @@
 /*--
- * Copyright 2006 René M. de Bloois
+ * Copyright 2009 René M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,19 +22,50 @@ import java.net.URL;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
-import solidbase.config.ConfigListener;
 import solidbase.core.Command;
 import solidbase.core.Patch;
 import solidbase.core.PatchFile;
 import solidbase.core.ProgressListener;
 
 
-public class Progress extends ProgressListener implements ConfigListener
+/**
+ * Implements the progress listener for the Apache Ant task.
+ * 
+ * @author René M. de Bloois
+ */
+public class Progress extends ProgressListener
 {
+	/**
+	 * The Ant project.
+	 */
 	protected Project project;
+
+	/**
+	 * The Ant task.
+	 */
 	protected Task task;
+
+	/**
+	 * Buffer to collect output before logging.
+	 */
 	protected StringBuilder buffer;
 
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param project The Ant project.
+	 * @param task The Ant task.
+	 */
+	public Progress( Project project, Task task )
+	{
+		this.project = project;
+		this.task = task;
+	}
+
+	/**
+	 * Flush collected output to the project's log.
+	 */
 	protected void flush()
 	{
 		if( this.buffer != null && this.buffer.length() > 0 )
@@ -44,27 +75,26 @@ public class Progress extends ProgressListener implements ConfigListener
 		}
 	}
 
+	/**
+	 * Log an info message to the project's log.
+	 * 
+	 * @param message The message to log.
+	 */
 	protected void info( String message )
 	{
 		flush();
 		this.project.log( this.task, message, Project.MSG_INFO );
 	}
 
+	/**
+	 * Log a verbose message to the project's log.
+	 * 
+	 * @param message The message to log.
+	 */
 	protected void verbose( String message )
 	{
 		flush();
 		this.project.log( this.task, message, Project.MSG_VERBOSE );
-	}
-
-	public Progress( Project project, Task task )
-	{
-		this.project = project;
-		this.task = task;
-	}
-
-	public void readingPropertyFile( String path )
-	{
-		verbose( "Reading property file " + path );
 	}
 
 	@Override

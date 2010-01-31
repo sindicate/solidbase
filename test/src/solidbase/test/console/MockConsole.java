@@ -28,12 +28,32 @@ import solidbase.Console;
 import solidbase.core.Assert;
 
 
+/**
+ * A stub console used during testing.
+ * 
+ * @author René M. de Bloois
+ */
 public class MockConsole extends Console
 {
+	/**
+	 * Responses to give back when input is requested.
+	 */
 	protected Queue< String > answerQueue = new LinkedList< String >();
+
+	/**
+	 * Buffer to collect the output.
+	 */
 	protected ByteArrayOutputStream outputBuffer;
+
+	/**
+	 * Buffer to collect the error output.
+	 */
 	protected ByteArrayOutputStream errorBuffer;
 
+
+	/**
+	 * Constructor.
+	 */
 	public MockConsole()
 	{
 		this.prefixWithDate = false;
@@ -44,16 +64,31 @@ public class MockConsole extends Console
 		this.err = new PrintStream( new TeeOutputStream( this.errorBuffer, originalOut ) );
 	}
 
+	/**
+	 * Add a response.
+	 * 
+	 * @param answer Response to be added to the response queue.
+	 */
 	public void addAnswer( String answer )
 	{
 		this.answerQueue.offer( answer );
 	}
 
+	/**
+	 * Returns the output collected.
+	 * 
+	 * @return The output collected.
+	 */
 	public String getOutput()
 	{
 		return this.outputBuffer.toString();
 	}
 
+	/**
+	 * Returns the error output collected.
+	 * 
+	 * @return The error output collected.
+	 */
 	public String getErrorOutput()
 	{
 		return this.errorBuffer.toString();

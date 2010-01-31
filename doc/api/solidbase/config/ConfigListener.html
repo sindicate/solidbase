@@ -54,7 +54,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../solidbase/config/Application.Comparator.html" title="class in solidbase.config"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;PREV CLASS&nbsp;
 &nbsp;<A HREF="../../solidbase/config/Configuration.html" title="class in solidbase.config"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/config/ConfigListener.html" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -91,12 +91,16 @@ solidbase.config</FONT>
 <BR>
 Interface ConfigListener</H2>
 <DL>
-<DT><B>All Known Implementing Classes:</B> <DD><A HREF="../../solidbase/Progress.html" title="class in solidbase">Progress</A>, <A HREF="../../solidbase/ant/Progress.html" title="class in solidbase.ant">Progress</A>, <A HREF="../../solidbase/maven/Progress.html" title="class in solidbase.maven">Progress</A></DD>
+<DT><B>All Known Implementing Classes:</B> <DD><A HREF="../../solidbase/Progress.html" title="class in solidbase">Progress</A></DD>
 </DL>
 <HR>
 <DL>
 <DT><PRE>public interface <B>ConfigListener</B></DL>
 </PRE>
+
+<P>
+Listens to configuration events.
+<P>
 
 <P>
 <DL>
@@ -120,10 +124,10 @@ Interface ConfigListener</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/config/ConfigListener.html#readingPropertyFile(java.lang.String)">readingPropertyFile</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/config/ConfigListener.html#readingConfigFile(java.lang.String)">readingConfigFile</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Called when a config file is about to be read.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -139,13 +143,15 @@ Interface ConfigListener</H2>
 </TR>
 </TABLE>
 
-<A NAME="readingPropertyFile(java.lang.String)"><!-- --></A><H3>
-readingPropertyFile</H3>
+<A NAME="readingConfigFile(java.lang.String)"><!-- --></A><H3>
+readingConfigFile</H3>
 <PRE>
-void <B>readingPropertyFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</PRE>
+void <B>readingConfigFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</PRE>
 <DL>
+<DD>Called when a config file is about to be read.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>path</CODE> - The path of the config file.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
@@ -178,7 +184,7 @@ void <B>readingPropertyFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../solidbase/config/Application.Comparator.html" title="class in solidbase.config"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;PREV CLASS&nbsp;
 &nbsp;<A HREF="../../solidbase/config/Configuration.html" title="class in solidbase.config"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/config/ConfigListener.html" target="_top"><B>FRAMES</B></A>  &nbsp;

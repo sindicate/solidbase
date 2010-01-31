@@ -666,4 +666,26 @@ public class DBVersion
 			throw new SystemException( e );
 		}
 	}
+
+	/**
+	 * Returns a statement of the current version of the database in a user presentable form.
+	 * 
+	 * @return A statement of the current version of the database in a user presentable form.
+	 */
+	protected String getVersionStatement()
+	{
+		String version = getVersion();
+		String target = getTarget();
+		int statements = getStatements();
+
+		if( version == null )
+		{
+			if( target != null )
+				return "The database has no version yet, incompletely patched to version \"" + target + "\" (" + statements + " statements successful).";
+			return "The database has no version yet.";
+		}
+		if( target != null )
+			return "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful).";
+		return "Current database version is \"" + version + "\".";
+	}
 }
