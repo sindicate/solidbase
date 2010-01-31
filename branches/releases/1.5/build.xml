@@ -159,6 +159,7 @@
 	<target name="jar" depends="compile">
 		<groovy src="getsvninfo.groovy" />
 		<mkdir dir="${build.home}/config" />
+		<!-- TODO This echo causes the jar file to be rebuilt again and again -->
 		<echo file="${build.home}/config/version.properties" message="solidbase.version=${release.number}-rev${svn.revision}" />
 		<mkdir dir="${dist.home}" />
 		<jarjar compress="yes" destfile="${dist.home}/solidbase.jar">

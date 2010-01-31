@@ -459,6 +459,39 @@ public class UpgradeTask extends Task
 	{
 		validate();
 
+//		The code below is meant to get to the REAL System.out.
+//		PrintStream out = null;
+//		try
+//		{
+//			Class main = Class.forName( "org.apache.tools.ant.Main" );
+//			Field outField = main.getDeclaredField( "out" );
+//			outField.setAccessible( true );
+//			Object object = outField.get( null );
+//			out = (PrintStream)object;
+//		}
+//		catch( SecurityException e )
+//		{
+//			throw new SystemException( e );
+//		}
+//		catch( NoSuchFieldException e )
+//		{
+//			throw new SystemException( e );
+//		}
+//		catch( IllegalArgumentException e )
+//		{
+//			throw new SystemException( e );
+//		}
+//		catch( IllegalAccessException e )
+//		{
+//			throw new SystemException( e );
+//		}
+//		catch( ClassNotFoundException e )
+//		{
+//			throw new SystemException( e );
+//		}
+//
+//		out.println( "Dit is een test" );
+
 		Project project = getProject();
 		Progress progress = new Progress( project, this );
 
