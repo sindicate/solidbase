@@ -55,7 +55,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../solidbase/config/ConfigListener.html" title="interface in solidbase.config"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/config/Connection.html" title="class in solidbase.config"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/config/Database.html" title="class in solidbase.config"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/config/Configuration.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="Configuration.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -100,7 +100,7 @@ Class Configuration</H2>
 </PRE>
 
 <P>
-This class represents all the configuration.
+This class represents all the configuration from the commandline or from the properties file.
 <P>
 
 <P>
@@ -123,43 +123,11 @@ This class represents all the configuration.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;int</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#configVersion">configVersion</A></B></CODE>
+<CODE>protected &nbsp;<A HREF="../../solidbase/config/Database.html" title="class in solidbase.config">Database</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#defaultDatabase">defaultDatabase</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Version of the properties format.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/config/Database.html" title="class in solidbase.config">Database</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#databases">databases</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A list of configured databases.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#dbDriver">dbDriver</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Properties format 1: driver class name for the database.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#dbDriverJar">dbDriverJar</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Properties format 1: jar file that needs to be added to the classpath.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#dbUrl">dbUrl</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Properties format 1: url of the database.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The default database.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -180,18 +148,10 @@ This class represents all the configuration.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#passWord">passWord</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Properties format 1: password for the database.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#patchFile">patchFile</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Properties format 1: the upgrade file to be used.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The upgrade file to be used.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -203,27 +163,19 @@ This class represents all the configuration.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="../../solidbase/config/Database.html" title="class in solidbase.config">Database</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#secondaryDatabases">secondaryDatabases</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A list of configured databases.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#target">target</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Properties format 1: target version to upgrade to.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#userName">userName</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Properties format 1: username for the database.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#version">version</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The version of SolidBase.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Target version to upgrade to.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -267,51 +219,11 @@ This class represents all the configuration.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;int</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#getConfigVersion()">getConfigVersion</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the version of the properties format.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../solidbase/config/Database.html" title="class in solidbase.config">Database</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#getDatabase(java.lang.String)">getDatabase</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#getDefaultDatabase()">getDefaultDatabase</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the database with the given name.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/config/Database.html" title="class in solidbase.config">Database</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#getDatabases()">getDatabases</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns all the database.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#getDBDriver()">getDBDriver</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the driver class name.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#getDBDriverJar()">getDBDriverJar</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the jar file that contains the database driver.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#getDBUrl()">getDBUrl</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the url of the database.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the default database.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -320,14 +232,6 @@ This class represents all the configuration.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns all the driver jar file names.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#getPassWord()">getPassWord</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the password for the database.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -355,35 +259,19 @@ This class represents all the configuration.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../solidbase/config/Database.html" title="class in solidbase.config">Database</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#getSecondaryDatabases()">getSecondaryDatabases</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns all the database.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#getTarget()">getTarget</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the target to upgrade to.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#getUser()">getUser</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the user name for the database.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#getUserName()">getUserName</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the user name for the database.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#getVersion()">getVersion</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the version of SolidBase.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -415,18 +303,6 @@ This class represents all the configuration.
 <B>Field Detail</B></FONT></TH>
 </TR>
 </TABLE>
-
-<A NAME="version"><!-- --></A><H3>
-version</H3>
-<PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>version</B></PRE>
-<DL>
-<DD>The version of SolidBase.
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
 
 <A NAME="fromAnt"><!-- --></A><H3>
 fromAnt</H3>
@@ -465,10 +341,10 @@ protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?i
 </DL>
 <HR>
 
-<A NAME="databases"><!-- --></A><H3>
-databases</H3>
+<A NAME="secondaryDatabases"><!-- --></A><H3>
+secondaryDatabases</H3>
 <PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/config/Database.html" title="class in solidbase.config">Database</A>&gt; <B>databases</B></PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="../../solidbase/config/Database.html" title="class in solidbase.config">Database</A>&gt; <B>secondaryDatabases</B></PRE>
 <DL>
 <DD>A list of configured databases.
 <P>
@@ -477,72 +353,12 @@ protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?i
 </DL>
 <HR>
 
-<A NAME="configVersion"><!-- --></A><H3>
-configVersion</H3>
+<A NAME="defaultDatabase"><!-- --></A><H3>
+defaultDatabase</H3>
 <PRE>
-protected int <B>configVersion</B></PRE>
+protected <A HREF="../../solidbase/config/Database.html" title="class in solidbase.config">Database</A> <B>defaultDatabase</B></PRE>
 <DL>
-<DD>Version of the properties format. Version 1 is deprecated, use version 2.
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
-
-<A NAME="dbUrl"><!-- --></A><H3>
-dbUrl</H3>
-<PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>dbUrl</B></PRE>
-<DL>
-<DD>Properties format 1: url of the database.
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
-
-<A NAME="dbDriver"><!-- --></A><H3>
-dbDriver</H3>
-<PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>dbDriver</B></PRE>
-<DL>
-<DD>Properties format 1: driver class name for the database.
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
-
-<A NAME="dbDriverJar"><!-- --></A><H3>
-dbDriverJar</H3>
-<PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>dbDriverJar</B></PRE>
-<DL>
-<DD>Properties format 1: jar file that needs to be added to the classpath.
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
-
-<A NAME="userName"><!-- --></A><H3>
-userName</H3>
-<PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>userName</B></PRE>
-<DL>
-<DD>Properties format 1: username for the database.
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
-
-<A NAME="passWord"><!-- --></A><H3>
-passWord</H3>
-<PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>passWord</B></PRE>
-<DL>
-<DD>Properties format 1: password for the database.
+<DD>The default database.
 <P>
 <DL>
 </DL>
@@ -554,7 +370,7 @@ target</H3>
 <PRE>
 protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>target</B></PRE>
 <DL>
-<DD>Properties format 1: target version to upgrade to.
+<DD>Target version to upgrade to.
 <P>
 <DL>
 </DL>
@@ -566,7 +382,7 @@ patchFile</H3>
 <PRE>
 protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>patchFile</B></PRE>
 <DL>
-<DD>Properties format 1: the upgrade file to be used.
+<DD>The upgrade file to be used.
 <P>
 <DL>
 </DL>
@@ -637,90 +453,6 @@ protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/File.html?is-
 </DL>
 <HR>
 
-<A NAME="getDBDriver()"><!-- --></A><H3>
-getDBDriver</H3>
-<PRE>
-public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getDBDriver</B>()</PRE>
-<DL>
-<DD>Returns the driver class name.
-<P>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>The driver class name.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="getDBUrl()"><!-- --></A><H3>
-getDBUrl</H3>
-<PRE>
-public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getDBUrl</B>()</PRE>
-<DL>
-<DD>Returns the url of the database.
-<P>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>The url of the database.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="getVersion()"><!-- --></A><H3>
-getVersion</H3>
-<PRE>
-public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getVersion</B>()</PRE>
-<DL>
-<DD>Returns the version of SolidBase.
-<P>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>The version of SolidBase.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="getDBDriverJar()"><!-- --></A><H3>
-getDBDriverJar</H3>
-<PRE>
-public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getDBDriverJar</B>()</PRE>
-<DL>
-<DD>Returns the jar file that contains the database driver.
-<P>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>the jar file that contains the database driver.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="getUser()"><!-- --></A><H3>
-getUser</H3>
-<PRE>
-public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getUser</B>()</PRE>
-<DL>
-<DD>Returns the user name for the database.
-<P>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>The user name for the database.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="getDatabase(java.lang.String)"><!-- --></A><H3>
-getDatabase</H3>
-<PRE>
-public <A HREF="../../solidbase/config/Database.html" title="class in solidbase.config">Database</A> <B>getDatabase</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name)</PRE>
-<DL>
-<DD>Returns the database with the given name.
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>name</CODE> - The name for the database to return.
-<DT><B>Returns:</B><DD>The database with the given name. If the database is not found it throws a <A HREF="../../solidbase/core/SystemException.html" title="class in solidbase.core"><CODE>SystemException</CODE></A>.</DL>
-</DD>
-</DL>
-<HR>
-
 <A NAME="isFromAnt()"><!-- --></A><H3>
 isFromAnt</H3>
 <PRE>
@@ -749,10 +481,10 @@ public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-e
 </DL>
 <HR>
 
-<A NAME="getDatabases()"><!-- --></A><H3>
-getDatabases</H3>
+<A NAME="getSecondaryDatabases()"><!-- --></A><H3>
+getSecondaryDatabases</H3>
 <PRE>
-public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/config/Database.html" title="class in solidbase.config">Database</A>&gt; <B>getDatabases</B>()</PRE>
+public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../solidbase/config/Database.html" title="class in solidbase.config">Database</A>&gt; <B>getSecondaryDatabases</B>()</PRE>
 <DL>
 <DD>Returns all the database.
 <P>
@@ -763,44 +495,16 @@ public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-e
 </DL>
 <HR>
 
-<A NAME="getConfigVersion()"><!-- --></A><H3>
-getConfigVersion</H3>
+<A NAME="getDefaultDatabase()"><!-- --></A><H3>
+getDefaultDatabase</H3>
 <PRE>
-public int <B>getConfigVersion</B>()</PRE>
+public <A HREF="../../solidbase/config/Database.html" title="class in solidbase.config">Database</A> <B>getDefaultDatabase</B>()</PRE>
 <DL>
-<DD>Returns the version of the properties format.
+<DD>Returns the default database.
 <P>
 <DD><DL>
 
-<DT><B>Returns:</B><DD>The version of the properties format.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="getUserName()"><!-- --></A><H3>
-getUserName</H3>
-<PRE>
-public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getUserName</B>()</PRE>
-<DL>
-<DD>Returns the user name for the database.
-<P>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>The user name for the database.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="getPassWord()"><!-- --></A><H3>
-getPassWord</H3>
-<PRE>
-public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getPassWord</B>()</PRE>
-<DL>
-<DD>Returns the password for the database.
-<P>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>The password for the database.</DL>
+<DT><B>Returns:</B><DD>The default database.</DL>
 </DD>
 </DL>
 <HR>
@@ -876,7 +580,7 @@ public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../solidbase/config/ConfigListener.html" title="interface in solidbase.config"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/config/Connection.html" title="class in solidbase.config"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/config/Database.html" title="class in solidbase.config"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/config/Configuration.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="Configuration.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;

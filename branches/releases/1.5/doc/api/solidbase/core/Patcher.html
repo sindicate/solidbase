@@ -239,6 +239,12 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#Patcher(solidbase.core.ProgressListener)">Patcher</A></B>(<A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;listener)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Construct a new instance of the patcher.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#Patcher(solidbase.core.ProgressListener, solidbase.core.Database)">Patcher</A></B>(<A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;listener,
         <A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database)</CODE>
 
@@ -258,10 +264,11 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#addConnection(solidbase.config.Connection)">addConnection</A></B>(<A HREF="../../solidbase/config/Connection.html" title="class in solidbase.config">Connection</A>&nbsp;connection)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#addDatabase(java.lang.String, solidbase.core.Database)">addDatabase</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+            <A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Add a configured connection.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Add a database.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -362,6 +369,14 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns all possible targets from the current version.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#getVersionStatement()">getVersionStatement</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a statement of the current version of the database in a user presentable form.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -695,6 +710,18 @@ protected <A HREF="../../solidbase/core/DBVersion.html" title="class in solidbas
 </TR>
 </TABLE>
 
+<A NAME="Patcher(solidbase.core.ProgressListener)"><!-- --></A><H3>
+Patcher</H3>
+<PRE>
+public <B>Patcher</B>(<A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;listener)</PRE>
+<DL>
+<DD>Construct a new instance of the patcher.
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>listener</CODE> - Listens to the progress.</DL>
+</DL>
+<HR>
+
 <A NAME="Patcher(solidbase.core.ProgressListener, solidbase.core.Database)"><!-- --></A><H3>
 Patcher</H3>
 <PRE>
@@ -704,8 +731,7 @@ public <B>Patcher</B>(<A HREF="../../solidbase/core/ProgressListener.html" title
 <DD>Construct a new instance of the patcher.
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>listener</CODE> - Listens to the progress.<DD><CODE>database</CODE> - The default database to use. This database also contains a default user. Version tables will be
-        looked for in this database in the schema identified by the default user.</DL>
+<DT><B>Parameters:</B><DD><CODE>listener</CODE> - Listens to the progress.<DD><CODE>database</CODE> - The default database.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -1117,15 +1143,16 @@ protected void <B>selectConnection</B>(<A HREF="http://java.sun.com/j2se/1.5.0/d
 </DL>
 <HR>
 
-<A NAME="addConnection(solidbase.config.Connection)"><!-- --></A><H3>
-addConnection</H3>
+<A NAME="addDatabase(java.lang.String, solidbase.core.Database)"><!-- --></A><H3>
+addDatabase</H3>
 <PRE>
-public void <B>addConnection</B>(<A HREF="../../solidbase/config/Connection.html" title="class in solidbase.config">Connection</A>&nbsp;connection)</PRE>
+public void <B>addDatabase</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                        <A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database)</PRE>
 <DL>
-<DD>Add a configured connection.
+<DD>Add a database.
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>connection</CODE> - A configured connection.</DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - The name of the database.<DD><CODE>database</CODE> - The database.</DL>
 </DD>
 </DL>
 <HR>
@@ -1139,6 +1166,20 @@ public void <B>connect</B>()</PRE>
 <P>
 <DD><DL>
 </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getVersionStatement()"><!-- --></A><H3>
+getVersionStatement</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getVersionStatement</B>()</PRE>
+<DL>
+<DD>Returns a statement of the current version of the database in a user presentable form.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>A statement of the current version of the database in a user presentable form.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
