@@ -37,7 +37,7 @@
 				<configuration>
 					<driver>org.hsqldb.jdbcDriver</driver>
 					<url>jdbc:hsqldb:mem:testplugin</url>
-					<username>sa</username> <!-- Use 'user' in SolidBase 1.5.0 -->
+					<username>sa</username>
 					<password></password>
 					<upgradefile>upgrade-hsqldb-example.sql</upgradefile>
 					<target>1.0.*</target>
