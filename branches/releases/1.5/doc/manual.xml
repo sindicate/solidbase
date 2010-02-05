@@ -77,13 +77,14 @@
 				Database changes are executed in a specific context.
 				This context consists of the parameters set within SolidBase, the parameters set on the connection to the database, and the global parameters defined in the database.
 				Examples are:
-				<itemizedlist>
-					<listitem><para>Which user is used to apply the database changes?</para></listitem>
-					<listitem><para>What date/time format is currently active?</para></listitem>
-					<listitem><para>Should specific sql errors be ignored because they are expected?</para></listitem>
-				</itemizedlist>
 			</para>
 			
+			<itemizedlist>
+				<listitem><para>Which user is used to apply the database changes?</para></listitem>
+				<listitem><para>What date/time format is currently active?</para></listitem>
+				<listitem><para>Should specific sql errors be ignored because they are expected?</para></listitem>
+			</itemizedlist>
+
 			<para>
 				Context parameters can be changed in between the execution of the database changes.
 			</para>

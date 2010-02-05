@@ -357,8 +357,8 @@
 	</target>
 	
 
-	<target name="docbook2wiki">
-		<groovy src="docbook2wiki.groovy" />
+	<target name="docbook2wiki" depends="compile">
+		<groovy src="docbook2wiki.groovy" classpath="${build.home}/classes" />
 	</target>
 
 	
