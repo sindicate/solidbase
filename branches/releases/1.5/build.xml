@@ -356,5 +356,10 @@
 		</java>
 	</target>
 	
-		
+
+	<target name="docbook2wiki">
+		<groovy src="docbook2wiki.groovy" />
+	</target>
+
+	
 </project>
