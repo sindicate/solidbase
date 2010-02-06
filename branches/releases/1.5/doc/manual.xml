@@ -21,7 +21,7 @@
 	xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd">
 
 	<info>
-		<title>SolidBase</title>
+		<title>SolidBase 1.0 User's Manual</title>
 		<subtitle>A database change and version control tool using SQL and markup.</subtitle>
 		<author>
 			<personname>René M. de Bloois</personname>

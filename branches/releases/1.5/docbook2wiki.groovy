@@ -32,6 +32,7 @@ try
 	{
 		def info = book.findElement("info")
 		assert info
+		it.println "====Generated from DocBook===="
 		it.println "=${info.findElement("title").text}="
 		it.println "==${info.findElement("subtitle").text}=="
 		it.println "===${info.findElement("author").findElement("personname").text}==="
@@ -89,9 +90,9 @@ def section( out, section )
 		else if( child.name == "itemizedlist" )
 			itemizedlist( out, child )
 		else if( child.name == "example" )
-			out.todo( child.name )
+			example( out, child )
 		else if( child.name == "screen" )
-			out.todo( child.name )
+			codeblock( out, child )
 		else if( child.name == "table" )
 			out.todo( child.name )
 		else if( child.name == "programlisting" )
@@ -138,6 +139,26 @@ def para( out, section )
 			assert false : "Got ${child.name}"
 	}
 	out.endPara()
+}
+
+def example( out, example )
+{
+	out.startSection()
+	def title = example.findElement( "title" )
+	assert title
+	out.startObjectHeader()
+	dotitle( out, title )
+	out.endObjectHeader()
+	for( child in example.children )
+	{
+		if( child.name == "screen" || child.name == "programlisting" )
+			codeblock( out, child )
+		else if( child.name == "para" )
+			para( out, child )
+		else
+			assert child.name == "title" : "Got ${child.name}"
+	}
+	out.endSection()
 }
 
 def itemizedlist( out, section )

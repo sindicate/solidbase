@@ -27,6 +27,7 @@ class WikiWriter
 	boolean code = false
 	boolean objectheader = false
 	int itemizedlistdepth = 0
+	boolean endedwithfreetext = false
 			
 	def WikiWriter( PrintWriter printWriter )
 	{
@@ -50,7 +51,8 @@ class WikiWriter
 		if( itemizedlistdepth == 0 )
 		{
 			newline()
-			out.println()
+			if( endedwithfreetext )
+				out.println()
 		}
 	}
 	
@@ -136,6 +138,7 @@ class WikiWriter
 	def text( text )
 	{
 		assert text
+		endedwithfreetext = false
 		if( header )
 		{
 			newline()
@@ -177,6 +180,12 @@ class WikiWriter
 			column1 = false
 			notext = false
 		}
+		else if( code )
+		{
+			out.println( "{{{" )
+			out.println( text )
+			out.println( "}}}" )
+		}
 		else
 		{
 			if( column1 )
@@ -184,6 +193,7 @@ class WikiWriter
 			out.print( text.replaceAll( "\\s{2,}", " " ) )
 			column1 = false
 			notext = false
+			endedwithfreetext = true
 		}
 	}
 	
