@@ -17,171 +17,163 @@
 import javax.xml.stream.*
 import solidbase.xml.elements.*
 
-def reader = XMLInputFactory.newInstance().createXMLStreamReader( new InputStreamReader( new FileInputStream( "doc/manual.xml" ), "UTF-8" ) )
-assert reader.hasNext()
-reader.next()
-assert reader.hasNext()
-reader.next()
-
-def book = StaxNodeReader.readNode( reader )
-assert book.name == "book"
-
-new File( "../solidbase-wiki/UsersManual.wiki" ).withPrintWriter
+try
 {
-	def info = book.findElement("info")
-	assert info
-	it.println "=${info.findElement("title").text}="
-	it.println "==${info.findElement("subtitle").text}=="
-	it.println "===${info.findElement("author").findElement("personname").text}==="
-	it.println "----"
+	def reader = XMLInputFactory.newInstance().createXMLStreamReader( new InputStreamReader( new FileInputStream( "doc/manual.xml" ), "UTF-8" ) )
+	assert reader.hasNext()
+	reader.next()
+	assert reader.hasNext()
+	reader.next()
 	
-	def chapters = book.children
-	def chapternumber = 1
-	for( chapter in chapters )
+	def book = StaxNodeReader.readNode( reader )
+	assert book.name == "book"
+	
+	new File( "../solidbase-wiki/UsersManual.wiki" ).withPrintWriter
 	{
-		if( chapter.name == "chapter" )
+		def info = book.findElement("info")
+		assert info
+		it.println "=${info.findElement("title").text}="
+		it.println "==${info.findElement("subtitle").text}=="
+		it.println "===${info.findElement("author").findElement("personname").text}==="
+		it.println "----"
+		
+		def out = new WikiWriter( it )
+		
+		for( chapter in book.children )
 		{
-			it.println "=Chapter ${chapternumber++}. ${chapter.findElement("title").text}="
-			chapterorsection( it, chapter, 0 )
+			if( chapter.name == "chapter" )
+				section( out, chapter )
+			else
+				assert chapter.name == "info" : "Got ${chapter.name}"
+		}
+		
+		out.newline()
+	}
+}
+catch( Throwable e )
+{
+	throw org.codehaus.groovy.runtime.StackTraceUtils.deepSanitize( e )
+}
+
+def dotitle( out, title )
+{
+	for( child in title.children )
+	{
+		if( child instanceof String )
+			out.text( child )
+		else if( child.name == "code" )
+		{
+			out.startCode()
+			out.text( child.text )
+			out.endCode()
 		}
 		else
-			assert chapter.name == "info" : "Unexpected child of book: " + chapter.name
+			assert false : "Got ${child.name}"
 	}
 }
 
-def chapterorsection( out, node, int sectiondepth )
+def section( out, section )
 {
-	for( child in node.children )
+	out.startSection()
+	def title = section.findElement("title")
+	assert title
+	out.startHeader()
+	dotitle( out, title )
+	out.endHeader()
+	for( child in section.children )
 	{
 		if( child.name == "section" )
-		{
-			out.println "==${titleToWiki(child.findElement("title"))}=="
-			chapterorsection( out, child, sectiondepth + 1 )
-		}
+			section( out, child )
 		else if( child.name == "para" )
-		{
-			def out2 = new StringWriter()
-			para( out2, child )
-			out.println "\n" + parastrip( out2.toString() )
-		}
+			para( out, child )
 		else if( child.name == "itemizedlist" )
-		{
 			itemizedlist( out, child )
-		}
 		else if( child.name == "example" )
-		{
-			out.println "example"
-		}
+			out.todo( child.name )
 		else if( child.name == "screen" )
-		{
-			out.println "screen"
-		}
+			out.todo( child.name )
 		else if( child.name == "table" )
-		{
-			out.println "table"
-		}
-		else if( child.name == "section" )
-		{
-			out.println "section"
-		}
+			out.todo( child.name )
 		else if( child.name == "programlisting" )
-		{
-			out.println "programlisting"
-		}
+			out.todo( child.name )
 		else if( child.name == "note" )
-		{
-			out.println "note"
-		}
+			out.todo( child.name )
 		else
-			assert child.name == "title" : "Unexpected child ${child.name} of parent ${node.name}"
+			assert child.name == "title" : "Got ${child.name}"
+	}
+	out.endSection()
+}
+
+def container( out, section )
+{
+	for( child in section.children )
+	{
+		if( child.name == "para" )
+			para( out, child )
+//		else if( child.name == "itemizedlist" )
+//			itemizedlist( out, child )
+		else if( child.name == "programlisting" )
+			code( out, child )
+		else
+			assert false : "Got ${child.name}"
 	}
 }
 
-def para( out, element )
+def para( out, section )
 {
-	for( child in element.children )
+	out.startPara()
+	for( child in section.children )
 	{
 		if( child instanceof String )
-			out.print child
+			out.text( child )
+		else if( child.name == "computeroutput" || child.name == "programlisting" )
+			codeblock( out, child )
+		else if( child.name == "xref" )
+			out.todo( child.name )
+		else if( child.name == "note" )
+			out.todo( child.name )
+		else if( child.name == "code" )
+			out.todo( child.name )
 		else
-		{
-			assert child instanceof Element
-			if( child.name == "code" )
-				out.print "{{{${child.text}}}}"
-			else if( child.name == "programlisting" || child.name == "computeroutput" )
-				out.print "{{{\n${child.text}\n}}}"
-			else if( child.name == "xref" )
-				out.print "TODO: XREF"
-			else if( child.name == "note" )
-				out.print "TODO: NOTE"
-			else
-				assert false : "got ${child.name}"
-		}
+			assert false : "Got ${child.name}"
 	}
-	out.println()
+	out.endPara()
 }
 
-def titleToWiki( def element )
+def itemizedlist( out, section )
 {
-	def result = new StringBuilder()
-	for( child in element.children )
+	out.startItemizedList()
+	def title = section.findElement( "title" )
+	if( title )
 	{
-		if( child instanceof String )
-			result << child
-		else
-		{
-			assert child instanceof Element
-			assert child.name == "code"
-			result << "{{{"
-			result << child.text
-			result << "}}}"
-		}
+		out.startObjectHeader()
+		dotitle( out, title )
+		out.endObjectHeader()
 	}
-	return result
-}
-
-def itemizedlist( out, element )
-{
-	for( child in element.children )
+	for( child in section.children )
 	{
-		assert child instanceof Element
 		if( child.name == "listitem" )
 		{
-			for( child2 in child.children )
-			{
-				if( child2.name == "para" )
-				{
-					def out2 = new StringWriter()
-					para( out2, child2 )
-					out.println " * " + parabr( out2.toString() )
-				}
-				else if( child2.name == "programlisting" )
-					out.println " * " + programlistingbr( child2 )
-				else
-					assert fail : "Got ${child2.name}"
-			}
+			out.startItem()
+			container( out, child )
+			out.endItem()
 		}
 		else
-			assert child.name == "title" : "got ${child.name}" // TODO title
+			assert child.name == "title" : "Got ${child.name}"
 	}
+	out.endItemizedList()
 }
 
-def parabr( para )
+def code( out, code )
 {
-	para = para.replaceAll( "^\\s+", "" )
-	para = para.replaceAll( '\\s+$', "" )
-	return para.replaceAll( "\\n", "<br/>" )
+	out.startCode()
+	out.text( code.text )
+	out.endCode()
 }
 
-def parastrip( para )
+def codeblock( out, code )
 {
-	para = para.replaceAll( "^\\s+", "" )
-	para = para.replaceAll( '\\s+$', "" )
-	return para.replaceAll( '\\s{2,}', " " )
-}
-
-def programlistingbr( element )
-{
-	def text = element.text
-	return "{{{" + text.replaceAll( "\n", "}}}<br/>{{{" ) + "}}}"
+	out.startCodeBlock()
+	out.text( code.text )
+	out.endCodeBlock()
 }

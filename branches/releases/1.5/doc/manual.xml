@@ -93,7 +93,7 @@
 				<title>Examples of changing context parameters</title>
 				<listitem><para><computeroutput>--* SET USER &lt;username&gt;</computeroutput></para></listitem>
 				<listitem>
-<programlisting>--* SESSIONCONFIG, maybe introduce something like: --* >ALTER SESSION
+<programlisting>--* SESSIONCONFIG
 ALTER SESSION ...
 --* /SESSIONCONFIG</programlisting>
 				</listitem>
