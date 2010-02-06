@@ -36,11 +36,12 @@ new File( "../solidbase-wiki/UsersManual.wiki" ).withPrintWriter
 	it.println "----"
 	
 	def chapters = book.children
+	def chapternumber = 1
 	for( chapter in chapters )
 	{
 		if( chapter.name == "chapter" )
 		{
-			it.println "=${chapter.findElement("title").text}="
+			it.println "=Chapter ${chapternumber++}. ${chapter.findElement("title").text}="
 			chapterorsection( it, chapter, 0 )
 		}
 		else
@@ -59,11 +60,13 @@ def chapterorsection( out, node, int sectiondepth )
 		}
 		else if( child.name == "para" )
 		{
-			para( out, child )
+			def out2 = new StringWriter()
+			para( out2, child )
+			out.println "\n" + parastrip( out2.toString() )
 		}
 		else if( child.name == "itemizedlist" )
 		{
-			out.println "itemizedlist"
+			itemizedlist( out, child )
 		}
 		else if( child.name == "example" )
 		{
@@ -103,12 +106,14 @@ def para( out, element )
 		else
 		{
 			assert child instanceof Element
-			if( child.name == "code" || child.name == "programlisting" || child.name == "computeroutput" )
-			{
+			if( child.name == "code" )
 				out.print "{{{${child.text}}}}"
-			}
+			else if( child.name == "programlisting" || child.name == "computeroutput" )
+				out.print "{{{\n${child.text}\n}}}"
 			else if( child.name == "xref" )
 				out.print "TODO: XREF"
+			else if( child.name == "note" )
+				out.print "TODO: NOTE"
 			else
 				assert false : "got ${child.name}"
 		}
@@ -133,4 +138,50 @@ def titleToWiki( def element )
 		}
 	}
 	return result
+}
+
+def itemizedlist( out, element )
+{
+	for( child in element.children )
+	{
+		assert child instanceof Element
+		if( child.name == "listitem" )
+		{
+			for( child2 in child.children )
+			{
+				if( child2.name == "para" )
+				{
+					def out2 = new StringWriter()
+					para( out2, child2 )
+					out.println " * " + parabr( out2.toString() )
+				}
+				else if( child2.name == "programlisting" )
+					out.println " * " + programlistingbr( child2 )
+				else
+					assert fail : "Got ${child2.name}"
+			}
+		}
+		else
+			assert child.name == "title" : "got ${child.name}" // TODO title
+	}
+}
+
+def parabr( para )
+{
+	para = para.replaceAll( "^\\s+", "" )
+	para = para.replaceAll( '\\s+$', "" )
+	return para.replaceAll( "\\n", "<br/>" )
+}
+
+def parastrip( para )
+{
+	para = para.replaceAll( "^\\s+", "" )
+	para = para.replaceAll( '\\s+$', "" )
+	return para.replaceAll( '\\s{2,}', " " )
+}
+
+def programlistingbr( element )
+{
+	def text = element.text
+	return "{{{" + text.replaceAll( "\n", "}}}<br/>{{{" ) + "}}}"
 }
