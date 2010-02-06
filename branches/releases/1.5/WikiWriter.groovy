@@ -25,6 +25,7 @@ class WikiWriter
 	boolean notext = true
 	boolean header = false
 	boolean code = false
+	boolean codeblock = false
 	boolean objectheader = false
 	int itemizedlistdepth = 0
 	boolean endedwithfreetext = false
@@ -83,7 +84,7 @@ class WikiWriter
 	
 	def startCodeBlock()
 	{
-		code = true
+		codeblock = true
 		if( itemizedlistdepth > 0 )
 		{
 			if( !notext )
@@ -95,7 +96,7 @@ class WikiWriter
 	
 	def endCodeBlock()
 	{
-		code = false
+		codeblock = false
 		if( itemizedlistdepth > 0 )
 			out.print( "<br/>" )
 		else
@@ -139,6 +140,8 @@ class WikiWriter
 	{
 		assert text
 		endedwithfreetext = false
+		if( !code && !codeblock )
+			text = text.replaceAll( "[A-Z]+[a-z]+[A-Z]+[a-zA-Z]*", '!$0' )
 		if( header )
 		{
 			newline()
@@ -170,9 +173,9 @@ class WikiWriter
 		else if( itemizedlistdepth > 0 )
 		{
 			if( notext )
-				if( !code )
+				if( !code && !codeblock )
 					text = text.replaceAll( '^\\s+', "" )
-			if( code )
+			if( code || codeblock )
 				text = newlinetobr( text )
 			else
 				text = text.replaceAll( "\\s{2,}", " " )
@@ -180,11 +183,15 @@ class WikiWriter
 			column1 = false
 			notext = false
 		}
-		else if( code )
+		else if( codeblock )
 		{
 			out.println( "{{{" )
 			out.println( text )
 			out.println( "}}}" )
+		}
+		else if( code )
+		{
+			out.print( "{{{" + text + "}}}" )
 		}
 		else
 		{

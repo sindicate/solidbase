@@ -24,7 +24,7 @@
 		<title>SolidBase 1.0 User's Manual</title>
 		<subtitle>A database change and version control tool using SQL and markup.</subtitle>
 		<author>
-			<personname>René M. de Bloois</personname>
+			<personname>René de Bloois</personname>
 			<email>rene.de.bloois@gmail.com</email>
 		</author>
 		<productname>SolidBase</productname>
@@ -33,6 +33,13 @@
 			<holder>René M. de Bloois</holder>
 		</copyright>
 	</info>
+
+	<chapter xml:id="introduction">
+		<title>Introduction</title>
+		
+		<para>This document is obsolete. It will be the basis for a new manual for the 1.5 release.</para>
+		
+	</chapter>
 
 	<chapter xml:id="concepts">
 		<title>Concepts</title>

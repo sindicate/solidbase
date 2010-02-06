@@ -28,17 +28,18 @@ try
 	def book = StaxNodeReader.readNode( reader )
 	assert book.name == "book"
 	
-	new File( "../solidbase-wiki/UsersManual.wiki" ).withPrintWriter
+	new File( "../solidbase-wiki/UsersManual.wiki" ).withPrintWriter( "UTF-8" )
 	{
+		def out = new WikiWriter( it )
+		
 		def info = book.findElement("info")
 		assert info
-		it.println "====Generated from DocBook===="
-		it.println "=${info.findElement("title").text}="
-		it.println "==${info.findElement("subtitle").text}=="
-		it.println "===${info.findElement("author").findElement("personname").text}==="
-		it.println "----"
 		
-		def out = new WikiWriter( it )
+		out.text( "Generated from DocBook\n" )
+		out.text( "=" + info.findElement("title").text + "=\n" )
+		out.text( "==" + info.findElement("subtitle").text + "==\n" )
+		out.text( "===" + info.findElement("author").findElement("personname").text + "===\n" )
+		out.text( "----" )
 		
 		for( chapter in book.children )
 		{
@@ -96,7 +97,7 @@ def section( out, section )
 		else if( child.name == "table" )
 			out.todo( child.name )
 		else if( child.name == "programlisting" )
-			out.todo( child.name )
+			codeblock( out, child )
 		else if( child.name == "note" )
 			out.todo( child.name )
 		else
@@ -134,7 +135,7 @@ def para( out, section )
 		else if( child.name == "note" )
 			out.todo( child.name )
 		else if( child.name == "code" )
-			out.todo( child.name )
+			code( out, child )
 		else
 			assert false : "Got ${child.name}"
 	}
