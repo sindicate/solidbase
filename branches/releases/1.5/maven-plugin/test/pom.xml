@@ -15,7 +15,7 @@
 			<id>solidbase</id>
 			<name>SolidBase Repository</name>
 			<layout>default</layout>
-			<url>file:///D:/PROJECTS/java/BUILDS/solidbase/remote</url>
+			<url>${test.repo.url}</url>
 			<releases><enabled>true</enabled></releases>
 			<snapshots><enabled>false</enabled></snapshots>
 		</pluginRepository>

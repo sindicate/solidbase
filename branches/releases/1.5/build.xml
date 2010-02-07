@@ -348,7 +348,7 @@
 		<delete dir="${build.home}/remote" /> <!-- Delete the remote repo -->
 		<maven:deploy file="${dist.home}/solidbase.jar"> <!-- Deploy to the remote repo -->
 			<pom file="pom.xml" />
-			<remoterepository url="file:///D:/PROJECTS/java/BUILDS/solidbase/remote" />
+			<remoterepository url="file:///${build.home}/remote" />
 			<localrepository path="${build.home}/mavenuser/.m2/repository" />
 		</maven:deploy>
 		<delete dir="${build.home}/mavenuser/.m2/repository/solidbase" /> <!-- Remove solidbase from the local repo -->
@@ -358,6 +358,7 @@
 			<jvmarg value="-Dclassworlds.conf=${basedir}/tools/maven/bin/m2.conf" />
 			<jvmarg value="-Duser.home=${build.home}/mavenuser" /> <!-- Use our own user folder -->
 			<jvmarg value="-Dmaven.home=${basedir}/tools/maven" />
+			<jvmarg value="-Dtest.repo.url=file:///${build.home}/remote" /> <!-- Used in the pom.xml -->
 			<arg value="--batch-mode" />
 			<arg value="solidbase:upgrade" />
 		</java>
