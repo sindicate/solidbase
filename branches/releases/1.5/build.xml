@@ -157,6 +157,13 @@
 
 
 	<target name="jar" depends="compile">
+		<fail message="A *.txt file is missing">
+			<condition>
+				<resourcecount when="ne" count="3">
+					<fileset dir="." includes="LICENSE.txt,NOTICE.txt,CHANGELOG.TXT" />
+				</resourcecount>
+			</condition>
+		</fail>
 		<groovy src="getsvninfo.groovy" />
 		<mkdir dir="${build.home}/config" />
 		<!-- TODO This echo causes the jar file to be rebuilt again and again -->
@@ -169,7 +176,7 @@
 			<zipfileset src="lib/commons-cli-1.2.jar" excludes="META-INF/**" />
 			<zipfileset src="lib/commons-collections-3.2.jar" excludes="META-INF/**" />
 			<zipfileset src="lib/commons-lang-2.3.jar" excludes="META-INF/**" />
-			<zipfileset dir="." includes="LICENSE.txt,NOTICE.txt" prefix="META-INF" />
+			<zipfileset dir="." includes="LICENSE.txt,NOTICE.txt,CHANGELOG.TXT" prefix="META-INF" />
 			<rule pattern="org.apache.commons.**" result="solidbase.@0" />
 			<rule pattern="com.mindprod.**" result="solidbase.@0" />
 			<keep pattern="solidbase.Main" />
