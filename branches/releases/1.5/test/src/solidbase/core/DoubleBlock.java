@@ -40,7 +40,7 @@ public class DoubleBlock
 		catch( FatalException e )
 		{
 			patchFile.close();
-			Assert.assertTrue( e.getMessage().contains( "Double upgrade block" ) );
+			Assert.assertTrue( e.getMessage().contains( "Duplicate upgrade block" ) );
 		}
 	}
 }

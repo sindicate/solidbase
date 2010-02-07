@@ -279,7 +279,7 @@ public class PatchFile
 								throw new FatalException( "Upgrade block type '" + action + "' is different from its definition at line " + pos );
 						}
 						if( patch.getLineNumber() >= 0 )
-							throw new FatalException( "Double upgrade block \"" + source + "\" --> \"" + target + "\" found at line " + pos );
+							throw new FatalException( "Duplicate upgrade block \"" + source + "\" --> \"" + target + "\" found at line " + pos );
 						patch.setLineNumber( pos );
 					}
 				}
