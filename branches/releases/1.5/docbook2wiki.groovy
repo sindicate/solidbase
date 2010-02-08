@@ -95,11 +95,11 @@ def section( out, section )
 		else if( child.name == "screen" )
 			codeblock( out, child )
 		else if( child.name == "table" )
-			out.todo( child.name )
+			table( out, child )
 		else if( child.name == "programlisting" )
 			codeblock( out, child )
 		else if( child.name == "note" )
-			out.todo( child.name )
+			note( out, child )
 		else
 			assert child.name == "title" : "Got ${child.name}"
 	}
@@ -128,13 +128,13 @@ def para( out, section )
 	{
 		if( child instanceof String )
 			out.text( child )
-		else if( child.name == "computeroutput" || child.name == "programlisting" )
+		else if( child.name == "programlisting" )
 			codeblock( out, child )
 		else if( child.name == "xref" )
 			out.todo( child.name )
 		else if( child.name == "note" )
-			out.todo( child.name )
-		else if( child.name == "code" )
+			note( out, child )
+		else if( child.name == "code" || child.name == "computeroutput" )
 			code( out, child )
 		else
 			assert false : "Got ${child.name}"
@@ -144,12 +144,12 @@ def para( out, section )
 
 def example( out, example )
 {
-	out.startSection()
 	def title = example.findElement( "title" )
 	assert title
 	out.startObjectHeader()
 	dotitle( out, title )
 	out.endObjectHeader()
+	out.startSection()
 	for( child in example.children )
 	{
 		if( child.name == "screen" || child.name == "programlisting" )
@@ -164,7 +164,6 @@ def example( out, example )
 
 def itemizedlist( out, section )
 {
-	out.startItemizedList()
 	def title = section.findElement( "title" )
 	if( title )
 	{
@@ -172,6 +171,7 @@ def itemizedlist( out, section )
 		dotitle( out, title )
 		out.endObjectHeader()
 	}
+	out.startItemizedList()
 	for( child in section.children )
 	{
 		if( child.name == "listitem" )
@@ -198,4 +198,62 @@ def codeblock( out, code )
 	out.startCodeBlock()
 	out.text( code.text )
 	out.endCodeBlock()
+}
+
+def table( out, table )
+{
+	def title = table.findElement( "caption" )
+	if( title )
+	{
+		out.startObjectHeader()
+		dotitle( out, title )
+		out.endObjectHeader()
+	}
+	out.startTable()
+	for( child in table.children )
+	{
+		if( child.name == "tr" )
+		{
+			row( out, child )
+		}
+		else
+			assert child.name == "caption" : "Got ${child.name}"
+	}
+	out.endTable()
+}
+
+def row( out, row )
+{
+	out.startRow()
+	for( child in row.children )
+	{
+		if( child.name == "td" )
+		{
+			out.startCell()
+			out.text( child.text )
+			out.endCell()	
+		}
+		else if( child.name == "th" )
+		{
+			out.startHeaderCell()
+			out.text( child.text )
+			out.endHeaderCell()	
+		}
+		else
+			assert false : "Got ${child.name}"
+	}
+	out.endRow()
+}
+
+def note( out, note )
+{
+	out.startNote()
+	for( child in note.children )
+	{
+		if( child.name == "para" )
+			para( out, child )
+		else
+			assert false : "Got ${child.name}"
+	}
+	out.endNote()
 }

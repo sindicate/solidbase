@@ -29,6 +29,9 @@ class WikiWriter
 	boolean objectheader = false
 	int itemizedlistdepth = 0
 	boolean endedwithfreetext = false
+	boolean firstcell = false
+	boolean note = false
+	int indent = 0
 			
 	def WikiWriter( PrintWriter printWriter )
 	{
@@ -129,19 +132,92 @@ class WikiWriter
 	def startObjectHeader()
 	{
 		objectheader = true
+		newline()
 	}
 	
 	def endObjectHeader()
 	{
 		objectheader = false
+		newline()
+	}
+	
+	def startTable()
+	{
+		
+	}
+	
+	def endTable()
+	{
+		out.println() // Need empty line, otherwise strange positioning happens
+	}
+	
+	def startRow()
+	{
+		firstcell = true
+		newline()
+	}
+	
+	def endRow()
+	{
+		newline()
+	}
+	
+	def startCell()
+	{
+		if( firstcell )
+		{
+			out.print( "||" )
+			firstcell = false
+		}
+		out.print( " " )
+	}
+	
+	def endCell()
+	{
+		out.print( " ||" )
+	}
+	
+	def startHeaderCell()
+	{
+		if( firstcell )
+		{
+			out.print( "||" )
+			firstcell = false
+		}
+		out.print( " *" )
+	}
+	
+	def endHeaderCell()
+	{
+		out.print( "* ||" )
+	}
+	
+	def startNote()
+	{
+		note = true
+		indent++
+		startObjectHeader()
+		text( "Note" )
+		endObjectHeader()
+	}
+	
+	def endNote()
+	{
+		note = false
+		indent--
 	}
 	
 	def text( text )
 	{
-		assert text
+		if( !text )
+			return
+			
 		endedwithfreetext = false
 		if( !code && !codeblock )
+		{
 			text = text.replaceAll( "[A-Z]+[a-z]+[A-Z]+[a-zA-Z]*", '!$0' )
+			text = text.replaceAll( "[<>]", '`$0`' )
+		}
 		if( header )
 		{
 			newline()
@@ -160,6 +236,7 @@ class WikiWriter
 		else if( objectheader )
 		{
 			newline()
+			( itemizedlistdepth + indent ).times { out.print( " " ) }
 			out.print( "=====" )
 			if( code )
 				out.print( "{{{" )
@@ -169,6 +246,16 @@ class WikiWriter
 			out.print( "=====" )
 			column1 = false
 			notext = false
+		}
+		else if( note )
+		{
+			if( column1 )
+				text = text.replaceAll( '^\\s+', "" )
+			( itemizedlistdepth + indent ).times { out.print( " " ) }
+			out.print( text.replaceAll( "\\s{2,}", " " ) )
+			column1 = false
+			notext = false
+			endedwithfreetext = true
 		}
 		else if( itemizedlistdepth > 0 )
 		{
