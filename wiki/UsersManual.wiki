@@ -11,11 +11,11 @@ Applications need a database with a certain configuration. This configuration is
 ==Database changes==
 A change package consists of one or more database configuration changes. 
 =====Examples of database configuration changes=====
- * {{{CREATE TABLE ...}}}<br/>
- * {{{CREATE INDEX ...}}}<br/>
- * {{{ALTER TABLE ADD COLUMN ...}}}<br/>
- * {{{INSERT <reference data, for example countries>}}}<br/>
- * {{{UPDATE <data to conform with the changed data model>}}}<br/>
+ * {{{CREATE TABLE ...}}}
+ * {{{CREATE INDEX ...}}}
+ * {{{ALTER TABLE ADD COLUMN ...}}}
+ * {{{INSERT <reference data, for example countries>}}}
+ * {{{UPDATE <data to conform with the changed data model>}}}
 ==Context parameters==
 Database changes are executed in a specific context. This context consists of the parameters set within !SolidBase, the parameters set on the connection to the database, and the global parameters defined in the database. Examples are: 
  * Which user is used to apply the database changes?
@@ -23,12 +23,12 @@ Database changes are executed in a specific context. This context consists of th
  * Should specific sql errors be ignored because they are expected?
 Context parameters can be changed in between the execution of the database changes. 
 =====Examples of changing context parameters=====
- * {{{--* SET USER <username>}}}<br/>
+ * {{{--* SET USER <username>}}}
  * {{{--* SESSIONCONFIG}}}<br/>{{{ALTER SESSION ...}}}<br/>{{{--* /SESSIONCONFIG}}}
- * {{{--* IGNORE SQL ERROR <SQL Error>}}}<br/>
+ * {{{--* IGNORE SQL ERROR <SQL Error>}}}
 Keep in mind that the context is reset at the start of each change package. 
 
-!SolidBase context parameters are described in "TODO: xref". 
+!SolidBase context parameters are described in the section called "Patch session configuration". 
 ==Patch failure and recovery==
 Database changes are permanent and should not (in most cases can not) be repeated. Patch session configuration is not permanent and must be repeated in case of a patch restart. So there are some differences between database changes on the one hand and session configuration on the other with respect to patch failure and restart: 
 
@@ -36,7 +36,7 @@ When a patch failure occurs the patchtool remembers what patch was being execute
 ==Extending patches==
 During development, changes on the databases come unexpected and often. This may result in a lot of patches and a quickly growing version number. If you do not want this you can keep the patch open. An open patch can be executed but the bump to the new version number will be prevented. New changes to the database can be added at the end of this patch, they will automatically be picked up when the patch is re-executed. When the time comes to officially deliver the patch for execution on a test, acceptance or production database, you can close the patch. 
 
-See "TODO: xref" for details on how to do this. 
+See the section called "Open patches" for details on how to do this. 
 =Chapter 3. Starting the patchtool=
 ==Starting with java==
 The patchtool is started with the following command: 
@@ -81,7 +81,9 @@ C:\PROJECTS\BUILDS\solidbase\dist>
 }}}
 ==Classpath extension==
 Normally, you need to add jar files to the patchtool's classpath. These jar files will be jdbc drivers needed to access the database, but you can add any jar file you want. There are 2 ways to add jar files to the classpath: 
- * By configuring the following property in the solidbase.properties file: <br/>{{{classpathext = ojdbc14.jar;derby-10.2.1.6.jar}}}<br/>"TODO: note"
+ * By configuring the following property in the solidbase.properties file: <br/>{{{classpathext = ojdbc14.jar;derby-10.2.1.6.jar}}}<br/>
+  =====Note=====
+  Currently, this does not work when the   -driver   option is specified on the command line, as the complete property file is skipped in that case.
  * By adding the jar files to the -cp option when starting java: <br/>{{{java -cp solidbase.jar;ojdbc14.jar;derby-10.2.1.6.jar solidbase.Main}}}<br/> As you see, you need to start the patch tool specifying the Main class instead of the jar. 
 ==Commandline options==
 Following is the output of the 
@@ -176,7 +178,21 @@ test.applications = app3
 test.app3.username = app
 test.app3.patchfile = upgrade-derby-example.sql
 }}}
-"TODO: table"
+=====Configuration details=====
+|| *Property* || *Possible values* || *Description* ||
+|| config-version || 1 or 2 || Specifies which version of the configuration you like to use ||
+|| classpathext || list of jarfiles seperated by ; || Specifies which jars need to be added at the end of the classpath ||
+|| databases.config.class || classname || Specifies a class which will replace the normal databases configuration. ||
+|| databases.config.script || script filename || Specifies a script which will replace the normal databases configuration. Currently, only .groovy files are supported. ||
+|| databases || comma-seperated list of database names || Specifies which databases are available to be patched ||
+|| `<`dbname`>`.description ||  || Description for this database ||
+|| `<`dbname`>`.driver ||  || Driverclass needed to connect to this database ||
+|| `<`dbname`>`.url ||  || Url that points to this database ||
+|| `<`dbname`>`.applications || comma-seperated list of applications in this database || Specifies which applications are available in this database ||
+|| `<`dbname`>`.`<`appname`>`.description ||  || Description for this application ||
+|| `<`dbname`>`.`<`appname`>`.username ||  || User name needed to connect to this application ||
+|| `<`dbname`>`.`<`appname`>`.patchfile ||  || Patchfile to upgrade this application ||
+
 ==Using external databases configuration==
 It is possible to replace the normal databases configuration in solidbase.properties with an external class or script. 
 ===Configuring databases with an external class===
@@ -337,9 +353,11 @@ Lines starting with {{{--*}}} are patch session configuration. Lines starting wi
 
 The patchfile may optionally start with a character encoding. If the encoding is not specified, the patch tool tries to detect the encoding from the BOM (Byte Order Mark, the first 2, 3 or 4 bytes of the file). BOMs for UTF-16BE, UTF-16LE and UTF-8 are recognized. UTF-32 is not yet recognized. If no BOM is present, ISO-8859-1 is used.
 
-The patchfile starts with a header that defines the patches that are available in the body of the patchfile. In the header it is also possible to mark a specific patch as {{{OPEN}}}, {{{BRANCH}}} or {{{RETURN}}}. See "TODO: xref" and "TODO: xref". 
+The patchfile starts with a header that defines the patches that are available in the body of the patchfile. In the header it is also possible to mark a specific patch as {{{OPEN}}}, {{{BRANCH}}} or {{{RETURN}}}. See the section called "Open patches" and the section called "Maintaining branches". 
 
-A patch consists of a sequence of database changes and patch session configuration. "TODO: note"
+A patch consists of a sequence of database changes and patch session configuration. 
+ =====Note=====
+ When the patch is supposed to be executed on a clean database or an existing database created without the patchtool you need the first initial patch from the example. This patch creates the tables required by the patchtool, namely  DBVERSION  and  DBVERSIONLOG . Oracle, !MySQL, Derby and HSQLDB versions of this initial patch are available. 
 ==Patchfile lookup==
 The patchtool first looks for the patchfile in the classpath. If it is not found, it will try to find it in the current working folder. 
 ==Patch session configuration==
@@ -353,15 +371,7 @@ Tells the patchtool to ignore certain sql errors. This is useful when you want t
 ==={{{--* SET USER <username>}}}===
 Tells the patchtool to switch to another database user. The patchtool user will be asked for the password automatically when needed. Database changes following this will be executed by this user. The patchtool switches back to the default user (given on the commandline or put in the configuration) at the start of each individual patch. This command is useful when there is no single user available that has enough rights to make modifications on all parts of the database that are upgraded as a whole.
 ==={{{--* SESSIONCONFIG}}}===
-Tells the patchtool that statements between this and the ending {{{--* /SESSIONCONFIG}}} should not be regarded as database changes but as patch session configuration. Especially useful around {{{ALTER SESSION}}} which changes the current database session (belonging to the current user.) Remember that if you change the user with 
-{{{
-SET USER
-}}}
-you get another session, so you may have to repeat the 
-{{{
-ALTER SESSION
-}}}
-for each user you change to. 
+Tells the patchtool that statements between this and the ending {{{--* /SESSIONCONFIG}}} should not be regarded as database changes but as patch session configuration. Especially useful around {{{ALTER SESSION}}} which changes the current database session (belonging to the current user.) Remember that if you change the user with {{{SET USER}}} you get another session, so you may have to repeat the {{{ALTER SESSION}}} for each user you change to. 
 ==={{{ASSERT EXISTS "<failure message>" \n <sql select> \n GO}}}===
 This rather exotic command can be used to do checks on an existing database that is not yet managed by the patchtool. It is an assertion that behaves like a database change, in the sense that if the assertion is successful then it is skipped in case the patch is restarted for whatever reason. Example: 
 =====Example ASSERT EXISTS=====
@@ -393,7 +403,7 @@ A branch in the database patchfile is created by adding two patches that spring 
 --*     PATCH "1.0.5" --> "2.0.0"      // This patch should be left empty
 --*	/PATCHES
 }}}
-It is advisable to leave the indicated patch (1.0.5 --> 2.0.0) empty, to make sure that you have a suitable version to return to if needed. This makes version 1.0.5 and 2.0.0 identical, which gives the opportunity for the branch to return to an identical database from where it sprung. You cannot achieve this by letting the return patch point to version 1.0.5, because circularities are not allowed. It is not always required to return to an identical database, but it could happen in order to make the return patch as simple as possible. So better to be safe than sorry. 
+It is advisable to leave the indicated patch (1.0.5 --`>` 2.0.0) empty, to make sure that you have a suitable version to return to if needed. This makes version 1.0.5 and 2.0.0 identical, which gives the opportunity for the branch to return to an identical database from where it sprung. You cannot achieve this by letting the return patch point to version 1.0.5, because circularities are not allowed. It is not always required to return to an identical database, but it could happen in order to make the return patch as simple as possible. So better to be safe than sorry. 
 
 As developments on the 2 parallel lines continue, you get more patches on the stable branch and the development branch. Whenever a change is added to the branch, one should analyze what to do with the return patch. The source side of the return patch always moves along with the evolution of the patches on the branch. However, depending on the scenario, the destination side of the return patch may point to any of the 2.0.x versions.
 =====Example patch header showing a evolved branch=====
@@ -414,9 +424,10 @@ As developments on the 2 parallel lines continue, you get more patches on the st
 --*     PATCH "2.0.2" --> "2.0.3"
 --*	/PATCHES
 }}}
-"TODO: note"
+ =====Note=====
+ As shown in the example above,  BRANCH  should only be used once to create a branch. See  the section called "Patch path resolving"
 ==Open patches==
-As described in "TODO: xref" you can indicate that a patch is work-in-progress. Example: 
+As described in the section called "Extending patches" you can indicate that a patch is work-in-progress. Example: 
 =====Example patch header showing a open patch=====
 {{{
 --*	PATCHES
