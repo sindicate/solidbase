@@ -17,6 +17,8 @@
 import javax.xml.stream.*
 import solidbase.xml.elements.*
 
+xrefs = [:]
+
 try
 {
 	def reader = XMLInputFactory.newInstance().createXMLStreamReader( new InputStreamReader( new FileInputStream( "doc/manual.xml" ), "UTF-8" ) )
@@ -27,6 +29,8 @@ try
 	
 	def book = StaxNodeReader.readNode( reader )
 	assert book.name == "book"
+	
+	scan( book )
 	
 	new File( "../solidbase-wiki/UsersManual.wiki" ).withPrintWriter( "UTF-8" )
 	{
@@ -55,6 +59,21 @@ try
 catch( Throwable e )
 {
 	throw org.codehaus.groovy.runtime.StackTraceUtils.deepSanitize( e )
+}
+
+def scan( element )
+{
+	for( child in element.children )
+		if( child instanceof Element )
+		{
+			if( child.name in [ "section", "chapter" ] )
+			{
+				def id = child.findAttribute( "id" )
+				if( id )
+					xrefs.put( id, child )
+			}
+			scan( child )
+		}
 }
 
 def dotitle( out, title )
@@ -131,7 +150,7 @@ def para( out, section )
 		else if( child.name == "programlisting" )
 			codeblock( out, child )
 		else if( child.name == "xref" )
-			out.todo( child.name )
+			xref( out, child )
 		else if( child.name == "note" )
 			note( out, child )
 		else if( child.name == "code" || child.name == "computeroutput" )
@@ -256,4 +275,24 @@ def note( out, note )
 			assert false : "Got ${child.name}"
 	}
 	out.endNote()
+}
+
+def xref( out, xref )
+{
+	def id = xref.findAttribute( "linkend" )
+	assert id
+	def x = xrefs[ id ]
+	if( x )
+	{
+		def title = x.findElement( "title" )
+		assert title
+		if( x.name == "section" )
+			out.text( "the section called \"${title.text}\"" )
+		else if( x.name == "chapter " )
+			out.text( "the chapter called \"${title.text}\"" )
+		else
+			assert false : "Got ${x.name}"
+	}
+	else
+		println( "Xref not found: ${id}" )
 }

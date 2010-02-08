@@ -99,6 +99,11 @@ public class Element
 		return result;
 	}
 
+	public String findAttribute( String name )
+	{
+		return this.attributes.get( name );
+	}
+
 	public void addChild( Element child )
 	{
 		if( this.children == null )
