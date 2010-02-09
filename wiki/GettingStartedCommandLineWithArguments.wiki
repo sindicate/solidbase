@@ -1,0 +1,83 @@
+(This Getting Started can not be used yet.)
+
+To start using !SolidBase on the command line put, solidbase.jar in a folder, for example C:\TEMP. Get the driver jar for your database and put it in the same folder. Your folder now looks like:
+
+{{{
+C:\TEMP>dir
+ Volume in drive C has no label.
+ Volume Serial Number is FAA5-5622
+
+ Directory of C:\TEMP
+
+02/09/2010  09:20 PM    <DIR>          .
+02/09/2010  09:20 PM    <DIR>          ..
+11/01/2009  09:13 PM         2,253,277 derby-10.2.1.6.jar
+02/09/2010  08:52 PM           248,999 solidbase.jar
+               2 File(s)      2,502,276 bytes
+               2 Dir(s)  35,148,525,568 bytes free
+
+C:\TEMP>
+}}}
+
+Create a upgrade script for the database. The upgrade script starts with a definition and an initialization to create the required tables that !SolidBase needs.
+
+test-upgrade.sql:
+{{{
+--*	DEFINITION
+--*		INIT "" --> "1.1"
+--*	/DEFINITION
+
+
+
+--* INIT "" --> "1.1"
+
+--* SET MESSAGE "    Creating table DBVERSION"
+
+CREATE TABLE DBVERSION
+(
+	SPEC VARCHAR(5),
+	VERSION VARCHAR(20), 
+	TARGET VARCHAR(20), 
+	STATEMENTS DECIMAL(4) NOT NULL
+)
+GO
+
+--* SET MESSAGE "    Creating table DBVERSIONLOG"
+
+CREATE TABLE DBVERSIONLOG
+(
+	TYPE VARCHAR(1) NOT NULL,
+	SOURCE VARCHAR(20),
+	TARGET VARCHAR(20) NOT NULL,
+	STATEMENT DECIMAL(4) NOT NULL,
+	STAMP TIMESTAMP NOT NULL,
+	COMMAND VARCHAR(4000),
+	RESULT VARCHAR(4000)
+)
+GO
+
+CREATE INDEX DBVERSIONLOG_INDEX1 ON DBVERSIONLOG ( TYPE, TARGET )
+GO
+
+--* /INIT
+}}}
+
+The folder now looks like:
+
+{{{
+C:\TEMP>dir
+ Volume in drive C has no label.
+ Volume Serial Number is FAA5-5622
+
+ Directory of C:\TEMP
+
+02/09/2010  09:26 PM    <DIR>          .
+02/09/2010  09:26 PM    <DIR>          ..
+11/01/2009  09:13 PM         2,253,277 derby-10.2.1.6.jar
+02/09/2010  08:52 PM           248,999 solidbase.jar
+02/09/2010  09:26 PM               735 test-upgrade.sql
+               3 File(s)      2,503,011 bytes
+               2 Dir(s)  35,149,225,984 bytes free
+
+C:\TEMP>
+}}}
