@@ -513,16 +513,20 @@ public class DBVersion
 				while( result.next() )
 				{
 					int i = 1;
-					xml.writeStartElement( "command" );
+					xml.writeStartElement( "record" );
 					if( spec11 )
 						xml.writeAttribute( "type", result.getString( i++ ) );
 					xml.writeAttribute( "source", StringUtils.defaultString( result.getString( i++ ) ) );
 					xml.writeAttribute( "target", result.getString( i++ ) );
-					xml.writeAttribute( "count", String.valueOf( result.getInt( i++ ) ) );
+					xml.writeAttribute( "statement", String.valueOf( result.getInt( i++ ) ) );
 					xml.writeAttribute( "stamp", String.valueOf( result.getTimestamp( i++ ) ) );
 					String sql = result.getString( i++ );
 					if( sql != null )
+					{
+						xml.writeStartElement( "command" );
 						xml.writeCharacters( sql );
+						xml.writeEndElement();
+					}
 					String res = result.getString( i++ );
 					if( res != null )
 					{

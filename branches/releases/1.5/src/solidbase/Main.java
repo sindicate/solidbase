@@ -181,14 +181,16 @@ public class Main
 		Patcher patcher = new Patcher( progress );
 		try
 		{
+			solidbase.config.Database defoult = configuration.getDefaultDatabase();
+			patcher.addDatabase( "default", new Database( defoult.getDriver(), defoult.getUrl(), defoult.getUserName(), defoult.getPassword(), progress ) );
+
 			if( exportlog )
 			{
+				// logToXML needs the default database added above
 				patcher.logToXML( line.getOptionValue( "dumplog" ) );
 				return;
 			}
 
-			solidbase.config.Database defoult = configuration.getDefaultDatabase();
-			patcher.addDatabase( "default", new Database( defoult.getDriver(), defoult.getUrl(), defoult.getUserName(), defoult.getPassword(), progress ) );
 			for( solidbase.config.Database database : configuration.getSecondaryDatabases() )
 				patcher.addDatabase( database.getName(),
 						new Database( database.getDriver() == null ? defoult.getDriver() : database.getDriver(),
