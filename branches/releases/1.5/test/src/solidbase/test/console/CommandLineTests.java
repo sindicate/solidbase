@@ -101,4 +101,66 @@ public class CommandLineTests
 				"    Encoding is 'ISO-8859-1'\n"
 		);
 	}
+
+	@Test(groups="new")
+	public void testCommandLineNoArguments() throws Exception
+	{
+		MockConsole console = new MockConsole();
+
+		Main.console = console;
+
+		Main.main0();
+
+		String output = TestUtil.generalizeOutput( console.getOutput() );
+
+//		System.out.println( "[[[" + output + "]]]" );
+
+		Assert.assertEquals( output,
+				"usage: solidbase [-config <filename>] [-downgradeallowed] [-driver <classname>]\n" +
+				"       [-dumplog <filename>] [-help] [-password <password>] [-target <version>]\n" +
+				"       [-upgradefile <filename>] [-url <url>] [-username <username>] [-verbose]\n" +
+				" -config <filename>        specifies the properties file to use\n" +
+				" -downgradeallowed         allow downgrades to reach the target\n" +
+				" -driver <classname>       sets the jdbc driverclass\n" +
+				" -dumplog <filename>       export historical patch results to an xml file\n" +
+				" -help                     Brings up this page\n" +
+				" -password <password>      sets the password of the default username\n" +
+				" -target <version>         sets the target version\n" +
+				" -upgradefile <filename>   specifies the file containing the database upgrades\n" +
+				" -url <url>                sets the url for the database\n" +
+				" -username <username>      sets the default username to patch with\n" +
+				" -verbose                  be extra verbose\n"
+		);
+	}
+
+	@Test(groups="new")
+	public void testCommandLineHelp() throws Exception
+	{
+		MockConsole console = new MockConsole();
+
+		Main.console = console;
+
+		Main.main0( "help2" );
+
+		String output = TestUtil.generalizeOutput( console.getOutput() );
+
+//		System.out.println( "[[[" + output + "]]]" );
+
+		Assert.assertEquals( output,
+				"usage: solidbase [-config <filename>] [-downgradeallowed] [-driver <classname>]\n" +
+				"       [-dumplog <filename>] [-help] [-password <password>] [-target <version>]\n" +
+				"       [-upgradefile <filename>] [-url <url>] [-username <username>] [-verbose]\n" +
+				" -config <filename>        specifies the properties file to use\n" +
+				" -downgradeallowed         allow downgrades to reach the target\n" +
+				" -driver <classname>       sets the jdbc driverclass\n" +
+				" -dumplog <filename>       export historical patch results to an xml file\n" +
+				" -help                     Brings up this page\n" +
+				" -password <password>      sets the password of the default username\n" +
+				" -target <version>         sets the target version\n" +
+				" -upgradefile <filename>   specifies the file containing the database upgrades\n" +
+				" -url <url>                sets the url for the database\n" +
+				" -username <username>      sets the default username to patch with\n" +
+				" -verbose                  be extra verbose\n"
+		);
+	}
 }

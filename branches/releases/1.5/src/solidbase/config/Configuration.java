@@ -51,11 +51,6 @@ public class Configuration
 	static private final Pattern propertyPattern = Pattern.compile( "^connection\\.([^\\s\\.]+)\\.(driver|url|username|password)$" );
 
 	/**
-	 * Are we running the command line version of SolidBase within Apache Ant?
-	 */
-	protected boolean fromAnt;
-
-	/**
 	 * The contents of the properties file. Default this is solidbase.properties in the current folder, with missing
 	 * properties coming from solidbase-default in the classpath.
 	 */
@@ -94,31 +89,6 @@ public class Configuration
 	protected File getPropertiesFile()
 	{
 		return new File( DBPATCHER_PROPERTIES );
-	}
-
-	/**
-	 * Create a new configuration object. This constructor is used by the Ant Task and the Maven Plugin.
-	 * 
-	 * @param progress The listener that listens to config events.
-	 */
-	public Configuration( ConfigListener progress )
-	{
-		try
-		{
-			// Load the default properties
-
-			URL url = Configuration.class.getResource( DBPATCHER_DEFAULT_PROPERTIES );
-			if( url == null )
-				throw new SystemException( DBPATCHER_DEFAULT_PROPERTIES + " not found in classpath" );
-
-			progress.readingConfigFile( url.toString() );
-			this.properties = new Properties();
-			this.properties.load( url.openStream() );
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
 	}
 
 	/**
@@ -175,91 +145,94 @@ public class Configuration
 				file = getPropertiesFile();
 			progress.readingConfigFile( file.getAbsolutePath() );
 			this.properties = new Properties( defaultProperties );
-			FileInputStream input = new FileInputStream( file );
-			try
+			if( file.exists() )
 			{
-				this.properties.load( input );
-			}
-			finally
-			{
-				input.close();
-			}
-
-			// Read the config version
-
-			String s = this.properties.getProperty( "properties-version" );
-			if( !"1.0".equals( s ) )
-				throw new FatalException( "Expecting properties-version 1.0 in the properties file" );
-
-			this.driverJars = new ArrayList();
-			String driversProperty = this.properties.getProperty( "classpath.ext" );
-			if( driversProperty != null )
-				for( String driverJar : driversProperty.split( ";" ) )
+				FileInputStream input = new FileInputStream( file );
+				try
 				{
-					driverJar = driverJar.trim();
-					if( driverJar.length() > 0 )
-						this.driverJars.add( driverJar );
+					this.properties.load( input );
+				}
+				finally
+				{
+					input.close();
 				}
 
-			if( pass > 1 )
-			{
-				String driver = this.properties.getProperty( "connection.driver" );
-				String dbUrl = this.properties.getProperty( "connection.url" );
-				String userName = this.properties.getProperty( "connection.username" );
-				String password = this.properties.getProperty( "connection.password" );
-				String patchFile = this.properties.getProperty( "upgrade.file" );
-				String target = this.properties.getProperty( "upgrade.target" );
+				// Read the config version
 
-				if( StringUtils.isBlank( driver ) )
-					throw new FatalException( "Property 'connection.driver' must be specified in " + DBPATCHER_PROPERTIES );
-				if( StringUtils.isBlank( dbUrl ) )
-					throw new FatalException( "Property 'connection.url' must be specified in " + DBPATCHER_PROPERTIES );
-				if( StringUtils.isBlank( userName ) )
-					throw new FatalException( "Property 'connection.username' must be specified in " + DBPATCHER_PROPERTIES );
-				if( StringUtils.isBlank( patchFile ) )
-					throw new FatalException( "Property 'upgrade.file' must be specified in " + DBPATCHER_PROPERTIES );
-				if( StringUtils.isBlank( target ) )
-					throw new FatalException( "Property 'upgrade.target' must be specified in " + DBPATCHER_PROPERTIES );
+				String s = this.properties.getProperty( "properties-version" );
+				if( !"1.0".equals( s ) )
+					throw new FatalException( "Expecting properties-version 1.0 in the properties file" );
 
-				this.defaultDatabase = new Database( "default", driver, dbUrl, userName, password );
-				this.patchFile = patchFile;
-				this.target = target;
-
-				for( Entry entry : this.properties.entrySet() )
-				{
-					String key = (String)entry.getKey();
-					Matcher matcher = propertyPattern.matcher( key );
-					if( matcher.matches() )
+				this.driverJars = new ArrayList();
+				String driversProperty = this.properties.getProperty( "classpath.ext" );
+				if( driversProperty != null )
+					for( String driverJar : driversProperty.split( ";" ) )
 					{
-						String name = matcher.group( 1 );
-						String prop = matcher.group( 2 );
-						String value = (String)entry.getValue();
-						Database database = this.secondaryDatabases.get( name );
-						if( database == null )
-						{
-							database = new Database( name );
-							this.secondaryDatabases.put( name, database );
-						}
-						if( prop.equals( "driver" ) )
-							database.setDriver( value );
-						else if( prop.equals( "url" ) )
-							database.setUrl( value );
-						else if( prop.equals( "username" ) )
-							database.setUserName( value );
-						else if( prop.equals( "password" ) )
-							database.setPassword( value );
-						else
-							Assert.fail();
+						driverJar = driverJar.trim();
+						if( driverJar.length() > 0 )
+							this.driverJars.add( driverJar );
 					}
-				}
 
-				// Validate them
-				for( Database database : this.secondaryDatabases.values() )
+				if( pass > 1 )
 				{
-					if( database.getName().equals( "default" ) )
-						throw new FatalException( "The secondary connection name 'default' is not allowed" );
-					if( StringUtils.isBlank( database.getUserName() ) )
-						throw new FatalException( "Property 'connection." + database.getName() + ".username' must be specified in " + DBPATCHER_PROPERTIES );
+					String driver = this.properties.getProperty( "connection.driver" );
+					String dbUrl = this.properties.getProperty( "connection.url" );
+					String userName = this.properties.getProperty( "connection.username" );
+					String password = this.properties.getProperty( "connection.password" );
+					String patchFile = this.properties.getProperty( "upgrade.file" );
+					String target = this.properties.getProperty( "upgrade.target" );
+
+					if( StringUtils.isBlank( driver ) )
+						throw new FatalException( "Property 'connection.driver' must be specified in " + DBPATCHER_PROPERTIES );
+					if( StringUtils.isBlank( dbUrl ) )
+						throw new FatalException( "Property 'connection.url' must be specified in " + DBPATCHER_PROPERTIES );
+					if( StringUtils.isBlank( userName ) )
+						throw new FatalException( "Property 'connection.username' must be specified in " + DBPATCHER_PROPERTIES );
+					if( StringUtils.isBlank( patchFile ) )
+						throw new FatalException( "Property 'upgrade.file' must be specified in " + DBPATCHER_PROPERTIES );
+					if( StringUtils.isBlank( target ) )
+						throw new FatalException( "Property 'upgrade.target' must be specified in " + DBPATCHER_PROPERTIES );
+
+					this.defaultDatabase = new Database( "default", driver, dbUrl, userName, password );
+					this.patchFile = patchFile;
+					this.target = target;
+
+					for( Entry entry : this.properties.entrySet() )
+					{
+						String key = (String)entry.getKey();
+						Matcher matcher = propertyPattern.matcher( key );
+						if( matcher.matches() )
+						{
+							String name = matcher.group( 1 );
+							String prop = matcher.group( 2 );
+							String value = (String)entry.getValue();
+							Database database = this.secondaryDatabases.get( name );
+							if( database == null )
+							{
+								database = new Database( name );
+								this.secondaryDatabases.put( name, database );
+							}
+							if( prop.equals( "driver" ) )
+								database.setDriver( value );
+							else if( prop.equals( "url" ) )
+								database.setUrl( value );
+							else if( prop.equals( "username" ) )
+								database.setUserName( value );
+							else if( prop.equals( "password" ) )
+								database.setPassword( value );
+							else
+								Assert.fail();
+						}
+					}
+
+					// Validate them
+					for( Database database : this.secondaryDatabases.values() )
+					{
+						if( database.getName().equals( "default" ) )
+							throw new FatalException( "The secondary connection name 'default' is not allowed" );
+						if( StringUtils.isBlank( database.getUserName() ) )
+							throw new FatalException( "Property 'connection." + database.getName() + ".username' must be specified in " + DBPATCHER_PROPERTIES );
+					}
 				}
 			}
 		}
@@ -267,16 +240,6 @@ public class Configuration
 		{
 			throw new SystemException( e );
 		}
-	}
-
-	/**
-	 * Are we running the command line version from within Apache Ant?
-	 * 
-	 * @return True if we are running the command line version from within Apache Ant, false otherwise.
-	 */
-	public boolean isFromAnt()
-	{
-		return this.fromAnt;
 	}
 
 	/**
@@ -338,5 +301,15 @@ public class Configuration
 	public String getProperty( String name )
 	{
 		return this.properties.getProperty( name );
+	}
+
+	/**
+	 * Determines if the configuration is enough to run.
+	 * 
+	 * @return True if the configuration is enough to run, false otherwise.
+	 */
+	public boolean isComplete()
+	{
+		return this.defaultDatabase != null;
 	}
 }

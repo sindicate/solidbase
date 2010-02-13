@@ -33,7 +33,7 @@ public class ThroughConsoleTests
 
 		Main.console = console;
 
-		Main.pass2( new String[] { "-verbose" } );
+		Main.pass2( "-verbose", "-config", "solidbase1.properties" );
 
 		String output = TestUtil.generalizeOutput( console.getOutput() );
 
@@ -41,7 +41,7 @@ public class ThroughConsoleTests
 
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
-				"Reading property file X:\\...\\solidbase.properties\n" +
+				"Reading property file X:\\...\\solidbase1.properties\n" +
 				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
 				"Connecting to database...\n" +

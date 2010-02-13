@@ -17,6 +17,7 @@
 package solidbase;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -95,7 +96,7 @@ public class Main
 
 		Options options = new Options();
 		options.addOption( "verbose", false, "be extra verbose" );
-		options.addOption( "fromant", false, "adds newlines after input requests" );
+//		options.addOption( "fromant", false, "adds newlines after input requests" );
 		options.addOption( "dumplog", true, "export historical patch results to an xml file" );
 		options.addOption( "driver", true, "sets the jdbc driverclass" );
 		options.addOption( "url", true, "sets the url for the database" );
@@ -105,6 +106,7 @@ public class Main
 		options.addOption( "upgradefile", true, "specifies the file containing the database upgrades" );
 		options.addOption( "config", true, "specifies the properties file to use" );
 		options.addOption( "downgradeallowed", false, "allow downgrades to reach the target" );
+		options.addOption( "help", false, "Brings up this page" );
 		// TODO Add driverjar option
 
 		options.getOption( "dumplog" ).setArgName( "filename" );
@@ -126,14 +128,21 @@ public class Main
 		catch( ParseException e )
 		{
 			console.println( e.getMessage() );
-			new HelpFormatter().printHelp( "solidbase", options, true );
+			printHelp( options );
 			return;
 		}
 
 		boolean verbose = line.hasOption( "verbose" );
 		boolean exportlog = line.hasOption( "dumplog" );
-		console.fromAnt = line.hasOption( "fromant" );
+//		console.fromAnt = line.hasOption( "fromant" );
 		boolean downgradeallowed = line.hasOption( "downgradeallowed" );
+		boolean help = line.hasOption( "downgradeallowed" );
+
+		if( help )
+		{
+			printHelp( options );
+			return;
+		}
 
 		// Validate the commandline options
 
@@ -157,7 +166,7 @@ public class Main
 			}
 			if( !valid )
 			{
-				new HelpFormatter().printHelp( "solidbase", options, true );
+				printHelp( options );
 				return;
 			}
 		}
@@ -170,6 +179,12 @@ public class Main
 		if( pass == 1 )
 		{
 			reload( args, configuration.getDriverJars(), verbose );
+			return;
+		}
+
+		if( !configuration.isComplete() )
+		{
+			printHelp( options );
 			return;
 		}
 
@@ -341,5 +356,13 @@ public class Main
 
 			System.exit( 1 );
 		}
+	}
+
+
+	static protected void printHelp( Options options )
+	{
+		PrintWriter writer = new PrintWriter( console.out );
+		new HelpFormatter().printHelp( writer, 80, "solidbase", null, options, 1, 3, null, true );
+		writer.flush();
 	}
 }
