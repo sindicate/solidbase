@@ -25,27 +25,58 @@ import java.util.Map;
 import solidbase.core.SystemException;
 
 /**
+ * Represents an element with child elements and attributes. Can be used to read xml data.
  * 
- * @author R.M. de Bloois
+ * @author René M. de Bloois
  */
 public class Element
 {
+	/**
+	 * The name of the element.
+	 */
 	protected String name;
+
+	/**
+	 * The parent of this element. Can be null for the top element.
+	 */
 	protected Element parent;
+
+	/**
+	 * The children of this element. Will be null if there are no children.
+	 */
 	protected List< Object > children;
+
+	/**
+	 * The attributes of this element. Will be null if there are no attributes.
+	 */
 	protected Map< String, String > attributes;
 
+	/**
+	 * Constructs a new element with the given name and parent.
+	 * 
+	 * @param name The name of the element.
+	 * @param parent The parent of the element. May be null.
+	 */
 	public Element( String name, Element parent )
 	{
 		this.name = name;
 		this.parent = parent;
 	}
 
+	/**
+	 * Returns the name of the element.
+	 * @return The name of the element.
+	 */
 	public String getName()
 	{
 		return this.name;
 	}
 
+	/**
+	 * Returns the children of the element.
+	 * 
+	 * @return The children of the element. An empty list when there are no children.
+	 */
 	public List< Object > getChildren()
 	{
 		if( this.children == null )
@@ -53,6 +84,11 @@ public class Element
 		return this.children;
 	}
 
+	/**
+	 * Returns the text contained in the element. The element must not have other child elements.
+	 * 
+	 * @return The text contained in the element.
+	 */
 	public String getText()
 	{
 		if( this.children == null )
@@ -65,6 +101,12 @@ public class Element
 		throw new SystemException( "Expecting a text node" );
 	}
 
+	/**
+	 * Finds a child element with the given name. A {@link SystemException} is thrown when more than 1 element is found.
+	 * 
+	 * @param name The name of the child element to find.
+	 * @return The child element with the given name. Null when a child with that name does not exist.
+	 */
 	public Element findElement( String name )
 	{
 		if( this.children == null )
@@ -84,6 +126,12 @@ public class Element
 		return result;
 	}
 
+	/**
+	 * Finds all the child elements with the given name.
+	 * 
+	 * @param name The name of the child elements to find.
+	 * @return A list of child elements with the given name. An empty list when children with that name do not exist.
+	 */
 	public List< Element > findElements( String name )
 	{
 		if( this.children == null )
@@ -99,11 +147,22 @@ public class Element
 		return result;
 	}
 
+	/**
+	 * Find the attribute with the given name.
+	 * 
+	 * @param name The name of the attribute to find.
+	 * @return The attribute with the given name. Null if the attribute does not exist.
+	 */
 	public String findAttribute( String name )
 	{
 		return this.attributes.get( name );
 	}
 
+	/**
+	 * Add the given child to the element.
+	 * 
+	 * @param child The child element to add.
+	 */
 	public void addChild( Element child )
 	{
 		if( this.children == null )
@@ -111,6 +170,11 @@ public class Element
 		this.children.add( child );
 	}
 
+	/**
+	 * Add a text child to the element.
+	 * 
+	 * @param text The text child to add.
+	 */
 	public void addText( String text )
 	{
 		if( this.children == null )
@@ -118,6 +182,12 @@ public class Element
 		this.children.add( text );
 	}
 
+	/**
+	 * Add an attribute to the element.
+	 * 
+	 * @param name The name of the attribute to add.
+	 * @param value The value of the attribute to add.
+	 */
 	public void addAttribute( String name, String value )
 	{
 		if( this.attributes == null )

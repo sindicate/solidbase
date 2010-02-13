@@ -102,7 +102,7 @@ public class CommandLineTests
 		);
 	}
 
-	@Test(groups="new")
+	@Test
 	public void testCommandLineNoArguments() throws Exception
 	{
 		MockConsole console = new MockConsole();
@@ -133,14 +133,14 @@ public class CommandLineTests
 		);
 	}
 
-	@Test(groups="new")
+	@Test
 	public void testCommandLineHelp() throws Exception
 	{
 		MockConsole console = new MockConsole();
 
 		Main.console = console;
 
-		Main.main0( "help2" );
+		Main.main0( "-help" );
 
 		String output = TestUtil.generalizeOutput( console.getOutput() );
 

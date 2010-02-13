@@ -23,8 +23,21 @@ import javax.xml.stream.XMLStreamReader;
 import solidbase.core.Assert;
 import solidbase.core.SystemException;
 
+
+/**
+ * Reads an element from an {@link XMLStreamReader}.
+ * 
+ * @author René M. de Bloois
+ */
 public class StaxNodeReader
 {
+	/**
+	 * Reads a element from the given {@link XMLStreamReader}.
+	 * 
+	 * @param reader The {@link XMLStreamReader} to read a node from.
+	 * @return The element that is read.
+	 * @throws XMLStreamException When thrown by the {@link XMLStreamReader}.
+	 */
 	static public Element readNode( XMLStreamReader reader ) throws XMLStreamException
 	{
 		int event = reader.getEventType();
@@ -35,6 +48,13 @@ public class StaxNodeReader
 		return element;
 	}
 
+	/**
+	 * A recursive method to read elements from the {@link XMLStreamReader}.
+	 * 
+	 * @param reader The {@link XMLStreamReader} to read a node from.
+	 * @param element The element to populate with attributes and children.
+	 * @throws XMLStreamException When thrown by the {@link XMLStreamReader}.
+	 */
 	static protected void read( XMLStreamReader reader, Element element ) throws XMLStreamException
 	{
 		for( int i = 0; i < reader.getAttributeCount(); i++ )

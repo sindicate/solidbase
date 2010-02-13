@@ -136,42 +136,13 @@ public class Main
 		boolean exportlog = line.hasOption( "dumplog" );
 //		console.fromAnt = line.hasOption( "fromant" );
 		boolean downgradeallowed = line.hasOption( "downgradeallowed" );
-		boolean help = line.hasOption( "downgradeallowed" );
+		boolean help = line.hasOption( "help" );
 
 		if( help )
 		{
 			printHelp( options );
 			return;
 		}
-
-		// Validate the commandline options
-
-		if( line.hasOption( "driver" ) || line.hasOption( "url" ) || line.hasOption( "username" ) )
-		{
-			boolean valid = true;
-			if( !line.hasOption( "driver" ) )
-			{
-				console.println( "Missing driver option" );
-				valid = false;
-			}
-			if( !line.hasOption( "url" ) )
-			{
-				console.println( "Missing url option" );
-				valid = false;
-			}
-			if( !line.hasOption( "username" ) )
-			{
-				console.println( "Missing user option" );
-				valid = false;
-			}
-			if( !valid )
-			{
-				printHelp( options );
-				return;
-			}
-		}
-
-		//
 
 		Progress progress = new Progress( console, verbose );
 		Configuration configuration = new Configuration( progress, pass, line.getOptionValue( "driver" ), line.getOptionValue( "url" ), line.getOptionValue( "username" ), line.getOptionValue( "password" ), line.getOptionValue( "target" ), line.getOptionValue( "upgradefile" ), line.getOptionValue( "config" ) );
@@ -359,6 +330,11 @@ public class Main
 	}
 
 
+	/**
+	 * Print the help from commons cli to the writer registered on the {@link Console}.
+	 * 
+	 * @param options The commons cli option configuration.
+	 */
 	static protected void printHelp( Options options )
 	{
 		PrintWriter writer = new PrintWriter( console.out );
