@@ -1,6 +1,6 @@
-(This Getting Started can not be used yet.)
+(This Getting Started should be used with !SolidBase 1.5.2 or beyond.)
 
-To start using !SolidBase on the command line put, solidbase.jar in a folder, for example C:\TEMP. Get the driver jar for your database and put it in the same folder. Your folder now looks like:
+To start using !SolidBase on the command line put solidbase.jar in a folder, for example C:\TEMP. Get the driver jar for your database and put it in the same folder. Your folder now looks like:
 
 {{{
 C:\TEMP>dir
@@ -9,12 +9,12 @@ C:\TEMP>dir
 
  Directory of C:\TEMP
 
-02/09/2010  09:20 PM    <DIR>          .
-02/09/2010  09:20 PM    <DIR>          ..
+02/14/2010  05:33 PM    <DIR>          .
+02/14/2010  05:33 PM    <DIR>          ..
 11/01/2009  09:13 PM         2,253,277 derby-10.2.1.6.jar
-02/09/2010  08:52 PM           248,999 solidbase.jar
-               2 File(s)      2,502,276 bytes
-               2 Dir(s)  35,148,525,568 bytes free
+02/14/2010  05:32 PM           249,437 solidbase.jar
+               2 File(s)      2,502,714 bytes
+               2 Dir(s)  32,527,249,408 bytes free
 
 C:\TEMP>
 }}}
@@ -71,13 +71,98 @@ C:\TEMP>dir
 
  Directory of C:\TEMP
 
-02/09/2010  09:26 PM    <DIR>          .
-02/09/2010  09:26 PM    <DIR>          ..
+02/14/2010  05:34 PM    <DIR>          .
+02/14/2010  05:34 PM    <DIR>          ..
 11/01/2009  09:13 PM         2,253,277 derby-10.2.1.6.jar
-02/09/2010  08:52 PM           248,999 solidbase.jar
-02/09/2010  09:26 PM               735 test-upgrade.sql
-               3 File(s)      2,503,011 bytes
-               2 Dir(s)  35,149,225,984 bytes free
+02/14/2010  05:32 PM           249,437 solidbase.jar
+02/14/2010  05:45 PM               639 test-upgrade.sql
+               3 File(s)      2,503,353 bytes
+               2 Dir(s)  32,527,147,008 bytes free
+
+C:\TEMP>
+}}}
+
+Run the following command:
+
+{{{
+java -jar solidbase.jar
+}}}
+
+You get the following output:
+
+{{{
+C:\TEMP>java -jar solidbase.jar
+usage: solidbase [-config <filename>] [-downgradeallowed] [-driver <classname>]
+       [-dumplog <filename>] [-help] [-password <password>] [-target <version>]
+       [-upgradefile <filename>] [-url <url>] [-username <username>] [-verbose]
+ -config <filename>        specifies the properties file to use
+ -downgradeallowed         allow downgrades to reach the target
+ -driver <classname>       sets the jdbc driverclass
+ -dumplog <filename>       export historical patch results to an xml file
+ -help                     Brings up this page
+ -password <password>      sets the password of the default username
+ -target <version>         sets the target version
+ -upgradefile <filename>   specifies the file containing the database upgrades
+ -url <url>                sets the url for the database
+ -username <username>      sets the default username to patch with
+ -verbose                  be extra verbose
+
+C:\TEMP>
+}}}
+
+In this help page you see that you need to specify the -driver, -url, -username, -upgradefile and -target option:
+
+{{{
+C:\TEMP>java -jar solidbase.jar \
+    -driver org.apache.derby.jdbc.EmbeddedDriver \
+    -url jdbc:derby:testant;create=true \
+    -username app \
+    -upgradefile test-upgrade.sql \
+    -target 1.0.*
+2/14/10 5:55 PM   SolidBase v1.5.1-rev317
+2/14/10 5:55 PM   (C) 2006-2010 Rene M. de Bloois
+
+java.lang.ClassNotFoundException: org.apache.derby.jdbc.EmbeddedDriver
+        at java.net.URLClassLoader$1.run(URLClassLoader.java:202)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at java.net.URLClassLoader.findClass(URLClassLoader.java:190)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:307)
+        at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:301)
+        at java.lang.ClassLoader.loadClass(ClassLoader.java:248)
+        at java.lang.Class.forName0(Native Method)
+        at java.lang.Class.forName(Class.java:169)
+        at solidbase.core.Database.<init>(Database.java:90)
+        at solidbase.Main.main0(Main.java:179)
+        at solidbase.Main.pass2(Main.java:318)
+        at solidbase.Main.reload(Main.java:230)
+        at solidbase.Main.main0(Main.java:152)
+        at solidbase.Main.main(Main.java:71)
+
+C:\TEMP>
+}}}
+
+But this is not good. We have to add the driver jar to the classpath. When using Ant or Maven you can use Ant or Maven techniques. When using a properties file you can do that in there (show below). But now we have to use the java way like this:
+
+{{{
+C:\TEMP>java -cp solidbase.jar;derby-10.2.1.6.jar solidbase.Main \
+    -driver org.apache.derby.jdbc.EmbeddedDriver \
+    -url jdbc:derby:testant;create=true \
+    -username app \
+    -upgradefile test-upgrade.sql \
+    -target 1.0.*
+2/14/10 6:00 PM   SolidBase v1.5.1-rev317
+2/14/10 6:00 PM   (C) 2006-2010 Rene M. de Bloois
+
+2/14/10 6:00 PM   Connecting to database...
+2/14/10 6:00 PM   Input password for user 'app':
+2/14/10 6:00 PM   The database has no version yet.
+2/14/10 6:00 PM   Opening file 'test-upgrade.sql'
+2/14/10 6:00 PM       Encoding is 'ISO-8859-1'
+2/14/10 6:00 PM   Initializing to "1.1"
+2/14/10 6:00 PM       Creating table DBVERSION.
+2/14/10 6:00 PM       Creating table DBVERSIONLOG..
+
+2/14/10 6:00 PM   ERROR: Database version null does not exist in the upgrade file.
 
 C:\TEMP>
 }}}
