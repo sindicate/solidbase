@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.test.custom;
+package solidbase.test.console;
 
 import java.io.File;
 

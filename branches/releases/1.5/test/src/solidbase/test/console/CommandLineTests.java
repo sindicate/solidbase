@@ -47,6 +47,8 @@ public class CommandLineTests
 		//System.out.println( "[[[" + output + "]]]" );
 
 		Assert.assertEquals( output,
+				"Reading property file file:/.../solidbase-default.properties\n" +
+				"Reading property file file:/.../solidbase-default.properties\n" +
 				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
 				"Connecting to database...\n" +
@@ -75,8 +77,7 @@ public class CommandLineTests
 
 		try
 		{
-			Main.main0( "-verbose",
-					"-driver", "org.hsqldb.jdbcDriver",
+			Main.main0( "-driver", "org.hsqldb.jdbcDriver",
 					"-url", "jdbc:hsqldb:mem:test22",
 					"-username", "sa",
 					"-password", "",

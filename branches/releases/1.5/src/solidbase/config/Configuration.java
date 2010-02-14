@@ -63,14 +63,14 @@ public class Configuration
 	protected List< String > driverJars;
 
 	/**
-	 * A list of configured databases.
-	 */
-	protected Map< String, Database > secondaryDatabases = new HashMap< String, Database >();
-
-	/**
-	 * The default database.
+	 * The default configured database.
 	 */
 	protected Database defaultDatabase;
+
+	/**
+	 * A list of configured secondary databases.
+	 */
+	protected Map< String, Database > secondaryDatabases = new HashMap< String, Database >();
 
 	/**
 	 * Target version to upgrade to.
@@ -197,18 +197,8 @@ public class Configuration
 				String patchFile = this.properties.getProperty( "upgrade.file" );
 				String target = this.properties.getProperty( "upgrade.target" );
 
-				if( StringUtils.isBlank( driver ) )
-					throw new FatalException( "Property 'connection.driver' must be specified in " + DBPATCHER_PROPERTIES );
-				if( StringUtils.isBlank( dbUrl ) )
-					throw new FatalException( "Property 'connection.url' must be specified in " + DBPATCHER_PROPERTIES );
-				if( StringUtils.isBlank( userName ) )
-					throw new FatalException( "Property 'connection.username' must be specified in " + DBPATCHER_PROPERTIES );
-				if( StringUtils.isBlank( patchFile ) )
-					throw new FatalException( "Property 'upgrade.file' must be specified in " + DBPATCHER_PROPERTIES );
-				if( StringUtils.isBlank( target ) )
-					throw new FatalException( "Property 'upgrade.target' must be specified in " + DBPATCHER_PROPERTIES );
-
-				this.defaultDatabase = new Database( "default", driver, dbUrl, userName, password );
+				if( driver != null || dbUrl != null || userName != null || password != null )
+					this.defaultDatabase = new Database( "default", driver, dbUrl, userName, password );
 				this.patchFile = patchFile;
 				this.target = target;
 
@@ -319,12 +309,55 @@ public class Configuration
 	}
 
 	/**
-	 * Determines if the configuration is enough to run.
+	 * Returns the first configuration error for display.
 	 * 
-	 * @return True if the configuration is enough to run, false otherwise.
+	 * @return The first configuration error.
 	 */
-	public boolean isComplete()
+	public String getFirstError()
 	{
-		return this.defaultDatabase != null;
+		Database database = this.defaultDatabase;
+		if( database != null )
+		{
+			if( StringUtils.isBlank( database.driver ) )
+				return "'connection.driver' missing in properties file or -driver option missing on the command line";
+			if( StringUtils.isBlank( database.url ) )
+				return "'connection.url' missing in properties file or -url option on from the command line";
+			if( StringUtils.isBlank( database.userName ) )
+				return "'connection.username' missing in properties file or -username option missing on the command line";
+			if( StringUtils.isBlank( this.patchFile ) )
+				return "'upgrade.file' missing in properties file or -upgradefile option missing on the command line";
+			if( StringUtils.isBlank( this.target ) )
+				return "'upgrade.target' missing in properties file or -target option missing on the command line";
+
+			for( Database secondary : this.secondaryDatabases.values() )
+			{
+				// Driver and url are inherited, so they can be null but not blank
+				if( StringUtils.isWhitespace( secondary.driver ) )
+					return "'connection." + secondary.name + ".driver' property is empty";
+				if( StringUtils.isWhitespace( secondary.url ) )
+					return "'connection." + secondary.name + ".url' property is empty";
+				if( StringUtils.isBlank( secondary.userName ) )
+					return "'connection." + secondary.name + ".username' missing from properties file";
+			}
+		}
+		else
+		{
+			if( !StringUtils.isBlank( this.patchFile ) )
+				return "'upgrade.file' property or -upgradefile commandline option specified but no database configured";
+			if( !StringUtils.isBlank( this.target ) )
+				return "'upgrade.target' property or -target commandline option specified but no database configured";
+		}
+
+		return null;
+	}
+
+	/**
+	 * Determines if the configuration is void.
+	 * 
+	 * @return True if the configuration is void, false otherwise.
+	 */
+	public boolean isVoid()
+	{
+		return this.defaultDatabase == null && this.patchFile == null && this.target == null;
 	}
 }

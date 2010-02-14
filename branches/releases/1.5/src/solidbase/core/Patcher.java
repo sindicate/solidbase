@@ -224,13 +224,13 @@ public class Patcher
 
 			this.progress.openedPatchFile( this.patchFile );
 
-			// Need to close in case of an exception during reading
 			try
 			{
 				this.patchFile.read();
 			}
 			catch( RuntimeException e )
 			{
+				// When open() fails, it should cleanup after itself.
 				this.patchFile.close();
 				throw e;
 			}

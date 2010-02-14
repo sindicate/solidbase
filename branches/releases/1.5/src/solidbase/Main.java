@@ -153,7 +153,15 @@ public class Main
 			return;
 		}
 
-		if( !configuration.isComplete() )
+		String error = configuration.getFirstError();
+		if( error != null )
+		{
+			console.println( error );
+			printHelp( options );
+			return;
+		}
+
+		if( configuration.isVoid() )
 		{
 			printHelp( options );
 			return;

@@ -16,10 +16,15 @@
 
 package solidbase.test.console;
 
+import mockit.Mockit;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidbase.Main;
+import solidbase.Progress;
+import solidbase.config.Configuration;
+import solidbase.config.Manipulator;
 import solidbase.test.TestUtil;
 
 
@@ -28,12 +33,23 @@ public class ThroughConsoleTests
 	@Test
 	public void testConsole() throws Exception
 	{
+		// Mock the name of the property file
+
+		Mockit.tearDownMocks();
+		Mockit.redefineMethods( Configuration.class, new MockConfiguration( "solidbase1.properties" ) );
+
+		// Test the mock itself
+		Configuration configuration = new Configuration( new Progress( null, false ), 2, null, null, null, null, null, null, null );
+		Assert.assertEquals( Manipulator.getConfigurationPropertiesFile( configuration ).getName(), "solidbase1.properties" );
+
+		// Start test
+
 		MockConsole console = new MockConsole();
 		console.addAnswer( "" );
 
 		Main.console = console;
 
-		Main.pass2( "-verbose", "-config", "solidbase1.properties" );
+		Main.pass2( "-verbose" );
 
 		String output = TestUtil.generalizeOutput( console.getOutput() );
 
