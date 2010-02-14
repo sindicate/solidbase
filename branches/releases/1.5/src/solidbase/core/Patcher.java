@@ -342,14 +342,23 @@ public class Patcher
 	 */
 	public void patch( String target, boolean downgradeable ) throws SQLExecutionException
 	{
-		Assert.notNull( target );
-
 		init();
 
-		Set< String > targets;
+		LinkedHashSet< String > targets;
 
-		boolean wildcard = target.endsWith( "*" );
-		if( wildcard )
+		// TODO What if the target is not found?
+		if( target == null )
+		{
+			targets = getTargets( true, null, downgradeable );
+			if( targets.size() == 1 )
+			{
+				String t = targets.iterator().next();
+				patch( this.dbVersion.getVersion(), t, downgradeable );
+			}
+			else if( targets.size() > 1 )
+				throw new FatalException( "More than one possible target found, you should specify a target." );
+		}
+		else if( target.endsWith( "*" ) )
 		{
 			String targetPrefix = target.substring( 0, target.length() - 1 );
 			targets = getTargets( true, targetPrefix, downgradeable );
@@ -360,7 +369,6 @@ public class Patcher
 					patch( this.dbVersion.getVersion(), t, downgradeable );
 					break;
 				}
-			// TODO What if the target is not found?
 		}
 		else
 		{
@@ -371,7 +379,6 @@ public class Patcher
 					patch( this.dbVersion.getVersion(), t, downgradeable );
 					break;
 				}
-			// TODO What if the target is not found?
 		}
 
 		terminateCommandListeners();

@@ -36,7 +36,7 @@ public class DeprecatedVersion
 		}
 		catch( FatalException e )
 		{
-			Assert.assertTrue( e.getMessage().contains( "Database version 1.0.2 does not exist in the upgrade file" ) );
+			Assert.assertTrue( e.getMessage().contains( "The current database version (1.0.2) is not available in the upgrade file." ) );
 			patcher.end();
 		}
 	}

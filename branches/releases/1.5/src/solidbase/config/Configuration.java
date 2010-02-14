@@ -326,8 +326,6 @@ public class Configuration
 				return "'connection.username' missing in properties file or -username option missing on the command line";
 			if( StringUtils.isBlank( this.patchFile ) )
 				return "'upgrade.file' missing in properties file or -upgradefile option missing on the command line";
-			if( StringUtils.isBlank( this.target ) )
-				return "'upgrade.target' missing in properties file or -target option missing on the command line";
 
 			for( Database secondary : this.secondaryDatabases.values() )
 			{

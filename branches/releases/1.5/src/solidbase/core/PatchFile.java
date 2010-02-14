@@ -485,7 +485,7 @@ public class PatchFile
 		collectReachableVersions( version, targeting, downgradesAllowed, result );
 
 		if( result.size() == 0 )
-			throw new FatalException( "Database version " + version + " does not exist in the upgrade file." );
+			throw new FatalException( "The current database version (" + StringUtils.defaultString( version, "no version" ) + ") is not available in the upgrade file. Maybe this version is deprecated or the wrong upgrade file is used." );
 
 		if( prefix != null )
 			for( Iterator< String > iterator = result.iterator(); iterator.hasNext(); )

@@ -68,6 +68,46 @@ public class CommandLineTests
 		);
 	}
 
+	@Test(groups="new")
+	public void testCommandLineNoTarget() throws Exception
+	{
+		MockConsole console = new MockConsole();
+
+		Main.console = console;
+
+		// TODO Rename patchfile to test the -patchfile option
+		Main.main0( "-verbose",
+				"-driver", "org.hsqldb.jdbcDriver",
+				"-url", "jdbc:hsqldb:mem:test2nt",
+				"-username", "sa",
+				"-password", "",
+				"-upgradefile", "testpatch1.sql" );
+
+		String output = TestUtil.generalizeOutput( console.getOutput() );
+
+		//System.out.println( "[[[" + output + "]]]" );
+
+		Assert.assertEquals( output,
+				"Reading property file file:/.../solidbase-default.properties\n" +
+				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
+				"\n" +
+				"Connecting to database...\n" +
+				"The database has no version yet.\n" +
+				"Opening file 'testpatch1.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
+				"Upgrading to \"1.0.1\"\n" +
+				"Creating table DBVERSION.\n" +
+				"Creating table DBVERSIONLOG.\n" +
+				"DEBUG: version=null, target=1.0.1, statements=2\n" +
+				"Upgrading \"1.0.1\" to \"1.0.2\".\n" +
+				"Inserting admin user.\n" +
+				"DEBUG: version=1.0.1, target=1.0.2, statements=2\n" +
+				"The database is upgraded.\n" +
+				"\n" +
+				"Current database version is \"1.0.2\".\n"
+		);
+	}
+
 	@Test
 	public void testCommandLineNotPossible() throws Exception
 	{
