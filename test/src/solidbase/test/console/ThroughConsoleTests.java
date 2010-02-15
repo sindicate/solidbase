@@ -16,10 +16,15 @@
 
 package solidbase.test.console;
 
+import mockit.Mockit;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidbase.Main;
+import solidbase.Progress;
+import solidbase.config.Configuration;
+import solidbase.config.Manipulator;
 import solidbase.test.TestUtil;
 
 
@@ -28,15 +33,23 @@ public class ThroughConsoleTests
 	@Test
 	public void testConsole() throws Exception
 	{
+		// Mock the name of the property file
+
+		Mockit.tearDownMocks();
+		Mockit.redefineMethods( Configuration.class, new MockConfiguration( "solidbase1.properties" ) );
+
+		// Test the mock itself
+		Configuration configuration = new Configuration( new Progress( null, false ), 2, null, null, null, null, null, null, null );
+		Assert.assertEquals( Manipulator.getConfigurationPropertiesFile( configuration ).getName(), "solidbase1.properties" );
+
+		// Start test
+
 		MockConsole console = new MockConsole();
-		console.addAnswer( "prod" );
-		console.addAnswer( "app1" );
 		console.addAnswer( "" );
-		console.addAnswer( "1.0.2" );
 
 		Main.console = console;
 
-		Main.pass2( new String[] { "-verbose" } );
+		Main.pass2( "-verbose" );
 
 		String output = TestUtil.generalizeOutput( console.getOutput() );
 
@@ -44,24 +57,14 @@ public class ThroughConsoleTests
 
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
-				"Reading property file X:\\...\\solidbase.properties\n" +
+				"Reading property file X:\\...\\solidbase1.properties\n" +
 				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
-				"Available database:\n" +
-				"    prod (DHL Production)\n" +
-				"    test (test)\n" +
-				"Select a database from the above: \n" +
-				"Available applications in database 'prod':\n" +
-				"    app1 (app1 description)\n" +
-				"    app2 (app2)\n" +
-				"Select an application from the above: \n" +
-				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:testtc1, user=sa\n" +
-				"Connecting to database 'prod', application 'app1'...\n" +
+				"Connecting to database...\n" +
 				"Input password for user 'sa': The database has no version yet.\n" +
-				"Opening file 'file:/.../testpatch1.sql'\n" +
+				"Opening file 'testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
-				"Possible targets are: 1.0.1, 1.0.2\n" +
-				"Input target version: Upgrading to \"1.0.1\"\n" +
+				"Upgrading to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +
 				"DEBUG: version=null, target=1.0.1, statements=2\n" +
@@ -78,9 +81,7 @@ public class ThroughConsoleTests
 	public void testConsole2() throws Exception
 	{
 		MockConsole console = new MockConsole();
-		console.addAnswer( "prod" );
 		console.addAnswer( "" );
-		console.addAnswer( "1.0.2" );
 
 		Main.console = console;
 
@@ -95,17 +96,11 @@ public class ThroughConsoleTests
 				"Reading property file X:\\...\\solidbase2.properties\n" +
 				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
-				"Available database:\n" +
-				"    prod (DHL Production)\n" +
-				"    test (test)\n" +
-				"Select a database from the above: \n" +
-				"DEBUG: driverName=org.hsqldb.jdbcDriver, url=jdbc:hsqldb:mem:testtc2, user=sa\n" +
-				"Connecting to database 'prod', application 'default'...\n" +
+				"Connecting to database...\n" +
 				"Input password for user 'sa': The database has no version yet.\n" +
-				"Opening file 'file:/.../testpatch1.sql'\n" +
+				"Opening file 'testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
-				"Possible targets are: 1.0.1, 1.0.2\n" +
-				"Input target version: Upgrading to \"1.0.1\"\n" +
+				"Upgrading to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +
 				"DEBUG: version=null, target=1.0.1, statements=2\n" +

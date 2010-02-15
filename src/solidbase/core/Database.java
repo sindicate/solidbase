@@ -30,11 +30,34 @@ import java.util.HashMap;
  */
 public class Database
 {
+	/**
+	 * The class name of the driver to be used to access the database.
+	 */
 	protected String driverName;
+
+	/**
+	 * The URL of the database.
+	 */
 	protected String url;
+
+	/**
+	 * A map of connections indexed by user name.
+	 */
 	protected HashMap< String, Connection > connections = new HashMap< String, Connection >();
+
+	/**
+	 * The default user name to use for this database.
+	 */
 	protected String defaultUser;
+
+	/**
+	 * The password belonging to the default user.
+	 */
 	protected String defaultPassword;
+
+	/**
+	 * The current user.
+	 */
 	private String currentUser;
 
 	/**
@@ -43,13 +66,19 @@ public class Database
 	protected ProgressListener callBack;
 
 	/**
-	 * Constructs a Database object for a specific database url. This object will manage multiple connections to this database.
+	 * Constructor for a specific database and default user. This object will manage multiple connections to this database.
 	 *
-	 * @param driverClassName Classname of the driver.
-	 * @param url Url of the database.
+	 * @param driverClassName Driver class name for the database.
+	 * @param url URL for the database.
+	 * @param defaultUser The default user name.
+	 * @param defaultPassword The password belonging to the default user.
+	 * @param callBack The progress listener.
 	 */
 	public Database( String driverClassName, String url, String defaultUser, String defaultPassword, ProgressListener callBack )
 	{
+		Assert.notNull( driverClassName );
+		Assert.notNull( url );
+
 		this.driverName = driverClassName;
 		this.url = url;
 		this.defaultUser = defaultUser;
@@ -78,14 +107,14 @@ public class Database
 	}
 
 	/**
-	 * Gets a new connection from the DriverManager with the given url, user and password. The returned connection has autocommit off.
+	 * Returns a new connection for the given URL, user name and password. The connection has auto commit disabled.
 	 *
-	 * @param url The database connection url.
-	 * @param user The connection user.
+	 * @param url URL for the database.
+	 * @param user The user name.
 	 * @param password The password of the user.
-	 * @return the connection.
+	 * @return A new connection with auto commit disabled.
 	 */
-	protected Connection getConnection( String url, String user, String password )
+	static protected Connection getConnection( String url, String user, String password )
 	{
 		try
 		{
@@ -100,27 +129,28 @@ public class Database
 	}
 
 	/**
-	 * Initializes and caches a connection for the given user and password.
+	 * Sets up a connection for the given user name. Does nothing if the connection is already initiated.
 	 *
-	 * @param user The username.
-	 * @param passWord The password.
+	 * @param user The user name.
+	 * @param password The password.
 	 */
-	protected void initConnection( String user, String passWord )
+	protected void initConnection( String user, String password )
 	{
 		Connection connection = this.connections.get( user );
 		if( connection == null )
 		{
-			connection = getConnection( this.url, user, passWord );
+			connection = getConnection( this.url, user, password );
 			this.connections.put( user, connection );
 		}
 	}
 
 	/**
-	 * Gets a cached connection for the given user. If a connection for the given user is not found in the cache, this method will
-	 * request a password by calling the method {@link ProgressListener#requestPassword(String)} of {@link Patcher#callBack}. The connection is cached for later use.
-	 *
+	 * Returns a connection for the given user name. Connections are cached per user. If a connection for the given user
+	 * is not found in the cache, a password will be requested by calling
+	 * {@link ProgressListener#requestPassword(String)} referenced by {@link Patcher#progress}.
+	 * 
 	 * @param user The user name.
-	 * @return the connection
+	 * @return The connection for the given user name.
 	 */
 	protected Connection getConnection( String user )
 	{
@@ -135,10 +165,11 @@ public class Database
 	}
 
 	/**
-	 * Gets a connection for the current user from the cache. If a connection for this user is not found in the cache, this method will
-	 * request a password by calling the method {@link ProgressListener#requestPassword(String)} of {@link Patcher#callBack}. The connection is cached for later use.
-	 *
-	 * @return the connection.
+	 * Returns a connection for the current user. Connections are cached per user. If a connection for the current user
+	 * is not found in the cache, a password will be requested by calling
+	 * {@link ProgressListener#requestPassword(String)} referenced by {@link Patcher#progress}.
+	 * 
+	 * @return The connection for the current user.
 	 * @see #getConnection(String)
 	 */
 	protected Connection getConnection()
@@ -148,9 +179,9 @@ public class Database
 	}
 
 	/**
-	 * Sets the default user.
+	 * Sets the current user.
 	 *
-	 * @param user
+	 * @param user The user name that should made current.
 	 */
 	protected void setCurrentUser( String user )
 	{
@@ -158,21 +189,31 @@ public class Database
 		this.currentUser = user;
 	}
 
+	/**
+	 * Return the default user.
+	 * 
+	 * @return The name of the default user.
+	 */
 	public String getDefaultUser()
 	{
 		return this.defaultUser;
 	}
 
+	/**
+	 * Close all open connections that are maintained by this instance of {@link Database}.
+	 */
 	protected void closeConnections()
 	{
 		for( Connection connection : this.connections.values() )
+		{
 			try
-		{
+			{
 				connection.close();
-		}
-		catch( SQLException e )
-		{
-			throw new SystemException( e );
+			}
+			catch( SQLException e )
+			{
+				throw new SystemException( e );
+			}
 		}
 
 		this.connections.clear();

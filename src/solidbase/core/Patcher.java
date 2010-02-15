@@ -42,13 +42,17 @@ import org.apache.commons.lang.ObjectUtils;
 
 
 /**
+ * This class is the coordinator. It requests an upgrade path from the {@link PatchFile}, and reads commands from it. It
+ * calls the {@link CommandListener}s, updates the DBVERSION and DBVERSIONLOG tables through {@link DBVersion}, calls
+ * the {@link Database} to execute statements through JDBC, and shows progress to the user by calling
+ * {@link ProgressListener}.
  * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
 public class Patcher
 {
-	// Don't need whitespace at the end
+	// Don't need whitespace at the end of the Patterns
 
 	static private Pattern ignoreSqlErrorPattern = Pattern.compile( "IGNORE\\s+SQL\\s+ERROR\\s+(\\w+(\\s*,\\s*\\w+)*)", Pattern.CASE_INSENSITIVE );
 	static private Pattern ignoreEnd = Pattern.compile( "/IGNORE\\s+SQL\\s+ERROR", Pattern.CASE_INSENSITIVE );
@@ -69,7 +73,7 @@ public class Patcher
 	 */
 	protected List< CommandListener > listeners;
 
-	// Context
+	// The fields below are all part of the upgrade context. It's reset at the start of each change package.
 
 	/**
 	 * The message that should be shown when a statement is executed.
@@ -77,7 +81,7 @@ public class Patcher
 	protected String startMessage;
 
 	/**
-	 * Errors that should be ignored.
+	 * Errors that should be ignored. @{link #ignoreSet} is kept in sync with this stack.
 	 */
 	protected Stack ignoreStack;
 
@@ -108,7 +112,7 @@ public class Patcher
 	/**
 	 * The progress listener.
 	 */
-	protected ProgressListener callBack;
+	protected ProgressListener progress;
 
 	/**
 	 * The upgrade file being executed.
@@ -116,12 +120,12 @@ public class Patcher
 	protected PatchFile patchFile;
 
 	/**
-	 * The default database. At the start of each change set, this database is put into {@link Patcher#currentDatabase} to become the current database.
+	 * The default database. At the start of each change package, this database is put into {@link Patcher#currentDatabase} to become the current database.
 	 */
 	protected Database defaultDatabase;
 
 	/**
-	 * The current database. Gets reset to the default database at the start of each change set.
+	 * The current database. Gets reset to the default database at the start of each change package.
 	 */
 	protected Database currentDatabase;
 
@@ -139,30 +143,30 @@ public class Patcher
 	 * Construct a new instance of the patcher.
 	 * 
 	 * @param listener Listens to the progress.
-	 * @param database The default database to use. This database also contains a default user. Version tables will be looked for in this database in the schema identified by the default user.
 	 */
-	public Patcher( ProgressListener listener, Database database ) // TODO Reorder the arguments
+	public Patcher( ProgressListener listener )
 	{
-		this.callBack = listener;
+		this.progress = listener;
 
-		this.defaultDatabase = database;
 		this.databases = new HashMap< String, Database >();
-		this.databases.put( "default", database );
-		this.currentDatabase = null;
-
-		database.init(); // Resets the current user and initializes the connection when password is supplied.
-
-		this.dbVersion = new DBVersion( database, this.callBack );
 
 		this.listeners = new ArrayList();
 		this.listeners.add( new AssertCommandExecuter() );
 		this.listeners.add( new ImportCSVListener() );
 
 		reset();
+	}
 
-		this.patchFile = null; // TODO Should be argument to the constructor
-
-		this.callBack.debug( "driverName=" + database.driverName + ", url=" + database.url + ", user=" + database.getDefaultUser() + "" );
+	/**
+	 * Construct a new instance of the patcher.
+	 * 
+	 * @param listener Listens to the progress.
+	 * @param database The default database.
+	 */
+	public Patcher( ProgressListener listener, Database database )
+	{
+		this( listener );
+		addDatabase( "default", database );
 	}
 
 	/**
@@ -206,27 +210,27 @@ public class Patcher
 			URL url = Patcher.class.getResource( "/" + fileName ); // In the classpath
 			if( url != null )
 			{
-				this.callBack.openingPatchFile( url );
+				this.progress.openingPatchFile( url );
 				ralr = new RandomAccessLineReader( url );
 			}
 			else
 			{
 				File file = new File( baseDir, fileName ); // In the current folder
-				this.callBack.openingPatchFile( file );
+				this.progress.openingPatchFile( file );
 				ralr = new RandomAccessLineReader( file );
 			}
 
 			this.patchFile = new PatchFile( ralr );
 
-			this.callBack.openedPatchFile( this.patchFile );
+			this.progress.openedPatchFile( this.patchFile );
 
-			// Need to close in case of an exception during reading
 			try
 			{
 				this.patchFile.read();
 			}
 			catch( RuntimeException e )
 			{
+				// When open() fails, it should cleanup after itself.
 				this.patchFile.close();
 				throw e;
 			}
@@ -254,6 +258,7 @@ public class Patcher
 	 */
 	public String getCurrentVersion()
 	{
+		Assert.notNull( this.dbVersion, "default database may not have been configured" );
 		return this.dbVersion.getVersion();
 	}
 
@@ -295,7 +300,7 @@ public class Patcher
 	/**
 	 * Use the 'init' change sets to upgrade the DBVERSION and DBVERSIONLOG tables to the newest specification.
 	 * 
-	 * @throws SQLExecutionException Thrown when the execution of an SQL statement fails.
+	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
 	public void init() throws SQLExecutionException
 	{
@@ -317,6 +322,12 @@ public class Patcher
 		}
 	}
 
+	/**
+	 * Patch to the given target.
+	 * 
+	 * @param target The target to patch to.
+	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
+	 */
 	public void patch( String target ) throws SQLExecutionException
 	{
 		patch( target, false );
@@ -325,17 +336,29 @@ public class Patcher
 	/**
 	 * Patches to the given target version. The target version can end with an '*', indicating whatever tip version that matches the target prefix.
 	 * 
-	 * @param target
-	 * @throws SQLException
+	 * @param target The target requested.
+	 * @param downgradeable Indicates that downgrade paths are allowed to reach the given target.
+	 * @throws SQLExecutionException When the execution of a command throws an {@link SQLException}.
 	 */
 	public void patch( String target, boolean downgradeable ) throws SQLExecutionException
 	{
 		init();
 
-		Set< String > targets;
+		LinkedHashSet< String > targets;
 
-		boolean wildcard = target.endsWith( "*" );
-		if( wildcard )
+		// TODO What if the target is not found?
+		if( target == null )
+		{
+			targets = getTargets( true, null, downgradeable );
+			if( targets.size() == 1 )
+			{
+				String t = targets.iterator().next();
+				patch( this.dbVersion.getVersion(), t, downgradeable );
+			}
+			else if( targets.size() > 1 )
+				throw new FatalException( "More than one possible target found, you should specify a target." );
+		}
+		else if( target.endsWith( "*" ) )
 		{
 			String targetPrefix = target.substring( 0, target.length() - 1 );
 			targets = getTargets( true, targetPrefix, downgradeable );
@@ -346,7 +369,6 @@ public class Patcher
 					patch( this.dbVersion.getVersion(), t, downgradeable );
 					break;
 				}
-			// TODO What if the target is not found?
 		}
 		else
 		{
@@ -357,38 +379,51 @@ public class Patcher
 					patch( this.dbVersion.getVersion(), t, downgradeable );
 					break;
 				}
-			// TODO What if the target is not found?
 		}
 
 		terminateCommandListeners();
 		if( targets.size() > 0 )
-			this.callBack.patchingFinished();
+			this.progress.patchingFinished();
 		else
 			throw new SystemException( "Target " + target + " is not a possible target" );
 	}
 
+	/**
+	 * Gives listeners a chance to cleanup.
+	 */
 	protected void terminateCommandListeners()
 	{
 		for( CommandListener listener : this.listeners )
 			listener.terminate();
 	}
 
+	/**
+	 * Upgrade the database from the given version to the given target.
+	 * 
+	 * @param version The current version of the database.
+	 * @param target The target to upgrade to.
+	 * @param downgradeable Allow downgrades to reach the target
+	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
+	 */
 	protected void patch( String version, String target, boolean downgradeable ) throws SQLExecutionException
 	{
 		if( target.equals( version ) )
 			return;
 
-		List patches = this.patchFile.getPatchPath( version, target, downgradeable );
-		Assert.isTrue( patches != null );
-		Assert.isTrue( patches.size() > 0, "No upgrades found" );
+		Path path = this.patchFile.getPatchPath( version, target, downgradeable );
+		Assert.isTrue( path.size() > 0, "No upgrades found" );
 
-		for( Iterator iter = patches.iterator(); iter.hasNext(); )
-		{
-			Patch patch = (Patch)iter.next();
+		for( Patch patch : path )
 			patch( patch );
-		}
 	}
 
+	/**
+	 * Give the listeners a chance to react to the given command.
+	 * 
+	 * @param command The command to be executed.
+	 * @return True if a listener has processed the command, false otherwise.
+	 * @throws SQLException If the database throws an exception.
+	 */
 	protected boolean executeListeners( Command command ) throws SQLException
 	{
 		for( Iterator iter = this.listeners.iterator(); iter.hasNext(); )
@@ -400,7 +435,14 @@ public class Patcher
 		return false;
 	}
 
-	// count == 0 --> non counting
+	/**
+	 * Execute the given command, coming from the given patch.
+	 * 
+	 * @param patch The patch that contains the command to be executed.
+	 * @param command The command to be executed.
+	 * @param count The number of the command within the complete patch. Will be 0 for transient commands.
+	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
+	 */
 	protected void execute( Patch patch, Command command, int count ) throws SQLExecutionException
 	{
 		Assert.isTrue( command.isPersistent() );
@@ -435,14 +477,14 @@ public class Patcher
 			{
 				if( patch.isInit() )
 				{
-					this.callBack.exception( command );
+					this.progress.exception( command );
 					throw new SQLExecutionException( command, e );
 				}
 				this.dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), e );
 				String error = e.getSQLState();
 				if( !this.ignoreSet.contains( error ) )
 				{
-					this.callBack.exception( command );
+					this.progress.exception( command );
 					throw new SQLExecutionException( command, e );
 				}
 			}
@@ -461,11 +503,17 @@ public class Patcher
 		}
 	}
 
+	/**
+	 * Execute a patch.
+	 * 
+	 * @param patch The patch to be executed.
+	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
+	 */
 	protected void patch( Patch patch ) throws SQLExecutionException
 	{
 		Assert.notNull( patch, "patch == null" );
 
-		this.callBack.patchStarting( patch );
+		this.progress.patchStarting( patch );
 
 		this.patchFile.gotoPatch( patch );
 		int skip = this.dbVersion.getStatements();
@@ -500,7 +548,7 @@ public class Patcher
 							if( this.ignoreSet.contains( error ) )
 								return;
 						}
-						this.callBack.exception( command );
+						this.progress.exception( command );
 						throw new SQLExecutionException( command, e );
 					}
 					if( done )
@@ -525,40 +573,40 @@ public class Patcher
 					else if( ( matcher = ifHistoryContainsPattern.matcher( sql ) ).matches() )
 						ifHistoryContains( matcher.group( 1 ), matcher.group( 2 ) );
 					else if( ifHistoryContainsEnd.matcher( sql ).matches() )
-						ifHistoryContainsEnd();
+						popCondition();
 					else if( ( matcher = selectConnectionPattern.matcher( sql ) ).matches() )
 						selectConnection( matcher.group( 1 ) );
 					else
-						Assert.fail( "Unknown command [" + sql + "]" );
+						throw new FatalException( "Unknown command " + sql + ", at line " + command.getLineNumber() );
 				}
 			}
 			else if( this.dontCount )
 			{
-				this.callBack.executing( command, this.startMessage );
+				this.progress.executing( command, this.startMessage );
 				this.startMessage = null;
 				execute( patch, command, 0 );
-				this.callBack.executed();
+				this.progress.executed();
 			}
 			else
 			{
 				count++;
 				if( count > skip && this.conditionFalseCounter == 0 )
 				{
-					this.callBack.executing( command, this.startMessage );
+					this.progress.executing( command, this.startMessage );
 					this.startMessage = null;
 					if( sql.trim().equalsIgnoreCase( "UPGRADE" ) )
 						upgrade( patch, command );
 					else
 						execute( patch, command, count );
-					this.callBack.executed();
+					this.progress.executed();
 				}
 				else
-					this.callBack.skipped( command );
+					this.progress.skipped( command );
 			}
 
 			command = this.patchFile.readStatement();
 		}
-		this.callBack.patchFinished();
+		this.progress.patchFinished();
 
 		this.dbVersion.setStale(); // TODO With a normal patch, only set stale if not both of the 2 version tables are found
 		if( patch.isInit() )
@@ -596,14 +644,25 @@ public class Patcher
 	private void setConnection( Database database )
 	{
 		this.currentDatabase = database;
-		database.init(); // Reset the current user
+		if( database != null )
+			database.init(); // Reset the current user TODO Create a test for this.
 	}
 
+	/**
+	 * Changes the current user. The database will stay constant.
+	 * 
+	 * @param user The user to make current.
+	 */
 	protected void setUser( String user )
 	{
 		this.currentDatabase.setCurrentUser( user );
 	}
 
+	/**
+	 * Adds a comma separated list of SQLStates to be ignored. See {@link SQLException#getSQLState()}.
+	 * 
+	 * @param ignores A comma separated list of errors to be ignored.
+	 */
 	protected void pushIgnores( String ignores )
 	{
 		String[] ss = ignores.split( "," );
@@ -613,12 +672,18 @@ public class Patcher
 		refreshIgnores();
 	}
 
+	/**
+	 * Remove the last added list of ignores.
+	 */
 	protected void popIgnores()
 	{
 		this.ignoreStack.pop();
 		refreshIgnores();
 	}
 
+	/**
+	 * Synchronize the set of ignores with the queue's contents.
+	 */
 	protected void refreshIgnores()
 	{
 		HashSet ignores = new HashSet();
@@ -631,18 +696,30 @@ public class Patcher
 		this.ignoreSet = ignores;
 	}
 
+	/**
+	 * Persistent commands should be considered transient.
+	 */
 	protected void enableDontCount()
 	{
 		Assert.isFalse( this.dontCount, "Counting already enabled" );
 		this.dontCount = true;
 	}
 
+	/**
+	 * Persistent commands should be considered persistent again.
+	 */
 	protected void disableDontCount()
 	{
 		Assert.isTrue( this.dontCount, "Counting already disabled" );
 		this.dontCount = false;
 	}
 
+	/**
+	 * If history does not contain the given version then start skipping the persistent commands. If <code>not</code> is true then this logic is reversed.
+	 * 
+	 * @param not True causes reversed logic.
+	 * @param version The version to look for in the history.
+	 */
 	private void ifHistoryContains( String not, String version )
 	{
 		if( this.conditionFalseCounter == 0 )
@@ -659,7 +736,10 @@ public class Patcher
 			this.conditionFalseCounter++;
 	}
 
-	private void ifHistoryContainsEnd()
+	/**
+	 * Pop a condition from the stack. If only true conditions remain, skipping of persistent commands is terminated.
+	 */
+	private void popCondition()
 	{
 		if( this.conditionFalseCounter > 0 )
 			this.conditionFalseCounter--;
@@ -670,21 +750,41 @@ public class Patcher
 		}
 	}
 
+	/**
+	 * Returns the progress listener.
+	 * 
+	 * @return The progress listener.
+	 */
 	public ProgressListener getCallBack()
 	{
-		return this.callBack;
+		return this.progress;
 	}
 
+	/**
+	 * Sets the progress listener.
+	 * 
+	 * @param callBack The progress listener.
+	 */
 	public void setCallBack( ProgressListener callBack )
 	{
-		this.callBack = callBack;
+		this.progress = callBack;
 	}
 
+	/**
+	 * Write the history to the given output stream.
+	 * 
+	 * @param out The output stream to write to.
+	 */
 	public void logToXML( OutputStream out )
 	{
 		this.dbVersion.logToXML( out, Charset.forName( "UTF-8" ) );
 	}
 
+	/**
+	 * Write the history to the given file name.
+	 * 
+	 * @param filename The file name to write to.
+	 */
 	public void logToXML( String filename )
 	{
 		if( filename.equals( "-" ) )
@@ -702,7 +802,10 @@ public class Patcher
 		}
 	}
 
-	// TODO This is caused by being a static class
+	/**
+	 * Closes open files and closes connections.
+	 */
+	// TODO No signal to the listeners here?
 	public void end()
 	{
 		closePatchFile();
@@ -710,6 +813,11 @@ public class Patcher
 			this.currentDatabase.closeConnections();
 	}
 
+	/**
+	 * Makes current another configured connection.
+	 * 
+	 * @param name The name of the connection to select.
+	 */
 	protected void selectConnection( String name )
 	{
 		name = name.toLowerCase();
@@ -718,16 +826,39 @@ public class Patcher
 		setConnection( database );
 	}
 
-	public void addConnection( solidbase.config.Connection connection )
+	/**
+	 * Add a database.
+	 * 
+	 * @param name The name of the database.
+	 * @param database The database.
+	 */
+	public void addDatabase( String name, Database database )
 	{
-		Assert.notNull( this.defaultDatabase );
-		String driver = connection.getDriver();
-		String url = connection.getUrl();
-		this.databases.put( connection.getName(), new Database( driver != null ? driver : this.defaultDatabase.driverName, url != null ? url : this.defaultDatabase.url, connection.getUser().toLowerCase(), connection.getPassword(), this.callBack ) );
+		this.databases.put( name, database );
+
+		if( name.equals( "default" ) )
+		{
+			this.defaultDatabase = database;
+			setConnection( database ); // Also resets the current user for the connection
+			this.dbVersion = new DBVersion( database, this.progress );
+		}
 	}
 
+	/**
+	 * Initializes the default connection.
+	 */
 	public void connect()
 	{
 		this.defaultDatabase.getConnection();
+	}
+
+	/**
+	 * Returns a statement of the current version of the database in a user presentable form.
+	 * 
+	 * @return A statement of the current version of the database in a user presentable form.
+	 */
+	public String getVersionStatement()
+	{
+		return this.dbVersion.getVersionStatement();
 	}
 }

@@ -21,10 +21,10 @@
 	xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd">
 
 	<info>
-		<title>SolidBase</title>
+		<title>SolidBase 1.0 User's Manual</title>
 		<subtitle>A database change and version control tool using SQL and markup.</subtitle>
 		<author>
-			<personname>René M. de Bloois</personname>
+			<personname>René de Bloois</personname>
 			<email>rene.de.bloois@gmail.com</email>
 		</author>
 		<productname>SolidBase</productname>
@@ -33,6 +33,13 @@
 			<holder>René M. de Bloois</holder>
 		</copyright>
 	</info>
+
+	<chapter xml:id="introduction">
+		<title>Introduction</title>
+		
+		<para>This document is obsolete. It will be the basis for a new manual for the 1.5 release.</para>
+		
+	</chapter>
 
 	<chapter xml:id="concepts">
 		<title>Concepts</title>
@@ -77,13 +84,14 @@
 				Database changes are executed in a specific context.
 				This context consists of the parameters set within SolidBase, the parameters set on the connection to the database, and the global parameters defined in the database.
 				Examples are:
-				<itemizedlist>
-					<listitem><para>Which user is used to apply the database changes?</para></listitem>
-					<listitem><para>What date/time format is currently active?</para></listitem>
-					<listitem><para>Should specific sql errors be ignored because they are expected?</para></listitem>
-				</itemizedlist>
 			</para>
 			
+			<itemizedlist>
+				<listitem><para>Which user is used to apply the database changes?</para></listitem>
+				<listitem><para>What date/time format is currently active?</para></listitem>
+				<listitem><para>Should specific sql errors be ignored because they are expected?</para></listitem>
+			</itemizedlist>
+
 			<para>
 				Context parameters can be changed in between the execution of the database changes.
 			</para>
@@ -92,7 +100,7 @@
 				<title>Examples of changing context parameters</title>
 				<listitem><para><computeroutput>--* SET USER &lt;username&gt;</computeroutput></para></listitem>
 				<listitem>
-<programlisting>--* SESSIONCONFIG, maybe introduce something like: --* >ALTER SESSION
+<programlisting>--* SESSIONCONFIG
 ALTER SESSION ...
 --* /SESSIONCONFIG</programlisting>
 				</listitem>
@@ -333,11 +341,11 @@ prod.applications = app1, app2
 
 # database 'prod', application 'app1'
 prod.app1.description = app1 description
-prod.app1.user = sa
+prod.app1.username = sa
 prod.app1.patchfile = upgrade-hsqldb-example1.sql
 
 # database 'prod', application 'app2'
-prod.app2.user = sa
+prod.app2.username = sa
 prod.app2.patchfile = upgrade-hsqldb-example2.sql
 
 # database 'test'
@@ -346,7 +354,7 @@ test.url = jdbc:derby:c:/projects/temp/solidbase/db;create=true
 test.applications = app3
 
 # database 'test', application 'app3'
-test.app3.user = app
+test.app3.username = app
 test.app3.patchfile = upgrade-derby-example.sql]]></programlisting>
 			</example>
 		
@@ -408,9 +416,9 @@ test.app3.patchfile = upgrade-derby-example.sql]]></programlisting>
 					<td>Description for this application</td>
 				</tr>
 				<tr>
-					<td>&lt;dbname&gt;.&lt;appname&gt;.user</td>
+					<td>&lt;dbname&gt;.&lt;appname&gt;.username</td>
 					<td></td>
-					<td>User needed to connect to this application</td>
+					<td>User name needed to connect to this application</td>
 				</tr>
 				<tr>
 					<td>&lt;dbname&gt;.&lt;appname&gt;.patchfile</td>
@@ -603,7 +611,7 @@ GO
 --* SET MESSAGE "Inserting admin user"
 
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD )
-VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
+VALUES ( 'admin', '*****' )
 GO
 
 --* /PATCH

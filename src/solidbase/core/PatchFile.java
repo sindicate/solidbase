@@ -28,6 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.collections.map.MultiValueMap;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import solidbase.core.Patch.Type;
@@ -151,7 +152,8 @@ public class PatchFile
 			{
 				throw new SystemException( e );
 			}
-			Assert.isTrue( line != null, "End-of-file found before reading a complete definition" );
+			if( line == null )
+				throw new FatalException( "Unexpected EOF found at line " + this.file.getLineNumber() );
 
 			if( line.trim().length() > 0 )
 			{
@@ -277,7 +279,7 @@ public class PatchFile
 								throw new FatalException( "Upgrade block type '" + action + "' is different from its definition at line " + pos );
 						}
 						if( patch.getLineNumber() >= 0 )
-							throw new FatalException( "Double upgrade block \"" + source + "\" --> \"" + target + "\" found at line " + pos );
+							throw new FatalException( "Duplicate upgrade block \"" + source + "\" --> \"" + target + "\" found at line " + pos );
 						patch.setLineNumber( pos );
 					}
 				}
@@ -346,150 +348,95 @@ public class PatchFile
 	}
 
 
-	protected class GetPatchPath2Result
-	{
-		protected boolean hasDowngrade;
-		protected int switches;
-		protected List< Patch > path;
-
-		protected GetPatchPath2Result()
-		{
-			this.path = new ArrayList< Patch >();
-		}
-
-		protected GetPatchPath2Result( Patch patch, GetPatchPath2Result result )
-		{
-			this.path = new ArrayList< Patch >();
-			this.path.add( patch );
-			this.path.addAll( result.path );
-
-			for( Patch p : this.path )
-				calc( p );
-		}
-
-		protected void calc( Patch patch )
-		{
-			if( patch.isDowngrade() )
-				this.hasDowngrade = true;
-			else if( patch.isSwitch() )
-				this.switches++;
-		}
-
-		protected void add( Patch patch )
-		{
-			this.path.add( patch );
-			calc( patch );
-		}
-
-		protected void add( GetPatchPath2Result other )
-		{
-			this.path.addAll( other.path );
-
-			for( Patch p : other.path )
-				calc( p );
-		}
-
-		protected boolean betterThan( GetPatchPath2Result other )
-		{
-			if( other.hasDowngrade )
-			{
-				if( !this.hasDowngrade )
-					return true;
-			}
-			else
-			{
-				if( this.hasDowngrade )
-					return false;
-			}
-
-			if( other.switches > this.switches )
-				return true;
-			if( other.switches < this.switches )
-				return false;
-			Assert.fail( "Couldn't decide between 2 upgrade paths" );
-			return false;
-		}
-	}
-
-
 	/**
-	 * Returns a patch path for the specified source and target.
+	 * Determine the best path between a source version and a target version.
 	 * 
 	 * @param source The source version.
 	 * @param target The target version.
 	 * @param downgradesAllowed Allow downgrades in the resulting path.
-	 * @return A list of patches that correspond to the given source and target versions.
+	 * @return The best path between a source version and a target version. This path can be empty when the source and
+	 *         target are equal. The result will be null if there is no path.
 	 */
-	protected List< Patch > getPatchPath( String source, String target, boolean downgradesAllowed )
+	protected Path getPatchPath( String source, String target, boolean downgradesAllowed )
 	{
 		Set< String > done = new HashSet();
 		done.add( source );
-		GetPatchPath2Result result = getPatchPath0( source, target, downgradesAllowed, done );
-		if( result == null )
-			return null;
-		return result.path;
+		return getPatchPath0( source, target, downgradesAllowed, done );
 	}
 
 
-	protected GetPatchPath2Result getPatchPath0( String source, String target, boolean downgradesAllowed, Set< String > done )
+	/**
+	 * Determine the best path between a source version and a target version.
+	 * 
+	 * @param source The source version.
+	 * @param target The target version.
+	 * @param downgradesAllowed Allow downgrades in the resulting path.
+	 * @param targetsProcessed A set of targets that have already been processed. This prevents endless loops.
+	 * @return The best path between a source version and a target version. This path can be empty when the source and
+	 *         target are equal. The result will be null if there is no path.
+	 */
+	protected Path getPatchPath0( String source, String target, boolean downgradesAllowed, Set< String > targetsProcessed )
 	{
-		GetPatchPath2Result result = new GetPatchPath2Result();
+		Path result = new Path();
 
-		// If equal than we are finished
-		if( source == null )
-		{
-			if( target == null )
-				return result;
-		}
-		else
-		{
-			if( source.equals( target ) )
-				return result;
-		}
+		// If equal than return an empty path
+		if( ObjectUtils.equals( source, target ) )
+			return result;
 
-		// Start with all the patches that start with the given source
+		// Start with all the patches that have the given source
 		List< Patch > patches = (List)this.patches.get( source );
+
+		// As long as only one patch found loop instead of recursion
 		while( patches != null && patches.size() == 1 )
 		{
 			Patch patch = patches.get( 0 );
-			if( done.contains( patch.getTarget() ) )
+
+			if( targetsProcessed.contains( patch.getTarget() ) ) // Target already processed -> no path found
 				return null;
-			done.add( patch.getTarget() );
-			result.add( patch );
-			if( target.equals( patch.getTarget() ) )
-				return result; // Done
+
+			targetsProcessed.add( patch.getTarget() ); // Register target
+
+			result.append( patch ); // Append to result
+			if( target.equals( patch.getTarget() ) ) // Target is requested target -> return result
+				return result;
+
 			patches = (List)this.patches.get( patch.getTarget() );
 		}
 
-		// If no patch then return null
+		// No patches -> no path found
 		if( patches == null )
 			return null;
 
-		GetPatchPath2Result selected = null;
-
+		// More then one patch found, select the best one
+		Path selected = null;
 		for( Patch patch : patches )
 		{
-			if( done.contains( patch.getTarget() ) )
+			if( targetsProcessed.contains( patch.getTarget() ) ) // Target already processed -> ignore
 				continue;
-			Set< String > done2 = new HashSet();
-			done2.addAll( done );
-			done2.add( patch.getTarget() );
-			GetPatchPath2Result r = getPatchPath0( patch.getTarget(), target, downgradesAllowed, done2 );
-			if( r != null )
+
+			// Build new set for recursive call
+			Set< String > processed = new HashSet();
+			processed.addAll( targetsProcessed );
+			processed.add( patch.getTarget() );
+
+			// Call recursive and select if better
+			Path path = getPatchPath0( patch.getTarget(), target, downgradesAllowed, processed );
+			if( path != null )
 			{
-				r = new GetPatchPath2Result( patch, r );
+				path.prepend( patch );
 				if( selected == null )
-					selected = r;
-				else if( r.betterThan( selected ) )
-					selected = r;
+					selected = path;
+				else if( path.betterThan( selected ) )
+					selected = path;
 			}
 		}
 
+		// No patches found -> no path found
 		if( selected == null )
 			return null;
 
-		result.add( selected );
-		return result;
+		// Return the selected path appended to the first path
+		return result.append( selected );
 	}
 
 
@@ -538,7 +485,7 @@ public class PatchFile
 		collectReachableVersions( version, targeting, downgradesAllowed, result );
 
 		if( result.size() == 0 )
-			throw new FatalException( "Database version " + version + " does not exist in the upgrade file." );
+			throw new FatalException( "The current database version (" + StringUtils.defaultString( version, "no version" ) + ") is not available in the upgrade file. Maybe this version is deprecated or the wrong upgrade file is used." );
 
 		if( prefix != null )
 			for( Iterator< String > iterator = result.iterator(); iterator.hasNext(); )

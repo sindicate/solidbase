@@ -1,6 +1,5 @@
 package solidbase.test.core;
 
-import java.io.IOException;
 import java.sql.SQLException;
 
 import org.testng.Assert;
@@ -14,7 +13,7 @@ import solidbase.core.TestUtil;
 public class DeprecatedVersion
 {
 	@Test
-	public void testDeprecated1() throws IOException, SQLException
+	public void testDeprecated1() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:deprecated", "sa", null, progress ) );
@@ -25,7 +24,7 @@ public class DeprecatedVersion
 	}
 
 	@Test(dependsOnMethods="testDeprecated1")
-	public void testDeprecated2() throws IOException, SQLException
+	public void testDeprecated2() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:deprecated", "sa", null, progress ) );
@@ -37,7 +36,7 @@ public class DeprecatedVersion
 		}
 		catch( FatalException e )
 		{
-			Assert.assertTrue( e.getMessage().contains( "Database version 1.0.2 does not exist in the upgrade file" ) );
+			Assert.assertTrue( e.getMessage().contains( "The current database version (1.0.2) is not available in the upgrade file." ) );
 			patcher.end();
 		}
 	}

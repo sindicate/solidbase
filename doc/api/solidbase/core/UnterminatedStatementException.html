@@ -106,7 +106,13 @@ Class UnterminatedStatementException</H2>
 </PRE>
 
 <P>
+Exception that is thrown when a statement is not terminated with a GO.
+<P>
+
+<P>
 <DL>
+<DT><B>Author:</B></DT>
+  <DD>René M. de Bloois</DD>
 <DT><B>See Also:</B><DD><A HREF="../../serialized-form.html#solidbase.core.UnterminatedStatementException">Serialized Form</A></DL>
 <HR>
 
@@ -125,7 +131,7 @@ Class UnterminatedStatementException</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/UnterminatedStatementException.html#lineNumber">lineNumber</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The line number of the unterminated statement.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -141,7 +147,7 @@ Class UnterminatedStatementException</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/UnterminatedStatementException.html#UnterminatedStatementException(int)">UnterminatedStatementException</A></B>(int&nbsp;lineNumber)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructor.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -198,6 +204,8 @@ lineNumber</H3>
 <PRE>
 protected int <B>lineNumber</B></PRE>
 <DL>
+<DD>The line number of the unterminated statement.
+<P>
 <DL>
 </DL>
 </DL>
@@ -217,6 +225,10 @@ UnterminatedStatementException</H3>
 <PRE>
 public <B>UnterminatedStatementException</B>(int&nbsp;lineNumber)</PRE>
 <DL>
+<DD>Constructor.
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>lineNumber</CODE> - The line number of the unterminated statement.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->

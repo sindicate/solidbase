@@ -17,10 +17,24 @@
 package solidbase.core;
 
 
+/**
+ * Exception that is thrown when a statement is not terminated with a GO.
+ * 
+ * @author René M. de Bloois
+ */
+// TODO Maybe reuse FatalException
 public class UnterminatedStatementException extends RuntimeException
 {
+	/**
+	 * The line number of the unterminated statement.
+	 */
 	protected int lineNumber;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param lineNumber The line number of the unterminated statement.
+	 */
 	public UnterminatedStatementException( int lineNumber )
 	{
 		this.lineNumber = lineNumber;

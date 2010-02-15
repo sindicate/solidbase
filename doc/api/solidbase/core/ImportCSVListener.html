@@ -163,7 +163,7 @@ This plugin executes IMPORT CSV statements.
         <A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Called when a command from the patch file needs to be executed.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Called when a command from the upgrade file needs to be executed.</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_solidbase.core.CommandListener"><!-- --></A>
@@ -222,17 +222,17 @@ protected boolean <B>execute</B>(<A HREF="../../solidbase/core/Database.html" ti
                    throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></PRE>
 <DL>
 <DD><B>Description copied from class: <CODE><A HREF="../../solidbase/core/CommandListener.html#execute(solidbase.core.Database, solidbase.core.Command)">CommandListener</A></CODE></B></DD>
-<DD>Called when a command from the patch file needs to be executed. Commands can be repeatable or non-repeatable commands (see <A HREF="../../solidbase/core/Command.html#isTransient"><CODE>Command.isTransient</CODE></A>). This method should
- return true when it wants to indicate to the patchtool that it should stop processing this command.
+<DD>Called when a command from the upgrade file needs to be executed. Commands can be transient or persistent (see
+ <A HREF="../../solidbase/core/Command.html#isTransient"><CODE>Command.isTransient</CODE></A>). This method should return true if it decides to process the command.
 <P>
 <DD><DL>
 <DT><B>Specified by:</B><DD><CODE><A HREF="../../solidbase/core/CommandListener.html#execute(solidbase.core.Database, solidbase.core.Command)">execute</A></CODE> in class <CODE><A HREF="../../solidbase/core/CommandListener.html" title="class in solidbase.core">CommandListener</A></CODE></DL>
 </DD>
 <DD><DL>
-<DD><CODE>command</CODE> - The command that needs to be executed.
-<DT><B>Returns:</B><DD>true to signal the patchtool to stop processing the command, false otherwise.
+<DT><B>Parameters:</B><DD><CODE>database</CODE> - The database that the command needs to be executed on. Mostly, the current connection should be used.<DD><CODE>command</CODE> - The command that needs to be executed.
+<DT><B>Returns:</B><DD>True if it decides to process the command.
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE></DL>
+<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - When the execution of the command fails with an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A>.</DL>
 </DD>
 </DL>
 <HR>

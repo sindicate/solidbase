@@ -1,5 +1,5 @@
 /*--
- * Copyright 2006 René M. de Bloois
+ * Copyright 2008 René M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.test.custom;
+package solidbase.test.console;
 
 import java.io.File;
 
@@ -22,19 +22,33 @@ import mockit.Mock;
 
 
 /**
- *
+ * A configuration stub used during testing.
+ * 
  * @author René M. de Bloois
  * @since Dec 13, 2008
  */
 public class MockConfiguration
 {
+	/**
+	 * Path of the properties file.
+	 */
 	protected String propertyFileName;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param propertyFileName Path of the properties file.
+	 */
 	protected MockConfiguration( String propertyFileName )
 	{
 		this.propertyFileName = propertyFileName;
 	}
 
+	/**
+	 * Returns the path of the properties file.
+	 * 
+	 * @return The path of the properties file.
+	 */
 	@Mock
 	public File getPropertiesFile()
 	{

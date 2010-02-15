@@ -100,15 +100,29 @@ Class Command</H2>
 </PRE>
 
 <P>
-<p>Represents a command in the patchfile. A command can be repeatable or non-repeatable. Repeatable commands start with <code>--*</code>. Example of a repeatable command is:</p>
- <blockquote><pre>
- --* SET USER SYSTEM</pre></blockquote>
- <p>Repeatable commands are executed as they are encountered even when the patchtool is in the process of skipping non-repeatable commands.</p>
- <p>Example of a non-repeatable command:</p>
- <blockquote><pre>
- DROP TABLE REJECTED_SHIPMENTS PURGE
- GO</pre></blockquote>
- <p>Non-repeatable commands are DDL (data definition language) most of the time.</p>
+<p>
+ Represents a command in the upgrade file. A command can be transient or persistent. Transient commands start with
+ <code>--*</code>. Example of a transient command is:
+ </p>
+ <blockquote>
+ <pre>
+ --* SET USER A_USER
+ </pre>
+ </blockquote>
+ <p>
+ Transient commands are executed as they are encountered even when a patch package fails and is re-processed.
+ </p>
+ <p>
+ Example of a persistent command:
+ </p>
+ <blockquote>
+ <pre>
+ DROP TABLE A_TABLE
+ GO
+ </pre>
+ </blockquote>
+ <p>
+ </p>
 <P>
 
 <P>
@@ -135,7 +149,7 @@ Class Command</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Command.html#command">command</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The text of the command.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -143,7 +157,7 @@ Class Command</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Command.html#isTransient">isTransient</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Is the command transient or not?</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -151,7 +165,7 @@ Class Command</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Command.html#lineNumber">lineNumber</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The line number in the upgrade file where the command is found.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -171,7 +185,7 @@ Class Command</H2>
         int&nbsp;lineNumber)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs the command.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Instantiates a command.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -197,7 +211,7 @@ Class Command</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Command.html#getLineNumber()">getLineNumber</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the line number in the upgrade file where the command is found.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -251,6 +265,8 @@ command</H3>
 <PRE>
 protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>command</B></PRE>
 <DL>
+<DD>The text of the command.
+<P>
 <DL>
 </DL>
 </DL>
@@ -261,6 +277,8 @@ isTransient</H3>
 <PRE>
 protected boolean <B>isTransient</B></PRE>
 <DL>
+<DD>Is the command transient or not?
+<P>
 <DL>
 </DL>
 </DL>
@@ -271,6 +289,8 @@ lineNumber</H3>
 <PRE>
 protected int <B>lineNumber</B></PRE>
 <DL>
+<DD>The line number in the upgrade file where the command is found.
+<P>
 <DL>
 </DL>
 </DL>
@@ -292,10 +312,10 @@ protected <B>Command</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/l
                   boolean&nbsp;isTransient,
                   int&nbsp;lineNumber)</PRE>
 <DL>
-<DD>Constructs the command.
+<DD>Instantiates a command.
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>command</CODE> - The text of the command.<DD><CODE>isTransient</CODE> - Is it a transient command?<DD><CODE>lineNumber</CODE> - The line number in the upgrade file where this command starts.</DL>
+<DT><B>Parameters:</B><DD><CODE>command</CODE> - The text of the command.<DD><CODE>isTransient</CODE> - Is the command transient or not?<DD><CODE>lineNumber</CODE> - The line number in the upgrade file where the command is found.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -368,8 +388,11 @@ getLineNumber</H3>
 <PRE>
 public int <B>getLineNumber</B>()</PRE>
 <DL>
+<DD>Returns the line number in the upgrade file where the command is found.
+<P>
 <DD><DL>
-</DL>
+
+<DT><B>Returns:</B><DD>The line number in the upgrade file where the command is found.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

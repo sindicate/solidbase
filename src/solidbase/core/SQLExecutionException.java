@@ -21,15 +21,29 @@ import java.util.Iterator;
 
 
 /**
- * This {@link SQLException} combines an SQLException together with the command that caused the exception.
+ * This subclass of {@link SQLException} combines an SQLException together with the command that caused the exception.
  * 
  * @author René M. de Bloois
  */
 public class SQLExecutionException extends SQLException
 {
+	/**
+	 * The command that caused the {@link SQLException}.
+	 */
 	protected Command command;
+
+	/**
+	 * The {@link SQLException}.
+	 */
 	protected SQLException sqlException;
 
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param command The command that caused the {@link SQLException}.
+	 * @param e The {@link SQLException}.
+	 */
 	public SQLExecutionException( Command command, SQLException e )
 	{
 		super( e.getCause() );

@@ -44,7 +44,7 @@ public class CharSets
 	}
 
 	@Test
-	public void testUtf8() throws IOException, SQLException, SQLExecutionException
+	public void testUtf8() throws SQLException, SQLExecutionException
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testUtf8", "sa", null, progress ) );
@@ -70,7 +70,7 @@ public class CharSets
 	}
 
 	@Test
-	public void testUtf16Bom() throws IOException, SQLExecutionException
+	public void testUtf16Bom() throws IOException
 	{
 		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "patch-utf-16-bom-1.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
@@ -81,7 +81,7 @@ public class CharSets
 	}
 
 	@Test
-	public void testUtf16BomAndExplicit() throws IOException, SQLException
+	public void testUtf16BomAndExplicit() throws IOException
 	{
 		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "patch-utf-16-bom-2.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
@@ -105,7 +105,7 @@ public class CharSets
 	}
 
 	@Test
-	public void testUtf16NoBom() throws IOException, SQLException
+	public void testUtf16NoBom() throws IOException
 	{
 		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "patch-utf-16-nobom-1.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );

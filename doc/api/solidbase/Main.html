@@ -100,6 +100,10 @@ Class Main</H2>
 </PRE>
 
 <P>
+This class contains the main method for the command line version of SolidBase.
+<P>
+
+<P>
 <DL>
 <DT><B>Since:</B></DT>
   <DD>Apr 1, 2006 7:18:27 PM</DD>
@@ -123,7 +127,7 @@ Class Main</H2>
 <TD><CODE><B><A HREF="../solidbase/Main.html#console">console</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The console for communication with the user.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -153,27 +157,11 @@ Class Main</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../solidbase/Main.html#getCurrentVersion(solidbase.core.Patcher)">getCurrentVersion</A></B>(<A HREF="../solidbase/core/Patcher.html" title="class in solidbase.core">Patcher</A>&nbsp;patcher)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected static&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../solidbase/Main.html#list(java.util.Collection)">list</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&nbsp;list)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../solidbase/Main.html#main(java.lang.String...)">main</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>...&nbsp;args)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The main method for the command line version of SolidBase.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -181,7 +169,7 @@ Class Main</H2>
 <TD><CODE><B><A HREF="../solidbase/Main.html#main0(java.lang.String...)">main0</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>...&nbsp;args)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For internal (testing) use only: a main method that does not catch and print exceptions.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -189,7 +177,15 @@ Class Main</H2>
 <TD><CODE><B><A HREF="../solidbase/Main.html#pass2(java.lang.String...)">pass2</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>...&nbsp;args)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets called after reloading with an extended classpath.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../solidbase/Main.html#printHelp(org.apache.commons.cli.Options)">printHelp</A></B>(org.apache.commons.cli.Options&nbsp;options)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the help from commons cli to the writer registered on the <A HREF="../solidbase/Console.html" title="class in solidbase"><CODE>Console</CODE></A>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -199,7 +195,7 @@ Class Main</H2>
        boolean&nbsp;verbose)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Reload SolidBase with an extended classpath.</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -229,6 +225,8 @@ console</H3>
 <PRE>
 public static <A HREF="../solidbase/Console.html" title="class in solidbase">Console</A> <B>console</B></PRE>
 <DL>
+<DD>The console for communication with the user.
+<P>
 <DL>
 </DL>
 </DL>
@@ -260,35 +258,15 @@ public <B>Main</B>()</PRE>
 </TR>
 </TABLE>
 
-<A NAME="getCurrentVersion(solidbase.core.Patcher)"><!-- --></A><H3>
-getCurrentVersion</H3>
-<PRE>
-public static <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getCurrentVersion</B>(<A HREF="../solidbase/core/Patcher.html" title="class in solidbase.core">Patcher</A>&nbsp;patcher)</PRE>
-<DL>
-<DD><DL>
-</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="list(java.util.Collection)"><!-- --></A><H3>
-list</H3>
-<PRE>
-protected static <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>list</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&nbsp;list)</PRE>
-<DL>
-<DD><DL>
-</DL>
-</DD>
-</DL>
-<HR>
-
 <A NAME="main(java.lang.String...)"><!-- --></A><H3>
 main</H3>
 <PRE>
 public static void <B>main</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>...&nbsp;args)</PRE>
 <DL>
+<DD>The main method for the command line version of SolidBase.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>args</CODE> - The arguments from the command line.</DL>
 </DD>
 </DL>
 <HR>
@@ -299,10 +277,12 @@ main0</H3>
 public static void <B>main0</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>...&nbsp;args)
                   throws <A HREF="../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></PRE>
 <DL>
+<DD>For internal (testing) use only: a main method that does not catch and print exceptions.
+<P>
 <DD><DL>
-
+<DT><B>Parameters:</B><DD><CODE>args</CODE> - The arguments from the command line.
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE></DL>
+<DD><CODE><A HREF="../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE> - When an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> is thrown during execution of a database change.</DL>
 </DD>
 </DL>
 <HR>
@@ -315,10 +295,12 @@ protected static void <B>reload</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs
                              boolean&nbsp;verbose)
                       throws <A HREF="../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></PRE>
 <DL>
+<DD>Reload SolidBase with an extended classpath. Calls <A HREF="../solidbase/Main.html#pass2(java.lang.String...)"><CODE>pass2(String...)</CODE></A> when it's done.
+<P>
 <DD><DL>
-
+<DT><B>Parameters:</B><DD><CODE>args</CODE> - The arguments from the command line.<DD><CODE>jars</CODE> - The jars that need to be added to the classpath.<DD><CODE>verbose</CODE> - Show more information.
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE></DL>
+<DD><CODE><A HREF="../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE> - When an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> is thrown during execution of a database change.</DL>
 </DD>
 </DL>
 <HR>
@@ -329,10 +311,25 @@ pass2</H3>
 public static void <B>pass2</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>...&nbsp;args)
                   throws <A HREF="../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></PRE>
 <DL>
+<DD>Gets called after reloading with an extended classpath.
+<P>
 <DD><DL>
-
+<DT><B>Parameters:</B><DD><CODE>args</CODE> - The arguments from the command line.
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE></DL>
+<DD><CODE><A HREF="../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE> - When an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> is thrown during execution of a database change.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="printHelp(org.apache.commons.cli.Options)"><!-- --></A><H3>
+printHelp</H3>
+<PRE>
+protected static void <B>printHelp</B>(org.apache.commons.cli.Options&nbsp;options)</PRE>
+<DL>
+<DD>Print the help from commons cli to the writer registered on the <A HREF="../solidbase/Console.html" title="class in solidbase"><CODE>Console</CODE></A>.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>options</CODE> - The commons cli option configuration.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

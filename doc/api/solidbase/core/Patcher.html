@@ -100,6 +100,13 @@ Class Patcher</H2>
 </PRE>
 
 <P>
+This class is the coordinator. It requests an upgrade path from the <A HREF="../../solidbase/core/PatchFile.html" title="class in solidbase.core"><CODE>PatchFile</CODE></A>, and reads commands from it. It
+ calls the <A HREF="../../solidbase/core/CommandListener.html" title="class in solidbase.core"><CODE>CommandListener</CODE></A>s, updates the DBVERSION and DBVERSIONLOG tables through <A HREF="../../solidbase/core/DBVersion.html" title="class in solidbase.core"><CODE>DBVersion</CODE></A>, calls
+ the <A HREF="../../solidbase/core/Database.html" title="class in solidbase.core"><CODE>Database</CODE></A> to execute statements through JDBC, and shows progress to the user by calling
+ <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core"><CODE>ProgressListener</CODE></A>.
+<P>
+
+<P>
 <DL>
 <DT><B>Since:</B></DT>
   <DD>Apr 1, 2006 7:18:27 PM</DD>
@@ -116,14 +123,6 @@ Class Patcher</H2>
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Field Summary</B></FONT></TH>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#callBack">callBack</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The progress listener.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -215,6 +214,14 @@ Class Patcher</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#progress">progress</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The progress listener.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#startMessage">startMessage</A></B></CODE>
 
@@ -230,6 +237,12 @@ Class Patcher</H2>
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#Patcher(solidbase.core.ProgressListener)">Patcher</A></B>(<A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;listener)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Construct a new instance of the patcher.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#Patcher(solidbase.core.ProgressListener, solidbase.core.Database)">Patcher</A></B>(<A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;listener,
@@ -251,10 +264,11 @@ Class Patcher</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#addConnection(solidbase.config.Connection)">addConnection</A></B>(<A HREF="../../solidbase/config/Connection.html" title="class in solidbase.config">Connection</A>&nbsp;connection)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#addDatabase(java.lang.String, solidbase.core.Database)">addDatabase</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+            <A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Add a database.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -270,7 +284,7 @@ Class Patcher</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#connect()">connect</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initializes the default connection.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -278,7 +292,7 @@ Class Patcher</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#disableDontCount()">disableDontCount</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Persistent commands should be considered persistent again.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -286,7 +300,7 @@ Class Patcher</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#enableDontCount()">enableDontCount</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Persistent commands should be considered transient.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -294,7 +308,7 @@ Class Patcher</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#end()">end</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Closes open files and closes connections.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -304,7 +318,7 @@ Class Patcher</H2>
         int&nbsp;count)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Execute the given command, coming from the given patch.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -312,7 +326,7 @@ Class Patcher</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#executeListeners(solidbase.core.Command)">executeListeners</A></B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Give the listeners a chance to react to the given command.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -320,7 +334,7 @@ Class Patcher</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#getCallBack()">getCallBack</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the progress listener.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -358,6 +372,14 @@ Class Patcher</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#getVersionStatement()">getVersionStatement</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a statement of the current version of the database in a user presentable form.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#init()">init</A></B>()</CODE>
 
@@ -370,7 +392,7 @@ Class Patcher</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#logToXML(java.io.OutputStream)">logToXML</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</A>&nbsp;out)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Write the history to the given output stream.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -378,7 +400,7 @@ Class Patcher</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#logToXML(java.lang.String)">logToXML</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;filename)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Write the history to the given file name.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -403,7 +425,7 @@ Class Patcher</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#patch(solidbase.core.Patch)">patch</A></B>(<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>&nbsp;patch)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Execute a patch.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -411,7 +433,7 @@ Class Patcher</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#patch(java.lang.String)">patch</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Patch to the given target.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -430,7 +452,7 @@ Class Patcher</H2>
       boolean&nbsp;downgradeable)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Upgrade the database from the given version to the given target.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -438,7 +460,7 @@ Class Patcher</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#popIgnores()">popIgnores</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Remove the last added list of ignores.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -446,7 +468,7 @@ Class Patcher</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#pushIgnores(java.lang.String)">pushIgnores</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;ignores)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Adds a comma separated list of SQLStates to be ignored.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -454,7 +476,7 @@ Class Patcher</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#refreshIgnores()">refreshIgnores</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Synchronize the set of ignores with the queue's contents.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -470,7 +492,7 @@ Class Patcher</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#selectConnection(java.lang.String)">selectConnection</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Makes current another configured connection.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -478,7 +500,7 @@ Class Patcher</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#setCallBack(solidbase.core.ProgressListener)">setCallBack</A></B>(<A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;callBack)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets the progress listener.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -486,7 +508,7 @@ Class Patcher</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#setUser(java.lang.String)">setUser</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;user)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Changes the current user.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -494,7 +516,7 @@ Class Patcher</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Patcher.html#terminateCommandListeners()">terminateCommandListeners</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gives listeners a chance to cleanup.</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -548,7 +570,7 @@ ignoreStack</H3>
 <PRE>
 protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Stack.html?is-external=true" title="class or interface in java.util">Stack</A> <B>ignoreStack</B></PRE>
 <DL>
-<DD>Errors that should be ignored.
+<DD>Errors that should be ignored. @{link #ignoreSet} is kept in sync with this stack.
 <P>
 <DL>
 </DL>
@@ -607,10 +629,10 @@ protected int <B>conditionFalseCounter</B></PRE>
 </DL>
 <HR>
 
-<A NAME="callBack"><!-- --></A><H3>
-callBack</H3>
+<A NAME="progress"><!-- --></A><H3>
+progress</H3>
 <PRE>
-protected <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A> <B>callBack</B></PRE>
+protected <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A> <B>progress</B></PRE>
 <DL>
 <DD>The progress listener.
 <P>
@@ -636,7 +658,7 @@ defaultDatabase</H3>
 <PRE>
 protected <A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A> <B>defaultDatabase</B></PRE>
 <DL>
-<DD>The default database. At the start of each change set, this database is put into <A HREF="../../solidbase/core/Patcher.html#currentDatabase"><CODE>currentDatabase</CODE></A> to become the current database.
+<DD>The default database. At the start of each change package, this database is put into <A HREF="../../solidbase/core/Patcher.html#currentDatabase"><CODE>currentDatabase</CODE></A> to become the current database.
 <P>
 <DL>
 </DL>
@@ -648,7 +670,7 @@ currentDatabase</H3>
 <PRE>
 protected <A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A> <B>currentDatabase</B></PRE>
 <DL>
-<DD>The current database. Gets reset to the default database at the start of each change set.
+<DD>The current database. Gets reset to the default database at the start of each change package.
 <P>
 <DL>
 </DL>
@@ -688,6 +710,18 @@ protected <A HREF="../../solidbase/core/DBVersion.html" title="class in solidbas
 </TR>
 </TABLE>
 
+<A NAME="Patcher(solidbase.core.ProgressListener)"><!-- --></A><H3>
+Patcher</H3>
+<PRE>
+public <B>Patcher</B>(<A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;listener)</PRE>
+<DL>
+<DD>Construct a new instance of the patcher.
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>listener</CODE> - Listens to the progress.</DL>
+</DL>
+<HR>
+
 <A NAME="Patcher(solidbase.core.ProgressListener, solidbase.core.Database)"><!-- --></A><H3>
 Patcher</H3>
 <PRE>
@@ -697,7 +731,7 @@ public <B>Patcher</B>(<A HREF="../../solidbase/core/ProgressListener.html" title
 <DD>Construct a new instance of the patcher.
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>listener</CODE> - Listens to the progress.<DD><CODE>database</CODE> - The default database to use. This database also contains a default user. Version tables will be looked for in this database in the schema identified by the default user.</DL>
+<DT><B>Parameters:</B><DD><CODE>listener</CODE> - Listens to the progress.<DD><CODE>database</CODE> - The default database.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -832,7 +866,7 @@ public void <B>init</B>()
 <DD><DL>
 
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE> - Thrown when the execution of an SQL statement fails.</DL>
+<DD><CODE><A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE> - Whenever an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> occurs during the execution of a command.</DL>
 </DD>
 </DL>
 <HR>
@@ -843,10 +877,12 @@ patch</H3>
 public void <B>patch</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target)
            throws <A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></PRE>
 <DL>
+<DD>Patch to the given target.
+<P>
 <DD><DL>
-
+<DT><B>Parameters:</B><DD><CODE>target</CODE> - The target to patch to.
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE></DL>
+<DD><CODE><A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE> - Whenever an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> occurs during the execution of a command.</DL>
 </DD>
 </DL>
 <HR>
@@ -861,10 +897,9 @@ public void <B>patch</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/l
 <DD>Patches to the given target version. The target version can end with an '*', indicating whatever tip version that matches the target prefix.
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>target</CODE> - 
+<DT><B>Parameters:</B><DD><CODE>target</CODE> - The target requested.<DD><CODE>downgradeable</CODE> - Indicates that downgrade paths are allowed to reach the given target.
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE>
-<DD><CODE><A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE></DL>
+<DD><CODE><A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE> - When the execution of a command throws an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A>.</DL>
 </DD>
 </DL>
 <HR>
@@ -874,6 +909,8 @@ terminateCommandListeners</H3>
 <PRE>
 protected void <B>terminateCommandListeners</B>()</PRE>
 <DL>
+<DD>Gives listeners a chance to cleanup.
+<P>
 <DD><DL>
 </DL>
 </DD>
@@ -888,10 +925,12 @@ protected void <B>patch</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/jav
                      boolean&nbsp;downgradeable)
               throws <A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></PRE>
 <DL>
+<DD>Upgrade the database from the given version to the given target.
+<P>
 <DD><DL>
-
+<DT><B>Parameters:</B><DD><CODE>version</CODE> - The current version of the database.<DD><CODE>target</CODE> - The target to upgrade to.<DD><CODE>downgradeable</CODE> - Allow downgrades to reach the target
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE></DL>
+<DD><CODE><A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE> - Whenever an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> occurs during the execution of a command.</DL>
 </DD>
 </DL>
 <HR>
@@ -902,10 +941,13 @@ executeListeners</H3>
 protected boolean <B>executeListeners</B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)
                             throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></PRE>
 <DL>
+<DD>Give the listeners a chance to react to the given command.
+<P>
 <DD><DL>
-
+<DT><B>Parameters:</B><DD><CODE>command</CODE> - The command to be executed.
+<DT><B>Returns:</B><DD>True if a listener has processed the command, false otherwise.
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE></DL>
+<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - If the database throws an exception.</DL>
 </DD>
 </DL>
 <HR>
@@ -918,10 +960,12 @@ protected void <B>execute</B>(<A HREF="../../solidbase/core/Patch.html" title="c
                        int&nbsp;count)
                 throws <A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></PRE>
 <DL>
+<DD>Execute the given command, coming from the given patch.
+<P>
 <DD><DL>
-
+<DT><B>Parameters:</B><DD><CODE>patch</CODE> - The patch that contains the command to be executed.<DD><CODE>command</CODE> - The command to be executed.<DD><CODE>count</CODE> - The number of the command within the complete patch. Will be 0 for transient commands.
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE></DL>
+<DD><CODE><A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE> - Whenever an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> occurs during the execution of a command.</DL>
 </DD>
 </DL>
 <HR>
@@ -932,10 +976,12 @@ patch</H3>
 protected void <B>patch</B>(<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>&nbsp;patch)
               throws <A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></PRE>
 <DL>
+<DD>Execute a patch.
+<P>
 <DD><DL>
-
+<DT><B>Parameters:</B><DD><CODE>patch</CODE> - The patch to be executed.
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE></DL>
+<DD><CODE><A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE> - Whenever an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> occurs during the execution of a command.</DL>
 </DD>
 </DL>
 <HR>
@@ -945,8 +991,10 @@ setUser</H3>
 <PRE>
 protected void <B>setUser</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;user)</PRE>
 <DL>
+<DD>Changes the current user. The database will stay constant.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>user</CODE> - The user to make current.</DL>
 </DD>
 </DL>
 <HR>
@@ -956,8 +1004,10 @@ pushIgnores</H3>
 <PRE>
 protected void <B>pushIgnores</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;ignores)</PRE>
 <DL>
+<DD>Adds a comma separated list of SQLStates to be ignored. See <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true#getSQLState()" title="class or interface in java.sql"><CODE>SQLException.getSQLState()</CODE></A>.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>ignores</CODE> - A comma separated list of errors to be ignored.</DL>
 </DD>
 </DL>
 <HR>
@@ -967,6 +1017,8 @@ popIgnores</H3>
 <PRE>
 protected void <B>popIgnores</B>()</PRE>
 <DL>
+<DD>Remove the last added list of ignores.
+<P>
 <DD><DL>
 </DL>
 </DD>
@@ -978,6 +1030,8 @@ refreshIgnores</H3>
 <PRE>
 protected void <B>refreshIgnores</B>()</PRE>
 <DL>
+<DD>Synchronize the set of ignores with the queue's contents.
+<P>
 <DD><DL>
 </DL>
 </DD>
@@ -989,6 +1043,8 @@ enableDontCount</H3>
 <PRE>
 protected void <B>enableDontCount</B>()</PRE>
 <DL>
+<DD>Persistent commands should be considered transient.
+<P>
 <DD><DL>
 </DL>
 </DD>
@@ -1000,6 +1056,8 @@ disableDontCount</H3>
 <PRE>
 protected void <B>disableDontCount</B>()</PRE>
 <DL>
+<DD>Persistent commands should be considered persistent again.
+<P>
 <DD><DL>
 </DL>
 </DD>
@@ -1011,8 +1069,11 @@ getCallBack</H3>
 <PRE>
 public <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A> <B>getCallBack</B>()</PRE>
 <DL>
+<DD>Returns the progress listener.
+<P>
 <DD><DL>
-</DL>
+
+<DT><B>Returns:</B><DD>The progress listener.</DL>
 </DD>
 </DL>
 <HR>
@@ -1022,8 +1083,10 @@ setCallBack</H3>
 <PRE>
 public void <B>setCallBack</B>(<A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;callBack)</PRE>
 <DL>
+<DD>Sets the progress listener.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>callBack</CODE> - The progress listener.</DL>
 </DD>
 </DL>
 <HR>
@@ -1033,8 +1096,10 @@ logToXML</H3>
 <PRE>
 public void <B>logToXML</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</A>&nbsp;out)</PRE>
 <DL>
+<DD>Write the history to the given output stream.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>out</CODE> - The output stream to write to.</DL>
 </DD>
 </DL>
 <HR>
@@ -1044,8 +1109,10 @@ logToXML</H3>
 <PRE>
 public void <B>logToXML</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;filename)</PRE>
 <DL>
+<DD>Write the history to the given file name.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>filename</CODE> - The file name to write to.</DL>
 </DD>
 </DL>
 <HR>
@@ -1055,6 +1122,8 @@ end</H3>
 <PRE>
 public void <B>end</B>()</PRE>
 <DL>
+<DD>Closes open files and closes connections.
+<P>
 <DD><DL>
 </DL>
 </DD>
@@ -1066,19 +1135,24 @@ selectConnection</H3>
 <PRE>
 protected void <B>selectConnection</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name)</PRE>
 <DL>
+<DD>Makes current another configured connection.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - The name of the connection to select.</DL>
 </DD>
 </DL>
 <HR>
 
-<A NAME="addConnection(solidbase.config.Connection)"><!-- --></A><H3>
-addConnection</H3>
+<A NAME="addDatabase(java.lang.String, solidbase.core.Database)"><!-- --></A><H3>
+addDatabase</H3>
 <PRE>
-public void <B>addConnection</B>(<A HREF="../../solidbase/config/Connection.html" title="class in solidbase.config">Connection</A>&nbsp;connection)</PRE>
+public void <B>addDatabase</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                        <A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database)</PRE>
 <DL>
+<DD>Add a database.
+<P>
 <DD><DL>
-</DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - The name of the database.<DD><CODE>database</CODE> - The database.</DL>
 </DD>
 </DL>
 <HR>
@@ -1088,8 +1162,24 @@ connect</H3>
 <PRE>
 public void <B>connect</B>()</PRE>
 <DL>
+<DD>Initializes the default connection.
+<P>
 <DD><DL>
 </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getVersionStatement()"><!-- --></A><H3>
+getVersionStatement</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getVersionStatement</B>()</PRE>
+<DL>
+<DD>Returns a statement of the current version of the database in a user presentable form.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>A statement of the current version of the database in a user presentable form.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

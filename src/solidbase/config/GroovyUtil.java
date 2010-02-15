@@ -26,8 +26,20 @@ import java.util.Map;
 import solidbase.core.SystemException;
 
 
+/**
+ * Groovy utilities.
+ * 
+ * @author René M. de Bloois
+ */
 public class GroovyUtil
 {
+	/**
+	 * Execute the given groovy file using the specified binding.
+	 * 
+	 * @param file The groovy file.
+	 * @param binding The binding to use.
+	 * @return The return value of the groovy script.
+	 */
 	static public Object evaluate( File file, Map binding )
 	{
 		try

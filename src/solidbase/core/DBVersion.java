@@ -513,16 +513,20 @@ public class DBVersion
 				while( result.next() )
 				{
 					int i = 1;
-					xml.writeStartElement( "command" );
+					xml.writeStartElement( "record" );
 					if( spec11 )
 						xml.writeAttribute( "type", result.getString( i++ ) );
 					xml.writeAttribute( "source", StringUtils.defaultString( result.getString( i++ ) ) );
 					xml.writeAttribute( "target", result.getString( i++ ) );
-					xml.writeAttribute( "count", String.valueOf( result.getInt( i++ ) ) );
+					xml.writeAttribute( "statement", String.valueOf( result.getInt( i++ ) ) );
 					xml.writeAttribute( "stamp", String.valueOf( result.getTimestamp( i++ ) ) );
 					String sql = result.getString( i++ );
 					if( sql != null )
+					{
+						xml.writeStartElement( "command" );
 						xml.writeCharacters( sql );
+						xml.writeEndElement();
+					}
 					String res = result.getString( i++ );
 					if( res != null )
 					{
@@ -665,5 +669,27 @@ public class DBVersion
 		{
 			throw new SystemException( e );
 		}
+	}
+
+	/**
+	 * Returns a statement of the current version of the database in a user presentable form.
+	 * 
+	 * @return A statement of the current version of the database in a user presentable form.
+	 */
+	protected String getVersionStatement()
+	{
+		String version = getVersion();
+		String target = getTarget();
+		int statements = getStatements();
+
+		if( version == null )
+		{
+			if( target != null )
+				return "The database has no version yet, incompletely patched to version \"" + target + "\" (" + statements + " statements successful).";
+			return "The database has no version yet.";
+		}
+		if( target != null )
+			return "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful).";
+		return "Current database version is \"" + version + "\".";
 	}
 }

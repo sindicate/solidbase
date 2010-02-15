@@ -16,68 +16,163 @@
 
 package solidbase.config;
 
-import java.util.ArrayList;
-import java.util.List;
 
-import solidbase.core.SystemException;
-
-
+/**
+ * A configured database.
+ * 
+ * @author René M. de Bloois
+ */
 public class Database
 {
+	/**
+	 * The name of the database.
+	 */
 	protected String name;
-	protected String description;
-	protected String driver;
-	protected String url;
-	protected List< Application > applications = new ArrayList();
 
-	public Database( String name, String description, String driver, String url )
+	/**
+	 * The driver for the database.
+	 */
+	protected String driver;
+
+	/**
+	 * The url of the database.
+	 */
+	protected String url;
+
+	/**
+	 * The username for the connection to the database.
+	 */
+	protected String userName;
+
+	/**
+	 * The password for the connection to the database.
+	 */
+	protected String password;
+
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param name The name of the database.
+	 */
+	public Database( String name )
 	{
 		this.name = name;
-		this.description = description;
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param name The name of the database.
+	 * @param driver The driver for the database.
+	 * @param url The url of the database.
+	 * @param userName The user name for the connection to the database.
+	 * @param password The optional password for the connection to the database.
+	 */
+	public Database( String name, String driver, String url, String userName, String password )
+	{
+		this.name = name;
 		this.driver = driver;
+		this.url = url;
+		this.userName = userName;
+		this.password = password;
+	}
+
+	/**
+	 * Sets the driver for the database.
+	 * 
+	 * @param driver The driver for the database.
+	 */
+	public void setDriver( String driver )
+	{
+		this.driver = driver;
+	}
+
+	/**
+	 * Sets the url of the database.
+	 * 
+	 * @param url The url of the database.
+	 */
+	public void setUrl( String url )
+	{
 		this.url = url;
 	}
 
-	public Application addApplication( String name, String description, String userName, String password, String patchFile, String target )
+	/**
+	 * Sets the user name for the connection to the database.
+	 * 
+	 * @param userName The user name for the connection to the database.
+	 */
+	public void setUserName( String userName )
 	{
-		Application application = new Application( name, description, userName, password, patchFile, target );
-		this.applications.add( application );
-		return application;
+		this.userName = userName;
 	}
 
-	public Application getApplication( String name )
+	/**
+	 * Sets the password for the connection to the database.
+	 * 
+	 * @param password The password for the connection to the database.
+	 */
+	public void setPassword( String password )
 	{
-		for( Application application : this.applications )
-			if( application.name.equals( name ) )
-				return application;
-		throw new SystemException( "Application [" + name + "] not configured for database [" + this.name + "]." );
+		this.password = password;
 	}
 
+	/**
+	 * Returns the name of the database.
+	 * 
+	 * @return The name of the database.
+	 */
 	public String getName()
 	{
 		return this.name;
 	}
 
-	public String getDescription()
-	{
-		return this.description;
-	}
-
+	/**
+	 * Returns the driver for this database.
+	 * 
+	 * @return The driver for this database.
+	 */
 	public String getDriver()
 	{
 		return this.driver;
 	}
 
+	/**
+	 * Returns the url of the database.
+	 * 
+	 * @return The url of the database.
+	 */
 	public String getUrl()
 	{
 		return this.url;
 	}
 
-	public List< Application > getApplications()
+	/**
+	 * Returns the user name for the connection to the database.
+	 * 
+	 * @return The user name for the connection to the database.
+	 */
+	public String getUserName()
 	{
-		return this.applications;
+		return this.userName;
 	}
 
+	/**
+	 * Returns the user name for the connection to the database.
+	 * 
+	 * @return The user name for the connection to the database.
+	 */
+	public String getPassword()
+	{
+		return this.password;
+	}
+
+	/**
+	 * A comparator to sort databases by name.
+	 * 
+	 * @author René M. de Bloois
+	 */
 	static public class Comparator implements java.util.Comparator< Database >
 	{
 		public int compare( Database database1, Database database2 )

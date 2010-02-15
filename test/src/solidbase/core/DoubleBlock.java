@@ -18,8 +18,6 @@ package solidbase.core;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -30,7 +28,7 @@ import solidbase.core.RandomAccessLineReader;
 public class DoubleBlock
 {
 	@Test
-	public void testDoubleBlock() throws IOException, SQLException
+	public void testDoubleBlock() throws IOException
 	{
 		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch-doubleblock.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
@@ -42,7 +40,7 @@ public class DoubleBlock
 		catch( FatalException e )
 		{
 			patchFile.close();
-			Assert.assertTrue( e.getMessage().contains( "Double upgrade block" ) );
+			Assert.assertTrue( e.getMessage().contains( "Duplicate upgrade block" ) );
 		}
 	}
 }
