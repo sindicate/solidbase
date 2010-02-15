@@ -182,6 +182,14 @@ This class contains the main method for the command line version of SolidBase.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../solidbase/Main.html#printHelp(org.apache.commons.cli.Options)">printHelp</A></B>(org.apache.commons.cli.Options&nbsp;options)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the help from commons cli to the writer registered on the <A HREF="../solidbase/Console.html" title="class in solidbase"><CODE>Console</CODE></A>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected static&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../solidbase/Main.html#reload(java.lang.String[], java.util.List, boolean)">reload</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;args,
        <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;jars,
        boolean&nbsp;verbose)</CODE>
@@ -309,6 +317,19 @@ public static void <B>pass2</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api
 <DT><B>Parameters:</B><DD><CODE>args</CODE> - The arguments from the command line.
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE> - When an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> is thrown during execution of a database change.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="printHelp(org.apache.commons.cli.Options)"><!-- --></A><H3>
+printHelp</H3>
+<PRE>
+protected static void <B>printHelp</B>(org.apache.commons.cli.Options&nbsp;options)</PRE>
+<DL>
+<DD>Print the help from commons cli to the writer registered on the <A HREF="../solidbase/Console.html" title="class in solidbase"><CODE>Console</CODE></A>.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>options</CODE> - The commons cli option configuration.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

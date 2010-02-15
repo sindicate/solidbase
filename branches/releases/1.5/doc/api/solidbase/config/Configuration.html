@@ -127,7 +127,7 @@ This class represents all the configuration from the commandline or from the pro
 <TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#defaultDatabase">defaultDatabase</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The default database.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The default configured database.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -136,14 +136,6 @@ This class represents all the configuration from the commandline or from the pro
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A list of jars that need to be added to the classpath.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;boolean</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#fromAnt">fromAnt</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Are we running the command line version of SolidBase within Apache Ant?</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -167,7 +159,7 @@ This class represents all the configuration from the commandline or from the pro
 <TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#secondaryDatabases">secondaryDatabases</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A list of configured databases.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A list of configured secondary databases.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -186,12 +178,6 @@ This class represents all the configuration from the commandline or from the pro
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Constructor Summary</B></FONT></TH>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#Configuration(solidbase.config.ConfigListener)">Configuration</A></B>(<A HREF="../../solidbase/config/ConfigListener.html" title="interface in solidbase.config">ConfigListener</A>&nbsp;progress)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Create a new configuration object.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#Configuration(solidbase.config.ConfigListener, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)">Configuration</A></B>(<A HREF="../../solidbase/config/ConfigListener.html" title="interface in solidbase.config">ConfigListener</A>&nbsp;progress,
@@ -236,6 +222,14 @@ This class represents all the configuration from the commandline or from the pro
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#getFirstError()">getFirstError</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the first configuration error for display.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#getPatchFile()">getPatchFile</A></B>()</CODE>
 
 <BR>
@@ -276,10 +270,10 @@ This class represents all the configuration from the commandline or from the pro
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;boolean</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#isFromAnt()">isFromAnt</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#isVoid()">isVoid</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Are we running the command line version from within Apache Ant?</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Determines if the configuration is void.</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -303,18 +297,6 @@ This class represents all the configuration from the commandline or from the pro
 <B>Field Detail</B></FONT></TH>
 </TR>
 </TABLE>
-
-<A NAME="fromAnt"><!-- --></A><H3>
-fromAnt</H3>
-<PRE>
-protected boolean <B>fromAnt</B></PRE>
-<DL>
-<DD>Are we running the command line version of SolidBase within Apache Ant?
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
 
 <A NAME="properties"><!-- --></A><H3>
 properties</H3>
@@ -341,24 +323,24 @@ protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?i
 </DL>
 <HR>
 
-<A NAME="secondaryDatabases"><!-- --></A><H3>
-secondaryDatabases</H3>
+<A NAME="defaultDatabase"><!-- --></A><H3>
+defaultDatabase</H3>
 <PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="../../solidbase/config/Database.html" title="class in solidbase.config">Database</A>&gt; <B>secondaryDatabases</B></PRE>
+protected <A HREF="../../solidbase/config/Database.html" title="class in solidbase.config">Database</A> <B>defaultDatabase</B></PRE>
 <DL>
-<DD>A list of configured databases.
+<DD>The default configured database.
 <P>
 <DL>
 </DL>
 </DL>
 <HR>
 
-<A NAME="defaultDatabase"><!-- --></A><H3>
-defaultDatabase</H3>
+<A NAME="secondaryDatabases"><!-- --></A><H3>
+secondaryDatabases</H3>
 <PRE>
-protected <A HREF="../../solidbase/config/Database.html" title="class in solidbase.config">Database</A> <B>defaultDatabase</B></PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="../../solidbase/config/Database.html" title="class in solidbase.config">Database</A>&gt; <B>secondaryDatabases</B></PRE>
 <DL>
-<DD>The default database.
+<DD>A list of configured secondary databases.
 <P>
 <DL>
 </DL>
@@ -397,18 +379,6 @@ protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html
 <B>Constructor Detail</B></FONT></TH>
 </TR>
 </TABLE>
-
-<A NAME="Configuration(solidbase.config.ConfigListener)"><!-- --></A><H3>
-Configuration</H3>
-<PRE>
-public <B>Configuration</B>(<A HREF="../../solidbase/config/ConfigListener.html" title="interface in solidbase.config">ConfigListener</A>&nbsp;progress)</PRE>
-<DL>
-<DD>Create a new configuration object. This constructor is used by the Ant Task and the Maven Plugin.
-<P>
-<DL>
-<DT><B>Parameters:</B><DD><CODE>progress</CODE> - The listener that listens to config events.</DL>
-</DL>
-<HR>
 
 <A NAME="Configuration(solidbase.config.ConfigListener, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
 Configuration</H3>
@@ -449,20 +419,6 @@ protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/File.html?is-
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the path of the properties file.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="isFromAnt()"><!-- --></A><H3>
-isFromAnt</H3>
-<PRE>
-public boolean <B>isFromAnt</B>()</PRE>
-<DL>
-<DD>Are we running the command line version from within Apache Ant?
-<P>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>True if we are running the command line version from within Apache Ant, false otherwise.</DL>
 </DD>
 </DL>
 <HR>
@@ -547,6 +503,34 @@ public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>name</CODE> - The name for the property.
 <DT><B>Returns:</B><DD>The property with the given name from the properties file.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getFirstError()"><!-- --></A><H3>
+getFirstError</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getFirstError</B>()</PRE>
+<DL>
+<DD>Returns the first configuration error for display.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>The first configuration error.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isVoid()"><!-- --></A><H3>
+isVoid</H3>
+<PRE>
+public boolean <B>isVoid</B>()</PRE>
+<DL>
+<DD>Determines if the configuration is void.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>True if the configuration is void, false otherwise.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
