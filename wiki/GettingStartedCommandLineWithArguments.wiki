@@ -19,7 +19,7 @@ C:\TEMP>dir
 C:\TEMP>
 }}}
 
-Create a upgrade script for the database. The upgrade script starts with a definition and an initialization to create the required tables that !SolidBase needs.
+Create an upgrade script for the database. The upgrade script starts with a definition and an initialization to create the required tables that !SolidBase needs.
 
 test-upgrade.sql:
 {{{
@@ -62,7 +62,7 @@ GO
 --* /INIT
 }}}
 
-Version 1.1 is something !SolidBase recognizes, you shouldn't change that. The folder now looks like:
+Version 1.1 indicates to !SolidBase what the structure is of the DBVERSION and DBVERSIONLOG tables. So you shouldn't change that. The folder now looks like:
 
 {{{
 C:\TEMP>dir
@@ -140,7 +140,7 @@ java.lang.ClassNotFoundException: org.apache.derby.jdbc.EmbeddedDriver
 C:\TEMP>
 }}}
 
-But this is not good. We have to add the driver jar to the classpath. When using Ant or Maven you can use Ant or Maven techniques. When using a properties file you can do that in there (shown below). But now we have to use the java way like this:
+But this is not right. We have to add the driver jar to the classpath. When using Ant or Maven you can use Ant or Maven techniques. When using the solidbase.properties file you can do that in there (shown below). But now we have to use the java way like this:
 
 {{{
 C:\TEMP>java -cp solidbase.jar;derby-10.2.1.6.jar solidbase.Main \
@@ -263,7 +263,7 @@ GO
 
 --* SET MESSAGE "    Inserting user"
 
-INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' )
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'renÃ©', '*****' )
 GO
 
 --* /UPGRADE
@@ -290,7 +290,7 @@ C:\TEMP>java -cp solidbase.jar;derby-10.2.1.6.jar solidbase.Main \
 C:\TEMP>
 }}}
 
-Problem is, we did add the change itself, but we didn't update the definition at the top of the file. Change the definition to this:
+Problem is, we only added the change itself, but forgot to define it. The definition in the top of the file is needed to give a better overview of the contents of the upgrade. Change the definition to this:
 
 {{{
 --*	DEFINITION
@@ -325,7 +325,9 @@ C:\TEMP>java -cp solidbase.jar;derby-10.2.1.6.jar solidbase.Main \
 C:\TEMP>
 }}}
 
-When a solidbase.properties file is found in the working folder, it will be read. You can add default values for certain properties in it, for example the extra jars and the driver class name. Add a solidbase.properties file:
+Below we are going to use the solidbase.properties file to set some default properties. This makes the command-line version of !SolidBase easier to use.
+
+When a solidbase.properties file is found in the working folder, it will be read automatically. You can add default values for certain properties in it, for example the extra jars and the driver class name. Add a solidbase.properties file:
 
 {{{
 properties-version = 1.0
@@ -360,7 +362,7 @@ C:\TEMP>dir
 C:\TEMP>
 }}}
 
-Now we don't have to use the java classpath and the -driver option on the commandline:
+Now we can remove the -classpath and the -driver arguments from the commandline:
 
 {{{
 C:\TEMP>java -jar solidbase.jar -url jdbc:derby:test;create=true \
@@ -381,3 +383,5 @@ C:\TEMP>
 }}}
 
 This concludes the Getting Started with the command line version of !SolidBase.
+
+Have a happy time playing with !SolidBase!
