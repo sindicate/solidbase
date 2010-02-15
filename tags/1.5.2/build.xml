@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+   Copyright 2006 René M. de Bloois
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<project basedir="." name="solidbase" default="dist" xmlns:maven="antlib:org.apache.maven.artifact.ant">
+
+	<!-- Maven Ant Task -->
+	
+	<path id="maven.classpath">
+		<fileset dir="tools/maven" includes="*.jar" />
+	</path>
+
+	<typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven.classpath" />
+	
+	<!-- <maven:dependencies><pom file="pom.xml" /></maven:dependencies> -->
+	
+	<!-- Property file -->
+
+	<property file="build.properties" />
+
+	<!-- Properties -->
+
+	<property name="target-jre" value="1.5" />
+
+	<!-- Source folders & files -->
+
+	<!-- Product folders -->
+	<property name="build.home" location="../BUILDS/solidbase" />
+	<property name="temp.home" value="../TEMP/solidbase" />
+	<property name="dist.home" location="${build.home}/dist" />
+
+
+	<!-- Classpaths -->
+
+	<path id="groovy.classpath">
+		<fileset dir="tools/groovy" includes="*.jar" />
+		<fileset dir="tools/svnkit" includes="*.jar" />
+	</path>
+
+	<path id="jarjar.classpath">
+		<fileset dir="tools/jarjar" includes="*.jar" />
+	</path>
+
+	<path id="testng.classpath">
+		<fileset dir="test/lib" includes="*.jar" />
+	</path>
+
+	<path id="xalan.classpath">
+		<fileset dir="tools/xalan" includes="*.jar" />
+	</path>
+
+	<path id="fop.classpath">
+		<fileset dir="tools/fop" includes="*.jar" />
+	</path>
+
+	<path id="jing.classpath">
+		<fileset dir="tools/jing" includes="*.jar" />
+	</path>
+
+	<path id="compile.classpath">
+		<fileset dir="lib" includes="*.jar" />
+		<pathelement location="lib/mindprod-csv" />
+	</path>
+
+	<path id="compiletest.classpath">
+		<pathelement location="${build.home}/classes" />
+		<fileset dir="test/lib" includes="*.jar" />
+		<path refid="compile.classpath" />
+	</path>
+
+	<path id="test.classpath">
+		<pathelement location="${build.home}/testclasses" />
+		<path refid="compiletest.classpath" />
+	</path>
+
+	<path id="maven2.classpath">
+		<fileset dir="tools/maven/boot" includes="*.jar" />
+	</path>
+
+
+	<!-- Custom Ant Task Definitions -->
+
+	<taskdef resource="testngtasks" classpathref="testng.classpath" />
+	<taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpathref="groovy.classpath" />
+	<taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpathref="jarjar.classpath" />
+	<taskdef name="fop" classname="org.apache.fop.tools.anttasks.Fop" classpathref="fop.classpath" />
+
+
+	<!-- Default target -->
+
+	<target name="none">
+		<echo message="Use ant -p to see available targets" />
+	</target>
+
+
+	<!-- Targets -->
+
+	<target name="clean" description="Clean out the output directories ">
+		<delete dir="${build.home}" />
+		<delete dir="${temp.home}" />
+	</target>
+
+
+	<target name="compile">
+		<echo message="java.home=${java.home}" />
+		<mkdir dir="${build.home}/classes" />
+		<javac srcdir="src:maven-plugin/src/main/java" destdir="${build.home}/classes" source="${target-jre}" target="${target-jre}" optimize="true" debug="true" deprecation="true" classpathref="compile.classpath" />
+		<sync todir="${build.home}/classes">
+			<fileset dir="src" excludes="**/*.java" />
+			<preserveInTarget includes="**/*.class" />
+		</sync>
+	</target>
+
+
+	<target name="compiletest" depends="compile">
+		<mkdir dir="${build.home}/testclasses" />
+		<javac source="${target-jre}" target="${target-jre}" srcdir="test/src" destdir="${build.home}/testclasses" debug="true" deprecation="true" optimize="true">
+			<classpath refid="compiletest.classpath" />
+		</javac>
+		<sync todir="${build.home}/test">
+			<fileset dir="test" excludes="src/**,lib/**" />
+		</sync>
+	</target>
+
+
+	<target name="test" depends="compile,compiletest,test-maven-plugin" description="Run the tests">
+		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="3">
+			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.996.jar" />
+			<jvmarg value="-Xmx256m" />
+			<classfileset dir="${build.home}/testclasses" />
+			<!-- <reporter classname="solidbase.test.TestListener"/> -->
+		</testng>
+	</target>
+
+
+	<target name="testnew" depends="compile,compiletest" description="Run new tests">
+		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="3" groups="new">
+			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.996.jar" />
+			<jvmarg value="-Xmx256m" />
+			<classfileset dir="${build.home}/testclasses" />
+		</testng>
+	</target>
+
+
+	<target name="jar" depends="compile">
+		<fail message="A *.txt file is missing">
+			<condition>
+				<resourcecount when="ne" count="3">
+					<fileset dir="." includes="LICENSE.txt,NOTICE.txt,CHANGELOG.TXT" />
+				</resourcecount>
+			</condition>
+		</fail>
+		<groovy src="getsvninfo.groovy" />
+		<mkdir dir="${build.home}/config" />
+		<!-- TODO This echo causes the jar file to be rebuilt again and again -->
+		<echo file="${build.home}/config/version.properties" message="solidbase.version=${release.number}-rev${svn.revision}" />
+		<mkdir dir="${dist.home}" />
+		<jarjar compress="yes" destfile="${dist.home}/solidbase.jar">
+			<zipfileset dir="${build.home}/classes" excludes="solidbase/version.properties" />
+			<zipfileset dir="lib/mindprod-csv" />
+			<zipfileset file="${build.home}/config/version.properties" prefix="solidbase" />
+			<zipfileset src="lib/commons-cli-1.2.jar" excludes="META-INF/**" />
+			<zipfileset src="lib/commons-collections-3.2.jar" excludes="META-INF/**" />
+			<zipfileset src="lib/commons-lang-2.3.jar" excludes="META-INF/**" />
+			<zipfileset dir="." includes="LICENSE.txt,NOTICE.txt,CHANGELOG.TXT" prefix="META-INF" />
+			<rule pattern="org.apache.commons.**" result="solidbase.@0" />
+			<rule pattern="com.mindprod.**" result="solidbase.@0" />
+			<keep pattern="solidbase.Main" />
+			<keep pattern="solidbase.ant.UpgradeTask" />
+			<keep pattern="solidbase.maven.UpgradeMojo" />
+			<manifest>
+				<attribute name="Implementation-Title" value="SolidBase" />
+				<attribute name="Implementation-Version" value="${release.number}.${svn.revision}" />
+				<attribute name="Implementation-Vendor-Id" value="org.solidbase" />
+				<attribute name="Main-Class" value="solidbase.Main" />
+				<attribute name="Version" value="${release.number}.${svn.revision}" />
+				<attribute name="Project-Name" value="${ant.project.name}" />
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Target-JRE" value="${target-jre}" />
+				<attribute name="SVN-url" value="${svn.url}" />
+				<attribute name="SVN-revision" value="${svn.committedRevision}" />
+			</manifest>
+		</jarjar>
+	</target>
+
+
+	<target name="build" depends="jar" description="Do an (incremental) build">
+		<copy todir="${dist.home}" preservelastmodified="true">
+			<fileset dir="dist" />
+		</copy>
+	</target>
+
+
+	<!--
+	<target name="run" depends="build">
+		<java jar="${dist.home}/solidbase.jar" fork="yes" dir="${dist.home}">
+			<arg value="-fromant" />
+			<!-
+			<arg value="-driver" />
+			<arg value="org.apache.derby.jdbc.EmbeddedDriver" />
+			<arg value="-url" />
+			<arg value="jdbc:derby:c:/projects/temp/solidbase/db;create=true" />
+			<arg value="-user" />
+			<arg value="app" />
+			<arg value="-pass" />
+			<arg value="" />
+			->
+		</java>
+	</target>
+	-->
+
+	<target name="checksvnstatus">
+		<groovy src="checksvnstatus.groovy" />
+	</target>
+
+
+	<target name="dist" depends="checksvnstatus,clean,test,build,test-maven-plugin" description="Complete build process to create the distribution files">
+		<fail>
+			<condition>
+				<resourcecount when="ne" count="8">
+					<fileset dir="${dist.home}" includes="build.xml,upgrade-*-example.sql,hsqldb.jar,solidbase.jar,solidbase.properties" />
+				</resourcecount>
+			</condition>
+		</fail>
+		<echo message="Distribution files created in ${dist.home}" />
+	</target>
+
+
+	<target name="javadoc" depends="compile" description="Generate Javadoc">
+		<mkdir dir="doc/api" />
+		<delete dir="doc/api" includes="**/*" />
+		<javadoc sourcepath="src:maven-plugin/src/main/java" destdir="doc/api" packagenames="*" linkoffline="http://java.sun.com/j2se/1.5.0/docs/api doc/jdk1.5.0">
+			<classpath refid="compile.classpath" />
+		</javadoc>
+		<replaceregexp match="- Generated by javadoc [^\-]+-" replace="- Generated by javadoc -" flags="g" byline="true">
+			<fileset dir="doc/api" includes="**/*.html" />
+		</replaceregexp>
+		<replaceregexp match="&lt;META NAME=&quot;date&quot; CONTENT=&quot;[\d\-]+&quot;&gt;" replace="" flags="g" byline="true">
+			<fileset dir="doc/api" includes="**/*.html" />
+		</replaceregexp>
+	</target>
+
+
+	<target name="manual">
+		<echo message="NOTE: You can use 'ant -autoproxy &lt;target&gt;' when you have network problems" />
+		<java jar="tools/jing/jing.jar" fork="true">
+			<arg value="-t" />
+			<arg value="-i" />
+			<arg path="tools/docbook/docbook.rng" />
+			<arg path="doc/manual.xml" />
+		</java>
+		<mkdir dir="${build.home}" />
+		<mkdir dir="${dist.home}" />
+		<xslt style="tools/docbook/xhtml/docbook.xsl" in="doc/manual.xml" out="${dist.home}/manual.html" classpathref="xalan.classpath" />
+		<xslt style="tools/docbook/fo/docbook.xsl" in="doc/manual.xml" out="${build.home}/manual.fo" classpathref="xalan.classpath" />
+		<fop format="application/pdf" fofile="${build.home}/manual.fo" outfile="${dist.home}/manual.pdf" />
+	</target>
+	
+	
+	<target name="test-ant-task" depends="compile">
+        <taskdef resource="solidbasetasks" classpathref="compiletest.classpath" />
+		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testJson" user="sa" password="" patchfile="test/testpatch-multiconnections.sql" target="1.0.*">
+       		<secondary name="queues" url="jdbc:hsqldb:mem:queues" username="sa" password="geheim" />
+       		<secondary name="user" username="sa" password="" />
+        </solidbase-upgrade>
+	</target>
+
+
+	<target name="maven:deploy" depends="build" description="Deploys to the remote repo">
+		<maven:deploy file="${dist.home}/solidbase.jar">
+			<pom file="pom.xml" />
+		</maven:deploy>
+	</target>
+	
+	
+	<target name="maven:install" depends="build" description="Deploys to the local repo">
+		<maven:install file="${dist.home}/solidbase.jar">
+			<pom file="pom.xml" />
+		</maven:install>
+	</target>
+	
+	
+
+	<!--
+	<target name="maven:release">
+		<replaceregexp file="pom.xml" match="&lt;version&gt;(\w|\.|-)*&lt;/version&gt;" replace="&lt;version&gt;${release.number}&lt;/version&gt;" />
+		<replaceregexp file="src/META-INF/maven/plugin.xml" match="&lt;version&gt;(\w|\.|-)*&lt;/version&gt;" replace="&lt;version&gt;${release.number}&lt;/version&gt;" />
+		
+	</target>
+	-->
+	
+	<!-- This will delete all files but not the folders. Use this when you want to integrate a new version of the docbook xsl tool -->
+	<target name="delete-docbook-tool">
+		<delete>
+			<fileset dir="tools/docbook" includes="**/*" />
+		</delete>
+	</target>
+	
+	
+	<!-- Example maven macro
+	<macrodef name="maven">
+		<attribute name="options" default="" />
+		<attribute name="goal" />
+		<attribute name="basedir" />
+		<attribute name="resultproperty" default="maven.result" />
+		<element name="args" implicit="true" optional="true" />
+		<sequential>
+			<java classname="org.codehaus.classworlds.Launcher" fork="true" dir="@{basedir}" resultproperty="@{resultproperty}">
+				<jvmarg value="-Xmx512m" />
+				<classpath>
+	  				<fileset dir="${maven.home}/boot">
+						<include name="*.jar" />
+	  				</fileset>
+	  				<fileset dir="${maven.home}/lib">
+						<include name="*.jar" />
+	  				</fileset>
+				</classpath>
+				<sysproperty key="classworlds.conf" value="${maven.home}/bin/m2.conf" />
+				<sysproperty key="maven.home" value="${maven.home}" />
+				<arg line="-B @{options} @{goal}" />
+	  		</java>
+		</sequential>
+	</macrodef>
+	
+	<maven basedir="${basedir}" options="${maven.opts}" goal="install" resultproperty="maven.build.result" />
+	-->
+
+	
+	<target name="test-maven-plugin" depends="build">
+		
+		<!-- Deploy -->
+		<mkdir dir="${build.home}/mavenuser" /> <!-- Will contain the local maven repo -->
+		<delete dir="${build.home}/mavenuser/.m2/repository/solidbase" /> <!-- Remove solidbase from the local repo -->
+		<delete dir="${build.home}/remote" /> <!-- Delete the remote repo -->
+		<maven:deploy file="${dist.home}/solidbase.jar"> <!-- Deploy to the remote repo -->
+			<pom file="pom.xml" />
+			<remoterepository url="file:///${build.home}/remote" />
+			<localrepository path="${build.home}/mavenuser/.m2/repository" />
+		</maven:deploy>
+		<delete dir="${build.home}/mavenuser/.m2/repository/solidbase" /> <!-- Remove solidbase from the local repo -->
+		
+		<!-- Test with our own private maven tool -->
+		<java dir="maven-plugin/test" classname="org.codehaus.classworlds.Launcher" classpathref="maven2.classpath" fork="yes" failonerror="yes">
+			<jvmarg value="-Dclassworlds.conf=${basedir}/tools/maven/bin/m2.conf" />
+			<jvmarg value="-Duser.home=${build.home}/mavenuser" /> <!-- Use our own user folder -->
+			<jvmarg value="-Dmaven.home=${basedir}/tools/maven" />
+			<jvmarg value="-Dtest.repo.url=file:///${build.home}/remote" /> <!-- Used in the pom.xml -->
+			<arg value="--batch-mode" />
+			<arg value="solidbase:upgrade" />
+		</java>
+	</target>
+	
+
+	<target name="docbook2wiki" depends="compile">
+		<groovy src="docbook2wiki.groovy" classpath="${build.home}/classes" />
+	</target>
+
+	
+</project>
