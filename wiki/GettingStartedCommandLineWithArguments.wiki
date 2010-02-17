@@ -1,3 +1,5 @@
+#summary Getting Started with SolidBase on the command-line.
+
 (Use !SolidBase 1.5.2 or newer.)
 
 To start using !SolidBase on the command line put solidbase.jar in a folder, for example C:\TEMP. Get the driver jar for your database and put it in the same folder. Your folder now looks like:

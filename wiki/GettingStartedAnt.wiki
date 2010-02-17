@@ -1,6 +1,6 @@
 #summary Getting Started with SolidBase's Ant plugin.
 
-You should first read [GettingStartedCommandlineWithArguments Getting Started with SolidBase on the command-line]. That one contains details that are assumed knowledge in this Getting Started.
+You should first read [GettingStartedCommandLineWithArguments Getting Started with SolidBase on the command-line]. That one contains details that are assumed knowledge in this Getting Started.
 
 To start using !SolidBase's Ant plugin, put solidbase.jar in a folder, for example C:\TEMP. Get the driver jar for your database and put it in the same folder.
 
