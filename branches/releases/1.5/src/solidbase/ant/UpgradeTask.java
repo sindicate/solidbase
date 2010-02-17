@@ -437,8 +437,6 @@ public class UpgradeTask extends Task
 			throw new BuildException( "The 'password' attribute is mandatory for the " + getTaskName() + " task" );
 		if( this.upgradefile == null )
 			throw new BuildException( "The 'upgradefile' attribute is mandatory for the " + getTaskName() + " task" );
-		if( this.target == null )
-			throw new BuildException( "The 'target' attribute is mandatory for the " + getTaskName() + " task" );
 
 		for( Connection connection : this.connections )
 		{
@@ -516,10 +514,7 @@ public class UpgradeTask extends Task
 			patcher.openPatchFile( project.getBaseDir(), this.upgradefile );
 			try
 			{
-				if( this.target != null )
-					patcher.patch( this.target, this.downgradeallowed ); // TODO Print this target
-				else
-					throw new UnsupportedOperationException();
+				patcher.patch( this.target, this.downgradeallowed ); // TODO Print this target
 				progress.info( "" );
 				progress.info( patcher.getVersionStatement() );
 			}

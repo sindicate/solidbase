@@ -39,6 +39,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 
 
 /**
@@ -344,21 +345,23 @@ public class Patcher
 	{
 		init();
 
-		LinkedHashSet< String > targets;
-
-		// TODO What if the target is not found?
 		if( target == null )
 		{
-			targets = getTargets( true, null, downgradeable );
-			if( targets.size() == 1 )
-			{
-				String t = targets.iterator().next();
-				patch( this.dbVersion.getVersion(), t, downgradeable );
-			}
-			else if( targets.size() > 1 )
+			LinkedHashSet< String > targets = getTargets( true, null, downgradeable );
+			if( targets.size() > 1 )
 				throw new FatalException( "More than one possible target found, you should specify a target." );
+			if( targets.size() == 0 )
+				throw new SystemException( "Expected at least some targets" );
+
+			String t = targets.iterator().next();
+			patch( this.dbVersion.getVersion(), t, downgradeable );
+			this.progress.patchingFinished();
+			return;
 		}
-		else if( target.endsWith( "*" ) )
+
+		LinkedHashSet< String > targets;
+
+		if( target.endsWith( "*" ) )
 		{
 			String targetPrefix = target.substring( 0, target.length() - 1 );
 			targets = getTargets( true, targetPrefix, downgradeable );
@@ -382,10 +385,11 @@ public class Patcher
 		}
 
 		terminateCommandListeners();
-		if( targets.size() > 0 )
-			this.progress.patchingFinished();
-		else
-			throw new SystemException( "Target " + target + " is not a possible target" );
+
+		if( targets.size() == 0 )
+			throw new FatalException( "There is no upgrade path from the current version of the database (" + StringUtils.defaultString( this.dbVersion.getVersion(), "no version" ) + ") to the requested target version " + target );
+
+		this.progress.patchingFinished();
 	}
 
 	/**

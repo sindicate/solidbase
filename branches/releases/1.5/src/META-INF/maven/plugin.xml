@@ -57,7 +57,7 @@
 				<parameter>
 					<name>target</name>
 					<type>java.lang.String</type>
-					<required>true</required>
+					<required>false</required>
 					<editable>true</editable>
 					<description>Target to upgrade the database to.</description>
 				</parameter>

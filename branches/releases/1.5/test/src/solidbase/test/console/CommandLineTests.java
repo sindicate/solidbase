@@ -20,7 +20,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidbase.Main;
-import solidbase.core.SystemException;
+import solidbase.core.FatalException;
 import solidbase.test.TestUtil;
 
 
@@ -126,9 +126,11 @@ public class CommandLineTests
 
 			Assert.fail( "Expected a SystemException" );
 		}
-		catch( SystemException e )
+		catch( FatalException e )
 		{
-			Assert.assertEquals( e.getMessage(), "Target 100.0.* is not a possible target" );
+			Assert.assertTrue( e.getMessage().contains( "no upgrade path" ) );
+			Assert.assertTrue( e.getMessage().contains( "(no version)" ) );
+			Assert.assertTrue( e.getMessage().contains( "target version 100.0.*" ) );
 		}
 
 		String output = TestUtil.generalizeOutput( console.getOutput() );

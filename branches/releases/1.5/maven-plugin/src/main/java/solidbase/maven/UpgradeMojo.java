@@ -87,7 +87,6 @@ public class UpgradeMojo extends AbstractMojo
 	 * Target to upgrade the database to.
 	 * 
 	 * @parameter expression="${target}
-	 * @required
 	 */
 	private String target;
 
@@ -152,10 +151,7 @@ public class UpgradeMojo extends AbstractMojo
 			patcher.openPatchFile( this.project.getBasedir(), this.upgradefile );
 			try
 			{
-				if( this.target != null )
-					patcher.patch( this.target, this.downgradeallowed ); // TODO Print this target
-				else
-					throw new UnsupportedOperationException();
+				patcher.patch( this.target, this.downgradeallowed ); // TODO Print this target
 				progress.info( "" );
 				progress.info( patcher.getVersionStatement() );
 			}
