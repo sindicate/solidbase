@@ -1,4 +1,4 @@
-#summary Getting Started with SolidBase's Ant task.
+#summary Getting Started with the SolidBase Ant task.
 
 You should first read [GettingStartedCommandLineWithArguments Getting Started with SolidBase on the command-line]. That one contains details that are assumed knowledge in this Getting Started.
 
@@ -158,6 +158,6 @@ Total time: 7 seconds
 C:\TEMP>
 }}}
 
-This concludes the Getting Started with the Ant plugin.
+This concludes the Getting Started with the Ant task.
 
 Have a happy time playing with !SolidBase!
