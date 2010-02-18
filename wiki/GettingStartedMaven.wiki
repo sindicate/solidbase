@@ -258,7 +258,7 @@ C:\TEMP>
 
 As expected, no more downloading of the dependencies.
 
-It is also possible to let !SolidBase during an existing phase, for example the pre-integration-test phase. For that you need to add an {{{<execution />}}} element to the plugin definition:
+It is also possible to let !SolidBase execute during a build phase, for example the pre-integration-test phase. For that you need to add an {{{<execution />}}} element to the plugin definition:
 
 {{{
 <?xml version="1.0" encoding="UTF-8"?>
