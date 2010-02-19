@@ -135,7 +135,7 @@ static public DatastoreConstraintException translateSQLException( SQLException e
 }
 }}}
 
-== Appendix B. Further notions ==
+== Appendix A. Further notions ==
 
 A superclass for a related set of exceptions should only be introduced when it is descriptive enough and will be used on its own. Which means that there is a group of exceptions that will be handled in an identical way, but there is still the possibility to identify the individual subclasses if needed.
 
