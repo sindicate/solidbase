@@ -27,6 +27,14 @@ import java.sql.SQLException;
 abstract public class CommandListener
 {
 	/**
+	 * Constructor.
+	 */
+	public CommandListener()
+	{
+		super();
+	}
+
+	/**
 	 * Called when a command from the upgrade file needs to be executed. Commands can be transient or persistent (see
 	 * {@link Command#isTransient}). This method should return true if it decides to process the command.
 	 * 

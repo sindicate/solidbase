@@ -48,6 +48,14 @@ public class ImportCSVListener extends CommandListener
 {
 	static private final Pattern importPattern = Pattern.compile( "\\s*IMPORT\\s+CSV\\s+(SEPERATED BY (\\S|TAB)\\s+)?INTO\\s+([^\\s]+)(\\s+AS\\s+PLBLOCK)?(\\s+AS\\s+VALUESLIST)?\\n(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
+	/**
+	 * Constructor.
+	 */
+	public ImportCSVListener()
+	{
+		super();
+	}
+
 	@Override
 	protected boolean execute( Database database, Command command ) throws SQLException
 	{

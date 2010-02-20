@@ -15,6 +15,14 @@ public class Secondary
 	private String password;
 
 	/**
+	 * Constructor.
+	 */
+	public Secondary()
+	{
+		super();
+	}
+
+	/**
 	 * Returns the configured name of the secondary connection.
 	 * 
 	 * @return The configured name of the secondary connection.

@@ -57,6 +57,14 @@ public class Version
 	}
 
 	/**
+	 * This class cannot be constructed.
+	 */
+	private Version()
+	{
+		super();
+	}
+
+	/**
 	 * Get the SolidBase version & copyright info to be displayed to the user.
 	 * 
 	 * @return The SolidBase version & copyright info to be displayed to the user.

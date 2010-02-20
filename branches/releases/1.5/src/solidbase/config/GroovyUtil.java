@@ -34,6 +34,14 @@ import solidbase.core.SystemException;
 public class GroovyUtil
 {
 	/**
+	 * This utility class cannot be constructed.
+	 */
+	private GroovyUtil()
+	{
+		super();
+	}
+
+	/**
 	 * Execute the given groovy file using the specified binding.
 	 * 
 	 * @param file The groovy file.

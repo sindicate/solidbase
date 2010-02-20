@@ -40,6 +40,14 @@ public class OracleDBMSOutputPoller extends CommandListener
 
 	private Poller poller;
 
+	/**
+	 * Constructor.
+	 */
+	public OracleDBMSOutputPoller()
+	{
+		super();
+	}
+
 	@Override
 	protected boolean execute( Database database, Command command ) throws SQLException
 	{

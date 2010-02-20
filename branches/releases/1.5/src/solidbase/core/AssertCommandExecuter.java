@@ -43,6 +43,14 @@ public class AssertCommandExecuter extends CommandListener
 {
 	static private final Pattern assertPattern = Pattern.compile( "\\s*ASSERT\\s+(EXISTS|EMPTY)\\s+MESSAGE\\s+['\"]([^']*)['\"]\\s+(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
+	/**
+	 * Constructor.
+	 */
+	public AssertCommandExecuter()
+	{
+		super();
+	}
+
 	@Override
 	protected boolean execute( Database database, Command command ) throws SQLException
 	{

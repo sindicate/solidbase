@@ -106,6 +106,14 @@ public class UpgradeTask extends Task
 //	}
 
 	/**
+	 * Constructor.
+	 */
+	public UpgradeTask()
+	{
+		super();
+	}
+
+	/**
 	 * Returns the configured driver.
 	 * 
 	 * @return The configured driver.

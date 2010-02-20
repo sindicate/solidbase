@@ -29,6 +29,14 @@ import java.sql.SQLException;
 public class Util
 {
 	/**
+	 * This utility class cannot be constructed.
+	 */
+	private Util()
+	{
+		super();
+	}
+
+	/**
 	 * Determines if the specified column is present in the resultset.
 	 * 
 	 * @param resultSet The resultset to check.

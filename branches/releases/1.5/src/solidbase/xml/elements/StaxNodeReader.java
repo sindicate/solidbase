@@ -32,6 +32,14 @@ import solidbase.core.SystemException;
 public class StaxNodeReader
 {
 	/**
+	 * This utility class cannot be constructed.
+	 */
+	private StaxNodeReader()
+	{
+		super();
+	}
+
+	/**
 	 * Reads a element from the given {@link XMLStreamReader}.
 	 * 
 	 * @param reader The {@link XMLStreamReader} to read a node from.

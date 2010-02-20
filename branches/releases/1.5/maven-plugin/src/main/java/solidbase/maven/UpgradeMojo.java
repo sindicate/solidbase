@@ -28,72 +28,50 @@ import solidbase.core.SQLExecutionException;
 
 
 /**
+ * The Maven plugin for SolidBase.
+ * 
  * @author Ruud de Jong
  * @author René de Bloois
- * @goal upgrade
- * @phase process-resources
  */
 public class UpgradeMojo extends AbstractMojo
 {
 	/**
 	 * The Maven Project Object
-	 * 
-	 * @parameter expression="${project}"
-	 * @required
-	 * @readonly
 	 */
 	private MavenProject project;
 
 	/**
 	 * Database driver class.
-	 * 
-	 * @parameter expression="${driver}
-	 * @required
 	 */
 	private String driver;
 
 	/**
 	 * Database URL.
-	 * 
-	 * @parameter expression="${url}
-	 * @required
 	 */
 	private String url;
 
 	/**
 	 * Database username.
-	 * 
-	 * @parameter expression="${username}
-	 * @required
 	 */
 	private String username;
 
 	/**
 	 * Database password.
-	 * 
-	 * @parameter expression="${password}
 	 */
 	private String password;
 
 	/**
 	 * File containing the upgrade.
-	 * 
-	 * @parameter expression="${upgradefile}
-	 * @required
 	 */
 	private String upgradefile;
 
 	/**
 	 * Target to upgrade the database to.
-	 * 
-	 * @parameter expression="${target}
 	 */
 	private String target;
 
 	/**
 	 * Allow downgrades to reach the target.
-	 * 
-	 * @parameter expression="${downgradeallowed}"
 	 */
 	private boolean downgradeallowed;
 
@@ -101,6 +79,14 @@ public class UpgradeMojo extends AbstractMojo
 	 * An array of secondary connections.
 	 */
 	private Secondary[] connections;
+
+	/**
+	 * Constructor.
+	 */
+	public UpgradeMojo()
+	{
+		super();
+	}
 
 	/**
 	 * Validate the configuration of the plugin.

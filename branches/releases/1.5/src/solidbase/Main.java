@@ -60,6 +60,15 @@ public class Main
 
 
 	/**
+	 * This class cannot be constructed.
+	 */
+	private Main()
+	{
+		super();
+	}
+
+
+	/**
 	 * The main method for the command line version of SolidBase.
 	 * 
 	 * @param args The arguments from the command line.

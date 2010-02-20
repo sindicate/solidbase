@@ -27,6 +27,14 @@ import org.apache.commons.lang.StringUtils;
 public class Assert
 {
 	/**
+	 * This utility class cannot be constructed.
+	 */
+	private Assert()
+	{
+		super();
+	}
+
+	/**
 	 * Asserts that the <code>test</code> argument is <code>true</code>. If not, it throws an
 	 * {@link AssertionFailedException}.
 	 * 

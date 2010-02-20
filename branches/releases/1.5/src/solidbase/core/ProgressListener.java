@@ -29,6 +29,14 @@ import java.net.URL;
 public class ProgressListener
 {
 	/**
+	 * Constructor.
+	 */
+	public ProgressListener()
+	{
+		super();
+	}
+
+	/**
 	 * An upgrade file is about to be opened.
 	 * 
 	 * @param patchFile The upgrade file that is about the open.
