@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>solidbase</groupId>
+	<artifactId>mavenplugintest</artifactId>
+	<version>1.0</version>
+	<packaging>pom</packaging>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>solidbase</id>
+			<name>SolidBase Repository</name>
+			<layout>default</layout>
+			<url>${test.repo.url}</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>solidbase</groupId>
+				<artifactId>solidbase</artifactId>
+				<version>1.5.2</version>
+				<dependencies>
+					<dependency>
+					<groupId>hsqldb</groupId>
+					<artifactId>hsqldb</artifactId>
+					<version>1.8.0.7</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<driver>org.hsqldb.jdbcDriver</driver>
+					<url>jdbc:hsqldb:mem:testplugin</url>
+					<username>sa</username>
+					<password></password>
+					<upgradefile>upgrade-hsqldb-example.sql</upgradefile>
+					<target>1.0.*</target>
+					<connections>
+						<secondary>
+							<name>queues</name>
+							<url>jdbc:hsqldb:mem:queues</url>
+							<username>sa</username>
+							<password></password>
+						</secondary>
+					</connections>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+  
+</project>
