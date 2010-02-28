@@ -42,19 +42,21 @@ import solidbase.core.Patch.Type;
  */
 public class PatchFile
 {
-	static private final Pattern encodingPattern = Pattern.compile( "^--\\*[ \t]*ENCODING[ \t]+\"([^\"]*)\"[ \t]*$", Pattern.CASE_INSENSITIVE );
+	static private final Pattern ENCODING_PATTERN = Pattern.compile( "^--\\*[ \t]*ENCODING[ \t]+\"([^\"]*)\"[ \t]*$", Pattern.CASE_INSENSITIVE );
 
-	static private final Pattern patchDefinitionMarkerPattern = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)[ \t]+.*", Pattern.CASE_INSENSITIVE );
-	static private final Pattern patchDefinitionPattern = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
+	static private final Pattern PATCH_DEFINITION_MARKER_PATTERN = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)[ \t]+.*", Pattern.CASE_INSENSITIVE );
+	static private final Pattern PATCH_DEFINITION_PATTERN = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
 	static private final String PATCH_DEFINITION_SYNTAX_ERROR = "Line should match the following syntax: (INIT|UPGRADE|SWITCH|DOWNGRADE) [OPEN] \"...\" --> \"...\"";
 
-	static private final Pattern patchStartMarkerPattern = Pattern.compile( "--\\*[ \t]*(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN).*", Pattern.CASE_INSENSITIVE );
-	static private final Pattern patchStartPattern = Pattern.compile( "--\\*[ \t]*(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
+	static private final Pattern CONTROL_TABLES_PATTERN = Pattern.compile( "VERSION\\s+TABLE\\s+(\\S+)\\s+LOG\\s+TABLE\\s+(\\S+)", Pattern.CASE_INSENSITIVE );
+
+	static private final Pattern PATCH_START_MARKER_PATTERN = Pattern.compile( "--\\*[ \t]*(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN).*", Pattern.CASE_INSENSITIVE );
+	static private final Pattern PATCH_START_PATTERN = Pattern.compile( "--\\*[ \t]*(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
 	static private final String PATCH_START_SYNTAX_ERROR = "Line should match the following syntax: (INIT|UPGRADE|SWITCH|DOWNGRADE) \"...\" --> \"...\"";
 
-	static private final Pattern patchEndPattern = Pattern.compile( "--\\* */(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
+	static private final Pattern PATCH_END_PATTERN = Pattern.compile( "--\\* */(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
 
-	static private final Pattern goPattern = Pattern.compile( "GO *", Pattern.CASE_INSENSITIVE );
+	static private final Pattern GO_PATTERN = Pattern.compile( "GO *", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * All normal patches in a map indexed by source version.
@@ -75,6 +77,16 @@ public class PatchFile
 	 * The underlying file.
 	 */
 	protected RandomAccessLineReader file;
+
+	/**
+	 * The name of the version control table as defined in the upgrade file.
+	 */
+	protected String versionTableName;
+
+	/**
+	 * The name of the log control table as defined in the upgrade file.
+	 */
+	protected String logTableName;
 
 
 	/**
@@ -98,7 +110,7 @@ public class PatchFile
 
 			line = s.toString();
 			//System.out.println( "First line (fixed) [" + line + "]" );
-			Matcher matcher = encodingPattern.matcher( line );
+			Matcher matcher = ENCODING_PATTERN.matcher( line );
 			if( matcher.matches() )
 			{
 				file.reOpen( matcher.group( 1 ) );
@@ -168,11 +180,11 @@ public class PatchFile
 				{
 					// ignore line
 				}
-				else if( patchDefinitionMarkerPattern.matcher( line ).matches() )
+				else if( PATCH_DEFINITION_MARKER_PATTERN.matcher( line ).matches() )
 				{
 					Assert.isTrue( withinDefinition, "Not within the definition" );
 
-					Matcher matcher = patchDefinitionPattern.matcher( line );
+					Matcher matcher = PATCH_DEFINITION_PATTERN.matcher( line );
 					Assert.isTrue( matcher.matches(), PATCH_DEFINITION_SYNTAX_ERROR );
 					String action = matcher.group( 1 );
 					boolean open = matcher.group( 2 ) != null;
@@ -196,8 +208,19 @@ public class PatchFile
 					Assert.isTrue( withinDefinition, "Not within the definition" );
 					definitionComplete = true;
 				}
+				else if( withinDefinition )
+				{
+					Matcher matcher = CONTROL_TABLES_PATTERN.matcher( line );
+					if( matcher.matches() )
+					{
+						this.versionTableName = matcher.group( 1 );
+						this.logTableName = matcher.group( 2 );
+					}
+					else
+						throw new SystemException( "Unexpected line within definition: " + line );
+				}
 				else
-					throw new SystemException( "Unexpected line within definition: " + line );
+					throw new SystemException( "Unexpected line outside definition: " + line );
 			}
 		}
 
@@ -254,10 +277,10 @@ public class PatchFile
 			{
 				if( line.startsWith( "--*" ) )
 				{
-					if( patchStartMarkerPattern.matcher( line ).matches() )
+					if( PATCH_START_MARKER_PATTERN.matcher( line ).matches() )
 					{
 						int pos = this.file.getLineNumber() - 1;
-						Matcher matcher = patchStartPattern.matcher( line );
+						Matcher matcher = PATCH_START_PATTERN.matcher( line );
 						Assert.isTrue( matcher.matches(), PATCH_START_SYNTAX_ERROR, pos );
 						String action = matcher.group( 1 );
 						String source = matcher.group( 2 );
@@ -591,7 +614,7 @@ public class PatchFile
 			this.file.gotoLine( patch.getLineNumber() );
 			String line = this.file.readLine();
 			//			System.out.println( line );
-			Assert.isTrue( patchStartMarkerPattern.matcher( line ).matches() );
+			Assert.isTrue( PATCH_START_MARKER_PATTERN.matcher( line ).matches() );
 		}
 		catch( IOException e )
 		{
@@ -619,14 +642,14 @@ public class PatchFile
 				if( line.trim().length() == 0 )
 					continue;
 
-				if( goPattern.matcher( line ).matches() )
+				if( GO_PATTERN.matcher( line ).matches() )
 				{
 					if( pos == 0 )
 						pos = this.file.getLineNumber() - 1;
 					return new Command( result.toString(), false, pos );
 				}
 
-				if( patchEndPattern.matcher( line ).matches() )
+				if( PATCH_END_PATTERN.matcher( line ).matches() )
 				{
 					if( result.length() > 0 )
 						throw new UnterminatedStatementException( this.file.getLineNumber() - 1 );
@@ -638,7 +661,7 @@ public class PatchFile
 					if( result.length() > 0 )
 						throw new UnterminatedStatementException( this.file.getLineNumber() - 1 );
 
-					if( !patchStartPattern.matcher( line ).matches() ) // skip patch start
+					if( !PATCH_START_PATTERN.matcher( line ).matches() ) // skip patch start
 					{
 						line = line.substring( 3 ).trim();
 						if( !line.startsWith( "//" )) // skip comment

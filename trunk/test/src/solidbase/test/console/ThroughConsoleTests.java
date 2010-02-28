@@ -60,10 +60,10 @@ public class ThroughConsoleTests
 				"Reading property file X:\\...\\solidbase1.properties\n" +
 				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
-				"Connecting to database...\n" +
-				"Input password for user 'sa': The database has no version yet.\n" +
 				"Opening file 'testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
+				"Connecting to database...\n" +
+				"Input password for user 'sa': The database has no version yet.\n" +
 				"Upgrading to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +
@@ -96,10 +96,10 @@ public class ThroughConsoleTests
 				"Reading property file X:\\...\\solidbase2.properties\n" +
 				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
-				"Connecting to database...\n" +
-				"Input password for user 'sa': The database has no version yet.\n" +
 				"Opening file 'testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
+				"Connecting to database...\n" +
+				"Input password for user 'sa': The database has no version yet.\n" +
 				"Upgrading to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +

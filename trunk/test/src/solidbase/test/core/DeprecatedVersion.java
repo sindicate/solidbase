@@ -17,7 +17,7 @@ public class DeprecatedVersion
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:deprecated", "sa", null, progress ) );
-		patcher.openPatchFile( "testpatch1.sql" );
+		patcher.init( "testpatch1.sql" );
 		patcher.patch( "1.0.2" );
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null );
 		patcher.end();
@@ -28,7 +28,7 @@ public class DeprecatedVersion
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:deprecated", "sa", null, progress ) );
-		patcher.openPatchFile( "testpatch-deprecated-version-1.sql" );
+		patcher.init( "testpatch-deprecated-version-1.sql" );
 		try
 		{
 			patcher.patch( "1.0.1" );

@@ -14,25 +14,6 @@
  * limitations under the License.
  */
 
-/*
- * TABLES:
- *
- * DBVERSION ( VERSION, TARGET, STATEMENTS ), 1 record
- *
- *     Examples:
- *     DHL TTS 2.0.11, <NULL>, 10 : version is complete, it took 10 statements to get there
- *     DHL TTS 2.0.11, DHL TTS 2.0.12, 4 : version is not complete, 4 statements already executed
- *
- * DBVERSIONLOG ( VERSION, TARGET, STATEMENT, STAMP, SQL, RESULT )
- *
- *     Version jumps:
- *     DHL TTS 2.0.11, <NULL>, <NULL>, 2006-03-27 13:56:00, <NULL>, <NULL>
- *     DHL TTS 2.0.12, <NULL>, <NULL>, 2006-03-27 13:56:00, <NULL>, <NULL>
- *
- *     Individual statements:
- *     DHL TTS 2.0.11, DHL TTS 2.0.12, 5, 2006-03-27 13:56:00, CREATE TABLE ..., TABLE ALREADY EXISTS
- */
-
 package solidbase.core;
 
 import java.io.OutputStream;
@@ -66,6 +47,16 @@ import org.apache.commons.lang.StringUtils;
 public class DBVersion
 {
 	static private Pattern specPattern = Pattern.compile( "(\\d.\\d)(.\\d)?" );
+
+	/**
+	 * Name of the version control table.
+	 */
+	protected String versionTableName;
+
+	/**
+	 * Name of the log control table.
+	 */
+	protected String logTableName;
 
 	/**
 	 * Need to refresh this instance from the data in the DBVERSION table.
@@ -130,12 +121,20 @@ public class DBVersion
 	 * 
 	 * @param database The database that contains the version tables, with its default connection determining the schema.
 	 * @param callBack To receive debug messages.
+	 * @param versionTableName Name of the version control table.
+	 * @param logTableName  Name of the log control table.
 	 */
 	// TODO We only need a debug listener
-	protected DBVersion( Database database, ProgressListener callBack )
+	protected DBVersion( Database database, ProgressListener callBack, String versionTableName, String logTableName )
 	{
+		if( versionTableName == null )
+			versionTableName = "DBVERSION";
+		if( logTableName == null )
+			logTableName = "DBVERSIONLOG";
 		this.database = database;
 		this.callBack = callBack;
+		this.versionTableName = versionTableName;
+		this.logTableName = logTableName;
 	}
 
 	/**
@@ -228,7 +227,7 @@ public class DBVersion
 		{
 			try
 			{
-				PreparedStatement statement = connection.prepareStatement( "SELECT * FROM DBVERSION" );
+				PreparedStatement statement = connection.prepareStatement( "SELECT * FROM " + this.versionTableName );
 				try
 				{
 					ResultSet resultSet = statement.executeQuery(); // Resultset is closed when the statement is closed
@@ -274,7 +273,7 @@ public class DBVersion
 
 			try
 			{
-				PreparedStatement statement = connection.prepareStatement( "SELECT * FROM DBVERSIONLOG" );
+				PreparedStatement statement = connection.prepareStatement( "SELECT * FROM " + this.logTableName );
 				try
 				{
 					statement.executeQuery();
@@ -323,10 +322,10 @@ public class DBVersion
 			init();
 
 		if( this.versionRecordExists )
-			execute( "UPDATE DBVERSION SET TARGET = ?, STATEMENTS = ?", new Object[] { target, statements } );
+			execute( "UPDATE " + this.versionTableName + " SET TARGET = ?, STATEMENTS = ?", new Object[] { target, statements } );
 		else
 		{
-			execute( "INSERT INTO DBVERSION ( TARGET, STATEMENTS ) VALUES ( ?, ? )", new Object[] { target, statements } );
+			execute( "INSERT INTO " + this.versionTableName + " ( TARGET, STATEMENTS ) VALUES ( ?, ? )", new Object[] { target, statements } );
 			this.versionRecordExists = true;
 		}
 
@@ -347,10 +346,10 @@ public class DBVersion
 			init();
 
 		if( this.versionRecordExists )
-			execute( "UPDATE DBVERSION SET VERSION = ?, TARGET = NULL", new Object[] { version } );
+			execute( "UPDATE " + this.versionTableName + " SET VERSION = ?, TARGET = NULL", new Object[] { version } );
 		else
 		{
-			execute( "INSERT INTO DBVERSION ( VERSION, TARGET, STATEMENTS ) VALUES ( ?, NULL, 0 )", new Object[] { version } );
+			execute( "INSERT INTO " + this.versionTableName + " ( VERSION, TARGET, STATEMENTS ) VALUES ( ?, NULL, 0 )", new Object[] { version } );
 			this.versionRecordExists = true;
 		}
 
@@ -381,10 +380,10 @@ public class DBVersion
 			Assert.isTrue( this.effectiveSpec.equals( "1.1" ), "Only spec 1.0 or 1.1 allowed" );
 			Assert.isTrue( this.specColumnExists, "SPEC column should exist in the DBVERSION table" );
 			if( this.versionRecordExists )
-				execute( "UPDATE DBVERSION SET SPEC = ?", new Object[] { spec } );
+				execute( "UPDATE " + this.versionTableName + " SET SPEC = ?", new Object[] { spec } );
 			else
 			{
-				execute( "INSERT INTO DBVERSION ( STATEMENTS, SPEC ) VALUES ( 0, ? )", new Object[] { spec } );
+				execute( "INSERT INTO " + this.versionTableName + " ( STATEMENTS, SPEC ) VALUES ( 0, ? )", new Object[] { spec } );
 				this.versionRecordExists = true;
 			}
 		}
@@ -419,10 +418,10 @@ public class DBVersion
 			result = result.substring( 0, 3000 );
 
 		if( "1.1".equals( this.effectiveSpec ) )
-			execute( "INSERT INTO DBVERSIONLOG ( TYPE, SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ?, ? )",
+			execute( "INSERT INTO " + this.logTableName + " ( TYPE, SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ?, ? )",
 					new Object[] { type, source, target, count, new Timestamp( System.currentTimeMillis() ), command, result } );
 		else
-			execute( "INSERT INTO DBVERSIONLOG ( SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ? )",
+			execute( "INSERT INTO " + this.logTableName + " ( SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ? )",
 					new Object[] { source, target, count, new Timestamp( System.currentTimeMillis() ), command, result } );
 	}
 
@@ -504,7 +503,7 @@ public class DBVersion
 			Statement stat = connection.createStatement();
 			try
 			{
-				ResultSet result = stat.executeQuery( "SELECT " + ( spec11 ? "TYPE, " : "" ) + "SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT FROM DBVERSIONLOG ORDER BY STAMP" );
+				ResultSet result = stat.executeQuery( "SELECT " + ( spec11 ? "TYPE, " : "" ) + "SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT FROM " + this.logTableName + " ORDER BY STAMP" );
 
 				XMLOutputFactory xof = XMLOutputFactory.newInstance();
 				XMLStreamWriter xml = xof.createXMLStreamWriter( new OutputStreamWriter( out, charSet ) );
@@ -568,9 +567,9 @@ public class DBVersion
 
 		String sql;
 		if( "1.1".equals( this.effectiveSpec ) )
-			sql = "SELECT 1 FROM DBVERSIONLOG WHERE TYPE = 'B' AND TARGET = '" + version + "' AND RESULT = 'COMPLETE'";
+			sql = "SELECT 1 FROM " + this.logTableName + " WHERE TYPE = 'B' AND TARGET = '" + version + "' AND RESULT = 'COMPLETE'";
 		else
-			sql = "SELECT 1 FROM DBVERSIONLOG WHERE RESULT = 'COMPLETED VERSION " + version + "'";
+			sql = "SELECT 1 FROM " + this.logTableName + " WHERE RESULT = 'COMPLETED VERSION " + version + "'";
 
 		Connection connection = this.database.getConnection();
 		try
@@ -644,7 +643,7 @@ public class DBVersion
 		try
 		{
 			Connection connection = this.database.getConnection();
-			PreparedStatement statement = connection.prepareStatement( "UPDATE DBVERSIONLOG SET RESULT = 'DOWNGRADED' WHERE TYPE = 'B' AND TARGET = ? AND RESULT = 'COMPLETE'" );
+			PreparedStatement statement = connection.prepareStatement( "UPDATE " + this.logTableName + " SET RESULT = 'DOWNGRADED' WHERE TYPE = 'B' AND TARGET = ? AND RESULT = 'COMPLETE'" );
 			boolean commit = false;
 			try
 			{

@@ -51,10 +51,10 @@ public class CommandLineTests
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
-				"Connecting to database...\n" +
-				"The database has no version yet.\n" +
 				"Opening file 'testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
+				"Connecting to database...\n" +
+				"The database has no version yet.\n" +
 				"Upgrading to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +
@@ -66,6 +66,27 @@ public class CommandLineTests
 				"\n" +
 				"Current database version is \"1.0.2\".\n"
 		);
+	}
+
+	@Test(dependsOnMethods="testCommandLine")
+	public void testDumpLog() throws Exception
+	{
+		MockConsole console = new MockConsole();
+		Main.console = console;
+
+		Main.main0( "-driver", "org.hsqldb.jdbcDriver",
+				"-url", "jdbc:hsqldb:mem:test2",
+				"-username", "sa",
+				"-password", "",
+				"-upgradefile", "testpatch1.sql",
+				"-dumplog", "-" );
+
+		String output = TestUtil.generalizeOutput( console.getOutput() );
+		// TODO Also test dump to file
+		Assert.assertEquals( output, "SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
+				"\n" +
+				"Opening file 'testpatch1.sql'\n" +
+		"    Encoding is 'ISO-8859-1'\n" );
 	}
 
 	@Test(groups="new")
@@ -91,10 +112,10 @@ public class CommandLineTests
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
-				"Connecting to database...\n" +
-				"The database has no version yet.\n" +
 				"Opening file 'testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
+				"Connecting to database...\n" +
+				"The database has no version yet.\n" +
 				"Upgrading to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +
@@ -138,10 +159,10 @@ public class CommandLineTests
 		Assert.assertEquals( output,
 				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
-				"Connecting to database...\n" +
-				"The database has no version yet.\n" +
 				"Opening file 'testpatch1.sql'\n" +
-				"    Encoding is 'ISO-8859-1'\n"
+				"    Encoding is 'ISO-8859-1'\n" +
+				"Connecting to database...\n" +
+				"The database has no version yet.\n"
 		);
 	}
 

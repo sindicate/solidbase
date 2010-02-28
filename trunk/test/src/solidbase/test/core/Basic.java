@@ -38,7 +38,7 @@ public class Basic
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
 		// TODO Learn to really shutdown an inmemory database
 
-		patcher.openPatchFile( "testpatch1.sql" );
+		patcher.init( "testpatch1.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
 
@@ -56,7 +56,7 @@ public class Basic
 
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null );
 
-		patcher.openPatchFile( "testpatch1.sql" );
+		patcher.init( "testpatch1.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
 
@@ -72,7 +72,7 @@ public class Basic
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
 
-		patcher.openPatchFile( "testpatch2.sql" );
+		patcher.init( "testpatch2.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
 
@@ -92,15 +92,35 @@ public class Basic
 	}
 
 	@Test(dependsOnMethods="testMissingGo")
-	public void testDumpXML ()
+	public void testDumpXML()
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
+
+		patcher.init( "testpatch1.sql" );
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		patcher.logToXML( out );
 //		String xml = out.toString( "UTF-8" );
 //		System.out.println( xml );
+
+		patcher.end();
+	}
+
+	@Test(dependsOnMethods="testMissingGo")
+	public void testOverrideControlTables() throws SQLException
+	{
+		TestProgressListener progress = new TestProgressListener();
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
+
+		patcher.init( "testpatch-overridecontroltables.sql" );
+		assert patcher.getCurrentVersion() == null;
+
+		Set< String > targets = patcher.getTargets( false, null, false );
+		assert targets.size() > 0;
+
+		patcher.patch( "1.0.1" );
+		assert patcher.getCurrentVersion().equals( "1.0.1" );
 
 		patcher.end();
 	}
@@ -111,7 +131,7 @@ public class Basic
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testopen", "sa", null, progress ) );
 
-		patcher.openPatchFile( "testpatch-open.sql" );
+		patcher.init( "testpatch-open.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
 
@@ -128,7 +148,7 @@ public class Basic
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testunterminated1", "sa", null, progress ) );
 
-		patcher.openPatchFile( "testpatch-unterminated1.sql" );
+		patcher.init( "testpatch-unterminated1.sql" );
 		try
 		{
 			Set< String > targets = patcher.getTargets( false, null, false );
@@ -149,7 +169,7 @@ public class Basic
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testunterminated2", "sa", null, progress ) );
 
-		patcher.openPatchFile( "testpatch-unterminated2.sql" );
+		patcher.init( "testpatch-unterminated2.sql" );
 		try
 		{
 			Set< String > targets = patcher.getTargets( false, null, false );
@@ -172,7 +192,7 @@ public class Basic
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testshared1", "sa", null, progress ) );
 
-		patcher.openPatchFile( "testpatch-sharedpatch1.sql" );
+		patcher.init( "testpatch-sharedpatch1.sql" );
 		try
 		{
 			Set< String > targets = patcher.getTargets( false, null, false );
