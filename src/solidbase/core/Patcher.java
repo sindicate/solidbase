@@ -171,6 +171,28 @@ public class Patcher
 	}
 
 	/**
+	 * Initialize the patcher.
+	 * 
+	 * @param baseDir The base folder from where to look for the upgrade file (optional).
+	 * @param upgradeFileName The name of the upgrade file.
+	 */
+	public void init( File baseDir, String upgradeFileName )
+	{
+		openPatchFile( baseDir, upgradeFileName );
+		this.dbVersion = new DBVersion( this.defaultDatabase, this.progress, this.patchFile.versionTableName, this.patchFile.logTableName );
+	}
+
+	/**
+	 * Initialize the patcher.
+	 * 
+	 * @param upgradeFileName The name of the upgrade file.
+	 */
+	public void init( String upgradeFileName )
+	{
+		init( null, upgradeFileName );
+	}
+
+	/**
 	 * Resets the upgrade context. This is called before the execution of each changeset.
 	 */
 	protected void reset()
@@ -188,7 +210,7 @@ public class Patcher
 	 * 
 	 * @param fileName The name and path of the upgrade file.
 	 */
-	public void openPatchFile( String fileName )
+	protected void openPatchFile( String fileName )
 	{
 		openPatchFile( null, fileName );
 	}
@@ -199,7 +221,7 @@ public class Patcher
 	 * @param baseDir The base folder from where to look. May be null.
 	 * @param fileName The name and path of the upgrade file.
 	 */
-	public void openPatchFile( File baseDir, String fileName )
+	protected void openPatchFile( File baseDir, String fileName )
 	{
 		if( fileName == null )
 			fileName = "upgrade.sql";
@@ -303,7 +325,7 @@ public class Patcher
 	 * 
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	public void init() throws SQLExecutionException
+	public void initializeControlTables() throws SQLExecutionException
 	{
 		String spec = this.dbVersion.getSpec();
 
@@ -343,7 +365,7 @@ public class Patcher
 	 */
 	public void patch( String target, boolean downgradeable ) throws SQLExecutionException
 	{
-		init();
+		initializeControlTables();
 
 		if( target == null )
 		{
@@ -844,7 +866,6 @@ public class Patcher
 		{
 			this.defaultDatabase = database;
 			setConnection( database ); // Also resets the current user for the connection
-			this.dbVersion = new DBVersion( database, this.progress );
 		}
 	}
 

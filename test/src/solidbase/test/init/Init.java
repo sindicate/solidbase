@@ -34,7 +34,7 @@ public class Init
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init1", "sa", null, progress ) );
 
-		patcher.openPatchFile( "testpatch1.sql" );
+		patcher.init( "testpatch1.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
 
@@ -50,7 +50,7 @@ public class Init
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init1", "sa", null, progress ) );
 
-		patcher.openPatchFile( "testpatch-version-table-upgrade-2.sql" );
+		patcher.init( "testpatch-version-table-upgrade-2.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
 
@@ -66,7 +66,7 @@ public class Init
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init3", "sa", null, progress ) );
 
-		patcher.openPatchFile( "testpatch-version-table-upgrade-2.sql" );
+		patcher.init( "testpatch-version-table-upgrade-2.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
 

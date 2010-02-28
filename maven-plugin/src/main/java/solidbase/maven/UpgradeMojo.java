@@ -121,30 +121,22 @@ public class UpgradeMojo extends AbstractMojo
 		getLog().info( "" );
 
 		Patcher patcher = new Patcher( progress, new Database( this.driver, this.url, this.username, this.password == null ? "" : this.password, progress ) );
+
+		if( this.connections != null )
+			for( Secondary secondary : this.connections )
+				patcher.addDatabase( secondary.getName(),
+						new Database( secondary.getDriver() == null ? this.driver : secondary.getDriver(),
+								secondary.getUrl() == null ? this.url : secondary.getUrl(),
+										secondary.getUsername(), secondary.getPassword() == null ? "" : secondary.getPassword(), progress ) );
+
+		patcher.init( this.project.getBasedir(), this.upgradefile );
 		try
 		{
-			if( this.connections != null )
-				for( Secondary secondary : this.connections )
-					patcher.addDatabase( secondary.getName(),
-							new Database( secondary.getDriver() == null ? this.driver : secondary.getDriver(),
-									secondary.getUrl() == null ? this.url : secondary.getUrl(),
-											secondary.getUsername(), secondary.getPassword() == null ? "" : secondary.getPassword(), progress ) );
-
 			progress.info( "Connecting to database..." );
-
 			progress.info( patcher.getVersionStatement() );
-
-			patcher.openPatchFile( this.project.getBasedir(), this.upgradefile );
-			try
-			{
-				patcher.patch( this.target, this.downgradeallowed ); // TODO Print this target
-				progress.info( "" );
-				progress.info( patcher.getVersionStatement() );
-			}
-			finally
-			{
-				patcher.closePatchFile();
-			}
+			patcher.patch( this.target, this.downgradeallowed ); // TODO Print this target
+			progress.info( "" );
+			progress.info( patcher.getVersionStatement() );
 		}
 		catch( SQLExecutionException e )
 		{

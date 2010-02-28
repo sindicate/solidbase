@@ -49,7 +49,7 @@ public class CharSets
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testUtf8", "sa", null, progress ) );
 
-		patcher.openPatchFile( "patch-utf-8-1.sql" );
+		patcher.init( "patch-utf-8-1.sql" );
 		Assert.assertEquals( patcher.patchFile.file.getEncoding(), "UTF-8" );
 		try
 		{

@@ -62,10 +62,10 @@ public class UpgradeTaskTests extends BuildFileTest
 		String log = TestUtil.generalizeOutput( getLog() );
 		Assert.assertEquals( log, "SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
-				"Connecting to database...\n" +
-				"The database has no version yet.\n" +
 				"Opening file 'X:\\...\\testpatch-multiconnections.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
+				"Connecting to database...\n" +
+				"The database has no version yet.\n" +
 				"Upgrading to \"1.0.1\"\n" +
 				"    Creating table DBVERSION.\n" +
 				"    Creating table DBVERSIONLOG.\n" +
@@ -76,10 +76,10 @@ public class UpgradeTaskTests extends BuildFileTest
 				"Current database version is \"1.1.0\".\n" +
 				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
-				"Connecting to database...\n" +
-				"Current database version is \"1.1.0\".\n" +
 				"Opening file 'X:\\...\\testpatch-multiconnections.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
+				"Connecting to database...\n" +
+				"Current database version is \"1.1.0\".\n" +
 				"Downgrading \"1.1.0\" to \"1.0.1\"\n" +
 				"Upgrading \"1.0.1\" to \"1.0.2\"\n" +
 				"The database is upgraded.\n" +
@@ -96,10 +96,10 @@ public class UpgradeTaskTests extends BuildFileTest
 		String log = TestUtil.generalizeOutput( getLog() );
 		Assert.assertEquals( log, "SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
-				"Connecting to database...\n" +
-				"The database has no version yet.\n" +
 				"Opening file 'X:\\...\\testpatch-basedir.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
+				"Connecting to database...\n" +
+				"The database has no version yet.\n" +
 				"Upgrading to \"1.0.1\"\n" +
 				"    Creating table DBVERSION.\n" +
 				"    Creating table DBVERSIONLOG.\n" +

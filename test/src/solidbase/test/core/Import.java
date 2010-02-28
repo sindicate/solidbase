@@ -34,7 +34,7 @@ public class Import
 		Database database = new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:import3", "sa", null, progress );
 		Patcher patcher = new Patcher( progress, database );
 
-		patcher.openPatchFile( "testpatch-import1.sql" );
+		patcher.init( "testpatch-import1.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
 

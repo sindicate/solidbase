@@ -507,29 +507,21 @@ public class UpgradeTask extends Task
 		progress.info( "" );
 
 		Patcher patcher = new Patcher( progress, new Database( this.driver, this.url, this.username, this.password, progress ) );
+
+		for( Connection connection : this.connections )
+			patcher.addDatabase( connection.getName(),
+					new Database( connection.getDriver() == null ? this.driver : connection.getDriver(),
+							connection.getUrl() == null ? this.url : connection.getUrl(),
+									connection.getUsername(), connection.getPassword(), progress ) );
+
+		patcher.init( project.getBaseDir(), this.upgradefile );
 		try
 		{
-			for( Connection connection : this.connections )
-				patcher.addDatabase( connection.getName(),
-						new Database( connection.getDriver() == null ? this.driver : connection.getDriver(),
-								connection.getUrl() == null ? this.url : connection.getUrl(),
-										connection.getUsername(), connection.getPassword(), progress ) );
-
 			progress.info( "Connecting to database..." );
-
 			progress.info( patcher.getVersionStatement() );
-
-			patcher.openPatchFile( project.getBaseDir(), this.upgradefile );
-			try
-			{
-				patcher.patch( this.target, this.downgradeallowed ); // TODO Print this target
-				progress.info( "" );
-				progress.info( patcher.getVersionStatement() );
-			}
-			finally
-			{
-				patcher.closePatchFile();
-			}
+			patcher.patch( this.target, this.downgradeallowed ); // TODO Print this target
+			progress.info( "" );
+			progress.info( patcher.getVersionStatement() );
 		}
 		catch( SQLExecutionException e )
 		{

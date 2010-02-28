@@ -182,39 +182,30 @@ public class Main
 		console.println();
 
 		Patcher patcher = new Patcher( progress );
+
+		solidbase.config.Database defoult = configuration.getDefaultDatabase();
+		patcher.addDatabase( "default", new Database( defoult.getDriver(), defoult.getUrl(), defoult.getUserName(), defoult.getPassword(), progress ) );
+
+		for( solidbase.config.Database database : configuration.getSecondaryDatabases() )
+			patcher.addDatabase( database.getName(),
+					new Database( database.getDriver() == null ? defoult.getDriver() : database.getDriver(),
+							database.getUrl() == null ? defoult.getUrl() : database.getUrl(),
+									database.getUserName(), database.getPassword(), progress ) );
+
+		patcher.init( configuration.getPatchFile() );
 		try
 		{
-			solidbase.config.Database defoult = configuration.getDefaultDatabase();
-			patcher.addDatabase( "default", new Database( defoult.getDriver(), defoult.getUrl(), defoult.getUserName(), defoult.getPassword(), progress ) );
-
 			if( exportlog )
 			{
-				// logToXML needs the default database added above
 				patcher.logToXML( line.getOptionValue( "dumplog" ) );
 				return;
 			}
 
-			for( solidbase.config.Database database : configuration.getSecondaryDatabases() )
-				patcher.addDatabase( database.getName(),
-						new Database( database.getDriver() == null ? defoult.getDriver() : database.getDriver(),
-								database.getUrl() == null ? defoult.getUrl() : database.getUrl(),
-										database.getUserName(), database.getPassword(), progress ) );
-
 			console.println( "Connecting to database..." );
-
 			console.println( patcher.getVersionStatement() );
-
-			patcher.openPatchFile( configuration.getPatchFile() );
-			try
-			{
-				patcher.patch( configuration.getTarget(), downgradeallowed ); // TODO Print this target
-				console.emptyLine();
-				console.println( patcher.getVersionStatement() );
-			}
-			finally
-			{
-				patcher.closePatchFile();
-			}
+			patcher.patch( configuration.getTarget(), downgradeallowed ); // TODO Print this target
+			console.emptyLine();
+			console.println( patcher.getVersionStatement() );
 		}
 		finally
 		{

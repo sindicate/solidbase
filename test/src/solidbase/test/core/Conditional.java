@@ -33,7 +33,7 @@ public class Conditional
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testBasic", "sa", null, progress ) );
 
-		patcher.openPatchFile( "testpatch-conditional1.sql" );
+		patcher.init( "testpatch-conditional1.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
 
@@ -49,7 +49,7 @@ public class Conditional
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testBasic", "sa", null, progress ) );
 
-		patcher.openPatchFile( "testpatch-conditional2.sql" );
+		patcher.init( "testpatch-conditional2.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
 

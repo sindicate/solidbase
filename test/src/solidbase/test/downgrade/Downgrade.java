@@ -34,7 +34,7 @@ public class Downgrade
 		TestProgressListener progress = new TestProgressListener();
 		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:downgrade1", "sa", null, progress ) );
 
-		patcher.openPatchFile( "testpatch-downgrade-1.sql" );
+		patcher.init( "testpatch-downgrade-1.sql" );
 
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
