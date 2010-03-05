@@ -31,7 +31,7 @@ public class ThroughConsoleTests
 		String output = console.getOutput();
 		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
 		output = output.replaceAll( "C:\\\\\\S+\\\\", "C:\\\\...\\\\" );
-		output = output.replaceAll( "DBPatcher v1\\.0\\.\\d+\\s+\\(C\\) 2006-200\\d R\\.M\\. de Bloois, Logica", "DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, Logica" );
+		output = output.replaceAll( "DBPatcher v1\\.0\\.\\d+-rev\\d+\\s+\\(C\\) 2006-200\\d R\\.M\\. de Bloois, Logica", "DBPatcher v1.0.x (C) 2006-200x R.M. de Bloois, Logica" );
 		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
 		output = output.replaceAll( "\\\r", "" );
 
