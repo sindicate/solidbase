@@ -10,7 +10,7 @@
 
 	<property name="target-jre" value="1.5" />
 	<property name="version.properties" value="ronnie/dbpatcher/config/version.properties" />
-	<property name="release.number" value="1.0" />
+	<property name="release.number" value="1.0.1" />
 
 	<!-- Source folders & files -->
 	<property name="test.home" value="test" />
@@ -120,7 +120,7 @@
 
 	<target name="test" depends="build,buildtest" description="Run all tests">
 		<testng workingDir="${dist.home}" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="2">
-			<jvmarg value="-javaagent:../../../dbpatcher/tools/test/jmockit.jar" />
+			<jvmarg value="-javaagent:${basedir}/tools/test/jmockit.jar" />
 			<jvmarg value="-Xmx256m" />
 			<classfileset dir="${build.home}/test" />
 			<reporter classname="ronnie.dbpatcher.test.TestListener"/>
@@ -133,7 +133,7 @@
 			<fileset dir="src" excludes="**/*.java" />
 		</copy>
 		<groovy src="getsvninfo.groovy" />
-		<echo file="${build.home}/classes/${version.properties}" message="module.version=${release.number}.${svn.revision}" />
+		<echo file="${build.home}/classes/${version.properties}" message="module.version=${release.number}-rev${svn.revision}" />
 		<mkdir dir="${build.home}/stage" />
 		<jarjar compress="yes" destfile="${build.home}/stage/dbpatcher1.jar">
 			<fileset dir="${build.home}/classes" />
@@ -173,7 +173,7 @@
 			<keep pattern="ronnie.dbpatcher.Main" />
 			<manifest>
 				<attribute name="Main-Class" value="ronnie.dbpatcher.Main" />
-				<attribute name="Version" value="${release.number}.${svn.revision}" />
+				<attribute name="Version" value="${release.number}-rev${svn.revision}" />
 				<attribute name="Project-Name" value="${ant.project.name}" />
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Target-JRE" value="${target-jre}" />

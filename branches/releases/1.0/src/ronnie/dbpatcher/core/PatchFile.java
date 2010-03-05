@@ -362,35 +362,35 @@ public class PatchFile
 				String line = this.file.readLine();
 				Assert.isTrue( line != null, "Premature end of file found" );
 
-				if( line.trim().length() > 0 )
+				if( result.length() == 0 && line.trim().length() == 0 ) // Skip the first empty lines
+					continue;
+
+				if( goPattern.matcher( line ).matches() )
+					return new Command( result.toString(), false );
+
+				if( patchEndPattern.matcher( line ).matches() )
 				{
-					if( goPattern.matcher( line ).matches() )
-						return new Command( result.toString(), false );
+					if( result.length() > 0 )
+						throw new NonTerminatedStatementException();
+					return null;
+				}
 
-					if( patchEndPattern.matcher( line ).matches() )
-					{
-						if( result.length() > 0 )
-							throw new NonTerminatedStatementException();
-						return null;
-					}
+				if( line.startsWith( "--*" ) )
+				{
+					if( result.length() > 0 )
+						throw new NonTerminatedStatementException();
 
-					if( line.startsWith( "--*" ) )
+					if( !patchStartPattern.matcher( line ).matches() ) // skip patch start
 					{
-						if( result.length() > 0 )
-							throw new NonTerminatedStatementException();
-
-						if( !patchStartPattern.matcher( line ).matches() ) // skip patch start
-						{
-							line = line.substring( 3 ).trim();
-							if( !line.startsWith( "//" )) // skip comment
-								return new Command( line, true );
-						}
+						line = line.substring( 3 ).trim();
+						if( !line.startsWith( "//" )) // skip comment
+							return new Command( line, true );
 					}
-					else
-					{
-						result.append( line );
-						result.append( "\n" );
-					}
+				}
+				else
+				{
+					result.append( line );
+					result.append( "\n" );
 				}
 			}
 			catch( IOException e )
