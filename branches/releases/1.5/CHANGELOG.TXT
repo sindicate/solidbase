@@ -1,22 +1,26 @@
+Changes from 1.5.2 to 1.5.3
+---------------------------
+
+ENH  The 'target' is no longer mandatory in the Maven plugin and Ant task.
+FIX  Empty lines are no longer stripped from the SQL.	
+
 Changes from 1.5.1 to 1.5.2
 ---------------------------
 
-ENHANC	The upgrade.target property and the -target commandline argument is now optional.
-ENHANC	The commandline arguments now override properties from solidbase.properties.
-ENHANC	The commandline help page is shown when no arguments are given on the commandline.
-ENHANC	Added -help argument to the commandline.
+ENH  The upgrade.target property and the -target commandline argument is now optional.
+ENH  The commandline arguments now override properties from solidbase.properties.
+ENH  The commandline help page is shown when no arguments are given on the commandline.
+ENH  Added -help argument to the commandline.
 
 Changes from 1.5.0 to 1.5.1
 ---------------------------
 
-REMOVE	Removed custom database configuration scripting capability.
-REMOVE	Removed interactive mode of the command line version of SolidBase.
-
-CHANGE	Complete overhaul of the solidbase.properties format. It is now consistent with the capabilities of the Ant task and Maven plugin.
-CHANGE	Maven plugin: renamed configuration item 'user' to 'username'.
-CHANGE	Ant task: renamed configuration item 'user' to 'username'. But 'user' still works.
-
-ENHANC	Added secondary connections capability to the Maven plugin.
-ENHANC	Introduced new Ant task 'upgradedb' which is an alias of 'solidbase-upgrade'.
-ENHANC	Improved exception handling.
-ENHANC	Javadoc improvements.
+ENH  Added secondary connections capability to the Maven plugin.
+ENH  Introduced new Ant task 'upgradedb' which is an alias of 'solidbase-upgrade'.
+ENH  Improved exception handling.
+ENH  Javadoc improvements.
+CHA  Complete overhaul of the solidbase.properties format. It is now consistent with the capabilities of the Ant task and Maven plugin.
+CHA  Maven plugin: renamed configuration item 'user' to 'username'.
+CHA  Ant task: renamed configuration item 'user' to 'username'. But 'user' still works.
+REM  Removed custom database configuration scripting capability.
+REM  Removed interactive mode of the command line version of SolidBase.
