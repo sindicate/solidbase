@@ -639,7 +639,7 @@ public class PatchFile
 				String line = this.file.readLine();
 				Assert.notNull( line, "Premature end of file found" );
 
-				if( line.trim().length() == 0 )
+				if( pos == 0 && line.trim().length() == 0 ) // Skip the first empty lines
 					continue;
 
 				if( GO_PATTERN.matcher( line ).matches() )

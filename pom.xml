@@ -7,7 +7,8 @@
 	
 	<groupId>solidbase</groupId>
 	<artifactId>solidbase</artifactId>
-	<version>1.5.2</version>
+	<version>1.6.0</version>
+	<packaging>jar</packaging>
 
 	<name>SolidBase</name>
 	<inceptionYear>2006</inceptionYear>
@@ -28,6 +29,14 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
+	
+	<developers>
+		<developer>
+			<email>rene.de.bloois@gmail.com</email>
+			<name>René M. de Bloois</name>
+			<roles><role>owner</role></roles>
+		</developer>
+	</developers>
 	
 	<scm>
 		<url>http://code.google.com/p/solidbase/source/browse/</url>
