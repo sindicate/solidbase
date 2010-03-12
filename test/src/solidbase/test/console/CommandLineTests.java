@@ -89,7 +89,7 @@ public class CommandLineTests
 		"    Encoding is 'ISO-8859-1'\n" );
 	}
 
-	@Test(groups="new")
+	@Test
 	public void testCommandLineNoTarget() throws Exception
 	{
 		MockConsole console = new MockConsole();
