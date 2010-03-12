@@ -77,6 +77,7 @@ public class TestUtil
 		else
 			Assert.assertEquals( result.getString( "SPEC" ), spec, "spec:" );
 		Assert.assertFalse( result.next() );
+		connection.commit();
 	}
 
 	public static void verifyHistoryIncludes( Patcher patcher, String version )
