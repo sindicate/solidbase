@@ -17,7 +17,6 @@
 package solidbase.maven;
 
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import solidbase.Version;
@@ -91,9 +90,9 @@ public class UpgradeMojo extends AbstractMojo
 	/**
 	 * Validate the configuration of the plugin.
 	 * 
-	 * @throws MojoExecutionException Whenever a configuration item is missing.
+	 * @throws MojoFailureException Whenever a configuration item is missing.
 	 */
-	protected void validate() throws MojoExecutionException
+	protected void validate() throws MojoFailureException
 	{
 		// The rest is checked by Maven itself
 
@@ -101,15 +100,15 @@ public class UpgradeMojo extends AbstractMojo
 			for( Secondary secondary : this.connections )
 			{
 				if( secondary.getName() == null )
-					throw new MojoExecutionException( "The 'name' attribute is mandatory for a 'secondary' element" );
+					throw new MojoFailureException( "The 'name' attribute is mandatory for a 'secondary' element" );
 				if( secondary.getUsername() == null )
-					throw new MojoExecutionException( "The 'user' attribute is mandatory for a 'secondary' element" );
+					throw new MojoFailureException( "The 'user' attribute is mandatory for a 'secondary' element" );
 				if( secondary.getName().equals( "default" ) )
-					throw new MojoExecutionException( "The secondary name 'default' is reserved" );
+					throw new MojoFailureException( "The secondary name 'default' is reserved" );
 			}
 	}
 
-	public void execute() throws MojoExecutionException, MojoFailureException
+	public void execute() throws MojoFailureException
 	{
 		validate();
 
@@ -120,35 +119,38 @@ public class UpgradeMojo extends AbstractMojo
 		getLog().info( info[ 1 ] );
 		getLog().info( "" );
 
-		Patcher patcher = new Patcher( progress, new Database( this.driver, this.url, this.username, this.password == null ? "" : this.password, progress ) );
-
-		if( this.connections != null )
-			for( Secondary secondary : this.connections )
-				patcher.addDatabase( secondary.getName(),
-						new Database( secondary.getDriver() == null ? this.driver : secondary.getDriver(),
-								secondary.getUrl() == null ? this.url : secondary.getUrl(),
-										secondary.getUsername(), secondary.getPassword() == null ? "" : secondary.getPassword(), progress ) );
-
-		patcher.init( this.project.getBasedir(), this.upgradefile );
 		try
 		{
-			progress.info( "Connecting to database..." );
-			progress.info( patcher.getVersionStatement() );
-			patcher.patch( this.target, this.downgradeallowed ); // TODO Print this target
-			progress.info( "" );
-			progress.info( patcher.getVersionStatement() );
+			Patcher patcher = new Patcher( progress, new Database( this.driver, this.url, this.username, this.password == null ? "" : this.password, progress ) );
+
+			if( this.connections != null )
+				for( Secondary secondary : this.connections )
+					patcher.addDatabase( secondary.getName(),
+							new Database( secondary.getDriver() == null ? this.driver : secondary.getDriver(),
+									secondary.getUrl() == null ? this.url : secondary.getUrl(),
+											secondary.getUsername(), secondary.getPassword() == null ? "" : secondary.getPassword(), progress ) );
+
+			patcher.init( this.project.getBasedir(), this.upgradefile );
+			try
+			{
+				progress.info( "Connecting to database..." );
+				progress.info( patcher.getVersionStatement() );
+				patcher.patch( this.target, this.downgradeallowed ); // TODO Print this target
+				progress.info( "" );
+				progress.info( patcher.getVersionStatement() );
+			}
+			finally
+			{
+				patcher.end();
+			}
 		}
 		catch( SQLExecutionException e )
 		{
-			throw new MojoExecutionException( e.getMessage() );
+			throw new MojoFailureException( e.getMessage() );
 		}
 		catch( FatalException e )
 		{
-			throw new MojoExecutionException( e.getMessage() );
-		}
-		finally
-		{
-			patcher.end();
+			throw new MojoFailureException( e.getMessage() );
 		}
 	}
 }
