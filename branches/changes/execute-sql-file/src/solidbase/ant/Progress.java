@@ -110,6 +110,18 @@ public class Progress extends ProgressListener
 	}
 
 	@Override
+	protected void openingSqlFile( File sqlFile )
+	{
+		info( "Opening file '" + sqlFile + "'" );
+	}
+
+	@Override
+	protected void openingSqlFile( URL sqlFile )
+	{
+		info( "Opening file '" + sqlFile + "'" );
+	}
+
+	@Override
 	public void openedPatchFile( PatchFile patchFile )
 	{
 		info( "    Encoding is '" + patchFile.getEncoding() + "'" );
@@ -174,6 +186,12 @@ public class Progress extends ProgressListener
 	protected void patchingFinished()
 	{
 		info( "The database is upgraded." );
+	}
+
+	@Override
+	protected void sqlExecutionFinished()
+	{
+		info( "Execution complete." );
 	}
 
 	@Override

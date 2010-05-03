@@ -584,8 +584,7 @@ public class PatchFile extends SqlFile
 		do
 		{
 			command = super.readStatement();
-			if( command == null )
-				return null;
+			Assert.notNull( command, "Premature end of file found" );
 
 			if( command.isTransient() )
 			{
