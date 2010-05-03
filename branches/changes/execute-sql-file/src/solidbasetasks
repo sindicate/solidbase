@@ -1,0 +1,2 @@
+solidbase-upgrade = solidbase.ant.UpgradeTask
+upgradedb = solidbase.ant.UpgradeTask
