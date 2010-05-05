@@ -27,7 +27,7 @@ import solidbase.Version;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
 import solidbase.core.SQLExecutionException;
-import solidbase.core.SqlExecuter;
+import solidbase.core.SQLProcessor;
 
 
 /**
@@ -35,7 +35,7 @@ import solidbase.core.SqlExecuter;
  * 
  * @author René M. de Bloois
  */
-public class SqlTask extends Task
+public class SQLTask extends Task
 {
 	/**
 	 * Field to store the configured driver.
@@ -70,7 +70,7 @@ public class SqlTask extends Task
 	/**
 	 * Constructor.
 	 */
-	public SqlTask()
+	public SQLTask()
 	{
 		super();
 	}
@@ -375,7 +375,7 @@ public class SqlTask extends Task
 
 		try
 		{
-			SqlExecuter executer = new SqlExecuter( progress, new Database( this.driver, this.url, this.username, this.password, progress ) );
+			SQLProcessor executer = new SQLProcessor( progress, new Database( this.driver, this.url, this.username, this.password, progress ) );
 
 			for( Connection connection : this.connections )
 				executer.addDatabase( connection.getName(),

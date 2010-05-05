@@ -21,7 +21,7 @@ import java.sql.SQLException;
 import org.testng.annotations.Test;
 
 import solidbase.core.Database;
-import solidbase.core.SqlExecuter;
+import solidbase.core.SQLProcessor;
 
 public class Sql
 {
@@ -29,7 +29,7 @@ public class Sql
 	public void testSql1() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		SqlExecuter executer = new SqlExecuter( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:sql1", "sa", null, progress ) );
+		SQLProcessor executer = new SQLProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:sql1", "sa", null, progress ) );
 
 		executer.init( "testsql1.sql" );
 		executer.execute();

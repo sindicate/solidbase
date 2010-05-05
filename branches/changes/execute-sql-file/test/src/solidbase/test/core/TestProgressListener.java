@@ -23,7 +23,7 @@ import solidbase.core.Command;
 import solidbase.core.Patch;
 import solidbase.core.PatchFile;
 import solidbase.core.ProgressListener;
-import solidbase.core.SqlFile;
+import solidbase.core.SQLFile;
 
 public class TestProgressListener extends ProgressListener
 {
@@ -47,7 +47,7 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	protected void openedSqlFile( SqlFile sqlFile )
+	protected void openedSQLFile( SQLFile sqlFile )
 	{
 		System.out.println( "OPENEDSQLFILE: " + sqlFile );
 	}
@@ -77,13 +77,13 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	protected void openingSqlFile( File sqlFile )
+	protected void openingSQLFile( File sqlFile )
 	{
 		System.out.println( "OPENINGSQLFILE: " + sqlFile );
 	}
 
 	@Override
-	public void openingSqlFile( URL sqlFile )
+	public void openingSQLFile( URL sqlFile )
 	{
 		System.out.println( "OPENINGSQLFILE: " + sqlFile );
 	}
@@ -101,13 +101,13 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	protected void patchingFinished()
+	protected void upgradeComplete()
 	{
 		System.out.println( "PATCHINGFINISHED." );
 	}
 
 	@Override
-	protected void sqlExecutionFinished()
+	protected void sqlExecutionComplete()
 	{
 		System.out.println( "SQLEXECUTIONFINISHED." );
 	}

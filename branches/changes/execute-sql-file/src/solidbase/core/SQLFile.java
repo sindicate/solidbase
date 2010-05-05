@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  * @author René M. de Bloois
  * @since Apr 2010
  */
-public class SqlFile
+public class SQLFile
 {
 	static private final Pattern ENCODING_PATTERN = Pattern.compile( "^--\\*[ \t]*ENCODING[ \t]+\"([^\"]*)\"[ \t]*$", Pattern.CASE_INSENSITIVE );
 	static private final Pattern GO_PATTERN = Pattern.compile( "GO *", Pattern.CASE_INSENSITIVE );
@@ -44,7 +44,7 @@ public class SqlFile
 	 * 
 	 * @param file The reader which is used to read the contents of the file.
 	 */
-	protected SqlFile( RandomAccessLineReader file )
+	protected SQLFile( RandomAccessLineReader file )
 	{
 		this.file = file;
 

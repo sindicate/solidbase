@@ -79,6 +79,7 @@ public class SqlTaskTests extends BuildFileTest
 		Assert.assertEquals( log, "SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
 				"Opening file 'X:\\...\\testsql1.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"    Creating table USERS.\n" +
 				"    Inserting admin user.\n" +

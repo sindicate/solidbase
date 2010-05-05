@@ -133,7 +133,7 @@ public class Progress extends ProgressListener implements ConfigListener
 	}
 
 	@Override
-	protected void patchingFinished()
+	protected void upgradeComplete()
 	{
 		this.console.println( "The database is upgraded." );
 	}

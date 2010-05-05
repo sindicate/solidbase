@@ -1,4 +1,4 @@
 solidbase-upgrade = solidbase.ant.UpgradeTask
 upgradedb = solidbase.ant.UpgradeTask
-solidbase-sql = solidbase.ant.SqlTask
-sb-sql = solidbase.ant.SqlTask
+solidbase-sql = solidbase.ant.SQLTask
+sb-sql = solidbase.ant.SQLTask

@@ -34,14 +34,14 @@ import java.util.regex.Pattern;
 
 
 /**
- * This class is the coordinator. It reads commands from the {@link SqlFile}. It calls the {@link CommandListener}s,
+ * This class is the coordinator. It reads commands from the {@link SQLFile}. It calls the {@link CommandListener}s,
  * calls the {@link Database} to execute statements through JDBC, and shows progress to the user by calling
  * {@link ProgressListener}.
  * 
  * @author René M. de Bloois
  * @since May 2010
  */
-public class SqlExecuter
+public class SQLProcessor
 {
 	// Don't need whitespace at the end of the Patterns
 
@@ -83,7 +83,7 @@ public class SqlExecuter
 	/**
 	 * The sql file being executed.
 	 */
-	protected SqlFile sqlFile;
+	protected SQLFile sqlFile;
 
 	/**
 	 * The current database.
@@ -100,7 +100,7 @@ public class SqlExecuter
 	 * 
 	 * @param listener Listens to the progress.
 	 */
-	public SqlExecuter( ProgressListener listener )
+	public SQLProcessor( ProgressListener listener )
 	{
 		this.progress = listener;
 
@@ -119,7 +119,7 @@ public class SqlExecuter
 	 * @param listener Listens to the progress.
 	 * @param database The default database.
 	 */
-	public SqlExecuter( ProgressListener listener, Database database )
+	public SQLProcessor( ProgressListener listener, Database database )
 	{
 		this( listener );
 		addDatabase( "default", database );
@@ -133,7 +133,7 @@ public class SqlExecuter
 	 */
 	public void init( File baseDir, String sqlFileName )
 	{
-		openSqlFile( baseDir, sqlFileName );
+		openSQLFile( baseDir, sqlFileName );
 	}
 
 	/**
@@ -161,9 +161,9 @@ public class SqlExecuter
 	 * 
 	 * @param fileName The name and path of the sql file.
 	 */
-	protected void openSqlFile( String fileName )
+	protected void openSQLFile( String fileName )
 	{
-		openSqlFile( null, fileName );
+		openSQLFile( null, fileName );
 	}
 
 	/**
@@ -172,7 +172,7 @@ public class SqlExecuter
 	 * @param baseDir The base folder from where to look. May be null.
 	 * @param fileName The name and path of the sql file.
 	 */
-	protected void openSqlFile( File baseDir, String fileName )
+	protected void openSQLFile( File baseDir, String fileName )
 	{
 		Assert.notNull( fileName );
 
@@ -180,22 +180,22 @@ public class SqlExecuter
 		{
 			RandomAccessLineReader ralr;
 			// TODO Should we remove this "/"?
-			URL url = SqlExecuter.class.getResource( "/" + fileName ); // In the classpath
+			URL url = SQLProcessor.class.getResource( "/" + fileName ); // In the classpath
 			if( url != null )
 			{
-				this.progress.openingSqlFile( url );
+				this.progress.openingSQLFile( url );
 				ralr = new RandomAccessLineReader( url );
 			}
 			else
 			{
 				File file = new File( baseDir, fileName ); // In the current folder
-				this.progress.openingSqlFile( file );
+				this.progress.openingSQLFile( file );
 				ralr = new RandomAccessLineReader( file );
 			}
 
-			this.sqlFile = new SqlFile( ralr );
+			this.sqlFile = new SQLFile( ralr );
 
-			this.progress.openedSqlFile( this.sqlFile );
+			this.progress.openedSQLFile( this.sqlFile );
 		}
 		catch( IOException e )
 		{
@@ -206,7 +206,7 @@ public class SqlExecuter
 	/**
 	 * Close the upgrade file.
 	 */
-	public void closeSqlFile()
+	public void closeSQLFile()
 	{
 		if( this.sqlFile != null )
 			this.sqlFile.close();
@@ -349,7 +349,7 @@ public class SqlExecuter
 
 			command = this.sqlFile.readStatement();
 		}
-		this.progress.sqlExecutionFinished();
+		this.progress.sqlExecutionComplete();
 	}
 
 	private void setConnection( Database database )
@@ -433,7 +433,7 @@ public class SqlExecuter
 	// TODO No signal to the listeners here?
 	public void end()
 	{
-		closeSqlFile();
+		closeSQLFile();
 		if( this.currentDatabase != null )
 			this.currentDatabase.closeConnections();
 	}

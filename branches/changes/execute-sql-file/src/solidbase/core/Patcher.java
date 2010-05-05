@@ -377,7 +377,7 @@ public class Patcher
 
 			String t = targets.iterator().next();
 			patch( this.dbVersion.getVersion(), t, downgradeable );
-			this.progress.patchingFinished();
+			this.progress.upgradeComplete();
 			return;
 		}
 
@@ -411,7 +411,7 @@ public class Patcher
 		if( targets.size() == 0 )
 			throw new FatalException( "There is no upgrade path from the current version of the database (" + StringUtils.defaultString( this.dbVersion.getVersion(), "no version" ) + ") to the requested target version " + target );
 
-		this.progress.patchingFinished();
+		this.progress.upgradeComplete();
 	}
 
 	/**

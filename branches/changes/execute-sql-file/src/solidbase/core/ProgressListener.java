@@ -61,7 +61,7 @@ public class ProgressListener
 	 * 
 	 * @param sqlFile The sql file that is about to be opened.
 	 */
-	protected void openingSqlFile( File sqlFile )
+	protected void openingSQLFile( File sqlFile )
 	{
 		// could be implemented in subclass
 	}
@@ -71,7 +71,7 @@ public class ProgressListener
 	 * 
 	 * @param sqlFile The sql file that is about to be opened.
 	 */
-	protected void openingSqlFile( URL sqlFile )
+	protected void openingSQLFile( URL sqlFile )
 	{
 		// could be implemented in subclass
 	}
@@ -91,7 +91,7 @@ public class ProgressListener
 	 * 
 	 * @param sqlFile The sql file that is opened.
 	 */
-	protected void openedSqlFile( SqlFile sqlFile )
+	protected void openedSQLFile( SQLFile sqlFile )
 	{
 		// could be implemented in subclass
 	}
@@ -146,7 +146,7 @@ public class ProgressListener
 	/**
 	 * The upgrade is completed.
 	 */
-	protected void patchingFinished()
+	protected void upgradeComplete()
 	{
 		// could be implemented in subclass
 	}
@@ -154,7 +154,7 @@ public class ProgressListener
 	/**
 	 * The sql execution is completed.
 	 */
-	protected void sqlExecutionFinished()
+	protected void sqlExecutionComplete()
 	{
 		// could be implemented in subclass
 	}

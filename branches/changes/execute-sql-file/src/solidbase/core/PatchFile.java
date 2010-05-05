@@ -40,7 +40,7 @@ import solidbase.core.Patch.Type;
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
-public class PatchFile extends SqlFile
+public class PatchFile extends SQLFile
 {
 	static private final Pattern PATCH_DEFINITION_MARKER_PATTERN = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)[ \t]+.*", Pattern.CASE_INSENSITIVE );
 	static private final Pattern PATCH_DEFINITION_PATTERN = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
