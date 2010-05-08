@@ -22,7 +22,7 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import solidbase.core.Database;
-import solidbase.core.Patcher;
+import solidbase.core.PatchProcessor;
 
 public class Crm
 {
@@ -30,7 +30,7 @@ public class Crm
 	public void testCRM() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		Patcher patcher = new Patcher( progress, new Database( "org.apache.derby.jdbc.EmbeddedDriver", "jdbc:derby:../../BUILDS/solidbase/testcrm;create=true", "app", null, progress ) );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.apache.derby.jdbc.EmbeddedDriver", "jdbc:derby:../../BUILDS/solidbase/testcrm;create=true", "app", null, progress ) );
 
 		patcher.init( "testpatch-crm.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );

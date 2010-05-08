@@ -35,7 +35,7 @@ import solidbase.config.Configuration;
 import solidbase.core.Assert;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
-import solidbase.core.Patcher;
+import solidbase.core.PatchProcessor;
 import solidbase.core.SQLExecutionException;
 import solidbase.core.SystemException;
 
@@ -181,7 +181,7 @@ public class Main
 		console.println( info[ 1 ] );
 		console.println();
 
-		Patcher patcher = new Patcher( progress );
+		PatchProcessor patcher = new PatchProcessor( progress );
 
 		solidbase.config.Database defoult = configuration.getDefaultDatabase();
 		patcher.addDatabase( "default", new Database( defoult.getDriver(), defoult.getUrl(), defoult.getUserName(), defoult.getPassword(), progress ) );

@@ -26,7 +26,7 @@ import org.apache.tools.ant.Task;
 import solidbase.Version;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
-import solidbase.core.Patcher;
+import solidbase.core.PatchProcessor;
 import solidbase.core.SQLExecutionException;
 
 
@@ -508,7 +508,7 @@ public class UpgradeTask extends Task
 
 		try
 		{
-			Patcher patcher = new Patcher( progress, new Database( this.driver, this.url, this.username, this.password, progress ) );
+			PatchProcessor patcher = new PatchProcessor( progress, new Database( this.driver, this.url, this.username, this.password, progress ) );
 
 			for( Connection connection : this.connections )
 				patcher.addDatabase( connection.getName(),

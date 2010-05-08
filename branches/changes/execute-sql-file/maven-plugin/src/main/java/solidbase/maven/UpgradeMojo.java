@@ -22,7 +22,7 @@ import org.apache.maven.project.MavenProject;
 import solidbase.Version;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
-import solidbase.core.Patcher;
+import solidbase.core.PatchProcessor;
 import solidbase.core.SQLExecutionException;
 
 
@@ -121,7 +121,7 @@ public class UpgradeMojo extends AbstractMojo
 
 		try
 		{
-			Patcher patcher = new Patcher( progress, new Database( this.driver, this.url, this.username, this.password == null ? "" : this.password, progress ) );
+			PatchProcessor patcher = new PatchProcessor( progress, new Database( this.driver, this.url, this.username, this.password == null ? "" : this.password, progress ) );
 
 			if( this.connections != null )
 				for( Secondary secondary : this.connections )

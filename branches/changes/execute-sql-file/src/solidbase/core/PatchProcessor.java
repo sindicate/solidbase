@@ -51,7 +51,7 @@ import org.apache.commons.lang.StringUtils;
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
-public class Patcher
+public class PatchProcessor
 {
 	// Don't need whitespace at the end of the Patterns
 
@@ -97,16 +97,16 @@ public class Patcher
 	protected boolean dontCount;
 
 	/**
-	 * Together with {@link Patcher#conditionFalseCounter} this enables nested conditions. As long as nested conditions
-	 * evaluate to true the {@link Patcher#conditionTrueCounter} gets incremented. After the first nested condition
-	 * evaluates to false, the {@link Patcher#conditionFalseCounter} get incremented.
+	 * Together with {@link PatchProcessor#conditionFalseCounter} this enables nested conditions. As long as nested conditions
+	 * evaluate to true the {@link PatchProcessor#conditionTrueCounter} gets incremented. After the first nested condition
+	 * evaluates to false, the {@link PatchProcessor#conditionFalseCounter} get incremented.
 	 */
 	protected int conditionTrueCounter;
 
 	/**
-	 * Together with {@link Patcher#conditionTrueCounter} this enables nested conditions. As long as nested conditions
-	 * evaluate to true the {@link Patcher#conditionTrueCounter} gets incremented. After the first nested condition
-	 * evaluates to false, the {@link Patcher#conditionFalseCounter} get incremented.
+	 * Together with {@link PatchProcessor#conditionTrueCounter} this enables nested conditions. As long as nested conditions
+	 * evaluate to true the {@link PatchProcessor#conditionTrueCounter} gets incremented. After the first nested condition
+	 * evaluates to false, the {@link PatchProcessor#conditionFalseCounter} get incremented.
 	 */
 	protected int conditionFalseCounter;
 
@@ -121,7 +121,7 @@ public class Patcher
 	protected PatchFile patchFile;
 
 	/**
-	 * The default database. At the start of each change package, this database is put into {@link Patcher#currentDatabase} to become the current database.
+	 * The default database. At the start of each change package, this database is put into {@link PatchProcessor#currentDatabase} to become the current database.
 	 */
 	protected Database defaultDatabase;
 
@@ -145,7 +145,7 @@ public class Patcher
 	 * 
 	 * @param listener Listens to the progress.
 	 */
-	public Patcher( ProgressListener listener )
+	public PatchProcessor( ProgressListener listener )
 	{
 		this.progress = listener;
 
@@ -164,7 +164,7 @@ public class Patcher
 	 * @param listener Listens to the progress.
 	 * @param database The default database.
 	 */
-	public Patcher( ProgressListener listener, Database database )
+	public PatchProcessor( ProgressListener listener, Database database )
 	{
 		this( listener );
 		addDatabase( "default", database );
@@ -230,7 +230,7 @@ public class Patcher
 		{
 			RandomAccessLineReader ralr;
 			// TODO Should we remove this "/"?
-			URL url = Patcher.class.getResource( "/" + fileName ); // In the classpath
+			URL url = PatchProcessor.class.getResource( "/" + fileName ); // In the classpath
 			if( url != null )
 			{
 				this.progress.openingPatchFile( url );
@@ -566,7 +566,7 @@ public class Patcher
 					}
 					catch( SQLException e )
 					{
-						// TODO The listener should use Patcher.execute() so that we don't need the catch here.
+						// TODO The listener should use PatchProcessor.execute() so that we don't need the catch here.
 						if( !patch.isInit() )
 						{
 							this.dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), e );
