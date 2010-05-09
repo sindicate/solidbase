@@ -16,9 +16,7 @@
 
 package solidbase.maven;
 
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.project.MavenProject;
 import solidbase.Version;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
@@ -32,81 +30,22 @@ import solidbase.core.SQLExecutionException;
  * @author Ruud de Jong
  * @author René de Bloois
  */
-public class UpgradeMojo extends AbstractMojo
+public class UpgradeMojo extends DBMojo
 {
-	/**
-	 * The Maven Project Object
-	 */
-	private MavenProject project;
-
-	/**
-	 * Database driver class.
-	 */
-	private String driver;
-
-	/**
-	 * Database URL.
-	 */
-	private String url;
-
-	/**
-	 * Database username.
-	 */
-	private String username;
-
-	/**
-	 * Database password.
-	 */
-	private String password;
-
 	/**
 	 * File containing the upgrade.
 	 */
-	private String upgradefile;
+	protected String upgradefile;
 
 	/**
 	 * Target to upgrade the database to.
 	 */
-	private String target;
+	protected String target;
 
 	/**
 	 * Allow downgrades to reach the target.
 	 */
 	private boolean downgradeallowed;
-
-	/**
-	 * An array of secondary connections.
-	 */
-	private Secondary[] connections;
-
-	/**
-	 * Constructor.
-	 */
-	public UpgradeMojo()
-	{
-		super();
-	}
-
-	/**
-	 * Validate the configuration of the plugin.
-	 * 
-	 * @throws MojoFailureException Whenever a configuration item is missing.
-	 */
-	protected void validate() throws MojoFailureException
-	{
-		// The rest is checked by Maven itself
-
-		if( this.connections != null )
-			for( Secondary secondary : this.connections )
-			{
-				if( secondary.getName() == null )
-					throw new MojoFailureException( "The 'name' attribute is mandatory for a 'secondary' element" );
-				if( secondary.getUsername() == null )
-					throw new MojoFailureException( "The 'user' attribute is mandatory for a 'secondary' element" );
-				if( secondary.getName().equals( "default" ) )
-					throw new MojoFailureException( "The secondary name 'default' is reserved" );
-			}
-	}
 
 	public void execute() throws MojoFailureException
 	{
