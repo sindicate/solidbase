@@ -40,10 +40,8 @@ import solidbase.core.Patch.Type;
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
-public class PatchFile
+public class PatchFile extends SQLFile
 {
-	static private final Pattern ENCODING_PATTERN = Pattern.compile( "^--\\*[ \t]*ENCODING[ \t]+\"([^\"]*)\"[ \t]*$", Pattern.CASE_INSENSITIVE );
-
 	static private final Pattern PATCH_DEFINITION_MARKER_PATTERN = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)[ \t]+.*", Pattern.CASE_INSENSITIVE );
 	static private final Pattern PATCH_DEFINITION_PATTERN = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
 	static private final String PATCH_DEFINITION_SYNTAX_ERROR = "Line should match the following syntax: (INIT|UPGRADE|SWITCH|DOWNGRADE) [OPEN] \"...\" --> \"...\"";
@@ -51,12 +49,10 @@ public class PatchFile
 	static private final Pattern CONTROL_TABLES_PATTERN = Pattern.compile( "VERSION\\s+TABLE\\s+(\\S+)\\s+LOG\\s+TABLE\\s+(\\S+)", Pattern.CASE_INSENSITIVE );
 
 	static private final Pattern PATCH_START_MARKER_PATTERN = Pattern.compile( "--\\*[ \t]*(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN).*", Pattern.CASE_INSENSITIVE );
-	static private final Pattern PATCH_START_PATTERN = Pattern.compile( "--\\*[ \t]*(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
+	static private final Pattern PATCH_START_PATTERN = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
 	static private final String PATCH_START_SYNTAX_ERROR = "Line should match the following syntax: (INIT|UPGRADE|SWITCH|DOWNGRADE) \"...\" --> \"...\"";
 
-	static private final Pattern PATCH_END_PATTERN = Pattern.compile( "--\\* */(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
-
-	static private final Pattern GO_PATTERN = Pattern.compile( "GO *", Pattern.CASE_INSENSITIVE );
+	static private final Pattern PATCH_END_PATTERN = Pattern.compile( "/(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * All normal patches in a map indexed by source version.
@@ -72,11 +68,6 @@ public class PatchFile
 	 * All init patches in a map indexed by source version.
 	 */
 	protected MultiValueMap inits = new MultiValueMap();
-
-	/**
-	 * The underlying file.
-	 */
-	protected RandomAccessLineReader file;
 
 	/**
 	 * The name of the version control table as defined in the upgrade file.
@@ -96,53 +87,7 @@ public class PatchFile
 	 */
 	protected PatchFile( RandomAccessLineReader file )
 	{
-		this.file = file;
-
-		try
-		{
-			String line = file.readLine();
-			//System.out.println( "First line [" + line + "]" );
-			StringBuilder s = new StringBuilder();
-			char[] chars = line.toCharArray();
-			for( char c : chars )
-				if( c != 0 )
-					s.append( c );
-
-			line = s.toString();
-			//System.out.println( "First line (fixed) [" + line + "]" );
-			Matcher matcher = ENCODING_PATTERN.matcher( line );
-			if( matcher.matches() )
-			{
-				file.reOpen( matcher.group( 1 ) );
-				file.readLine(); // skip the first line
-			}
-			else
-				file.gotoLine( 1 );
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
-	}
-
-
-	/**
-	 * Close the patch file. This will also close the underlying file.
-	 */
-	protected void close()
-	{
-		if( this.file != null )
-		{
-			try
-			{
-				this.file.close();
-			}
-			catch( IOException e )
-			{
-				throw new SystemException( e );
-			}
-			this.file = null;
-		}
+		super( file );
 	}
 
 
@@ -226,6 +171,7 @@ public class PatchFile
 
 		scan();
 
+		// Check that all defined upgrade blocks are found
 		Iterator< Patch > iterator = this.patches.values().iterator();
 		while( iterator.hasNext() )
 		{
@@ -234,6 +180,7 @@ public class PatchFile
 				throw new FatalException( "Upgrade block \"" + StringUtils.defaultString( patch.getSource() ) + "\" --> \"" + patch.getTarget() + "\" not found" );
 		}
 
+		// Check that all defined init blocks are found
 		iterator = this.inits.values().iterator();
 		while( iterator.hasNext() )
 		{
@@ -279,9 +226,11 @@ public class PatchFile
 				{
 					if( PATCH_START_MARKER_PATTERN.matcher( line ).matches() )
 					{
+						line = line.substring( 3 ).trim();
 						int pos = this.file.getLineNumber() - 1;
 						Matcher matcher = PATCH_START_PATTERN.matcher( line );
-						Assert.isTrue( matcher.matches(), PATCH_START_SYNTAX_ERROR, pos );
+						if( !matcher.matches() )
+							throw new FatalException( PATCH_START_SYNTAX_ERROR + ", at line " + pos );
 						String action = matcher.group( 1 );
 						String source = matcher.group( 2 );
 						String target = matcher.group( 3 );
@@ -627,73 +576,26 @@ public class PatchFile
 	 * 
 	 * @return A statement from the patch file or null when no more statements are available.
 	 */
+	@Override
 	protected Command readStatement()
 	{
-		StringBuilder result = new StringBuilder();
-		int pos = 0; // No line found yet
+		Command command;
 
-		while( true )
+		do
 		{
-			try
+			command = super.readStatement();
+			Assert.notNull( command, "Premature end of file found" );
+
+			if( command.isTransient() )
 			{
-				String line = this.file.readLine();
-				Assert.notNull( line, "Premature end of file found" );
-
-				if( pos == 0 && line.trim().length() == 0 ) // Skip the first empty lines
-					continue;
-
-				if( GO_PATTERN.matcher( line ).matches() )
-				{
-					if( pos == 0 )
-						pos = this.file.getLineNumber() - 1;
-					return new Command( result.toString(), false, pos );
-				}
-
-				if( PATCH_END_PATTERN.matcher( line ).matches() )
-				{
-					if( result.length() > 0 )
-						throw new UnterminatedStatementException( this.file.getLineNumber() - 1 );
+				if( PATCH_END_PATTERN.matcher( command.getCommand() ).matches() )
 					return null;
-				}
-
-				if( line.startsWith( "--*" ) )
-				{
-					if( result.length() > 0 )
-						throw new UnterminatedStatementException( this.file.getLineNumber() - 1 );
-
-					if( !PATCH_START_PATTERN.matcher( line ).matches() ) // skip patch start
-					{
-						line = line.substring( 3 ).trim();
-						if( !line.startsWith( "//" )) // skip comment
-						{
-							if( pos == 0 )
-								pos = this.file.getLineNumber() - 1;
-							return new Command( line, true, pos );
-						}
-					}
-					continue;
-				}
-
-				if( pos == 0 )
-					pos = this.file.getLineNumber() - 1;
-				result.append( line );
-				result.append( '\n' );
-			}
-			catch( IOException e )
-			{
-				throw new SystemException( e );
+				if( PATCH_START_PATTERN.matcher( command.getCommand() ).matches() )
+					command = null;
 			}
 		}
-	}
+		while( command == null );
 
-
-	/**
-	 * Gets the encoding of the patch file.
-	 * 
-	 * @return The encoding of the patch file.
-	 */
-	public String getEncoding()
-	{
-		return this.file.getEncoding();
+		return command;
 	}
 }

@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 
 import solidbase.core.Database;
 import solidbase.core.UnterminatedStatementException;
-import solidbase.core.Patcher;
+import solidbase.core.PatchProcessor;
 import solidbase.core.SQLExecutionException;
 import solidbase.core.TestUtil;
 
@@ -35,7 +35,7 @@ public class Basic
 	public void testBasic() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
 		// TODO Learn to really shutdown an inmemory database
 
 		patcher.init( "testpatch1.sql" );
@@ -52,7 +52,7 @@ public class Basic
 	public void testRepeat() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
 
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null );
 
@@ -70,7 +70,7 @@ public class Basic
 	public void testMissingGo() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
 
 		patcher.init( "testpatch2.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
@@ -95,7 +95,7 @@ public class Basic
 	public void testDumpXML()
 	{
 		TestProgressListener progress = new TestProgressListener();
-		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
 
 		patcher.init( "testpatch1.sql" );
 
@@ -111,7 +111,7 @@ public class Basic
 	public void testOverrideControlTables() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:test3", "sa", null, progress ) );
 
 		patcher.init( "testpatch-overridecontroltables.sql" );
 		assert patcher.getCurrentVersion() == null;
@@ -129,7 +129,7 @@ public class Basic
 	public void testOpen() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testopen", "sa", null, progress ) );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testopen", "sa", null, progress ) );
 
 		patcher.init( "testpatch-open.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
@@ -146,7 +146,7 @@ public class Basic
 	public void testUnterminatedCommand1() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testunterminated1", "sa", null, progress ) );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testunterminated1", "sa", null, progress ) );
 
 		patcher.init( "testpatch-unterminated1.sql" );
 		try
@@ -167,7 +167,7 @@ public class Basic
 	public void testUnterminatedCommand2() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testunterminated2", "sa", null, progress ) );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testunterminated2", "sa", null, progress ) );
 
 		patcher.init( "testpatch-unterminated2.sql" );
 		try
@@ -190,7 +190,7 @@ public class Basic
 	public void testSharedPatchBlock() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testshared1", "sa", null, progress ) );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testshared1", "sa", null, progress ) );
 
 		patcher.init( "testpatch-sharedpatch1.sql" );
 		try

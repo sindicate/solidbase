@@ -147,7 +147,7 @@ public class Database
 	/**
 	 * Returns a connection for the given user name. Connections are cached per user. If a connection for the given user
 	 * is not found in the cache, a password will be requested by calling
-	 * {@link ProgressListener#requestPassword(String)} referenced by {@link Patcher#progress}.
+	 * {@link ProgressListener#requestPassword(String)} referenced by {@link PatchProcessor#progress}.
 	 * 
 	 * @param user The user name.
 	 * @return The connection for the given user name.
@@ -167,7 +167,7 @@ public class Database
 	/**
 	 * Returns a connection for the current user. Connections are cached per user. If a connection for the current user
 	 * is not found in the cache, a password will be requested by calling
-	 * {@link ProgressListener#requestPassword(String)} referenced by {@link Patcher#progress}.
+	 * {@link ProgressListener#requestPassword(String)} referenced by {@link PatchProcessor#progress}.
 	 * 
 	 * @return The connection for the current user.
 	 * @see #getConnection(String)

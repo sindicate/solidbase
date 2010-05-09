@@ -1,5 +1,5 @@
 /*--
- * Copyright 2006 René M. de Bloois
+ * Copyright 2010 René M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,28 +17,22 @@
 package solidbase.test.core;
 
 import java.sql.SQLException;
-import java.util.Set;
 
 import org.testng.annotations.Test;
 
 import solidbase.core.Database;
-import solidbase.core.PatchProcessor;
+import solidbase.core.SQLProcessor;
 
-public class Crm
+public class Sql
 {
 	@Test
-	public void testCRM() throws SQLException
+	public void testSql1() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.apache.derby.jdbc.EmbeddedDriver", "jdbc:derby:../../BUILDS/solidbase/testcrm;create=true", "app", null, progress ) );
+		SQLProcessor executer = new SQLProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:sql1", "sa", null, progress ) );
 
-		patcher.init( "testpatch-crm.sql" );
-		Set< String > targets = patcher.getTargets( false, null, false );
-		assert targets.size() > 0;
-
-		patcher.patch( null );
-		//TestUtil.verifyVersion( patcher, "1.0.2", null, 1, "1.1" );
-
-		patcher.end();
+		executer.init( "testsql1.sql" );
+		executer.execute();
+		executer.end();
 	}
 }

@@ -61,6 +61,8 @@ GO
 CREATE TABLE TEMP ( TEMP1 VARCHAR, TEMP2 VARCHAR, TEMP3 VARCHAR )
 GO
 
+--* SET MESSAGE "Starting import"
+
 IMPORT CSV INTO TEMP
 GO
 
@@ -79,5 +81,15 @@ IMPORT CSV SEPERATED BY ; INTO TEMP
 "1"; "2"; "3"
 "1"; "2"; "3"
 GO
+
+--* SET MESSAGE "Generating SQLException"
+
+--* IGNORE SQL ERROR S0001
+
+--* // A dot should still be printed when an error is ignored
+CREATE TABLE TEMP ( TEMP1 VARCHAR, TEMP2 VARCHAR, TEMP3 VARCHAR )
+GO
+
+--* /IGNORE SQL ERROR
 
 --* /PATCH
