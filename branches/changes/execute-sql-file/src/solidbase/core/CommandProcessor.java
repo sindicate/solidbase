@@ -160,6 +160,12 @@ public class CommandProcessor
 	 */
 	protected void executeWithListeners( Command command ) throws SQLExecutionException
 	{
+		if( command.isPersistent() )
+		{
+			this.progress.executing( command, this.startMessage );
+			this.startMessage = null;
+		}
+
 		try
 		{
 			if( !executeListeners( command ) )
@@ -174,6 +180,9 @@ public class CommandProcessor
 				throw new SQLExecutionException( command, e );
 			}
 		}
+
+		if( command.isPersistent() )
+			this.progress.executed();
 	}
 
 	/**
@@ -221,10 +230,7 @@ public class CommandProcessor
 		}
 		else
 		{
-			this.progress.executing( command, this.startMessage );
-			this.startMessage = null;
 			jdbcExecute( command );
-			this.progress.executed();
 		}
 	}
 

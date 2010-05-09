@@ -26,7 +26,7 @@ import solidbase.core.PatchProcessor;
 
 public class Crm
 {
-	@Test(groups="new")
+	@Test
 	public void testCRM() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
