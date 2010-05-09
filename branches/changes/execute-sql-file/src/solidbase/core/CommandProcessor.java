@@ -40,20 +40,37 @@ public class CommandProcessor
 {
 	// Don't need whitespace at the end of the Patterns
 
-	static private Pattern ignoreSqlErrorPattern = Pattern.compile( "IGNORE\\s+SQL\\s+ERROR\\s+(\\w+(\\s*,\\s*\\w+)*)", Pattern.CASE_INSENSITIVE );
-	static private Pattern ignoreEnd = Pattern.compile( "/IGNORE\\s+SQL\\s+ERROR", Pattern.CASE_INSENSITIVE );
+	/**
+	 * Pattern for IGNORE SQL ERROR.
+	 */
+	static protected Pattern ignoreSqlErrorPattern = Pattern.compile( "IGNORE\\s+SQL\\s+ERROR\\s+(\\w+(\\s*,\\s*\\w+)*)", Pattern.CASE_INSENSITIVE );
 
-	static private Pattern setUserPattern = Pattern.compile( "SET\\s+USER\\s+(\\w+)\\s*", Pattern.CASE_INSENSITIVE );
-	static private Pattern selectConnectionPattern = Pattern.compile( "SELECT\\s+CONNECTION\\s+(\\w+)", Pattern.CASE_INSENSITIVE );
+	/**
+	 * Pattern for /IGNORE SQL ERROR.
+	 */
+	static protected Pattern ignoreEnd = Pattern.compile( "/IGNORE\\s+SQL\\s+ERROR", Pattern.CASE_INSENSITIVE );
 
-	static private Pattern startMessagePattern = Pattern.compile( "(?:SET\\s+MESSAGE|MESSAGE\\s+START)\\s+[\"](.*)[\"]", Pattern.CASE_INSENSITIVE );
+	/**
+	 * Pattern for SET USER.
+	 */
+	static protected Pattern setUserPattern = Pattern.compile( "SET\\s+USER\\s+(\\w+)\\s*", Pattern.CASE_INSENSITIVE );
+
+	/**
+	 * Pattern for SELECT CONNECTION.
+	 */
+	static protected Pattern selectConnectionPattern = Pattern.compile( "SELECT\\s+CONNECTION\\s+(\\w+)", Pattern.CASE_INSENSITIVE );
+
+	/**
+	 * Pattern for SET MESSAGE.
+	 */
+	static protected Pattern startMessagePattern = Pattern.compile( "(?:SET\\s+MESSAGE|MESSAGE\\s+START)\\s+[\"](.*)[\"]", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * A list of command listeners. A listener listens to the statements being executed and is able to intercept specific ones.
 	 */
 	protected List< CommandListener > listeners;
 
-	// The fields below are all part of the execution context.
+	// The fields below are all part of the execution context. It's reset at the start of each change package.
 
 	/**
 	 * The message that should be shown when a statement is executed.
@@ -123,6 +140,7 @@ public class CommandProcessor
 		this.startMessage = null;
 		this.ignoreStack = new Stack();
 		this.ignoreSet = new HashSet();
+		setConnection( getDefaultDatabase() );
 	}
 
 	/**
@@ -132,6 +150,30 @@ public class CommandProcessor
 	{
 		for( CommandListener listener : this.listeners )
 			listener.terminate();
+	}
+
+	/**
+	 * Execute the given command.
+	 * 
+	 * @param command The command to be executed.
+	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
+	 */
+	protected void executeWithListeners( Command command ) throws SQLExecutionException
+	{
+		try
+		{
+			if( !executeListeners( command ) )
+				execute( command );
+		}
+		catch( SQLException e )
+		{
+			String error = e.getSQLState();
+			if( !this.ignoreSet.contains( error ) )
+			{
+				this.progress.exception( command );
+				throw new SQLExecutionException( command, e );
+			}
+		}
 	}
 
 	/**
@@ -153,101 +195,29 @@ public class CommandProcessor
 	}
 
 	/**
-	 * Execute the given command.
+	 * Executes the command.
 	 * 
 	 * @param command The command to be executed.
-	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
+	 * @throws SQLException Whenever an SQLException is thrown from JDBC.
 	 */
-	protected void jdbcExecute( Command command ) throws SQLExecutionException
+	protected void execute( Command command ) throws SQLException
 	{
-		Assert.isTrue( command.isPersistent() );
-
-		String sql = command.getCommand();
-		if( sql.length() > 0 )
-		{
-			try
-			{
-				if( !executeListeners( command ) )
-				{
-					Connection connection = this.currentDatabase.getConnection();
-					Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
-					Statement statement = connection.createStatement();
-					boolean commit = false;
-					try
-					{
-						statement.execute( sql );
-						commit = true;
-					}
-					finally
-					{
-						statement.close();
-						if( commit )
-							connection.commit();
-						else
-							connection.rollback();
-					}
-				}
-			}
-			catch( SQLException e )
-			{
-				String error = e.getSQLState();
-				if( !this.ignoreSet.contains( error ) )
-				{
-					this.progress.exception( command );
-					throw new SQLExecutionException( command, e );
-				}
-			}
-		}
-	}
-
-	/**
-	 * Execute the given command.
-	 * 
-	 * @param command The command to be executed.
-	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
-	 */
-	public void execute( Command command ) throws SQLExecutionException
-	{
-		String sql = command.getCommand();
-
 		if( command.isTransient() )
 		{
-			boolean done = false;
-			for( Iterator iter = this.listeners.iterator(); iter.hasNext(); )
-			{
-				CommandListener listener = (CommandListener)iter.next();
-				try
-				{
-					done = listener.execute( this.currentDatabase, command );
-				}
-				catch( SQLException e )
-				{
-					String error = e.getSQLState();
-					if( this.ignoreSet.contains( error ) )
-						return;
-					this.progress.exception( command );
-					throw new SQLExecutionException( command, e );
-				}
-				if( done )
-					break;
-			}
-
-			if( !done )
-			{
-				Matcher matcher;
-				if( ( matcher = ignoreSqlErrorPattern.matcher( sql ) ).matches() )
-					pushIgnores( matcher.group( 1 ) );
-				else if( ignoreEnd.matcher( sql ).matches() )
-					popIgnores();
-				else if( ( matcher = setUserPattern.matcher( sql ) ).matches() )
-					setUser( matcher.group( 1 ) );
-				else if( ( matcher = startMessagePattern.matcher( sql ) ).matches() )
-					this.startMessage = matcher.group( 1 );
-				else if( ( matcher = selectConnectionPattern.matcher( sql ) ).matches() )
-					selectConnection( matcher.group( 1 ) );
-				else
-					throw new FatalException( "Unknown command " + sql + ", at line " + command.getLineNumber() );
-			}
+			String sql = command.getCommand();
+			Matcher matcher;
+			if( ( matcher = ignoreSqlErrorPattern.matcher( sql ) ).matches() )
+				pushIgnores( matcher.group( 1 ) );
+			else if( ignoreEnd.matcher( sql ).matches() )
+				popIgnores();
+			else if( ( matcher = setUserPattern.matcher( sql ) ).matches() )
+				setUser( matcher.group( 1 ) );
+			else if( ( matcher = startMessagePattern.matcher( sql ) ).matches() )
+				this.startMessage = matcher.group( 1 );
+			else if( ( matcher = selectConnectionPattern.matcher( sql ) ).matches() )
+				selectConnection( matcher.group( 1 ) );
+			else
+				throw new FatalException( "Unknown command " + sql + ", at line " + command.getLineNumber() );
 		}
 		else
 		{
@@ -255,6 +225,39 @@ public class CommandProcessor
 			this.startMessage = null;
 			jdbcExecute( command );
 			this.progress.executed();
+		}
+	}
+
+	/**
+	 * Execute the given command.
+	 * 
+	 * @param command The command to be executed.
+	 * @throws SQLException Whenever an {@link SQLException} occurs during the execution of a command.
+	 */
+	protected void jdbcExecute( Command command ) throws SQLException
+	{
+		Assert.isTrue( command.isPersistent() ); // TODO Why?
+
+		String sql = command.getCommand();
+		if( sql.length() == 0 )
+			return;
+
+		Connection connection = this.currentDatabase.getConnection();
+		Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
+		Statement statement = connection.createStatement();
+		boolean commit = false;
+		try
+		{
+			statement.execute( sql );
+			commit = true;
+		}
+		finally
+		{
+			statement.close();
+			if( commit )
+				connection.commit();
+			else
+				connection.rollback();
 		}
 	}
 
@@ -373,5 +376,15 @@ public class CommandProcessor
 
 		if( name.equals( "default" ) )
 			setConnection( database ); // Also resets the current user for the connection
+	}
+
+	/**
+	 * Returns the default database.
+	 * 
+	 * @return The default database.
+	 */
+	public Database getDefaultDatabase()
+	{
+		return this.databases.get( "default" );
 	}
 }

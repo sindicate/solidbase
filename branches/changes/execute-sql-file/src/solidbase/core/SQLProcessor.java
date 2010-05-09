@@ -148,7 +148,7 @@ public class SQLProcessor extends CommandProcessor
 		Command command = this.sqlFile.readStatement();
 		while( command != null )
 		{
-			execute( command );
+			executeWithListeners( command );
 			command = this.sqlFile.readStatement();
 		}
 		this.progress.sqlExecutionComplete();
