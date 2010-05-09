@@ -21,6 +21,7 @@ import solidbase.core.Command;
 import solidbase.core.Patch;
 import solidbase.core.PatchFile;
 import solidbase.core.ProgressListener;
+import solidbase.core.SQLFile;
 
 import java.io.File;
 import java.net.URL;
@@ -102,9 +103,27 @@ public class Progress extends ProgressListener
 	}
 
 	@Override
-	public void openedPatchFile( PatchFile patchFile )
+	protected void openingSQLFile( File sqlFile )
+	{
+		info( "Opening file '" + sqlFile + "'" );
+	}
+
+	@Override
+	protected void openingSQLFile( URL sqlFile )
+	{
+		info( "Opening file '" + sqlFile + "'" );
+	}
+
+	@Override
+	protected void openedPatchFile( PatchFile patchFile )
 	{
 		info( "    Encoding is '" + patchFile.getEncoding() + "'" );
+	}
+
+	@Override
+	protected void openedSQLFile( SQLFile sqlFile )
+	{
+		info( "    Encoding is '" + sqlFile.getEncoding() + "'" );
 	}
 
 	@Override
@@ -163,7 +182,13 @@ public class Progress extends ProgressListener
 	}
 
 	@Override
-	protected void patchingFinished()
+	protected void sqlExecutionComplete()
+	{
+		info( "Execution complete." );
+	}
+
+	@Override
+	protected void upgradeComplete()
 	{
 		info( "The database is upgraded." );
 	}

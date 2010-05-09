@@ -181,7 +181,9 @@
 			<rule pattern="com.mindprod.**" result="solidbase.@0" />
 			<keep pattern="solidbase.Main" />
 			<keep pattern="solidbase.ant.UpgradeTask" />
+			<keep pattern="solidbase.ant.SQLTask" />
 			<keep pattern="solidbase.maven.UpgradeMojo" />
+			<keep pattern="solidbase.maven.SQLMojo" />
 			<manifest>
 				<attribute name="Implementation-Title" value="SolidBase" />
 				<attribute name="Implementation-Version" value="${release.number}.${svn.revision}" />
@@ -361,6 +363,7 @@
 			<jvmarg value="-Dtest.repo.url=file:///${build.home}/remote" /> <!-- Used in the pom.xml -->
 			<arg value="--batch-mode" />
 			<arg value="solidbase:upgrade" />
+			<arg value="solidbase:sql" />
 		</java>
 	</target>
 	

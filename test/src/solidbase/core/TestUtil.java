@@ -23,13 +23,13 @@ import java.sql.SQLException;
 
 import org.testng.Assert;
 
-import solidbase.core.Patcher;
+import solidbase.core.PatchProcessor;
 import solidbase.core.SystemException;
 
 
 public class TestUtil
 {
-	static public void shutdownHSQLDB( Patcher patcher ) throws SQLException
+	static public void shutdownHSQLDB( PatchProcessor patcher ) throws SQLException
 	{
 		Connection connection = patcher.currentDatabase.getConnection( "sa" );
 		try
@@ -62,7 +62,7 @@ public class TestUtil
 		Assert.assertEquals( count, expected );
 	}
 
-	static public void verifyVersion( Patcher patcher, String version, String target, int statements, String spec ) throws SQLException
+	static public void verifyVersion( PatchProcessor patcher, String version, String target, int statements, String spec ) throws SQLException
 	{
 		String sql = "SELECT * FROM DBVERSION";
 		Connection connection = patcher.currentDatabase.getConnection();
@@ -80,17 +80,17 @@ public class TestUtil
 		connection.commit();
 	}
 
-	public static void verifyHistoryIncludes( Patcher patcher, String version )
+	public static void verifyHistoryIncludes( PatchProcessor patcher, String version )
 	{
 		Assert.assertTrue( patcher.dbVersion.logContains( version ), "Expecting version " + version + " to be part of the history" );
 	}
 
-	public static void verifyHistoryNotIncludes( Patcher patcher, String version )
+	public static void verifyHistoryNotIncludes( PatchProcessor patcher, String version )
 	{
 		Assert.assertFalse( patcher.dbVersion.logContains( version ), "Not expecting version " + version + " to be part of the history" );
 	}
 
-	static public void assertPatchFileClosed( Patcher patcher )
+	static public void assertPatchFileClosed( PatchProcessor patcher )
 	{
 		Assert.assertNull( patcher.patchFile.file );
 	}

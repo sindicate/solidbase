@@ -39,7 +39,7 @@ public class ProgressListener
 	/**
 	 * An upgrade file is about to be opened.
 	 * 
-	 * @param patchFile The upgrade file that is about the open.
+	 * @param patchFile The upgrade file that is about to be opened.
 	 */
 	protected void openingPatchFile( File patchFile )
 	{
@@ -49,9 +49,29 @@ public class ProgressListener
 	/**
 	 * An upgrade file is about to be opened.
 	 * 
-	 * @param patchFile The upgrade file that is about the open.
+	 * @param patchFile The upgrade file that is about to be opened.
 	 */
 	protected void openingPatchFile( URL patchFile )
+	{
+		// could be implemented in subclass
+	}
+
+	/**
+	 * An sql file is about to be opened.
+	 * 
+	 * @param sqlFile The sql file that is about to be opened.
+	 */
+	protected void openingSQLFile( File sqlFile )
+	{
+		// could be implemented in subclass
+	}
+
+	/**
+	 * An sql file is about to be opened.
+	 * 
+	 * @param sqlFile The sql file that is about to be opened.
+	 */
+	protected void openingSQLFile( URL sqlFile )
 	{
 		// could be implemented in subclass
 	}
@@ -61,7 +81,17 @@ public class ProgressListener
 	 * 
 	 * @param patchFile The upgrade file that is opened.
 	 */
-	public void openedPatchFile( PatchFile patchFile )
+	protected void openedPatchFile( PatchFile patchFile )
+	{
+		// could be implemented in subclass
+	}
+
+	/**
+	 * An sql file is opened.
+	 * 
+	 * @param sqlFile The sql file that is opened.
+	 */
+	protected void openedSQLFile( SQLFile sqlFile )
 	{
 		// could be implemented in subclass
 	}
@@ -98,7 +128,7 @@ public class ProgressListener
 	}
 
 	/**
-	 * A command is succesfully executed.
+	 * A command is successfully executed.
 	 */
 	protected void executed()
 	{
@@ -116,7 +146,15 @@ public class ProgressListener
 	/**
 	 * The upgrade is completed.
 	 */
-	protected void patchingFinished()
+	protected void upgradeComplete()
+	{
+		// could be implemented in subclass
+	}
+
+	/**
+	 * The sql execution is completed.
+	 */
+	protected void sqlExecutionComplete()
 	{
 		// could be implemented in subclass
 	}

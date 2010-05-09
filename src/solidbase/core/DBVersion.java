@@ -127,6 +127,8 @@ public class DBVersion
 	// TODO We only need a debug listener
 	protected DBVersion( Database database, ProgressListener callBack, String versionTableName, String logTableName )
 	{
+		Assert.notNull( database );
+
 		if( versionTableName == null )
 			versionTableName = "DBVERSION";
 		if( logTableName == null )

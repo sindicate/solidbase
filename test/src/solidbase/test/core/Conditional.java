@@ -22,7 +22,7 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import solidbase.core.Database;
-import solidbase.core.Patcher;
+import solidbase.core.PatchProcessor;
 import solidbase.core.TestUtil;
 
 public class Conditional
@@ -31,7 +31,7 @@ public class Conditional
 	public void testIfHistoryContains1() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testBasic", "sa", null, progress ) );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testBasic", "sa", null, progress ) );
 
 		patcher.init( "testpatch-conditional1.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
@@ -47,7 +47,7 @@ public class Conditional
 	public void testIfHistoryContains2() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testBasic", "sa", null, progress ) );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testBasic", "sa", null, progress ) );
 
 		patcher.init( "testpatch-conditional2.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );

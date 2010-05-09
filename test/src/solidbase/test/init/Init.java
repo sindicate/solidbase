@@ -22,7 +22,7 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import solidbase.core.Database;
-import solidbase.core.Patcher;
+import solidbase.core.PatchProcessor;
 import solidbase.core.TestUtil;
 import solidbase.test.core.TestProgressListener;
 
@@ -32,7 +32,7 @@ public class Init
 	public void testInit1() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init1", "sa", null, progress ) );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init1", "sa", null, progress ) );
 
 		patcher.init( "testpatch1.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
@@ -48,7 +48,7 @@ public class Init
 	public void testInit2() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init1", "sa", null, progress ) );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init1", "sa", null, progress ) );
 
 		patcher.init( "testpatch-version-table-upgrade-2.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
@@ -64,7 +64,7 @@ public class Init
 	public void testInit3() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init3", "sa", null, progress ) );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init3", "sa", null, progress ) );
 
 		patcher.init( "testpatch-version-table-upgrade-2.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );

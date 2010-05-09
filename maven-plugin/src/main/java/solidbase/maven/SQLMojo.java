@@ -20,32 +20,21 @@ import org.apache.maven.plugin.MojoFailureException;
 import solidbase.Version;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
-import solidbase.core.PatchProcessor;
 import solidbase.core.SQLExecutionException;
+import solidbase.core.SQLProcessor;
 
 
 /**
  * The Maven plugin for SolidBase.
  * 
- * @author Ruud de Jong
  * @author René de Bloois
  */
-public class UpgradeMojo extends DBMojo
+public class SQLMojo extends DBMojo
 {
 	/**
 	 * File containing the upgrade.
 	 */
-	protected String upgradefile;
-
-	/**
-	 * Target to upgrade the database to.
-	 */
-	protected String target;
-
-	/**
-	 * Allow downgrades to reach the target.
-	 */
-	private boolean downgradeallowed;
+	protected String sqlfile;
 
 	public void execute() throws MojoFailureException
 	{
@@ -60,27 +49,25 @@ public class UpgradeMojo extends DBMojo
 
 		try
 		{
-			PatchProcessor patcher = new PatchProcessor( progress, new Database( this.driver, this.url, this.username, this.password == null ? "" : this.password, progress ) );
+			SQLProcessor processor = new SQLProcessor( progress, new Database( this.driver, this.url, this.username, this.password == null ? "" : this.password, progress ) );
 
 			if( this.connections != null )
 				for( Secondary secondary : this.connections )
-					patcher.addDatabase( secondary.getName(),
+					processor.addDatabase( secondary.getName(),
 							new Database( secondary.getDriver() == null ? this.driver : secondary.getDriver(),
 									secondary.getUrl() == null ? this.url : secondary.getUrl(),
 											secondary.getUsername(), secondary.getPassword() == null ? "" : secondary.getPassword(), progress ) );
 
-			patcher.init( this.project.getBasedir(), this.upgradefile );
+			processor.init( this.project.getBasedir(), this.sqlfile );
 			try
 			{
 				progress.info( "Connecting to database..." );
-				progress.info( patcher.getVersionStatement() );
-				patcher.patch( this.target, this.downgradeallowed ); // TODO Print this target
+				processor.execute();
 				progress.info( "" );
-				progress.info( patcher.getVersionStatement() );
 			}
 			finally
 			{
-				patcher.end();
+				processor.end();
 			}
 		}
 		catch( SQLExecutionException e )

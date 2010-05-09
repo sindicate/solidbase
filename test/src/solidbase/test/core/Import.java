@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 
 import solidbase.core.Database;
 import solidbase.core.TestUtil;
-import solidbase.core.Patcher;
+import solidbase.core.PatchProcessor;
 
 public class Import
 {
@@ -32,7 +32,7 @@ public class Import
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Database database = new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:import3", "sa", null, progress );
-		Patcher patcher = new Patcher( progress, database );
+		PatchProcessor patcher = new PatchProcessor( progress, database );
 
 		patcher.init( "testpatch-import1.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
@@ -40,7 +40,7 @@ public class Import
 
 		patcher.patch( "1.0.2" );
 
-		TestUtil.verifyVersion( patcher, "1.0.2", null, 5, null );
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 6, null );
 		TestUtil.assertRecordCount( database, "TEMP", 7 );
 
 		patcher.end();

@@ -101,6 +101,80 @@
 				<url implementation="java.lang.String">${url}</url>
 			</configuration>
 		</mojo>
+		<mojo>
+			<goal>sql</goal>
+			<description></description>
+			<requiresDirectInvocation>false</requiresDirectInvocation>
+			<requiresProject>true</requiresProject>
+			<requiresReports>false</requiresReports>
+			<aggregator>false</aggregator>
+			<requiresOnline>false</requiresOnline>
+			<inheritedByDefault>true</inheritedByDefault>
+			<!-- <phase>process-resources</phase> -->
+			<implementation>solidbase.maven.SQLMojo</implementation>
+			<language>java</language>
+			<instantiationStrategy>per-lookup</instantiationStrategy>
+			<executionStrategy>once-per-session</executionStrategy>
+			<parameters>
+				<parameter>
+					<name>driver</name>
+					<type>java.lang.String</type>
+					<required>true</required>
+					<editable>true</editable>
+					<description>Database driver class name.</description>
+				</parameter>
+				<parameter>
+					<name>password</name>
+					<type>java.lang.String</type>
+					<required>false</required>
+					<editable>true</editable>
+					<description>Password of the user to connect to the database.</description>
+				</parameter>
+				<parameter>
+					<name>project</name>
+					<type>org.apache.maven.project.MavenProject</type>
+					<required>true</required>
+					<editable>false</editable>
+					<description>The Maven Project</description>
+				</parameter>
+				<parameter>
+					<name>sqlfile</name>
+					<type>java.lang.String</type>
+					<required>true</required>
+					<editable>true</editable>
+					<description>File containing the sql.</description>
+				</parameter>
+				<parameter>
+					<name>url</name>
+					<type>java.lang.String</type>
+					<required>true</required>
+					<editable>true</editable>
+					<description>Url of the database.</description>
+				</parameter>
+				<parameter>
+					<name>username</name>
+					<type>java.lang.String</type>
+					<required>true</required>
+					<editable>true</editable>
+					<description>User to connect to the database.</description>
+				</parameter>
+				<parameter>
+					<name>connections</name>
+					<type>java.lang.Secondary[]</type>
+					<required>false</required>
+					<editable>true</editable>
+					<description>Secondary connections.</description>
+				</parameter>
+			</parameters>
+			<configuration>
+				<project implementation="org.apache.maven.project.MavenProject">${project}</project>
+				<sqlfile implementation="java.lang.String">${upgradefile}</sqlfile>
+				<driver implementation="java.lang.String">${driver}</driver>
+				<username implementation="java.lang.String">${username}</username>
+				<password implementation="java.lang.String">${password}</password>
+				<url implementation="java.lang.String">${url}</url>
+			</configuration>
+		</mojo>
 	</mojos>
 
 </plugin>
