@@ -48,16 +48,8 @@ public class ImportCSVListener extends CommandListener
 {
 	static private final Pattern importPattern = Pattern.compile( "\\s*IMPORT\\s+CSV\\s+(SEPERATED BY (\\S|TAB)\\s+)?INTO\\s+([^\\s]+)(\\s+AS\\s+PLBLOCK)?(\\s+AS\\s+VALUESLIST)?\\n(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
-	/**
-	 * Constructor.
-	 */
-	public ImportCSVListener()
-	{
-		super();
-	}
-
 	@Override
-	protected boolean execute( Database database, Command command ) throws SQLException
+	protected boolean execute( CommandProcessor processor, Command command ) throws SQLException
 	{
 		if( command.isTransient() )
 			return false;
@@ -82,13 +74,13 @@ public class ImportCSVListener extends CommandListener
 		String asValues = matcher.group( 5 );
 		String data = matcher.group( 6 );
 
-		Connection connection = database.getConnection();
-		Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
+		Connection connection = processor.getCurrentDatabase().getConnection();
 		PreparedStatement statement = null;
 
 		boolean commit = false;
 		try
 		{
+			Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
 			CSVReader reader = new CSVReader( new StringReader( data ), seperator, '"', "#", true, false, true );
 			try
 			{

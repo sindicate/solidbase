@@ -29,14 +29,6 @@ import java.net.URL;
 public class ProgressListener
 {
 	/**
-	 * Constructor.
-	 */
-	public ProgressListener()
-	{
-		super();
-	}
-
-	/**
 	 * An upgrade file is about to be opened.
 	 * 
 	 * @param patchFile The upgrade file that is about to be opened.
@@ -187,6 +179,16 @@ public class ProgressListener
 	 * @param message The debug message.
 	 */
 	protected void debug( String message )
+	{
+		// could be implemented in subclass
+	}
+
+	/**
+	 * An info message is produced.
+	 * 
+	 * @param message The info message.
+	 */
+	public void print( String message )
 	{
 		// could be implemented in subclass
 	}
