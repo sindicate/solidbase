@@ -131,6 +131,10 @@
 		<javac source="${target-jre}" target="${target-jre}" srcdir="test/src" destdir="${build.home}/testclasses" debug="true" deprecation="true" optimize="true">
 			<classpath refid="compiletest.classpath" />
 		</javac>
+		<sync todir="${build.home}/testclasses">
+			<fileset dir="test/src" excludes="**/*.java" />
+			<preserveInTarget includes="**/*.class" />
+		</sync>
 		<sync todir="${build.home}/test">
 			<fileset dir="test" excludes="src/**,lib/**" />
 		</sync>
@@ -179,11 +183,7 @@
 			<zipfileset dir="." includes="LICENSE.txt,NOTICE.txt,CHANGELOG.TXT" prefix="META-INF" />
 			<rule pattern="org.apache.commons.**" result="solidbase.@0" />
 			<rule pattern="com.mindprod.**" result="solidbase.@0" />
-			<keep pattern="solidbase.Main" />
-			<keep pattern="solidbase.ant.UpgradeTask" />
-			<keep pattern="solidbase.ant.SQLTask" />
-			<keep pattern="solidbase.maven.UpgradeMojo" />
-			<keep pattern="solidbase.maven.SQLMojo" />
+			<keep pattern="solidbase.**" />
 			<manifest>
 				<attribute name="Implementation-Title" value="SolidBase" />
 				<attribute name="Implementation-Version" value="${release.number}.${svn.revision}" />
