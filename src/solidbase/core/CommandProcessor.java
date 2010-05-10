@@ -19,7 +19,6 @@ package solidbase.core;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -28,6 +27,8 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import solidbase.core.plugins.PluginManager;
 
 
 /**
@@ -110,12 +111,8 @@ public class CommandProcessor
 	public CommandProcessor( ProgressListener listener )
 	{
 		this.progress = listener;
-
 		this.databases = new HashMap< String, Database >();
-
-		this.listeners = new ArrayList();
-		this.listeners.add( new AssertCommandExecuter() );
-		this.listeners.add( new ImportCSVListener() );
+		this.listeners = PluginManager.getListeners();
 
 		reset();
 	}
