@@ -27,11 +27,16 @@ import solidbase.core.SQLFile;
 
 public class TestProgressListener extends ProgressListener
 {
-
 	@Override
 	protected void debug( String message )
 	{
 		System.out.println( "DEBUG: " + message );
+	}
+
+	@Override
+	public void print( String message )
+	{
+		System.out.println( message );
 	}
 
 	@Override

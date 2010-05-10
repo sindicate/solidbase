@@ -204,4 +204,11 @@ public class Progress extends ProgressListener
 	{
 		verbose( "DEBUG: " + message );
 	}
+
+	@Override
+	public void print( String message )
+	{
+		flush();
+		this.buffer = new StringBuilder( "Initializing" );
+	}
 }

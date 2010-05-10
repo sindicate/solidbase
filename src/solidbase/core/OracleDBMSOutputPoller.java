@@ -49,7 +49,7 @@ public class OracleDBMSOutputPoller extends CommandListener
 	}
 
 	@Override
-	protected boolean execute( Database database, Command command ) throws SQLException
+	protected boolean execute( CommandProcessor processor, Command command ) throws SQLException
 	{
 		if( command.isPersistent() )
 			return false;
@@ -57,7 +57,7 @@ public class OracleDBMSOutputPoller extends CommandListener
 		Matcher matcher = enablePattern.matcher( command.getCommand() );
 		if( matcher.matches() )
 		{
-			Connection connection = database.getConnection();
+			Connection connection = processor.getCurrentDatabase().getConnection();
 
 			CallableStatement call = connection.prepareCall( "begin dbms_output.enable; end;" );
 			try
@@ -78,7 +78,7 @@ public class OracleDBMSOutputPoller extends CommandListener
 		matcher = disablePattern.matcher( command.getCommand() );
 		if( matcher.matches() )
 		{
-			Connection connection = database.getConnection();
+			Connection connection = processor.getCurrentDatabase().getConnection();
 			CallableStatement call = connection.prepareCall( "begin dbms_output.disable; end;" );
 			try
 			{

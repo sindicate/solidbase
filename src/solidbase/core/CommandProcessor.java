@@ -194,7 +194,7 @@ public class CommandProcessor
 		for( Iterator iter = this.listeners.iterator(); iter.hasNext(); )
 		{
 			CommandListener listener = (CommandListener)iter.next();
-			if( listener.execute( this.currentDatabase, command ) )
+			if( listener.execute( this, command ) )
 				return true;
 		}
 		return false;
@@ -379,6 +379,16 @@ public class CommandProcessor
 
 		if( name.equals( "default" ) )
 			setConnection( database ); // Also resets the current user for the connection
+	}
+
+	/**
+	 * Returns the current database.
+	 * 
+	 * @return The current database.
+	 */
+	public Database getCurrentDatabase()
+	{
+		return this.currentDatabase;
 	}
 
 	/**

@@ -172,7 +172,7 @@ public class Database
 	 * @return The connection for the current user.
 	 * @see #getConnection(String)
 	 */
-	protected Connection getConnection()
+	public Connection getConnection()
 	{
 		Assert.notEmpty( this.currentUser, "Current user must not be empty" );
 		return getConnection( this.currentUser );

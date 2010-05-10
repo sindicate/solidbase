@@ -152,4 +152,11 @@ public class Progress extends ProgressListener implements ConfigListener
 		if( this.verbose )
 			this.console.println( "DEBUG: " + message );
 	}
+
+	@Override
+	public void print( String message )
+	{
+		this.console.carriageReturn();
+		this.console.print( message );
+	}
 }

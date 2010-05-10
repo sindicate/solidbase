@@ -112,4 +112,35 @@ public class ThroughConsoleTests
 				"Current database version is \"1.0.2\".\n"
 		);
 	}
+
+	@Test(dependsOnMethods="testConsole2", groups="new")
+	public void testPrint1() throws Exception
+	{
+		MockConsole console = new MockConsole();
+		Main.console = console;
+
+		Main.pass2( "-verbose", "-config", "solidbase2.properties", "-upgradefile", "testpatch-print1.sql", "-password", "" );
+
+		String output = TestUtil.generalizeOutput( console.getOutput() );
+
+		//		System.out.println( "[[[" + output + "]]]" );
+
+		Assert.assertEquals( output,
+				"Reading property file file:/.../solidbase-default.properties\n" +
+				"Reading property file X:\\...\\solidbase2.properties\n" +
+				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
+				"\n" +
+				"Opening file 'testpatch-print1.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
+				"Connecting to database...\n" +
+				"DEBUG: version=1.0.2, target=null, statements=2\n" +
+				"Current database version is \"1.0.2\".\n" +
+				"Upgrading \"1.0.2\" to \"1.0.3\"\n" +
+				"Inserted 1 users.\n" +
+				"DEBUG: version=1.0.2, target=1.0.3, statements=1\n" +
+				"The database is upgraded.\n" +
+				"\n" +
+				"Current database version is \"1.0.3\".\n"
+		);
+	}
 }

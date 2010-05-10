@@ -52,7 +52,7 @@ public class AssertCommandExecuter extends CommandListener
 	}
 
 	@Override
-	protected boolean execute( Database database, Command command ) throws SQLException
+	protected boolean execute( CommandProcessor processor, Command command ) throws SQLException
 	{
 		if( command.isTransient() )
 			return false;
@@ -64,7 +64,7 @@ public class AssertCommandExecuter extends CommandListener
 			String message = matcher.group( 2 );
 			String select  = matcher.group( 3 ).trim();
 			Assert.isTrue( select.substring( 0, 7 ).equalsIgnoreCase( "SELECT " ), "Check should be a SELECT" );
-			Connection connection = database.getConnection();
+			Connection connection = processor.getCurrentDatabase().getConnection();
 			Statement statement = connection.createStatement();
 			try
 			{
