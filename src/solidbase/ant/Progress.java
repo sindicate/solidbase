@@ -217,6 +217,6 @@ public class Progress extends ProgressListener
 	public void print( String message )
 	{
 		flush();
-		this.buffer = new StringBuilder( "Initializing" );
+		this.buffer = new StringBuilder( message );
 	}
 }
