@@ -284,14 +284,14 @@
 
 	<target name="maven:deploy" depends="build" description="Deploys to the remote repo">
 		<maven:deploy file="${dist.home}/solidbase.jar">
-			<pom file="pom.xml" />
+			<pom file="deploy-pom.xml" />
 		</maven:deploy>
 	</target>
 	
 	
 	<target name="maven:install" depends="build" description="Deploys to the local repo">
 		<maven:install file="${dist.home}/solidbase.jar">
-			<pom file="pom.xml" />
+			<pom file="deploy-pom.xml" />
 		</maven:install>
 	</target>
 	
@@ -349,7 +349,7 @@
 		<delete dir="${build.home}/mavenuser/.m2/repository/solidbase" /> <!-- Remove solidbase from the local repo -->
 		<delete dir="${build.home}/remote" /> <!-- Delete the remote repo -->
 		<maven:deploy file="${dist.home}/solidbase.jar"> <!-- Deploy to the remote repo -->
-			<pom file="pom.xml" />
+			<pom file="deploy-pom.xml" />
 			<remoterepository url="file:///${build.home}/remote" />
 			<localrepository path="${build.home}/mavenuser/.m2/repository" />
 		</maven:deploy>
