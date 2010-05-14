@@ -16,6 +16,7 @@
 
 package solidbase.test.ant;
 
+import java.io.File;
 import java.util.Iterator;
 import org.apache.tools.ant.BuildEvent;
 import org.apache.tools.ant.BuildFileTest;
@@ -74,6 +75,7 @@ public class SqlTaskTests extends BuildFileTest
 	public void testSqlTask()
 	{
 		configureProject( "test-sqltask.xml" );
+		this.project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
 		executeTarget( "ant-test" );
 		String log = TestUtil.generalizeOutput( getLog() );
 		Assert.assertEquals( log, "SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +

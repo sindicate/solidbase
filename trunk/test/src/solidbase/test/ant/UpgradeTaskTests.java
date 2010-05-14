@@ -16,6 +16,7 @@
 
 package solidbase.test.ant;
 
+import java.io.File;
 import java.util.Iterator;
 import org.apache.tools.ant.BuildEvent;
 import org.apache.tools.ant.BuildFileTest;
@@ -74,6 +75,7 @@ public class UpgradeTaskTests extends BuildFileTest
 	public void testUpgradeTask()
 	{
 		configureProject( "test-upgradetask.xml" );
+		this.project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
 		executeTarget( "ant-test" );
 		String log = TestUtil.generalizeOutput( getLog() );
 		Assert.assertEquals( log, "SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
@@ -108,6 +110,7 @@ public class UpgradeTaskTests extends BuildFileTest
 	public void testUpgradeTaskBaseDir()
 	{
 		configureProject( "test-upgradetask.xml" );
+		this.project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
 		executeTarget( "ant-basedir-test" );
 		String log = TestUtil.generalizeOutput( getLog() );
 		Assert.assertEquals( log, "SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
