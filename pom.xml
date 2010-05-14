@@ -49,6 +49,13 @@
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>src</directory>
+				<excludes><exclude>**/*.java</exclude></excludes>
+			</resource>
+		</resources>
+		<testSourceDirectory>test/src</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -59,25 +66,17 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<artifactId>maven-resources-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>copy-mindprod-csv</id>
-						<phase>validate</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${basedir}/target/extra-resources</outputDirectory>
-							<resources>          
-								<resource>
-									<directory>src/non-packaged-resources</directory>
-									<filtering>true</filtering>
-								</resource>
-							</resources>              
-						</configuration>            
-					</execution>
-				</executions>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<includes><include>**/*.java</include></includes>
+					<!-- verbose>3</verbose -->
+					<argLine>-Xmx256M -javaagent:${settings.localRepository}/mockit/jmockit/0.998/jmockit-0.998.jar</argLine>
+					<!-- useSystemClassLoader>true</useSystemClassLoader -->
+					<!-- forkMode>always</forkMode -->
+					<!-- baseDir>test</baseDir -->
+					<workingDirectory>test</workingDirectory>
+				</configuration>
 			</plugin>
 		</plugins>
     </build>
@@ -104,7 +103,7 @@
 		<dependency>
 			<groupId>org.apache.ant</groupId>
 			<artifactId>ant</artifactId>
-			<version>1.7.1</version>
+			<version>1.8.1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -119,6 +118,41 @@
 			<version>1.0</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>5.12.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.ant</groupId>
+			<artifactId>ant-testutil</artifactId>
+			<version>1.8.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>mockit</groupId>
+			<artifactId>jmockit</artifactId>
+			<version>0.998</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>1.8.0.10</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+			<version>10.5.3.0_1</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>
@@ -130,6 +164,11 @@
 			<releases>
 				<checksumPolicy>ignore</checksumPolicy>
 			</releases>
+		</repository>
+		<repository>
+			<id>java.net</id>
+			<name>Java.net</name>
+			<url>http://download.java.net/maven/2/</url>
 		</repository>
 	</repositories>
 
