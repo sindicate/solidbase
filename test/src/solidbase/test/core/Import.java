@@ -40,7 +40,7 @@ public class Import
 
 		patcher.patch( "1.0.2" );
 
-		TestUtil.verifyVersion( patcher, "1.0.2", null, 6, null );
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 9, null );
 		TestUtil.assertRecordCount( database, "TEMP", 7 );
 
 		patcher.end();
