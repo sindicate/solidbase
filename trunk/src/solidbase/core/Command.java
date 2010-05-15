@@ -49,17 +49,17 @@ public class Command
 	/**
 	 * The text of the command.
 	 */
-	protected String command;
+	private String command;
 
 	/**
 	 * Is the command transient or not?
 	 */
-	protected boolean isTransient;
+	private boolean isTransient;
 
 	/**
 	 * The line number in the upgrade file where the command is found.
 	 */
-	protected int lineNumber;
+	private int lineNumber;
 
 	/**
 	 * Instantiates a command.
