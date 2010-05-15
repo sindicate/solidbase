@@ -641,7 +641,7 @@ public class DBVersion
 	// TODO Make this faster with an IN.
 	protected void downgradeHistory( Collection< String > versions )
 	{
-		Assert.isTrue( versions.size() > 0 );
+		Assert.notEmpty( versions );
 		try
 		{
 			Connection connection = this.database.getConnection();

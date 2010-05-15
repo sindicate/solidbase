@@ -325,7 +325,7 @@ public class Main
 				if( t.getCause() != null )
 				{
 					t = t.getCause();
-					Assert.isFalse( t instanceof SystemException );
+					Assert.isInstanceOf( t, SystemException.class );
 				}
 
 			if( t instanceof FatalException )

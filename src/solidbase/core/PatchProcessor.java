@@ -288,7 +288,7 @@ public class PatchProcessor extends CommandProcessor
 		if( patches == null )
 			return;
 
-		Assert.isTrue( patches.size() > 0, "Not expecting an empty list" );
+		Assert.notEmpty( patches );
 
 		// INIT blocks get special treatment.
 		for( Iterator iter = patches.iterator(); iter.hasNext(); )
@@ -397,7 +397,7 @@ public class PatchProcessor extends CommandProcessor
 	 */
 	protected void patch( Patch patch ) throws SQLExecutionException
 	{
-		Assert.notNull( patch, "patch == null" );
+		Assert.notNull( patch );
 
 		this.progress.patchStarting( patch );
 
@@ -513,7 +513,7 @@ public class PatchProcessor extends CommandProcessor
 
 	private void upgrade( Command command ) throws SQLException
 	{
-		Assert.isFalse( !this.patch.isInit(), "UPGRADE only allowed in INIT blocks" );
+		Assert.isTrue( this.patch.isInit(), "UPGRADE only allowed in INIT blocks" );
 		Assert.isTrue( this.patch.getSource().equals( "1.0" ) && this.patch.getTarget().equals( "1.1" ), "UPGRADE only possible from spec 1.0 to 1.1" );
 
 		int pos = command.getLineNumber();
