@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.core;
+package solidbase.core.plugins;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -24,6 +24,12 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import solidbase.core.Assert;
+import solidbase.core.Command;
+import solidbase.core.CommandListener;
+import solidbase.core.CommandProcessor;
+import solidbase.core.SystemException;
 
 import com.mindprod.csv.CSVReader;
 

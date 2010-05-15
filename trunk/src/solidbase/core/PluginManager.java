@@ -1,4 +1,4 @@
-package solidbase.core.plugins;
+package solidbase.core;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,9 +10,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-import solidbase.core.Assert;
-import solidbase.core.CommandListener;
-import solidbase.core.SystemException;
 
 
 /**
