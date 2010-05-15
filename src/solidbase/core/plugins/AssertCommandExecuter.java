@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.core;
+package solidbase.core.plugins;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -22,6 +22,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import solidbase.core.Assert;
+import solidbase.core.Command;
+import solidbase.core.CommandListener;
+import solidbase.core.CommandProcessor;
 
 
 /**
