@@ -83,7 +83,6 @@ public class Basic
 		}
 		catch( SQLExecutionException e )
 		{
-			System.out.println( e.getMessage() );
 			Assert.assertTrue( e.getMessage().contains( "Unexpected token: / in statement [/]" ) );
 		}
 

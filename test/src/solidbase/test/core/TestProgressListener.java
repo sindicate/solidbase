@@ -23,6 +23,7 @@ import solidbase.core.Command;
 import solidbase.core.Patch;
 import solidbase.core.PatchFile;
 import solidbase.core.ProgressListener;
+import solidbase.core.SQLExecutionException;
 import solidbase.core.SQLFile;
 
 public class TestProgressListener extends ProgressListener
@@ -40,9 +41,9 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	protected void exception( Command command )
+	protected void exception( SQLExecutionException exception )
 	{
-		System.out.println( "EXCEPTION: " + command );
+		System.out.println( "EXCEPTION: " + exception );
 	}
 
 	@Override

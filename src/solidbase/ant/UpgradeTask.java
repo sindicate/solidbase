@@ -22,7 +22,6 @@ import solidbase.Version;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
 import solidbase.core.PatchProcessor;
-import solidbase.core.SQLExecutionException;
 
 
 /**
@@ -200,10 +199,6 @@ public class UpgradeTask extends DBTask
 			{
 				patcher.end();
 			}
-		}
-		catch( SQLExecutionException e )
-		{
-			throw new BuildException( e.getMessage() );
 		}
 		catch( FatalException e )
 		{

@@ -21,7 +21,6 @@ import org.apache.tools.ant.Project;
 import solidbase.Version;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
-import solidbase.core.SQLExecutionException;
 import solidbase.core.SQLProcessor;
 
 
@@ -104,10 +103,6 @@ public class SQLTask extends DBTask
 			{
 				executer.end();
 			}
-		}
-		catch( SQLExecutionException e )
-		{
-			throw new BuildException( e.getMessage() );
 		}
 		catch( FatalException e )
 		{

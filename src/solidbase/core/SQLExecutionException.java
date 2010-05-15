@@ -17,38 +17,64 @@
 package solidbase.core;
 
 import java.sql.SQLException;
-import java.util.Iterator;
 
 
 /**
- * This subclass of {@link SQLException} combines an SQLException together with the command that caused the exception.
+ * An {@link SQLException} has occurred during execution of a {@link Command}. As a subclass of {@link FatalException}
+ * the message of this exception will be presented to the user, not the stack trace.
  * 
  * @author René M. de Bloois
  */
-public class SQLExecutionException extends SQLException
+public class SQLExecutionException extends FatalException
 {
 	/**
 	 * The command that caused the {@link SQLException}.
 	 */
-	protected Command command;
+	private Command command;
 
 	/**
 	 * The {@link SQLException}.
 	 */
-	protected SQLException sqlException;
-
+	private SQLException sqlException;
 
 	/**
 	 * Constructor.
 	 * 
 	 * @param command The command that caused the {@link SQLException}.
-	 * @param e The {@link SQLException}.
+	 * @param sqlException The {@link SQLException}.
 	 */
-	public SQLExecutionException( Command command, SQLException e )
+	public SQLExecutionException( Command command, SQLException sqlException )
 	{
-		super( e.getCause() );
+		super( null );
+
+		Assert.notNull( command );
+		Assert.notNull( sqlException );
+
 		this.command = command;
-		this.sqlException = e;
+		this.sqlException = sqlException;
+	}
+
+	/**
+	 * Loops through all the exceptions contained in the {@link SQLException} and combines all messages and SQLStates into one String.
+	 * 
+	 * @return all messages and SQLStates from the {@link SQLException} combined into one string.
+	 * @see SQLException#getNextException()
+	 */
+	public String getSQLErrorMessages()
+	{
+		StringBuilder result = new StringBuilder();
+		SQLException e = this.sqlException;
+		while( true )
+		{
+			result.append( e.getSQLState() );
+			result.append( ": " );
+			result.append( e.getMessage() );
+			e = e.getNextException();
+			if( e == null )
+				break;
+			result.append( "\n" );
+		}
+		return result.toString();
 	}
 
 	@Override
@@ -57,36 +83,7 @@ public class SQLExecutionException extends SQLException
 		String command = this.command.getCommand();
 		if( command.length() > 1000 )
 			command = command.substring( 0, 1000 ) + "...";
-		return this.sqlException.getMessage() + "\nSQLState: " + this.sqlException.getSQLState() + "\nWhile executing line " + this.command.getLineNumber() + ": " + command;
-	}
 
-	@Override
-	public int getErrorCode()
-	{
-		return this.sqlException.getErrorCode();
-	}
-
-	@Override
-	public SQLException getNextException()
-	{
-		return this.sqlException.getNextException();
-	}
-
-	@Override
-	public String getSQLState()
-	{
-		return this.sqlException.getSQLState();
-	}
-
-	@Override
-	public Iterator< Throwable > iterator()
-	{
-		return this.sqlException.iterator();
-	}
-
-	@Override
-	public void setNextException( SQLException ex )
-	{
-		this.sqlException.setNextException( ex );
+		return getSQLErrorMessages() + "\nWhile executing line " + this.command.getLineNumber() + ": " + command;
 	}
 }

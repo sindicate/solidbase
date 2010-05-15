@@ -21,7 +21,6 @@ import solidbase.Version;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
 import solidbase.core.PatchProcessor;
-import solidbase.core.SQLExecutionException;
 
 
 /**
@@ -82,10 +81,6 @@ public class UpgradeMojo extends DBMojo
 			{
 				patcher.end();
 			}
-		}
-		catch( SQLExecutionException e )
-		{
-			throw new MojoFailureException( e.getMessage() );
 		}
 		catch( FatalException e )
 		{

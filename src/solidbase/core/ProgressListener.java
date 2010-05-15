@@ -110,11 +110,12 @@ public class ProgressListener
 	}
 
 	/**
-	 * An exception occured during execution of the given command.
+	 * An exception occurred during execution of the given command.
 	 * 
-	 * @param command The command during which an exception occured.
+	 * @param exception The exception that occurred.
 	 */
-	protected void exception( Command command )
+	// TODO Should this be FatalException?
+	protected void exception( SQLExecutionException exception )
 	{
 		// could be implemented in subclass
 	}

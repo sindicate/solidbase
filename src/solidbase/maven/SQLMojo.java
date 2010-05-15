@@ -20,7 +20,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import solidbase.Version;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
-import solidbase.core.SQLExecutionException;
 import solidbase.core.SQLProcessor;
 
 
@@ -69,10 +68,6 @@ public class SQLMojo extends DBMojo
 			{
 				processor.end();
 			}
-		}
-		catch( SQLExecutionException e )
-		{
-			throw new MojoFailureException( e.getMessage() );
 		}
 		catch( FatalException e )
 		{
