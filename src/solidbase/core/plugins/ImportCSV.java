@@ -79,17 +79,20 @@ public class ImportCSV extends CommandListener
 		if( !matcher.matches() )
 			throw new CommandFileException( "Syntax error processing IMPORT CSV command, should match " + syntax, command.getLineNumber() );
 
+		// Determine separator
 		String sep = matcher.group( 2 );
-		char seperator;
+		char separator;
 		if( sep == null )
-			seperator = ',';
+			separator = ',';
 		else if( sep.equalsIgnoreCase( "TAB" ) )
-			seperator = '\t';
+			separator = '\t';
 		else
 		{
 			Assert.isTrue( sep.length() == 1, "Seperator should be 1 character long", command.getLineNumber() );
-			seperator = sep.charAt( 0 );
+			separator = sep.charAt( 0 );
 		}
+
+		// Collect the rest
 		String tableName = matcher.group( 3 );
 		String as = matcher.group( 5 );
 		boolean asBlock = as != null && as.equalsIgnoreCase( "PLBLOCK" );
@@ -97,14 +100,16 @@ public class ImportCSV extends CommandListener
 		boolean prependLineNumber = matcher.group( 6 ) != null;
 		String data = matcher.group( 7 );
 
-		Connection connection = processor.getCurrentDatabase().getConnection();
-		PreparedStatement statement = null;
+		// Initialize csv reader
+		CSVReader reader = new CSVReader( new StringReader( data ), separator, '"', "#", true, false, true );
 
+		// Get connection and initialize commit flag
+		Connection connection = processor.getCurrentDatabase().getConnection();
+		Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
+		PreparedStatement statement = null;
 		boolean commit = false;
 		try
 		{
-			Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
-			CSVReader reader = new CSVReader( new StringReader( data ), seperator, '"', "#", true, false, true );
 			try
 			{
 				int lineNumber = command.getLineNumber();
