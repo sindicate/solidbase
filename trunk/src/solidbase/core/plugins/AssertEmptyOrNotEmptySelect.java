@@ -17,7 +17,6 @@
 package solidbase.core.plugins;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.regex.Matcher;
@@ -25,6 +24,7 @@ import java.util.regex.Pattern;
 
 import solidbase.core.Assert;
 import solidbase.core.Command;
+import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 
@@ -73,17 +73,9 @@ public class AssertEmptyOrNotEmptySelect extends CommandListener
 			Statement statement = connection.createStatement();
 			try
 			{
-				ResultSet result = statement.executeQuery( select );
-				if( mode.equalsIgnoreCase( "EXISTS" ) )
-				{
-					if( !result.next() )
-						Assert.fail( message );
-				}
-				else
-				{
-					if( result.next() )
-						Assert.fail( message );
-				}
+				boolean result = statement.executeQuery( select ).next();
+				if( mode.equalsIgnoreCase( "EXISTS" ) ? !result : result )
+					throw new CommandFileException( message, command.getLineNumber() );
 				// Resultset is closed when the statement is closed
 			}
 			finally

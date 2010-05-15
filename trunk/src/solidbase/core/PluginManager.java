@@ -48,7 +48,8 @@ public class PluginManager
 						{
 							Class pluginClass = Class.forName( line );
 							Object plugin = pluginClass.getConstructor().newInstance();
-							Assert.isTrue( plugin instanceof CommandListener, "Plugin class '" + line + "' should be extending " + CommandListener.class.getName() );
+							if( !( plugin instanceof CommandListener ) )
+								throw new FatalException( "Plugin class '" + line + "' should be extending " + CommandListener.class.getName() );
 							listeners.add( (CommandListener)plugin );
 						}
 

@@ -284,7 +284,8 @@ public class PatchFile extends SQLFile
 				Patch patch = (Patch)iter.next();
 				if( patch.getTarget().equals( target ) )
 				{
-					Assert.isTrue( result == null, "Duplicate upgrade block found", patch.getLineNumber() );
+					if( result != null )
+						throw new CommandFileException( "Duplicate upgrade block found", patch.getLineNumber() );
 					result = patch;
 				}
 			}
@@ -311,7 +312,8 @@ public class PatchFile extends SQLFile
 				Patch patch = (Patch)iter.next();
 				if( patch.getTarget().equals( target ) )
 				{
-					Assert.isTrue( result == null, "Duplicate init block found", patch.getLineNumber() );
+					if( result != null )
+						throw new CommandFileException( "Duplicate init block found", patch.getLineNumber() );
 					result = patch;
 				}
 			}
@@ -523,7 +525,7 @@ public class PatchFile extends SQLFile
 			for( Patch patch : patches )
 				if( targeting.equals( patch.getTarget() ) )
 					queue.push( patch );
-			Assert.isFalse( queue.isEmpty() );
+			Assert.notEmpty( queue );
 		}
 		else
 			queue.addAll( patches );
