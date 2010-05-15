@@ -113,7 +113,7 @@ public class ThroughConsoleTests
 		);
 	}
 
-	@Test(dependsOnMethods="testConsole2", groups="new")
+	@Test(dependsOnMethods="testConsole2")
 	public void testPrint1() throws Exception
 	{
 		MockConsole console = new MockConsole();

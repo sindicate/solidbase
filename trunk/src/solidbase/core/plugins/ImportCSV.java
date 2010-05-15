@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 
 import solidbase.core.Assert;
 import solidbase.core.Command;
+import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.SystemException;
@@ -52,7 +53,17 @@ import com.mindprod.csv.CSVReader;
 // TODO Make this more strict, like assert that the number of values stays the same in the CSV data
 public class ImportCSV extends CommandListener
 {
-	static private final Pattern importPattern = Pattern.compile( "\\s*IMPORT\\s+CSV\\s+(SEPERATED BY (\\S|TAB)\\s+)?INTO\\s+([^\\s]+)(\\s+AS\\s+PLBLOCK)?(\\s+AS\\s+VALUESLIST)?\\n(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern triggerPattern = Pattern.compile( "IMPORT\\s+CSV.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+
+	static private final Pattern importPattern = Pattern.compile(
+			"IMPORT\\s+CSV" +
+			"(\\s+SEPARATED\\s+BY\\s+(\\S|TAB))?" +
+			"\\s+INTO\\s+(\\S+)" +
+			"(\\s+AS\\s+(PLBLOCK|VALUESLIST))?" +
+			"(\\s+PREPENDING\\s+LINENUMBER)?" +
+			"\\s*\\n(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+
+	static private final String syntax = "IMPORT CSV [SEPARATED BY TAB|<char>] INTO <table> [AS PLBLOCK|VALUESLIST] [PREPENDING LINENUMBER]";
 
 	@Override
 	protected boolean execute( CommandProcessor processor, Command command ) throws SQLException
@@ -60,9 +71,13 @@ public class ImportCSV extends CommandListener
 		if( command.isTransient() )
 			return false;
 
-		Matcher matcher = importPattern.matcher( command.getCommand() );
+		Matcher matcher = triggerPattern.matcher( command.getCommand() );
 		if( !matcher.matches() )
 			return false;
+
+		matcher = importPattern.matcher( command.getCommand() );
+		if( !matcher.matches() )
+			throw new CommandFileException( "Syntax error processing IMPORT CSV command, should match " + syntax, command.getLineNumber() );
 
 		String sep = matcher.group( 2 );
 		char seperator;
@@ -76,9 +91,11 @@ public class ImportCSV extends CommandListener
 			seperator = sep.charAt( 0 );
 		}
 		String tableName = matcher.group( 3 );
-		String asBlock = matcher.group( 4 );
-		String asValues = matcher.group( 5 );
-		String data = matcher.group( 6 );
+		String as = matcher.group( 5 );
+		boolean asBlock = as != null && as.equalsIgnoreCase( "PLBLOCK" );
+		boolean asValues = as != null && as.equalsIgnoreCase( "VALUESLIST" );
+		boolean prependLineNumber = matcher.group( 6 ) != null;
+		String data = matcher.group( 7 );
 
 		Connection connection = processor.getCurrentDatabase().getConnection();
 		PreparedStatement statement = null;
@@ -90,6 +107,7 @@ public class ImportCSV extends CommandListener
 			CSVReader reader = new CSVReader( new StringReader( data ), seperator, '"', "#", true, false, true );
 			try
 			{
+				int lineNumber = command.getLineNumber();
 				String[] line;
 				try
 				{
@@ -99,15 +117,21 @@ public class ImportCSV extends CommandListener
 				{
 					line = null;
 				}
-				if( asBlock != null )
+				if( asBlock )
 				{
 					StringBuilder sql = new StringBuilder();
 					sql.append( "BEGIN\n" );
 					while( line != null )
 					{
+						lineNumber++;
 						sql.append( "INSERT INTO " );
 						sql.append( tableName );
 						sql.append( " VALUES (" );
+						if( prependLineNumber )
+						{
+							sql.append( lineNumber );
+							sql.append( ',' );
+						}
 						for( int i = 0; i < line.length; i++ )
 						{
 							if( i > 0 )
@@ -132,7 +156,7 @@ public class ImportCSV extends CommandListener
 					command.setCommand( s );
 					statement.executeUpdate();
 				}
-				else if( asValues != null )
+				else if( asValues )
 				{
 					StringBuilder sql = new StringBuilder();
 					sql.append( "INSERT INTO " );
@@ -141,9 +165,15 @@ public class ImportCSV extends CommandListener
 					boolean comma = false;
 					while( line != null )
 					{
+						lineNumber++;
 						if( comma )
 							sql.append( ',' );
 						sql.append( '(' );
+						if( prependLineNumber )
+						{
+							sql.append( lineNumber );
+							sql.append( ',' );
+						}
 						for( int i = 0; i < line.length; i++ )
 						{
 							if( i > 0 )
@@ -171,29 +201,34 @@ public class ImportCSV extends CommandListener
 				}
 				else
 				{
-					while( line != null )
+					if( line != null )
 					{
-						if( statement == null )
+						StringBuilder sql = new StringBuilder().append( "INSERT INTO " );
+						sql.append( tableName );
+						sql.append( " VALUES (?" );
+						if( prependLineNumber )
+							sql.append( ",?" );
+						for( int i = line.length; i > 1; i-- )
+							sql.append( ",?" );
+						sql.append( ')' );
+						statement = connection.prepareStatement( sql.toString() );
+						while( line != null )
 						{
-							StringBuilder sql = new StringBuilder().append( "INSERT INTO " );
-							sql.append( tableName );
-							sql.append( " VALUES (?" );
-							for( int i = line.length; i > 1; i-- )
-								sql.append( ",?" );
-							sql.append( ')' );
-							statement = connection.prepareStatement( sql.toString() );
-						}
-						int i = 0;
-						for( String field : line )
-							statement.setString( ++i, field );
-						statement.executeUpdate();
-						try
-						{
-							line = reader.getAllFieldsInLine();
-						}
-						catch( EOFException e )
-						{
-							line = null;
+							lineNumber++;
+							int i = 0;
+							if( prependLineNumber )
+								statement.setInt( ++i, lineNumber );
+							for( String field : line )
+								statement.setString( ++i, field );
+							statement.executeUpdate();
+							try
+							{
+								line = reader.getAllFieldsInLine();
+							}
+							catch( EOFException e )
+							{
+								line = null;
+							}
 						}
 					}
 				}

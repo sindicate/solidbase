@@ -40,7 +40,11 @@ public class Messages
 				"Upgrading \"1.0.1\" to \"1.0.2\".\n" +
 				"Starting import....\n" + // Message before listener execution
 				"Generating SQLException.\n" + // There should be a dot here
-				"DEBUG: version=1.0.1, target=1.0.2, statements=6\n" +
+				"Importing with linenumber..\n" +
+				"101\n" +
+				"102\n" +
+				"103.\n" +
+				"DEBUG: version=1.0.1, target=1.0.2, statements=9\n" +
 				"The database is upgraded.\n" +
 				"\n" +
 				"Current database version is \"1.0.2\".\n"
