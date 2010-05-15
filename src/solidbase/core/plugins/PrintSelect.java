@@ -44,7 +44,7 @@ import solidbase.core.Database;
  * @author René M. de Bloois
  * @since May 2010
  */
-public class PrintSelectListener extends CommandListener
+public class PrintSelect extends CommandListener
 {
 	static private final Pattern printSelectPattern = Pattern.compile( "PRINT\\s+(SELECT\\s+.+)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 

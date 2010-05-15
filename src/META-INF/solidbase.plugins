@@ -1,3 +1,3 @@
-solidbase.core.plugins.ImportCSVListener
-solidbase.core.plugins.AssertCommandExecuter
-solidbase.core.plugins.PrintSelectListener
+solidbase.core.plugins.ImportCSV
+solidbase.core.plugins.AssertEmptyOrNotEmptySelect
+solidbase.core.plugins.PrintSelect
