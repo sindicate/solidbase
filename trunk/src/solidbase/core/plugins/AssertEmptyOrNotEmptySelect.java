@@ -44,14 +44,14 @@ import solidbase.core.CommandProcessor;
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:13:28 PM
  */
-public class AssertCommandExecuter extends CommandListener
+public class AssertEmptyOrNotEmptySelect extends CommandListener
 {
 	static private final Pattern assertPattern = Pattern.compile( "\\s*ASSERT\\s+(EXISTS|EMPTY)\\s+MESSAGE\\s+['\"]([^']*)['\"]\\s+(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * Constructor.
 	 */
-	public AssertCommandExecuter()
+	public AssertEmptyOrNotEmptySelect()
 	{
 		super();
 	}
