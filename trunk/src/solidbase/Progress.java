@@ -24,6 +24,7 @@ import solidbase.core.Command;
 import solidbase.core.Patch;
 import solidbase.core.PatchFile;
 import solidbase.core.ProgressListener;
+import solidbase.core.SQLExecutionException;
 
 
 /**
@@ -115,7 +116,7 @@ public class Progress extends ProgressListener implements ConfigListener
 	}
 
 	@Override
-	protected void exception( Command command )
+	protected void exception( SQLExecutionException exception )
 	{
 		// The sql is now printed by the SQLExecutionException.printStackTrace().
 	}

@@ -172,8 +172,9 @@ public class CommandProcessor
 			String error = e.getSQLState();
 			if( !this.ignoreSet.contains( error ) )
 			{
-				this.progress.exception( command );
-				throw new SQLExecutionException( command, e );
+				SQLExecutionException newException = new SQLExecutionException( command, e );
+				this.progress.exception( newException );
+				throw newException;
 			}
 		}
 

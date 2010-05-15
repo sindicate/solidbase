@@ -455,24 +455,11 @@ public class DBVersion
 	 * @param command The executed statement.
 	 * @param e The sql exception.
 	 */
-	protected void logSQLException( String source, String target, int count, String command, SQLException e )
+	protected void logSQLException( String source, String target, int count, String command, SQLExecutionException e )
 	{
 		Assert.notNull( e, "exception must not be null" );
 
-		StringBuffer buffer = new StringBuffer();
-
-		while( true )
-		{
-			buffer.append( e.getSQLState() );
-			buffer.append( ": " );
-			buffer.append( e.getMessage() );
-			e = e.getNextException();
-			if( e == null )
-				break;
-			buffer.append( "\n" );
-		}
-
-		log( "S", source, target, count, command, buffer.toString() );
+		log( "S", source, target, count, command, e.getSQLErrorMessages() );
 	}
 
 	/**
