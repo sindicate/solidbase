@@ -222,7 +222,7 @@ public class CommandProcessor
 			else if( ( matcher = selectConnectionPattern.matcher( sql ) ).matches() )
 				selectConnection( matcher.group( 1 ) );
 			else
-				throw new FatalException( "Unknown command " + sql + ", at line " + command.getLineNumber() );
+				throw new CommandFileException( "Unknown command " + sql, command.getLineNumber() );
 		}
 		else
 		{

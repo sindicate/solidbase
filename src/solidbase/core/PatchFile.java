@@ -110,7 +110,7 @@ public class PatchFile extends SQLFile
 				throw new SystemException( e );
 			}
 			if( line == null )
-				throw new FatalException( "Unexpected EOF found at line " + this.file.getLineNumber() );
+				throw new CommandFileException( "Unexpected EOF found", this.file.getLineNumber() );
 
 			if( line.trim().length() > 0 )
 			{
@@ -230,7 +230,7 @@ public class PatchFile extends SQLFile
 						int pos = this.file.getLineNumber() - 1;
 						Matcher matcher = PATCH_START_PATTERN.matcher( line );
 						if( !matcher.matches() )
-							throw new FatalException( PATCH_START_SYNTAX_ERROR + ", at line " + pos );
+							throw new CommandFileException( PATCH_START_SYNTAX_ERROR, pos );
 						String action = matcher.group( 1 );
 						String source = matcher.group( 2 );
 						String target = matcher.group( 3 );
@@ -240,18 +240,18 @@ public class PatchFile extends SQLFile
 						{
 							patch = getInitPatch( source.length() == 0 ? null : source, target );
 							if( patch == null )
-								throw new FatalException( "Undefined init block found: \"" + source + "\" --> \"" + target + "\" at line " + pos );
+								throw new CommandFileException( "Undefined init block found: \"" + source + "\" --> \"" + target + "\"", pos );
 						}
 						else
 						{
 							patch = getPatch( source.length() == 0 ? null : source, target );
 							if( patch == null )
-								throw new FatalException( "Undefined upgrade block found: \"" + source + "\" --> \"" + target + "\" at line " + pos );
+								throw new CommandFileException( "Undefined upgrade block found: \"" + source + "\" --> \"" + target + "\"", pos );
 							if( patch.getType() != type )
-								throw new FatalException( "Upgrade block type '" + action + "' is different from its definition at line " + pos );
+								throw new CommandFileException( "Upgrade block type '" + action + "' is different from its definition", pos );
 						}
 						if( patch.getLineNumber() >= 0 )
-							throw new FatalException( "Duplicate upgrade block \"" + source + "\" --> \"" + target + "\" found at line " + pos );
+							throw new CommandFileException( "Duplicate upgrade block \"" + source + "\" --> \"" + target + "\" found", pos );
 						patch.setLineNumber( pos );
 					}
 				}
