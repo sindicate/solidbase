@@ -57,7 +57,7 @@ public class AssertEmptyOrNotEmptySelect extends CommandListener
 	}
 
 	@Override
-	protected boolean execute( CommandProcessor processor, Command command ) throws SQLException
+	public boolean execute( CommandProcessor processor, Command command ) throws SQLException
 	{
 		if( command.isTransient() )
 			return false;

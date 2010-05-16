@@ -46,6 +46,8 @@ import org.apache.commons.lang.StringUtils;
  */
 public class DBVersion
 {
+	static private final String SPEC11 = "1.1";
+	static private final String SPEC10 = "1.0";
 	static private Pattern specPattern = Pattern.compile( "(\\d.\\d)(.\\d)?" );
 
 	/**
@@ -206,7 +208,7 @@ public class DBVersion
 		Matcher matcher = specPattern.matcher( spec );
 		Assert.isTrue( matcher.matches() );
 		String eSpec = matcher.group( 1 );
-		if( !eSpec.equals( "1.0" ) && !eSpec.equals( "1.1" ) )
+		if( !eSpec.equals( SPEC10 ) && !eSpec.equals( SPEC11 ) )
 			throw new FatalException( "Spec " + spec + " not recognized. Allowed specs are 1.0[.x] or 1.1[.x]." );
 		this.spec = spec;
 		this.effectiveSpec = eSpec;
@@ -245,7 +247,7 @@ public class DBVersion
 						if( this.specColumnExists )
 							setSpec( resultSet.getString( "SPEC" ) );
 						else
-							setSpec( "1.0" );
+							setSpec( SPEC10 );
 						Assert.isFalse( resultSet.next() );
 
 						this.callBack.debug( "version=" + this.version + ", target=" + this.target + ", statements=" + this.statements );
@@ -373,13 +375,13 @@ public class DBVersion
 
 		setSpec( spec );
 
-		if( this.effectiveSpec.equals( "1.0" ) )
+		if( this.effectiveSpec.equals( SPEC10 ) )
 		{
 			Assert.isFalse( this.specColumnExists, "When effective spec is 1.0, a SPEC column should not exist in the DBVERSION table" );
 		}
 		else
 		{
-			Assert.isTrue( this.effectiveSpec.equals( "1.1" ), "Only spec 1.0 or 1.1 allowed" );
+			Assert.isTrue( this.effectiveSpec.equals( SPEC11 ), "Only spec 1.0 or 1.1 allowed" );
 			Assert.isTrue( this.specColumnExists, "SPEC column should exist in the DBVERSION table" );
 			if( this.versionRecordExists )
 				execute( "UPDATE " + this.versionTableName + " SET SPEC = ?", new Object[] { spec } );
@@ -419,7 +421,7 @@ public class DBVersion
 		if( result != null && result.length() > 3000 )
 			result = result.substring( 0, 3000 );
 
-		if( "1.1".equals( this.effectiveSpec ) )
+		if( SPEC11.equals( this.effectiveSpec ) )
 			execute( "INSERT INTO " + this.logTableName + " ( TYPE, SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ?, ? )",
 					new Object[] { type, source, target, count, new Timestamp( System.currentTimeMillis() ), command, result } );
 		else
@@ -471,7 +473,7 @@ public class DBVersion
 	 */
 	protected void logComplete( String source, String target, int count )
 	{
-		log( "B", source, target, count, null, "1.1".equals( this.effectiveSpec ) ? "COMPLETE" : "COMPLETED VERSION " + target );
+		log( "B", source, target, count, null, SPEC11.equals( this.effectiveSpec ) ? "COMPLETE" : "COMPLETED VERSION " + target );
 	}
 
 	/**
@@ -484,7 +486,7 @@ public class DBVersion
 	{
 		// This method does not care about staleness
 
-		boolean spec11 = "1.1".equals( this.effectiveSpec );
+		boolean spec11 = SPEC11.equals( this.effectiveSpec );
 
 		try
 		{
@@ -496,7 +498,7 @@ public class DBVersion
 
 				XMLOutputFactory xof = XMLOutputFactory.newInstance();
 				XMLStreamWriter xml = xof.createXMLStreamWriter( new OutputStreamWriter( out, charSet ) );
-				xml.writeStartDocument("UTF-8", "1.0");
+				xml.writeStartDocument("UTF-8", SPEC10);
 				xml.writeStartElement( "log" );
 				while( result.next() )
 				{
@@ -555,7 +557,7 @@ public class DBVersion
 		Assert.isFalse( this.stale );
 
 		String sql;
-		if( "1.1".equals( this.effectiveSpec ) )
+		if( SPEC11.equals( this.effectiveSpec ) )
 			sql = "SELECT 1 FROM " + this.logTableName + " WHERE TYPE = 'B' AND TARGET = '" + version + "' AND RESULT = 'COMPLETE'";
 		else
 			sql = "SELECT 1 FROM " + this.logTableName + " WHERE RESULT = 'COMPLETED VERSION " + version + "'";
