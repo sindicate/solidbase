@@ -64,10 +64,10 @@ public class ImportCSV extends CommandListener
 			"(\\s+USING\\s+(PLBLOCK|VALUESLIST))?" + // group 4 + 5
 			"\\s+INTO\\s+(\\S+)" + // group 6
 			"(\\s*\\(\\s*(\\S+(\\s*,\\s*\\S+)*)\\s*\\))?" + // group 7 + 8 + 9
-			"\\s*\\n(.*)", // group 10
+			"\\s*DATA\\n(.*)", // group 10
 			Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
-	static private final String syntax = "IMPORT CSV [SEPARATED BY TAB|<char>] [PREPEND LINENUMBER] [USING PLBLOCK|VALUESLIST] INTO <table> [(<colums>)] <newline> <data>";
+	static private final String syntax = "IMPORT CSV [SEPARATED BY TAB|<char>] [PREPEND LINENUMBER] [USING PLBLOCK|VALUESLIST] INTO <table> [(<colums>)] DATA <newline> <data>";
 
 
 	@Override
