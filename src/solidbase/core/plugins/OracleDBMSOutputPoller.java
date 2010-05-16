@@ -54,7 +54,7 @@ public class OracleDBMSOutputPoller extends CommandListener
 	}
 
 	@Override
-	protected boolean execute( CommandProcessor processor, Command command ) throws SQLException
+	public boolean execute( CommandProcessor processor, Command command ) throws SQLException
 	{
 		if( command.isPersistent() )
 			return false;
@@ -103,7 +103,7 @@ public class OracleDBMSOutputPoller extends CommandListener
 	}
 
 	@Override
-	protected void terminate()
+	public void terminate()
 	{
 		if( this.poller != null )
 		{

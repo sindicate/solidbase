@@ -27,14 +27,6 @@ import java.sql.SQLException;
 abstract public class CommandListener
 {
 	/**
-	 * Constructor.
-	 */
-	public CommandListener()
-	{
-		super();
-	}
-
-	/**
 	 * Called when a command from the upgrade file needs to be executed. Commands can be transient or persistent (see
 	 * {@link Command#isTransient}). This method should return true if it decides to process the command.
 	 * 
@@ -43,14 +35,14 @@ abstract public class CommandListener
 	 * @return True if it decides to process the command.
 	 * @throws SQLException When the execution of the command fails with an {@link SQLException}.
 	 */
-	abstract protected boolean execute( CommandProcessor processor, Command command ) throws SQLException;
+	abstract public boolean execute( CommandProcessor processor, Command command ) throws SQLException;
 
 	/**
 	 * Gives this listener a chance to cleanup. For example to kill threads that it started or temporary tables that it
 	 * created.
 	 */
-	protected void terminate()
+	public void terminate()
 	{
-		//
+		// Can be overridden by subclasses.
 	}
 }

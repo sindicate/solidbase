@@ -8,7 +8,7 @@ import solidbase.test.TestUtil;
 
 public class Messages
 {
-	@Test
+	@Test(groups="new")
 	public void testMessageBeforeListener() throws Exception
 	{
 		MockConsole console = new MockConsole();
@@ -44,7 +44,10 @@ public class Messages
 				"101\n" +
 				"102\n" +
 				"103.\n" +
-				"DEBUG: version=1.0.1, target=1.0.2, statements=9\n" +
+				"Importing with column list..\n" +
+				"21\n" +
+				"21.\n" +
+				"DEBUG: version=1.0.1, target=1.0.2, statements=12\n" +
 				"The database is upgraded.\n" +
 				"\n" +
 				"Current database version is \"1.0.2\".\n"

@@ -57,16 +57,18 @@ public class ImportCSV extends CommandListener
 
 	static private final Pattern importPattern = Pattern.compile(
 			"IMPORT\\s+CSV" +
-			"(\\s+SEPARATED\\s+BY\\s+(\\S|TAB))?" +
-			"\\s+INTO\\s+(\\S+)" +
-			"(\\s+AS\\s+(PLBLOCK|VALUESLIST))?" +
-			"(\\s+PREPENDING\\s+LINENUMBER)?" +
-			"\\s*\\n(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+			"(\\s+SEPARATED\\s+BY\\s+(\\S|TAB))?" + // group 1 + 2
+			"(\\s+PREPEND\\s+LINENUMBER)?" + // group 3
+			"(\\s+USING\\s+(PLBLOCK|VALUESLIST))?" + // group 4 + 5
+			"\\s+INTO\\s+(\\S+)" + // group 6
+			"(\\s*\\(\\s*(\\S+(\\s*,\\s*\\S+)*)\\s*\\))?" + // group 7 + 8 + 9
+			"\\s*\\n(.*)", // group 10
+			Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
-	static private final String syntax = "IMPORT CSV [SEPARATED BY TAB|<char>] INTO <table> [AS PLBLOCK|VALUESLIST] [PREPENDING LINENUMBER]";
+	static private final String syntax = "IMPORT CSV [SEPARATED BY TAB|<char>] [PREPEND LINENUMBER] [USING PLBLOCK|VALUESLIST] INTO <table> [(<colums>)] <newline> <data>";
 
 	@Override
-	protected boolean execute( CommandProcessor processor, Command command ) throws SQLException
+	public boolean execute( CommandProcessor processor, Command command ) throws SQLException
 	{
 		if( command.isTransient() )
 			return false;
@@ -93,35 +95,44 @@ public class ImportCSV extends CommandListener
 		}
 
 		// Collect the rest
-		String tableName = matcher.group( 3 );
+		boolean prependLineNumber = matcher.group( 3 ) != null;
 		String as = matcher.group( 5 );
 		boolean asBlock = as != null && as.equalsIgnoreCase( "PLBLOCK" );
 		boolean asValues = as != null && as.equalsIgnoreCase( "VALUESLIST" );
-		boolean prependLineNumber = matcher.group( 6 ) != null;
-		String data = matcher.group( 7 );
+		String tableName = matcher.group( 6 );
+		String columnList = matcher.group( 8 );
+		String data = matcher.group( 10 );
 
-		// Initialize csv reader
-		CSVReader reader = new CSVReader( new StringReader( data ), separator, '"', "#", true, false, true );
+		String[] columns = null;
+		if( columnList != null )
+			columns = columnList.split( "\\s*,\\s*" );
 
-		// Get connection and initialize commit flag
-		Connection connection = processor.getCurrentDatabase().getConnection();
-		Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
-		PreparedStatement statement = null;
-		boolean commit = false;
 		try
 		{
+			// Initialize csv reader & read first line
+			CSVReader reader = new CSVReader( new StringReader( data ), separator, '"', "#", true, false, true );
+			int lineNumber = command.getLineNumber();
+			String[] line;
 			try
 			{
-				int lineNumber = command.getLineNumber();
-				String[] line;
-				try
-				{
-					line = reader.getAllFieldsInLine();
-				}
-				catch( EOFException e )
-				{
-					line = null;
-				}
+				line = reader.getAllFieldsInLine();
+			}
+			catch( EOFException e )
+			{
+				return true; // Nothing to insert and nothing to clean up
+			}
+
+			if( columns != null )
+				if( columns.length != ( prependLineNumber ? line.length + 1 : line.length ) )
+					throw new CommandFileException( "Number of specified columns does not match the number of values in the first line of data", command.getLineNumber() );
+
+			// Get connection and initialize commit flag
+			Connection connection = processor.getCurrentDatabase().getConnection();
+			Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
+			PreparedStatement statement = null;
+			boolean commit = false;
+			try
+			{
 				if( asBlock )
 				{
 					StringBuilder sql = new StringBuilder();
@@ -131,6 +142,17 @@ public class ImportCSV extends CommandListener
 						lineNumber++;
 						sql.append( "INSERT INTO " );
 						sql.append( tableName );
+						if( columns != null )
+						{
+							sql.append( " (" );
+							sql.append( columns[ 0 ] );
+							for( int i = 1; i < columns.length; i++ )
+							{
+								sql.append( ',' );
+								sql.append( columns[ i ] );
+							}
+							sql.append( ')' );
+						}
 						sql.append( " VALUES (" );
 						if( prependLineNumber )
 						{
@@ -157,8 +179,8 @@ public class ImportCSV extends CommandListener
 					}
 					sql.append( "END;\n" );
 					String s = sql.toString();
-					statement = connection.prepareStatement( sql.toString() );
 					command.setCommand( s );
+					statement = connection.prepareStatement( sql.toString() );
 					statement.executeUpdate();
 				}
 				else if( asValues )
@@ -166,6 +188,17 @@ public class ImportCSV extends CommandListener
 					StringBuilder sql = new StringBuilder();
 					sql.append( "INSERT INTO " );
 					sql.append( tableName );
+					if( columns != null )
+					{
+						sql.append( " (" );
+						sql.append( columns[ 0 ] );
+						for( int i = 1; i < columns.length; i++ )
+						{
+							sql.append( ',' );
+							sql.append( columns[ i ] );
+						}
+						sql.append( ')' );
+					}
 					sql.append( " VALUES\n" );
 					boolean comma = false;
 					while( line != null )
@@ -200,58 +233,66 @@ public class ImportCSV extends CommandListener
 					}
 					sql.append( '\n' );
 					String s = sql.toString();
-					statement = connection.prepareStatement( sql.toString() );
 					command.setCommand( s );
+					statement = connection.prepareStatement( sql.toString() );
 					statement.executeUpdate();
 				}
 				else
 				{
-					if( line != null )
+					StringBuilder sql = new StringBuilder().append( "INSERT INTO " );
+					sql.append( tableName );
+					if( columns != null )
 					{
-						StringBuilder sql = new StringBuilder().append( "INSERT INTO " );
-						sql.append( tableName );
-						sql.append( " VALUES (?" );
-						if( prependLineNumber )
-							sql.append( ",?" );
-						for( int i = line.length; i > 1; i-- )
-							sql.append( ",?" );
-						sql.append( ')' );
-						statement = connection.prepareStatement( sql.toString() );
-						while( line != null )
+						sql.append( " (" );
+						sql.append( columns[ 0 ] );
+						for( int i = 1; i < columns.length; i++ )
 						{
-							lineNumber++;
-							int i = 0;
-							if( prependLineNumber )
-								statement.setInt( ++i, lineNumber );
-							for( String field : line )
-								statement.setString( ++i, field );
-							statement.executeUpdate();
-							try
-							{
-								line = reader.getAllFieldsInLine();
-							}
-							catch( EOFException e )
-							{
-								line = null;
-							}
+							sql.append( ',' );
+							sql.append( columns[ i ] );
+						}
+						sql.append( ')' );
+					}
+					sql.append( " VALUES (?" );
+					if( prependLineNumber )
+						sql.append( ",?" );
+					for( int i = line.length; i > 1; i-- )
+						sql.append( ",?" );
+					sql.append( ')' );
+					statement = connection.prepareStatement( sql.toString() );
+					while( line != null )
+					{
+						lineNumber++;
+						int i = 0;
+						if( prependLineNumber )
+							statement.setInt( ++i, lineNumber );
+						for( String field : line )
+							statement.setString( ++i, field );
+						statement.executeUpdate();
+						try
+						{
+							line = reader.getAllFieldsInLine();
+						}
+						catch( EOFException e )
+						{
+							line = null;
 						}
 					}
 				}
+				commit = true;
 			}
-			catch( IOException e )
+			finally
 			{
-				throw new SystemException( e );
+				if( statement != null )
+					statement.close();
+				if( commit )
+					connection.commit();
+				else
+					connection.rollback();
 			}
-			commit = true;
 		}
-		finally
+		catch( IOException e )
 		{
-			if( statement != null )
-				statement.close();
-			if( commit )
-				connection.commit();
-			else
-				connection.rollback();
+			throw new SystemException( e );
 		}
 
 		return true;

@@ -27,7 +27,7 @@ public class CommandFileException extends FatalException
 	/**
 	 * The line number in the command file where the problem is located.
 	 */
-	protected int lineNumber;
+	private int lineNumber;
 
 	/**
 	 * Constructor.
@@ -45,5 +45,15 @@ public class CommandFileException extends FatalException
 	public String getMessage()
 	{
 		return super.getMessage() + ", at line " + this.lineNumber;
+	}
+
+	/**
+	 * Returns the line number in the command file where the problem is located.
+	 * 
+	 * @return The line number in the command file where the problem is located.
+	 */
+	public int getLineNumber()
+	{
+		return this.lineNumber;
 	}
 }
