@@ -153,7 +153,6 @@ public class ImportCSV extends CommandListener
 		sql.append( "BEGIN\n" );
 		while( line != null )
 		{
-			lineNumber++;
 			sql.append( "INSERT INTO " );
 			sql.append( tableName );
 			if( columns != null )
@@ -191,6 +190,7 @@ public class ImportCSV extends CommandListener
 			{
 				line = null;
 			}
+			lineNumber++;
 		}
 		sql.append( "END;\n" );
 		String s = sql.toString();
@@ -252,7 +252,6 @@ public class ImportCSV extends CommandListener
 				if( columns.length != ( prependLineNumber ? line.length + 1 : line.length ) )
 					throw new CommandFileException( "Number of specified columns does not match the number of values in a line of data", command.getLineNumber() );
 
-			lineNumber++;
 			if( comma )
 				sql.append( ',' );
 			sql.append( '(' );
@@ -279,6 +278,7 @@ public class ImportCSV extends CommandListener
 				line = null;
 			}
 			comma = true;
+			lineNumber++;
 		}
 		sql.append( '\n' );
 		String s = sql.toString();
@@ -350,7 +350,6 @@ public class ImportCSV extends CommandListener
 				else
 					statement.clearParameters();
 
-				lineNumber++;
 				int i = 0;
 				if( prependLineNumber )
 					statement.setInt( ++i, lineNumber );
@@ -367,6 +366,7 @@ public class ImportCSV extends CommandListener
 				{
 					return;
 				}
+				lineNumber++;
 			}
 		}
 		finally
