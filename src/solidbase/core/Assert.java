@@ -275,4 +275,17 @@ public class Assert
 		if( !type.isInstance( object ) )
 			throwAssertionFailure( null, 2 );
 	}
+
+	/**
+	 * Asserts that the {@code object} is not an instance of the {@code class}. If it is, an
+	 * {@link AssertionFailedException} is thrown.
+	 * 
+	 * @param object The object of which the type is checked.
+	 * @param type The type to be checked.
+	 */
+	static public void notInstanceOf( Object object, Class type )
+	{
+		if( type.isInstance( object ) )
+			throwAssertionFailure( null, 2 );
+	}
 }
