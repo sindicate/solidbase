@@ -18,11 +18,14 @@ package solidbase.core.plugins;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,6 +36,7 @@ import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.SystemException;
+import solidbase.util.PushbackReader;
 
 import com.mindprod.csv.CSVReader;
 
@@ -57,16 +61,6 @@ public class ImportCSV extends CommandListener
 {
 	static private final Pattern triggerPattern = Pattern.compile( "IMPORT\\s+CSV.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
-	static private final Pattern importPattern = Pattern.compile(
-			"IMPORT\\s+CSV" +
-			"(\\s+SEPARATED\\s+BY\\s+(\\S|TAB))?" + // group 1 + 2
-			"(\\s+PREPEND\\s+LINENUMBER)?" + // group 3
-			"(\\s+USING\\s+(PLBLOCK|VALUESLIST))?" + // group 4 + 5
-			"\\s+INTO\\s+(\\S+)" + // group 6
-			"(\\s*\\(\\s*(\\S+(\\s*,\\s*\\S+)*)\\s*\\))?" + // group 7 + 8 + 9
-			"\\s*DATA\\n(.*)", // group 10
-			Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
-
 	static private final String syntax = "IMPORT CSV [SEPARATED BY TAB|<char>] [PREPEND LINENUMBER] [USING PLBLOCK|VALUESLIST] INTO <table> [(<colums>)] DATA <newline> <data>";
 
 
@@ -80,42 +74,12 @@ public class ImportCSV extends CommandListener
 		if( !matcher.matches() )
 			return false;
 
-		matcher = importPattern.matcher( command.getCommand() );
-		if( !matcher.matches() )
-			throw new CommandFileException( "Syntax error processing IMPORT CSV command, should match " + syntax, command.getLineNumber() );
-
-		// Determine separator
-		String sep = matcher.group( 2 );
-		char separator;
-		if( sep == null )
-			separator = ',';
-		else if( sep.equalsIgnoreCase( "TAB" ) )
-			separator = '\t';
-		else
-		{
-			Assert.isTrue( sep.length() == 1, "Seperator should be 1 character long", command.getLineNumber() );
-			separator = sep.charAt( 0 );
-		}
-
-		// Collect the rest
-		boolean prependLineNumber = matcher.group( 3 ) != null;
-		String as = matcher.group( 5 );
-		boolean asBlock = as != null && as.equalsIgnoreCase( "PLBLOCK" );
-		boolean asValues = as != null && as.equalsIgnoreCase( "VALUESLIST" );
-		String tableName = matcher.group( 6 );
-		String columnList = matcher.group( 8 );
-		String data = matcher.group( 10 );
-
-		// The columns
-		String[] columns = null;
-		if( columnList != null )
-			columns = columnList.split( "\\s*,\\s*" );
+		Parsed parsed = parse( command );
 
 		try
 		{
 			// Initialize csv reader & read first line
-			CSVReader reader = new CSVReader( new StringReader( data ), separator, '"', "#", true, false, true );
-			int lineNumber = command.getLineNumber();
+			CSVReader reader = new CSVReader( parsed.reader, parsed.separator, '"', "#", true, false, true );
 			String[] line;
 			try
 			{
@@ -132,12 +96,15 @@ public class ImportCSV extends CommandListener
 			boolean commit = false;
 			try
 			{
-				if( asBlock )
-					importUsingPLBlock( command, connection, reader, tableName, columns, prependLineNumber, lineNumber, line );
-				else if( asValues )
-					importUsingValuesList( command, connection, reader, tableName, columns, prependLineNumber, lineNumber, line );
+				String[] columns = parsed.columns.toArray( new String[ parsed.columns.size() ] );
+				if( columns.length == 0 )
+					columns = null;
+				if( parsed.usePLBlock )
+					importUsingPLBlock( command, connection, reader, parsed.tableName, columns, parsed.prependLineNumber, parsed.lineNumber, line );
+				else if( parsed.useValuesList )
+					importUsingValuesList( command, connection, reader, parsed.tableName, columns, parsed.prependLineNumber, parsed.lineNumber, line );
 				else
-					importNormal( command, connection, reader, tableName, columns, prependLineNumber, lineNumber, line );
+					importNormal( command, connection, reader, parsed.tableName, columns, parsed.prependLineNumber, parsed.lineNumber, line );
 
 				commit = true;
 			}
@@ -419,5 +386,210 @@ public class ImportCSV extends CommandListener
 	protected String escape( String s )
 	{
 		return s.replaceAll( "'", "''" );
+	}
+
+
+	protected Parsed parse( Command command )
+	{
+		Parsed result = new Parsed();
+
+		Tokenizer tr = new Tokenizer( new StringReader( command.getCommand() ), command.getLineNumber() );
+		tr.get( "IMPORT" );
+		tr.get( "CSV" );
+		Token t = tr.get();
+		if( t.equals( "SEPARATED" ) )
+		{
+			tr.get( "BY" );
+			t = tr.get();
+			if( t.equals( "TAB" ) )
+				result.separator = '\t';
+			else
+			{
+				if( t.length() != 1 )
+					throw new CommandFileException( "Expecting [TAB] or one character, not [" + t + "]", tr.getLineNumber() );
+				result.separator = t.getValue().charAt( 0 );
+			}
+			t = tr.get();
+		}
+		if( t.equals( "PREPEND" ) )
+		{
+			tr.get( "LINENUMBER" );
+			result.prependLineNumber = true;
+			t = tr.get();
+		}
+		if( t.equals( "USING" ) )
+		{
+			t = tr.get( "PLBLOCK", "VALUESLIST" );
+			if( t.equals( "PLBLOCK" ) )
+				result.usePLBlock = true;
+			else
+				result.useValuesList = true;
+			t = tr.get();
+		}
+		if( !t.equals( "INTO" ) )
+			throw new CommandFileException( "Expecting [INTO], not [" + t + "]", tr.getLineNumber() );
+		result.tableName = tr.get().toString();
+		t = tr.get();
+		if( t.equals( "(" ) )
+		{
+			t = tr.get();
+			if( t.equals( ")" ) )
+				throw new CommandFileException( "Expecting a column name, not [" + t + "]", tr.getLineNumber() );
+			result.columns.add( t.getValue() );
+			t = tr.get( ",", ")" );
+			while( !t.equals( ")" ) )
+			{
+				t = tr.get();
+				if( t.equals( "," ) )
+					throw new CommandFileException( "Expecting a column name, not [" + t + "]", tr.getLineNumber() );
+				result.columns.add( t.getValue() );
+				t = tr.get( ",", ")" );
+			}
+			t = tr.get();
+		}
+		if( !t.equals( "DATA" ) )
+			throw new CommandFileException( "Expecting [DATA], not [" + t + "]", tr.getLineNumber() );
+		tr.getNewline();
+		result.lineNumber = tr.getLineNumber();
+		result.reader = tr.getReader();
+
+		return result;
+	}
+
+	static protected class Parsed
+	{
+		protected char separator = ',';
+		protected boolean prependLineNumber;
+		protected int lineNumber;
+		protected boolean useValuesList;
+		protected boolean usePLBlock;
+		protected String tableName;
+		protected List< String > columns = new ArrayList< String >();
+		protected Reader reader;
+	}
+
+	static protected class Tokenizer
+	{
+		protected PushbackReader in;
+
+		protected Tokenizer( Reader in, int lineNumber )
+		{
+			this.in = new PushbackReader( in, lineNumber );
+		}
+
+		protected boolean isWhitespace( int ch )
+		{
+			return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';
+		}
+
+		protected Token get()
+		{
+			int ch = this.in.read();
+			while( ch != -1 && isWhitespace( ch ) )
+				ch = this.in.read();
+			if( ch == '(' || ch == ')' || ch == ',' || ch == '"' || ch == '\'' )
+				return new Token( (char)ch );
+			StringBuilder result = new StringBuilder( 16 );
+			while( ch != -1 && !isWhitespace( ch ) )
+			{
+				result.append( (char)ch );
+				ch = this.in.read();
+			}
+			this.in.push( ch );
+			if( result.length() == 0 )
+				return null;
+			return new Token( result.toString() );
+		}
+
+		protected Token get( String... objectives )
+		{
+			Assert.isTrue( objectives.length > 0 );
+			Token token = get();
+			boolean correct = false;
+			for( String objective : objectives )
+				if( token.equals( objective ) )
+				{
+					correct = true;
+					break;
+				}
+			if( !correct )
+			{
+				if( objectives.length == 1 )
+					throw new CommandFileException( "Expecting [" + objectives[ 0 ] + "], not [" + token + "]", token.isNewline() ? this.in.getLineNumber() - 1 : this.in.getLineNumber() );
+				StringBuilder b = new StringBuilder( "Expecting one of" );
+				for( String objective : objectives )
+				{
+					b.append( " [" );
+					b.append( objective );
+					b.append( ']' );
+				}
+				b.append( ", not [" );
+				b.append( token );
+				b.append( "]" );
+				throw new CommandFileException( b.toString(), token.isNewline() ? this.in.getLineNumber() - 1 : this.in.getLineNumber() );
+			}
+			return token;
+		}
+
+		protected void getNewline()
+		{
+			int ch = this.in.read();
+			while( ch != -1 && ch != '\n' && isWhitespace( ch ) )
+				ch = this.in.read();
+			if( ch != '\n' )
+				throw new CommandFileException( "Expecting NEWLINE, not [" + (char)ch + "]", this.in.getLineNumber() );
+		}
+
+		protected int getLineNumber()
+		{
+			return this.in.getLineNumber();
+		}
+
+		protected Reader getReader()
+		{
+			return this.in.getReader();
+		}
+	}
+
+	// Case insensitive token
+	static protected class Token
+	{
+		protected String value;
+
+		protected Token( String value )
+		{
+			this.value = value;
+		}
+
+		protected Token( char value )
+		{
+			this.value = new String( new char[] { value } );
+		}
+
+		protected String getValue()
+		{
+			return this.value;
+		}
+
+		protected boolean isNewline()
+		{
+			return this.value.charAt( 0 ) == '\n'; // Assume that if char 0 is a newline then the whole string is just the newline
+		}
+
+		protected boolean equals( String s )
+		{
+			return this.value.equalsIgnoreCase( s );
+		}
+
+		protected int length()
+		{
+			return this.value.length();
+		}
+
+		@Override
+		public String toString()
+		{
+			return this.value;
+		}
 	}
 }
