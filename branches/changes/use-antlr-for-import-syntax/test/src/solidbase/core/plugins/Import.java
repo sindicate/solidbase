@@ -141,6 +141,15 @@ public class Import
 				"INSERT INTO TEMP3 (TEMP1,TEMP2,TEMP3,TEMP4) VALUES ('4',CONVERT( '3', INTEGER ) + '4','Y','-)-\", TEST ''X');\n" +
 				"END;\n"
 		);
+		sql = generateSQLUsingPLBlock( "IMPORT CSV INTO TEMP3 VALUES ( SEQUENCE.NEXTVAL, 'TEST' ) DATA\n" +
+				"1|2\n" +
+				"3|4\n"
+		);
+		Assert.assertEquals( sql, "BEGIN\n" +
+				"INSERT INTO TEMP3 VALUES (SEQUENCE.NEXTVAL,'TEST');\n" +
+				"INSERT INTO TEMP3 VALUES (SEQUENCE.NEXTVAL,'TEST');\n" +
+				"END;\n"
+		);
 	}
 
 	public String generateSQLUsingValuesList( String sql ) throws IOException
