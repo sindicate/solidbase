@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 
+import solidbase.util.RandomAccessLineReader;
+
 
 /**
  * This class is the coordinator. It reads commands from the {@link SQLFile}. It calls the {@link CommandListener}s,

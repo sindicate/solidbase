@@ -34,6 +34,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
+import solidbase.util.RandomAccessLineReader;
+
 
 /**
  * This class is the coordinator. It requests an upgrade path from the {@link PatchFile}, and reads commands from it. It
