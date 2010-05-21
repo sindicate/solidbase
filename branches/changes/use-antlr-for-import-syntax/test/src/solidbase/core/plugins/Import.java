@@ -77,7 +77,7 @@ public class Import
 		Assert.assertEquals( parsed.values, new String[] { ":2", "CONVERT( :1, INTEGER ) + :2", "'Y'", "'-)-\", TEST ''X'" } );
 	}
 
-	public String generateSQL( String sql ) throws IOException
+	public String generateSQLUsingPLBlock( String sql ) throws IOException
 	{
 		Parsed parsed = ImportCSV.parse( new Command( sql, false, 1 ) );
 		CSVReader reader = new CSVReader( parsed.reader, parsed.separator, '"', "#", true, false, true );
@@ -90,14 +90,14 @@ public class Import
 	@Test( groups="new" )
 	public void testSQLGeneration1() throws IOException
 	{
-		String sql = generateSQL( "IMPORT CSV INTO TEMP DATA\n" +
+		String sql = generateSQLUsingPLBlock( "IMPORT CSV INTO TEMP DATA\n" +
 				"	\"1\", \"2\", \"3\"\n"
 		);
 		Assert.assertEquals( sql, "BEGIN\n" +
 				"INSERT INTO TEMP VALUES ('1','2','3');\n" +
 				"END;\n"
 		);
-		sql = generateSQL( "IMPORT CSV SEPARATED BY TAB INTO TEMP\n" +
+		sql = generateSQLUsingPLBlock( "IMPORT CSV SEPARATED BY TAB INTO TEMP\n" +
 				"DATA\n" +
 				"\"1\"	\"2\"	\"3\"" +
 				"\n\"4\"	\"5\"	\"6\"\n"
@@ -107,7 +107,7 @@ public class Import
 				"INSERT INTO TEMP VALUES ('4','5','6');\n" +
 				"END;\n"
 		);
-		sql = generateSQL( "IMPORT CSV SEPARATED BY ; PREPEND LINENUMBER INTO TEMP2 DATA\n" +
+		sql = generateSQLUsingPLBlock( "IMPORT CSV SEPARATED BY ; PREPEND LINENUMBER INTO TEMP2 DATA\n" +
 				"\"1\"; \"2\"; \"3\"" +
 				"\n\"4\"; \"5\"; \"6\"\n"
 		);
@@ -116,7 +116,7 @@ public class Import
 				"INSERT INTO TEMP2 VALUES (3,'4','5','6');\n" +
 				"END;\n"
 		);
-		sql = generateSQL( "IMPORT CSV\n" +
+		sql = generateSQLUsingPLBlock( "IMPORT CSV\n" +
 				"SEPARATED BY |\n" +
 				"INTO TEMP3 ( TEMP1, TEMP2, TEMP3, TEMP4 )\n" +
 				"VALUES ( :2, CONVERT( :1, INTEGER ) + :2, 'Y', '-)-\", TEST ''X' )\n" +
@@ -128,6 +128,52 @@ public class Import
 				"INSERT INTO TEMP3 (TEMP1,TEMP2,TEMP3,TEMP4) VALUES ('2',CONVERT( '1', INTEGER ) + '2','Y','-)-\", TEST ''X');\n" +
 				"INSERT INTO TEMP3 (TEMP1,TEMP2,TEMP3,TEMP4) VALUES ('4',CONVERT( '3', INTEGER ) + '4','Y','-)-\", TEST ''X');\n" +
 				"END;\n"
+		);
+	}
+
+	public String generateSQLUsingValuesList( String sql ) throws IOException
+	{
+		Parsed parsed = ImportCSV.parse( new Command( sql, false, 1 ) );
+		CSVReader reader = new CSVReader( parsed.reader, parsed.separator, '"', "#", true, false, true );
+		String[] line = reader.getAllFieldsInLine();
+		String result = ImportCSV.generateSQLUsingValuesList( reader, parsed, line );
+		System.out.println( result );
+		return result;
+	}
+
+	@Test( groups="new" )
+	public void testSQLGeneration2() throws IOException
+	{
+		String sql = generateSQLUsingValuesList( "IMPORT CSV INTO TEMP DATA\n" +
+				"	\"1\", \"2\", \"3\"\n"
+		);
+		Assert.assertEquals( sql, "INSERT INTO TEMP VALUES ('1','2','3')\n"
+		);
+		sql = generateSQLUsingValuesList( "IMPORT CSV SEPARATED BY TAB INTO TEMP\n" +
+				"DATA\n" +
+				"\"1\"	\"2\"	\"3\"" +
+				"\n\"4\"	\"5\"	\"6\"\n"
+		);
+		Assert.assertEquals( sql, "INSERT INTO TEMP VALUES ('1','2','3'),\n" +
+				"('4','5','6')\n"
+		);
+		sql = generateSQLUsingValuesList( "IMPORT CSV SEPARATED BY ; PREPEND LINENUMBER INTO TEMP2 DATA\n" +
+				"\"1\"; \"2\"; \"3\"" +
+				"\n\"4\"; \"5\"; \"6\"\n"
+		);
+		Assert.assertEquals( sql, "INSERT INTO TEMP2 VALUES (2,'1','2','3'),\n" +
+				"(3,'4','5','6')\n"
+		);
+		sql = generateSQLUsingValuesList( "IMPORT CSV\n" +
+				"SEPARATED BY |\n" +
+				"INTO TEMP3 ( TEMP1, TEMP2, TEMP3, TEMP4 )\n" +
+				"VALUES ( :2, CONVERT( :1, INTEGER ) + :2, 'Y', '-)-\", TEST ''X' )\n" +
+				"DATA\n" +
+				"1|2\n" +
+				"3|4\n"
+		);
+		Assert.assertEquals( sql, "INSERT INTO TEMP3 (TEMP1,TEMP2,TEMP3,TEMP4) VALUES ('2',CONVERT( '1', INTEGER ) + '2','Y','-)-\", TEST ''X'),\n" +
+				"('4',CONVERT( '3', INTEGER ) + '4','Y','-)-\", TEST ''X')\n"
 		);
 	}
 }

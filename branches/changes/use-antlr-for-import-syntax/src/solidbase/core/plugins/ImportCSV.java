@@ -50,8 +50,6 @@ import com.mindprod.csv.CSVReader;
  * GO
  * </pre></blockquote>
  * 
- * This plugin will transform the CSV lines into INSERT INTO tablename VALUES ("xxxx","yyyy","zzzz").
- *
  * @author René M. de Bloois
  * @since Dec 2, 2009
  */
@@ -100,7 +98,7 @@ public class ImportCSV extends CommandListener
 				if( parsed.usePLBlock )
 					importUsingPLBlock( command, connection, reader, parsed, line );
 				else if( parsed.useValuesList )
-					importUsingValuesList( command, connection, reader, parsed.tableName, parsed.columns, parsed.prependLineNumber, parsed.lineNumber, line );
+					importUsingValuesList( command, connection, reader, parsed, line );
 				else
 					importNormal( command, connection, reader, parsed, line );
 
@@ -189,9 +187,9 @@ public class ImportCSV extends CommandListener
 				}
 				sql.append( ')' );
 			}
+			sql.append( " VALUES (" );
 			if( values != null )
 			{
-				sql.append( " VALUES (" );
 				for( int i = 0; i < values.length; i++ )
 				{
 					if( i > 0 )
@@ -203,7 +201,6 @@ public class ImportCSV extends CommandListener
 			}
 			else
 			{
-				sql.append( " VALUES (" );
 				if( parsed.prependLineNumber )
 				{
 					sql.append( parsed.lineNumber );
@@ -248,19 +245,46 @@ public class ImportCSV extends CommandListener
 	 * @param command The import command.
 	 * @param connection The connection with the database.
 	 * @param reader The CSV reader.
-	 * @param tableName The table name to import into.
-	 * @param columns The optional column list.
-	 * @param prependLineNumber Use the line number as the first value.
-	 * @param lineNumber The line number of the import command.
+	 * @param parsed The parsed command.
 	 * @param line The first line of data read.
 	 * @throws SQLException Whenever SQL execution throws it.
 	 * @throws IOException Whenever CSV reading throws it.
 	 */
-	protected void importUsingValuesList( Command command, Connection connection, CSVReader reader, String tableName, String[] columns, boolean prependLineNumber, int lineNumber, String[] line ) throws SQLException, IOException
+	protected void importUsingValuesList( Command command, Connection connection, CSVReader reader, Parsed parsed, String[] line ) throws SQLException, IOException
 	{
+		String sql = generateSQLUsingValuesList( reader, parsed, line );
+		command.setCommand( sql );
+		PreparedStatement statement = connection.prepareStatement( sql );
+		try
+		{
+			statement.executeUpdate();
+		}
+		finally
+		{
+			statement.close();
+		}
+	}
+
+
+	/**
+	 * Generates the SQL for {@link #importUsingValuesList(Command, Connection, CSVReader, Parsed, String[])}.
+	 * 
+	 * @param reader The CSV reader.
+	 * @param parsed The parsed command.
+	 * @param line The first line of data read.
+	 * @return The generated SQL.
+	 * @throws IOException Whenever CSV reading throws it.
+	 */
+	static protected String generateSQLUsingValuesList( CSVReader reader, Parsed parsed, String[] line ) throws IOException
+	{
+		String[] columns = parsed.columns;
+		String[] values = parsed.values;
+		boolean prependLineNumber = parsed.prependLineNumber;
+		int lineNumber = parsed.lineNumber;
+
 		StringBuilder sql = new StringBuilder();
 		sql.append( "INSERT INTO " );
-		sql.append( tableName );
+		sql.append( parsed.tableName );
 		if( columns != null )
 		{
 			sql.append( " (" );
@@ -272,31 +296,43 @@ public class ImportCSV extends CommandListener
 			}
 			sql.append( ')' );
 		}
-		sql.append( " VALUES\n" );
-		boolean comma = false;
+		sql.append( " VALUES " );
 		while( line != null )
 		{
-			if( columns != null )
+			if( columns != null && values == null )
 				if( columns.length != ( prependLineNumber ? line.length + 1 : line.length ) )
-					throw new CommandFileException( "Number of specified columns does not match the number of values in a line of data", command.getLineNumber() );
+					throw new CommandFileException( "Number of specified columns does not match the number of values in a line of data", lineNumber );
 
-			if( comma )
-				sql.append( ',' );
 			sql.append( '(' );
-			if( prependLineNumber )
+			if( values != null )
 			{
-				sql.append( lineNumber );
-				sql.append( ',' );
+				for( int i = 0; i < values.length; i++ )
+				{
+					if( i > 0 )
+						sql.append( "," );
+					String value = values[ i ];
+					value = translateArgument( value, parsed.prependLineNumber, parsed.lineNumber, line );
+					sql.append( value );
+				}
 			}
-			for( int i = 0; i < line.length; i++ )
+			else
 			{
-				if( i > 0 )
+				if( prependLineNumber )
+				{
+					sql.append( lineNumber );
 					sql.append( ',' );
-				sql.append( '\'' );
-				sql.append( escape( line[ i ] ) );
-				sql.append( '\'' );
+				}
+				for( int i = 0; i < line.length; i++ )
+				{
+					if( i > 0 )
+						sql.append( ',' );
+					sql.append( '\'' );
+					sql.append( escape( line[ i ] ) );
+					sql.append( '\'' );
+				}
 			}
-			sql.append( ")\n" );
+			sql.append( ")" );
+
 			try
 			{
 				line = reader.getAllFieldsInLine();
@@ -305,21 +341,14 @@ public class ImportCSV extends CommandListener
 			{
 				line = null;
 			}
-			comma = true;
+
+			if( line != null )
+				sql.append( ',' );
+			sql.append( '\n' );
+
 			lineNumber++;
 		}
-		sql.append( '\n' );
-		String s = sql.toString();
-		command.setCommand( s );
-		PreparedStatement statement = connection.prepareStatement( sql.toString() );
-		try
-		{
-			statement.executeUpdate();
-		}
-		finally
-		{
-			statement.close();
-		}
+		return sql.toString();
 	}
 
 
@@ -604,15 +633,22 @@ public class ImportCSV extends CommandListener
 	}
 
 
-	// Takes care of nested parenthesis
-	static protected void parseTill( Tokenizer tr, StringBuilder result, String till, boolean includeInitialWhiteSpace )
+	/**
+	 * Parse till the specified characters are found.
+	 * 
+	 * @param tokenizer The tokenizer.
+	 * @param result The result is stored in this StringBuilder.
+	 * @param chars The end characters.
+	 * @param includeInitialWhiteSpace Include the whitespace that precedes the first token.
+	 */
+	static protected void parseTill( Tokenizer tokenizer, StringBuilder result, String chars, boolean includeInitialWhiteSpace )
 	{
-		Token t = tr.get();
+		Token t = tokenizer.get();
 		if( t == null )
-			throw new CommandFileException( "Unexpected EOF", tr.getLineNumber() );
+			throw new CommandFileException( "Unexpected EOF", tokenizer.getLineNumber() );
 		if( t.length() == 1 )
-			if( till.contains( t.getValue() ) )
-				throw new CommandFileException( "Unexpected [" + t + "]", tr.getLineNumber() );
+			if( chars.contains( t.getValue() ) )
+				throw new CommandFileException( "Unexpected [" + t + "]", tokenizer.getLineNumber() );
 
 		if( includeInitialWhiteSpace )
 			result.append( t.getWhiteSpace() );
@@ -623,39 +659,71 @@ public class ImportCSV extends CommandListener
 			if( t.equals( "(" ) )
 			{
 				//System.out.println( "(" );
-				parseTill( tr, result, ")", true );
-				t = tr.get();
+				parseTill( tokenizer, result, ")", true );
+				t = tokenizer.get();
 				Assert.isTrue( t.equals( ")" ) );
 				//System.out.println( ")" );
 				result.append( t.getWhiteSpace() );
 				result.append( t.getValue() );
 			}
 
-			t = tr.get();
+			t = tokenizer.get();
 			if( t == null )
-				throw new CommandFileException( "Unexpected EOF", tr.getLineNumber() );
+				throw new CommandFileException( "Unexpected EOF", tokenizer.getLineNumber() );
 			if( t.length() == 1 )
-				if( till.contains( t.getValue() ) )
+				if( chars.contains( t.getValue() ) )
 					break;
 
 			result.append( t.getWhiteSpace() );
 			result.append( t.getValue() );
 		}
 
-		tr.push( t );
+		tokenizer.push( t );
 	}
 
 
+	/**
+	 * A parsed command.
+	 * 
+	 * @author René M. de Bloois
+	 */
 	static protected class Parsed
 	{
+		/**
+		 * The separator.
+		 */
 		protected char separator = ',';
+		/**
+		 * Prepend the values from the CSV list with the line number from the command file.
+		 */
 		protected boolean prependLineNumber;
+		/**
+		 * The current line number in the command file.
+		 */
 		protected int lineNumber;
+		/**
+		 * Generate SQL with the ANSI SQL values list.
+		 */
 		protected boolean useValuesList;
+		/**
+		 * Generate SQL with the Oracle BEGIN END block.
+		 */
 		protected boolean usePLBlock;
+		/**
+		 * The table name to insert into.
+		 */
 		protected String tableName;
+		/**
+		 * The columns to insert into.
+		 */
 		protected String[] columns;
+		/**
+		 * The values to insert. Use :1, :2, etc to replace with the values from the CSV list.
+		 */
 		protected String[] values;
+		/**
+		 * The underlying reader from the {@link Tokenizer}.
+		 */
 		protected Reader reader;
 	}
 }
