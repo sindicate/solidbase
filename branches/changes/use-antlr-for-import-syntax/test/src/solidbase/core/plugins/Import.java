@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 import com.mindprod.csv.CSVReader;
 
 import solidbase.core.Command;
+import solidbase.core.CommandFileException;
 import solidbase.core.plugins.ImportCSV.Parsed;
 
 public class Import
@@ -75,6 +76,17 @@ public class Import
 		assert parsed.values != null;
 		Assert.assertEquals( parsed.columns, new String[] { "TEMP1", "TEMP2", "TEMP3", "TEMP4" } );
 		Assert.assertEquals( parsed.values, new String[] { ":2", "CONVERT( :1, INTEGER ) + :2", "'Y'", "'-)-\", TEST ''X'" } );
+
+		sql = "IMPORT CSV INTO TEMP3 ( TEMP1, TEMP2, TEMP3 ) VALUES ( 1, 2, 3, 4 )";
+		try
+		{
+			ImportCSV.parse( new Command( sql, false, 1 ) );
+			Assert.fail( "Expecting a CommandFileException" );
+		}
+		catch( CommandFileException e )
+		{
+			Assert.assertTrue( e.getMessage().contains( "Number of specified columns does not match number of given values, at line " ) );
+		}
 	}
 
 	public String generateSQLUsingPLBlock( String sql ) throws IOException

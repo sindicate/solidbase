@@ -165,18 +165,22 @@ public class ImportCSV extends CommandListener
 	 * @return The generated SQL.
 	 * @throws IOException Whenever CSV reading throws it.
 	 */
+	// TODO Cope with variable number of values in the CSV list
 	static protected String generateSQLUsingPLBlock( CSVReader reader, Parsed parsed, String[] line ) throws IOException
 	{
+		String tableName = parsed.tableName;
 		String[] columns = parsed.columns;
 		String[] values = parsed.values;
+		boolean prependLineNumber = parsed.prependLineNumber;
+		int lineNumber = parsed.lineNumber;
 
 		StringBuilder sql = new StringBuilder();
 		sql.append( "BEGIN\n" );
 		while( line != null )
 		{
 			sql.append( "INSERT INTO " );
-			sql.append( parsed.tableName );
-			if( parsed.columns != null )
+			sql.append( tableName );
+			if( columns != null )
 			{
 				sql.append( " (" );
 				for( int i = 0; i < columns.length; i++ )
@@ -195,15 +199,15 @@ public class ImportCSV extends CommandListener
 					if( i > 0 )
 						sql.append( "," );
 					String value = values[ i ];
-					value = translateArgument( value, parsed.prependLineNumber, parsed.lineNumber, line );
+					value = translateArgument( value, prependLineNumber, lineNumber, line );
 					sql.append( value );
 				}
 			}
 			else
 			{
-				if( parsed.prependLineNumber )
+				if( prependLineNumber )
 				{
-					sql.append( parsed.lineNumber );
+					sql.append( lineNumber );
 					sql.append( ',' );
 				}
 				for( int i = 0; i < line.length; i++ )
@@ -225,7 +229,7 @@ public class ImportCSV extends CommandListener
 			{
 				line = null;
 			}
-			parsed.lineNumber++;
+			lineNumber++;
 		}
 		sql.append( "END;\n" );
 		return sql.toString();
@@ -301,7 +305,7 @@ public class ImportCSV extends CommandListener
 		{
 			if( columns != null && values == null )
 				if( columns.length != ( prependLineNumber ? line.length + 1 : line.length ) )
-					throw new CommandFileException( "Number of specified columns does not match the number of values in a line of data", lineNumber );
+					throw new CommandFileException( "Number of values does not match number of specified columns", lineNumber );
 
 			sql.append( '(' );
 			if( values != null )
@@ -311,7 +315,7 @@ public class ImportCSV extends CommandListener
 					if( i > 0 )
 						sql.append( "," );
 					String value = values[ i ];
-					value = translateArgument( value, parsed.prependLineNumber, parsed.lineNumber, line );
+					value = translateArgument( value, prependLineNumber, lineNumber, line );
 					sql.append( value );
 				}
 			}
@@ -367,8 +371,12 @@ public class ImportCSV extends CommandListener
 	 * @throws SQLException Whenever SQL execution throws it.
 	 * @throws IOException Whenever CSV reading throws it.
 	 */
+	// TODO Cope with variable number of values in the CSV list
 	protected void importNormal( @SuppressWarnings( "unused" ) Command command, Connection connection, CSVReader reader, Parsed parsed, String[] line ) throws SQLException, IOException
 	{
+		boolean prependLineNumber = parsed.prependLineNumber;
+		int lineNumber = parsed.lineNumber;
+
 		StringBuilder sql = new StringBuilder( "INSERT INTO " );
 		sql.append( parsed.tableName );
 		if( parsed.columns != null )
@@ -401,7 +409,7 @@ public class ImportCSV extends CommandListener
 			int count = line.length;
 			if( parsed.columns != null )
 				count = parsed.columns.length;
-			if( parsed.prependLineNumber )
+			if( prependLineNumber )
 				count++;
 			int par = 1;
 			sql.append( " VALUES (?" );
@@ -425,10 +433,10 @@ public class ImportCSV extends CommandListener
 				int pos = 1;
 				for( int par : parameterMap )
 				{
-					if( parsed.prependLineNumber )
+					if( prependLineNumber )
 					{
 						if( par == 1 )
-							statement.setInt( pos++, parsed.lineNumber );
+							statement.setInt( pos++, lineNumber );
 						else
 							statement.setString( pos++, line[ par - 2 ] );
 					}
@@ -446,7 +454,7 @@ public class ImportCSV extends CommandListener
 				{
 					return;
 				}
-				parsed.lineNumber++;
+				lineNumber++;
 			}
 		}
 		finally
@@ -533,96 +541,100 @@ public class ImportCSV extends CommandListener
 		List< String > columns = new ArrayList< String >();
 		List< String > values = new ArrayList< String >();
 
-		Tokenizer tr = new Tokenizer( new StringReader( command.getCommand() ), command.getLineNumber() );
+		Tokenizer tokenizer = new Tokenizer( new StringReader( command.getCommand() ), command.getLineNumber() );
 
-		tr.get( "IMPORT" );
-		tr.get( "CSV" );
+		tokenizer.get( "IMPORT" );
+		tokenizer.get( "CSV" );
 
-		Token t = tr.get( "SEPARATED", "PREPEND", "USING", "INTO" );
+		Token t = tokenizer.get( "SEPARATED", "PREPEND", "USING", "INTO" );
 
 		if( t.equals( "SEPARATED" ) )
 		{
-			tr.get( "BY" );
-			t = tr.get();
+			tokenizer.get( "BY" );
+			t = tokenizer.get();
 			if( t.equals( "TAB" ) )
 				result.separator = '\t';
 			else
 			{
 				if( t.length() != 1 )
-					throw new CommandFileException( "Expecting [TAB] or one character, not [" + t + "]", tr.getLineNumber() );
+					throw new CommandFileException( "Expecting [TAB] or one character, not [" + t + "]", tokenizer.getLineNumber() );
 				result.separator = t.getValue().charAt( 0 );
 			}
 
-			t = tr.get( "PREPEND", "USING", "INTO" );
+			t = tokenizer.get( "PREPEND", "USING", "INTO" );
 		}
 
 		if( t.equals( "PREPEND" ) )
 		{
-			tr.get( "LINENUMBER" );
+			tokenizer.get( "LINENUMBER" );
 			result.prependLineNumber = true;
 
-			t = tr.get( "USING", "INTO" );
+			t = tokenizer.get( "USING", "INTO" );
 		}
 
 		if( t.equals( "USING" ) )
 		{
-			t = tr.get( "PLBLOCK", "VALUESLIST" );
+			t = tokenizer.get( "PLBLOCK", "VALUESLIST" );
 			if( t.equals( "PLBLOCK" ) )
 				result.usePLBlock = true;
 			else
 				result.useValuesList = true;
 
-			t = tr.get( "INTO" );
+			t = tokenizer.get( "INTO" );
 		}
 
 		if( !t.equals( "INTO" ) )
-			throw new CommandFileException( "Expecting [INTO], not [" + t + "]", tr.getLineNumber() );
-		result.tableName = tr.get().toString();
+			throw new CommandFileException( "Expecting [INTO], not [" + t + "]", tokenizer.getLineNumber() );
+		result.tableName = tokenizer.get().toString();
 
-		t = tr.get( "(", "VALUES", "DATA" );
+		t = tokenizer.get( "(", "VALUES", "DATA" );
 
 		if( t.equals( "(" ) )
 		{
-			t = tr.get();
+			t = tokenizer.get();
 			if( t.equals( ")" ) || t.equals( "," ) )
-				throw new CommandFileException( "Expecting a column name, not [" + t + "]", tr.getLineNumber() );
+				throw new CommandFileException( "Expecting a column name, not [" + t + "]", tokenizer.getLineNumber() );
 			columns.add( t.getValue() );
-			t = tr.get( ",", ")" );
+			t = tokenizer.get( ",", ")" );
 			while( !t.equals( ")" ) )
 			{
-				t = tr.get();
+				t = tokenizer.get();
 				if( t.equals( ")" ) || t.equals( "," ) )
-					throw new CommandFileException( "Expecting a column name, not [" + t + "]", tr.getLineNumber() );
+					throw new CommandFileException( "Expecting a column name, not [" + t + "]", tokenizer.getLineNumber() );
 				columns.add( t.getValue() );
-				t = tr.get( ",", ")" );
+				t = tokenizer.get( ",", ")" );
 			}
 
-			t = tr.get( "VALUES", "DATA" );
+			t = tokenizer.get( "VALUES", "DATA" );
 		}
 
 		if( t.equals( "VALUES" ) )
 		{
-			tr.get( "(" );
+			tokenizer.get( "(" );
 			do
 			{
 				StringBuilder value = new StringBuilder();
-				parseTill( tr, value, ",)", false );
+				parseTill( tokenizer, value, false, ',', ')' );
 				//System.out.println( "Value: " + value.toString() );
 				values.add( value.toString() );
 
-				t = tr.get( ",", ")" );
+				t = tokenizer.get( ",", ")" );
 			}
 			while( t.equals( "," ) );
 
-			t = tr.get( "DATA" );
+			if( columns.size() > 0 )
+				if( columns.size() != values.size() )
+					throw new CommandFileException( "Number of specified columns does not match number of given values", tokenizer.getLineNumber() );
+
+			t = tokenizer.get( "DATA" );
 		}
 
 		if( !t.equals( "DATA" ) )
-			throw new CommandFileException( "Expecting [DATA], not [" + t + "]", tr.getLineNumber() );
-		tr.getNewline();
+			throw new CommandFileException( "Expecting [DATA], not [" + t + "]", tokenizer.getLineNumber() );
+		tokenizer.getNewline();
 
-		result.lineNumber = tr.getLineNumber();
-		result.reader = tr.getReader();
+		result.lineNumber = tokenizer.getLineNumber();
+		result.reader = tokenizer.getReader();
 
 		if( columns.size() > 0 )
 			result.columns = columns.toArray( new String[ columns.size() ] );
@@ -641,42 +653,45 @@ public class ImportCSV extends CommandListener
 	 * @param chars The end characters.
 	 * @param includeInitialWhiteSpace Include the whitespace that precedes the first token.
 	 */
-	static protected void parseTill( Tokenizer tokenizer, StringBuilder result, String chars, boolean includeInitialWhiteSpace )
+	static protected void parseTill( Tokenizer tokenizer, StringBuilder result, boolean includeInitialWhiteSpace, char... chars )
 	{
 		Token t = tokenizer.get();
 		if( t == null )
 			throw new CommandFileException( "Unexpected EOF", tokenizer.getLineNumber() );
 		if( t.length() == 1 )
-			if( chars.contains( t.getValue() ) )
-				throw new CommandFileException( "Unexpected [" + t + "]", tokenizer.getLineNumber() );
+			for( char c : chars )
+				if( t.getValue().charAt( 0 ) == c )
+					throw new CommandFileException( "Unexpected [" + t + "]", tokenizer.getLineNumber() );
 
 		if( includeInitialWhiteSpace )
 			result.append( t.getWhiteSpace() );
 		result.append( t.getValue() );
 
-		while( true )
-		{
-			if( t.equals( "(" ) )
+		outer:
+			while( true )
 			{
-				//System.out.println( "(" );
-				parseTill( tokenizer, result, ")", true );
+				if( t.equals( "(" ) )
+				{
+					//System.out.println( "(" );
+					parseTill( tokenizer, result, true, ')' );
+					t = tokenizer.get();
+					Assert.isTrue( t.equals( ")" ) );
+					//System.out.println( ")" );
+					result.append( t.getWhiteSpace() );
+					result.append( t.getValue() );
+				}
+
 				t = tokenizer.get();
-				Assert.isTrue( t.equals( ")" ) );
-				//System.out.println( ")" );
+				if( t == null )
+					throw new CommandFileException( "Unexpected EOF", tokenizer.getLineNumber() );
+				if( t.length() == 1 )
+					for( char c : chars )
+						if( t.getValue().charAt( 0 ) == c )
+							break outer;
+
 				result.append( t.getWhiteSpace() );
 				result.append( t.getValue() );
 			}
-
-			t = tokenizer.get();
-			if( t == null )
-				throw new CommandFileException( "Unexpected EOF", tokenizer.getLineNumber() );
-			if( t.length() == 1 )
-				if( chars.contains( t.getValue() ) )
-					break;
-
-			result.append( t.getWhiteSpace() );
-			result.append( t.getValue() );
-		}
 
 		tokenizer.push( t );
 	}
