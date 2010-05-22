@@ -134,9 +134,9 @@ public class Basic
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
 
-		patcher.patch( "1.0.2" );
+		patcher.patch( "1.0.*" );
 
-		TestUtil.verifyVersion( patcher, "1.0.1", "1.0.2", 2, null );
+		TestUtil.verifyVersion( patcher, "1.0.2", "1.0.3", 1, null );
 
 		patcher.end();
 	}

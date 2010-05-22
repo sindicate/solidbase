@@ -17,7 +17,8 @@
 
 --*	PATCHES
 --*		PATCH "" --> "1.0.1"
---*		PATCH OPEN "1.0.1" --> "1.0.2"
+--*		PATCH "1.0.1" --> "1.0.2"
+--*		PATCH OPEN "1.0.2" --> "1.0.3"
 --*	/PATCHES
 
 
@@ -68,20 +69,33 @@ GO
 --* PATCH "1.0.1" --> "1.0.2"
 --* // ========================================================================
 
+--* DELIMITER ; END OF LINE
+
 --* SET MESSAGE "Creating table USERS"
 CREATE TABLE USERS
 (
 	USER_ID INT IDENTITY,
 	USER_USERNAME VARCHAR NOT NULL,
 	USER_PASSWORD VARCHAR NOT NULL
-)
-GO
+);
 
 --* SET MESSAGE "Inserting admin user"
-INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
-GO
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' );
 
 --* /PATCH
 
 --* // ========================================================================
 
+
+
+
+
+
+
+--* PATCH "1.0.2" --> "1.0.3"
+
+--* SET MESSAGE "Inserting user"
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rene', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
+GO
+
+--* /PATCH

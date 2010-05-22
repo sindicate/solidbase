@@ -200,7 +200,7 @@ public class PatchProcessor extends CommandProcessor
 				ralr = new RandomAccessLineReader( file );
 			}
 
-			this.patchFile = new PatchFile( ralr );
+			this.sqlFile = this.patchFile = new PatchFile( ralr );
 
 			this.progress.openedPatchFile( this.patchFile );
 
@@ -228,7 +228,7 @@ public class PatchProcessor extends CommandProcessor
 	{
 		if( this.patchFile != null )
 			this.patchFile.close();
-		this.patchFile = null;
+		this.sqlFile = this.patchFile = null;
 	}
 
 	/**
