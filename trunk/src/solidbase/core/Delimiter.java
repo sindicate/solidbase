@@ -40,24 +40,28 @@ class Delimiter
 		/**
 		 * The delimiter must be at the end of the line (or in its own line, obviously).
 		 */
-		ENDOFLINE,
+		TRAILING,
 		/**
 		 * The delimiter must be in a line of its own.
 		 */
-		SEPARATELINE
+		ISOLATED
 	}
+
 	/**
 	 * The text of the delimiter.
 	 */
 	protected String text;
+
 	/**
 	 * The type of the delimiter.
 	 */
 	protected Delimiter.Type type;
+
 	/**
 	 * A regular expression that find the delimiter.
 	 */
 	protected Pattern pattern;
+
 	/**
 	 * Constructor for the delimiter.
 	 * 
@@ -68,11 +72,17 @@ class Delimiter
 	{
 		this.text = text;
 		this.type = type;
-		if( type == Type.SEPARATELINE )
+		if( type == Type.ISOLATED )
 			this.pattern = Pattern.compile( "\\s*" + text + "\\s*" );
-		else if( type == Type.ENDOFLINE )
+		else if( type == Type.TRAILING )
 			this.pattern = Pattern.compile( "(.*)" + text + "\\s*" );
 		else
 			this.pattern = Pattern.compile( "(.*?)" + text + "\\s*(.+)?" );
+	}
+
+	@Override
+	public String toString()
+	{
+		return this.text + " " + this.type;
 	}
 }

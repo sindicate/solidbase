@@ -35,9 +35,9 @@ public class SQLFile
 	static private final Pattern ENCODING_PATTERN = Pattern.compile( "^--\\*[ \t]*ENCODING[ \t]+\"([^\"]*)\"[ \t]*$", Pattern.CASE_INSENSITIVE );
 
 	/**
-	 * The default delimiter: GO with type {@link Type#SEPARATELINE}.
+	 * The default default delimiter: GO with type {@link Type#ISOLATED}.
 	 */
-	static protected final Delimiter[] DEFAULT_DELIMITERS = new Delimiter[] { new Delimiter( "GO", Type.SEPARATELINE ) };
+	static protected final Delimiter[] DEFAULT_DELIMITERS = new Delimiter[] { new Delimiter( "GO", Type.ISOLATED ) };
 
 	/**
 	 * The underlying file.
@@ -50,7 +50,12 @@ public class SQLFile
 	protected String buffer;
 
 	/**
-	 * Delimiters that override the default delimiter.
+	 * The default delimiters.
+	 */
+	protected Delimiter[] defaultDelimiters = DEFAULT_DELIMITERS;
+
+	/**
+	 * Temporary delimiters.
 	 */
 	protected Delimiter[] delimiters = null;
 
@@ -113,31 +118,24 @@ public class SQLFile
 
 
 	/**
-	 * Clears out all delimiters, causing the default delimiter to be used: {@link #DEFAULT_DELIMITERS}.
+	 * Sets the default delimiters.
+	 * 
+	 * @param delimiters The delimiters.
 	 */
-	public void resetDelimiters()
+	protected void setDefaultDelimiters( Delimiter[] delimiters )
 	{
-		this.delimiters = null;
+		this.defaultDelimiters = delimiters;
 	}
 
 
 	/**
-	 * Add a delimiter.
+	 * Overrides the default delimiter.
 	 * 
-	 * @param delimiter The delimiter to add.
+	 * @param delimiters The delimiters.
 	 */
-	public void addDelimiter( Delimiter delimiter )
+	protected void setDelimiters( Delimiter[] delimiters )
 	{
-		if( this.delimiters == null )
-			this.delimiters = new Delimiter[] { delimiter };
-		else
-		{
-			int len = this.delimiters.length;
-			Delimiter[] d = new Delimiter[ len + 1 ];
-			System.arraycopy( this.delimiters, 0, d, 0, len );
-			d[ len ] = delimiter;
-			this.delimiters = d;
-		}
+		this.delimiters = delimiters;
 	}
 
 
@@ -190,7 +188,7 @@ public class SQLFile
 				if( pos == 0 && line.trim().length() == 0 ) // Skip the first empty lines
 					continue;
 
-				for( Delimiter delimiter : this.delimiters != null ? this.delimiters : DEFAULT_DELIMITERS )
+				for( Delimiter delimiter : this.delimiters != null ? this.delimiters : this.defaultDelimiters )
 				{
 					Matcher matcher = delimiter.pattern.matcher( line );
 					if( matcher.matches() )

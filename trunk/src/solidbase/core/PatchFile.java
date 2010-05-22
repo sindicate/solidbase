@@ -156,11 +156,15 @@ public class PatchFile extends SQLFile
 				}
 				else if( withinDefinition )
 				{
-					Matcher matcher = CONTROL_TABLES_PATTERN.matcher( line );
-					if( matcher.matches() )
+					Matcher matcher;
+					if( ( matcher = CONTROL_TABLES_PATTERN.matcher( line ) ).matches() )
 					{
 						this.versionTableName = matcher.group( 1 );
 						this.logTableName = matcher.group( 2 );
+					}
+					else if( ( matcher = CommandProcessor.DELIMITER_PATTERN.matcher( line ) ).matches() )
+					{
+						setDefaultDelimiters( CommandProcessor.parseDelimiters( matcher ) );
 					}
 					else
 						throw new SystemException( "Unexpected line within definition: " + line );
