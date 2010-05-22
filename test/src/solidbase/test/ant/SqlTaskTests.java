@@ -85,6 +85,10 @@ public class SqlTaskTests extends BuildFileTest
 				"Connecting to database...\n" +
 				"    Creating table USERS.\n" +
 				"    Inserting admin user.\n" +
+				"    Inserting 3 users...\n" +
+				"    Inserting 3 users.\n" +
+				"    Inserting 3 users.\n" +
+				"    Inserting 3 users...\n" +
 				"Execution complete.\n" +
 				"\n"
 		);

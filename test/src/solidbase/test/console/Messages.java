@@ -8,7 +8,7 @@ import solidbase.test.TestUtil;
 
 public class Messages
 {
-	@Test(groups="new")
+	@Test
 	public void testMessageBeforeListener() throws Exception
 	{
 		MockConsole console = new MockConsole();

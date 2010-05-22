@@ -28,7 +28,7 @@ import solidbase.core.plugins.ImportCSV.Parsed;
 
 public class Import
 {
-	@Test( groups="new" )
+	@Test
 	public void testStatementParsing1()
 	{
 		String sql = "IMPORT CSV INTO TEMP DATA\n";
@@ -99,7 +99,7 @@ public class Import
 		return result;
 	}
 
-	@Test( groups="new" )
+	@Test
 	public void testSQLGeneration1() throws IOException
 	{
 		String sql = generateSQLUsingPLBlock( "IMPORT CSV INTO TEMP DATA\n" +
@@ -162,7 +162,7 @@ public class Import
 		return result;
 	}
 
-	@Test( groups="new" )
+	@Test
 	public void testSQLGeneration2() throws IOException
 	{
 		String sql = generateSQLUsingValuesList( "IMPORT CSV INTO TEMP DATA\n" +

@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import solidbase.core.Delimiter.Type;
 import solidbase.util.RandomAccessLineReader;
 
 
@@ -32,13 +33,26 @@ import solidbase.util.RandomAccessLineReader;
 public class SQLFile
 {
 	static private final Pattern ENCODING_PATTERN = Pattern.compile( "^--\\*[ \t]*ENCODING[ \t]+\"([^\"]*)\"[ \t]*$", Pattern.CASE_INSENSITIVE );
-	static private final Pattern GO_PATTERN = Pattern.compile( "GO *", Pattern.CASE_INSENSITIVE );
 
+	/**
+	 * The default delimiter: GO with type {@link Type#SEPARATELINE}.
+	 */
+	static protected final Delimiter[] DEFAULT_DELIMITERS = new Delimiter[] { new Delimiter( "GO", Type.SEPARATELINE ) };
 
 	/**
 	 * The underlying file.
 	 */
 	protected RandomAccessLineReader file;
+
+	/**
+	 * A buffer needed when a delimiter is used of type {@link Type#FREE}.
+	 */
+	protected String buffer;
+
+	/**
+	 * Delimiters that override the default delimiter.
+	 */
+	protected Delimiter[] delimiters = null;
 
 
 	/**
@@ -99,6 +113,35 @@ public class SQLFile
 
 
 	/**
+	 * Clears out all delimiters, causing the default delimiter to be used: {@link #DEFAULT_DELIMITERS}.
+	 */
+	public void resetDelimiters()
+	{
+		this.delimiters = null;
+	}
+
+
+	/**
+	 * Add a delimiter.
+	 * 
+	 * @param delimiter The delimiter to add.
+	 */
+	public void addDelimiter( Delimiter delimiter )
+	{
+		if( this.delimiters == null )
+			this.delimiters = new Delimiter[] { delimiter };
+		else
+		{
+			int len = this.delimiters.length;
+			Delimiter[] d = new Delimiter[ len + 1 ];
+			System.arraycopy( this.delimiters, 0, d, 0, len );
+			d[ len ] = delimiter;
+			this.delimiters = d;
+		}
+	}
+
+
+	/**
 	 * Reads a command from the patch file.
 	 * 
 	 * @return A command from the patch file or null when no more commands are available.
@@ -112,37 +155,60 @@ public class SQLFile
 		{
 			try
 			{
-				String line = this.file.readLine();
-				if( line == null )
+				String line;
+				if( this.buffer != null )
 				{
-					if( result.length() > 0 )
-						throw new UnterminatedStatementException( this.file.getLineNumber() - 1 );
-					return null;
+					line = this.buffer;
+					this.buffer = null;
+				}
+				else
+				{
+					line = this.file.readLine();
+					if( line == null )
+					{
+						if( result.length() > 0 )
+							throw new UnterminatedStatementException( this.file.getLineNumber() - 1 );
+						return null;
+					}
+
+					if( line.startsWith( "--*" ) ) // Only if read from file
+					{
+						if( result.length() > 0 )
+							throw new UnterminatedStatementException( this.file.getLineNumber() - 1 );
+
+						line = line.substring( 3 ).trim();
+						if( !line.startsWith( "//" )) // skip comment
+						{
+							if( pos == 0 )
+								pos = this.file.getLineNumber() - 1;
+							return new Command( line, true, pos );
+						}
+						continue;
+					}
 				}
 
 				if( pos == 0 && line.trim().length() == 0 ) // Skip the first empty lines
 					continue;
 
-				if( GO_PATTERN.matcher( line ).matches() )
+				for( Delimiter delimiter : this.delimiters != null ? this.delimiters : DEFAULT_DELIMITERS )
 				{
-					if( pos == 0 )
-						pos = this.file.getLineNumber() - 1;
-					return new Command( result.toString(), false, pos );
-				}
-
-				if( line.startsWith( "--*" ) )
-				{
-					if( result.length() > 0 )
-						throw new UnterminatedStatementException( this.file.getLineNumber() - 1 );
-
-					line = line.substring( 3 ).trim();
-					if( !line.startsWith( "//" )) // skip comment
+					Matcher matcher = delimiter.pattern.matcher( line );
+					if( matcher.matches() )
 					{
 						if( pos == 0 )
 							pos = this.file.getLineNumber() - 1;
-						return new Command( line, true, pos );
+						if( matcher.groupCount() > 0 )
+						{
+							System.out.println( "1: " + matcher.group( 1 ) );
+							result.append( matcher.group( 1 ) );
+						}
+						if( matcher.groupCount() > 1 )
+						{
+							System.out.println( "2: " + matcher.group( 2 ) );
+							this.buffer = matcher.group( 2 );
+						}
+						return new Command( result.toString(), false, pos );
 					}
-					continue;
 				}
 
 				if( pos == 0 )
