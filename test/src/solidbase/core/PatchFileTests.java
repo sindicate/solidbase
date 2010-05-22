@@ -27,6 +27,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidbase.core.Patch.Type;
+import solidbase.util.RandomAccessLineReader;
 
 
 /**

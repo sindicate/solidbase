@@ -22,7 +22,7 @@ import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import solidbase.core.RandomAccessLineReader;
+import solidbase.util.RandomAccessLineReader;
 
 
 public class EmptyLines
