@@ -70,7 +70,7 @@ public class CommandProcessor
 	/**
 	 * Pattern for DELIMITER.
 	 */
-	static protected final Pattern DELIMITER_PATTERN = Pattern.compile( "DELIMITER\\s+(\\S+)(\\s+ON\\s+(SEPARATE)\\s+LINE|\\s+(EOL|END OF LINE))?(\\sOR\\s+(\\S+)(\\s+ON\\s+(SEPARATE)\\s+LINE|\\s+(EOL))?)*", Pattern.CASE_INSENSITIVE );
+	static protected final Pattern DELIMITER_PATTERN = Pattern.compile( "DELIMITER\\s+IS(?:\\s+(ISOLATED)|\\s+(TRAILING))?\\s+(\\S+)(?:\\sOR(?:\\s+(ISOLATED)|\\s+(TRAILING))?\\s+(\\S+))?", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * The SQL file being executed.
@@ -150,7 +150,7 @@ public class CommandProcessor
 		this.ignoreSet = new HashSet();
 		setConnection( getDefaultDatabase() );
 		if( this.sqlFile != null )
-			this.sqlFile.resetDelimiters();
+			this.sqlFile.setDelimiters( null );
 	}
 
 	/**
@@ -383,21 +383,43 @@ public class CommandProcessor
 		setConnection( database );
 	}
 
+	/**
+	 * Overrides the current delimiter.
+	 * 
+	 * @param matcher The command matcher.
+	 */
+	static protected Delimiter[] parseDelimiters( Matcher matcher )
+	{
+		System.out.println( "Groupcount: " + matcher.groupCount() );
+		for( int i = 0; i <= matcher.groupCount(); i++ )
+		{
+			System.out.println( "group" + i + ": [" + matcher.group( i ) + "]" );
+		}
+		Delimiter[] delimiters = new Delimiter[ matcher.group( 6 ) != null ? 2 : 1 ];
+		for( int i = 0; i < delimiters.length; i++ )
+		{
+			int j = i * 3 + 3;
+			String delimiter = matcher.group( j );
+			j -= 2;
+			Delimiter.Type type = Type.FREE;
+			if( matcher.group( j++ ) != null )
+				type = Type.ISOLATED;
+			else if( matcher.group( j ) != null )
+				type = Type.TRAILING;
+			delimiters[ i ] = new Delimiter( delimiter, type );
+			System.out.println( "Delimiter" + i + ": " + delimiters[ i ] );
+		}
+		return delimiters;
+	}
+
+	/**
+	 * Overrides the current delimiter.
+	 * 
+	 * @param matcher The command matcher.
+	 */
 	protected void delimiter( Matcher matcher )
 	{
-		int i = 1;
-		this.sqlFile.resetDelimiters();
-		while( i < matcher.groupCount() )
-		{
-			String delimiter = matcher.group( i );
-			Delimiter.Type type = Type.FREE;
-			if( matcher.group( i + 2 ) != null )
-				type = Type.SEPARATELINE;
-			else if( matcher.group( i + 3 ) != null )
-				type = Type.ENDOFLINE;
-			this.sqlFile.addDelimiter( new Delimiter( delimiter, type ) );
-			i += 5;
-		}
+		this.sqlFile.setDelimiters( parseDelimiters( matcher ) );
 	}
 
 	/**
