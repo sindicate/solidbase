@@ -28,6 +28,8 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import solidbase.core.Delimiter.Type;
+
 
 
 /**
@@ -64,6 +66,16 @@ public class CommandProcessor
 	 * Pattern for SET MESSAGE.
 	 */
 	static protected final Pattern startMessagePattern = Pattern.compile( "(?:SET\\s+MESSAGE|MESSAGE\\s+START)\\s+[\"](.*)[\"]", Pattern.CASE_INSENSITIVE );
+
+	/**
+	 * Pattern for DELIMITER.
+	 */
+	static protected final Pattern DELIMITER_PATTERN = Pattern.compile( "DELIMITER\\s+(\\S+)(\\s+ON\\s+(SEPARATE)\\s+LINE|\\s+(EOL|END OF LINE))?(\\sOR\\s+(\\S+)(\\s+ON\\s+(SEPARATE)\\s+LINE|\\s+(EOL))?)*", Pattern.CASE_INSENSITIVE );
+
+	/**
+	 * The SQL file being executed.
+	 */
+	protected SQLFile sqlFile;
 
 	/**
 	 * A list of command listeners. A listener listens to the statements being executed and is able to intercept specific ones.
@@ -137,6 +149,8 @@ public class CommandProcessor
 		this.ignoreStack = new Stack();
 		this.ignoreSet = new HashSet();
 		setConnection( getDefaultDatabase() );
+		if( this.sqlFile != null )
+			this.sqlFile.resetDelimiters();
 	}
 
 	/**
@@ -222,6 +236,8 @@ public class CommandProcessor
 				this.startMessage = matcher.group( 1 );
 			else if( ( matcher = selectConnectionPattern.matcher( sql ) ).matches() )
 				selectConnection( matcher.group( 1 ) );
+			else if( ( matcher = DELIMITER_PATTERN.matcher( sql ) ).matches() )
+				delimiter( matcher );
 			else
 				throw new CommandFileException( "Unknown command " + sql, command.getLineNumber() );
 		}
@@ -365,6 +381,23 @@ public class CommandProcessor
 		Database database = this.databases.get( name );
 		Assert.notNull( database, "Database '" + name + "' (case-insensitive) not known" );
 		setConnection( database );
+	}
+
+	protected void delimiter( Matcher matcher )
+	{
+		int i = 1;
+		this.sqlFile.resetDelimiters();
+		while( i < matcher.groupCount() )
+		{
+			String delimiter = matcher.group( i );
+			Delimiter.Type type = Type.FREE;
+			if( matcher.group( i + 2 ) != null )
+				type = Type.SEPARATELINE;
+			else if( matcher.group( i + 3 ) != null )
+				type = Type.ENDOFLINE;
+			this.sqlFile.addDelimiter( new Delimiter( delimiter, type ) );
+			i += 5;
+		}
 	}
 
 	/**
