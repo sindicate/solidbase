@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 
 import solidbase.core.Database;
 import solidbase.core.SQLProcessor;
+import solidbase.core.TestUtil;
 
 public class Sql
 {
@@ -29,10 +30,13 @@ public class Sql
 	public void testSql1() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		SQLProcessor executer = new SQLProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:sql1", "sa", null, progress ) );
+		Database database = new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:sql1", "sa", null, progress );
+		SQLProcessor executer = new SQLProcessor( progress, database );
 
 		executer.init( "testsql1.sql" );
 		executer.execute();
 		executer.end();
+
+		TestUtil.assertRecordCount( database, "USERS", 13 );
 	}
 }

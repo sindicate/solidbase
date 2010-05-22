@@ -20,7 +20,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import solidbase.core.Delimiter.Type;
 import solidbase.util.RandomAccessLineReader;
 
 
@@ -35,7 +38,12 @@ import solidbase.util.RandomAccessLineReader;
 public class SQLProcessor extends CommandProcessor
 {
 	/**
-	 * The sql file being executed.
+	 * Pattern for DELIMITER.
+	 */
+	static protected final Pattern DELIMITER_PATTERN = Pattern.compile( "DELIMITER\\s+(\\S+)(\\s+ON\\s+(SEPARATE)\\s+LINE|\\s+(EOL|END OF LINE))?(\\sOR\\s+(\\S+)(\\s+ON\\s+(SEPARATE)\\s+LINE|\\s+(EOL))?)*", Pattern.CASE_INSENSITIVE );
+
+	/**
+	 * The SQL file being executed.
 	 */
 	protected SQLFile sqlFile;
 
@@ -150,7 +158,26 @@ public class SQLProcessor extends CommandProcessor
 		Command command = this.sqlFile.readStatement();
 		while( command != null )
 		{
-			executeWithListeners( command );
+			String sql = command.getCommand();
+			Matcher matcher;
+			if( ( matcher = DELIMITER_PATTERN.matcher( sql ) ).matches() )
+			{
+				int i = 1;
+				this.sqlFile.resetDelimiters();
+				while( i < matcher.groupCount() )
+				{
+					String delimiter = matcher.group( i );
+					Delimiter.Type type = Type.FREE;
+					if( matcher.group( i + 2 ) != null )
+						type = Type.SEPARATELINE;
+					else if( matcher.group( i + 3 ) != null )
+						type = Type.ENDOFLINE;
+					this.sqlFile.addDelimiter( new Delimiter( delimiter, type ) );
+					i += 5;
+				}
+			}
+			else
+				executeWithListeners( command );
 			command = this.sqlFile.readStatement();
 		}
 		this.progress.sqlExecutionComplete();

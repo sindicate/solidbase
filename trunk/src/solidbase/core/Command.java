@@ -125,4 +125,10 @@ public class Command
 	{
 		return this.lineNumber;
 	}
+
+	@Override
+	public String toString()
+	{
+		return this.command;
+	}
 }
