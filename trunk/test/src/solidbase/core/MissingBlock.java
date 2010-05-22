@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 
 import solidbase.core.FatalException;
 import solidbase.core.PatchFile;
-import solidbase.core.RandomAccessLineReader;
+import solidbase.util.RandomAccessLineReader;
 
 public class MissingBlock
 {

@@ -68,7 +68,7 @@ public class Command
 	 * @param isTransient Is the command transient or not?
 	 * @param lineNumber The line number in the upgrade file where the command is found.
 	 */
-	protected Command( String command, boolean isTransient, int lineNumber )
+	public Command( String command, boolean isTransient, int lineNumber )
 	{
 		Assert.isTrue( lineNumber > 0 );
 		this.command = command;

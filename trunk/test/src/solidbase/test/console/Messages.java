@@ -45,8 +45,8 @@ public class Messages
 				"103\n" +
 				"104.\n" +
 				"Importing with column list..\n" +
-				"21\n" +
-				"21.\n" +
+				"23Y\n" +
+				"47Y.\n" +
 				"DEBUG: version=1.0.1, target=1.0.2, statements=12\n" +
 				"The database is upgraded.\n" +
 				"\n" +

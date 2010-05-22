@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import solidbase.util.RandomAccessLineReader;
+
 
 /**
  * This class manages an SQL file's contents. It detects the encoding and reads commands from it.
