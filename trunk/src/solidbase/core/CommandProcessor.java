@@ -384,17 +384,13 @@ public class CommandProcessor
 	}
 
 	/**
-	 * Overrides the current delimiter.
+	 * Parses delimiters.
 	 * 
-	 * @param matcher The command matcher.
+	 * @param matcher The matcher.
+	 * @return The parsed delimiters.
 	 */
 	static protected Delimiter[] parseDelimiters( Matcher matcher )
 	{
-		System.out.println( "Groupcount: " + matcher.groupCount() );
-		for( int i = 0; i <= matcher.groupCount(); i++ )
-		{
-			System.out.println( "group" + i + ": [" + matcher.group( i ) + "]" );
-		}
 		Delimiter[] delimiters = new Delimiter[ matcher.group( 6 ) != null ? 2 : 1 ];
 		for( int i = 0; i < delimiters.length; i++ )
 		{
@@ -407,7 +403,6 @@ public class CommandProcessor
 			else if( matcher.group( j ) != null )
 				type = Type.TRAILING;
 			delimiters[ i ] = new Delimiter( delimiter, type );
-			System.out.println( "Delimiter" + i + ": " + delimiters[ i ] );
 		}
 		return delimiters;
 	}

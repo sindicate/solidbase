@@ -196,15 +196,9 @@ public class SQLFile
 						if( pos == 0 )
 							pos = this.file.getLineNumber() - 1;
 						if( matcher.groupCount() > 0 )
-						{
-							System.out.println( "1: " + matcher.group( 1 ) );
 							result.append( matcher.group( 1 ) );
-						}
 						if( matcher.groupCount() > 1 )
-						{
-							System.out.println( "2: " + matcher.group( 2 ) );
 							this.buffer = matcher.group( 2 );
-						}
 						return new Command( result.toString(), false, pos );
 					}
 				}
