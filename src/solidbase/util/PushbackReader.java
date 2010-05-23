@@ -99,7 +99,7 @@ public class PushbackReader extends FilterReader
 		{
 			int p = this.buffer.length() - 1;
 			int ch = this.buffer.charAt( p );
-			this.buffer.delete( p, p + 1 );
+			this.buffer.delete( p, p + 1 ); // No cost involved, deleting from the end only decrements a count
 			if( ch == '\n' ) // There are no \r in the backbuffer
 				this.lineNumber++;
 			return ch;

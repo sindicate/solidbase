@@ -54,8 +54,8 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/core/CommandFileException.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/CommandListener.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="CommandListener.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -95,7 +95,7 @@ Class CommandListener</H2>
   <IMG SRC="../../resources/inherit.gif" ALT="extended by "><B>solidbase.core.CommandListener</B>
 </PRE>
 <DL>
-<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../solidbase/core/AssertCommandExecuter.html" title="class in solidbase.core">AssertCommandExecuter</A>, <A HREF="../../solidbase/core/ImportCSVListener.html" title="class in solidbase.core">ImportCSVListener</A>, <A HREF="../../solidbase/core/OracleDBMSOutputPoller.html" title="class in solidbase.core">OracleDBMSOutputPoller</A></DD>
+<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../solidbase/core/plugins/AssertEmptyOrNotEmptySelect.html" title="class in solidbase.core.plugins">AssertEmptyOrNotEmptySelect</A>, <A HREF="../../solidbase/core/plugins/ImportCSV.html" title="class in solidbase.core.plugins">ImportCSV</A>, <A HREF="../../solidbase/core/plugins/OracleDBMSOutputPoller.html" title="class in solidbase.core.plugins">OracleDBMSOutputPoller</A>, <A HREF="../../solidbase/core/plugins/PrintSelect.html" title="class in solidbase.core.plugins">PrintSelect</A></DD>
 </DL>
 <HR>
 <DL>
@@ -143,8 +143,8 @@ A CommandListener listens to commands from the upgrade file as they are being pr
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected abstract &nbsp;boolean</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/CommandListener.html#execute(solidbase.core.Database, solidbase.core.Command)">execute</A></B>(<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database,
+<CODE>abstract &nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandListener.html#execute(solidbase.core.CommandProcessor, solidbase.core.Command)">execute</A></B>(<A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>&nbsp;processor,
         <A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)</CODE>
 
 <BR>
@@ -152,7 +152,7 @@ A CommandListener listens to commands from the upgrade file as they are being pr
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;void</CODE></FONT></TD>
+<CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/CommandListener.html#terminate()">terminate</A></B>()</CODE>
 
 <BR>
@@ -198,18 +198,18 @@ public <B>CommandListener</B>()</PRE>
 </TR>
 </TABLE>
 
-<A NAME="execute(solidbase.core.Database, solidbase.core.Command)"><!-- --></A><H3>
+<A NAME="execute(solidbase.core.CommandProcessor, solidbase.core.Command)"><!-- --></A><H3>
 execute</H3>
 <PRE>
-protected abstract boolean <B>execute</B>(<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database,
-                                   <A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)
-                            throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></PRE>
+public abstract boolean <B>execute</B>(<A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>&nbsp;processor,
+                                <A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)
+                         throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></PRE>
 <DL>
 <DD>Called when a command from the upgrade file needs to be executed. Commands can be transient or persistent (see
  <A HREF="../../solidbase/core/Command.html#isTransient"><CODE>Command.isTransient</CODE></A>). This method should return true if it decides to process the command.
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>database</CODE> - The database that the command needs to be executed on. Mostly, the current connection should be used.<DD><CODE>command</CODE> - The command that needs to be executed.
+<DT><B>Parameters:</B><DD><CODE>processor</CODE> - The command processor.<DD><CODE>command</CODE> - The command that needs to be executed.
 <DT><B>Returns:</B><DD>True if it decides to process the command.
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - When the execution of the command fails with an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A>.</DL>
@@ -220,7 +220,7 @@ protected abstract boolean <B>execute</B>(<A HREF="../../solidbase/core/Database
 <A NAME="terminate()"><!-- --></A><H3>
 terminate</H3>
 <PRE>
-protected void <B>terminate</B>()</PRE>
+public void <B>terminate</B>()</PRE>
 <DL>
 <DD>Gives this listener a chance to cleanup. For example to kill threads that it started or temporary tables that it
  created.
@@ -259,8 +259,8 @@ protected void <B>terminate</B>()</PRE>
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/core/CommandFileException.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/CommandListener.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="CommandListener.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;

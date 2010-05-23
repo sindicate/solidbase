@@ -2,5 +2,7 @@ solidbase
 solidbase.ant
 solidbase.config
 solidbase.core
+solidbase.core.plugins
 solidbase.maven
+solidbase.util
 solidbase.xml.elements

@@ -177,10 +177,10 @@ Implements the progress listener for the command line version of SolidBase.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../solidbase/Progress.html#exception(solidbase.core.Command)">exception</A></B>(<A HREF="../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)</CODE>
+<TD><CODE><B><A HREF="../solidbase/Progress.html#exception(solidbase.core.SQLExecutionException)">exception</A></B>(<A HREF="../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A>&nbsp;exception)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An exception occured during execution of the given command.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An exception occurred during execution of the given command.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -188,7 +188,7 @@ Implements the progress listener for the command line version of SolidBase.
 <TD><CODE><B><A HREF="../solidbase/Progress.html#executed()">executed</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A command is succesfully executed.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A command is successfully executed.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -234,18 +234,18 @@ Implements the progress listener for the command line version of SolidBase.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../solidbase/Progress.html#patchingFinished()">patchingFinished</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The upgrade is completed.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../solidbase/Progress.html#patchStarting(solidbase.core.Patch)">patchStarting</A></B>(<A HREF="../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>&nbsp;patch)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The given change set is about to be processed.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../solidbase/Progress.html#print(java.lang.String)">print</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An info message is produced.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -263,6 +263,14 @@ Implements the progress listener for the command line version of SolidBase.
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Request a password for the given user name.</TD>
 </TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../solidbase/Progress.html#upgradeComplete()">upgradeComplete</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The upgrade is completed.</TD>
+</TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_solidbase.core.ProgressListener"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
@@ -270,7 +278,7 @@ Implements the progress listener for the command line version of SolidBase.
 <TH ALIGN="left"><B>Methods inherited from class solidbase.core.<A HREF="../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../solidbase/core/ProgressListener.html#skipped(solidbase.core.Command)">skipped</A></CODE></TD>
+<TD><CODE><A HREF="../solidbase/core/ProgressListener.html#openedSQLFile(solidbase.core.SQLFile)">openedSQLFile</A>, <A HREF="../solidbase/core/ProgressListener.html#openingSQLFile(java.io.File)">openingSQLFile</A>, <A HREF="../solidbase/core/ProgressListener.html#openingSQLFile(java.net.URL)">openingSQLFile</A>, <A HREF="../solidbase/core/ProgressListener.html#skipped(solidbase.core.Command)">skipped</A>, <A HREF="../solidbase/core/ProgressListener.html#sqlExecutionComplete()">sqlExecutionComplete</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -379,7 +387,7 @@ protected void <B>openingPatchFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/d
 <DT><B>Overrides:</B><DD><CODE><A HREF="../solidbase/core/ProgressListener.html#openingPatchFile(java.io.File)">openingPatchFile</A></CODE> in class <CODE><A HREF="../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></CODE></DL>
 </DD>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>patchFile</CODE> - The upgrade file that is about the open.</DL>
+<DT><B>Parameters:</B><DD><CODE>patchFile</CODE> - The upgrade file that is about to be opened.</DL>
 </DD>
 </DL>
 <HR>
@@ -396,7 +404,7 @@ protected void <B>openingPatchFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/d
 <DT><B>Overrides:</B><DD><CODE><A HREF="../solidbase/core/ProgressListener.html#openingPatchFile(java.net.URL)">openingPatchFile</A></CODE> in class <CODE><A HREF="../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></CODE></DL>
 </DD>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>patchFile</CODE> - The upgrade file that is about the open.</DL>
+<DT><B>Parameters:</B><DD><CODE>patchFile</CODE> - The upgrade file that is about to be opened.</DL>
 </DD>
 </DL>
 <HR>
@@ -453,19 +461,19 @@ protected void <B>executing</B>(<A HREF="../solidbase/core/Command.html" title="
 </DL>
 <HR>
 
-<A NAME="exception(solidbase.core.Command)"><!-- --></A><H3>
+<A NAME="exception(solidbase.core.SQLExecutionException)"><!-- --></A><H3>
 exception</H3>
 <PRE>
-protected void <B>exception</B>(<A HREF="../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)</PRE>
+protected void <B>exception</B>(<A HREF="../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A>&nbsp;exception)</PRE>
 <DL>
-<DD><B>Description copied from class: <CODE><A HREF="../solidbase/core/ProgressListener.html#exception(solidbase.core.Command)">ProgressListener</A></CODE></B></DD>
-<DD>An exception occured during execution of the given command.
+<DD><B>Description copied from class: <CODE><A HREF="../solidbase/core/ProgressListener.html#exception(solidbase.core.SQLExecutionException)">ProgressListener</A></CODE></B></DD>
+<DD>An exception occurred during execution of the given command.
 <P>
 <DD><DL>
-<DT><B>Overrides:</B><DD><CODE><A HREF="../solidbase/core/ProgressListener.html#exception(solidbase.core.Command)">exception</A></CODE> in class <CODE><A HREF="../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></CODE></DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="../solidbase/core/ProgressListener.html#exception(solidbase.core.SQLExecutionException)">exception</A></CODE> in class <CODE><A HREF="../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></CODE></DL>
 </DD>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>command</CODE> - The command during which an exception occured.</DL>
+<DT><B>Parameters:</B><DD><CODE>exception</CODE> - The exception that occurred.</DL>
 </DD>
 </DL>
 <HR>
@@ -476,7 +484,7 @@ executed</H3>
 protected void <B>executed</B>()</PRE>
 <DL>
 <DD><B>Description copied from class: <CODE><A HREF="../solidbase/core/ProgressListener.html#executed()">ProgressListener</A></CODE></B></DD>
-<DD>A command is succesfully executed.
+<DD>A command is successfully executed.
 <P>
 <DD><DL>
 <DT><B>Overrides:</B><DD><CODE><A HREF="../solidbase/core/ProgressListener.html#executed()">executed</A></CODE> in class <CODE><A HREF="../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></CODE></DL>
@@ -504,16 +512,16 @@ protected void <B>patchFinished</B>()</PRE>
 </DL>
 <HR>
 
-<A NAME="patchingFinished()"><!-- --></A><H3>
-patchingFinished</H3>
+<A NAME="upgradeComplete()"><!-- --></A><H3>
+upgradeComplete</H3>
 <PRE>
-protected void <B>patchingFinished</B>()</PRE>
+protected void <B>upgradeComplete</B>()</PRE>
 <DL>
-<DD><B>Description copied from class: <CODE><A HREF="../solidbase/core/ProgressListener.html#patchingFinished()">ProgressListener</A></CODE></B></DD>
+<DD><B>Description copied from class: <CODE><A HREF="../solidbase/core/ProgressListener.html#upgradeComplete()">ProgressListener</A></CODE></B></DD>
 <DD>The upgrade is completed.
 <P>
 <DD><DL>
-<DT><B>Overrides:</B><DD><CODE><A HREF="../solidbase/core/ProgressListener.html#patchingFinished()">patchingFinished</A></CODE> in class <CODE><A HREF="../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></CODE></DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="../solidbase/core/ProgressListener.html#upgradeComplete()">upgradeComplete</A></CODE> in class <CODE><A HREF="../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></CODE></DL>
 </DD>
 <DD><DL>
 </DL>
@@ -552,6 +560,23 @@ protected void <B>debug</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/jav
 </DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>message</CODE> - The debug message.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="print(java.lang.String)"><!-- --></A><H3>
+print</H3>
+<PRE>
+public void <B>print</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE><A HREF="../solidbase/core/ProgressListener.html#print(java.lang.String)">ProgressListener</A></CODE></B></DD>
+<DD>An info message is produced.
+<P>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="../solidbase/core/ProgressListener.html#print(java.lang.String)">print</A></CODE> in class <CODE><A HREF="../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>message</CODE> - The info message.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

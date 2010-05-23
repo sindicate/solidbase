@@ -55,7 +55,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../solidbase/config/package-summary.html"><B>PREV PACKAGE</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/maven/package-summary.html"><B>NEXT PACKAGE</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/core/plugins/package-summary.html"><B>NEXT PACKAGE</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/package-summary.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="package-summary.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -98,10 +98,6 @@ This is the core of SolidBase.
 <TD>Assert methods.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../solidbase/core/AssertCommandExecuter.html" title="class in solidbase.core">AssertCommandExecuter</A></B></TD>
-<TD>This plugin asserts that a given query statement returns results.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A></B></TD>
 <TD>
  Represents a command in the upgrade file.</TD>
@@ -109,6 +105,10 @@ This is the core of SolidBase.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/CommandListener.html" title="class in solidbase.core">CommandListener</A></B></TD>
 <TD>A CommandListener listens to commands from the upgrade file as they are being processed.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></B></TD>
+<TD>Processes and executes commands through JDBC, maintains state, triggers the listeners.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A></B></TD>
@@ -119,36 +119,36 @@ This is the core of SolidBase.
 <TD>This class represents the version information in the database.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../solidbase/core/ImportCSVListener.html" title="class in solidbase.core">ImportCSVListener</A></B></TD>
-<TD>This plugin executes IMPORT CSV statements.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../solidbase/core/OracleDBMSOutputPoller.html" title="class in solidbase.core">OracleDBMSOutputPoller</A></B></TD>
-<TD>The purpose of this plugin was to capture dbms output and present it to the user while the patch was running.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A></B></TD>
 <TD>Represents a single patch in the patch file.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../solidbase/core/Patcher.html" title="class in solidbase.core">Patcher</A></B></TD>
-<TD>This class is the coordinator.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/PatchFile.html" title="class in solidbase.core">PatchFile</A></B></TD>
 <TD>This class manages the patch file contents and the paths between versions.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../solidbase/core/PatchProcessor.html" title="class in solidbase.core">PatchProcessor</A></B></TD>
+<TD>This class is the coordinator.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/Path.html" title="class in solidbase.core">Path</A></B></TD>
 <TD>An upgrade path.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../solidbase/core/PluginManager.html" title="class in solidbase.core">PluginManager</A></B></TD>
+<TD>Reads plugins from the classpath.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></B></TD>
 <TD>Listener adapter.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A></B></TD>
-<TD>A line reader that automatically detects character encoding through the BOM and is able to reposition itself on a line.</TD>
+<TD WIDTH="15%"><B><A HREF="../../solidbase/core/SQLFile.html" title="class in solidbase.core">SQLFile</A></B></TD>
+<TD>This class manages an SQL file's contents.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../solidbase/core/SQLProcessor.html" title="class in solidbase.core">SQLProcessor</A></B></TD>
+<TD>This class is the coordinator.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/Util.html" title="class in solidbase.core">Util</A></B></TD>
@@ -183,12 +183,16 @@ This is the core of SolidBase.
 <TD>Thrown when an assertion failed.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../solidbase/core/CommandFileException.html" title="class in solidbase.core">CommandFileException</A></B></TD>
+<TD>Represents a problem in the command file (upgrade file or SQL file).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/FatalException.html" title="class in solidbase.core">FatalException</A></B></TD>
 <TD>Represents an expected failure caused by a system check.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></B></TD>
-<TD>This subclass of <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> combines an SQLException together with the command that caused the exception.</TD>
+<TD>An <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> has occurred during execution of a <A HREF="../../solidbase/core/Command.html" title="class in solidbase.core"><CODE>Command</CODE></A>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/SystemException.html" title="class in solidbase.core">SystemException</A></B></TD>
@@ -243,7 +247,7 @@ This is the core of SolidBase. It has no dependencies whatsoever to other packag
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../solidbase/config/package-summary.html"><B>PREV PACKAGE</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/maven/package-summary.html"><B>NEXT PACKAGE</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/core/plugins/package-summary.html"><B>NEXT PACKAGE</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/package-summary.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="package-summary.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;

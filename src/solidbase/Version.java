@@ -25,6 +25,7 @@ import solidbase.core.SystemException;
 
 
 /**
+ * Represents the version of SolidBase. It reads from version.properties.
  * 
  * @author René M. de Bloois
  */
@@ -72,6 +73,7 @@ public class Version
 	static public String[] getInfo()
 	{
 		// TODO Ant messes up the encoding, try add the é again
+		// TODO Put the copyright year in the properties file too
 		return new String[] { "SolidBase v" + version, "(C) 2006-2010 Rene M. de Bloois" };
 	}
 }
