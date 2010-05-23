@@ -29,8 +29,10 @@ public class Sql
 	@Test
 	public void testSql1() throws SQLException
 	{
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+
 		TestProgressListener progress = new TestProgressListener();
-		Database database = new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:sql1", "sa", null, progress );
+		Database database = new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress );
 		SQLProcessor executer = new SQLProcessor( progress, database );
 
 		executer.init( "testsql1.sql" );

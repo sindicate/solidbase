@@ -18,6 +18,7 @@ package solidbase.test.ant;
 
 import java.io.File;
 import java.util.Iterator;
+
 import org.apache.tools.ant.BuildEvent;
 import org.apache.tools.ant.BuildFileTest;
 import org.apache.tools.ant.BuildListener;
@@ -25,7 +26,7 @@ import org.apache.tools.ant.Project;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import solidbase.test.TestUtil;
+import solidbase.core.TestUtil;
 
 
 public class UpgradeTaskTests extends BuildFileTest

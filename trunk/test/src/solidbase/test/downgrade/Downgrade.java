@@ -31,8 +31,10 @@ public class Downgrade
 	@Test
 	public void testDowngrade() throws SQLException
 	{
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+
 		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:downgrade1", "sa", null, progress ) );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
 
 		patcher.init( "testpatch-downgrade-1.sql" );
 
