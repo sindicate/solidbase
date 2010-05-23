@@ -229,7 +229,7 @@ public class ImportCSV extends CommandListener
 			{
 				line = null;
 			}
-			lineNumber++;
+			lineNumber++; // TODO linenumber is useless this way
 		}
 		sql.append( "END;\n" );
 		return sql.toString();
@@ -350,7 +350,7 @@ public class ImportCSV extends CommandListener
 				sql.append( ',' );
 			sql.append( '\n' );
 
-			lineNumber++;
+			lineNumber++; // TODO linenumber is useless this way
 		}
 		return sql.toString();
 	}

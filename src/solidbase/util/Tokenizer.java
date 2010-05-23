@@ -99,7 +99,6 @@ public class Tokenizer
 			case '\\':
 			case ']':
 			case '^':
-			case '_':
 			case '`':
 			case '~':
 				return true;
