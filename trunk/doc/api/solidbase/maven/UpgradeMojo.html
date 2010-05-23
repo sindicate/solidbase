@@ -54,7 +54,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../solidbase/maven/Secondary.html" title="class in solidbase.maven"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../solidbase/maven/SQLMojo.html" title="class in solidbase.maven"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;NEXT CLASS</FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/maven/UpgradeMojo.html" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -75,9 +75,9 @@ function windowTitle()
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
 </TABLE>
 <A NAME="skip-navbar_top"></A>
@@ -93,14 +93,15 @@ Class UpgradeMojo</H2>
 <PRE>
 <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../resources/inherit.gif" ALT="extended by ">org.apache.maven.plugin.AbstractMojo
-      <IMG SRC="../../resources/inherit.gif" ALT="extended by "><B>solidbase.maven.UpgradeMojo</B>
+      <IMG SRC="../../resources/inherit.gif" ALT="extended by "><A HREF="../../solidbase/maven/DBMojo.html" title="class in solidbase.maven">solidbase.maven.DBMojo</A>
+          <IMG SRC="../../resources/inherit.gif" ALT="extended by "><B>solidbase.maven.UpgradeMojo</B>
 </PRE>
 <DL>
 <DT><B>All Implemented Interfaces:</B> <DD>org.apache.maven.plugin.ContextEnabled, org.apache.maven.plugin.Mojo</DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <B>UpgradeMojo</B><DT>extends org.apache.maven.plugin.AbstractMojo</DL>
+<DT><PRE>public class <B>UpgradeMojo</B><DT>extends <A HREF="../../solidbase/maven/DBMojo.html" title="class in solidbase.maven">DBMojo</A></DL>
 </PRE>
 
 <P>
@@ -122,6 +123,31 @@ The Maven plugin for SolidBase.
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/maven/UpgradeMojo.html#target">target</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Target to upgrade the database to.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/maven/UpgradeMojo.html#upgradefile">upgradefile</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;File containing the upgrade.</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="fields_inherited_from_class_solidbase.maven.DBMojo"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Fields inherited from class solidbase.maven.<A HREF="../../solidbase/maven/DBMojo.html" title="class in solidbase.maven">DBMojo</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../solidbase/maven/DBMojo.html#connections">connections</A>, <A HREF="../../solidbase/maven/DBMojo.html#driver">driver</A>, <A HREF="../../solidbase/maven/DBMojo.html#password">password</A>, <A HREF="../../solidbase/maven/DBMojo.html#project">project</A>, <A HREF="../../solidbase/maven/DBMojo.html#url">url</A>, <A HREF="../../solidbase/maven/DBMojo.html#username">username</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="fields_inherited_from_class_org.apache.maven.plugin.Mojo"><!-- --></A>
@@ -166,13 +192,14 @@ The Maven plugin for SolidBase.
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_solidbase.maven.DBMojo"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class solidbase.maven.<A HREF="../../solidbase/maven/DBMojo.html" title="class in solidbase.maven">DBMojo</A></B></TH>
+</TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/maven/UpgradeMojo.html#validate()">validate</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Validate the configuration of the plugin.</TD>
+<TD><CODE><A HREF="../../solidbase/maven/DBMojo.html#validate()">validate</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_org.apache.maven.plugin.AbstractMojo"><!-- --></A>
@@ -195,6 +222,39 @@ The Maven plugin for SolidBase.
 </TABLE>
 &nbsp;
 <P>
+
+<!-- ============ FIELD DETAIL =========== -->
+
+<A NAME="field_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Field Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="upgradefile"><!-- --></A><H3>
+upgradefile</H3>
+<PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>upgradefile</B></PRE>
+<DL>
+<DD>File containing the upgrade.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="target"><!-- --></A><H3>
+target</H3>
+<PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>target</B></PRE>
+<DL>
+<DD>Target to upgrade the database to.
+<P>
+<DL>
+</DL>
+</DL>
 
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 
@@ -223,33 +283,15 @@ public <B>UpgradeMojo</B>()</PRE>
 </TR>
 </TABLE>
 
-<A NAME="validate()"><!-- --></A><H3>
-validate</H3>
-<PRE>
-protected void <B>validate</B>()
-                 throws org.apache.maven.plugin.MojoExecutionException</PRE>
-<DL>
-<DD>Validate the configuration of the plugin.
-<P>
-<DD><DL>
-
-<DT><B>Throws:</B>
-<DD><CODE>org.apache.maven.plugin.MojoExecutionException</CODE> - Whenever a configuration item is missing.</DL>
-</DD>
-</DL>
-<HR>
-
 <A NAME="execute()"><!-- --></A><H3>
 execute</H3>
 <PRE>
 public void <B>execute</B>()
-             throws org.apache.maven.plugin.MojoExecutionException,
-                    org.apache.maven.plugin.MojoFailureException</PRE>
+             throws org.apache.maven.plugin.MojoFailureException</PRE>
 <DL>
 <DD><DL>
 
 <DT><B>Throws:</B>
-<DD><CODE>org.apache.maven.plugin.MojoExecutionException</CODE>
 <DD><CODE>org.apache.maven.plugin.MojoFailureException</CODE></DL>
 </DD>
 </DL>
@@ -283,7 +325,7 @@ public void <B>execute</B>()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../solidbase/maven/Secondary.html" title="class in solidbase.maven"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../solidbase/maven/SQLMojo.html" title="class in solidbase.maven"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;NEXT CLASS</FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/maven/UpgradeMojo.html" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -304,9 +346,9 @@ public void <B>execute</B>()
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
 </TABLE>
 <A NAME="skip-navbar_bottom"></A>

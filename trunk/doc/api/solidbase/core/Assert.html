@@ -55,7 +55,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;PREV CLASS&nbsp;
-&nbsp;<A HREF="../../solidbase/core/AssertCommandExecuter.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/core/AssertionFailedException.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/Assert.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="Assert.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -75,9 +75,9 @@ function windowTitle()
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
 </TABLE>
 <A NAME="skip-navbar_top"></A>
@@ -114,22 +114,6 @@ Assert methods.
 
 <P>
 
-<!-- ======== CONSTRUCTOR SUMMARY ======== -->
-
-<A NAME="constructor_summary"><!-- --></A>
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
-<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
-<B>Constructor Summary</B></FONT></TH>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../solidbase/core/Assert.html#Assert()">Assert</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
-</TR>
-</TABLE>
-&nbsp;
 <!-- ========== METHOD SUMMARY =========== -->
 
 <A NAME="method_summary"><!-- --></A>
@@ -170,6 +154,15 @@ Assert methods.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assert that the <code>test</code> argument is <code>false</code>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/Assert.html#isInstanceOf(java.lang.Object, java.lang.Class)">isInstanceOf</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;object,
+             <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&nbsp;type)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Asserts that the <code>object</code> is an instance of the <code>class</code>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -235,6 +228,14 @@ Assert methods.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/Assert.html#notEmpty(java.util.Collection)">notEmpty</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&nbsp;collection)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assert that the collection is not null and not empty.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/Assert.html#notEmpty(java.lang.String)">notEmpty</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;test)</CODE>
 
 <BR>
@@ -248,6 +249,15 @@ Assert methods.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assert that String argument s is not null and not "".</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/Assert.html#notInstanceOf(java.lang.Object, java.lang.Class)">notInstanceOf</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;object,
+              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&nbsp;type)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Asserts that the <code>object</code> is not an instance of the <code>class</code>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -288,23 +298,6 @@ Assert methods.
 </TABLE>
 &nbsp;
 <P>
-
-<!-- ========= CONSTRUCTOR DETAIL ======== -->
-
-<A NAME="constructor_detail"><!-- --></A>
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
-<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
-<B>Constructor Detail</B></FONT></TH>
-</TR>
-</TABLE>
-
-<A NAME="Assert()"><!-- --></A><H3>
-Assert</H3>
-<PRE>
-public <B>Assert</B>()</PRE>
-<DL>
-</DL>
 
 <!-- ============ METHOD DETAIL ========== -->
 
@@ -459,6 +452,19 @@ public static void <B>notEmpty</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/
 </DL>
 <HR>
 
+<A NAME="notEmpty(java.util.Collection)"><!-- --></A><H3>
+notEmpty</H3>
+<PRE>
+public static void <B>notEmpty</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&nbsp;collection)</PRE>
+<DL>
+<DD>Assert that the collection is not null and not empty. If not, an <A HREF="../../solidbase/core/AssertionFailedException.html" title="class in solidbase.core"><CODE>AssertionFailedException</CODE></A> is thrown.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>collection</CODE> - The collection to be checked for not emptiness.</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="notBlank(java.lang.String)"><!-- --></A><H3>
 notBlank</H3>
 <PRE>
@@ -540,6 +546,36 @@ public static void <B>isNull</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/ap
 <DT><B>Parameters:</B><DD><CODE>test</CODE> - Test argument.<DD><CODE>errorMessage</CODE> - The error message.</DL>
 </DD>
 </DL>
+<HR>
+
+<A NAME="isInstanceOf(java.lang.Object, java.lang.Class)"><!-- --></A><H3>
+isInstanceOf</H3>
+<PRE>
+public static void <B>isInstanceOf</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;object,
+                                <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&nbsp;type)</PRE>
+<DL>
+<DD>Asserts that the <code>object</code> is an instance of the <code>class</code>. If not, an
+ <A HREF="../../solidbase/core/AssertionFailedException.html" title="class in solidbase.core"><CODE>AssertionFailedException</CODE></A> is thrown.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>object</CODE> - The object of which the type is checked.<DD><CODE>type</CODE> - The type to be checked.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="notInstanceOf(java.lang.Object, java.lang.Class)"><!-- --></A><H3>
+notInstanceOf</H3>
+<PRE>
+public static void <B>notInstanceOf</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;object,
+                                 <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&nbsp;type)</PRE>
+<DL>
+<DD>Asserts that the <code>object</code> is not an instance of the <code>class</code>. If it is, an
+ <A HREF="../../solidbase/core/AssertionFailedException.html" title="class in solidbase.core"><CODE>AssertionFailedException</CODE></A> is thrown.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>object</CODE> - The object of which the type is checked.<DD><CODE>type</CODE> - The type to be checked.</DL>
+</DD>
+</DL>
 <!-- ========= END OF CLASS DATA ========= -->
 <HR>
 
@@ -571,7 +607,7 @@ public static void <B>isNull</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/ap
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;PREV CLASS&nbsp;
-&nbsp;<A HREF="../../solidbase/core/AssertCommandExecuter.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/core/AssertionFailedException.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/Assert.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="Assert.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -591,9 +627,9 @@ public static void <B>isNull</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/ap
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
 </TABLE>
 <A NAME="skip-navbar_bottom"></A>

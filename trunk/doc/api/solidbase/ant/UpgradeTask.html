@@ -54,8 +54,8 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../solidbase/ant/Progress.html" title="class in solidbase.ant"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/ant/UpgradeTask.Connection.html" title="class in solidbase.ant"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/ant/SQLTask.html" title="class in solidbase.ant"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;NEXT CLASS</FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/ant/UpgradeTask.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="UpgradeTask.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -75,7 +75,7 @@ function windowTitle()
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;<A HREF="#nested_classes_inherited_from_class_solidbase.ant.DBTask">NESTED</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
 DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
@@ -94,14 +94,15 @@ Class UpgradeTask</H2>
 <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../resources/inherit.gif" ALT="extended by ">org.apache.tools.ant.ProjectComponent
       <IMG SRC="../../resources/inherit.gif" ALT="extended by ">org.apache.tools.ant.Task
-          <IMG SRC="../../resources/inherit.gif" ALT="extended by "><B>solidbase.ant.UpgradeTask</B>
+          <IMG SRC="../../resources/inherit.gif" ALT="extended by "><A HREF="../../solidbase/ant/DBTask.html" title="class in solidbase.ant">solidbase.ant.DBTask</A>
+              <IMG SRC="../../resources/inherit.gif" ALT="extended by "><B>solidbase.ant.UpgradeTask</B>
 </PRE>
 <DL>
 <DT><B>All Implemented Interfaces:</B> <DD><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Cloneable.html?is-external=true" title="class or interface in java.lang">Cloneable</A></DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <B>UpgradeTask</B><DT>extends org.apache.tools.ant.Task</DL>
+<DT><PRE>public class <B>UpgradeTask</B><DT>extends <A HREF="../../solidbase/ant/DBTask.html" title="class in solidbase.ant">DBTask</A></DL>
 </PRE>
 
 <P>
@@ -124,16 +125,18 @@ The Upgrade Ant Task.
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Nested Class Summary</B></FONT></TH>
 </TR>
+</TABLE>
+&nbsp;<A NAME="nested_classes_inherited_from_class_solidbase.ant.DBTask"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Nested classes/interfaces inherited from class solidbase.ant.<A HREF="../../solidbase/ant/DBTask.html" title="class in solidbase.ant">DBTask</A></B></TH>
+</TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;class</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/ant/UpgradeTask.Connection.html" title="class in solidbase.ant">UpgradeTask.Connection</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Connection object used to configure the Ant Task.</TD>
+<TD><CODE><A HREF="../../solidbase/ant/DBTask.Connection.html" title="class in solidbase.ant">DBTask.Connection</A></CODE></TD>
 </TR>
 </TABLE>
-&nbsp;<!-- =========== FIELD SUMMARY =========== -->
+&nbsp;
+<!-- =========== FIELD SUMMARY =========== -->
 
 <A NAME="field_summary"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
@@ -143,35 +146,11 @@ The Upgrade Ant Task.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/ant/UpgradeTask.Connection.html" title="class in solidbase.ant">UpgradeTask.Connection</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/ant/UpgradeTask.html#connections">connections</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Field to store the nested collection of secondary connections.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;boolean</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/ant/UpgradeTask.html#downgradeallowed">downgradeallowed</A></B></CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Field to store the configured downgrade allowed option.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/ant/UpgradeTask.html#driver">driver</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Field to store the configured driver.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/ant/UpgradeTask.html#password">password</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Field to store the configured password.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -189,21 +168,14 @@ The Upgrade Ant Task.
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Field to store the configured upgrade file.</TD>
 </TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/ant/UpgradeTask.html#url">url</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Field to store the configured url.</TD>
+</TABLE>
+&nbsp;<A NAME="fields_inherited_from_class_solidbase.ant.DBTask"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Fields inherited from class solidbase.ant.<A HREF="../../solidbase/ant/DBTask.html" title="class in solidbase.ant">DBTask</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/ant/UpgradeTask.html#username">username</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Field to store the configured user name.</TD>
+<TD><CODE><A HREF="../../solidbase/ant/DBTask.html#connections">connections</A>, <A HREF="../../solidbase/ant/DBTask.html#driver">driver</A>, <A HREF="../../solidbase/ant/DBTask.html#password">password</A>, <A HREF="../../solidbase/ant/DBTask.html#url">url</A>, <A HREF="../../solidbase/ant/DBTask.html#username">username</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="fields_inherited_from_class_org.apache.tools.ant.Task"><!-- --></A>
@@ -251,43 +223,11 @@ The Upgrade Ant Task.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="../../solidbase/ant/UpgradeTask.Connection.html" title="class in solidbase.ant">UpgradeTask.Connection</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/ant/UpgradeTask.html#createSecondary()">createSecondary</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a secondary connection.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/ant/UpgradeTask.html#execute()">execute</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/ant/UpgradeTask.Connection.html" title="class in solidbase.ant">UpgradeTask.Connection</A>&gt;</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/ant/UpgradeTask.html#getConnections()">getConnections</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns all configured secondary connections.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/ant/UpgradeTask.html#getDriver()">getDriver</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the configured driver.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/ant/UpgradeTask.html#getPassword()">getPassword</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the configured password.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -304,22 +244,6 @@ The Upgrade Ant Task.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the configured upgrade file.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/ant/UpgradeTask.html#getUrl()">getUrl</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the configured url.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/ant/UpgradeTask.html#getUsername()">getUsername</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the configured user name.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -340,22 +264,6 @@ The Upgrade Ant Task.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/ant/UpgradeTask.html#setDriver(java.lang.String)">setDriver</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;driver)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets the driver to be configured.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/ant/UpgradeTask.html#setPassword(java.lang.String)">setPassword</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;password)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets the password to configure.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/ant/UpgradeTask.html#setTarget(java.lang.String)">setTarget</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target)</CODE>
 
 <BR>
@@ -372,26 +280,10 @@ The Upgrade Ant Task.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/ant/UpgradeTask.html#setUrl(java.lang.String)">setUrl</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;url)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets the url to be configured.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/ant/UpgradeTask.html#setUser(java.lang.String)">setUser</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;username)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>Deprecated.</B>&nbsp;</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/ant/UpgradeTask.html#setUsername(java.lang.String)">setUsername</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;username)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets the user name to configure.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -400,6 +292,15 @@ The Upgrade Ant Task.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Validates the configuration of the Ant Task.</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_solidbase.ant.DBTask"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class solidbase.ant.<A HREF="../../solidbase/ant/DBTask.html" title="class in solidbase.ant">DBTask</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../solidbase/ant/DBTask.html#createSecondary()">createSecondary</A>, <A HREF="../../solidbase/ant/DBTask.html#getConnections()">getConnections</A>, <A HREF="../../solidbase/ant/DBTask.html#getDriver()">getDriver</A>, <A HREF="../../solidbase/ant/DBTask.html#getPassword()">getPassword</A>, <A HREF="../../solidbase/ant/DBTask.html#getUrl()">getUrl</A>, <A HREF="../../solidbase/ant/DBTask.html#getUsername()">getUsername</A>, <A HREF="../../solidbase/ant/DBTask.html#setDriver(java.lang.String)">setDriver</A>, <A HREF="../../solidbase/ant/DBTask.html#setPassword(java.lang.String)">setPassword</A>, <A HREF="../../solidbase/ant/DBTask.html#setUrl(java.lang.String)">setUrl</A>, <A HREF="../../solidbase/ant/DBTask.html#setUsername(java.lang.String)">setUsername</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_org.apache.tools.ant.Task"><!-- --></A>
@@ -442,54 +343,6 @@ The Upgrade Ant Task.
 </TR>
 </TABLE>
 
-<A NAME="driver"><!-- --></A><H3>
-driver</H3>
-<PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>driver</B></PRE>
-<DL>
-<DD>Field to store the configured driver.
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
-
-<A NAME="url"><!-- --></A><H3>
-url</H3>
-<PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>url</B></PRE>
-<DL>
-<DD>Field to store the configured url.
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
-
-<A NAME="username"><!-- --></A><H3>
-username</H3>
-<PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>username</B></PRE>
-<DL>
-<DD>Field to store the configured user name.
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
-
-<A NAME="password"><!-- --></A><H3>
-password</H3>
-<PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>password</B></PRE>
-<DL>
-<DD>Field to store the configured password.
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
-
 <A NAME="upgradefile"><!-- --></A><H3>
 upgradefile</H3>
 <PRE>
@@ -524,18 +377,6 @@ protected boolean <B>downgradeallowed</B></PRE>
 <DL>
 </DL>
 </DL>
-<HR>
-
-<A NAME="connections"><!-- --></A><H3>
-connections</H3>
-<PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/ant/UpgradeTask.Connection.html" title="class in solidbase.ant">UpgradeTask.Connection</A>&gt; <B>connections</B></PRE>
-<DL>
-<DD>Field to store the nested collection of secondary connections.
-<P>
-<DL>
-</DL>
-</DL>
 
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 
@@ -564,87 +405,6 @@ public <B>UpgradeTask</B>()</PRE>
 </TR>
 </TABLE>
 
-<A NAME="getDriver()"><!-- --></A><H3>
-getDriver</H3>
-<PRE>
-public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getDriver</B>()</PRE>
-<DL>
-<DD>Returns the configured driver.
-<P>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>The configured driver.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="setDriver(java.lang.String)"><!-- --></A><H3>
-setDriver</H3>
-<PRE>
-public void <B>setDriver</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;driver)</PRE>
-<DL>
-<DD>Sets the driver to be configured.
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>driver</CODE> - The driver to be configured.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="getUrl()"><!-- --></A><H3>
-getUrl</H3>
-<PRE>
-public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getUrl</B>()</PRE>
-<DL>
-<DD>Returns the configured url.
-<P>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>The configured url.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="setUrl(java.lang.String)"><!-- --></A><H3>
-setUrl</H3>
-<PRE>
-public void <B>setUrl</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;url)</PRE>
-<DL>
-<DD>Sets the url to be configured.
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>url</CODE> - The url to be configured.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="getUsername()"><!-- --></A><H3>
-getUsername</H3>
-<PRE>
-public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getUsername</B>()</PRE>
-<DL>
-<DD>Returns the configured user name.
-<P>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>The configured user name.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="setUsername(java.lang.String)"><!-- --></A><H3>
-setUsername</H3>
-<PRE>
-public void <B>setUsername</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;username)</PRE>
-<DL>
-<DD>Sets the user name to configure.
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>username</CODE> - The user name to configure.</DL>
-</DD>
-</DL>
-<HR>
-
 <A NAME="setUser(java.lang.String)"><!-- --></A><H3>
 setUser</H3>
 <PRE>
@@ -657,33 +417,6 @@ setUser</H3>
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>username</CODE> - The user name to configure.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="getPassword()"><!-- --></A><H3>
-getPassword</H3>
-<PRE>
-public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getPassword</B>()</PRE>
-<DL>
-<DD>Returns the configured password.
-<P>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>The configured password.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="setPassword(java.lang.String)"><!-- --></A><H3>
-setPassword</H3>
-<PRE>
-public void <B>setPassword</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;password)</PRE>
-<DL>
-<DD>Sets the password to configure.
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>password</CODE> - The password to configure.</DL>
 </DD>
 </DL>
 <HR>
@@ -769,34 +502,6 @@ public void <B>setDowngradeallowed</B>(boolean&nbsp;downgradeallowed)</PRE>
 </DL>
 <HR>
 
-<A NAME="createSecondary()"><!-- --></A><H3>
-createSecondary</H3>
-<PRE>
-public <A HREF="../../solidbase/ant/UpgradeTask.Connection.html" title="class in solidbase.ant">UpgradeTask.Connection</A> <B>createSecondary</B>()</PRE>
-<DL>
-<DD>Creates a secondary connection.
-<P>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>The secondary connection created.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="getConnections()"><!-- --></A><H3>
-getConnections</H3>
-<PRE>
-public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/ant/UpgradeTask.Connection.html" title="class in solidbase.ant">UpgradeTask.Connection</A>&gt; <B>getConnections</B>()</PRE>
-<DL>
-<DD>Returns all configured secondary connections.
-<P>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>All configured connections.</DL>
-</DD>
-</DL>
-<HR>
-
 <A NAME="validate()"><!-- --></A><H3>
 validate</H3>
 <PRE>
@@ -804,6 +509,9 @@ protected void <B>validate</B>()</PRE>
 <DL>
 <DD>Validates the configuration of the Ant Task.
 <P>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="../../solidbase/ant/DBTask.html#validate()">validate</A></CODE> in class <CODE><A HREF="../../solidbase/ant/DBTask.html" title="class in solidbase.ant">DBTask</A></CODE></DL>
+</DD>
 <DD><DL>
 </DL>
 </DD>
@@ -852,8 +560,8 @@ public void <B>execute</B>()</PRE>
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../solidbase/ant/Progress.html" title="class in solidbase.ant"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/ant/UpgradeTask.Connection.html" title="class in solidbase.ant"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/ant/SQLTask.html" title="class in solidbase.ant"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;NEXT CLASS</FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/ant/UpgradeTask.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="UpgradeTask.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -873,7 +581,7 @@ public void <B>execute</B>()</PRE>
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;<A HREF="#nested_classes_inherited_from_class_solidbase.ant.DBTask">NESTED</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
 DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>

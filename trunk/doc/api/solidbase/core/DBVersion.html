@@ -156,6 +156,14 @@ This class represents the version information in the database. It is able to int
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#logTableName">logTableName</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name of the log control table.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#spec">spec</A></B></CODE>
 
 <BR>
@@ -210,6 +218,14 @@ This class represents the version information in the database. It is able to int
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Does the DBVERSION table exist and does it contain a record?</TD>
 </TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#versionTableName">versionTableName</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name of the version control table.</TD>
+</TR>
 </TABLE>
 &nbsp;
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
@@ -223,8 +239,10 @@ This class represents the version information in the database. It is able to int
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected </CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#DBVersion(solidbase.core.Database, solidbase.core.ProgressListener)">DBVersion</A></B>(<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database,
-          <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;callBack)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#DBVersion(solidbase.core.Database, solidbase.core.ProgressListener, java.lang.String, java.lang.String)">DBVersion</A></B>(<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database,
+          <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;callBack,
+          <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;versionTableName,
+          <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;logTableName)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An instance of this class needs to now in which database the version tables can be found.</TD>
@@ -350,11 +368,11 @@ This class represents the version information in the database. It is able to int
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#logSQLException(java.lang.String, java.lang.String, int, java.lang.String, java.sql.SQLException)">logSQLException</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;source,
+<TD><CODE><B><A HREF="../../solidbase/core/DBVersion.html#logSQLException(java.lang.String, java.lang.String, int, java.lang.String, solidbase.core.SQLExecutionException)">logSQLException</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;source,
                 <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target,
                 int&nbsp;count,
                 <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;command,
-                <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A>&nbsp;e)</CODE>
+                <A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A>&nbsp;e)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Adds a log record to the version log table.</TD>
@@ -431,6 +449,30 @@ This class represents the version information in the database. It is able to int
 <B>Field Detail</B></FONT></TH>
 </TR>
 </TABLE>
+
+<A NAME="versionTableName"><!-- --></A><H3>
+versionTableName</H3>
+<PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>versionTableName</B></PRE>
+<DL>
+<DD>Name of the version control table.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="logTableName"><!-- --></A><H3>
+logTableName</H3>
+<PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>logTableName</B></PRE>
+<DL>
+<DD>Name of the log control table.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
 
 <A NAME="stale"><!-- --></A><H3>
 stale</H3>
@@ -575,17 +617,19 @@ protected <A HREF="../../solidbase/core/ProgressListener.html" title="class in s
 </TR>
 </TABLE>
 
-<A NAME="DBVersion(solidbase.core.Database, solidbase.core.ProgressListener)"><!-- --></A><H3>
+<A NAME="DBVersion(solidbase.core.Database, solidbase.core.ProgressListener, java.lang.String, java.lang.String)"><!-- --></A><H3>
 DBVersion</H3>
 <PRE>
 protected <B>DBVersion</B>(<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database,
-                    <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;callBack)</PRE>
+                    <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;callBack,
+                    <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;versionTableName,
+                    <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;logTableName)</PRE>
 <DL>
 <DD>An instance of this class needs to now in which database the version tables can be found. The default
  connection of this database determines the schema where those tables reside.
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>database</CODE> - The database that contains the version tables, with its default connection determining the schema.<DD><CODE>callBack</CODE> - To receive debug messages.</DL>
+<DT><B>Parameters:</B><DD><CODE>database</CODE> - The database that contains the version tables, with its default connection determining the schema.<DD><CODE>callBack</CODE> - To receive debug messages.<DD><CODE>versionTableName</CODE> - Name of the version control table.<DD><CODE>logTableName</CODE> - Name of the log control table.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -769,14 +813,14 @@ protected void <B>log</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/
 </DL>
 <HR>
 
-<A NAME="logSQLException(java.lang.String, java.lang.String, int, java.lang.String, java.sql.SQLException)"><!-- --></A><H3>
+<A NAME="logSQLException(java.lang.String, java.lang.String, int, java.lang.String, solidbase.core.SQLExecutionException)"><!-- --></A><H3>
 logSQLException</H3>
 <PRE>
 protected void <B>logSQLException</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;source,
                                <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target,
                                int&nbsp;count,
                                <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;command,
-                               <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A>&nbsp;e)</PRE>
+                               <A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A>&nbsp;e)</PRE>
 <DL>
 <DD>Adds a log record to the version log table.
 <P>

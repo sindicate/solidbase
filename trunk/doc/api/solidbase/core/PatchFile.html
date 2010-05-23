@@ -54,8 +54,8 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../solidbase/core/Patcher.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/core/Path.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/core/Patch.Type.html" title="enum in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../solidbase/core/PatchProcessor.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/PatchFile.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="PatchFile.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -92,11 +92,12 @@ solidbase.core</FONT>
 Class PatchFile</H2>
 <PRE>
 <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
-  <IMG SRC="../../resources/inherit.gif" ALT="extended by "><B>solidbase.core.PatchFile</B>
+  <IMG SRC="../../resources/inherit.gif" ALT="extended by "><A HREF="../../solidbase/core/SQLFile.html" title="class in solidbase.core">solidbase.core.SQLFile</A>
+      <IMG SRC="../../resources/inherit.gif" ALT="extended by "><B>solidbase.core.PatchFile</B>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public class <B>PatchFile</B><DT>extends <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public class <B>PatchFile</B><DT>extends <A HREF="../../solidbase/core/SQLFile.html" title="class in solidbase.core">SQLFile</A></DL>
 </PRE>
 
 <P>
@@ -123,19 +124,19 @@ This class manages the patch file contents and the paths between versions.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="../../solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#file">file</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The underlying file.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;org.apache.commons.collections.map.MultiValueMap</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#inits">inits</A></B></CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;All init patches in a map indexed by source version.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#logTableName">logTableName</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The name of the log control table as defined in the upgrade file.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -153,6 +154,23 @@ This class manages the patch file contents and the paths between versions.
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Contains all known versions from the upgrade file.</TD>
 </TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#versionTableName">versionTableName</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The name of the version control table as defined in the upgrade file.</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="fields_inherited_from_class_solidbase.core.SQLFile"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Fields inherited from class solidbase.core.<A HREF="../../solidbase/core/SQLFile.html" title="class in solidbase.core">SQLFile</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../solidbase/core/SQLFile.html#buffer">buffer</A>, <A HREF="../../solidbase/core/SQLFile.html#DEFAULT_DELIMITERS">DEFAULT_DELIMITERS</A>, <A HREF="../../solidbase/core/SQLFile.html#defaultDelimiters">defaultDelimiters</A>, <A HREF="../../solidbase/core/SQLFile.html#delimiters">delimiters</A>, <A HREF="../../solidbase/core/SQLFile.html#file">file</A></CODE></TD>
+</TR>
 </TABLE>
 &nbsp;
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
@@ -166,7 +184,7 @@ This class manages the patch file contents and the paths between versions.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected </CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#PatchFile(solidbase.core.RandomAccessLineReader)">PatchFile</A></B>(<A HREF="../../solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A>&nbsp;file)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#PatchFile(solidbase.util.RandomAccessLineReader)">PatchFile</A></B>(<A HREF="../../solidbase/util/RandomAccessLineReader.html" title="class in solidbase.util">RandomAccessLineReader</A>&nbsp;file)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates an new instance of a patch file.</TD>
@@ -180,14 +198,6 @@ This class manages the patch file contents and the paths between versions.
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Method Summary</B></FONT></TH>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#close()">close</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Close the patch file.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -212,14 +222,6 @@ This class manages the patch file contents and the paths between versions.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Determines all possible target versions from the specified source version.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#getEncoding()">getEncoding</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets the encoding of the patch file.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -319,6 +321,15 @@ This class manages the patch file contents and the paths between versions.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Translates a patch type string to a type enum.</TD>
 </TR>
 </TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_solidbase.core.SQLFile"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class solidbase.core.<A HREF="../../solidbase/core/SQLFile.html" title="class in solidbase.core">SQLFile</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../solidbase/core/SQLFile.html#close()">close</A>, <A HREF="../../solidbase/core/SQLFile.html#getEncoding()">getEncoding</A>, <A HREF="../../solidbase/core/SQLFile.html#setDefaultDelimiters(solidbase.core.Delimiter[])">setDefaultDelimiters</A>, <A HREF="../../solidbase/core/SQLFile.html#setDelimiters(solidbase.core.Delimiter[])">setDelimiters</A></CODE></TD>
+</TR>
+</TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
@@ -377,12 +388,24 @@ protected org.apache.commons.collections.map.MultiValueMap <B>inits</B></PRE>
 </DL>
 <HR>
 
-<A NAME="file"><!-- --></A><H3>
-file</H3>
+<A NAME="versionTableName"><!-- --></A><H3>
+versionTableName</H3>
 <PRE>
-protected <A HREF="../../solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A> <B>file</B></PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>versionTableName</B></PRE>
 <DL>
-<DD>The underlying file.
+<DD>The name of the version control table as defined in the upgrade file.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="logTableName"><!-- --></A><H3>
+logTableName</H3>
+<PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>logTableName</B></PRE>
+<DL>
+<DD>The name of the log control table as defined in the upgrade file.
 <P>
 <DL>
 </DL>
@@ -398,10 +421,10 @@ protected <A HREF="../../solidbase/core/RandomAccessLineReader.html" title="clas
 </TR>
 </TABLE>
 
-<A NAME="PatchFile(solidbase.core.RandomAccessLineReader)"><!-- --></A><H3>
+<A NAME="PatchFile(solidbase.util.RandomAccessLineReader)"><!-- --></A><H3>
 PatchFile</H3>
 <PRE>
-protected <B>PatchFile</B>(<A HREF="../../solidbase/core/RandomAccessLineReader.html" title="class in solidbase.core">RandomAccessLineReader</A>&nbsp;file)</PRE>
+protected <B>PatchFile</B>(<A HREF="../../solidbase/util/RandomAccessLineReader.html" title="class in solidbase.util">RandomAccessLineReader</A>&nbsp;file)</PRE>
 <DL>
 <DD>Creates an new instance of a patch file.
 <P>
@@ -418,19 +441,6 @@ protected <B>PatchFile</B>(<A HREF="../../solidbase/core/RandomAccessLineReader.
 <B>Method Detail</B></FONT></TH>
 </TR>
 </TABLE>
-
-<A NAME="close()"><!-- --></A><H3>
-close</H3>
-<PRE>
-protected void <B>close</B>()</PRE>
-<DL>
-<DD>Close the patch file. This will also close the underlying file.
-<P>
-<DD><DL>
-</DL>
-</DD>
-</DL>
-<HR>
 
 <A NAME="read()"><!-- --></A><H3>
 read</H3>
@@ -622,22 +632,11 @@ protected <A HREF="../../solidbase/core/Command.html" title="class in solidbase.
 <DD>Reads a statement from the patch file.
 <P>
 <DD><DL>
-
-<DT><B>Returns:</B><DD>A statement from the patch file or null when no more statements are available.</DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="../../solidbase/core/SQLFile.html#readStatement()">readStatement</A></CODE> in class <CODE><A HREF="../../solidbase/core/SQLFile.html" title="class in solidbase.core">SQLFile</A></CODE></DL>
 </DD>
-</DL>
-<HR>
-
-<A NAME="getEncoding()"><!-- --></A><H3>
-getEncoding</H3>
-<PRE>
-public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getEncoding</B>()</PRE>
-<DL>
-<DD>Gets the encoding of the patch file.
-<P>
 <DD><DL>
 
-<DT><B>Returns:</B><DD>The encoding of the patch file.</DL>
+<DT><B>Returns:</B><DD>A statement from the patch file or null when no more statements are available.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
@@ -670,8 +669,8 @@ public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../solidbase/core/Patcher.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/core/Path.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/core/Patch.Type.html" title="enum in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../solidbase/core/PatchProcessor.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/PatchFile.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="PatchFile.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
