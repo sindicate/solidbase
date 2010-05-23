@@ -17,6 +17,7 @@
 package solidbase.core;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -93,5 +94,45 @@ public class TestUtil
 	static public void assertPatchFileClosed( PatchProcessor patcher )
 	{
 		Assert.assertNull( patcher.patchFile.file );
+	}
+
+	static public void dropDerbyDatabase( String url ) throws SQLException
+	{
+		if( !url.contains( "drop=true" ) )
+			url = url + ";drop=true";
+		try
+		{
+			Connection connection = DriverManager.getConnection( url, null, null );
+		}
+		catch( SQLException e )
+		{
+			if( e.getSQLState().equals( "XJ004" ) ) // "Database 'memory:test' not found."
+				return;
+			System.out.println( e.getSQLState() );
+			throw e;
+		}
+	}
+
+	static public void dropHSQLDBSchema( String url, String username, String password ) throws SQLException
+	{
+		try
+		{
+			Connection connection = DriverManager.getConnection( url, username, password );
+			connection.createStatement().execute( "DROP SCHEMA PUBLIC CASCADE" );
+		}
+		catch( SQLException e )
+		{
+			System.out.println( e.getSQLState() );
+			throw e;
+		}
+	}
+
+	static public String generalizeOutput( String output )
+	{
+		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
+		output = output.replaceAll( "[A-Z]:\\\\\\S+\\\\", "X:\\\\...\\\\" );
+		output = output.replaceAll( "SolidBase v1\\.5\\.x\\s+\\(C\\) 2006-201\\d Ren[eé] M\\. de Bloois", "SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois" );
+		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
+		return output.replaceAll( "\\\r", "" );
 	}
 }

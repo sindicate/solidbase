@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 
 import solidbase.Main;
 import solidbase.core.FatalException;
-import solidbase.test.TestUtil;
+import solidbase.core.TestUtil;
 
 
 public class CommandLineTests
@@ -29,6 +29,8 @@ public class CommandLineTests
 	@Test
 	public void testCommandLine() throws Exception
 	{
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+
 		MockConsole console = new MockConsole();
 
 		Main.console = console;
@@ -36,7 +38,7 @@ public class CommandLineTests
 		// TODO Rename patchfile to test the -patchfile option
 		Main.main0( "-verbose",
 				"-driver", "org.hsqldb.jdbcDriver",
-				"-url", "jdbc:hsqldb:mem:test2",
+				"-url", "jdbc:hsqldb:mem:testdb",
 				"-username", "sa",
 				"-password", "",
 				"-target", "1.0.*",
@@ -75,7 +77,7 @@ public class CommandLineTests
 		Main.console = console;
 
 		Main.main0( "-driver", "org.hsqldb.jdbcDriver",
-				"-url", "jdbc:hsqldb:mem:test2",
+				"-url", "jdbc:hsqldb:mem:testdb",
 				"-username", "sa",
 				"-password", "",
 				"-upgradefile", "testpatch1.sql",
@@ -92,6 +94,8 @@ public class CommandLineTests
 	@Test
 	public void testCommandLineNoTarget() throws Exception
 	{
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+
 		MockConsole console = new MockConsole();
 
 		Main.console = console;
@@ -99,7 +103,7 @@ public class CommandLineTests
 		// TODO Rename patchfile to test the -patchfile option
 		Main.main0( "-verbose",
 				"-driver", "org.hsqldb.jdbcDriver",
-				"-url", "jdbc:hsqldb:mem:test2nt",
+				"-url", "jdbc:hsqldb:mem:testdb",
 				"-username", "sa",
 				"-password", "",
 				"-upgradefile", "testpatch1.sql" );
@@ -132,6 +136,8 @@ public class CommandLineTests
 	@Test
 	public void testCommandLineNotPossible() throws Exception
 	{
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+
 		MockConsole console = new MockConsole();
 
 		Main.console = console;
@@ -139,7 +145,7 @@ public class CommandLineTests
 		try
 		{
 			Main.main0( "-driver", "org.hsqldb.jdbcDriver",
-					"-url", "jdbc:hsqldb:mem:test22",
+					"-url", "jdbc:hsqldb:mem:testdb",
 					"-username", "sa",
 					"-password", "",
 					"-target", "100.0.*",

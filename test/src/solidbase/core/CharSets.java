@@ -46,8 +46,10 @@ public class CharSets
 	@Test
 	public void testUtf8() throws SQLException, SQLExecutionException
 	{
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+
 		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testUtf8", "sa", null, progress ) );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
 
 		patcher.init( "patch-utf-8-1.sql" );
 		Assert.assertEquals( patcher.patchFile.file.getEncoding(), "UTF-8" );

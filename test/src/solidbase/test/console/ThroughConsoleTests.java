@@ -25,7 +25,7 @@ import solidbase.Main;
 import solidbase.Progress;
 import solidbase.config.Configuration;
 import solidbase.config.Manipulator;
-import solidbase.test.TestUtil;
+import solidbase.core.TestUtil;
 
 
 public class ThroughConsoleTests

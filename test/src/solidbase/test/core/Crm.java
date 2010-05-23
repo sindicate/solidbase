@@ -23,14 +23,17 @@ import org.testng.annotations.Test;
 
 import solidbase.core.Database;
 import solidbase.core.PatchProcessor;
+import solidbase.core.TestUtil;
 
 public class Crm
 {
-	@Test
+	@Test(groups="new")
 	public void testCRM() throws SQLException
 	{
+		TestUtil.dropDerbyDatabase( "jdbc:derby:memory:test" );
+
 		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.apache.derby.jdbc.EmbeddedDriver", "jdbc:derby:../../BUILDS/solidbase/testcrm;create=true", "app", null, progress ) );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.apache.derby.jdbc.EmbeddedDriver", "jdbc:derby:memory:testcrm;create=true", "app", null, progress ) );
 
 		patcher.init( "testpatch-crm.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
