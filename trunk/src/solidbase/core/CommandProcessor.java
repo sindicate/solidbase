@@ -235,7 +235,7 @@ public class CommandProcessor
 			else if( ( matcher = startMessagePattern.matcher( sql ) ).matches() )
 				this.startMessage = matcher.group( 1 );
 			else if( ( matcher = selectConnectionPattern.matcher( sql ) ).matches() )
-				selectConnection( matcher.group( 1 ) );
+				selectConnection( matcher.group( 1 ), command );
 			else if( ( matcher = DELIMITER_PATTERN.matcher( sql ) ).matches() )
 				delimiter( matcher );
 			else
@@ -374,12 +374,14 @@ public class CommandProcessor
 	 * Makes current another configured connection.
 	 * 
 	 * @param name The name of the connection to select.
+	 * @param command The command that started this.
 	 */
-	protected void selectConnection( String name )
+	protected void selectConnection( String name, Command command )
 	{
 		name = name.toLowerCase();
 		Database database = this.databases.get( name );
-		Assert.notNull( database, "Database '" + name + "' (case-insensitive) not known" );
+		if( database == null )
+			throw new CommandFileException( "Database '" + name + "' not configured", command.getLineNumber() );
 		setConnection( database );
 	}
 
