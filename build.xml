@@ -231,7 +231,7 @@
 	</target>
 
 
-	<target name="dist" depends="checksvnstatus,clean,test,build,test-maven-plugin" description="Complete build process to create the distribution files">
+	<target name="dist" depends="checksvnstatus,clean,test,build" description="Complete build process to create the distribution files">
 		<fail>
 			<condition>
 				<resourcecount when="ne" count="8">
