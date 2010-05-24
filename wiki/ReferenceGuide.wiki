@@ -1,8 +1,64 @@
 #summary Reference Guide describing every feature of SolidBase (in progress)
 This guide is based on the upcoming 1.6 release of !SolidBase.
+
 == Contents ==
- * [#IGNORE_SQL_ERROR IGNORE SQL ERROR]
+ * [#SET_MESSAGE SET MESSAGE]
  * [#SET_USER SET USER]
+ * [#SELECT_CONNECTION SELECT CONNECTION]
+ * [#IGNORE_SQL_ERROR IGNORE SQL ERROR]
+
+----------------------------------------
+== SET MESSAGE ==
+Sets the next message to be displayed. The message will be displayed as soon as a command is executed.
+In certain cases commands will be skipped, and the message will be ignored when it is overwritten with a new message before a command is executed.
+=== Since ===
+1.0
+=== Syntax ===
+{{{
+--* SET MESSAGE "<message>"
+}}}
+=== Example ===
+{{{
+--* SET MESSAGE "    Creating indexes"
+}}}
+
+----------------------------------------
+== SET USER ==
+Changes the current user.
+
+Will ask for the password once.
+
+Each upgrade block starts with the default user and the default connection.
+
+Not supported when using the Ant task or Maven plugin, the secondary connections facility should be used instead when using Ant or Maven.
+=== Since ===
+1.0
+=== Syntax ===
+{{{
+--* SET USER <username>
+}}}
+=== Example ===
+{{{
+--* SET USER OTHERUSER
+}}}
+
+----------------------------------------
+== SELECT CONNECTION ==
+Selects another connection/database.
+
+Each upgrade block starts with the default user and the default connection.
+=== Since ===
+1.5.0
+=== Syntax ===
+{{{
+--* SELECT CONNECTION <connectionname>
+}}}
+=== Example ===
+{{{
+--* SELECT CONNECTION QUEUES
+}}}
+=== See also ===
+Configuring multiple connections
 
 ----------------------------------------
 == IGNORE SQL ERROR ==
@@ -24,20 +80,3 @@ GO
 --* /IGNORE SQL ERROR
 }}}
 
-----------------------------------------
-== SET USER ==
-Changes the current user.
-
-Will ask for the password once. The current user is reset at the start of each upgrade block.
-
-Not supported when using the Ant task or Maven plugin, the secondary connections facility should be used instead when using Ant or Maven.
-=== Since ===
-1.0
-=== Syntax ===
-{{{
---* SET USER <username>
-}}}
-=== Example ===
-{{{
---* SET USER OTHERUSER
-}}}
