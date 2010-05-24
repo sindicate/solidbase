@@ -1,0 +1,5 @@
+#summary Reference Guide describing every feature of SolidBase (in progress)
+
+== `IGNORE SQL ERROR <SQLState> [, <SQLState>, ...]` ==
+
+Test
