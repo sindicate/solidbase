@@ -1,29 +1,43 @@
 #summary Reference Guide describing every feature of SolidBase (in progress)
-
 This guide is based on the upcoming 1.6 release of !SolidBase.
+== Contents ==
+ * [#IGNORE_SQL_ERROR IGNORE SQL ERROR]
+ * [#SET_USER SET USER]
 
-[#IGNORE_SQL_ERROR]
-
+----------------------------------------
 == IGNORE SQL ERROR ==
-
 Enables ignoring of specific database errors.
 
 Ignores can be nested. Ignores are reset at the beginning of each upgrade block.
-
-Since: 1.0
-
+=== Since ===
+1.0
 === Syntax ===
-
 {{{
 IGNORE SQL ERROR <SQLState> [, <SQLState>, ...]
 /IGNORE SQL ERROR
 }}}
-
 === Example ===
-
 {{{
 --* IGNORE SQL ERROR S0001
 DROP VIEW NONEXISTING_VIEW
 GO
 --* /IGNORE SQL ERROR
+}}}
+
+----------------------------------------
+== SET USER ==
+Changes the current user.
+
+Will ask for the password once. The current user is reset at the start of each upgrade block.
+
+Not supported when using the Ant task or Maven plugin, the secondary connections facility should be used instead when using Ant or Maven.
+=== Since ===
+1.0
+=== Syntax ===
+{{{
+--* SET USER <username>
+}}}
+=== Example ===
+{{{
+--* SET USER OTHERUSER
 }}}
