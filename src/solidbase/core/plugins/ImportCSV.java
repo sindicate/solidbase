@@ -58,7 +58,7 @@ public class ImportCSV extends CommandListener
 {
 	static private final Pattern triggerPattern = Pattern.compile( "IMPORT\\s+CSV\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
-	static private final Pattern parameterPattern = Pattern.compile( ":{1,2}(\\d)+" );
+	static private final Pattern parameterPattern = Pattern.compile( ":{1,2}(\\d+)" );
 
 //	static private final String syntax = "IMPORT CSV [SEPARATED BY TAB|<char>] [PREPEND LINENUMBER] [USING PLBLOCK|VALUESLIST] INTO <table> [(<colums>)] [VALUES (<values>)] DATA <newline> <data>";
 
