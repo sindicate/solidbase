@@ -179,22 +179,22 @@ public class Import
 				"('4','5','6')\n"
 		);
 		sql = generateSQLUsingValuesList( "IMPORT CSV SEPARATED BY ; PREPEND LINENUMBER INTO TEMP2 DATA\n" +
-				"\"1\"; \"2\"; \"3\"" +
-				"\n\"4\"; \"5\"; \"6\"\n"
+				"\"1\"; \"\"; \"3\"" +
+				"\n\"4\"; ; \"6\"\n"
 		);
-		Assert.assertEquals( sql, "INSERT INTO TEMP2 VALUES (2,'1','2','3'),\n" +
-				"(3,'4','5','6')\n"
+		Assert.assertEquals( sql, "INSERT INTO TEMP2 VALUES (2,'1',NULL,'3'),\n" +
+				"(3,'4',NULL,'6')\n"
 		);
 		sql = generateSQLUsingValuesList( "IMPORT CSV\n" +
 				"SEPARATED BY |\n" +
 				"INTO TEMP3 ( TEMP1, TEMP2, TEMP3, TEMP4 )\n" +
-				"VALUES ( :2, CONVERT( :1, INTEGER ) + :2, 'Y', '-)-\", TEST ''X' )\n" +
+				"VALUES ( ::2, CONVERT( :1, INTEGER ) + :2, 'Y', '-)-\", TEST ''X' )\n" +
 				"DATA\n" +
 				"1|2\n" +
 				"3|4\n"
 		);
-		Assert.assertEquals( sql, "INSERT INTO TEMP3 (TEMP1,TEMP2,TEMP3,TEMP4) VALUES ('2',CONVERT( '1', INTEGER ) + '2','Y','-)-\", TEST ''X'),\n" +
-				"('4',CONVERT( '3', INTEGER ) + '4','Y','-)-\", TEST ''X')\n"
+		Assert.assertEquals( sql, "INSERT INTO TEMP3 (TEMP1,TEMP2,TEMP3,TEMP4) VALUES (2,CONVERT( '1', INTEGER ) + '2','Y','-)-\", TEST ''X'),\n" +
+				"(4,CONVERT( '3', INTEGER ) + '4','Y','-)-\", TEST ''X')\n"
 		);
 	}
 }

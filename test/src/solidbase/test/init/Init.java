@@ -19,7 +19,6 @@ package solidbase.test.init;
 import java.sql.SQLException;
 import java.util.Set;
 
-import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import solidbase.core.Database;
@@ -29,12 +28,6 @@ import solidbase.test.core.TestProgressListener;
 
 public class Init
 {
-	@BeforeSuite
-	public void beforeSuite() throws ClassNotFoundException
-	{
-		Class.forName( "org.hsqldb.jdbcDriver" );
-	}
-
 	@Test
 	public void testInit1() throws SQLException
 	{
