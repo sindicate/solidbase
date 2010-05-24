@@ -1,5 +1,29 @@
 #summary Reference Guide describing every feature of SolidBase (in progress)
 
-== `IGNORE SQL ERROR <SQLState> [, <SQLState>, ...]` ==
+This guide is based on the upcoming 1.6 release of !SolidBase.
 
-Test
+[#IGNORE_SQL_ERROR]
+
+== IGNORE SQL ERROR ==
+
+Enables ignoring of specific database errors.
+
+Ignores can be nested. Ignores are reset at the beginning of each upgrade block.
+
+Since: 1.0
+
+=== Syntax ===
+
+{{{
+IGNORE SQL ERROR <SQLState> [, <SQLState>, ...]
+/IGNORE SQL ERROR
+}}}
+
+=== Example ===
+
+{{{
+--* IGNORE SQL ERROR S0001
+DROP VIEW NONEXISTING_VIEW
+GO
+--* /IGNORE SQL ERROR
+}}}
