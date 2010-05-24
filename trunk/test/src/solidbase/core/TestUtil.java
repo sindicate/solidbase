@@ -117,6 +117,15 @@ public class TestUtil
 	{
 		try
 		{
+			Class.forName( "org.hsqldb.jdbcDriver" );
+		}
+		catch( ClassNotFoundException e )
+		{
+			throw new SystemException( e );
+		}
+
+		try
+		{
 			Connection connection = DriverManager.getConnection( url, username, password );
 			connection.createStatement().execute( "DROP SCHEMA PUBLIC CASCADE" );
 		}

@@ -58,7 +58,7 @@ public class ImportCSV extends CommandListener
 {
 	static private final Pattern triggerPattern = Pattern.compile( "IMPORT\\s+CSV\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
-	static private final Pattern parameterPattern = Pattern.compile( ":(\\d)+" );
+	static private final Pattern parameterPattern = Pattern.compile( ":{1,2}(\\d)+" );
 
 //	static private final String syntax = "IMPORT CSV [SEPARATED BY TAB|<char>] [PREPEND LINENUMBER] [USING PLBLOCK|VALUESLIST] INTO <table> [(<colums>)] [VALUES (<values>)] DATA <newline> <data>";
 
@@ -178,6 +178,8 @@ public class ImportCSV extends CommandListener
 		sql.append( "BEGIN\n" );
 		while( line != null )
 		{
+			preprocess( line );
+
 			sql.append( "INSERT INTO " );
 			sql.append( tableName );
 			if( columns != null )
@@ -214,9 +216,7 @@ public class ImportCSV extends CommandListener
 				{
 					if( i > 0 )
 						sql.append( ',' );
-					sql.append( '\'' );
-					sql.append( escape( line[ i ] ) );
-					sql.append( '\'' );
+					sql.append( quoteOrNull( line[ i ] ) );
 				}
 			}
 			sql.append( ");\n" );
@@ -303,6 +303,8 @@ public class ImportCSV extends CommandListener
 		sql.append( " VALUES " );
 		while( line != null )
 		{
+			preprocess( line );
+
 			if( columns != null && values == null )
 				if( columns.length != ( prependLineNumber ? line.length + 1 : line.length ) )
 					throw new CommandFileException( "Number of values does not match number of specified columns", lineNumber );
@@ -330,9 +332,7 @@ public class ImportCSV extends CommandListener
 				{
 					if( i > 0 )
 						sql.append( ',' );
-					sql.append( '\'' );
-					sql.append( escape( line[ i ] ) );
-					sql.append( '\'' );
+					sql.append( quoteOrNull( line[ i ] ) );
 				}
 			}
 			sql.append( ")" );
@@ -428,6 +428,7 @@ public class ImportCSV extends CommandListener
 		{
 			while( true )
 			{
+				preprocess( line );
 				statement.clearParameters();
 
 				int pos = 1;
@@ -502,15 +503,20 @@ public class ImportCSV extends CommandListener
 		while( matcher.find() )
 		{
 			int num = Integer.parseInt( matcher.group( 1 ) );
-			if( prependLineNumber )
-			{
-				if( num == 1 )
-					matcher.appendReplacement( result, String.valueOf( lineNumber ) );
-				else
-					matcher.appendReplacement( result, "'" + line[ num - 2 ] + "'" );
-			}
+			if( prependLineNumber && num == 1 )
+				matcher.appendReplacement( result, String.valueOf( lineNumber ) );
 			else
-				matcher.appendReplacement( result, "'" + line[ num - 1 ] + "'" );
+			{
+				if( prependLineNumber )
+					num--;
+				String field = line[ num - 1 ];
+				if( !matcher.group().startsWith( "::" ) )
+					field = quoteOrNull( field );
+				else
+					if( field == null )
+						field = "NULL";
+				matcher.appendReplacement( result, field );
+			}
 		}
 		matcher.appendTail( result );
 		return result.toString();
@@ -518,14 +524,29 @@ public class ImportCSV extends CommandListener
 
 
 	/**
-	 * Converts ' to ''.
+	 * Replaces empty strings with null.
 	 * 
-	 * @param s The sql to escape.
-	 * @return Escaped sql.
+	 * @param line The line to preprocess.
 	 */
-	static protected String escape( String s )
+	static protected void preprocess( String[] line )
 	{
-		return s.replaceAll( "'", "''" );
+		for( int i = 0; i < line.length; i++ )
+			if( line[ i ].length() == 0 )
+				line[ i ] = null;
+	}
+
+
+	/**
+	 * Adds quotes, escapes, and return NULL if the value == null.
+	 * 
+	 * @param value The value to escape.
+	 * @return Quoted value.
+	 */
+	static protected String quoteOrNull( String value )
+	{
+		if( value == null )
+			return "NULL";
+		return "'" + value.replaceAll( "'", "''" ) + "'";
 	}
 
 
