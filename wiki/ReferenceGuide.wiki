@@ -13,8 +13,8 @@ Ignores can be nested. Ignores are reset at the beginning of each upgrade block.
 1.0
 === Syntax ===
 {{{
-IGNORE SQL ERROR <SQLState> [, <SQLState>, ...]
-/IGNORE SQL ERROR
+--* IGNORE SQL ERROR <SQLState> [, <SQLState>, ...]
+--* /IGNORE SQL ERROR
 }}}
 === Example ===
 {{{
