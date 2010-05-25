@@ -35,4 +35,11 @@
 	</target>
 
 
+	<target name="ant-test-sections">
+		<taskdef resource="solidbasetasks" classpathref="test.classpath" />
+		<solidbase-sql driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testdb"
+				username="sa" password="" sqlfile="testsql-sections.sql" />
+	</target>
+
+
 </project>

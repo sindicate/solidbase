@@ -99,6 +99,17 @@ public class ProgressListener
 	}
 
 	/**
+	 * A section is started.
+	 * 
+	 * @param level Section level.
+	 * @param message Message.
+	 */
+	protected void startSection( int level, String message )
+	{
+		// could be implemented in subclass
+	}
+
+	/**
 	 * About to execute to given command with the given message for the user.
 	 * 
 	 * @param command The command that is about to be executed.

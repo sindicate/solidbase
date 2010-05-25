@@ -41,4 +41,21 @@ public class Sql
 
 		TestUtil.assertRecordCount( database, "USERS", 13 );
 	}
+
+	@Test(groups="new")
+	// TODO Move to console test
+	public void testSql2() throws SQLException
+	{
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+
+		TestProgressListener progress = new TestProgressListener();
+		Database database = new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress );
+		SQLProcessor executer = new SQLProcessor( progress, database );
+
+		executer.init( "testsql-sections.sql" );
+		executer.execute();
+		executer.end();
+
+		TestUtil.assertRecordCount( database, "USERS", 13 );
+	}
 }
