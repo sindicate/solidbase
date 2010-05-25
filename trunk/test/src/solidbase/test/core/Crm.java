@@ -27,7 +27,7 @@ import solidbase.core.TestUtil;
 
 public class Crm
 {
-	@Test(groups="new")
+	@Test
 	public void testCRM() throws SQLException
 	{
 		TestUtil.dropDerbyDatabase( "jdbc:derby:memory:test" );

@@ -47,30 +47,6 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	protected void openedPatchFile( PatchFile patchFile )
-	{
-		System.out.println( "OPENEDPATCHFILE: " + patchFile );
-	}
-
-	@Override
-	protected void openedSQLFile( SQLFile sqlFile )
-	{
-		System.out.println( "OPENEDSQLFILE: " + sqlFile );
-	}
-
-	@Override
-	protected void executed()
-	{
-		System.out.println( "EXECUTED." );
-	}
-
-	@Override
-	protected void executing( Command command, String message )
-	{
-		System.out.println( "EXECUTING: " + message );
-	}
-
-	@Override
 	protected void openingPatchFile( File patchFile )
 	{
 		System.out.println( "OPENINGPATCHFILE: " + patchFile );
@@ -92,6 +68,36 @@ public class TestProgressListener extends ProgressListener
 	public void openingSQLFile( URL sqlFile )
 	{
 		System.out.println( "OPENINGSQLFILE: " + sqlFile );
+	}
+
+	@Override
+	protected void openedPatchFile( PatchFile patchFile )
+	{
+		System.out.println( "OPENEDPATCHFILE: " + patchFile );
+	}
+
+	@Override
+	protected void openedSQLFile( SQLFile sqlFile )
+	{
+		System.out.println( "OPENEDSQLFILE: " + sqlFile );
+	}
+
+	@Override
+	protected void startSection( int level, String message )
+	{
+		System.out.println( "STARTSECTION: " + message + ", level " + level );
+	}
+
+	@Override
+	protected void executing( Command command, String message )
+	{
+		System.out.println( "EXECUTING: " + message );
+	}
+
+	@Override
+	protected void executed()
+	{
+		System.out.println( "EXECUTED." );
 	}
 
 	@Override

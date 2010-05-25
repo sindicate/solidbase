@@ -162,7 +162,7 @@ public class PatchFile extends SQLFile
 						this.versionTableName = matcher.group( 1 );
 						this.logTableName = matcher.group( 2 );
 					}
-					else if( ( matcher = CommandProcessor.DELIMITER_PATTERN.matcher( line ) ).matches() )
+					else if( ( matcher = CommandProcessor.delimiterPattern.matcher( line ) ).matches() )
 					{
 						setDefaultDelimiters( CommandProcessor.parseDelimiters( matcher ) );
 					}

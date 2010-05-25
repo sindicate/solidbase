@@ -65,12 +65,17 @@ public class CommandProcessor
 	/**
 	 * Pattern for SET MESSAGE.
 	 */
-	static protected final Pattern startMessagePattern = Pattern.compile( "(?:SET\\s+MESSAGE|MESSAGE\\s+START)\\s+[\"](.*)[\"]", Pattern.CASE_INSENSITIVE );
+	static protected final Pattern startMessagePattern = Pattern.compile( "(?:SET\\s+MESSAGE|MESSAGE\\s+START)\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * Pattern for DELIMITER.
 	 */
-	static protected final Pattern DELIMITER_PATTERN = Pattern.compile( "DELIMITER\\s+IS(?:\\s+(ISOLATED)|\\s+(TRAILING))?\\s+(\\S+)(?:\\sOR(?:\\s+(ISOLATED)|\\s+(TRAILING))?\\s+(\\S+))?", Pattern.CASE_INSENSITIVE );
+	static protected final Pattern delimiterPattern = Pattern.compile( "DELIMITER\\s+IS(?:\\s+(ISOLATED)|\\s+(TRAILING))?\\s+(\\S+)(?:\\sOR(?:\\s+(ISOLATED)|\\s+(TRAILING))?\\s+(\\S+))?", Pattern.CASE_INSENSITIVE );
+
+	/**
+	 * Pattern for SECTION.
+	 */
+	static protected final Pattern sectionPattern = Pattern.compile( "SECTION(?:\\.(\\d))?\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * The SQL file being executed.
@@ -88,6 +93,11 @@ public class CommandProcessor
 	 * The message that should be shown when a statement is executed.
 	 */
 	protected String startMessage;
+
+	/**
+	 * Current section nesting.
+	 */
+	protected int sectionLevel;
 
 	/**
 	 * Errors that should be ignored. @{link #ignoreSet} is kept in sync with this stack.
@@ -226,18 +236,20 @@ public class CommandProcessor
 		{
 			String sql = command.getCommand();
 			Matcher matcher;
-			if( ( matcher = ignoreSqlErrorPattern.matcher( sql ) ).matches() )
+			if( ( matcher = sectionPattern.matcher( sql ) ).matches() )
+				section( matcher.group( 1 ), matcher.group( 2 ), command );
+			else if( ( matcher = startMessagePattern.matcher( sql ) ).matches() )
+				this.startMessage = matcher.group( 1 );
+			else if( ( matcher = delimiterPattern.matcher( sql ) ).matches() )
+				delimiter( matcher );
+			else if( ( matcher = ignoreSqlErrorPattern.matcher( sql ) ).matches() )
 				pushIgnores( matcher.group( 1 ) );
 			else if( ignoreEnd.matcher( sql ).matches() )
 				popIgnores();
-			else if( ( matcher = setUserPattern.matcher( sql ) ).matches() )
-				setUser( matcher.group( 1 ) );
-			else if( ( matcher = startMessagePattern.matcher( sql ) ).matches() )
-				this.startMessage = matcher.group( 1 );
 			else if( ( matcher = selectConnectionPattern.matcher( sql ) ).matches() )
 				selectConnection( matcher.group( 1 ), command );
-			else if( ( matcher = DELIMITER_PATTERN.matcher( sql ) ).matches() )
-				delimiter( matcher );
+			else if( ( matcher = setUserPattern.matcher( sql ) ).matches() )
+				setUser( matcher.group( 1 ) );
 			else
 				throw new CommandFileException( "Unknown command " + sql, command.getLineNumber() );
 		}
@@ -323,6 +335,24 @@ public class CommandProcessor
 	{
 		this.ignoreStack.pop();
 		refreshIgnores();
+	}
+
+	/**
+	 * Starts a new section.
+	 * 
+	 * @param level The level of the section.
+	 * @param message The message to be shown.
+	 * @param command The command that started this.
+	 */
+	protected void section( String level, String message, Command command )
+	{
+		int l = level != null ? Integer.parseInt( level ) : 1;
+		if( l < 1 || l > 9 )
+			throw new CommandFileException( "Section level must be 1..9", command.getLineNumber() );
+		if( l > this.sectionLevel + 1 )
+			throw new CommandFileException( "Current section level is " + this.sectionLevel + ", can't start new section level " + level, command.getLineNumber() );
+		this.sectionLevel = l;
+		this.progress.startSection( l, message );
 	}
 
 	/**

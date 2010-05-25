@@ -37,6 +37,8 @@ import solidbase.core.SQLFile;
  */
 public class Progress extends ProgressListener
 {
+	static private final String SPACES = "                                        ";
+
 	/**
 	 * The Ant project.
 	 */
@@ -52,6 +54,8 @@ public class Progress extends ProgressListener
 	 */
 	protected StringBuilder buffer;
 
+
+	protected String[] messages = new String[ 10 ];
 
 	/**
 	 * Constructor.
@@ -161,8 +165,25 @@ public class Progress extends ProgressListener
 	}
 
 	@Override
+	protected void startSection( int level, String message )
+	{
+		this.messages[ level ] = message;
+	}
+
+	@Override
 	protected void executing( Command command, String message )
 	{
+		for( int i = 0; i < this.messages.length; i++ )
+		{
+			String m = this.messages[ i ];
+			if( m != null )
+			{
+				flush();
+				this.buffer = new StringBuilder().append( SPACES, 0, i * 4 ).append( m );
+				this.messages[ i ] = null;
+			}
+		}
+
 		if( message != null ) // Message can be null, when a message has not been set, but sql is still being executed
 		{
 			flush();
