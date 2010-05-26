@@ -121,7 +121,7 @@
 		<mkdir dir="${build.home}/classes" />
 		<javac srcdir="src" destdir="${build.home}/classes" source="${target-jre}" target="${target-jre}" optimize="true" debug="true" deprecation="true" classpathref="compile.classpath" />
 		<sync todir="${build.home}/classes">
-			<fileset dir="src" excludes="**/*.java" />
+			<fileset dir="src" excludes="**/*.java,**/*.html" />
 			<preserveInTarget includes="**/*.class" />
 		</sync>
 	</target>
