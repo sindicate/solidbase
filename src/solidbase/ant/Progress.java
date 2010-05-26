@@ -54,7 +54,9 @@ public class Progress extends ProgressListener
 	 */
 	protected StringBuilder buffer;
 
-
+	/**
+	 * A store for nested messages coming from SECTIONs in the command file.
+	 */
 	protected String[] messages = new String[ 10 ];
 
 	/**
