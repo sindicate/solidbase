@@ -34,6 +34,8 @@ import solidbase.core.SQLExecutionException;
  */
 public class Progress extends ProgressListener implements ConfigListener
 {
+	static private final String SPACES = "                                        ";
+
 	/**
 	 * Show extra information?
 	 */
@@ -44,6 +46,10 @@ public class Progress extends ProgressListener implements ConfigListener
 	 */
 	protected Console console;
 
+	/**
+	 * A store for nested messages coming from SECTIONs in the command file.
+	 */
+	protected String[] messages = new String[ 10 ];
 
 	/**
 	 * Constructor.
@@ -106,8 +112,26 @@ public class Progress extends ProgressListener implements ConfigListener
 	}
 
 	@Override
+	protected void startSection( int level, String message )
+	{
+		this.messages[ level ] = message;
+	}
+
+	@Override
 	protected void executing( Command command, String message )
 	{
+		for( int i = 0; i < this.messages.length; i++ )
+		{
+			String m = this.messages[ i ];
+			if( m != null )
+			{
+				this.console.carriageReturn();
+				this.console.print( SPACES.substring( 0, i * 4 ) );
+				this.console.print( m );
+				this.messages[ i ] = null;
+			}
+		}
+
 		if( message != null ) // Message can be null, when a message has not been set, but sql is still being executed
 		{
 			this.console.carriageReturn();

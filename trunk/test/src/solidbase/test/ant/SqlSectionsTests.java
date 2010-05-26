@@ -84,15 +84,18 @@ public class SqlSectionsTests extends BuildFileTest
 		String log = TestUtil.generalizeOutput( getLog() );
 		Assert.assertEquals( log, "SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
-				"Opening file 'X:\\...\\testsql1.sql'\n" +
+				"Opening file 'X:\\...\\testsql-sections.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"    Creating table USERS.\n" +
-				"    Inserting admin user.\n" +
-				"    Inserting 3 users...\n" +
-				"    Inserting 3 users.\n" +
-				"    Inserting 3 users.\n" +
-				"    Inserting 3 users...\n" +
+				"    Filling USERS\n" +
+				"        Inserting admin user.\n" +
+				"        Inserting 3 users...\n" +
+				"        Inserting 3 users.\n" +
+				"    Adding more USERS\n" +
+				"        Inserting 3 users\n" +
+				"And a message.\n" +
+				"        Inserting 3 users...\n" +
 				"Execution complete.\n" +
 				"\n"
 		);
