@@ -229,7 +229,7 @@ public class ImportCSV extends CommandListener
 			{
 				line = null;
 			}
-			lineNumber++; // TODO linenumber is useless this way
+			lineNumber++;
 		}
 		sql.append( "END;\n" );
 		return sql.toString();
@@ -350,7 +350,7 @@ public class ImportCSV extends CommandListener
 				sql.append( ',' );
 			sql.append( '\n' );
 
-			lineNumber++; // TODO linenumber is useless this way
+			lineNumber++;
 		}
 		return sql.toString();
 	}
@@ -429,7 +429,6 @@ public class ImportCSV extends CommandListener
 			while( true )
 			{
 				preprocess( line );
-				statement.clearParameters();
 
 				int pos = 1;
 				for( int par : parameterMap )
@@ -444,8 +443,8 @@ public class ImportCSV extends CommandListener
 					else
 						statement.setString( pos++, line[ par - 1 ] );
 				}
-				//System.out.println( statement.toString() );
-				statement.executeUpdate();
+
+				statement.addBatch();
 
 				try
 				{
@@ -453,8 +452,10 @@ public class ImportCSV extends CommandListener
 				}
 				catch( EOFException e )
 				{
+					statement.executeBatch();
 					return;
 				}
+
 				lineNumber++;
 			}
 		}

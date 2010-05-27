@@ -60,6 +60,7 @@ public class SQLExecutionException extends FatalException
 	 * @return all messages and SQLStates from the {@link SQLException} combined into one string.
 	 * @see SQLException#getNextException()
 	 */
+	// TODO When BatchUpdateException, in Derby we get the message twice because of BatchUpdatException composing it from the exception chain. And in Oracle?
 	public String getSQLErrorMessages()
 	{
 		StringBuilder result = new StringBuilder();
