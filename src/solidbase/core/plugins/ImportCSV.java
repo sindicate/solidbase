@@ -444,7 +444,10 @@ public class ImportCSV extends CommandListener
 						statement.setString( pos++, line[ par - 1 ] );
 				}
 
-				statement.addBatch();
+				if( parsed.noBatch )
+					statement.executeUpdate();
+				else
+					statement.addBatch();
 
 				try
 				{
@@ -452,7 +455,8 @@ public class ImportCSV extends CommandListener
 				}
 				catch( EOFException e )
 				{
-					statement.executeBatch();
+					if( !parsed.noBatch )
+						statement.executeBatch();
 					return;
 				}
 
@@ -568,7 +572,7 @@ public class ImportCSV extends CommandListener
 		tokenizer.get( "IMPORT" );
 		tokenizer.get( "CSV" );
 
-		Token t = tokenizer.get( "SEPARATED", "PREPEND", "USING", "INTO" );
+		Token t = tokenizer.get( "SEPARATED", "PREPEND", "NOBATCH", "USING", "INTO" );
 
 		if( t.equals( "SEPARATED" ) )
 		{
@@ -583,13 +587,20 @@ public class ImportCSV extends CommandListener
 				result.separator = t.getValue().charAt( 0 );
 			}
 
-			t = tokenizer.get( "PREPEND", "USING", "INTO" );
+			t = tokenizer.get( "PREPEND", "NOBATCH", "USING", "INTO" );
 		}
 
 		if( t.equals( "PREPEND" ) )
 		{
 			tokenizer.get( "LINENUMBER" );
 			result.prependLineNumber = true;
+
+			t = tokenizer.get( "NOBATCH", "USING", "INTO" );
+		}
+
+		if( t.equals( "NOBATCH" ) )
+		{
+			result.noBatch = true;
 
 			t = tokenizer.get( "USING", "INTO" );
 		}
@@ -738,6 +749,10 @@ public class ImportCSV extends CommandListener
 		 * The current line number in the command file.
 		 */
 		protected int lineNumber;
+		/**
+		 * Don't use JDBC batch update.
+		 */
+		protected boolean noBatch;
 		/**
 		 * Generate SQL with the ANSI SQL values list.
 		 */
