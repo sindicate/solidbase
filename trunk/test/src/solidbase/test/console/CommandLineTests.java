@@ -187,14 +187,16 @@ public class CommandLineTests
 
 		Assert.assertEquals( output,
 				"usage: solidbase [-config <filename>] [-downgradeallowed] [-driver <classname>]\n" +
-				"       [-dumplog <filename>] [-help] [-password <password>] [-target <version>]\n" +
-				"       [-upgradefile <filename>] [-url <url>] [-username <username>] [-verbose]\n" +
+				"       [-dumplog <filename>] [-help] [-password <password>] [-sqlfile <arg>]\n" +
+				"       [-target <version>] [-upgradefile <filename>] [-url <url>] [-username\n" +
+				"       <username>] [-verbose]\n" +
 				" -config <filename>        specifies the properties file to use\n" +
 				" -downgradeallowed         allow downgrades to reach the target\n" +
 				" -driver <classname>       sets the jdbc driverclass\n" +
 				" -dumplog <filename>       export historical patch results to an xml file\n" +
 				" -help                     Brings up this page\n" +
 				" -password <password>      sets the password of the default username\n" +
+				" -sqlfile <arg>            specifies an sql file to process\n" +
 				" -target <version>         sets the target version\n" +
 				" -upgradefile <filename>   specifies the file containing the database upgrades\n" +
 				" -url <url>                sets the url for the database\n" +
@@ -218,19 +220,60 @@ public class CommandLineTests
 
 		Assert.assertEquals( output,
 				"usage: solidbase [-config <filename>] [-downgradeallowed] [-driver <classname>]\n" +
-				"       [-dumplog <filename>] [-help] [-password <password>] [-target <version>]\n" +
-				"       [-upgradefile <filename>] [-url <url>] [-username <username>] [-verbose]\n" +
+				"       [-dumplog <filename>] [-help] [-password <password>] [-sqlfile <arg>]\n" +
+				"       [-target <version>] [-upgradefile <filename>] [-url <url>] [-username\n" +
+				"       <username>] [-verbose]\n" +
 				" -config <filename>        specifies the properties file to use\n" +
 				" -downgradeallowed         allow downgrades to reach the target\n" +
 				" -driver <classname>       sets the jdbc driverclass\n" +
 				" -dumplog <filename>       export historical patch results to an xml file\n" +
 				" -help                     Brings up this page\n" +
 				" -password <password>      sets the password of the default username\n" +
+				" -sqlfile <arg>            specifies an sql file to process\n" +
 				" -target <version>         sets the target version\n" +
 				" -upgradefile <filename>   specifies the file containing the database upgrades\n" +
 				" -url <url>                sets the url for the database\n" +
 				" -username <username>      sets the default username to patch with\n" +
 				" -verbose                  be extra verbose\n"
+		);
+	}
+
+	@Test(groups="new")
+	public void testCommandLineSQLFile() throws Exception
+	{
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+
+		MockConsole console = new MockConsole();
+
+		Main.console = console;
+
+		// TODO Rename patchfile to test the -patchfile option
+		Main.main0( "-driver", "org.hsqldb.jdbcDriver",
+				"-url", "jdbc:hsqldb:mem:testdb",
+				"-username", "sa",
+				"-password", "",
+				"-sqlfile", "testsql-sections.sql" );
+
+		String output = TestUtil.generalizeOutput( console.getOutput() );
+
+		//System.out.println( "[[[" + output + "]]]" );
+
+		Assert.assertEquals( output,
+				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
+				"\n" +
+				"Opening file 'testsql-sections.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
+				"Connecting to database...\n" +
+				"    Creating table USERS.\n" +
+				"    Filling USERS\n" +
+				"        Inserting admin user.\n" +
+				"        Inserting 3 users...\n" +
+				"        Inserting 3 users.\n" +
+				"    Adding more USERS\n" +
+				"        Inserting 3 users\n" +
+				"And a message.\n" +
+				"        Inserting 3 users...\n" +
+				"Execution complete.\n\n"
 		);
 	}
 }

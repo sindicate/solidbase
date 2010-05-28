@@ -25,6 +25,7 @@ import solidbase.core.Patch;
 import solidbase.core.PatchFile;
 import solidbase.core.ProgressListener;
 import solidbase.core.SQLExecutionException;
+import solidbase.core.SQLFile;
 
 
 /**
@@ -76,15 +77,33 @@ public class Progress extends ProgressListener implements ConfigListener
 	}
 
 	@Override
+	protected void openingSQLFile( File sqlFile )
+	{
+		this.console.println( "Opening file '" + sqlFile + "'" );
+	}
+
+	@Override
 	protected void openingPatchFile( URL patchFile )
 	{
 		this.console.println( "Opening file '" + patchFile + "'" );
 	}
 
 	@Override
-	public void openedPatchFile( PatchFile patchFile )
+	protected void openingSQLFile( URL sqlFile )
+	{
+		this.console.println( "Opening file '" + sqlFile + "'" );
+	}
+
+	@Override
+	protected void openedPatchFile( PatchFile patchFile )
 	{
 		this.console.println( "    Encoding is '" + patchFile.getEncoding() + "'" );
+	}
+
+	@Override
+	protected void openedSQLFile( SQLFile sqlFile )
+	{
+		this.console.println( "    Encoding is '" + sqlFile.getEncoding() + "'" );
 	}
 
 	@Override
@@ -160,7 +179,15 @@ public class Progress extends ProgressListener implements ConfigListener
 	@Override
 	protected void upgradeComplete()
 	{
+		this.console.carriageReturn();
 		this.console.println( "The database is upgraded." );
+	}
+
+	@Override
+	protected void sqlExecutionComplete()
+	{
+		this.console.carriageReturn();
+		this.console.println( "Execution complete." );
 	}
 
 	@Override
