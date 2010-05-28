@@ -25,6 +25,7 @@ import solidbase.Main;
 import solidbase.Progress;
 import solidbase.config.Configuration;
 import solidbase.config.Manipulator;
+import solidbase.config.Options;
 import solidbase.core.TestUtil;
 
 
@@ -39,7 +40,7 @@ public class ThroughConsoleTests
 		Mockit.redefineMethods( Configuration.class, new MockConfiguration( "solidbase1.properties" ) );
 
 		// Test the mock itself
-		Configuration configuration = new Configuration( new Progress( null, false ), 2, null, null, null, null, null, null, null );
+		Configuration configuration = new Configuration( new Progress( null, false ), 2, new Options( false, false, null, null, null, null, null, null, null, null, false, false ) );
 		Assert.assertEquals( Manipulator.getConfigurationPropertiesFile( configuration ).getName(), "solidbase1.properties" );
 
 		// Start test
