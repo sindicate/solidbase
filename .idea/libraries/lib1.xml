@@ -1,0 +1,17 @@
+<component name="libraryTable">
+  <library name="lib1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/json-simple-1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-lang-2.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-collections-3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/classworlds-1.1-source.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/groovy-all-1.5.7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-cli-1.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven-project-2.0.8.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/apache-ant-1.7.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven-plugin-api-2.0.8.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
