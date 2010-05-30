@@ -337,7 +337,7 @@ public class PatchProcessor extends CommandProcessor
 			String t = targets.iterator().next();
 			patch( this.dbVersion.getVersion(), t, downgradeable );
 			this.progress.upgradeComplete();
-			return;
+			return; // TODO What about the terminateCommandListeners below?
 		}
 
 		LinkedHashSet< String > targets;
