@@ -190,17 +190,17 @@ public class CommandLineTests
 				"       [-dumplog <filename>] [-help] [-password <password>] [-sqlfile <arg>]\n" +
 				"       [-target <version>] [-upgradefile <filename>] [-url <url>] [-username\n" +
 				"       <username>] [-verbose]\n" +
-				" -config <filename>        specifies the properties file to use\n" +
+				" -config <filename>        specifies a properties file to use\n" +
 				" -downgradeallowed         allow downgrades to reach the target\n" +
-				" -driver <classname>       sets the jdbc driverclass\n" +
-				" -dumplog <filename>       export historical patch results to an xml file\n" +
+				" -driver <classname>       sets the JDBC driverclass\n" +
+				" -dumplog <filename>       export historical upgrade results to an XML file\n" +
 				" -help                     Brings up this page\n" +
-				" -password <password>      sets the password of the default username\n" +
-				" -sqlfile <arg>            specifies an sql file to process\n" +
-				" -target <version>         sets the target version\n" +
+				" -password <password>      sets the password of the default user\n" +
+				" -sqlfile <arg>            specifies an SQL file to execute\n" +
+				" -target <version>         sets the target version to upgrade to\n" +
 				" -upgradefile <filename>   specifies the file containing the database upgrades\n" +
-				" -url <url>                sets the url for the database\n" +
-				" -username <username>      sets the default username to patch with\n" +
+				" -url <url>                sets the URL for the database\n" +
+				" -username <username>      sets the default user name to connect with\n" +
 				" -verbose                  be extra verbose\n"
 		);
 	}
@@ -223,17 +223,17 @@ public class CommandLineTests
 				"       [-dumplog <filename>] [-help] [-password <password>] [-sqlfile <arg>]\n" +
 				"       [-target <version>] [-upgradefile <filename>] [-url <url>] [-username\n" +
 				"       <username>] [-verbose]\n" +
-				" -config <filename>        specifies the properties file to use\n" +
+				" -config <filename>        specifies a properties file to use\n" +
 				" -downgradeallowed         allow downgrades to reach the target\n" +
-				" -driver <classname>       sets the jdbc driverclass\n" +
-				" -dumplog <filename>       export historical patch results to an xml file\n" +
+				" -driver <classname>       sets the JDBC driverclass\n" +
+				" -dumplog <filename>       export historical upgrade results to an XML file\n" +
 				" -help                     Brings up this page\n" +
-				" -password <password>      sets the password of the default username\n" +
-				" -sqlfile <arg>            specifies an sql file to process\n" +
-				" -target <version>         sets the target version\n" +
+				" -password <password>      sets the password of the default user\n" +
+				" -sqlfile <arg>            specifies an SQL file to execute\n" +
+				" -target <version>         sets the target version to upgrade to\n" +
 				" -upgradefile <filename>   specifies the file containing the database upgrades\n" +
-				" -url <url>                sets the url for the database\n" +
-				" -username <username>      sets the default username to patch with\n" +
+				" -url <url>                sets the URL for the database\n" +
+				" -username <username>      sets the default user name to connect with\n" +
 				" -verbose                  be extra verbose\n"
 		);
 	}
@@ -264,7 +264,7 @@ public class CommandLineTests
 				"Opening file 'testsql-sections.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
-				"    Creating table USERS.\n" +
+				"Creating table USERS.\n" +
 				"    Filling USERS\n" +
 				"        Inserting admin user.\n" +
 				"        Inserting 3 users...\n" +

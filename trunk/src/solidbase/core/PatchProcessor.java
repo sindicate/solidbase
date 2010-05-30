@@ -114,6 +114,7 @@ public class PatchProcessor extends CommandProcessor
 	public PatchProcessor( ProgressListener listener )
 	{
 		super( listener );
+		this.defaultSectionLevel = 1;
 	}
 
 	/**
@@ -125,6 +126,7 @@ public class PatchProcessor extends CommandProcessor
 	public PatchProcessor( ProgressListener listener, Database database )
 	{
 		super( listener, database );
+		this.defaultSectionLevel = 1;
 	}
 
 	/**

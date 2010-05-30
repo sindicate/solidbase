@@ -78,6 +78,11 @@ public class CommandProcessor
 	static protected final Pattern sectionPattern = Pattern.compile( "SECTION(?:\\.(\\d))?\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
 
 	/**
+	 * Default section nesting.
+	 */
+	protected int defaultSectionLevel = 0;
+
+	/**
 	 * The SQL file being executed.
 	 */
 	protected SQLFile sqlFile;
@@ -346,11 +351,11 @@ public class CommandProcessor
 	 */
 	protected void section( String level, String message, Command command )
 	{
-		int l = level != null ? Integer.parseInt( level ) : 1;
-		if( l < 1 || l > 9 )
-			throw new CommandFileException( "Section level must be 1..9", command.getLineNumber() );
+		int l = level != null ? Integer.parseInt( level ) : this.defaultSectionLevel;
+		if( l < 0 || l > 9 )
+			throw new CommandFileException( "Section level must be 0..9", command.getLineNumber() );
 		if( l > this.sectionLevel + 1 )
-			throw new CommandFileException( "Current section level is " + this.sectionLevel + ", can't start new section level " + level, command.getLineNumber() );
+			throw new CommandFileException( "Section levels can't be skipped, current section level is " + this.sectionLevel, command.getLineNumber() );
 		this.sectionLevel = l;
 		this.progress.startSection( l, message );
 	}
