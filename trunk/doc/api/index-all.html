@@ -77,7 +77,7 @@ function windowTitle()
 <A NAME="skip-navbar_top"></A>
 <!-- ========= END OF TOP NAVBAR ========= -->
 
-<A HREF="#_A_">A</A> <A HREF="#_B_">B</A> <A HREF="#_C_">C</A> <A HREF="#_D_">D</A> <A HREF="#_E_">E</A> <A HREF="#_F_">F</A> <A HREF="#_G_">G</A> <A HREF="#_H_">H</A> <A HREF="#_I_">I</A> <A HREF="#_J_">J</A> <A HREF="#_L_">L</A> <A HREF="#_M_">M</A> <A HREF="#_N_">N</A> <A HREF="#_O_">O</A> <A HREF="#_P_">P</A> <A HREF="#_R_">R</A> <A HREF="#_S_">S</A> <A HREF="#_T_">T</A> <A HREF="#_U_">U</A> <A HREF="#_V_">V</A> <A HREF="#_W_">W</A> <HR>
+<A HREF="#_A_">A</A> <A HREF="#_B_">B</A> <A HREF="#_C_">C</A> <A HREF="#_D_">D</A> <A HREF="#_E_">E</A> <A HREF="#_F_">F</A> <A HREF="#_G_">G</A> <A HREF="#_H_">H</A> <A HREF="#_I_">I</A> <A HREF="#_J_">J</A> <A HREF="#_L_">L</A> <A HREF="#_M_">M</A> <A HREF="#_N_">N</A> <A HREF="#_O_">O</A> <A HREF="#_P_">P</A> <A HREF="#_Q_">Q</A> <A HREF="#_R_">R</A> <A HREF="#_S_">S</A> <A HREF="#_T_">T</A> <A HREF="#_U_">U</A> <A HREF="#_V_">V</A> <A HREF="#_W_">W</A> <HR>
 <A NAME="_A_"><!-- --></A><H2>
 <B>A</B></H2>
 <DL>
@@ -218,7 +218,10 @@ Variable in class solidbase.core.<A HREF="./solidbase/core/PatchProcessor.html" 
 <DT><A HREF="./solidbase/core/PatchProcessor.html#conditionTrueCounter"><B>conditionTrueCounter</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/PatchProcessor.html" title="class in solidbase.core">PatchProcessor</A>
 <DD>Together with <A HREF="./solidbase/core/PatchProcessor.html#conditionFalseCounter"><CODE>PatchProcessor.conditionFalseCounter</CODE></A> this enables nested conditions.
-<DT><A HREF="./solidbase/config/ConfigListener.html" title="interface in solidbase.config"><B>ConfigListener</B></A> - Interface in <A HREF="./solidbase/config/package-summary.html">solidbase.config</A><DD>Listens to configuration events.<DT><A HREF="./solidbase/config/Configuration.html" title="class in solidbase.config"><B>Configuration</B></A> - Class in <A HREF="./solidbase/config/package-summary.html">solidbase.config</A><DD>This class represents all the configuration from the commandline or from the properties file.<DT><A HREF="./solidbase/config/Configuration.html#Configuration(solidbase.config.ConfigListener, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><B>Configuration(ConfigListener, int, String, String, String, String, String, String, String)</B></A> - 
+<DT><A HREF="./solidbase/config/Options.html#config"><B>config</B></A> - 
+Variable in class solidbase.config.<A HREF="./solidbase/config/Options.html" title="class in solidbase.config">Options</A>
+<DD>A properties file to use.
+<DT><A HREF="./solidbase/config/ConfigListener.html" title="interface in solidbase.config"><B>ConfigListener</B></A> - Interface in <A HREF="./solidbase/config/package-summary.html">solidbase.config</A><DD>Listens to configuration events.<DT><A HREF="./solidbase/config/Configuration.html" title="class in solidbase.config"><B>Configuration</B></A> - Class in <A HREF="./solidbase/config/package-summary.html">solidbase.config</A><DD>This class represents all the configuration from the commandline or from the properties file.<DT><A HREF="./solidbase/config/Configuration.html#Configuration(solidbase.config.ConfigListener, int, solidbase.config.Options)"><B>Configuration(ConfigListener, int, Options)</B></A> - 
 Constructor for class solidbase.config.<A HREF="./solidbase/config/Configuration.html" title="class in solidbase.config">Configuration</A>
 <DD>Create a new configuration object.
 <DT><A HREF="./solidbase/ant/DBTask.html#connections"><B>connections</B></A> - 
@@ -316,7 +319,7 @@ Variable in class solidbase.core.<A HREF="./solidbase/core/Database.html" title=
 <DT><A HREF="./solidbase/core/CommandProcessor.html#delimiter(java.util.regex.Matcher)"><B>delimiter(Matcher)</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
 <DD>Overrides the current delimiter.
-<DT><A HREF="./solidbase/core/CommandProcessor.html#DELIMITER_PATTERN"><B>DELIMITER_PATTERN</B></A> - 
+<DT><A HREF="./solidbase/core/CommandProcessor.html#delimiterPattern"><B>delimiterPattern</B></A> - 
 Static variable in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
 <DD>Pattern for DELIMITER.
 <DT><A HREF="./solidbase/core/SQLFile.html#delimiters"><B>delimiters</B></A> - 
@@ -334,6 +337,9 @@ Variable in class solidbase.core.<A HREF="./solidbase/core/PatchProcessor.html" 
 <DT><A HREF="./solidbase/ant/UpgradeTask.html#downgradeallowed"><B>downgradeallowed</B></A> - 
 Variable in class solidbase.ant.<A HREF="./solidbase/ant/UpgradeTask.html" title="class in solidbase.ant">UpgradeTask</A>
 <DD>Field to store the configured downgrade allowed option.
+<DT><A HREF="./solidbase/config/Options.html#downgradeallowed"><B>downgradeallowed</B></A> - 
+Variable in class solidbase.config.<A HREF="./solidbase/config/Options.html" title="class in solidbase.config">Options</A>
+<DD>Allow downgrades to reach the target.
 <DT><A HREF="./solidbase/core/DBVersion.html#downgradeHistory(java.util.Collection)"><B>downgradeHistory(Collection&lt;String&gt;)</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/DBVersion.html" title="class in solidbase.core">DBVersion</A>
 <DD>Mark the given versions as 'DOWNGRADED' in the DBVERSIONLOG table.
@@ -346,6 +352,9 @@ Variable in class solidbase.ant.<A HREF="./solidbase/ant/DBTask.html" title="cla
 <DT><A HREF="./solidbase/config/Database.html#driver"><B>driver</B></A> - 
 Variable in class solidbase.config.<A HREF="./solidbase/config/Database.html" title="class in solidbase.config">Database</A>
 <DD>The driver for the database.
+<DT><A HREF="./solidbase/config/Options.html#driver"><B>driver</B></A> - 
+Variable in class solidbase.config.<A HREF="./solidbase/config/Options.html" title="class in solidbase.config">Options</A>
+<DD>The JDBC driver class name.
 <DT><A HREF="./solidbase/maven/DBMojo.html#driver"><B>driver</B></A> - 
 Variable in class solidbase.maven.<A HREF="./solidbase/maven/DBMojo.html" title="class in solidbase.maven">DBMojo</A>
 <DD>Database driver class.
@@ -355,6 +364,9 @@ Variable in class solidbase.config.<A HREF="./solidbase/config/Configuration.htm
 <DT><A HREF="./solidbase/core/Database.html#driverName"><B>driverName</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/Database.html" title="class in solidbase.core">Database</A>
 <DD>The class name of the driver to be used to access the database.
+<DT><A HREF="./solidbase/config/Options.html#dumplog"><B>dumplog</B></A> - 
+Variable in class solidbase.config.<A HREF="./solidbase/config/Options.html" title="class in solidbase.config">Options</A>
+<DD>Export historical upgrade results to an XML file.
 </DL>
 <HR>
 <A NAME="_E_"><!-- --></A><H2>
@@ -390,9 +402,6 @@ Method in class solidbase.util.<A HREF="./solidbase/util/Tokenizer.Token.html" t
 <DT><A HREF="./solidbase/Console.html#err"><B>err</B></A> - 
 Variable in class solidbase.<A HREF="./solidbase/Console.html" title="class in solidbase">Console</A>
 <DD>The error output stream.
-<DT><A HREF="./solidbase/core/plugins/ImportCSV.html#escape(java.lang.String)"><B>escape(String)</B></A> - 
-Static method in class solidbase.core.plugins.<A HREF="./solidbase/core/plugins/ImportCSV.html" title="class in solidbase.core.plugins">ImportCSV</A>
-<DD>Converts ' to ''.
 <DT><A HREF="./solidbase/config/GroovyUtil.html#evaluate(java.io.File, java.util.Map)"><B>evaluate(File, Map)</B></A> - 
 Static method in class solidbase.config.<A HREF="./solidbase/config/GroovyUtil.html" title="class in solidbase.config">GroovyUtil</A>
 <DD>Execute the given groovy file using the specified binding.
@@ -703,6 +712,9 @@ Method in exception solidbase.core.<A HREF="./solidbase/core/SQLExecutionExcepti
 <DT><A HREF="./solidbase/ant/SQLTask.html#getSqlfile()"><B>getSqlfile()</B></A> - 
 Method in class solidbase.ant.<A HREF="./solidbase/ant/SQLTask.html" title="class in solidbase.ant">SQLTask</A>
 <DD>Returns the configured sql file.
+<DT><A HREF="./solidbase/config/Configuration.html#getSqlFile()"><B>getSqlFile()</B></A> - 
+Method in class solidbase.config.<A HREF="./solidbase/config/Configuration.html" title="class in solidbase.config">Configuration</A>
+<DD>Returns the upgrade file to use.
 <DT><A HREF="./solidbase/core/DBVersion.html#getStatements()"><B>getStatements()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/DBVersion.html" title="class in solidbase.core">DBVersion</A>
 <DD>Gets the number of statements that have been executed to upgrade the database to the target version.
@@ -786,6 +798,9 @@ Static method in class solidbase.core.<A HREF="./solidbase/core/Util.html" title
 <DT><A HREF="./solidbase/core/Path.html#hasDowngrade"><B>hasDowngrade</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/Path.html" title="class in solidbase.core">Path</A>
 <DD>Does the path contain a downgrade?
+<DT><A HREF="./solidbase/config/Options.html#help"><B>help</B></A> - 
+Variable in class solidbase.config.<A HREF="./solidbase/config/Options.html" title="class in solidbase.config">Options</A>
+<DD>Brings up the help.
 </DL>
 <HR>
 <A NAME="_I_"><!-- --></A><H2>
@@ -1016,6 +1031,15 @@ Static method in class solidbase.<A HREF="./solidbase/Main.html" title="class in
 <DT><A HREF="./solidbase/Main.html#main0(java.lang.String...)"><B>main0(String...)</B></A> - 
 Static method in class solidbase.<A HREF="./solidbase/Main.html" title="class in solidbase">Main</A>
 <DD>For internal (testing) use only: a main method that does not catch and print exceptions.
+<DT><A HREF="./solidbase/ant/Progress.html#messages"><B>messages</B></A> - 
+Variable in class solidbase.ant.<A HREF="./solidbase/ant/Progress.html" title="class in solidbase.ant">Progress</A>
+<DD>A store for nested messages coming from SECTIONs in the command file.
+<DT><A HREF="./solidbase/maven/Progress.html#messages"><B>messages</B></A> - 
+Variable in class solidbase.maven.<A HREF="./solidbase/maven/Progress.html" title="class in solidbase.maven">Progress</A>
+<DD>A store for nested messages coming from SECTIONs in the command file.
+<DT><A HREF="./solidbase/Progress.html#messages"><B>messages</B></A> - 
+Variable in class solidbase.<A HREF="./solidbase/Progress.html" title="class in solidbase">Progress</A>
+<DD>A store for nested messages coming from SECTIONs in the command file.
 </DL>
 <HR>
 <A NAME="_N_"><!-- --></A><H2>
@@ -1030,6 +1054,9 @@ Variable in class solidbase.config.<A HREF="./solidbase/config/Database.html" ti
 <DT><A HREF="./solidbase/xml/elements/Element.html#name"><B>name</B></A> - 
 Variable in class solidbase.xml.elements.<A HREF="./solidbase/xml/elements/Element.html" title="class in solidbase.xml.elements">Element</A>
 <DD>The name of the element.
+<DT><A HREF="./solidbase/core/plugins/ImportCSV.Parsed.html#noBatch"><B>noBatch</B></A> - 
+Variable in class solidbase.core.plugins.<A HREF="./solidbase/core/plugins/ImportCSV.Parsed.html" title="class in solidbase.core.plugins">ImportCSV.Parsed</A>
+<DD>Don't use JDBC batch update.
 <DT><A HREF="./solidbase/core/Assert.html#notBlank(java.lang.String)"><B>notBlank(String)</B></A> - 
 Static method in class solidbase.core.<A HREF="./solidbase/core/Assert.html" title="class in solidbase.core">Assert</A>
 <DD>Assert that String argument s is not null and not "" and not whitespace.
@@ -1083,6 +1110,9 @@ Method in class solidbase.core.<A HREF="./solidbase/core/ProgressListener.html" 
 <DT><A HREF="./solidbase/maven/Progress.html#openedSQLFile(solidbase.core.SQLFile)"><B>openedSQLFile(SQLFile)</B></A> - 
 Method in class solidbase.maven.<A HREF="./solidbase/maven/Progress.html" title="class in solidbase.maven">Progress</A>
 <DD>&nbsp;
+<DT><A HREF="./solidbase/Progress.html#openedSQLFile(solidbase.core.SQLFile)"><B>openedSQLFile(SQLFile)</B></A> - 
+Method in class solidbase.<A HREF="./solidbase/Progress.html" title="class in solidbase">Progress</A>
+<DD>&nbsp;
 <DT><A HREF="./solidbase/ant/Progress.html#openingPatchFile(java.io.File)"><B>openingPatchFile(File)</B></A> - 
 Method in class solidbase.ant.<A HREF="./solidbase/ant/Progress.html" title="class in solidbase.ant">Progress</A>
 <DD>&nbsp;
@@ -1125,6 +1155,12 @@ Method in class solidbase.maven.<A HREF="./solidbase/maven/Progress.html" title=
 <DT><A HREF="./solidbase/maven/Progress.html#openingSQLFile(java.net.URL)"><B>openingSQLFile(URL)</B></A> - 
 Method in class solidbase.maven.<A HREF="./solidbase/maven/Progress.html" title="class in solidbase.maven">Progress</A>
 <DD>&nbsp;
+<DT><A HREF="./solidbase/Progress.html#openingSQLFile(java.io.File)"><B>openingSQLFile(File)</B></A> - 
+Method in class solidbase.<A HREF="./solidbase/Progress.html" title="class in solidbase">Progress</A>
+<DD>&nbsp;
+<DT><A HREF="./solidbase/Progress.html#openingSQLFile(java.net.URL)"><B>openingSQLFile(URL)</B></A> - 
+Method in class solidbase.<A HREF="./solidbase/Progress.html" title="class in solidbase">Progress</A>
+<DD>&nbsp;
 <DT><A HREF="./solidbase/core/PatchProcessor.html#openPatchFile(java.lang.String)"><B>openPatchFile(String)</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/PatchProcessor.html" title="class in solidbase.core">PatchProcessor</A>
 <DD>Open the specified upgrade file.
@@ -1137,6 +1173,9 @@ Method in class solidbase.core.<A HREF="./solidbase/core/SQLProcessor.html" titl
 <DT><A HREF="./solidbase/core/SQLProcessor.html#openSQLFile(java.io.File, java.lang.String)"><B>openSQLFile(File, String)</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/SQLProcessor.html" title="class in solidbase.core">SQLProcessor</A>
 <DD>Open the specified sql file in the specified folder.
+<DT><A HREF="./solidbase/config/Options.html" title="class in solidbase.config"><B>Options</B></A> - Class in <A HREF="./solidbase/config/package-summary.html">solidbase.config</A><DD>Options from the command line.<DT><A HREF="./solidbase/config/Options.html#Options(boolean, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean, boolean)"><B>Options(boolean, boolean, String, String, String, String, String, String, String, String, boolean, boolean)</B></A> - 
+Constructor for class solidbase.config.<A HREF="./solidbase/config/Options.html" title="class in solidbase.config">Options</A>
+<DD>&nbsp;
 <DT><A HREF="./solidbase/core/plugins/OracleDBMSOutputPoller.html" title="class in solidbase.core.plugins"><B>OracleDBMSOutputPoller</B></A> - Class in <A HREF="./solidbase/core/plugins/package-summary.html">solidbase.core.plugins</A><DD>The purpose of this plugin was to capture dbms output and present it to the user while the patch was running.<DT><A HREF="./solidbase/core/plugins/OracleDBMSOutputPoller.html#OracleDBMSOutputPoller()"><B>OracleDBMSOutputPoller()</B></A> - 
 Constructor for class solidbase.core.plugins.<A HREF="./solidbase/core/plugins/OracleDBMSOutputPoller.html" title="class in solidbase.core.plugins">OracleDBMSOutputPoller</A>
 <DD>Constructor.
@@ -1172,6 +1211,9 @@ Variable in class solidbase.ant.<A HREF="./solidbase/ant/DBTask.html" title="cla
 <DT><A HREF="./solidbase/config/Database.html#password"><B>password</B></A> - 
 Variable in class solidbase.config.<A HREF="./solidbase/config/Database.html" title="class in solidbase.config">Database</A>
 <DD>The password for the connection to the database.
+<DT><A HREF="./solidbase/config/Options.html#password"><B>password</B></A> - 
+Variable in class solidbase.config.<A HREF="./solidbase/config/Options.html" title="class in solidbase.config">Options</A>
+<DD>The password of the default user.
 <DT><A HREF="./solidbase/maven/DBMojo.html#password"><B>password</B></A> - 
 Variable in class solidbase.maven.<A HREF="./solidbase/maven/DBMojo.html" title="class in solidbase.maven">DBMojo</A>
 <DD>Database password.
@@ -1256,6 +1298,9 @@ Method in class solidbase.core.<A HREF="./solidbase/core/Path.html" title="class
 <DT><A HREF="./solidbase/core/plugins/ImportCSV.Parsed.html#prependLineNumber"><B>prependLineNumber</B></A> - 
 Variable in class solidbase.core.plugins.<A HREF="./solidbase/core/plugins/ImportCSV.Parsed.html" title="class in solidbase.core.plugins">ImportCSV.Parsed</A>
 <DD>Prepend the values from the CSV list with the line number from the command file.
+<DT><A HREF="./solidbase/core/plugins/ImportCSV.html#preprocess(java.lang.String[])"><B>preprocess(String[])</B></A> - 
+Static method in class solidbase.core.plugins.<A HREF="./solidbase/core/plugins/ImportCSV.html" title="class in solidbase.core.plugins">ImportCSV</A>
+<DD>Replaces empty strings with null.
 <DT><A HREF="./solidbase/ant/Progress.html#print(java.lang.String)"><B>print(String)</B></A> - 
 Method in class solidbase.ant.<A HREF="./solidbase/ant/Progress.html" title="class in solidbase.ant">Progress</A>
 <DD>&nbsp;
@@ -1334,6 +1379,14 @@ Constructor for class solidbase.util.<A HREF="./solidbase/util/PushbackReader.ht
 <DT><A HREF="./solidbase/core/CommandProcessor.html#pushIgnores(java.lang.String)"><B>pushIgnores(String)</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
 <DD>Adds a comma separated list of SQLStates to be ignored.
+</DL>
+<HR>
+<A NAME="_Q_"><!-- --></A><H2>
+<B>Q</B></H2>
+<DL>
+<DT><A HREF="./solidbase/core/plugins/ImportCSV.html#quoteOrNull(java.lang.String)"><B>quoteOrNull(String)</B></A> - 
+Static method in class solidbase.core.plugins.<A HREF="./solidbase/core/plugins/ImportCSV.html" title="class in solidbase.core.plugins">ImportCSV</A>
+<DD>Adds quotes, escapes, and return NULL if the value == null.
 </DL>
 <HR>
 <A NAME="_R_"><!-- --></A><H2>
@@ -1425,7 +1478,16 @@ Constructor for class solidbase.maven.<A HREF="./solidbase/maven/Secondary.html"
 <DT><A HREF="./solidbase/config/Configuration.html#secondaryDatabases"><B>secondaryDatabases</B></A> - 
 Variable in class solidbase.config.<A HREF="./solidbase/config/Configuration.html" title="class in solidbase.config">Configuration</A>
 <DD>A list of configured secondary databases.
-<DT><A HREF="./solidbase/core/CommandProcessor.html#selectConnection(java.lang.String)"><B>selectConnection(String)</B></A> - 
+<DT><A HREF="./solidbase/core/CommandProcessor.html#section(java.lang.String, java.lang.String, solidbase.core.Command)"><B>section(String, String, Command)</B></A> - 
+Method in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
+<DD>Starts a new section.
+<DT><A HREF="./solidbase/core/CommandProcessor.html#sectionLevel"><B>sectionLevel</B></A> - 
+Variable in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
+<DD>Current section nesting.
+<DT><A HREF="./solidbase/core/CommandProcessor.html#sectionPattern"><B>sectionPattern</B></A> - 
+Static variable in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
+<DD>Pattern for SECTION.
+<DT><A HREF="./solidbase/core/CommandProcessor.html#selectConnection(java.lang.String, solidbase.core.Command)"><B>selectConnection(String, Command)</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
 <DD>Makes current another configured connection.
 <DT><A HREF="./solidbase/core/CommandProcessor.html#selectConnectionPattern"><B>selectConnectionPattern</B></A> - 
@@ -1551,12 +1613,21 @@ Method in class solidbase.core.<A HREF="./solidbase/core/ProgressListener.html" 
 <DT><A HREF="./solidbase/maven/Progress.html#sqlExecutionComplete()"><B>sqlExecutionComplete()</B></A> - 
 Method in class solidbase.maven.<A HREF="./solidbase/maven/Progress.html" title="class in solidbase.maven">Progress</A>
 <DD>&nbsp;
+<DT><A HREF="./solidbase/Progress.html#sqlExecutionComplete()"><B>sqlExecutionComplete()</B></A> - 
+Method in class solidbase.<A HREF="./solidbase/Progress.html" title="class in solidbase">Progress</A>
+<DD>&nbsp;
 <DT><A HREF="./solidbase/core/SQLExecutionException.html" title="class in solidbase.core"><B>SQLExecutionException</B></A> - Exception in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>An <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> has occurred during execution of a <A HREF="./solidbase/core/Command.html" title="class in solidbase.core"><CODE>Command</CODE></A>.<DT><A HREF="./solidbase/core/SQLExecutionException.html#SQLExecutionException(solidbase.core.Command, java.sql.SQLException)"><B>SQLExecutionException(Command, SQLException)</B></A> - 
 Constructor for exception solidbase.core.<A HREF="./solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A>
 <DD>Constructor.
 <DT><A HREF="./solidbase/ant/SQLTask.html#sqlfile"><B>sqlfile</B></A> - 
 Variable in class solidbase.ant.<A HREF="./solidbase/ant/SQLTask.html" title="class in solidbase.ant">SQLTask</A>
 <DD>Field to store the configured sql file.
+<DT><A HREF="./solidbase/config/Configuration.html#sqlFile"><B>sqlFile</B></A> - 
+Variable in class solidbase.config.<A HREF="./solidbase/config/Configuration.html" title="class in solidbase.config">Configuration</A>
+<DD>The SQL file to be executed.
+<DT><A HREF="./solidbase/config/Options.html#sqlfile"><B>sqlfile</B></A> - 
+Variable in class solidbase.config.<A HREF="./solidbase/config/Options.html" title="class in solidbase.config">Options</A>
+<DD>A file containing SQL to be executed.
 <DT><A HREF="./solidbase/core/CommandProcessor.html#sqlFile"><B>sqlFile</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
 <DD>The SQL file being executed.
@@ -1587,6 +1658,24 @@ Variable in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html
 <DT><A HREF="./solidbase/core/CommandProcessor.html#startMessagePattern"><B>startMessagePattern</B></A> - 
 Static variable in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
 <DD>Pattern for SET MESSAGE.
+<DT><A HREF="./solidbase/ant/Progress.html#startSection(int, java.lang.String)"><B>startSection(int, String)</B></A> - 
+Method in class solidbase.ant.<A HREF="./solidbase/ant/Progress.html" title="class in solidbase.ant">Progress</A>
+<DD>&nbsp;
+<DT><A HREF="./solidbase/core/CommandProcessor.html#startSection(int, java.lang.String)"><B>startSection(int, String)</B></A> - 
+Method in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
+<DD>Starts a new section.
+<DT><A HREF="./solidbase/core/ProgressListener.html#startSection(int, java.lang.String)"><B>startSection(int, String)</B></A> - 
+Method in class solidbase.core.<A HREF="./solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>
+<DD>A section is started.
+<DT><A HREF="./solidbase/core/SQLProcessor.html#startSection(int, java.lang.String)"><B>startSection(int, String)</B></A> - 
+Method in class solidbase.core.<A HREF="./solidbase/core/SQLProcessor.html" title="class in solidbase.core">SQLProcessor</A>
+<DD>&nbsp;
+<DT><A HREF="./solidbase/maven/Progress.html#startSection(int, java.lang.String)"><B>startSection(int, String)</B></A> - 
+Method in class solidbase.maven.<A HREF="./solidbase/maven/Progress.html" title="class in solidbase.maven">Progress</A>
+<DD>&nbsp;
+<DT><A HREF="./solidbase/Progress.html#startSection(int, java.lang.String)"><B>startSection(int, String)</B></A> - 
+Method in class solidbase.<A HREF="./solidbase/Progress.html" title="class in solidbase">Progress</A>
+<DD>&nbsp;
 <DT><A HREF="./solidbase/core/DBVersion.html#statements"><B>statements</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/DBVersion.html" title="class in solidbase.core">DBVersion</A>
 <DD>How many statements have been successfully executed for the current target? If the target is null, then not
@@ -1623,6 +1712,9 @@ Variable in class solidbase.ant.<A HREF="./solidbase/ant/UpgradeTask.html" title
 <DT><A HREF="./solidbase/config/Configuration.html#target"><B>target</B></A> - 
 Variable in class solidbase.config.<A HREF="./solidbase/config/Configuration.html" title="class in solidbase.config">Configuration</A>
 <DD>Target version to upgrade to.
+<DT><A HREF="./solidbase/config/Options.html#target"><B>target</B></A> - 
+Variable in class solidbase.config.<A HREF="./solidbase/config/Options.html" title="class in solidbase.config">Options</A>
+<DD>The target to upgrade to.
 <DT><A HREF="./solidbase/core/DBVersion.html#target"><B>target</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/DBVersion.html" title="class in solidbase.core">DBVersion</A>
 <DD>Is the database halfway a new version, and which version is that?
@@ -1704,6 +1796,9 @@ Method in class solidbase.<A HREF="./solidbase/Progress.html" title="class in so
 <DT><A HREF="./solidbase/ant/UpgradeTask.html#upgradefile"><B>upgradefile</B></A> - 
 Variable in class solidbase.ant.<A HREF="./solidbase/ant/UpgradeTask.html" title="class in solidbase.ant">UpgradeTask</A>
 <DD>Field to store the configured upgrade file.
+<DT><A HREF="./solidbase/config/Options.html#upgradefile"><B>upgradefile</B></A> - 
+Variable in class solidbase.config.<A HREF="./solidbase/config/Options.html" title="class in solidbase.config">Options</A>
+<DD>The file containing the database upgrades.
 <DT><A HREF="./solidbase/maven/UpgradeMojo.html#upgradefile"><B>upgradefile</B></A> - 
 Variable in class solidbase.maven.<A HREF="./solidbase/maven/UpgradeMojo.html" title="class in solidbase.maven">UpgradeMojo</A>
 <DD>File containing the upgrade.
@@ -1722,6 +1817,9 @@ Variable in class solidbase.ant.<A HREF="./solidbase/ant/DBTask.html" title="cla
 <DT><A HREF="./solidbase/config/Database.html#url"><B>url</B></A> - 
 Variable in class solidbase.config.<A HREF="./solidbase/config/Database.html" title="class in solidbase.config">Database</A>
 <DD>The url of the database.
+<DT><A HREF="./solidbase/config/Options.html#url"><B>url</B></A> - 
+Variable in class solidbase.config.<A HREF="./solidbase/config/Options.html" title="class in solidbase.config">Options</A>
+<DD>The URL for the database.
 <DT><A HREF="./solidbase/core/Database.html#url"><B>url</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/Database.html" title="class in solidbase.core">Database</A>
 <DD>The URL of the database.
@@ -1743,6 +1841,9 @@ Variable in class solidbase.ant.<A HREF="./solidbase/ant/DBTask.html" title="cla
 <DT><A HREF="./solidbase/config/Database.html#userName"><B>userName</B></A> - 
 Variable in class solidbase.config.<A HREF="./solidbase/config/Database.html" title="class in solidbase.config">Database</A>
 <DD>The username for the connection to the database.
+<DT><A HREF="./solidbase/config/Options.html#username"><B>username</B></A> - 
+Variable in class solidbase.config.<A HREF="./solidbase/config/Options.html" title="class in solidbase.config">Options</A>
+<DD>The default user name to connect to the database.
 <DT><A HREF="./solidbase/maven/DBMojo.html#username"><B>username</B></A> - 
 Variable in class solidbase.maven.<A HREF="./solidbase/maven/DBMojo.html" title="class in solidbase.maven">DBMojo</A>
 <DD>Database username.
@@ -1782,6 +1883,9 @@ Variable in class solidbase.core.plugins.<A HREF="./solidbase/core/plugins/Impor
 <DT><A HREF="./solidbase/ant/Progress.html#verbose(java.lang.String)"><B>verbose(String)</B></A> - 
 Method in class solidbase.ant.<A HREF="./solidbase/ant/Progress.html" title="class in solidbase.ant">Progress</A>
 <DD>Log a verbose message to the project's log.
+<DT><A HREF="./solidbase/config/Options.html#verbose"><B>verbose</B></A> - 
+Variable in class solidbase.config.<A HREF="./solidbase/config/Options.html" title="class in solidbase.config">Options</A>
+<DD>Be extra verbose.
 <DT><A HREF="./solidbase/Progress.html#verbose"><B>verbose</B></A> - 
 Variable in class solidbase.<A HREF="./solidbase/Progress.html" title="class in solidbase">Progress</A>
 <DD>Show extra information?
@@ -1813,7 +1917,7 @@ Variable in class solidbase.util.<A HREF="./solidbase/util/Tokenizer.Token.html"
 <DD>The whitespace encountered before the token.
 </DL>
 <HR>
-<A HREF="#_A_">A</A> <A HREF="#_B_">B</A> <A HREF="#_C_">C</A> <A HREF="#_D_">D</A> <A HREF="#_E_">E</A> <A HREF="#_F_">F</A> <A HREF="#_G_">G</A> <A HREF="#_H_">H</A> <A HREF="#_I_">I</A> <A HREF="#_J_">J</A> <A HREF="#_L_">L</A> <A HREF="#_M_">M</A> <A HREF="#_N_">N</A> <A HREF="#_O_">O</A> <A HREF="#_P_">P</A> <A HREF="#_R_">R</A> <A HREF="#_S_">S</A> <A HREF="#_T_">T</A> <A HREF="#_U_">U</A> <A HREF="#_V_">V</A> <A HREF="#_W_">W</A> 
+<A HREF="#_A_">A</A> <A HREF="#_B_">B</A> <A HREF="#_C_">C</A> <A HREF="#_D_">D</A> <A HREF="#_E_">E</A> <A HREF="#_F_">F</A> <A HREF="#_G_">G</A> <A HREF="#_H_">H</A> <A HREF="#_I_">I</A> <A HREF="#_J_">J</A> <A HREF="#_L_">L</A> <A HREF="#_M_">M</A> <A HREF="#_N_">N</A> <A HREF="#_O_">O</A> <A HREF="#_P_">P</A> <A HREF="#_Q_">Q</A> <A HREF="#_R_">R</A> <A HREF="#_S_">S</A> <A HREF="#_T_">T</A> <A HREF="#_U_">U</A> <A HREF="#_V_">V</A> <A HREF="#_W_">W</A> 
 
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
 <A NAME="navbar_bottom"><!-- --></A>

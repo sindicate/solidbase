@@ -130,6 +130,14 @@ Implements the progress listener for the Apache Ant task.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/ant/Progress.html#messages">messages</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A store for nested messages coming from SECTIONs in the command file.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;org.apache.tools.ant.Project</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/ant/Progress.html#project">project</A></B></CODE>
 
@@ -311,6 +319,15 @@ Implements the progress listener for the Apache Ant task.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/ant/Progress.html#startSection(int, java.lang.String)">startSection</A></B>(int&nbsp;level,
+             <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A section is started.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/ant/Progress.html#upgradeComplete()">upgradeComplete</A></B>()</CODE>
 
 <BR>
@@ -386,6 +403,18 @@ buffer</H3>
 protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/StringBuilder.html?is-external=true" title="class or interface in java.lang">StringBuilder</A> <B>buffer</B></PRE>
 <DL>
 <DD>Buffer to collect output before logging.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="messages"><!-- --></A><H3>
+messages</H3>
+<PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[] <B>messages</B></PRE>
+<DL>
+<DD>A store for nested messages coming from SECTIONs in the command file.
 <P>
 <DL>
 </DL>
@@ -577,6 +606,24 @@ protected void <B>patchStarting</B>(<A HREF="../../solidbase/core/Patch.html" ti
 </DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>patch</CODE> - The change set that is about to be started.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="startSection(int, java.lang.String)"><!-- --></A><H3>
+startSection</H3>
+<PRE>
+protected void <B>startSection</B>(int&nbsp;level,
+                            <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE><A HREF="../../solidbase/core/ProgressListener.html#startSection(int, java.lang.String)">ProgressListener</A></CODE></B></DD>
+<DD>A section is started.
+<P>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="../../solidbase/core/ProgressListener.html#startSection(int, java.lang.String)">startSection</A></CODE> in class <CODE><A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>level</CODE> - Section level.<DD><CODE>message</CODE> - Message.</DL>
 </DD>
 </DL>
 <HR>
