@@ -164,6 +164,14 @@ This class represents all the configuration from the commandline or from the pro
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#sqlFile">sqlFile</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The SQL file to be executed.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#target">target</A></B></CODE>
 
 <BR>
@@ -180,15 +188,9 @@ This class represents all the configuration from the commandline or from the pro
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#Configuration(solidbase.config.ConfigListener, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)">Configuration</A></B>(<A HREF="../../solidbase/config/ConfigListener.html" title="interface in solidbase.config">ConfigListener</A>&nbsp;progress,
+<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#Configuration(solidbase.config.ConfigListener, int, solidbase.config.Options)">Configuration</A></B>(<A HREF="../../solidbase/config/ConfigListener.html" title="interface in solidbase.config">ConfigListener</A>&nbsp;progress,
               int&nbsp;pass,
-              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;optionDriver,
-              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;optionUrl,
-              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;optionUserName,
-              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;optionPassWord,
-              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;optionTarget,
-              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;optionPatchFile,
-              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;optionPropertiesFile)</CODE>
+              <A HREF="../../solidbase/config/Options.html" title="class in solidbase.config">Options</A>&nbsp;options)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Create a new configuration object.</TD>
@@ -258,6 +260,14 @@ This class represents all the configuration from the commandline or from the pro
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns all the database.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/config/Configuration.html#getSqlFile()">getSqlFile</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the upgrade file to use.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -369,6 +379,18 @@ protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html
 <DL>
 </DL>
 </DL>
+<HR>
+
+<A NAME="sqlFile"><!-- --></A><H3>
+sqlFile</H3>
+<PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>sqlFile</B></PRE>
+<DL>
+<DD>The SQL file to be executed.
+<P>
+<DL>
+</DL>
+</DL>
 
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 
@@ -380,23 +402,17 @@ protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html
 </TR>
 </TABLE>
 
-<A NAME="Configuration(solidbase.config.ConfigListener, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+<A NAME="Configuration(solidbase.config.ConfigListener, int, solidbase.config.Options)"><!-- --></A><H3>
 Configuration</H3>
 <PRE>
 public <B>Configuration</B>(<A HREF="../../solidbase/config/ConfigListener.html" title="interface in solidbase.config">ConfigListener</A>&nbsp;progress,
                      int&nbsp;pass,
-                     <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;optionDriver,
-                     <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;optionUrl,
-                     <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;optionUserName,
-                     <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;optionPassWord,
-                     <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;optionTarget,
-                     <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;optionPatchFile,
-                     <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;optionPropertiesFile)</PRE>
+                     <A HREF="../../solidbase/config/Options.html" title="class in solidbase.config">Options</A>&nbsp;options)</PRE>
 <DL>
 <DD>Create a new configuration object. This constructor is used by the command line version of SolidBase.
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>progress</CODE> - The listener that listens to config events.<DD><CODE>pass</CODE> - Are we in pass 1 or pass 2 of booting?<DD><CODE>optionDriver</CODE> - The optional driver class name for the database.<DD><CODE>optionUrl</CODE> - The optional url for the database.<DD><CODE>optionUserName</CODE> - The optional username for the database.<DD><CODE>optionPassWord</CODE> - The optional password for the database.<DD><CODE>optionTarget</CODE> - The optional target to upgrade to.<DD><CODE>optionPatchFile</CODE> - The optional upgrade file to use.<DD><CODE>optionPropertiesFile</CODE> - The optional path of the properties file.</DL>
+<DT><B>Parameters:</B><DD><CODE>progress</CODE> - The listener that listens to config events.<DD><CODE>pass</CODE> - Are we in pass 1 or pass 2 of booting?<DD><CODE>options</CODE> - The options from the command line.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -483,6 +499,20 @@ public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is
 getPatchFile</H3>
 <PRE>
 public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getPatchFile</B>()</PRE>
+<DL>
+<DD>Returns the upgrade file to use.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>The upgrade file to use.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSqlFile()"><!-- --></A><H3>
+getSqlFile</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getSqlFile</B>()</PRE>
 <DL>
 <DD>Returns the upgrade file to use.
 <P>

@@ -2,6 +2,8 @@ Major release
 	Check the open issues
 	Generate javadoc and check it
 		When doing a minor release, you can check the changes with a subversion GUI
+		Add all new html always with Tortoise, otherwise the tsvn:autoprops will not work
+		Check the mime types of the html files
 	Upgrade the version number
 		solidbase/dist/pom.xml, project/build/plugins/plugin(solidbase)/version
 		solidbase/maven-plugin/test/pom.xml, project/build/plugins/plugin(solidbase)/version

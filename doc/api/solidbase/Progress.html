@@ -133,6 +133,14 @@ Implements the progress listener for the command line version of SolidBase.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../solidbase/Progress.html#messages">messages</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A store for nested messages coming from SECTIONs in the command file.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;boolean</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../solidbase/Progress.html#verbose">verbose</A></B></CODE>
 
@@ -201,11 +209,19 @@ Implements the progress listener for the command line version of SolidBase.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
+<CODE>protected &nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../solidbase/Progress.html#openedPatchFile(solidbase.core.PatchFile)">openedPatchFile</A></B>(<A HREF="../solidbase/core/PatchFile.html" title="class in solidbase.core">PatchFile</A>&nbsp;patchFile)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An upgrade file is opened.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../solidbase/Progress.html#openedSQLFile(solidbase.core.SQLFile)">openedSQLFile</A></B>(<A HREF="../solidbase/core/SQLFile.html" title="class in solidbase.core">SQLFile</A>&nbsp;sqlFile)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An sql file is opened.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -222,6 +238,22 @@ Implements the progress listener for the command line version of SolidBase.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An upgrade file is about to be opened.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../solidbase/Progress.html#openingSQLFile(java.io.File)">openingSQLFile</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A>&nbsp;sqlFile)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An sql file is about to be opened.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../solidbase/Progress.html#openingSQLFile(java.net.URL)">openingSQLFile</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net">URL</A>&nbsp;sqlFile)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;An sql file is about to be opened.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -266,6 +298,23 @@ Implements the progress listener for the command line version of SolidBase.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../solidbase/Progress.html#sqlExecutionComplete()">sqlExecutionComplete</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The sql execution is completed.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../solidbase/Progress.html#startSection(int, java.lang.String)">startSection</A></B>(int&nbsp;level,
+             <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A section is started.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../solidbase/Progress.html#upgradeComplete()">upgradeComplete</A></B>()</CODE>
 
 <BR>
@@ -278,7 +327,7 @@ Implements the progress listener for the command line version of SolidBase.
 <TH ALIGN="left"><B>Methods inherited from class solidbase.core.<A HREF="../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../solidbase/core/ProgressListener.html#openedSQLFile(solidbase.core.SQLFile)">openedSQLFile</A>, <A HREF="../solidbase/core/ProgressListener.html#openingSQLFile(java.io.File)">openingSQLFile</A>, <A HREF="../solidbase/core/ProgressListener.html#openingSQLFile(java.net.URL)">openingSQLFile</A>, <A HREF="../solidbase/core/ProgressListener.html#skipped(solidbase.core.Command)">skipped</A>, <A HREF="../solidbase/core/ProgressListener.html#sqlExecutionComplete()">sqlExecutionComplete</A></CODE></TD>
+<TD><CODE><A HREF="../solidbase/core/ProgressListener.html#skipped(solidbase.core.Command)">skipped</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -321,6 +370,18 @@ console</H3>
 protected <A HREF="../solidbase/Console.html" title="class in solidbase">Console</A> <B>console</B></PRE>
 <DL>
 <DD>The console to use.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="messages"><!-- --></A><H3>
+messages</H3>
+<PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[] <B>messages</B></PRE>
+<DL>
+<DD>A store for nested messages coming from SECTIONs in the command file.
 <P>
 <DL>
 </DL>
@@ -392,6 +453,23 @@ protected void <B>openingPatchFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/d
 </DL>
 <HR>
 
+<A NAME="openingSQLFile(java.io.File)"><!-- --></A><H3>
+openingSQLFile</H3>
+<PRE>
+protected void <B>openingSQLFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A>&nbsp;sqlFile)</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE><A HREF="../solidbase/core/ProgressListener.html#openingSQLFile(java.io.File)">ProgressListener</A></CODE></B></DD>
+<DD>An sql file is about to be opened.
+<P>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="../solidbase/core/ProgressListener.html#openingSQLFile(java.io.File)">openingSQLFile</A></CODE> in class <CODE><A HREF="../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>sqlFile</CODE> - The sql file that is about to be opened.</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="openingPatchFile(java.net.URL)"><!-- --></A><H3>
 openingPatchFile</H3>
 <PRE>
@@ -409,10 +487,27 @@ protected void <B>openingPatchFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/d
 </DL>
 <HR>
 
+<A NAME="openingSQLFile(java.net.URL)"><!-- --></A><H3>
+openingSQLFile</H3>
+<PRE>
+protected void <B>openingSQLFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net">URL</A>&nbsp;sqlFile)</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE><A HREF="../solidbase/core/ProgressListener.html#openingSQLFile(java.net.URL)">ProgressListener</A></CODE></B></DD>
+<DD>An sql file is about to be opened.
+<P>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="../solidbase/core/ProgressListener.html#openingSQLFile(java.net.URL)">openingSQLFile</A></CODE> in class <CODE><A HREF="../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>sqlFile</CODE> - The sql file that is about to be opened.</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="openedPatchFile(solidbase.core.PatchFile)"><!-- --></A><H3>
 openedPatchFile</H3>
 <PRE>
-public void <B>openedPatchFile</B>(<A HREF="../solidbase/core/PatchFile.html" title="class in solidbase.core">PatchFile</A>&nbsp;patchFile)</PRE>
+protected void <B>openedPatchFile</B>(<A HREF="../solidbase/core/PatchFile.html" title="class in solidbase.core">PatchFile</A>&nbsp;patchFile)</PRE>
 <DL>
 <DD><B>Description copied from class: <CODE><A HREF="../solidbase/core/ProgressListener.html#openedPatchFile(solidbase.core.PatchFile)">ProgressListener</A></CODE></B></DD>
 <DD>An upgrade file is opened.
@@ -422,6 +517,23 @@ public void <B>openedPatchFile</B>(<A HREF="../solidbase/core/PatchFile.html" ti
 </DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>patchFile</CODE> - The upgrade file that is opened.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="openedSQLFile(solidbase.core.SQLFile)"><!-- --></A><H3>
+openedSQLFile</H3>
+<PRE>
+protected void <B>openedSQLFile</B>(<A HREF="../solidbase/core/SQLFile.html" title="class in solidbase.core">SQLFile</A>&nbsp;sqlFile)</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE><A HREF="../solidbase/core/ProgressListener.html#openedSQLFile(solidbase.core.SQLFile)">ProgressListener</A></CODE></B></DD>
+<DD>An sql file is opened.
+<P>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="../solidbase/core/ProgressListener.html#openedSQLFile(solidbase.core.SQLFile)">openedSQLFile</A></CODE> in class <CODE><A HREF="../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>sqlFile</CODE> - The sql file that is opened.</DL>
 </DD>
 </DL>
 <HR>
@@ -439,6 +551,24 @@ protected void <B>patchStarting</B>(<A HREF="../solidbase/core/Patch.html" title
 </DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>patch</CODE> - The change set that is about to be started.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="startSection(int, java.lang.String)"><!-- --></A><H3>
+startSection</H3>
+<PRE>
+protected void <B>startSection</B>(int&nbsp;level,
+                            <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE><A HREF="../solidbase/core/ProgressListener.html#startSection(int, java.lang.String)">ProgressListener</A></CODE></B></DD>
+<DD>A section is started.
+<P>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="../solidbase/core/ProgressListener.html#startSection(int, java.lang.String)">startSection</A></CODE> in class <CODE><A HREF="../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>level</CODE> - Section level.<DD><CODE>message</CODE> - Message.</DL>
 </DD>
 </DL>
 <HR>
@@ -522,6 +652,23 @@ protected void <B>upgradeComplete</B>()</PRE>
 <P>
 <DD><DL>
 <DT><B>Overrides:</B><DD><CODE><A HREF="../solidbase/core/ProgressListener.html#upgradeComplete()">upgradeComplete</A></CODE> in class <CODE><A HREF="../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="sqlExecutionComplete()"><!-- --></A><H3>
+sqlExecutionComplete</H3>
+<PRE>
+protected void <B>sqlExecutionComplete</B>()</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE><A HREF="../solidbase/core/ProgressListener.html#sqlExecutionComplete()">ProgressListener</A></CODE></B></DD>
+<DD>The sql execution is completed.
+<P>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="../solidbase/core/ProgressListener.html#sqlExecutionComplete()">sqlExecutionComplete</A></CODE> in class <CODE><A HREF="../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></CODE></DL>
 </DD>
 <DD><DL>
 </DL>

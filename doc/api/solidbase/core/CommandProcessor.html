@@ -143,7 +143,7 @@ Processes and executes commands through JDBC, maintains state, triggers the list
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected static&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#DELIMITER_PATTERN">DELIMITER_PATTERN</A></B></CODE>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#delimiterPattern">delimiterPattern</A></B></CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pattern for DELIMITER.</TD>
@@ -195,6 +195,22 @@ Processes and executes commands through JDBC, maintains state, triggers the list
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The progress listener.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#sectionLevel">sectionLevel</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Current section nesting.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected static&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#sectionPattern">sectionPattern</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pattern for SECTION.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -393,7 +409,18 @@ Processes and executes commands through JDBC, maintains state, triggers the list
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#selectConnection(java.lang.String)">selectConnection</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#section(java.lang.String, java.lang.String, solidbase.core.Command)">section</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;level,
+        <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message,
+        <A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Starts a new section.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#selectConnection(java.lang.String, solidbase.core.Command)">selectConnection</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                 <A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Makes current another configured connection.</TD>
@@ -421,6 +448,15 @@ Processes and executes commands through JDBC, maintains state, triggers the list
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Changes the current user on the current database.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#startSection(int, java.lang.String)">startSection</A></B>(int&nbsp;level,
+             <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Starts a new section.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -513,12 +549,24 @@ protected static final <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/uti
 </DL>
 <HR>
 
-<A NAME="DELIMITER_PATTERN"><!-- --></A><H3>
-DELIMITER_PATTERN</H3>
+<A NAME="delimiterPattern"><!-- --></A><H3>
+delimiterPattern</H3>
 <PRE>
-protected static final <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A> <B>DELIMITER_PATTERN</B></PRE>
+protected static final <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A> <B>delimiterPattern</B></PRE>
 <DL>
 <DD>Pattern for DELIMITER.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="sectionPattern"><!-- --></A><H3>
+sectionPattern</H3>
+<PRE>
+protected static final <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A> <B>sectionPattern</B></PRE>
+<DL>
+<DD>Pattern for SECTION.
 <P>
 <DL>
 </DL>
@@ -555,6 +603,18 @@ startMessage</H3>
 protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>startMessage</B></PRE>
 <DL>
 <DD>The message that should be shown when a statement is executed.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="sectionLevel"><!-- --></A><H3>
+sectionLevel</H3>
+<PRE>
+protected int <B>sectionLevel</B></PRE>
+<DL>
+<DD>Current section nesting.
 <P>
 <DL>
 </DL>
@@ -807,6 +867,35 @@ protected void <B>popIgnores</B>()</PRE>
 </DL>
 <HR>
 
+<A NAME="section(java.lang.String, java.lang.String, solidbase.core.Command)"><!-- --></A><H3>
+section</H3>
+<PRE>
+protected void <B>section</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;level,
+                       <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message,
+                       <A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)</PRE>
+<DL>
+<DD>Starts a new section. Calls <A HREF="../../solidbase/core/CommandProcessor.html#startSection(int, java.lang.String)"><CODE>startSection(int, String)</CODE></A> to actually pass it on to the <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core"><CODE>ProgressListener</CODE></A>.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>level</CODE> - The level of the section.<DD><CODE>message</CODE> - The message to be shown.<DD><CODE>command</CODE> - The command that started this.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="startSection(int, java.lang.String)"><!-- --></A><H3>
+startSection</H3>
+<PRE>
+protected void <B>startSection</B>(int&nbsp;level,
+                            <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</PRE>
+<DL>
+<DD>Starts a new section. Called by <A HREF="../../solidbase/core/CommandProcessor.html#section(java.lang.String, java.lang.String, solidbase.core.Command)"><CODE>section(String, String, Command)</CODE></A>.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>level</CODE> - The level of the section.<DD><CODE>message</CODE> - The message to be shown.</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="refreshIgnores()"><!-- --></A><H3>
 refreshIgnores</H3>
 <PRE>
@@ -860,15 +949,16 @@ public void <B>end</B>()</PRE>
 </DL>
 <HR>
 
-<A NAME="selectConnection(java.lang.String)"><!-- --></A><H3>
+<A NAME="selectConnection(java.lang.String, solidbase.core.Command)"><!-- --></A><H3>
 selectConnection</H3>
 <PRE>
-protected void <B>selectConnection</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name)</PRE>
+protected void <B>selectConnection</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
+                                <A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)</PRE>
 <DL>
 <DD>Makes current another configured connection.
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>name</CODE> - The name of the connection to select.</DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - The name of the connection to select.<DD><CODE>command</CODE> - The command that started this.</DL>
 </DD>
 </DL>
 <HR>
