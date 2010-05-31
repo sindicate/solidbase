@@ -150,6 +150,12 @@ public class SQLProcessor extends CommandProcessor
 		this.progress.sqlExecutionComplete();
 	}
 
+	@Override
+	protected void startSection( int level, String message )
+	{
+		super.startSection( level > 0 ? level - 1 : level, message );
+	}
+
 	/**
 	 * Closes open files and closes connections.
 	 */

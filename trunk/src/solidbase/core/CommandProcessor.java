@@ -78,11 +78,6 @@ public class CommandProcessor
 	static protected final Pattern sectionPattern = Pattern.compile( "SECTION(?:\\.(\\d))?\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
 
 	/**
-	 * Default section nesting.
-	 */
-	protected int defaultSectionLevel = 0;
-
-	/**
 	 * The SQL file being executed.
 	 */
 	protected SQLFile sqlFile;
@@ -343,7 +338,7 @@ public class CommandProcessor
 	}
 
 	/**
-	 * Starts a new section.
+	 * Starts a new section. Calls {@link #startSection(int, String)} to actually pass it on to the {@link ProgressListener}.
 	 * 
 	 * @param level The level of the section.
 	 * @param message The message to be shown.
@@ -351,13 +346,24 @@ public class CommandProcessor
 	 */
 	protected void section( String level, String message, Command command )
 	{
-		int l = level != null ? Integer.parseInt( level ) : this.defaultSectionLevel;
+		int l = level != null ? Integer.parseInt( level ) : 1;
 		if( l < 0 || l > 9 )
 			throw new CommandFileException( "Section level must be 0..9", command.getLineNumber() );
 		if( l > this.sectionLevel + 1 )
 			throw new CommandFileException( "Section levels can't be skipped, current section level is " + this.sectionLevel, command.getLineNumber() );
 		this.sectionLevel = l;
-		this.progress.startSection( l, message );
+		startSection( l, message );
+	}
+
+	/**
+	 * Starts a new section. Called by {@link #section(String, String, Command)}.
+	 * 
+	 * @param level The level of the section.
+	 * @param message The message to be shown.
+	 */
+	protected void startSection( int level, String message )
+	{
+		this.progress.startSection( level, message );
 	}
 
 	/**

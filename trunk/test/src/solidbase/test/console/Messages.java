@@ -37,16 +37,18 @@ public class Messages
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
-				"Upgrading to \"1.0.1\"..\n" +
+				"Upgrading to \"1.0.1\"\n" +
+				"    Creating control tables..\n" +
 				"DEBUG: version=null, target=1.0.1, statements=2\n" +
 				"Upgrading \"1.0.1\" to \"1.0.2\".\n" +
 				"Starting import....\n" + // Message before listener execution
-				"Generating SQLException.\n" + // There should be a dot here
-				"Importing with linenumber..\n" +
-				"102\n" +
-				"103\n" +
-				"104.\n" +
-				"Importing with column list..\n" +
+				"    Generating SQLException.\n" + // There should be a dot here
+				"    Importing with linenumber..\n" +
+				"104\n" +
+				"105\n" +
+				"106.\n" +
+				"        Importing with column list\n" +
+				"            And deeper..\n" +
 				"23Y\n" +
 				"47Y.\n" +
 				"DEBUG: version=1.0.1, target=1.0.2, statements=12\n" +
