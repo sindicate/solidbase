@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>solidbase</groupId>
+	<artifactId>solidbase</artifactId>
+	<version>1.6.0</version>
+	<packaging>jar</packaging>
+
+	<name>SolidBase</name>
+	<inceptionYear>2006</inceptionYear>
+	<description>A database change and version control tool using annotated SQL.</description>
+	<url>http://code.google.com/p/solidbase/</url>
+	
+	<prerequisites><maven>2.0</maven></prerequisites>
+
+	<issueManagement>
+		<system>Google Code</system>
+		<url>http://code.google.com/p/solidbase/issues/list</url>
+	</issueManagement>
+	
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	
+	<developers>
+		<developer>
+			<email>rene.de.bloois@gmail.com</email>
+			<name>René M. de Bloois</name>
+			<roles><role>owner</role></roles>
+		</developer>
+	</developers>
+	
+	<scm>
+		<url>http://code.google.com/p/solidbase/source/browse/</url>
+		<connection>scm:svn:http://code.google.com/p/solidbase/source/browse/trunk/</connection>
+	</scm>
+
+	<distributionManagement>
+		<repository>
+			<id>solidbase-maven-repository</id>
+			<name>SolidBase Maven Repository</name>
+			<url>file:../solidbase-repository</url>
+		</repository>
+		<snapshotRepository>
+			<id>solidbase-maven-snapshot-repository</id>
+			<name>SolidBase Maven Snapshot Repository</name>
+			<url>file:../solidbase-snapshot-repository</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+</project>
