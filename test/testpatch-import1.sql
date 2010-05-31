@@ -28,6 +28,8 @@
 
 --* PATCH "" --> "1.0.1"
 
+--* SECTION "Creating control tables"
+
 CREATE TABLE DBVERSION
 ( 
 	VERSION VARCHAR, 
@@ -61,7 +63,7 @@ GO
 CREATE TABLE TEMP ( TEMP1 VARCHAR, TEMP2 VARCHAR, TEMP3 VARCHAR )
 GO
 
---* SET MESSAGE "Starting import"
+--* SECTION.0 "Starting import"
 
 IMPORT CSV INTO TEMP DATA
 GO
@@ -83,7 +85,7 @@ IMPORT CSV SEPARATED BY ; INTO TEMP DATA
 "1"; "2"; "3"
 GO
 
---* SET MESSAGE "Generating SQLException"
+--* SECTION "Generating SQLException"
 
 --* IGNORE SQL ERROR S0001
 
@@ -93,7 +95,7 @@ GO
 
 --* /IGNORE SQL ERROR
 
---* SET MESSAGE "Importing with linenumber"
+--* SECTION.1 "Importing with linenumber"
 
 CREATE TABLE TEMP2 ( LINENUMBER INTEGER, TEMP1 VARCHAR, TEMP2 VARCHAR, TEMP3 VARCHAR )
 GO
@@ -107,7 +109,8 @@ GO
 PRINT SELECT LINENUMBER FROM TEMP2
 GO
 
---* SET MESSAGE "Importing with column list"
+--* SECTION.2 "Importing with column list"
+--* SECTION.3 "And deeper"
 
 CREATE TABLE TEMP3 ( TEMP1 INTEGER, TEMP2 VARCHAR, TEMP3 VARCHAR, TEMP4 VARCHAR )
 GO

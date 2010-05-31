@@ -18,6 +18,7 @@
 
 <project basedir="." name="solidbase" default="dist" xmlns:maven="antlib:org.apache.maven.artifact.ant">
 
+	
 	<!-- Maven Ant Task -->
 	
 	<path id="maven.classpath">
@@ -28,17 +29,19 @@
 	
 	<!-- <maven:dependencies><pom file="pom.xml" /></maven:dependencies> -->
 	
-	<!-- Property file -->
-
-	<property file="build.properties" />
-
+	
 	<!-- Properties -->
 
+	<property file="build.properties" />
 	<property name="target-jre" value="1.5" />
 	<property name="build.sysclasspath" value="ignore" />
 
-	<!-- Source folders & files -->
-
+	<!--
+	<condition property="-testclass" value="${testclass}" else="**">
+		<isset property="testclass" />
+	</condition>
+	-->
+	
 	<!-- Product folders -->
 	<property name="build.home" location="../BUILDS/solidbase" />
 	<property name="temp.home" value="../TEMP/solidbase" />
@@ -142,7 +145,7 @@
 	</target>
 
 
-	<target name="test" depends="compile,compiletest,test-maven-plugin" description="Run the tests">
+	<target name="test" depends="compiletest,test-maven-plugin" description="Run the tests">
 		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="3">
 			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.996.jar" />
 			<jvmarg value="-Xmx256m" />
@@ -152,7 +155,17 @@
 	</target>
 
 
-	<target name="testnew" depends="compile,compiletest" description="Run new tests">
+	<target name="testclass" depends="compiletest" description="Run a test class">
+		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="3">
+			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.996.jar" />
+			<jvmarg value="-Xmx256m" />
+			<classfileset dir="${build.home}/testclasses" includes="**/${testclass}.class" />
+			<!-- <reporter classname="solidbase.test.TestListener"/> -->
+		</testng>
+	</target>
+
+
+	<target name="testnew" depends="compiletest" description="Run new tests">
 		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="3" groups="new">
 			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.996.jar" />
 			<jvmarg value="-Xmx256m" />
@@ -297,7 +310,6 @@
 	</target>
 	
 	
-
 	<!--
 	<target name="maven:release">
 		<replaceregexp file="pom.xml" match="&lt;version&gt;(\w|\.|-)*&lt;/version&gt;" replace="&lt;version&gt;${release.number}&lt;/version&gt;" />
@@ -305,6 +317,7 @@
 		
 	</target>
 	-->
+	
 	
 	<!-- This will delete all files but not the folders. Use this when you want to integrate a new version of the docbook xsl tool -->
 	<target name="delete-docbook-tool">
