@@ -1,3 +1,15 @@
+Changes from 1.5.3 to 1.6.0
+---------------------------
+
+ENH  SolidBase is now able to execute SQL files including most of the annotations that you use in an upgrade file.
+ENH  Added a SECTION annotation.
+ENH  The names of the SolidBase control tables can now be overridden.
+ENH  You can now change the SQL delimiter. In 1.6.1 the default delimiter will become a trailing ;
+ENH  Improved error handling.
+ENH  Added the IMPORT CSV command which imports inline CSV data into a table.
+ENH  Added a PRINT SELECT command which prints the results from the SELECT on the screen.
+ENH  Plugins are now autodiscovered through a solidbase.plugins file in the META-INF folders in the classpath.
+
 Changes from 1.5.2 to 1.5.3
 ---------------------------
 

@@ -17,6 +17,7 @@ Major release
 		Or 'ant clean build test'
 	If release a candidate, test it at your current project
 	'ant maven:deploy'
+		Always update the working copy, otherwise you won't get a correct revXXX
 		This deploys to the local solidbase-repository which is a checked out folder from subversion.
 	Check and commit this local solidbase-repository
 		Check that the size of the jar is indeed small (under 300KB)
@@ -25,3 +26,4 @@ Major release
 	Create a branch when you know that you are going to do major enhancements on the trunk
 		Otherwise wait till you start doing new developments on the trunk
 			or when a development branch is about to be merged to the trunk
+	Changelog
