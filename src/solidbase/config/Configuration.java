@@ -83,11 +83,6 @@ public class Configuration
 	protected String patchFile;
 
 	/**
-	 * The SQL file to be executed.
-	 */
-	protected String sqlFile;
-
-	/**
 	 * Returns the path of the properties file. Can be relative or absolute. Needed for testing.
 	 * 
 	 * @return the path of the properties file.
@@ -102,9 +97,15 @@ public class Configuration
 	 * 
 	 * @param progress The listener that listens to config events.
 	 * @param pass Are we in pass 1 or pass 2 of booting?
-	 * @param options The options from the command line.
+	 * @param optionDriver The optional driver class name for the database.
+	 * @param optionUrl The optional url for the database.
+	 * @param optionUserName The optional username for the database.
+	 * @param optionPassWord The optional password for the database.
+	 * @param optionTarget The optional target to upgrade to.
+	 * @param optionPatchFile The optional upgrade file to use.
+	 * @param optionPropertiesFile  The optional path of the properties file.
 	 */
-	public Configuration( ConfigListener progress, int pass, Options options )
+	public Configuration( ConfigListener progress, int pass, String optionDriver, String optionUrl, String optionUserName, String optionPassWord, String optionTarget, String optionPatchFile, String optionPropertiesFile )
 	{
 		try
 		{
@@ -130,8 +131,8 @@ public class Configuration
 			// Load the solid.properties
 
 			File file;
-			if( options.config != null )
-				file = new File( options.config );
+			if( optionPropertiesFile != null )
+				file = new File( optionPropertiesFile );
 			else
 				file = getPropertiesFile();
 
@@ -160,20 +161,18 @@ public class Configuration
 			// Load the commandline properties
 
 			Properties commandLineProperties = new Properties( this.properties );
-			if( options.driver != null )
-				commandLineProperties.put( "connection.driver", options.driver );
-			if( options.url != null )
-				commandLineProperties.put( "connection.url", options.url );
-			if( options.username != null )
-				commandLineProperties.put( "connection.username", options.username );
-			if( options.password != null )
-				commandLineProperties.put( "connection.password", options.password );
-			if( options.target != null )
-				commandLineProperties.put( "upgrade.target", options.target );
-			if( options.upgradefile != null )
-				commandLineProperties.put( "upgrade.file", options.upgradefile );
-			if( options.sqlfile != null )
-				commandLineProperties.put( "sql.file", options.sqlfile );
+			if( optionDriver != null )
+				commandLineProperties.put( "connection.driver", optionDriver );
+			if( optionUrl != null )
+				commandLineProperties.put( "connection.url", optionUrl );
+			if( optionUserName != null )
+				commandLineProperties.put( "connection.username", optionUserName );
+			if( optionPassWord != null )
+				commandLineProperties.put( "connection.password", optionPassWord );
+			if( optionTarget != null )
+				commandLineProperties.put( "upgrade.target", optionTarget );
+			if( optionPatchFile != null )
+				commandLineProperties.put( "upgrade.file", optionPatchFile );
 			if( !commandLineProperties.isEmpty() )
 				this.properties = commandLineProperties;
 
@@ -197,13 +196,11 @@ public class Configuration
 				String password = this.properties.getProperty( "connection.password" );
 				String patchFile = this.properties.getProperty( "upgrade.file" );
 				String target = this.properties.getProperty( "upgrade.target" );
-				String sqlFile = this.properties.getProperty( "sql.file" );
 
 				if( driver != null || dbUrl != null || userName != null || password != null )
 					this.defaultDatabase = new Database( "default", driver, dbUrl, userName, password );
 				this.patchFile = patchFile;
 				this.target = target;
-				this.sqlFile = sqlFile;
 
 				for( Entry entry : this.properties.entrySet() )
 				{
@@ -301,16 +298,6 @@ public class Configuration
 	}
 
 	/**
-	 * Returns the upgrade file to use.
-	 * 
-	 * @return The upgrade file to use.
-	 */
-	public String getSqlFile()
-	{
-		return this.sqlFile;
-	}
-
-	/**
 	 * Returns the property with the given name from the properties file.
 	 * 
 	 * @param name The name for the property.
@@ -332,31 +319,27 @@ public class Configuration
 		if( database != null )
 		{
 			if( StringUtils.isBlank( database.driver ) )
-				return "Missing 'connection.driver' or -driver";
+				return "'connection.driver' missing in properties file or -driver option missing on the command line";
 			if( StringUtils.isBlank( database.url ) )
-				return "Missing 'connection.url' or -url";
+				return "'connection.url' missing in properties file or -url option on from the command line";
 			if( StringUtils.isBlank( database.userName ) )
-				return "Missing 'connection.username' or -username";
-			if( StringUtils.isBlank( this.patchFile ) && StringUtils.isBlank( this.sqlFile ) )
-				return "Missing 'upgrade.file', -upgradefile, 'sql.file' or -sqlfile";
-			if( !StringUtils.isBlank( this.sqlFile ) && !StringUtils.isBlank( this.target ) )
-				return "'upgrade.target', -target is not allowed in combination with 'sql.file', -sqlfile";
+				return "'connection.username' missing in properties file or -username option missing on the command line";
+			if( StringUtils.isBlank( this.patchFile ) )
+				return "'upgrade.file' missing in properties file or -upgradefile option missing on the command line";
 
 			for( Database secondary : this.secondaryDatabases.values() )
 			{
 				// Driver and url are inherited, so they can be null but not blank
 				if( StringUtils.isWhitespace( secondary.driver ) )
-					return "Missing 'connection." + secondary.name + ".driver'";
+					return "'connection." + secondary.name + ".driver' property is empty";
 				if( StringUtils.isWhitespace( secondary.url ) )
-					return "Missing 'connection." + secondary.name + ".url'";
+					return "'connection." + secondary.name + ".url' property is empty";
 				if( StringUtils.isBlank( secondary.userName ) )
-					return "Missing 'connection." + secondary.name + ".username'";
+					return "'connection." + secondary.name + ".username' missing from properties file";
 			}
 		}
 		else
 		{
-			if( !StringUtils.isBlank( this.sqlFile ) )
-				return "'sql.file' property or -sqlfile commandline option specified but no database configured";
 			if( !StringUtils.isBlank( this.patchFile ) )
 				return "'upgrade.file' property or -upgradefile commandline option specified but no database configured";
 			if( !StringUtils.isBlank( this.target ) )

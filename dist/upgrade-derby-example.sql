@@ -29,18 +29,18 @@
 --* INIT "" --> "1.1"
 --* // ========================================================================
 
---* SECTION "Creating table DBVERSION"
+--* SET MESSAGE "    Creating table DBVERSION"
 
 CREATE TABLE DBVERSION
 (
-	SPEC VARCHAR(5) NOT NULL,
+	SPEC VARCHAR(5),
 	VERSION VARCHAR(20), 
 	TARGET VARCHAR(20), 
 	STATEMENTS DECIMAL(4) NOT NULL
 )
 GO
 
---* SECTION "Creating table DBVERSIONLOG"
+--* SET MESSAGE "    Creating table DBVERSIONLOG"
 
 CREATE TABLE DBVERSIONLOG
 (
@@ -65,7 +65,7 @@ GO
 --* UPGRADE "" --> "1.0.1"
 --* // ========================================================================
 
---* SECTION "Creating table USERS"
+--* SET MESSAGE "    Creating table USERS"
 
 CREATE TABLE USERS
 (
@@ -75,12 +75,12 @@ CREATE TABLE USERS
 )
 GO
 
---* SECTION "Inserting admin user"
+--* SET MESSAGE "    Inserting admin user"
 
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' )
 GO
 
---* SECTION "Inserting user"
+--* SET MESSAGE "    Inserting user"
 
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' )
 GO

@@ -7,7 +7,7 @@ import org.testng.annotations.Test;
 
 import solidbase.core.Database;
 import solidbase.core.FatalException;
-import solidbase.core.PatchProcessor;
+import solidbase.core.Patcher;
 import solidbase.core.TestUtil;
 
 public class DeprecatedVersion
@@ -15,11 +15,9 @@ public class DeprecatedVersion
 	@Test
 	public void testDeprecated1() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-
 		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-		patcher.init( "testpatch1.sql" );
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:deprecated", "sa", null, progress ) );
+		patcher.openPatchFile( "testpatch1.sql" );
 		patcher.patch( "1.0.2" );
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null );
 		patcher.end();
@@ -29,8 +27,8 @@ public class DeprecatedVersion
 	public void testDeprecated2() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-		patcher.init( "testpatch-deprecated-version-1.sql" );
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:deprecated", "sa", null, progress ) );
+		patcher.openPatchFile( "testpatch-deprecated-version-1.sql" );
 		try
 		{
 			patcher.patch( "1.0.1" );

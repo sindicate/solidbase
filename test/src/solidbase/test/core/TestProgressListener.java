@@ -21,13 +21,11 @@ import java.net.URL;
 
 import solidbase.core.Command;
 import solidbase.core.Patch;
-import solidbase.core.PatchFile;
 import solidbase.core.ProgressListener;
-import solidbase.core.SQLExecutionException;
-import solidbase.core.SQLFile;
 
 public class TestProgressListener extends ProgressListener
 {
+
 	@Override
 	protected void debug( String message )
 	{
@@ -35,15 +33,21 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	public void print( String message )
+	protected void exception( Command command )
 	{
-		System.out.println( message );
+		System.out.println( "EXCEPTION: " + command );
 	}
 
 	@Override
-	protected void exception( SQLExecutionException exception )
+	protected void executed()
 	{
-		System.out.println( "EXCEPTION: " + exception );
+		System.out.println( "EXECUTED." );
+	}
+
+	@Override
+	protected void executing( Command command, String message )
+	{
+		System.out.println( "EXECUTING: " + message );
 	}
 
 	@Override
@@ -59,48 +63,6 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	protected void openingSQLFile( File sqlFile )
-	{
-		System.out.println( "OPENINGSQLFILE: " + sqlFile );
-	}
-
-	@Override
-	public void openingSQLFile( URL sqlFile )
-	{
-		System.out.println( "OPENINGSQLFILE: " + sqlFile );
-	}
-
-	@Override
-	protected void openedPatchFile( PatchFile patchFile )
-	{
-		System.out.println( "OPENEDPATCHFILE: " + patchFile );
-	}
-
-	@Override
-	protected void openedSQLFile( SQLFile sqlFile )
-	{
-		System.out.println( "OPENEDSQLFILE: " + sqlFile );
-	}
-
-	@Override
-	protected void startSection( int level, String message )
-	{
-		System.out.println( "STARTSECTION: " + message + ", level " + level );
-	}
-
-	@Override
-	protected void executing( Command command, String message )
-	{
-		System.out.println( "EXECUTING: " + message );
-	}
-
-	@Override
-	protected void executed()
-	{
-		System.out.println( "EXECUTED." );
-	}
-
-	@Override
 	protected void patchFinished()
 	{
 		System.out.println( "PATCHFINISHED." );
@@ -110,18 +72,6 @@ public class TestProgressListener extends ProgressListener
 	protected void patchStarting( Patch patch )
 	{
 		System.out.println( "PATCHSTARTING: " + patch.getSource() + " - " + patch.getTarget() );
-	}
-
-	@Override
-	protected void upgradeComplete()
-	{
-		System.out.println( "PATCHINGFINISHED." );
-	}
-
-	@Override
-	protected void sqlExecutionComplete()
-	{
-		System.out.println( "SQLEXECUTIONFINISHED." );
 	}
 
 	@Override

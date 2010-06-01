@@ -25,8 +25,7 @@ import solidbase.Main;
 import solidbase.Progress;
 import solidbase.config.Configuration;
 import solidbase.config.Manipulator;
-import solidbase.config.Options;
-import solidbase.core.TestUtil;
+import solidbase.test.TestUtil;
 
 
 public class ThroughConsoleTests
@@ -40,7 +39,7 @@ public class ThroughConsoleTests
 		Mockit.redefineMethods( Configuration.class, new MockConfiguration( "solidbase1.properties" ) );
 
 		// Test the mock itself
-		Configuration configuration = new Configuration( new Progress( null, false ), 2, new Options( false, false, null, null, null, null, null, null, null, null, false, false ) );
+		Configuration configuration = new Configuration( new Progress( null, false ), 2, null, null, null, null, null, null, null );
 		Assert.assertEquals( Manipulator.getConfigurationPropertiesFile( configuration ).getName(), "solidbase1.properties" );
 
 		// Start test
@@ -61,10 +60,10 @@ public class ThroughConsoleTests
 				"Reading property file X:\\...\\solidbase1.properties\n" +
 				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
-				"Opening file 'testpatch1.sql'\n" +
-				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"Input password for user 'sa': The database has no version yet.\n" +
+				"Opening file 'testpatch1.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
 				"Upgrading to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +
@@ -97,10 +96,10 @@ public class ThroughConsoleTests
 				"Reading property file X:\\...\\solidbase2.properties\n" +
 				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
-				"Opening file 'testpatch1.sql'\n" +
-				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"Input password for user 'sa': The database has no version yet.\n" +
+				"Opening file 'testpatch1.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
 				"Upgrading to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +
@@ -111,37 +110,6 @@ public class ThroughConsoleTests
 				"The database is upgraded.\n" +
 				"\n" +
 				"Current database version is \"1.0.2\".\n"
-		);
-	}
-
-	@Test(dependsOnMethods="testConsole2")
-	public void testPrint1() throws Exception
-	{
-		MockConsole console = new MockConsole();
-		Main.console = console;
-
-		Main.pass2( "-verbose", "-config", "solidbase2.properties", "-upgradefile", "testpatch-print1.sql", "-password", "" );
-
-		String output = TestUtil.generalizeOutput( console.getOutput() );
-
-		//		System.out.println( "[[[" + output + "]]]" );
-
-		Assert.assertEquals( output,
-				"Reading property file file:/.../solidbase-default.properties\n" +
-				"Reading property file X:\\...\\solidbase2.properties\n" +
-				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
-				"\n" +
-				"Opening file 'testpatch-print1.sql'\n" +
-				"    Encoding is 'ISO-8859-1'\n" +
-				"Connecting to database...\n" +
-				"DEBUG: version=1.0.2, target=null, statements=2\n" +
-				"Current database version is \"1.0.2\".\n" +
-				"Upgrading \"1.0.2\" to \"1.0.3\"\n" +
-				"Inserted 1 users.\n" +
-				"DEBUG: version=1.0.2, target=1.0.3, statements=1\n" +
-				"The database is upgraded.\n" +
-				"\n" +
-				"Current database version is \"1.0.3\".\n"
 		);
 	}
 }

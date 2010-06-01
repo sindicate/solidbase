@@ -22,7 +22,7 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import solidbase.core.Database;
-import solidbase.core.PatchProcessor;
+import solidbase.core.Patcher;
 import solidbase.core.TestUtil;
 import solidbase.test.core.TestProgressListener;
 
@@ -31,12 +31,10 @@ public class Downgrade
 	@Test
 	public void testDowngrade() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-
 		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:downgrade1", "sa", null, progress ) );
 
-		patcher.init( "testpatch-downgrade-1.sql" );
+		patcher.openPatchFile( "testpatch-downgrade-1.sql" );
 
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;

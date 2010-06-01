@@ -1,24 +1,6 @@
-/*--
- * Copyright 2009 René M. de Bloois
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package solidbase.test.ant;
 
-import java.io.File;
 import java.util.Iterator;
-
 import org.apache.tools.ant.BuildEvent;
 import org.apache.tools.ant.BuildFileTest;
 import org.apache.tools.ant.BuildListener;
@@ -26,7 +8,7 @@ import org.apache.tools.ant.Project;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import solidbase.core.TestUtil;
+import solidbase.test.TestUtil;
 
 
 public class UpgradeTaskTests extends BuildFileTest
@@ -76,15 +58,14 @@ public class UpgradeTaskTests extends BuildFileTest
 	public void testUpgradeTask()
 	{
 		configureProject( "test-upgradetask.xml" );
-		this.project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
 		executeTarget( "ant-test" );
 		String log = TestUtil.generalizeOutput( getLog() );
 		Assert.assertEquals( log, "SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
-				"Opening file 'X:\\...\\testpatch-multiconnections.sql'\n" +
-				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
+				"Opening file 'X:\\...\\testpatch-multiconnections.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
 				"Upgrading to \"1.0.1\"\n" +
 				"    Creating table DBVERSION.\n" +
 				"    Creating table DBVERSIONLOG.\n" +
@@ -95,10 +76,10 @@ public class UpgradeTaskTests extends BuildFileTest
 				"Current database version is \"1.1.0\".\n" +
 				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
-				"Opening file 'X:\\...\\testpatch-multiconnections.sql'\n" +
-				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"Current database version is \"1.1.0\".\n" +
+				"Opening file 'X:\\...\\testpatch-multiconnections.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
 				"Downgrading \"1.1.0\" to \"1.0.1\"\n" +
 				"Upgrading \"1.0.1\" to \"1.0.2\"\n" +
 				"The database is upgraded.\n" +
@@ -111,15 +92,14 @@ public class UpgradeTaskTests extends BuildFileTest
 	public void testUpgradeTaskBaseDir()
 	{
 		configureProject( "test-upgradetask.xml" );
-		this.project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
 		executeTarget( "ant-basedir-test" );
 		String log = TestUtil.generalizeOutput( getLog() );
 		Assert.assertEquals( log, "SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
-				"Opening file 'X:\\...\\testpatch-basedir.sql'\n" +
-				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
+				"Opening file 'X:\\...\\testpatch-basedir.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
 				"Upgrading to \"1.0.1\"\n" +
 				"    Creating table DBVERSION.\n" +
 				"    Creating table DBVERSIONLOG.\n" +

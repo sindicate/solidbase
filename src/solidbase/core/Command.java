@@ -49,17 +49,17 @@ public class Command
 	/**
 	 * The text of the command.
 	 */
-	private String command;
+	protected String command;
 
 	/**
 	 * Is the command transient or not?
 	 */
-	private boolean isTransient;
+	protected boolean isTransient;
 
 	/**
 	 * The line number in the upgrade file where the command is found.
 	 */
-	private int lineNumber;
+	protected int lineNumber;
 
 	/**
 	 * Instantiates a command.
@@ -68,7 +68,7 @@ public class Command
 	 * @param isTransient Is the command transient or not?
 	 * @param lineNumber The line number in the upgrade file where the command is found.
 	 */
-	public Command( String command, boolean isTransient, int lineNumber )
+	protected Command( String command, boolean isTransient, int lineNumber )
 	{
 		Assert.isTrue( lineNumber > 0 );
 		this.command = command;
@@ -124,11 +124,5 @@ public class Command
 	public int getLineNumber()
 	{
 		return this.lineNumber;
-	}
-
-	@Override
-	public String toString()
-	{
-		return this.command;
 	}
 }

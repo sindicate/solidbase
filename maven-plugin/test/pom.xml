@@ -26,12 +26,12 @@
 			<plugin>
 				<groupId>solidbase</groupId>
 				<artifactId>solidbase</artifactId>
-				<version>1.6.0</version>
+				<version>1.5.3</version>
 				<dependencies>
 					<dependency>
-						<groupId>hsqldb</groupId>
-						<artifactId>hsqldb</artifactId>
-						<version>1.8.0.7</version>
+					<groupId>hsqldb</groupId>
+					<artifactId>hsqldb</artifactId>
+					<version>1.8.0.7</version>
 					</dependency>
 				</dependencies>
 				<configuration>
@@ -41,7 +41,6 @@
 					<password></password>
 					<upgradefile>upgrade-hsqldb-example.sql</upgradefile>
 					<target>1.0.*</target>
-					<sqlfile>hsqldb-test.sql</sqlfile>
 					<connections>
 						<secondary>
 							<name>queues</name>

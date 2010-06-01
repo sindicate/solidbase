@@ -16,8 +16,6 @@
 
 package solidbase.core;
 
-import java.util.Collection;
-
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -123,7 +121,8 @@ public class Assert
 		AssertionFailedException e = new AssertionFailedException( errorMessage );
 		StackTraceElement[] oldElements = e.getStackTrace();
 		StackTraceElement[] newElements = new StackTraceElement[ oldElements.length - pop ];
-		System.arraycopy( oldElements, pop, newElements, 0, newElements.length );
+		for( int i = 0; i < newElements.length; i++ )
+			newElements[ i ] = oldElements[ i + pop ];
 		e.setStackTrace( newElements );
 		throw e;
 	}
@@ -171,17 +170,6 @@ public class Assert
 	{
 		if( StringUtils.isEmpty( test ) )
 			throwAssertionFailure( errorMessage, 2 );
-	}
-
-	/**
-	 * Assert that the collection is not null and not empty. If not, an {@link AssertionFailedException} is thrown.
-	 * 
-	 * @param collection The collection to be checked for not emptiness.
-	 */
-	static public void notEmpty( Collection collection )
-	{
-		if( collection == null || collection.isEmpty() )
-			throwAssertionFailure( null, 2 );
 	}
 
 	/**
@@ -261,31 +249,5 @@ public class Assert
 	{
 		if( test != null )
 			throwAssertionFailure( errorMessage, 2 );
-	}
-
-	/**
-	 * Asserts that the {@code object} is an instance of the {@code class}. If not, an
-	 * {@link AssertionFailedException} is thrown.
-	 * 
-	 * @param object The object of which the type is checked.
-	 * @param type The type to be checked.
-	 */
-	static public void isInstanceOf( Object object, Class type )
-	{
-		if( !type.isInstance( object ) )
-			throwAssertionFailure( null, 2 );
-	}
-
-	/**
-	 * Asserts that the {@code object} is not an instance of the {@code class}. If it is, an
-	 * {@link AssertionFailedException} is thrown.
-	 * 
-	 * @param object The object of which the type is checked.
-	 * @param type The type to be checked.
-	 */
-	static public void notInstanceOf( Object object, Class type )
-	{
-		if( type.isInstance( object ) )
-			throwAssertionFailure( null, 2 );
 	}
 }

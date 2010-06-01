@@ -55,7 +55,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;PREV CLASS&nbsp;
-&nbsp;<A HREF="../../solidbase/core/AssertionFailedException.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/core/AssertCommandExecuter.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/Assert.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="Assert.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -158,15 +158,6 @@ Assert methods.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/Assert.html#isInstanceOf(java.lang.Object, java.lang.Class)">isInstanceOf</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;object,
-             <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&nbsp;type)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Asserts that the <code>object</code> is an instance of the <code>class</code>.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/Assert.html#isNull(java.lang.Object)">isNull</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;test)</CODE>
 
 <BR>
@@ -228,14 +219,6 @@ Assert methods.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/Assert.html#notEmpty(java.util.Collection)">notEmpty</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&nbsp;collection)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assert that the collection is not null and not empty.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/Assert.html#notEmpty(java.lang.String)">notEmpty</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;test)</CODE>
 
 <BR>
@@ -249,15 +232,6 @@ Assert methods.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assert that String argument s is not null and not "".</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/Assert.html#notInstanceOf(java.lang.Object, java.lang.Class)">notInstanceOf</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;object,
-              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&nbsp;type)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Asserts that the <code>object</code> is not an instance of the <code>class</code>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -452,19 +426,6 @@ public static void <B>notEmpty</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/
 </DL>
 <HR>
 
-<A NAME="notEmpty(java.util.Collection)"><!-- --></A><H3>
-notEmpty</H3>
-<PRE>
-public static void <B>notEmpty</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&nbsp;collection)</PRE>
-<DL>
-<DD>Assert that the collection is not null and not empty. If not, an <A HREF="../../solidbase/core/AssertionFailedException.html" title="class in solidbase.core"><CODE>AssertionFailedException</CODE></A> is thrown.
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>collection</CODE> - The collection to be checked for not emptiness.</DL>
-</DD>
-</DL>
-<HR>
-
 <A NAME="notBlank(java.lang.String)"><!-- --></A><H3>
 notBlank</H3>
 <PRE>
@@ -546,36 +507,6 @@ public static void <B>isNull</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/ap
 <DT><B>Parameters:</B><DD><CODE>test</CODE> - Test argument.<DD><CODE>errorMessage</CODE> - The error message.</DL>
 </DD>
 </DL>
-<HR>
-
-<A NAME="isInstanceOf(java.lang.Object, java.lang.Class)"><!-- --></A><H3>
-isInstanceOf</H3>
-<PRE>
-public static void <B>isInstanceOf</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;object,
-                                <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&nbsp;type)</PRE>
-<DL>
-<DD>Asserts that the <code>object</code> is an instance of the <code>class</code>. If not, an
- <A HREF="../../solidbase/core/AssertionFailedException.html" title="class in solidbase.core"><CODE>AssertionFailedException</CODE></A> is thrown.
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>object</CODE> - The object of which the type is checked.<DD><CODE>type</CODE> - The type to be checked.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="notInstanceOf(java.lang.Object, java.lang.Class)"><!-- --></A><H3>
-notInstanceOf</H3>
-<PRE>
-public static void <B>notInstanceOf</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;object,
-                                 <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Class.html?is-external=true" title="class or interface in java.lang">Class</A>&nbsp;type)</PRE>
-<DL>
-<DD>Asserts that the <code>object</code> is not an instance of the <code>class</code>. If it is, an
- <A HREF="../../solidbase/core/AssertionFailedException.html" title="class in solidbase.core"><CODE>AssertionFailedException</CODE></A> is thrown.
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>object</CODE> - The object of which the type is checked.<DD><CODE>type</CODE> - The type to be checked.</DL>
-</DD>
-</DL>
 <!-- ========= END OF CLASS DATA ========= -->
 <HR>
 
@@ -607,7 +538,7 @@ public static void <B>notInstanceOf</B>(<A HREF="http://java.sun.com/j2se/1.5.0/
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;PREV CLASS&nbsp;
-&nbsp;<A HREF="../../solidbase/core/AssertionFailedException.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/core/AssertCommandExecuter.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/Assert.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="Assert.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;

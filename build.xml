@@ -18,7 +18,6 @@
 
 <project basedir="." name="solidbase" default="dist" xmlns:maven="antlib:org.apache.maven.artifact.ant">
 
-	
 	<!-- Maven Ant Task -->
 	
 	<path id="maven.classpath">
@@ -29,19 +28,16 @@
 	
 	<!-- <maven:dependencies><pom file="pom.xml" /></maven:dependencies> -->
 	
-	
-	<!-- Properties -->
+	<!-- Property file -->
 
 	<property file="build.properties" />
-	<property name="target-jre" value="1.5" />
-	<property name="build.sysclasspath" value="ignore" />
 
-	<!--
-	<condition property="-testclass" value="${testclass}" else="**">
-		<isset property="testclass" />
-	</condition>
-	-->
-	
+	<!-- Properties -->
+
+	<property name="target-jre" value="1.5" />
+
+	<!-- Source folders & files -->
+
 	<!-- Product folders -->
 	<property name="build.home" location="../BUILDS/solidbase" />
 	<property name="temp.home" value="../TEMP/solidbase" />
@@ -122,9 +118,9 @@
 	<target name="compile">
 		<echo message="java.home=${java.home}" />
 		<mkdir dir="${build.home}/classes" />
-		<javac srcdir="src" destdir="${build.home}/classes" source="${target-jre}" target="${target-jre}" optimize="true" debug="true" deprecation="true" classpathref="compile.classpath" />
+		<javac srcdir="src:maven-plugin/src/main/java" destdir="${build.home}/classes" source="${target-jre}" target="${target-jre}" optimize="true" debug="true" deprecation="true" classpathref="compile.classpath" />
 		<sync todir="${build.home}/classes">
-			<fileset dir="src" excludes="**/*.java,**/*.html" />
+			<fileset dir="src" excludes="**/*.java" />
 			<preserveInTarget includes="**/*.class" />
 		</sync>
 	</target>
@@ -135,17 +131,13 @@
 		<javac source="${target-jre}" target="${target-jre}" srcdir="test/src" destdir="${build.home}/testclasses" debug="true" deprecation="true" optimize="true">
 			<classpath refid="compiletest.classpath" />
 		</javac>
-		<sync todir="${build.home}/testclasses">
-			<fileset dir="test/src" excludes="**/*.java" />
-			<preserveInTarget includes="**/*.class" />
-		</sync>
 		<sync todir="${build.home}/test">
 			<fileset dir="test" excludes="src/**,lib/**" />
 		</sync>
 	</target>
 
 
-	<target name="test" depends="compiletest,test-maven-plugin" description="Run the tests">
+	<target name="test" depends="compile,compiletest,test-maven-plugin" description="Run the tests">
 		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="3">
 			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.996.jar" />
 			<jvmarg value="-Xmx256m" />
@@ -155,17 +147,7 @@
 	</target>
 
 
-	<target name="testclass" depends="compiletest" description="Run a test class">
-		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="3">
-			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.996.jar" />
-			<jvmarg value="-Xmx256m" />
-			<classfileset dir="${build.home}/testclasses" includes="**/${testclass}.class" />
-			<!-- <reporter classname="solidbase.test.TestListener"/> -->
-		</testng>
-	</target>
-
-
-	<target name="testnew" depends="compiletest" description="Run new tests">
+	<target name="testnew" depends="compile,compiletest" description="Run new tests">
 		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="3" groups="new">
 			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.996.jar" />
 			<jvmarg value="-Xmx256m" />
@@ -197,7 +179,9 @@
 			<zipfileset dir="." includes="LICENSE.txt,NOTICE.txt,CHANGELOG.TXT" prefix="META-INF" />
 			<rule pattern="org.apache.commons.**" result="solidbase.@0" />
 			<rule pattern="com.mindprod.**" result="solidbase.@0" />
-			<keep pattern="solidbase.**" />
+			<keep pattern="solidbase.Main" />
+			<keep pattern="solidbase.ant.UpgradeTask" />
+			<keep pattern="solidbase.maven.UpgradeMojo" />
 			<manifest>
 				<attribute name="Implementation-Title" value="SolidBase" />
 				<attribute name="Implementation-Version" value="${release.number}.${svn.revision}" />
@@ -244,7 +228,7 @@
 	</target>
 
 
-	<target name="dist" depends="checksvnstatus,clean,test,build" description="Complete build process to create the distribution files">
+	<target name="dist" depends="checksvnstatus,clean,test,build,test-maven-plugin" description="Complete build process to create the distribution files">
 		<fail>
 			<condition>
 				<resourcecount when="ne" count="8">
@@ -259,7 +243,7 @@
 	<target name="javadoc" depends="compile" description="Generate Javadoc">
 		<mkdir dir="doc/api" />
 		<delete dir="doc/api" includes="**/*" />
-		<javadoc sourcepath="src" destdir="doc/api" packagenames="*" linkoffline="http://java.sun.com/j2se/1.5.0/docs/api doc/jdk1.5.0">
+		<javadoc sourcepath="src:maven-plugin/src/main/java" destdir="doc/api" packagenames="*" linkoffline="http://java.sun.com/j2se/1.5.0/docs/api doc/jdk1.5.0">
 			<classpath refid="compile.classpath" />
 		</javadoc>
 		<replaceregexp match="- Generated by javadoc [^\-]+-" replace="- Generated by javadoc -" flags="g" byline="true">
@@ -298,18 +282,19 @@
 
 	<target name="maven:deploy" depends="build" description="Deploys to the remote repo">
 		<maven:deploy file="${dist.home}/solidbase.jar">
-			<pom file="deploy-pom.xml" />
+			<pom file="pom.xml" />
 		</maven:deploy>
 	</target>
 	
 	
 	<target name="maven:install" depends="build" description="Deploys to the local repo">
 		<maven:install file="${dist.home}/solidbase.jar">
-			<pom file="deploy-pom.xml" />
+			<pom file="pom.xml" />
 		</maven:install>
 	</target>
 	
 	
+
 	<!--
 	<target name="maven:release">
 		<replaceregexp file="pom.xml" match="&lt;version&gt;(\w|\.|-)*&lt;/version&gt;" replace="&lt;version&gt;${release.number}&lt;/version&gt;" />
@@ -317,7 +302,6 @@
 		
 	</target>
 	-->
-	
 	
 	<!-- This will delete all files but not the folders. Use this when you want to integrate a new version of the docbook xsl tool -->
 	<target name="delete-docbook-tool">
@@ -363,7 +347,7 @@
 		<delete dir="${build.home}/mavenuser/.m2/repository/solidbase" /> <!-- Remove solidbase from the local repo -->
 		<delete dir="${build.home}/remote" /> <!-- Delete the remote repo -->
 		<maven:deploy file="${dist.home}/solidbase.jar"> <!-- Deploy to the remote repo -->
-			<pom file="deploy-pom.xml" />
+			<pom file="pom.xml" />
 			<remoterepository url="file:///${build.home}/remote" />
 			<localrepository path="${build.home}/mavenuser/.m2/repository" />
 		</maven:deploy>
@@ -377,7 +361,6 @@
 			<jvmarg value="-Dtest.repo.url=file:///${build.home}/remote" /> <!-- Used in the pom.xml -->
 			<arg value="--batch-mode" />
 			<arg value="solidbase:upgrade" />
-			<arg value="solidbase:sql" />
 		</java>
 	</target>
 	

@@ -22,7 +22,7 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import solidbase.core.Database;
-import solidbase.core.PatchProcessor;
+import solidbase.core.Patcher;
 import solidbase.core.TestUtil;
 import solidbase.test.core.TestProgressListener;
 
@@ -31,12 +31,10 @@ public class Init
 	@Test
 	public void testInit1() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-
 		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init1", "sa", null, progress ) );
 
-		patcher.init( "testpatch1.sql" );
+		patcher.openPatchFile( "testpatch1.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
 
@@ -50,9 +48,9 @@ public class Init
 	public void testInit2() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init1", "sa", null, progress ) );
 
-		patcher.init( "testpatch-version-table-upgrade-2.sql" );
+		patcher.openPatchFile( "testpatch-version-table-upgrade-2.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
 
@@ -65,12 +63,10 @@ public class Init
 	@Test
 	public void testInit3() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-
 		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:init3", "sa", null, progress ) );
 
-		patcher.init( "testpatch-version-table-upgrade-2.sql" );
+		patcher.openPatchFile( "testpatch-version-table-upgrade-2.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
 

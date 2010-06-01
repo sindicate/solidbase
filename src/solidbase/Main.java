@@ -35,9 +35,8 @@ import solidbase.config.Configuration;
 import solidbase.core.Assert;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
-import solidbase.core.PatchProcessor;
+import solidbase.core.Patcher;
 import solidbase.core.SQLExecutionException;
-import solidbase.core.SQLProcessor;
 import solidbase.core.SystemException;
 
 
@@ -106,17 +105,18 @@ public class Main
 
 		Options options = new Options();
 		options.addOption( "verbose", false, "be extra verbose" );
-		options.addOption( "dumplog", true, "export historical upgrade results to an XML file" );
-		options.addOption( "driver", true, "sets the JDBC driverclass" );
-		options.addOption( "url", true, "sets the URL for the database" );
-		options.addOption( "username", true, "sets the default user name to connect with" );
-		options.addOption( "password", true, "sets the password of the default user" );
-		options.addOption( "target", true, "sets the target version to upgrade to" );
+//		options.addOption( "fromant", false, "adds newlines after input requests" );
+		options.addOption( "dumplog", true, "export historical patch results to an xml file" );
+		options.addOption( "driver", true, "sets the jdbc driverclass" );
+		options.addOption( "url", true, "sets the url for the database" );
+		options.addOption( "username", true, "sets the default username to patch with" );
+		options.addOption( "password", true, "sets the password of the default username" );
+		options.addOption( "target", true, "sets the target version" );
 		options.addOption( "upgradefile", true, "specifies the file containing the database upgrades" );
-		options.addOption( "sqlfile", true, "specifies an SQL file to execute" );
-		options.addOption( "config", true, "specifies a properties file to use" );
+		options.addOption( "config", true, "specifies the properties file to use" );
 		options.addOption( "downgradeallowed", false, "allow downgrades to reach the target" );
 		options.addOption( "help", false, "Brings up this page" );
+		// TODO Add driverjar option
 
 		options.getOption( "dumplog" ).setArgName( "filename" );
 		options.getOption( "driver" ).setArgName( "classname" );
@@ -141,24 +141,24 @@ public class Main
 			return;
 		}
 
-		solidbase.config.Options opts = new solidbase.config.Options( line.hasOption( "verbose" ), line
-				.hasOption( "dumplog" ), line.getOptionValue( "driver" ), line.getOptionValue( "url" ), line
-				.getOptionValue( "username" ), line.getOptionValue( "password" ), line.getOptionValue( "target" ), line
-				.getOptionValue( "upgradefile" ), line.getOptionValue( "sqlfile" ), line.getOptionValue( "config" ),
-				line.hasOption( "downgradeallowed" ), line.hasOption( "help" ) );
+		boolean verbose = line.hasOption( "verbose" );
+		boolean exportlog = line.hasOption( "dumplog" );
+//		console.fromAnt = line.hasOption( "fromant" );
+		boolean downgradeallowed = line.hasOption( "downgradeallowed" );
+		boolean help = line.hasOption( "help" );
 
-		if( opts.help )
+		if( help )
 		{
 			printHelp( options );
 			return;
 		}
 
-		Progress progress = new Progress( console, opts.verbose );
-		Configuration configuration = new Configuration( progress, pass, opts );
+		Progress progress = new Progress( console, verbose );
+		Configuration configuration = new Configuration( progress, pass, line.getOptionValue( "driver" ), line.getOptionValue( "url" ), line.getOptionValue( "username" ), line.getOptionValue( "password" ), line.getOptionValue( "target" ), line.getOptionValue( "upgradefile" ), line.getOptionValue( "config" ) );
 
 		if( pass == 1 )
 		{
-			reload( args, configuration.getDriverJars(), opts.verbose );
+			reload( args, configuration.getDriverJars(), verbose );
 			return;
 		}
 
@@ -181,37 +181,18 @@ public class Main
 		console.println( info[ 1 ] );
 		console.println();
 
-		if( configuration.getSqlFile() != null )
+		Patcher patcher = new Patcher( progress );
+		try
 		{
-			SQLProcessor processor = new SQLProcessor( progress );
-
-			solidbase.config.Database defoult = configuration.getDefaultDatabase();
-			processor.addDatabase( "default", new Database( defoult.getDriver(), defoult.getUrl(), defoult.getUserName(), defoult.getPassword(), progress ) );
-
-			for( solidbase.config.Database database : configuration.getSecondaryDatabases() )
-				processor.addDatabase( database.getName(),
-						new Database( database.getDriver() == null ? defoult.getDriver() : database.getDriver(),
-								database.getUrl() == null ? defoult.getUrl() : database.getUrl(),
-										database.getUserName(), database.getPassword(), progress ) );
-
-			processor.init( configuration.getSqlFile() );
-			try
-			{
-				console.println( "Connecting to database..." );
-				processor.execute();
-				console.emptyLine();
-			}
-			finally
-			{
-				processor.end();
-			}
-		}
-		else
-		{
-			PatchProcessor patcher = new PatchProcessor( progress );
-
 			solidbase.config.Database defoult = configuration.getDefaultDatabase();
 			patcher.addDatabase( "default", new Database( defoult.getDriver(), defoult.getUrl(), defoult.getUserName(), defoult.getPassword(), progress ) );
+
+			if( exportlog )
+			{
+				// logToXML needs the default database added above
+				patcher.logToXML( line.getOptionValue( "dumplog" ) );
+				return;
+			}
 
 			for( solidbase.config.Database database : configuration.getSecondaryDatabases() )
 				patcher.addDatabase( database.getName(),
@@ -219,25 +200,25 @@ public class Main
 								database.getUrl() == null ? defoult.getUrl() : database.getUrl(),
 										database.getUserName(), database.getPassword(), progress ) );
 
-			patcher.init( configuration.getPatchFile() );
+			console.println( "Connecting to database..." );
+
+			console.println( patcher.getVersionStatement() );
+
+			patcher.openPatchFile( configuration.getPatchFile() );
 			try
 			{
-				if( opts.dumplog )
-				{
-					patcher.logToXML( line.getOptionValue( "dumplog" ) );
-					return;
-				}
-
-				console.println( "Connecting to database..." );
-				console.println( patcher.getVersionStatement() );
-				patcher.patch( configuration.getTarget(), opts.downgradeallowed ); // TODO Print this target
+				patcher.patch( configuration.getTarget(), downgradeallowed ); // TODO Print this target
 				console.emptyLine();
 				console.println( patcher.getVersionStatement() );
 			}
 			finally
 			{
-				patcher.end();
+				patcher.closePatchFile();
 			}
+		}
+		finally
+		{
+			patcher.end();
 		}
 	}
 
@@ -353,7 +334,7 @@ public class Main
 				if( t.getCause() != null )
 				{
 					t = t.getCause();
-					Assert.notInstanceOf( t, SystemException.class );
+					Assert.isFalse( t instanceof SystemException );
 				}
 
 			if( t instanceof FatalException )

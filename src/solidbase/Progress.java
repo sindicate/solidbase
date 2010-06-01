@@ -24,8 +24,6 @@ import solidbase.core.Command;
 import solidbase.core.Patch;
 import solidbase.core.PatchFile;
 import solidbase.core.ProgressListener;
-import solidbase.core.SQLExecutionException;
-import solidbase.core.SQLFile;
 
 
 /**
@@ -35,8 +33,6 @@ import solidbase.core.SQLFile;
  */
 public class Progress extends ProgressListener implements ConfigListener
 {
-	static private final String SPACES = "                                        ";
-
 	/**
 	 * Show extra information?
 	 */
@@ -47,10 +43,6 @@ public class Progress extends ProgressListener implements ConfigListener
 	 */
 	protected Console console;
 
-	/**
-	 * A store for nested messages coming from SECTIONs in the command file.
-	 */
-	protected String[] messages = new String[ 10 ];
 
 	/**
 	 * Constructor.
@@ -77,33 +69,15 @@ public class Progress extends ProgressListener implements ConfigListener
 	}
 
 	@Override
-	protected void openingSQLFile( File sqlFile )
-	{
-		this.console.println( "Opening file '" + sqlFile + "'" );
-	}
-
-	@Override
 	protected void openingPatchFile( URL patchFile )
 	{
 		this.console.println( "Opening file '" + patchFile + "'" );
 	}
 
 	@Override
-	protected void openingSQLFile( URL sqlFile )
-	{
-		this.console.println( "Opening file '" + sqlFile + "'" );
-	}
-
-	@Override
-	protected void openedPatchFile( PatchFile patchFile )
+	public void openedPatchFile( PatchFile patchFile )
 	{
 		this.console.println( "    Encoding is '" + patchFile.getEncoding() + "'" );
-	}
-
-	@Override
-	protected void openedSQLFile( SQLFile sqlFile )
-	{
-		this.console.println( "    Encoding is '" + sqlFile.getEncoding() + "'" );
 	}
 
 	@Override
@@ -131,26 +105,8 @@ public class Progress extends ProgressListener implements ConfigListener
 	}
 
 	@Override
-	protected void startSection( int level, String message )
-	{
-		this.messages[ level ] = message;
-	}
-
-	@Override
 	protected void executing( Command command, String message )
 	{
-		for( int i = 0; i < this.messages.length; i++ )
-		{
-			String m = this.messages[ i ];
-			if( m != null )
-			{
-				this.console.carriageReturn();
-				this.console.print( SPACES.substring( 0, i * 4 ) );
-				this.console.print( m );
-				this.messages[ i ] = null;
-			}
-		}
-
 		if( message != null ) // Message can be null, when a message has not been set, but sql is still being executed
 		{
 			this.console.carriageReturn();
@@ -159,7 +115,7 @@ public class Progress extends ProgressListener implements ConfigListener
 	}
 
 	@Override
-	protected void exception( SQLExecutionException exception )
+	protected void exception( Command command )
 	{
 		// The sql is now printed by the SQLExecutionException.printStackTrace().
 	}
@@ -177,17 +133,9 @@ public class Progress extends ProgressListener implements ConfigListener
 	}
 
 	@Override
-	protected void upgradeComplete()
+	protected void patchingFinished()
 	{
-		this.console.carriageReturn();
 		this.console.println( "The database is upgraded." );
-	}
-
-	@Override
-	protected void sqlExecutionComplete()
-	{
-		this.console.carriageReturn();
-		this.console.println( "Execution complete." );
 	}
 
 	@Override
@@ -203,12 +151,5 @@ public class Progress extends ProgressListener implements ConfigListener
 	{
 		if( this.verbose )
 			this.console.println( "DEBUG: " + message );
-	}
-
-	@Override
-	public void print( String message )
-	{
-		this.console.carriageReturn();
-		this.console.print( message );
 	}
 }

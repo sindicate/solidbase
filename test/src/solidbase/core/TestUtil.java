@@ -17,20 +17,19 @@
 package solidbase.core;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.testng.Assert;
 
-import solidbase.core.PatchProcessor;
+import solidbase.core.Patcher;
 import solidbase.core.SystemException;
 
 
 public class TestUtil
 {
-	static public void shutdownHSQLDB( PatchProcessor patcher ) throws SQLException
+	static public void shutdownHSQLDB( Patcher patcher ) throws SQLException
 	{
 		Connection connection = patcher.currentDatabase.getConnection( "sa" );
 		try
@@ -63,7 +62,7 @@ public class TestUtil
 		Assert.assertEquals( count, expected );
 	}
 
-	static public void verifyVersion( PatchProcessor patcher, String version, String target, int statements, String spec ) throws SQLException
+	static public void verifyVersion( Patcher patcher, String version, String target, int statements, String spec ) throws SQLException
 	{
 		String sql = "SELECT * FROM DBVERSION";
 		Connection connection = patcher.currentDatabase.getConnection();
@@ -78,70 +77,20 @@ public class TestUtil
 		else
 			Assert.assertEquals( result.getString( "SPEC" ), spec, "spec:" );
 		Assert.assertFalse( result.next() );
-		connection.commit();
 	}
 
-	public static void verifyHistoryIncludes( PatchProcessor patcher, String version )
+	public static void verifyHistoryIncludes( Patcher patcher, String version )
 	{
 		Assert.assertTrue( patcher.dbVersion.logContains( version ), "Expecting version " + version + " to be part of the history" );
 	}
 
-	public static void verifyHistoryNotIncludes( PatchProcessor patcher, String version )
+	public static void verifyHistoryNotIncludes( Patcher patcher, String version )
 	{
 		Assert.assertFalse( patcher.dbVersion.logContains( version ), "Not expecting version " + version + " to be part of the history" );
 	}
 
-	static public void assertPatchFileClosed( PatchProcessor patcher )
+	static public void assertPatchFileClosed( Patcher patcher )
 	{
 		Assert.assertNull( patcher.patchFile.file );
-	}
-
-	static public void dropDerbyDatabase( String url ) throws SQLException
-	{
-		if( !url.contains( "drop=true" ) )
-			url = url + ";drop=true";
-		try
-		{
-			Connection connection = DriverManager.getConnection( url, null, null );
-		}
-		catch( SQLException e )
-		{
-			if( e.getSQLState().equals( "XJ004" ) ) // "Database 'memory:test' not found."
-				return;
-			System.out.println( e.getSQLState() );
-			throw e;
-		}
-	}
-
-	static public void dropHSQLDBSchema( String url, String username, String password ) throws SQLException
-	{
-		try
-		{
-			Class.forName( "org.hsqldb.jdbcDriver" );
-		}
-		catch( ClassNotFoundException e )
-		{
-			throw new SystemException( e );
-		}
-
-		try
-		{
-			Connection connection = DriverManager.getConnection( url, username, password );
-			connection.createStatement().execute( "DROP SCHEMA PUBLIC CASCADE" );
-		}
-		catch( SQLException e )
-		{
-			System.out.println( e.getSQLState() );
-			throw e;
-		}
-	}
-
-	static public String generalizeOutput( String output )
-	{
-		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
-		output = output.replaceAll( "[A-Z]:\\\\\\S+\\\\", "X:\\\\...\\\\" );
-		output = output.replaceAll( "SolidBase v1\\.5\\.x\\s+\\(C\\) 2006-201\\d Ren[eé] M\\. de Bloois", "SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois" );
-		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
-		return output.replaceAll( "\\\r", "" );
 	}
 }

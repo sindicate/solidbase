@@ -26,9 +26,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidbase.core.Database;
-import solidbase.core.PatchProcessor;
+import solidbase.core.Patcher;
+import solidbase.core.RandomAccessLineReader;
 import solidbase.test.core.TestProgressListener;
-import solidbase.util.RandomAccessLineReader;
 
 
 public class CharSets
@@ -46,12 +46,10 @@ public class CharSets
 	@Test
 	public void testUtf8() throws SQLException, SQLExecutionException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-
 		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
+		Patcher patcher = new Patcher( progress, new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testUtf8", "sa", null, progress ) );
 
-		patcher.init( "patch-utf-8-1.sql" );
+		patcher.openPatchFile( "patch-utf-8-1.sql" );
 		Assert.assertEquals( patcher.patchFile.file.getEncoding(), "UTF-8" );
 		try
 		{

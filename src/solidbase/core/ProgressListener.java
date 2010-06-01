@@ -29,9 +29,17 @@ import java.net.URL;
 public class ProgressListener
 {
 	/**
+	 * Constructor.
+	 */
+	public ProgressListener()
+	{
+		super();
+	}
+
+	/**
 	 * An upgrade file is about to be opened.
 	 * 
-	 * @param patchFile The upgrade file that is about to be opened.
+	 * @param patchFile The upgrade file that is about the open.
 	 */
 	protected void openingPatchFile( File patchFile )
 	{
@@ -41,29 +49,9 @@ public class ProgressListener
 	/**
 	 * An upgrade file is about to be opened.
 	 * 
-	 * @param patchFile The upgrade file that is about to be opened.
+	 * @param patchFile The upgrade file that is about the open.
 	 */
 	protected void openingPatchFile( URL patchFile )
-	{
-		// could be implemented in subclass
-	}
-
-	/**
-	 * An sql file is about to be opened.
-	 * 
-	 * @param sqlFile The sql file that is about to be opened.
-	 */
-	protected void openingSQLFile( File sqlFile )
-	{
-		// could be implemented in subclass
-	}
-
-	/**
-	 * An sql file is about to be opened.
-	 * 
-	 * @param sqlFile The sql file that is about to be opened.
-	 */
-	protected void openingSQLFile( URL sqlFile )
 	{
 		// could be implemented in subclass
 	}
@@ -73,17 +61,7 @@ public class ProgressListener
 	 * 
 	 * @param patchFile The upgrade file that is opened.
 	 */
-	protected void openedPatchFile( PatchFile patchFile )
-	{
-		// could be implemented in subclass
-	}
-
-	/**
-	 * An sql file is opened.
-	 * 
-	 * @param sqlFile The sql file that is opened.
-	 */
-	protected void openedSQLFile( SQLFile sqlFile )
+	public void openedPatchFile( PatchFile patchFile )
 	{
 		// could be implemented in subclass
 	}
@@ -94,17 +72,6 @@ public class ProgressListener
 	 * @param patch The change set that is about to be started.
 	 */
 	protected void patchStarting( Patch patch )
-	{
-		// could be implemented in subclass
-	}
-
-	/**
-	 * A section is started.
-	 * 
-	 * @param level Section level.
-	 * @param message Message.
-	 */
-	protected void startSection( int level, String message )
 	{
 		// could be implemented in subclass
 	}
@@ -121,18 +88,17 @@ public class ProgressListener
 	}
 
 	/**
-	 * An exception occurred during execution of the given command.
+	 * An exception occured during execution of the given command.
 	 * 
-	 * @param exception The exception that occurred.
+	 * @param command The command during which an exception occured.
 	 */
-	// TODO Should this be FatalException?
-	protected void exception( SQLExecutionException exception )
+	protected void exception( Command command )
 	{
 		// could be implemented in subclass
 	}
 
 	/**
-	 * A command is successfully executed.
+	 * A command is succesfully executed.
 	 */
 	protected void executed()
 	{
@@ -150,15 +116,7 @@ public class ProgressListener
 	/**
 	 * The upgrade is completed.
 	 */
-	protected void upgradeComplete()
-	{
-		// could be implemented in subclass
-	}
-
-	/**
-	 * The sql execution is completed.
-	 */
-	protected void sqlExecutionComplete()
+	protected void patchingFinished()
 	{
 		// could be implemented in subclass
 	}
@@ -191,16 +149,6 @@ public class ProgressListener
 	 * @param message The debug message.
 	 */
 	protected void debug( String message )
-	{
-		// could be implemented in subclass
-	}
-
-	/**
-	 * An info message is produced.
-	 * 
-	 * @param message The info message.
-	 */
-	public void print( String message )
 	{
 		// could be implemented in subclass
 	}

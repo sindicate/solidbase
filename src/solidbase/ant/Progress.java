@@ -26,8 +26,6 @@ import solidbase.core.Command;
 import solidbase.core.Patch;
 import solidbase.core.PatchFile;
 import solidbase.core.ProgressListener;
-import solidbase.core.SQLExecutionException;
-import solidbase.core.SQLFile;
 
 
 /**
@@ -37,8 +35,6 @@ import solidbase.core.SQLFile;
  */
 public class Progress extends ProgressListener
 {
-	static private final String SPACES = "                                        ";
-
 	/**
 	 * The Ant project.
 	 */
@@ -54,10 +50,6 @@ public class Progress extends ProgressListener
 	 */
 	protected StringBuilder buffer;
 
-	/**
-	 * A store for nested messages coming from SECTIONs in the command file.
-	 */
-	protected String[] messages = new String[ 10 ];
 
 	/**
 	 * Constructor.
@@ -118,27 +110,9 @@ public class Progress extends ProgressListener
 	}
 
 	@Override
-	protected void openingSQLFile( File sqlFile )
-	{
-		info( "Opening file '" + sqlFile + "'" );
-	}
-
-	@Override
-	protected void openingSQLFile( URL sqlFile )
-	{
-		info( "Opening file '" + sqlFile + "'" );
-	}
-
-	@Override
-	protected void openedPatchFile( PatchFile patchFile )
+	public void openedPatchFile( PatchFile patchFile )
 	{
 		info( "    Encoding is '" + patchFile.getEncoding() + "'" );
-	}
-
-	@Override
-	protected void openedSQLFile( SQLFile sqlFile )
-	{
-		info( "    Encoding is '" + sqlFile.getEncoding() + "'" );
 	}
 
 	@Override
@@ -167,25 +141,8 @@ public class Progress extends ProgressListener
 	}
 
 	@Override
-	protected void startSection( int level, String message )
-	{
-		this.messages[ level ] = message;
-	}
-
-	@Override
 	protected void executing( Command command, String message )
 	{
-		for( int i = 0; i < this.messages.length; i++ )
-		{
-			String m = this.messages[ i ];
-			if( m != null )
-			{
-				flush();
-				this.buffer = new StringBuilder().append( SPACES, 0, i * 4 ).append( m );
-				this.messages[ i ] = null;
-			}
-		}
-
 		if( message != null ) // Message can be null, when a message has not been set, but sql is still being executed
 		{
 			flush();
@@ -194,7 +151,7 @@ public class Progress extends ProgressListener
 	}
 
 	@Override
-	protected void exception( SQLExecutionException exception )
+	protected void exception( Command command )
 	{
 		// The sql is printed by the SQLExecutionException.printStackTrace().
 	}
@@ -214,13 +171,7 @@ public class Progress extends ProgressListener
 	}
 
 	@Override
-	protected void sqlExecutionComplete()
-	{
-		info( "Execution complete." );
-	}
-
-	@Override
-	protected void upgradeComplete()
+	protected void patchingFinished()
 	{
 		info( "The database is upgraded." );
 	}
@@ -235,12 +186,5 @@ public class Progress extends ProgressListener
 	protected void debug( String message )
 	{
 		verbose( "DEBUG: " + message );
-	}
-
-	@Override
-	public void print( String message )
-	{
-		flush();
-		this.buffer = new StringBuilder( message );
 	}
 }

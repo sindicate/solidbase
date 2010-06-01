@@ -32,7 +32,6 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import solidbase.core.Patch.Type;
-import solidbase.util.RandomAccessLineReader;
 
 
 /**
@@ -41,19 +40,21 @@ import solidbase.util.RandomAccessLineReader;
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
-public class PatchFile extends SQLFile
+public class PatchFile
 {
-	static private final Pattern PATCH_DEFINITION_MARKER_PATTERN = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)[ \t]+.*", Pattern.CASE_INSENSITIVE );
-	static private final Pattern PATCH_DEFINITION_PATTERN = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
+	static private final Pattern encodingPattern = Pattern.compile( "^--\\*[ \t]*ENCODING[ \t]+\"([^\"]*)\"[ \t]*$", Pattern.CASE_INSENSITIVE );
+
+	static private final Pattern patchDefinitionMarkerPattern = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)[ \t]+.*", Pattern.CASE_INSENSITIVE );
+	static private final Pattern patchDefinitionPattern = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
 	static private final String PATCH_DEFINITION_SYNTAX_ERROR = "Line should match the following syntax: (INIT|UPGRADE|SWITCH|DOWNGRADE) [OPEN] \"...\" --> \"...\"";
 
-	static private final Pattern CONTROL_TABLES_PATTERN = Pattern.compile( "VERSION\\s+TABLE\\s+(\\S+)\\s+LOG\\s+TABLE\\s+(\\S+)", Pattern.CASE_INSENSITIVE );
-
-	static private final Pattern PATCH_START_MARKER_PATTERN = Pattern.compile( "--\\*[ \t]*(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN).*", Pattern.CASE_INSENSITIVE );
-	static private final Pattern PATCH_START_PATTERN = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
+	static private final Pattern patchStartMarkerPattern = Pattern.compile( "--\\*[ \t]*(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN).*", Pattern.CASE_INSENSITIVE );
+	static private final Pattern patchStartPattern = Pattern.compile( "--\\*[ \t]*(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
 	static private final String PATCH_START_SYNTAX_ERROR = "Line should match the following syntax: (INIT|UPGRADE|SWITCH|DOWNGRADE) \"...\" --> \"...\"";
 
-	static private final Pattern PATCH_END_PATTERN = Pattern.compile( "/(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
+	static private final Pattern patchEndPattern = Pattern.compile( "--\\* */(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
+
+	static private final Pattern goPattern = Pattern.compile( "GO *", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * All normal patches in a map indexed by source version.
@@ -71,14 +72,9 @@ public class PatchFile extends SQLFile
 	protected MultiValueMap inits = new MultiValueMap();
 
 	/**
-	 * The name of the version control table as defined in the upgrade file.
+	 * The underlying file.
 	 */
-	protected String versionTableName;
-
-	/**
-	 * The name of the log control table as defined in the upgrade file.
-	 */
-	protected String logTableName;
+	protected RandomAccessLineReader file;
 
 
 	/**
@@ -88,7 +84,53 @@ public class PatchFile extends SQLFile
 	 */
 	protected PatchFile( RandomAccessLineReader file )
 	{
-		super( file );
+		this.file = file;
+
+		try
+		{
+			String line = file.readLine();
+			//System.out.println( "First line [" + line + "]" );
+			StringBuilder s = new StringBuilder();
+			char[] chars = line.toCharArray();
+			for( char c : chars )
+				if( c != 0 )
+					s.append( c );
+
+			line = s.toString();
+			//System.out.println( "First line (fixed) [" + line + "]" );
+			Matcher matcher = encodingPattern.matcher( line );
+			if( matcher.matches() )
+			{
+				file.reOpen( matcher.group( 1 ) );
+				file.readLine(); // skip the first line
+			}
+			else
+				file.gotoLine( 1 );
+		}
+		catch( IOException e )
+		{
+			throw new SystemException( e );
+		}
+	}
+
+
+	/**
+	 * Close the patch file. This will also close the underlying file.
+	 */
+	protected void close()
+	{
+		if( this.file != null )
+		{
+			try
+			{
+				this.file.close();
+			}
+			catch( IOException e )
+			{
+				throw new SystemException( e );
+			}
+			this.file = null;
+		}
 	}
 
 
@@ -111,7 +153,7 @@ public class PatchFile extends SQLFile
 				throw new SystemException( e );
 			}
 			if( line == null )
-				throw new CommandFileException( "Unexpected EOF found", this.file.getLineNumber() );
+				throw new FatalException( "Unexpected EOF found at line " + this.file.getLineNumber() );
 
 			if( line.trim().length() > 0 )
 			{
@@ -126,11 +168,11 @@ public class PatchFile extends SQLFile
 				{
 					// ignore line
 				}
-				else if( PATCH_DEFINITION_MARKER_PATTERN.matcher( line ).matches() )
+				else if( patchDefinitionMarkerPattern.matcher( line ).matches() )
 				{
 					Assert.isTrue( withinDefinition, "Not within the definition" );
 
-					Matcher matcher = PATCH_DEFINITION_PATTERN.matcher( line );
+					Matcher matcher = patchDefinitionPattern.matcher( line );
 					Assert.isTrue( matcher.matches(), PATCH_DEFINITION_SYNTAX_ERROR );
 					String action = matcher.group( 1 );
 					boolean open = matcher.group( 2 ) != null;
@@ -154,29 +196,13 @@ public class PatchFile extends SQLFile
 					Assert.isTrue( withinDefinition, "Not within the definition" );
 					definitionComplete = true;
 				}
-				else if( withinDefinition )
-				{
-					Matcher matcher;
-					if( ( matcher = CONTROL_TABLES_PATTERN.matcher( line ) ).matches() )
-					{
-						this.versionTableName = matcher.group( 1 );
-						this.logTableName = matcher.group( 2 );
-					}
-					else if( ( matcher = CommandProcessor.delimiterPattern.matcher( line ) ).matches() )
-					{
-						setDefaultDelimiters( CommandProcessor.parseDelimiters( matcher ) );
-					}
-					else
-						throw new SystemException( "Unexpected line within definition: " + line );
-				}
 				else
-					throw new SystemException( "Unexpected line outside definition: " + line );
+					throw new SystemException( "Unexpected line within definition: " + line );
 			}
 		}
 
 		scan();
 
-		// Check that all defined upgrade blocks are found
 		Iterator< Patch > iterator = this.patches.values().iterator();
 		while( iterator.hasNext() )
 		{
@@ -185,7 +211,6 @@ public class PatchFile extends SQLFile
 				throw new FatalException( "Upgrade block \"" + StringUtils.defaultString( patch.getSource() ) + "\" --> \"" + patch.getTarget() + "\" not found" );
 		}
 
-		// Check that all defined init blocks are found
 		iterator = this.inits.values().iterator();
 		while( iterator.hasNext() )
 		{
@@ -229,13 +254,11 @@ public class PatchFile extends SQLFile
 			{
 				if( line.startsWith( "--*" ) )
 				{
-					if( PATCH_START_MARKER_PATTERN.matcher( line ).matches() )
+					if( patchStartMarkerPattern.matcher( line ).matches() )
 					{
-						line = line.substring( 3 ).trim();
 						int pos = this.file.getLineNumber() - 1;
-						Matcher matcher = PATCH_START_PATTERN.matcher( line );
-						if( !matcher.matches() )
-							throw new CommandFileException( PATCH_START_SYNTAX_ERROR, pos );
+						Matcher matcher = patchStartPattern.matcher( line );
+						Assert.isTrue( matcher.matches(), PATCH_START_SYNTAX_ERROR, pos );
 						String action = matcher.group( 1 );
 						String source = matcher.group( 2 );
 						String target = matcher.group( 3 );
@@ -245,18 +268,18 @@ public class PatchFile extends SQLFile
 						{
 							patch = getInitPatch( source.length() == 0 ? null : source, target );
 							if( patch == null )
-								throw new CommandFileException( "Undefined init block found: \"" + source + "\" --> \"" + target + "\"", pos );
+								throw new FatalException( "Undefined init block found: \"" + source + "\" --> \"" + target + "\" at line " + pos );
 						}
 						else
 						{
 							patch = getPatch( source.length() == 0 ? null : source, target );
 							if( patch == null )
-								throw new CommandFileException( "Undefined upgrade block found: \"" + source + "\" --> \"" + target + "\"", pos );
+								throw new FatalException( "Undefined upgrade block found: \"" + source + "\" --> \"" + target + "\" at line " + pos );
 							if( patch.getType() != type )
-								throw new CommandFileException( "Upgrade block type '" + action + "' is different from its definition", pos );
+								throw new FatalException( "Upgrade block type '" + action + "' is different from its definition at line " + pos );
 						}
 						if( patch.getLineNumber() >= 0 )
-							throw new CommandFileException( "Duplicate upgrade block \"" + source + "\" --> \"" + target + "\" found", pos );
+							throw new FatalException( "Duplicate upgrade block \"" + source + "\" --> \"" + target + "\" found at line " + pos );
 						patch.setLineNumber( pos );
 					}
 				}
@@ -289,8 +312,7 @@ public class PatchFile extends SQLFile
 				Patch patch = (Patch)iter.next();
 				if( patch.getTarget().equals( target ) )
 				{
-					if( result != null )
-						throw new CommandFileException( "Duplicate upgrade block found", patch.getLineNumber() );
+					Assert.isTrue( result == null, "Duplicate upgrade block found", patch.getLineNumber() );
 					result = patch;
 				}
 			}
@@ -317,8 +339,7 @@ public class PatchFile extends SQLFile
 				Patch patch = (Patch)iter.next();
 				if( patch.getTarget().equals( target ) )
 				{
-					if( result != null )
-						throw new CommandFileException( "Duplicate init block found", patch.getLineNumber() );
+					Assert.isTrue( result == null, "Duplicate init block found", patch.getLineNumber() );
 					result = patch;
 				}
 			}
@@ -530,7 +551,7 @@ public class PatchFile extends SQLFile
 			for( Patch patch : patches )
 				if( targeting.equals( patch.getTarget() ) )
 					queue.push( patch );
-			Assert.notEmpty( queue );
+			Assert.isFalse( queue.isEmpty() );
 		}
 		else
 			queue.addAll( patches );
@@ -570,7 +591,7 @@ public class PatchFile extends SQLFile
 			this.file.gotoLine( patch.getLineNumber() );
 			String line = this.file.readLine();
 			//			System.out.println( line );
-			Assert.isTrue( PATCH_START_MARKER_PATTERN.matcher( line ).matches() );
+			Assert.isTrue( patchStartMarkerPattern.matcher( line ).matches() );
 		}
 		catch( IOException e )
 		{
@@ -583,26 +604,73 @@ public class PatchFile extends SQLFile
 	 * 
 	 * @return A statement from the patch file or null when no more statements are available.
 	 */
-	@Override
 	protected Command readStatement()
 	{
-		Command command;
+		StringBuilder result = new StringBuilder();
+		int pos = 0; // No line found yet
 
-		do
+		while( true )
 		{
-			command = super.readStatement();
-			Assert.notNull( command, "Premature end of file found" );
-
-			if( command.isTransient() )
+			try
 			{
-				if( PATCH_END_PATTERN.matcher( command.getCommand() ).matches() )
+				String line = this.file.readLine();
+				Assert.notNull( line, "Premature end of file found" );
+
+				if( pos == 0 && line.trim().length() == 0 ) // Skip the first empty lines
+					continue;
+
+				if( goPattern.matcher( line ).matches() )
+				{
+					if( pos == 0 )
+						pos = this.file.getLineNumber() - 1;
+					return new Command( result.toString(), false, pos );
+				}
+
+				if( patchEndPattern.matcher( line ).matches() )
+				{
+					if( result.length() > 0 )
+						throw new UnterminatedStatementException( this.file.getLineNumber() - 1 );
 					return null;
-				if( PATCH_START_PATTERN.matcher( command.getCommand() ).matches() )
-					command = null;
+				}
+
+				if( line.startsWith( "--*" ) )
+				{
+					if( result.length() > 0 )
+						throw new UnterminatedStatementException( this.file.getLineNumber() - 1 );
+
+					if( !patchStartPattern.matcher( line ).matches() ) // skip patch start
+					{
+						line = line.substring( 3 ).trim();
+						if( !line.startsWith( "//" )) // skip comment
+						{
+							if( pos == 0 )
+								pos = this.file.getLineNumber() - 1;
+							return new Command( line, true, pos );
+						}
+					}
+					continue;
+				}
+
+				if( pos == 0 )
+					pos = this.file.getLineNumber() - 1;
+				result.append( line );
+				result.append( '\n' );
+			}
+			catch( IOException e )
+			{
+				throw new SystemException( e );
 			}
 		}
-		while( command == null );
+	}
 
-		return command;
+
+	/**
+	 * Gets the encoding of the patch file.
+	 * 
+	 * @return The encoding of the patch file.
+	 */
+	public String getEncoding()
+	{
+		return this.file.getEncoding();
 	}
 }

@@ -23,26 +23,24 @@ import org.testng.annotations.Test;
 
 import solidbase.core.Database;
 import solidbase.core.TestUtil;
-import solidbase.core.PatchProcessor;
+import solidbase.core.Patcher;
 
 public class Import
 {
 	@Test
 	public void testImport() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-
 		TestProgressListener progress = new TestProgressListener();
-		Database database = new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress );
-		PatchProcessor patcher = new PatchProcessor( progress, database );
+		Database database = new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:import3", "sa", null, progress );
+		Patcher patcher = new Patcher( progress, database );
 
-		patcher.init( "testpatch-import1.sql" );
+		patcher.openPatchFile( "testpatch-import1.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
 
 		patcher.patch( "1.0.2" );
 
-		TestUtil.verifyVersion( patcher, "1.0.2", null, 12, null );
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 5, null );
 		TestUtil.assertRecordCount( database, "TEMP", 7 );
 
 		patcher.end();
