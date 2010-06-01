@@ -69,7 +69,7 @@ GO
 --* PATCH "1.0.1" --> "1.0.2"
 --* // ========================================================================
 
---* DELIMITER IS TRAILING ;
+--* SET DELIMITER TRAILING ;
 
 --* SET MESSAGE "Creating table USERS"
 CREATE TABLE USERS

@@ -70,7 +70,7 @@ public class CommandProcessor
 	/**
 	 * Pattern for DELIMITER.
 	 */
-	static protected final Pattern delimiterPattern = Pattern.compile( "DELIMITER\\s+IS(?:\\s+(ISOLATED)|\\s+(TRAILING))?\\s+(\\S+)(?:\\sOR(?:\\s+(ISOLATED)|\\s+(TRAILING))?\\s+(\\S+))?", Pattern.CASE_INSENSITIVE );
+	static protected final Pattern delimiterPattern = Pattern.compile( "(?:SET\\s+DELIMITER|DELIMITER\\s+IS)(?:\\s+(ISOLATED)|\\s+(TRAILING))?\\s+(\\S+)(?:\\sOR(?:\\s+(ISOLATED)|\\s+(TRAILING))?\\s+(\\S+))?", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * Pattern for SECTION.
