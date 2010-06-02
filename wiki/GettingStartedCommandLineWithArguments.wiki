@@ -1,6 +1,6 @@
 #summary Getting Started with SolidBase on the command-line.
 
-(Use !SolidBase 1.5.2 or newer.)
+(Use !SolidBase 1.6.0 or newer.)
 
 To start using !SolidBase on the command line put solidbase.jar in a folder, for example C:\TEMP. Get the driver jar for your database and put it in the same folder. Your folder now looks like:
 
@@ -33,7 +33,7 @@ test-upgrade.sql:
 
 --* INIT "" --> "1.1"
 
---* SET MESSAGE "    Creating table DBVERSION"
+--* SECTION "Creating table DBVERSION"
 
 CREATE TABLE DBVERSION
 (
@@ -44,7 +44,7 @@ CREATE TABLE DBVERSION
 )
 GO
 
---* SET MESSAGE "    Creating table DBVERSIONLOG"
+--* SECTION "Creating table DBVERSIONLOG"
 
 CREATE TABLE DBVERSIONLOG
 (
@@ -120,8 +120,8 @@ C:\TEMP>java -jar solidbase.jar \
     -url jdbc:derby:test;create=true \
     -username app \
     -upgradefile test-upgrade.sql
-2/14/10 5:55 PM   SolidBase v1.5.2
-2/14/10 5:55 PM   (C) 2006-2010 Rene M. de Bloois
+6/2/10 10:43 PM   SolidBase v1.6.0-rev430
+6/2/10 10:43 PM   (C) 2006-2010 Rene M. de Bloois
 
 java.lang.ClassNotFoundException: org.apache.derby.jdbc.EmbeddedDriver
         at java.net.URLClassLoader$1.run(URLClassLoader.java:202)
@@ -133,33 +133,36 @@ java.lang.ClassNotFoundException: org.apache.derby.jdbc.EmbeddedDriver
         at java.lang.Class.forName0(Native Method)
         at java.lang.Class.forName(Class.java:169)
         at solidbase.core.Database.<init>(Database.java:90)
-        at solidbase.Main.main0(Main.java:179)
-        at solidbase.Main.pass2(Main.java:318)
-        at solidbase.Main.reload(Main.java:230)
-        at solidbase.Main.main0(Main.java:152)
-        at solidbase.Main.main(Main.java:71)
+        at solidbase.Main.main0(Main.java:214)
+        at solidbase.Main.pass2(Main.java:346)
+        at solidbase.Main.reload(Main.java:258)
+        at solidbase.Main.main0(Main.java:161)
+        at solidbase.Main.main(Main.java:81)
 
 C:\TEMP>
 }}}
 
-But this is not right. We have to add the driver jar to the classpath. When using Ant or Maven you can use Ant or Maven techniques. When using the solidbase.properties file you can do that in there (shown below). But now we have to use the java way like this:
+But this is not right. We have to add the driver jar to the classpath. When using Ant or Maven you can use Ant or Maven techniques. When using the solidbase.properties file you can do that in there (shown below). But now we have to use the java way like this (press enter when asked for the password):
 
 {{{
 C:\TEMP>java -cp solidbase.jar;derby-10.2.1.6.jar solidbase.Main \
     -driver org.apache.derby.jdbc.EmbeddedDriver \
     -url jdbc:derby:test;create=true \
     -username app -upgradefile test-upgrade.sql
-2/14/10 9:49 PM   SolidBase v1.5.2
-2/14/10 9:49 PM   (C) 2006-2010 Rene M. de Bloois
+6/2/10 10:41 PM   SolidBase v1.6.0-rev430
+6/2/10 10:41 PM   (C) 2006-2010 Rene M. de Bloois
 
-2/14/10 9:49 PM   Connecting to database...
-2/14/10 9:49 PM   Input password for user 'app':
-2/14/10 9:50 PM   The database has no version yet.
-2/14/10 9:50 PM   Opening file 'test-upgrade.sql'
-2/14/10 9:50 PM       Encoding is 'ISO-8859-1'
+6/2/10 10:41 PM   Opening file 'test-upgrade.sql'
+6/2/10 10:41 PM       Encoding is 'ISO-8859-1'
+6/2/10 10:41 PM   Connecting to database...
+6/2/10 10:41 PM   Input password for user 'app':
+6/2/10 10:41 PM   The database has no version yet.
+6/2/10 10:41 PM   Initializing to "1.1"
+6/2/10 10:41 PM       Creating table DBVERSION.
+6/2/10 10:41 PM       Creating table DBVERSIONLOG..
 
-2/14/10 9:50 PM   ERROR: The current database version (no version) is not \
-    available in the upgrade file. Maybe this version is deprecated or \
+6/2/10 10:41 PM   ERROR: The current database version (no version) is \
+    not available in the upgrade file. Maybe this version is deprecated or \
     the wrong upgrade file is used.
 
 C:\TEMP>
@@ -179,7 +182,7 @@ We need to add an upgrade path to the upgrade file. The result might look like t
 
 --* INIT "" --> "1.1"
 
---* SET MESSAGE "    Creating table DBVERSION"
+--* SECTION "Creating table DBVERSION"
 
 CREATE TABLE DBVERSION
 (
@@ -190,7 +193,7 @@ CREATE TABLE DBVERSION
 )
 GO
 
---* SET MESSAGE "    Creating table DBVERSIONLOG"
+--* SECTION "Creating table DBVERSIONLOG"
 
 CREATE TABLE DBVERSIONLOG
 (
@@ -213,7 +216,7 @@ GO
 
 --* UPGRADE "" --> "1.0.1"
 
---* SET MESSAGE "    Creating table USERS"
+--* SECTION "Creating table USERS"
 
 CREATE TABLE USERS
 (
@@ -229,26 +232,19 @@ GO
 When you repeat the previous command you get:
 
 {{{
-C:\TEMP>java -cp solidbase.jar;derby-10.2.1.6.jar solidbase.Main \
-    -driver org.apache.derby.jdbc.EmbeddedDriver \
-    -url jdbc:derby:test;create=true \
-    -username app -upgradefile test-upgrade.sql
-2/14/10 10:03 PM   SolidBase v1.5.2
-2/14/10 10:03 PM   (C) 2006-2010 Rene M. de Bloois
+6/2/10 10:43 PM   SolidBase v1.6.0-rev430
+6/2/10 10:43 PM   (C) 2006-2010 Rene M. de Bloois
 
-2/14/10 10:03 PM   Connecting to database...
-2/14/10 10:03 PM   Input password for user 'app':
-2/14/10 10:03 PM   The database has no version yet.
-2/14/10 10:03 PM   Opening file 'test-upgrade.sql'
-2/14/10 10:03 PM       Encoding is 'ISO-8859-1'
-2/14/10 10:03 PM   Initializing to "1.1"
-2/14/10 10:03 PM       Creating table DBVERSION.
-2/14/10 10:03 PM       Creating table DBVERSIONLOG..
-2/14/10 10:03 PM   Upgrading to "1.0.1"
-2/14/10 10:03 PM       Creating table USERS.
-2/14/10 10:03 PM   The database is upgraded.
+6/2/10 10:43 PM   Opening file 'test-upgrade.sql'
+6/2/10 10:43 PM       Encoding is 'ISO-8859-1'
+6/2/10 10:43 PM   Connecting to database...
+6/2/10 10:43 PM   Input password for user 'app':
+6/2/10 10:43 PM   The database has no version yet.
+6/2/10 10:43 PM   Upgrading to "1.0.1"
+6/2/10 10:43 PM       Creating table USERS.
+6/2/10 10:43 PM   The database is upgraded.
 
-2/14/10 10:03 PM   Current database version is "1.0.1".
+6/2/10 10:43 PM   Current database version is "1.0.1".
 
 C:\TEMP>
 }}}
@@ -258,12 +254,12 @@ C:\TEMP>
 {{{
 --* UPGRADE "1.0.1" --> "1.0.2"
 
---* SET MESSAGE "    Inserting admin user"
+--* SECTION "Inserting admin user"
 
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' )
 GO
 
---* SET MESSAGE "    Inserting user"
+--* SECTION "Inserting user"
 
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' )
 GO
@@ -278,16 +274,13 @@ C:\TEMP>java -cp solidbase.jar;derby-10.2.1.6.jar solidbase.Main \
     -driver org.apache.derby.jdbc.EmbeddedDriver \
     -url jdbc:derby:test;create=true \
     -username app -upgradefile test-upgrade.sql
-2/14/10 10:10 PM   SolidBase v1.5.2
-2/14/10 10:10 PM   (C) 2006-2010 Rene M. de Bloois
+6/2/10 10:44 PM   SolidBase v1.6.0-rev430
+6/2/10 10:44 PM   (C) 2006-2010 Rene M. de Bloois
 
-2/14/10 10:10 PM   Connecting to database...
-2/14/10 10:10 PM   Input password for user 'app':
-2/14/10 10:10 PM   Current database version is "1.0.1".
-2/14/10 10:10 PM   Opening file 'test-upgrade.sql'
-2/14/10 10:10 PM       Encoding is 'ISO-8859-1'
+6/2/10 10:44 PM   Opening file 'test-upgrade.sql'
+6/2/10 10:44 PM       Encoding is 'ISO-8859-1'
 
-2/14/10 10:10 PM   ERROR: Undefined upgrade block found: "1.0.1" --> "1.0.2" at line 58
+6/2/10 10:44 PM   ERROR: Undefined upgrade block found: "1.0.1" --> "1.0.2", at line 58
 
 C:\TEMP>
 }}}
@@ -305,24 +298,20 @@ Problem is, we only added the change itself, but forgot to define it. The defini
 If you run the upgrade again, you get:
 
 {{{
-C:\TEMP>java -cp solidbase.jar;derby-10.2.1.6.jar solidbase.Main \
-    -driver org.apache.derby.jdbc.EmbeddedDriver \
-    -url jdbc:derby:test;create=true \
-    -username app -upgradefile test-upgrade.sql
-2/14/10 10:13 PM   SolidBase v1.5.2
-2/14/10 10:13 PM   (C) 2006-2010 Rene M. de Bloois
+6/2/10 10:45 PM   SolidBase v1.6.0-rev430
+6/2/10 10:45 PM   (C) 2006-2010 Rene M. de Bloois
 
-2/14/10 10:13 PM   Connecting to database...
-2/14/10 10:13 PM   Input password for user 'app':
-2/14/10 10:13 PM   Current database version is "1.0.1".
-2/14/10 10:13 PM   Opening file 'test-upgrade.sql'
-2/14/10 10:13 PM       Encoding is 'ISO-8859-1'
-2/14/10 10:13 PM   Upgrading "1.0.1" to "1.0.2"
-2/14/10 10:13 PM       Inserting admin user.
-2/14/10 10:13 PM       Inserting user.
-2/14/10 10:13 PM   The database is upgraded.
+6/2/10 10:45 PM   Opening file 'test-upgrade.sql'
+6/2/10 10:45 PM       Encoding is 'ISO-8859-1'
+6/2/10 10:45 PM   Connecting to database...
+6/2/10 10:45 PM   Input password for user 'app':
+6/2/10 10:45 PM   Current database version is "1.0.1".
+6/2/10 10:45 PM   Upgrading "1.0.1" to "1.0.2"
+6/2/10 10:45 PM       Inserting admin user.
+6/2/10 10:45 PM       Inserting user.
+6/2/10 10:45 PM   The database is upgraded.
 
-2/14/10 10:13 PM   Current database version is "1.0.2".
+6/2/10 10:45 PM   Current database version is "1.0.2".
 
 C:\TEMP>
 }}}
@@ -369,17 +358,17 @@ Now we can remove the -classpath and the -driver arguments from the commandline:
 {{{
 C:\TEMP>java -jar solidbase.jar -url jdbc:derby:test;create=true \
     -username app -upgradefile test-upgrade.sql
-2/14/10 10:50 PM   SolidBase v1.5.2
-2/14/10 10:50 PM   (C) 2006-2010 Rene M. de Bloois
+6/2/10 10:47 PM   SolidBase v1.6.0-rev430
+6/2/10 10:47 PM   (C) 2006-2010 Rene M. de Bloois
 
-2/14/10 10:50 PM   Connecting to database...
-2/14/10 10:50 PM   Input password for user 'app':
-2/14/10 10:50 PM   Current database version is "1.0.2".
-2/14/10 10:50 PM   Opening file 'test-upgrade.sql'
-2/14/10 10:50 PM       Encoding is 'ISO-8859-1'
-2/14/10 10:50 PM   The database is upgraded.
+6/2/10 10:47 PM   Opening file 'test-upgrade.sql'
+6/2/10 10:47 PM       Encoding is 'ISO-8859-1'
+6/2/10 10:47 PM   Connecting to database...
+6/2/10 10:47 PM   Input password for user 'app':
+6/2/10 10:47 PM   Current database version is "1.0.2".
+6/2/10 10:47 PM   The database is upgraded.
 
-2/14/10 10:50 PM   Current database version is "1.0.2".
+6/2/10 10:47 PM   Current database version is "1.0.2".
 
 C:\TEMP>
 }}}
