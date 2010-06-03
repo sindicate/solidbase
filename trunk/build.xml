@@ -182,7 +182,7 @@
 				</resourcecount>
 			</condition>
 		</fail>
-		<groovy src="getsvninfo.groovy" />
+		<groovy src="scripts/getsvninfo.groovy" />
 		<mkdir dir="${build.home}/config" />
 		<!-- TODO This echo causes the jar file to be rebuilt again and again -->
 		<echo file="${build.home}/config/version.properties" message="solidbase.version=${release.number}-rev${svn.revision}" />
@@ -240,7 +240,7 @@
 	-->
 
 	<target name="checksvnstatus">
-		<groovy src="checksvnstatus.groovy" />
+		<groovy src="scripts/checksvnstatus.groovy" />
 	</target>
 
 
@@ -382,9 +382,14 @@
 	</target>
 	
 
-	<target name="docbook2wiki" depends="compile">
-		<groovy src="docbook2wiki.groovy" classpath="${build.home}/classes" />
-	</target>
+    <target name="docbook2wiki" depends="compile">
+        <groovy src="scripts/docbook2wiki.groovy" classpath="${build.home}/classes" />
+    </target>
 
-	
+
+    <target name="gettingstarted">
+        <groovy src="scripts/generategettingstarted.groovy" />
+    </target>
+
+
 </project>
