@@ -490,7 +490,7 @@ You get the following output:
 
 This concludes the Getting Started with the Ant task.
 
-Have a happy time playing with !SolidBase!
+Have a nice time playing with !SolidBase!
 """
 }
 
@@ -572,6 +572,6 @@ You can now run the mvn install command. Assuming all dependencies are already d
 
 This concludes the Getting Started with the Ant task.
 
-Have a happy time playing with !SolidBase!
+Have a nice time playing with !SolidBase!
 """
 }
