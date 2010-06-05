@@ -1,4 +1,5 @@
-println "Generating the Getting Started..."
+
+println "Generating Getting Started wikis..."
 
 
 
@@ -100,6 +101,133 @@ classpath.ext = derby-10.5.3.0.jar
 connection.driver = org.apache.derby.jdbc.EmbeddedDriver
 """
 
+	
+def buildxml = """<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir=".">
+
+	<taskdef resource="solidbasetasks" classpath="solidbase.jar;derby-10.5.3.0.jar" />
+
+	<target name="upgradedb">
+		<solidbase-upgrade driver="org.apache.derby.jdbc.EmbeddedDriver" url="jdbc:derby:testant;create=true" 
+			username="app" password="" 
+			upgradefile="test-upgrade.sql" target="1.0.*" />
+	</target>
+
+</project>
+"""
+
+	
+def pomxml = """<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>solidbase</groupId>
+	<artifactId>mavenplugintest</artifactId>
+	<version>1.0</version>
+	<packaging>pom</packaging>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>solidbase</id>
+			<name>SolidBase Repository</name>
+			<layout>default</layout>
+			<url>http://solidbase.googlecode.com/svn/repository</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>solidbase</groupId>
+				<artifactId>solidbase</artifactId>
+				<version>1.6.0</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.derby</groupId>
+						<artifactId>derby</artifactId>
+						<version>10.4.2.0</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<driver>org.apache.derby.jdbc.EmbeddedDriver</driver>
+					<url>jdbc:derby:testmaven;create=true</url>
+					<username>app</username>
+					<password></password>
+					<upgradefile>test-upgrade.sql</upgradefile>
+					<target>1.0.*</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+  
+</project>
+"""
+
+	
+def pomxml2 = """<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>solidbase</groupId>
+	<artifactId>mavenplugintest</artifactId>
+	<version>1.0</version>
+	<packaging>pom</packaging>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>solidbase</id>
+			<name>SolidBase Repository</name>
+			<layout>default</layout>
+			<url>http://solidbase.googlecode.com/svn/repository</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>solidbase</groupId>
+				<artifactId>solidbase</artifactId>
+				<version>1.6.0</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.derby</groupId>
+						<artifactId>derby</artifactId>
+						<version>10.4.2.0</version>
+    				</dependency>
+				</dependencies>
+				<configuration>
+					<driver>org.apache.derby.jdbc.EmbeddedDriver</driver>
+					<url>jdbc:derby:testmaven;create=true</url>
+					<username>app</username>
+					<password></password>
+					<upgradefile>test-upgrade.sql</upgradefile>
+					<target>1.0.*</target>
+				</configuration>
+				<executions>
+					<execution>
+						<id>solidbase-upgrade</id>
+						<phase>pre-integration-test</phase>
+						<goals><goal>upgrade</goal></goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+  
+</project>
+"""
+
 
 
 
@@ -140,17 +268,21 @@ def wrap( String text )
 
 
 
-def execute( String command, File folder, String input, out )
+def execute( String command, File folder, String input, out, String display = null )
 {
-	out << wrap( "${folder}>${command}\n" )
-	if( command == "dir" )
-		command = "cmd /c dir"
+	if( out )
+		out << wrap( "${folder}>${display != null ? display : command}\n" )
 	String[] args = command.split( " " )
 	process = new ProcessBuilder( args ).directory( folder ).redirectErrorStream( true ).start()
 	if( input )
 		process.outputStream << input
-	out << wrap( process.inputStream.text )
-	out << "\n${folder}>\n"
+	if( out )
+	{
+		out << wrap( process.inputStream.text )
+		out << "\n${folder}>\n"
+	}
+	else
+		process.inputStream.text
 	process.waitFor()
 }
 
@@ -160,19 +292,20 @@ def execute( String command, File folder, String input, out )
 def home = properties."build.home"
 def temp = new File( "${home}/TEMP" )
 def upgradefile = new File( "${temp}/test-upgrade.sql" )
+def buildxmlfile = new File( "${temp}/build.xml" )
+def pomxmlfile = new File( "${temp}/pom.xml" )
 
 
 
+
+println "Generating GettingStartedCommandLineWithArguments.wiki..."
 
 ant.delete( dir: temp )
 ant.mkdir( dir: temp )
 ant.copy( file: "${home}/dist/solidbase.jar", todir: "${home}/TEMP", preservelastmodified: true )
 ant.copy( todir: temp, preservelastmodified: true ) { fileset( dir: "${home}/dist", includes: "derby*.jar" ) }
 
-
-
-
-new File( "${home}/gettingstarted.wiki" ).withPrintWriter
+new File( "${home}/GettingStartedCommandLineWithArguments.wiki" ).withPrintWriter
 {
 	out ->
 	out << """#summary Getting Started with SolidBase on the command-line.
@@ -185,7 +318,7 @@ To start using !SolidBase on the command line put solidbase.jar in a folder of y
 
 {{{
 """
-	execute( "dir", temp, null, out )
+	execute( "cmd /c dir", temp, null, out, "dir" )
 	upgradefile.text = "${definition1}\n\n\n${init}"
 	out << """}}}
 
@@ -199,7 +332,7 @@ Version 1.1 indicates to !SolidBase what the structure is of the DBVERSION and D
 
 {{{
 """
-	execute( "dir", temp, null, out )
+	execute( "cmd /c dir", temp, null, out, "dir" )
 	out << """}}}
 
 Run the following command:
@@ -282,7 +415,7 @@ The folder now looks like:
 {{{
 """
 	new File( "${temp}/solidbase.properties" ).text = props
-	execute( "dir", temp, null, out )
+	execute( "cmd /c dir", temp, null, out, "dir" )
 	out << """}}}
 
 Now we can remove the -classpath and the -driver arguments from the commandline:
@@ -295,5 +428,150 @@ Now we can remove the -classpath and the -driver arguments from the commandline:
 This concludes the Getting Started with the command line version of !SolidBase.
 
 Have a nice time playing with !SolidBase!
+"""
+}
+
+
+
+
+println "Generating GettingStartedAnt.wiki..."
+
+ant.delete( dir: temp )
+ant.mkdir( dir: temp )
+ant.copy( file: "${home}/dist/solidbase.jar", todir: "${home}/TEMP", preservelastmodified: true )
+ant.copy( todir: temp, preservelastmodified: true ) { fileset( dir: "${home}/dist", includes: "derby*.jar" ) }
+
+new File( "${home}/GettingStartedAnt.wiki" ).withPrintWriter
+{
+	out ->
+	upgradefile.text = "${definition3}\n\n\n${init}\n\n\n${upgrade1}\n\n\n${upgrade2}"
+	out << """#summary Getting Started with the SolidBase Ant task.
+
+This Getting Started is generated by scripts/!GenerateGettingStarted.groovy
+
+(Use !SolidBase 1.6.0 or newer.)
+
+You should first read [GettingStartedCommandLineWithArguments Getting Started with SolidBase on the command-line]. That one contains details that are assumed knowledge in this Getting Started.
+
+To start using !SolidBase's Ant task, put solidbase.jar in a folder of your choosing. Get the driver jar for your database and put it in the same folder.
+
+Create the upgrade script for the database named test-upgrade.sql:
+
+{{{
+${upgradefile.text}}}}
+
+Create the build.xml:
+
+{{{
+${buildxml}}}}
+
+The taskdef element also adds the driver jar to the classpath to make it available to !SolidBase.
+
+The folder now looks like:
+
+{{{
+"""
+	buildxmlfile.text = buildxml
+	execute( "cmd /c dir", temp, null, out, "dir" )
+	out << """}}}
+
+Run the following command:
+
+{{{
+ant upgradedb
+}}}
+
+You get the following output:
+
+{{{
+"""
+	execute( "ant.bat upgradedb", temp, null, out, "ant upgradedb" )
+	out << """}}}
+
+This concludes the Getting Started with the Ant task.
+
+Have a happy time playing with !SolidBase!
+"""
+}
+
+
+
+
+println "Generating GettingStartedMaven.wiki..."
+
+ant.delete( dir: temp )
+ant.mkdir( dir: temp )
+
+new File( "${home}/GettingStartedMaven.wiki" ).withPrintWriter
+{
+	out ->
+	upgradefile.text = "${definition3}\n\n\n${init}\n\n\n${upgrade1}\n\n\n${upgrade2}"
+	out << """#summary Getting Started with the SolidBase Maven plugin.
+
+This Getting Started is generated by scripts/!GenerateGettingStarted.groovy
+
+(Use !SolidBase 1.6.0 or newer.)
+
+You should first read [GettingStartedCommandLineWithArguments Getting Started with SolidBase on the command-line]. That one contains details that are assumed knowledge in this Getting Started.
+
+Create the upgrade script for the database named test-upgrade.sql and put it in a folder of your choosing:
+
+{{{
+${upgradefile.text}}}}
+
+Add a pom.xml:
+
+{{{
+${pomxml}}}}
+
+The plugin is defined with a dependency on the database driver jar. This causes the driver jar to be included in the classpath when !SolidBase runs.
+
+The folder now looks like:
+
+{{{
+"""
+	pomxmlfile.text = pomxml
+	execute( "cmd /c dir", temp, null, out, "dir" )
+	out << """}}}
+
+Run the following command:
+
+{{{
+mvn solidbase:upgrade
+}}}
+
+You get the following output:
+
+{{{
+"""
+	execute( "mvn.bat -B solidbase:upgrade", temp, null, out, "mvn solidbase:upgrade" )
+	out << """}}}
+
+Running it a second time will give:
+
+{{{
+"""
+	execute( "mvn.bat -B solidbase:upgrade", temp, null, out, "mvn solidbase:upgrade" )
+	out << """}}}
+
+As expected, no more downloading of the dependencies.
+
+It is also possible to let !SolidBase execute during a build phase, for example the pre-integration-test phase. For that you need to add an {{{<execution />}}} element to the plugin definition:
+
+{{{
+${pomxml2}}}}
+
+You can now run the mvn install command. Assuming all dependencies are already downloaded, you get:
+
+{{{
+"""
+	pomxmlfile.text = pomxml2
+	execute( "mvn.bat -B install", temp, null, null )
+	execute( "mvn.bat -B install", temp, null, out, "mvn install" ) // Twice, so that everything is downloaded into the Maven repo
+	out << """}}}
+
+This concludes the Getting Started with the Ant task.
+
+Have a happy time playing with !SolidBase!
 """
 }
