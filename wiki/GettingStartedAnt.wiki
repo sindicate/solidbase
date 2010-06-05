@@ -165,4 +165,4 @@ C:\PROJECTS\BUILDS\solidbase\TEMP>
 
 This concludes the Getting Started with the Ant task.
 
-Have a happy time playing with !SolidBase!
+Have a nice time playing with !SolidBase!
