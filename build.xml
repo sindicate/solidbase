@@ -388,7 +388,7 @@
 
 
     <target name="gettingstarted">
-        <groovy src="scripts/generategettingstarted.groovy" />
+        <groovy src="scripts/GenerateGettingStarted.groovy" />
     </target>
 
 
