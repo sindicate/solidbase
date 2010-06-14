@@ -22,7 +22,6 @@
 --* UPGRADE "1.0.2" --> "1.0.3"
 
 PRINT SELECT 'Inserted ' || COUNT(*) || ' users'
-FROM USERS
-GO
+FROM USERS;
 
 --* /UPGRADE

@@ -36,8 +36,7 @@ CREATE TABLE DBVERSION
 	VERSION VARCHAR, 
 	TARGET VARCHAR, 
 	STATEMENTS INTEGER NOT NULL 
-)
-GO
+);
 
 --* // The patch tool expects to be able to use the DBVERSION table after the *first* sql statement
 
@@ -51,8 +50,7 @@ CREATE TABLE DBVERSIONLOG
 	STAMP TIMESTAMP NOT NULL,
 	COMMAND VARCHAR,
 	RESULT VARCHAR
-)
-GO
+);
 
 --* // The existence of DBVERSIONLOG will automatically be detected at the end of this patch
 
@@ -74,12 +72,10 @@ CREATE TABLE USERS
 	USER_ID INT IDENTITY,
 	USER_USERNAME VARCHAR NOT NULL,
 	USER_PASSWORD VARCHAR NOT NULL
-)
-GO
+);
 
 --* SET MESSAGE "    Inserting admin user"
-INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' )
-GO
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' );
 
 --* /PATCH
 

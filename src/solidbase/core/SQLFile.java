@@ -37,7 +37,7 @@ public class SQLFile
 	/**
 	 * The default default delimiter: GO with type {@link Type#ISOLATED}.
 	 */
-	static protected final Delimiter[] DEFAULT_DELIMITERS = new Delimiter[] { new Delimiter( "GO", Type.ISOLATED ) };
+	static protected final Delimiter[] DEFAULT_DELIMITERS = new Delimiter[] { new Delimiter( ";", Type.TRAILING ) };
 
 	/**
 	 * The underlying file.
