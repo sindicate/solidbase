@@ -42,7 +42,7 @@ public class Sql
 		TestUtil.assertRecordCount( database, "USERS", 13 );
 	}
 
-	@Test(groups="new")
+	@Test
 	// TODO Move to console test
 	public void testSql2() throws SQLException
 	{

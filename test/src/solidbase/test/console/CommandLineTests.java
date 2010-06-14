@@ -238,7 +238,7 @@ public class CommandLineTests
 		);
 	}
 
-	@Test(groups="new")
+	@Test
 	public void testCommandLineSQLFile() throws Exception
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );

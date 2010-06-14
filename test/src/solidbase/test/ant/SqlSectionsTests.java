@@ -73,7 +73,7 @@ public class SqlSectionsTests extends BuildFileTest
 		return this.logBuffer.toString();
 	}
 
-	@Test(groups="new")
+	@Test
 	public void testSqlTask() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
