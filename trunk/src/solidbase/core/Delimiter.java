@@ -73,11 +73,11 @@ class Delimiter
 		this.text = text;
 		this.type = type;
 		if( type == Type.ISOLATED )
-			this.pattern = Pattern.compile( "\\s*" + text + "\\s*" );
+			this.pattern = Pattern.compile( "\\s*" + Pattern.quote( text ) + "\\s*" );
 		else if( type == Type.TRAILING )
-			this.pattern = Pattern.compile( "(.*)" + text + "\\s*" );
+			this.pattern = Pattern.compile( "(.*)" + Pattern.quote( text ) + "\\s*" );
 		else
-			this.pattern = Pattern.compile( "(.*?)" + text + "\\s*(.+)?" );
+			this.pattern = Pattern.compile( "(.*?)" + Pattern.quote( text ) + "\\s*(.+)?" );
 	}
 
 	@Override
