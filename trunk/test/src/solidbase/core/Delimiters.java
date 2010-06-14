@@ -9,6 +9,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidbase.core.Delimiter.Type;
+import solidbase.test.mocks.MockRandomAccessLineReader;
 import solidbase.util.RandomAccessLineReader;
 
 public class Delimiters
@@ -19,7 +20,7 @@ public class Delimiters
 		Mockit.tearDownMocks();
 
 		String contents = "COMMAND\n^\n";
-		Mockit.redefineMethods( RandomAccessLineReader.class, new MockRandomAccessLineReader( contents ) );
+		Mockit.setUpMock( RandomAccessLineReader.class, new MockRandomAccessLineReader( contents ) );
 
 		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "" ) );
 		SQLFile file = new SQLFile( ralr );
