@@ -27,3 +27,6 @@ Major release
 		Otherwise wait till you start doing new developments on the trunk
 			or when a development branch is about to be merged to the trunk
 	Changelog
+	Check the Gettingstarteds
+	Check the content on the site
+	
