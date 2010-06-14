@@ -39,8 +39,7 @@ CREATE TABLE DBVERSION
 	VERSION VARCHAR, 
 	TARGET VARCHAR, 
 	STATEMENTS INTEGER NOT NULL 
-)
-GO
+);
 
 --* // The patch tool expects to be able to use the DBVERSION table after the *first* sql statement
 
@@ -55,8 +54,7 @@ CREATE TABLE DBVERSIONLOG
 	STAMP TIMESTAMP NOT NULL,
 	COMMAND VARCHAR,
 	RESULT VARCHAR
-)
-GO
+);
 
 --* // The existence of DBVERSIONLOG will automatically be detected at the end of this patch
 
@@ -91,19 +89,15 @@ CREATE TABLE USERS
 	USER_ID INT IDENTITY,
 	USER_USERNAME VARCHAR NOT NULL,
 	USER_PASSWORD VARCHAR NOT NULL
-)
-GO
+);
 
 --* SET MESSAGE "    Inserting admin users"
 
 --*// Need to do three statements to test if the dots come on one line
 
-INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
-GO
-INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
-GO
-INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
-GO
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' );
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' );
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' );
 
 --* /PATCH
 

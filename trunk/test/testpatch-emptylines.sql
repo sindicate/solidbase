@@ -31,7 +31,7 @@ a couple
 
 of empty lines'
 
-GO
+;
 
 
 
