@@ -18,11 +18,13 @@ package solidbase.core;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -51,9 +53,13 @@ public class PatchFile extends SQLFile
 
 	static private final Pattern PATCH_START_MARKER_PATTERN = Pattern.compile( "--\\*[ \t]*(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN).*", Pattern.CASE_INSENSITIVE );
 	static private final Pattern PATCH_START_PATTERN = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
-	static private final String PATCH_START_SYNTAX_ERROR = "Line should match the following syntax: (INIT|UPGRADE|SWITCH|DOWNGRADE) \"...\" --> \"...\"";
 
 	static private final Pattern PATCH_END_PATTERN = Pattern.compile( "/(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
+
+	static private final Pattern INIT_CONNECTION_PATTERN = Pattern.compile( "--\\*\\s*INIT\\s+CONNECTION\\s+(\\S+)", Pattern.CASE_INSENSITIVE );
+	static private final Pattern INIT_CONNECTION_END_PATTERN = Pattern.compile( "--\\*\\s*/INIT\\s+CONNECTION", Pattern.CASE_INSENSITIVE );
+
+	static private final String MARKER_SYNTAX_ERROR = "Line should match the following syntax: (INIT|UPGRADE|SWITCH|DOWNGRADE) \"...\" --> \"...\" or INIT CONNECTION <name>";
 
 	/**
 	 * All normal patches in a map indexed by source version.
@@ -69,6 +75,11 @@ public class PatchFile extends SQLFile
 	 * All init patches in a map indexed by source version.
 	 */
 	protected MultiValueMap inits = new MultiValueMap();
+
+	/**
+	 * Positions of connection init blocks.
+	 */
+	protected Map< String, Fragment > connectionInits = new HashMap< String, Fragment >();
 
 	/**
 	 * The name of the version control table as defined in the upgrade file.
@@ -229,13 +240,28 @@ public class PatchFile extends SQLFile
 			{
 				if( line.startsWith( "--*" ) )
 				{
-					if( PATCH_START_MARKER_PATTERN.matcher( line ).matches() )
+					int pos = this.file.getLineNumber() - 1;
+					Matcher matcher;
+					if( ( matcher = INIT_CONNECTION_PATTERN.matcher( line ) ).matches() )
+					{
+						String name = matcher.group( 1 );
+						StringBuilder builder = new StringBuilder();
+						while( true )
+						{
+							line = this.file.readLine();
+							if( line == null || INIT_CONNECTION_END_PATTERN.matcher( line ).matches() )
+								break;
+							builder.append( line );
+							builder.append( '\n' );
+						}
+						this.connectionInits.put( name, new Fragment( pos, builder.toString() ) );
+					}
+					else if( PATCH_START_MARKER_PATTERN.matcher( line ).matches() )
 					{
 						line = line.substring( 3 ).trim();
-						int pos = this.file.getLineNumber() - 1;
-						Matcher matcher = PATCH_START_PATTERN.matcher( line );
+						matcher = PATCH_START_PATTERN.matcher( line );
 						if( !matcher.matches() )
-							throw new CommandFileException( PATCH_START_SYNTAX_ERROR, pos );
+							throw new CommandFileException( MARKER_SYNTAX_ERROR, pos );
 						String action = matcher.group( 1 );
 						String source = matcher.group( 2 );
 						String target = matcher.group( 3 );
@@ -556,6 +582,7 @@ public class PatchFile extends SQLFile
 		}
 	}
 
+
 	/**
 	 * Jump to the position in the patch file where the given patch starts.
 	 * 
@@ -577,6 +604,7 @@ public class PatchFile extends SQLFile
 			throw new SystemException( e );
 		}
 	}
+
 
 	/**
 	 * Reads a statement from the patch file.

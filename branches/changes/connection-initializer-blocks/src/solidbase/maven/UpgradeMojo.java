@@ -59,12 +59,12 @@ public class UpgradeMojo extends DBMojo
 
 		try
 		{
-			PatchProcessor patcher = new PatchProcessor( progress, new Database( this.driver, this.url, this.username, this.password == null ? "" : this.password, progress ) );
+			PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", this.driver, this.url, this.username, this.password == null ? "" : this.password, progress ) );
 
 			if( this.connections != null )
 				for( Secondary secondary : this.connections )
-					patcher.addDatabase( secondary.getName(),
-							new Database( secondary.getDriver() == null ? this.driver : secondary.getDriver(),
+					patcher.addDatabase(
+							new Database( secondary.getName(), secondary.getDriver() == null ? this.driver : secondary.getDriver(),
 									secondary.getUrl() == null ? this.url : secondary.getUrl(),
 											secondary.getUsername(), secondary.getPassword() == null ? "" : secondary.getPassword(), progress ) );
 

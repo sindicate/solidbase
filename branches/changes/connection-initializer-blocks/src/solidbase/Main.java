@@ -186,11 +186,11 @@ public class Main
 			SQLProcessor processor = new SQLProcessor( progress );
 
 			solidbase.config.Database defoult = configuration.getDefaultDatabase();
-			processor.addDatabase( "default", new Database( defoult.getDriver(), defoult.getUrl(), defoult.getUserName(), defoult.getPassword(), progress ) );
+			processor.addDatabase( new Database( "default", defoult.getDriver(), defoult.getUrl(), defoult.getUserName(), defoult.getPassword(), progress ) );
 
 			for( solidbase.config.Database database : configuration.getSecondaryDatabases() )
-				processor.addDatabase( database.getName(),
-						new Database( database.getDriver() == null ? defoult.getDriver() : database.getDriver(),
+				processor.addDatabase(
+						new Database( database.getName(), database.getDriver() == null ? defoult.getDriver() : database.getDriver(),
 								database.getUrl() == null ? defoult.getUrl() : database.getUrl(),
 										database.getUserName(), database.getPassword(), progress ) );
 
@@ -211,11 +211,11 @@ public class Main
 			PatchProcessor patcher = new PatchProcessor( progress );
 
 			solidbase.config.Database defoult = configuration.getDefaultDatabase();
-			patcher.addDatabase( "default", new Database( defoult.getDriver(), defoult.getUrl(), defoult.getUserName(), defoult.getPassword(), progress ) );
+			patcher.addDatabase( new Database( "default", defoult.getDriver(), defoult.getUrl(), defoult.getUserName(), defoult.getPassword(), progress ) );
 
 			for( solidbase.config.Database database : configuration.getSecondaryDatabases() )
-				patcher.addDatabase( database.getName(),
-						new Database( database.getDriver() == null ? defoult.getDriver() : database.getDriver(),
+				patcher.addDatabase(
+						new Database( database.getName(), database.getDriver() == null ? defoult.getDriver() : database.getDriver(),
 								database.getUrl() == null ? defoult.getUrl() : database.getUrl(),
 										database.getUserName(), database.getPassword(), progress ) );
 

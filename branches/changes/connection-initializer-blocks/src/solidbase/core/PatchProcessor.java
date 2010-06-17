@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,19 +47,19 @@ import solidbase.util.RandomAccessLineReader;
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
-public class PatchProcessor extends CommandProcessor
+public class PatchProcessor extends CommandProcessor implements ConnectionListener
 {
 	// Don't need whitespace at the end of the Patterns
 
 	/**
-	 * Pattern for SESSIONCONFIG.
+	 * Pattern for TRANSIENT.
 	 */
-	static protected Pattern sessionConfigPattern = Pattern.compile( "SESSIONCONFIG", Pattern.CASE_INSENSITIVE );
+	static protected Pattern transientPattern = Pattern.compile( "SESSIONCONFIG|TRANSIENT", Pattern.CASE_INSENSITIVE );
 
 	/**
-	 * Pattern for /SESSIONCONFIG.
+	 * Pattern for /TRANSIENT.
 	 */
-	static protected Pattern sessionConfigPatternEnd = Pattern.compile( "/SESSIONCONFIG", Pattern.CASE_INSENSITIVE );
+	static protected Pattern transientPatternEnd = Pattern.compile( "/(SESSIONCONFIG|TRANSIENT)", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * Pattern for IF HISTORY [NOT] CONTAINS.
@@ -125,6 +126,13 @@ public class PatchProcessor extends CommandProcessor
 	public PatchProcessor( ProgressListener listener, Database database )
 	{
 		super( listener, database );
+	}
+
+	@Override
+	public void addDatabase( Database database )
+	{
+		super.addDatabase( database );
+		database.setConnectionListener( this );
 	}
 
 	/**
@@ -484,9 +492,9 @@ public class PatchProcessor extends CommandProcessor
 		if( command.isTransient() )
 		{
 			Matcher matcher;
-			if( sessionConfigPattern.matcher( sql ).matches() )
+			if( transientPattern.matcher( sql ).matches() )
 				enableDontCount();
-			else if( sessionConfigPatternEnd.matcher( sql ).matches() )
+			else if( transientPatternEnd.matcher( sql ).matches() )
 				disableDontCount();
 			else if( ( matcher = ifHistoryContainsPattern.matcher( sql ) ).matches() )
 				ifHistoryContains( matcher.group( 1 ), matcher.group( 2 ) );
@@ -636,5 +644,19 @@ public class PatchProcessor extends CommandProcessor
 	public String getVersionStatement()
 	{
 		return this.dbVersion.getVersionStatement();
+	}
+
+	public void connected( Database database )
+	{
+		Assert.notNull( this.patchFile );
+		Assert.notNull( this.patchFile.connectionInits );
+		for( Entry< String, Fragment > entry : this.patchFile.connectionInits.entrySet() )
+			if( entry.getKey().equalsIgnoreCase( database.getName() ) )
+			{
+				Fragment fragment = entry.getValue();
+				SQLProcessor processor = new SQLProcessor( this.progress, database );
+				processor.setSqlFile( new SQLFile( new RandomAccessLineReader( fragment.getText() ) ) );
+				processor.execute();
+			}
 	}
 }
