@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://www.netbeans.org/ns/project/1">
+    <type>org.netbeans.modules.ant.freeform</type>
+    <configuration>
+        <general-data xmlns="http://www.netbeans.org/ns/freeform-project/1">
+            <!-- Do not use Project Properties customizer when editing this file manually. -->
+            <name>solidbase</name>
+            <properties/>
+            <folders>
+                <source-folder>
+                    <label>src</label>
+                    <type>java</type>
+                    <location>src</location>
+                </source-folder>
+                <source-folder>
+                    <label>test\src</label>
+                    <type>java</type>
+                    <location>test/src</location>
+                </source-folder>
+            </folders>
+            <ide-actions>
+                <action name="build">
+                    <target>build</target>
+                </action>
+                <action name="clean">
+                    <target>clean</target>
+                </action>
+                <action name="javadoc">
+                    <target>javadoc</target>
+                </action>
+                <action name="test">
+                    <target>test</target>
+                </action>
+                <action name="rebuild">
+                    <target>clean</target>
+                    <target>build</target>
+                </action>
+            </ide-actions>
+            <view>
+                <items>
+                    <source-folder style="packages">
+                        <label>src</label>
+                        <location>src</location>
+                    </source-folder>
+                    <source-folder style="packages">
+                        <label>test\src</label>
+                        <location>test/src</location>
+                    </source-folder>
+                    <source-file>
+                        <location>build.xml</location>
+                    </source-file>
+                </items>
+                <context-menu>
+                    <ide-action name="build"/>
+                    <ide-action name="rebuild"/>
+                    <ide-action name="clean"/>
+                    <ide-action name="javadoc"/>
+                    <ide-action name="test"/>
+                </context-menu>
+            </view>
+            <subprojects/>
+        </general-data>
+        <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/2">
+            <compilation-unit>
+                <package-root>src</package-root>
+                <classpath mode="compile">lib/mindprod-csv;lib/apache-ant-1.7.1.jar;lib/classworlds-1.1-source.jar;lib/commons-cli-1.2.jar;lib/commons-collections-3.2.jar;lib/commons-lang-2.3.jar;lib/groovy-all-1.5.7.jar;lib/json-simple-1.1.jar;lib/maven-plugin-api-2.0.8.jar;lib/maven-project-2.0.8.jar</classpath>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+            <compilation-unit>
+                <package-root>test/src</package-root>
+                <unit-tests/>
+                <classpath mode="compile">out/production/Solidbase;test/lib/ant-launcher.jar;test/lib/ant-testutil.jar;test/lib/commons-io-1.3.2.jar;test/lib/derby-10.6.1.0.jar;test/lib/hsqldb.jar;test/lib/jmockit-0.996.jar;test/lib/junit-4.7.jar;test/lib/testng-5.8-jdk15.jar;lib/mindprod-csv;lib/apache-ant-1.7.1.jar;lib/classworlds-1.1-source.jar;lib/commons-cli-1.2.jar;lib/commons-collections-3.2.jar;lib/commons-lang-2.3.jar;lib/groovy-all-1.5.7.jar;lib/json-simple-1.1.jar;lib/maven-plugin-api-2.0.8.jar;lib/maven-project-2.0.8.jar</classpath>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+        </java-data>
+    </configuration>
+</project>
