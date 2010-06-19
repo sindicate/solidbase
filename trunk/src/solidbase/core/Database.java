@@ -20,6 +20,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -30,6 +31,11 @@ import java.util.HashMap;
  */
 public class Database
 {
+	/**
+	 * Name for this database.
+	 */
+	protected String name;
+
 	/**
 	 * The class name of the driver to be used to access the database.
 	 */
@@ -53,7 +59,7 @@ public class Database
 	/**
 	 * The password belonging to the default user.
 	 */
-	protected String defaultPassword;
+	protected Map< String, String > passwords = new HashMap< String, String >();
 
 	/**
 	 * The current user.
@@ -66,23 +72,31 @@ public class Database
 	protected ProgressListener callBack;
 
 	/**
+	 * The connection listener that listens for connection events.
+	 */
+	protected ConnectionListener connectionListener;
+
+	/**
 	 * Constructor for a specific database and default user. This object will manage multiple connections to this database.
-	 *
+	 * 
+	 * @param name The name of the database.
 	 * @param driverClassName Driver class name for the database.
 	 * @param url URL for the database.
 	 * @param defaultUser The default user name.
 	 * @param defaultPassword The password belonging to the default user.
 	 * @param callBack The progress listener.
 	 */
-	public Database( String driverClassName, String url, String defaultUser, String defaultPassword, ProgressListener callBack )
+	public Database( String name, String driverClassName, String url, String defaultUser, String defaultPassword, ProgressListener callBack )
 	{
 		Assert.notNull( driverClassName );
 		Assert.notNull( url );
 
+		this.name = name;
 		this.driverName = driverClassName;
 		this.url = url;
 		this.defaultUser = defaultUser;
-		this.defaultPassword = defaultPassword;
+		if( defaultPassword != null )
+			this.passwords.put( defaultUser, defaultPassword );
 		this.callBack = callBack;
 
 		try
@@ -95,15 +109,42 @@ public class Database
 		}
 	}
 
-
 	/**
 	 * Resets the current user and initializes the connection if a password is known.
 	 */
 	public void init()
 	{
 		this.currentUser = this.defaultUser;
-		if( this.defaultPassword != null )
-			initConnection( this.defaultUser, this.defaultPassword ); // This prevents the password being requested from the user.
+	}
+
+	/**
+	 * Returns the name of this database.
+	 * 
+	 * @return The name of this database.
+	 */
+	public String getName()
+	{
+		return this.name;
+	}
+
+	/**
+	 * Returns the current user.
+	 *
+	 * @return The current user.
+	 */
+	public String getCurrentUser()
+	{
+		return this.currentUser;
+	}
+
+	/**
+	 * Sets the connection listener that listens to connection events.
+	 * 
+	 * @param connectionListener The connection listener.
+	 */
+	public void setConnectionListener( ConnectionListener connectionListener )
+	{
+		this.connectionListener = connectionListener;
 	}
 
 	/**
@@ -129,53 +170,27 @@ public class Database
 	}
 
 	/**
-	 * Sets up a connection for the given user name. Does nothing if the connection is already initiated.
-	 *
-	 * @param user The user name.
-	 * @param password The password.
-	 */
-	protected void initConnection( String user, String password )
-	{
-		Connection connection = this.connections.get( user );
-		if( connection == null )
-		{
-			connection = getConnection( this.url, user, password );
-			this.connections.put( user, connection );
-		}
-	}
-
-	/**
-	 * Returns a connection for the given user name. Connections are cached per user. If a connection for the given user
-	 * is not found in the cache, a password will be requested by calling
-	 * {@link ProgressListener#requestPassword(String)} referenced by {@link PatchProcessor#progress}.
-	 * 
-	 * @param user The user name.
-	 * @return The connection for the given user name.
-	 */
-	protected Connection getConnection( String user )
-	{
-		Connection connection = this.connections.get( user );
-		if( connection == null )
-		{
-			String password = this.callBack.requestPassword( user );
-			connection = getConnection( this.url, user, password );
-			this.connections.put( user, connection );
-		}
-		return connection;
-	}
-
-	/**
 	 * Returns a connection for the current user. Connections are cached per user. If a connection for the current user
 	 * is not found in the cache, a password will be requested by calling
 	 * {@link ProgressListener#requestPassword(String)} referenced by {@link PatchProcessor#progress}.
 	 * 
 	 * @return The connection for the current user.
-	 * @see #getConnection(String)
 	 */
 	public Connection getConnection()
 	{
 		Assert.notEmpty( this.currentUser, "Current user must not be empty" );
-		return getConnection( this.currentUser );
+		Connection connection = this.connections.get( this.currentUser );
+		if( connection == null )
+		{
+			String password = this.passwords.get( this.currentUser );
+			if( password == null )
+				password = this.callBack.requestPassword( this.currentUser );
+			connection = getConnection( this.url, this.currentUser, password );
+			this.connections.put( this.currentUser, connection ); // Put first, otherwise endless loop
+			if( this.connectionListener != null )
+				this.connectionListener.connected( this ); // TODO Check that auto commit is still off.
+		}
+		return connection;
 	}
 
 	/**

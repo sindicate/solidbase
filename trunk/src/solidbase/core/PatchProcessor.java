@@ -46,19 +46,19 @@ import solidbase.util.RandomAccessLineReader;
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
-public class PatchProcessor extends CommandProcessor
+public class PatchProcessor extends CommandProcessor implements ConnectionListener
 {
 	// Don't need whitespace at the end of the Patterns
 
 	/**
-	 * Pattern for SESSIONCONFIG.
+	 * Pattern for TRANSIENT.
 	 */
-	static protected Pattern sessionConfigPattern = Pattern.compile( "SESSIONCONFIG", Pattern.CASE_INSENSITIVE );
+	static protected Pattern transientPattern = Pattern.compile( "SESSIONCONFIG|TRANSIENT", Pattern.CASE_INSENSITIVE );
 
 	/**
-	 * Pattern for /SESSIONCONFIG.
+	 * Pattern for /TRANSIENT.
 	 */
-	static protected Pattern sessionConfigPatternEnd = Pattern.compile( "/SESSIONCONFIG", Pattern.CASE_INSENSITIVE );
+	static protected Pattern transientPatternEnd = Pattern.compile( "/(SESSIONCONFIG|TRANSIENT)", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * Pattern for IF HISTORY [NOT] CONTAINS.
@@ -125,6 +125,13 @@ public class PatchProcessor extends CommandProcessor
 	public PatchProcessor( ProgressListener listener, Database database )
 	{
 		super( listener, database );
+	}
+
+	@Override
+	public void addDatabase( Database database )
+	{
+		super.addDatabase( database );
+		database.setConnectionListener( this );
 	}
 
 	/**
@@ -484,9 +491,9 @@ public class PatchProcessor extends CommandProcessor
 		if( command.isTransient() )
 		{
 			Matcher matcher;
-			if( sessionConfigPattern.matcher( sql ).matches() )
+			if( transientPattern.matcher( sql ).matches() )
 				enableDontCount();
-			else if( sessionConfigPatternEnd.matcher( sql ).matches() )
+			else if( transientPatternEnd.matcher( sql ).matches() )
 				disableDontCount();
 			else if( ( matcher = ifHistoryContainsPattern.matcher( sql ) ).matches() )
 				ifHistoryContains( matcher.group( 1 ), matcher.group( 2 ) );
@@ -620,14 +627,6 @@ public class PatchProcessor extends CommandProcessor
 		closePatchFile();
 	}
 
-//	/**
-//	 * Initializes the default connection.
-//	 */
-//	public void connect()
-//	{
-//		this.defaultDatabase.getConnection();
-//	}
-
 	/**
 	 * Returns a statement of the current version of the database in a user presentable form.
 	 * 
@@ -636,5 +635,18 @@ public class PatchProcessor extends CommandProcessor
 	public String getVersionStatement()
 	{
 		return this.dbVersion.getVersionStatement();
+	}
+
+	public void connected( Database database )
+	{
+		for( InitConnectionFragment init : this.patchFile.connectionInits )
+			if( init.getConnectionName() == null || init.getConnectionName().equalsIgnoreCase( database.getName() ) )
+				if( init.getUserName() == null || init.getUserName().equalsIgnoreCase( database.getCurrentUser() ) )
+				{
+					SQLProcessor processor = new SQLProcessor( this.progress, database );
+					// TODO linenumber offset
+					processor.setSqlFile( new SQLFile( new RandomAccessLineReader( init.getText(), init.getLineNumber() ) ) );
+					processor.execute();
+				}
 	}
 }

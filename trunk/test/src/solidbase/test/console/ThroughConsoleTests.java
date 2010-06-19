@@ -137,7 +137,7 @@ public class ThroughConsoleTests
 				"DEBUG: version=1.0.2, target=null, statements=2\n" +
 				"Current database version is \"1.0.2\".\n" +
 				"Upgrading \"1.0.2\" to \"1.0.3\"\n" +
-				"Inserted 1 users.\n" +
+				"1.\n" + // Concat not working with HSQLDB 2.0.0
 				"DEBUG: version=1.0.2, target=1.0.3, statements=1\n" +
 				"The database is upgraded.\n" +
 				"\n" +

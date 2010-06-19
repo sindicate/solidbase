@@ -32,7 +32,7 @@ public class Sql
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 
 		TestProgressListener progress = new TestProgressListener();
-		Database database = new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress );
+		Database database = new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress );
 		SQLProcessor executer = new SQLProcessor( progress, database );
 
 		executer.init( "testsql1.sql" );
@@ -49,7 +49,7 @@ public class Sql
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 
 		TestProgressListener progress = new TestProgressListener();
-		Database database = new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress );
+		Database database = new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress );
 		SQLProcessor executer = new SQLProcessor( progress, database );
 
 		executer.init( "testsql-sections.sql" );

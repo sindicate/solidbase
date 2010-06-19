@@ -8,7 +8,7 @@
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.jar"/>
 	<classpathentry kind="lib" path="test/lib/commons-io-1.3.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang-2.3.jar"/>
-	<classpathentry kind="lib" path="test/lib/hsqldb.jar"/>
+	<classpathentry kind="lib" path="test/lib/hsqldb-2.0.0.jar"/>
 	<classpathentry kind="lib" path="test/lib/jmockit-0.996.jar"/>
 	<classpathentry kind="lib" path="lib/groovy-all-1.5.7.jar"/>
 	<classpathentry kind="lib" path="lib/json-simple-1.1.jar"/>

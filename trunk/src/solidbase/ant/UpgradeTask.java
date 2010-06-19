@@ -178,11 +178,11 @@ public class UpgradeTask extends DBTask
 
 		try
 		{
-			PatchProcessor patcher = new PatchProcessor( progress, new Database( this.driver, this.url, this.username, this.password, progress ) );
+			PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", this.driver, this.url, this.username, this.password, progress ) );
 
 			for( Connection connection : this.connections )
-				patcher.addDatabase( connection.getName(),
-						new Database( connection.getDriver() == null ? this.driver : connection.getDriver(),
+				patcher.addDatabase(
+						new Database( connection.getName(), connection.getDriver() == null ? this.driver : connection.getDriver(),
 								connection.getUrl() == null ? this.url : connection.getUrl(),
 										connection.getUsername(), connection.getPassword(), progress ) );
 

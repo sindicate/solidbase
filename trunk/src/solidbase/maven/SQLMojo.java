@@ -48,12 +48,12 @@ public class SQLMojo extends DBMojo
 
 		try
 		{
-			SQLProcessor processor = new SQLProcessor( progress, new Database( this.driver, this.url, this.username, this.password == null ? "" : this.password, progress ) );
+			SQLProcessor processor = new SQLProcessor( progress, new Database( "default", this.driver, this.url, this.username, this.password == null ? "" : this.password, progress ) );
 
 			if( this.connections != null )
 				for( Secondary secondary : this.connections )
-					processor.addDatabase( secondary.getName(),
-							new Database( secondary.getDriver() == null ? this.driver : secondary.getDriver(),
+					processor.addDatabase(
+							new Database( secondary.getName(), secondary.getDriver() == null ? this.driver : secondary.getDriver(),
 									secondary.getUrl() == null ? this.url : secondary.getUrl(),
 											secondary.getUsername(), secondary.getPassword() == null ? "" : secondary.getPassword(), progress ) );
 

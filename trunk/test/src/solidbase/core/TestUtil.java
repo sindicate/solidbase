@@ -32,7 +32,7 @@ public class TestUtil
 {
 	static public void shutdownHSQLDB( PatchProcessor patcher ) throws SQLException
 	{
-		Connection connection = patcher.currentDatabase.getConnection( "sa" );
+		Connection connection = patcher.currentDatabase.getConnection();
 		try
 		{
 			connection.createStatement().executeUpdate( "SHUTDOWN" );
@@ -55,7 +55,7 @@ public class TestUtil
 	static public void assertRecordCount( Database database, String tableName, int expected ) throws SQLException
 	{
 		String sql = "SELECT COUNT(*) FROM " + tableName;
-		Connection connection = database.getConnection( database.defaultUser );
+		Connection connection = database.getConnection();
 		PreparedStatement statement = connection.prepareStatement( sql );
 		ResultSet result = statement.executeQuery();
 		Assert.assertTrue( result.next() );

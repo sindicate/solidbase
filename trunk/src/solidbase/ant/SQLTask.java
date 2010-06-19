@@ -84,11 +84,11 @@ public class SQLTask extends DBTask
 
 		try
 		{
-			SQLProcessor executer = new SQLProcessor( progress, new Database( this.driver, this.url, this.username, this.password, progress ) );
+			SQLProcessor executer = new SQLProcessor( progress, new Database( "default", this.driver, this.url, this.username, this.password, progress ) );
 
 			for( Connection connection : this.connections )
-				executer.addDatabase( connection.getName(),
-						new Database( connection.getDriver() == null ? this.driver : connection.getDriver(),
+				executer.addDatabase(
+						new Database( connection.getName(), connection.getDriver() == null ? this.driver : connection.getDriver(),
 								connection.getUrl() == null ? this.url : connection.getUrl(),
 										connection.getUsername(), connection.getPassword(), progress ) );
 
