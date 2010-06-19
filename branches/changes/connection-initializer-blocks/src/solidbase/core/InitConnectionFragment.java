@@ -13,17 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package solidbase.core;
-
 
 /**
  * An SQL fragment.
  * 
  * @author René de Bloois
  */
-public class Fragment
+public class InitConnectionFragment
 {
+	/**
+	 * The name of the connection. If null then applies to all connections.
+	 */
+	protected String connectionName;
+
+	/**
+	 * The name of the user. If null then applies to all users.
+	 */
+	protected String userName;
+
 	/**
 	 * The line number of this fragment.
 	 */
@@ -37,13 +45,45 @@ public class Fragment
 	/**
 	 * Constructs a new SQL fragment.
 	 * 
-	 * @param lineNumber The line number of this fragment.
+	 * @param connectionName The name of the connection.
+	 * @param userName The name of the user.
+	 */
+	protected InitConnectionFragment( String connectionName, String userName )
+	{
+		this.connectionName = connectionName;
+		this.userName = userName;
+	}
+
+	/**
+	 * Sets the text and line number offset of the fragment.
+	 * 
+	 * @param lineNumber The line number of the fragment in the original file.
 	 * @param text The text of the fragment.
 	 */
-	protected Fragment( int lineNumber, String text )
+	protected void setText( int lineNumber, String text )
 	{
 		this.lineNumber = lineNumber;
 		this.text = text;
+	}
+
+	/**
+	 * Returns the name of the connection to initialize. If null this applies to all connections.
+	 *
+	 * @return The name of the connection to initialize.
+	 */
+	public String getConnectionName()
+	{
+		return this.connectionName;
+	}
+
+	/**
+	 * Returns the name of the user to initialize. If null this applies to all connections.
+	 *
+	 * @return The name of the user to initialize.
+	 */
+	public String getUserName()
+	{
+		return this.userName;
 	}
 
 	/**

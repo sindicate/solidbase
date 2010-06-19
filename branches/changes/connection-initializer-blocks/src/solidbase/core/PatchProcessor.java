@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -628,14 +627,6 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 		closePatchFile();
 	}
 
-//	/**
-//	 * Initializes the default connection.
-//	 */
-//	public void connect()
-//	{
-//		this.defaultDatabase.getConnection();
-//	}
-
 	/**
 	 * Returns a statement of the current version of the database in a user presentable form.
 	 * 
@@ -648,15 +639,14 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 
 	public void connected( Database database )
 	{
-		Assert.notNull( this.patchFile );
-		Assert.notNull( this.patchFile.connectionInits );
-		for( Entry< String, Fragment > entry : this.patchFile.connectionInits.entrySet() )
-			if( entry.getKey().equalsIgnoreCase( database.getName() ) )
-			{
-				Fragment fragment = entry.getValue();
-				SQLProcessor processor = new SQLProcessor( this.progress, database );
-				processor.setSqlFile( new SQLFile( new RandomAccessLineReader( fragment.getText() ) ) );
-				processor.execute();
-			}
+		for( InitConnectionFragment init : this.patchFile.connectionInits )
+			if( init.getConnectionName() == null || init.getConnectionName().equalsIgnoreCase( database.getName() ) )
+				if( init.getUserName() == null || init.getUserName().equalsIgnoreCase( database.getCurrentUser() ) )
+				{
+					SQLProcessor processor = new SQLProcessor( this.progress, database );
+					// TODO linenumber offset
+					processor.setSqlFile( new SQLFile( new RandomAccessLineReader( init.getText() ) ) );
+					processor.execute();
+				}
 	}
 }

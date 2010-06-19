@@ -128,6 +128,16 @@ public class Database
 	}
 
 	/**
+	 * Returns the current user.
+	 *
+	 * @return The current user.
+	 */
+	public String getCurrentUser()
+	{
+		return currentUser;
+	}
+
+	/**
 	 * Sets the connection listener that listens to connection events.
 	 * 
 	 * @param connectionListener The connection listener.

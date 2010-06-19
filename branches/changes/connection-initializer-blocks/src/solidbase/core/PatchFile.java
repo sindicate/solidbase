@@ -18,13 +18,11 @@ package solidbase.core;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,7 +54,9 @@ public class PatchFile extends SQLFile
 
 	static private final Pattern PATCH_END_PATTERN = Pattern.compile( "/(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
 
-	static private final Pattern INIT_CONNECTION_PATTERN = Pattern.compile( "--\\*\\s*INIT\\s+CONNECTION\\s+(\\S+)", Pattern.CASE_INSENSITIVE );
+	static private final Pattern INIT_CONNECTION_TRIGGER = Pattern.compile( "--\\*\\s*INIT\\s+CONNECTION\\s+.*", Pattern.CASE_INSENSITIVE );
+	static private final Pattern INIT_CONNECTION_PARSER = Pattern.compile( "--\\*\\s*INIT\\s+CONNECTION\\s+(\\S+)(?:\\s+USER\\s+(\\S+))?", Pattern.CASE_INSENSITIVE );
+	static private final String INIT_CONNECTION_SYNTAX = "INIT CONNECTION <connectionname> [USER <username>]";
 	static private final Pattern INIT_CONNECTION_END_PATTERN = Pattern.compile( "--\\*\\s*/INIT\\s+CONNECTION", Pattern.CASE_INSENSITIVE );
 
 	static private final String MARKER_SYNTAX_ERROR = "Line should match the following syntax: (INIT|UPGRADE|SWITCH|DOWNGRADE) \"...\" --> \"...\" or INIT CONNECTION <name>";
@@ -79,7 +79,7 @@ public class PatchFile extends SQLFile
 	/**
 	 * Positions of connection init blocks.
 	 */
-	protected Map< String, Fragment > connectionInits = new HashMap< String, Fragment >();
+	protected List< InitConnectionFragment > connectionInits = new ArrayList< InitConnectionFragment >();
 
 	/**
 	 * The name of the version control table as defined in the upgrade file.
@@ -240,24 +240,54 @@ public class PatchFile extends SQLFile
 			{
 				if( line.startsWith( "--*" ) )
 				{
-					int pos = this.file.getLineNumber() - 1;
 					Matcher matcher;
-					if( ( matcher = INIT_CONNECTION_PATTERN.matcher( line ) ).matches() )
+					if( ( matcher = INIT_CONNECTION_TRIGGER.matcher( line ) ).matches() )
 					{
-						String name = matcher.group( 1 );
+						int mode = 1;
+						int pos = -1;
 						StringBuilder builder = new StringBuilder();
-						while( true )
+						ArrayList< InitConnectionFragment > inits = new ArrayList< InitConnectionFragment >();
+						while( line != null && !INIT_CONNECTION_END_PATTERN.matcher( line ).matches() )
 						{
+							if( INIT_CONNECTION_TRIGGER.matcher( line ).matches() ) // Detect all markers
+							{
+								if( mode != 1 )
+									throw new CommandFileException( "INIT CONNECTION blocks can only be strictly nested", this.file.getLineNumber() - 1 );
+								if( !( matcher = INIT_CONNECTION_PARSER.matcher( line ) ).matches() )
+									throw new CommandFileException( INIT_CONNECTION_SYNTAX, this.file.getLineNumber() - 1 );
+								inits.add( new InitConnectionFragment( matcher.group( 1 ), matcher.group( 2 ) ) );
+							}
+							else
+							{
+								if( mode == 1 )
+									if( !StringUtils.isBlank( line ) )
+									{
+										mode = 2;
+										pos = this.file.getLineNumber() - 1;
+									}
+
+								if( mode == 2 )
+								{
+									if( this.file.getLineNumber() > pos + 1000 )
+										throw new CommandFileException( "INIT CONNECTION block exceeded maximum line count of 1000", pos );
+									builder.append( line );
+									builder.append( '\n' );
+								}
+							}
+
 							line = this.file.readLine();
-							if( line == null || INIT_CONNECTION_END_PATTERN.matcher( line ).matches() )
-								break;
-							builder.append( line );
-							builder.append( '\n' );
 						}
-						this.connectionInits.put( name, new Fragment( pos, builder.toString() ) );
+
+						if( mode == 2 )
+							for( InitConnectionFragment initConnectionFragment : inits )
+							{
+								initConnectionFragment.setText( pos, builder.toString() );
+								this.connectionInits.add( initConnectionFragment );
+							}
 					}
 					else if( PATCH_START_MARKER_PATTERN.matcher( line ).matches() )
 					{
+						int pos = this.file.getLineNumber() - 1;
 						line = line.substring( 3 ).trim();
 						matcher = PATCH_START_PATTERN.matcher( line );
 						if( !matcher.matches() )
