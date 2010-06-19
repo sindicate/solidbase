@@ -54,10 +54,10 @@ public class PatchFile extends SQLFile
 
 	static private final Pattern PATCH_END_PATTERN = Pattern.compile( "/(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
 
-	static private final Pattern INIT_CONNECTION_TRIGGER = Pattern.compile( "--\\*\\s*INIT\\s+CONNECTION\\s+.*", Pattern.CASE_INSENSITIVE );
-	static private final Pattern INIT_CONNECTION_PARSER = Pattern.compile( "--\\*\\s*INIT\\s+CONNECTION\\s+(\\S+)(?:\\s+USER\\s+(\\S+))?", Pattern.CASE_INSENSITIVE );
+	static private final Pattern INIT_CONNECTION_TRIGGER = Pattern.compile( "--\\*\\s*INIT\\s+CONNECTION.*", Pattern.CASE_INSENSITIVE );
+	static private final Pattern INIT_CONNECTION_PARSER = Pattern.compile( "--\\*\\s*INIT\\s+CONNECTION(?:\\s+(\\S+)(?:\\s+USER\\s+(\\S+))?)?\\s*", Pattern.CASE_INSENSITIVE );
 	static private final String INIT_CONNECTION_SYNTAX = "INIT CONNECTION <connectionname> [USER <username>]";
-	static private final Pattern INIT_CONNECTION_END_PATTERN = Pattern.compile( "--\\*\\s*/INIT\\s+CONNECTION", Pattern.CASE_INSENSITIVE );
+	static private final Pattern INIT_CONNECTION_END_PATTERN = Pattern.compile( "--\\*\\s*/INIT\\s+CONNECTION\\s*", Pattern.CASE_INSENSITIVE );
 
 	static private final String MARKER_SYNTAX_ERROR = "Line should match the following syntax: (INIT|UPGRADE|SWITCH|DOWNGRADE) \"...\" --> \"...\" or INIT CONNECTION <name>";
 
