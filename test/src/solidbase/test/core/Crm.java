@@ -33,7 +33,7 @@ public class Crm
 		TestUtil.dropDerbyDatabase( "jdbc:derby:memory:test" );
 
 		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "org.apache.derby.jdbc.EmbeddedDriver", "jdbc:derby:memory:test;create=true", "app", null, progress ) );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.apache.derby.jdbc.EmbeddedDriver", "jdbc:derby:memory:test;create=true", "app", null, progress ) );
 
 		patcher.init( "testpatch-crm.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );

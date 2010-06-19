@@ -16,7 +16,8 @@
 --* // ========================================================================
 
 --*	PATCHES
---*		PATCH "" --> "1.0.1"
+--*		INIT "" --> "1.1"
+--*		UPGRADE "" --> "1.0.1"
 --*		UPGRADE "1.0.1" --> "1.0.2"
 --*		PATCH "1.0.1" --> "1.1.0"
 --*		DOWNGRADE "1.1.0" --> "1.0.1"
@@ -29,16 +30,17 @@
 
 
 --* // ========================================================================
---* PATCH "" --> "1.0.1"
+--* INIT "" --> "1.1"
 --* // ========================================================================
 
 --* SET MESSAGE "    Creating table DBVERSION"
 
 CREATE TABLE DBVERSION
 ( 
-	VERSION VARCHAR, 
-	TARGET VARCHAR, 
-	STATEMENTS INTEGER NOT NULL 
+	VERSION VARCHAR(20), 
+	TARGET VARCHAR(20), 
+	STATEMENTS INTEGER NOT NULL,
+	SPEC VARCHAR(5) NOT NULL
 );
 
 --* // The patch tool expects to be able to use the DBVERSION table after the *first* sql statement
@@ -47,14 +49,16 @@ CREATE TABLE DBVERSION
 
 CREATE TABLE DBVERSIONLOG
 (
-	ID INTEGER IDENTITY, -- An index might be needed here to let the identity perform
-	SOURCE VARCHAR,
-	TARGET VARCHAR NOT NULL,
-	STATEMENT VARCHAR NOT NULL,
+	TYPE VARCHAR(1) NOT NULL,
+	SOURCE VARCHAR(20),
+	TARGET VARCHAR(20) NOT NULL,
+	STATEMENT INTEGER NOT NULL,
 	STAMP TIMESTAMP NOT NULL,
-	COMMAND VARCHAR,
-	RESULT VARCHAR
+	COMMAND VARCHAR(4000),
+	RESULT VARCHAR(4000)
 );
+
+CREATE INDEX DBVERSIONLOG_INDEX1 ON DBVERSIONLOG ( TYPE, TARGET );
 
 --* // The existence of DBVERSIONLOG will automatically be detected at the end of this patch
 
@@ -66,6 +70,7 @@ CREATE TABLE DBVERSIONLOG
 
 
 
+--* UPGRADE "" --> "1.0.1"
 --* UPGRADE "1.0.1" --> "1.0.2"
 
 --* /UPGRADE
@@ -87,8 +92,8 @@ CREATE TABLE DBVERSIONLOG
 CREATE TABLE USERS
 (
 	USER_ID INT IDENTITY,
-	USER_USERNAME VARCHAR NOT NULL,
-	USER_PASSWORD VARCHAR NOT NULL
+	USER_USERNAME VARCHAR(40) NOT NULL,
+	USER_PASSWORD VARCHAR(40) NOT NULL
 );
 
 --* SET MESSAGE "    Inserting admin users"

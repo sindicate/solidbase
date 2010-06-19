@@ -72,7 +72,7 @@ public class UpgradeTaskTests extends BuildFileTest
 		return this.logBuffer.toString();
 	}
 
-	@Test
+	@Test(groups="new")
 	public void testUpgradeTask()
 	{
 		configureProject( "test-upgradetask.xml" );
@@ -85,9 +85,10 @@ public class UpgradeTaskTests extends BuildFileTest
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
-				"Upgrading to \"1.0.1\"\n" +
+				"Initializing to \"1.1\"\n" +
 				"    Creating table DBVERSION.\n" +
-				"    Creating table DBVERSIONLOG.\n" +
+				"    Creating table DBVERSIONLOG..\n" +
+				"Upgrading to \"1.0.1\"\n" +
 				"Upgrading \"1.0.1\" to \"1.1.0\".\n" +
 				"    Inserting admin users...\n" +
 				"The database is upgraded.\n" +

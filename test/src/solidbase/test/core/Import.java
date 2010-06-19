@@ -33,7 +33,7 @@ public class Import
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 
 		TestProgressListener progress = new TestProgressListener();
-		Database database = new Database( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress );
+		Database database = new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress );
 		PatchProcessor patcher = new PatchProcessor( progress, database );
 
 		patcher.init( "testpatch-import1.sql" );

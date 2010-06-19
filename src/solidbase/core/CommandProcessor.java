@@ -147,7 +147,8 @@ public class CommandProcessor
 	public CommandProcessor( ProgressListener listener, Database database )
 	{
 		this( listener );
-		addDatabase( "default", database );
+		Assert.isTrue( database.getName().equals( "default" ) );
+		addDatabase( database );
 	}
 
 	/**
@@ -161,6 +162,16 @@ public class CommandProcessor
 		setConnection( getDefaultDatabase() );
 		if( this.sqlFile != null )
 			this.sqlFile.setDelimiters( null );
+	}
+
+	/**
+	 * Sets the SQL file to process.
+	 * 
+	 * @param sqlFile The SQL file to process.
+	 */
+	public void setSqlFile( SQLFile sqlFile )
+	{
+		this.sqlFile = sqlFile;
 	}
 
 	/**
@@ -463,14 +474,13 @@ public class CommandProcessor
 	/**
 	 * Add a database.
 	 * 
-	 * @param name The name of the database.
 	 * @param database The database.
 	 */
-	public void addDatabase( String name, Database database )
+	public void addDatabase( Database database )
 	{
-		this.databases.put( name, database );
+		this.databases.put( database.getName(), database );
 
-		if( name.equals( "default" ) )
+		if( database.getName().equals( "default" ) )
 			setConnection( database ); // Also resets the current user for the connection
 	}
 
