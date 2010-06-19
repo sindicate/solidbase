@@ -134,7 +134,7 @@ public class Database
 	 */
 	public String getCurrentUser()
 	{
-		return currentUser;
+		return this.currentUser;
 	}
 
 	/**
