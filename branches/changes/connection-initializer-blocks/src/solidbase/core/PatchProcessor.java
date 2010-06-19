@@ -645,7 +645,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 				{
 					SQLProcessor processor = new SQLProcessor( this.progress, database );
 					// TODO linenumber offset
-					processor.setSqlFile( new SQLFile( new RandomAccessLineReader( init.getText() ) ) );
+					processor.setSqlFile( new SQLFile( new RandomAccessLineReader( init.getText(), init.getLineNumber() ) ) );
 					processor.execute();
 				}
 	}

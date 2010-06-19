@@ -66,9 +66,14 @@ public class RandomAccessLineReader
 	protected URL url;
 
 	/**
-	 * The text to read from.
+	 * The text fragment to read from.
 	 */
 	protected String text;
+
+	/**
+	 * The line number of the text fragment in the original file.
+	 */
+	protected int textLineNumber;
 
 	/**
 	 * The reader used to read from the URL.
@@ -141,14 +146,15 @@ public class RandomAccessLineReader
 	/**
 	 * Create a new line reader from a String.
 	 * 
-	 * @param text The string.
+	 * @param text The text fragment.
+	 * @param lineNumber The line number of the text fragment in the original file.
 	 */
-	public RandomAccessLineReader( String text )
+	public RandomAccessLineReader( String text, int lineNumber )
 	{
 		this.text = text;
 		this.encoding = CHARSET_UTF8;
 		this.reader = new BufferedReader( new StringReader( text ) );
-		this.currentLineNumber = 1;
+		this.currentLineNumber = this.textLineNumber = lineNumber;
 	}
 
 	/**
@@ -167,14 +173,14 @@ public class RandomAccessLineReader
 			if( this.bom != null )
 				is.read( new byte[ this.bom.length ] ); // Skip some bytes
 			this.reader = new BufferedReader( new InputStreamReader( is, this.encoding ) );
+			this.currentLineNumber = 1;
 		}
 		else
 		{
 			Assert.notNull( this.text );
 			this.reader = new BufferedReader( new StringReader( this.text ) );
+			this.currentLineNumber = this.textLineNumber;
 		}
-
-		this.currentLineNumber = 1;
 	}
 
 	/**
