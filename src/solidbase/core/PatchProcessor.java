@@ -92,6 +92,11 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	protected PatchFile patchFile;
 
 	/**
+	 * The current source of a patch.
+	 */
+	protected PatchSource patchSource;
+
+	/**
 	 * The class that manages the DBVERSION and DBVERSIONLOG table.
 	 */
 	protected DBVersion dbVersion;
@@ -137,7 +142,6 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	public void setPatchFile( PatchFile patchFile )
 	{
 		this.patchFile = patchFile;
-		setCommandSource( patchFile );
 	}
 
 	/**
@@ -158,6 +162,13 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 		super.reset();
 		this.dontCount = false;
 		this.conditionTrueCounter = this.conditionFalseCounter = 0;
+	}
+
+	@Override
+	public void end()
+	{
+		super.end();
+		this.patchFile.close();
 	}
 
 	/**
@@ -333,7 +344,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 		this.progress.patchStarting( patch );
 
 		// Determine how many to skip
-		this.patchFile.gotoPatch( patch );
+		this.patchSource = this.patchFile.gotoPatch( patch );
 		int skip = this.dbVersion.getStatements();
 		if( this.dbVersion.getTarget() == null )
 			skip = 0;
@@ -344,7 +355,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 		this.patch = patch;
 		try
 		{
-			Command command = this.patchFile.readCommand();
+			Command command = this.patchSource.readCommand();
 			while( command != null )
 			{
 				if( command.isPersistent() && !this.dontCount && !patch.isInit() )
@@ -374,7 +385,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 				else
 					executeWithListeners( command );
 
-				command = this.patchFile.readCommand();
+				command = this.patchSource.readCommand();
 			}
 
 			this.progress.patchFinished();
@@ -493,6 +504,12 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 			this.conditionFalseCounter++;
 	}
 
+	@Override
+	protected void setDelimiters( Delimiter[] delimiters )
+	{
+		this.patchSource.setDelimiters( delimiters );
+	}
+
 	/**
 	 * Pop a condition from the stack. If only true conditions remain, skipping of persistent commands is terminated.
 	 */
@@ -556,7 +573,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 				if( init.getUserName() == null || init.getUserName().equalsIgnoreCase( database.getCurrentUser() ) )
 				{
 					SQLProcessor processor = new SQLProcessor( this.progress, database );
-					processor.setCommandSource( new SQLSource( init.getText(), init.getLineNumber() ) );
+					processor.setSQLSource( new SQLSource( init.getText(), init.getLineNumber() ) );
 					processor.execute();
 				}
 	}

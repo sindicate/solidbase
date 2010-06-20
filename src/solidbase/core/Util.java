@@ -16,8 +16,11 @@
 
 package solidbase.core;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -100,12 +103,46 @@ public class Util
 	 * @param baseDir The base folder from where to look. May be null.
 	 * @param fileName The name and path of the SQL file.
 	 * @param listener The progress listener.
+	 * @return A random access reader for the file.
+	 */
+	static public InputStream toStream( File baseDir, String fileName, ProgressListener listener )
+	{
+		Assert.notNull( fileName );
+
+		try
+		{
+			if( baseDir == null )
+			{
+				// TODO Should we remove this "/"?
+				URL url = Util.class.getResource( "/" + fileName ); // In the classpath
+				if( url != null )
+				{
+					listener.openingSQLFile( url );
+					return url.openStream();
+				}
+			}
+
+			File file = new File( baseDir, fileName ); // In the current folder
+			listener.openingSQLFile( file );
+			return new FileInputStream( file );
+		}
+		catch( IOException e )
+		{
+			throw new SystemException( e );
+		}
+	}
+
+	/**
+	 * Open the specified SQL file in the specified folder.
+	 *
+	 * @param baseDir The base folder from where to look. May be null.
+	 * @param fileName The name and path of the SQL file.
+	 * @param listener The progress listener.
 	 * @return The SQL file.
 	 */
 	static public SQLFile openSQLFile( File baseDir, String fileName, ProgressListener listener )
 	{
-		RandomAccessLineReader reader = openFile( baseDir, fileName, listener );
-		SQLFile result = new SQLFile( reader );
+		SQLFile result = new SQLFile( new BufferedInputStream( toStream( baseDir, fileName, listener ) ) );
 		listener.openedSQLFile( result );
 		return result;
 	}
@@ -143,14 +180,7 @@ public class Util
 		catch( RuntimeException e )
 		{
 			// When read() fails, close the file.
-			try
-			{
-				reader.close();
-			}
-			catch( IOException e1 )
-			{
-				throw new SystemException( e1 );
-			}
+			reader.close();
 			throw e;
 		}
 		listener.openedPatchFile( result );

@@ -26,7 +26,7 @@ public class Setup
 		Database database = new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress );
 		SQLProcessor processor = new SQLProcessor( progress, database );
 		SQLFile sqlFile = Util.openSQLFile( "testsql1.sql", progress );
-		processor.setCommandSource( sqlFile );
+		processor.setSQLSource( sqlFile.getSource() );
 		return processor;
 	}
 }

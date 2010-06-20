@@ -195,7 +195,7 @@ public class Main
 								database.getUrl() == null ? defoult.getUrl() : database.getUrl(),
 										database.getUserName(), database.getPassword(), progress ) );
 
-			processor.setCommandSource( Util.openSQLFile( null, configuration.getSqlFile(), progress ) );
+			processor.setSQLSource( Util.openSQLFile( null, configuration.getSqlFile(), progress ).getSource() );
 			try
 			{
 				console.println( "Connecting to database..." );

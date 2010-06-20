@@ -93,7 +93,7 @@ public class SQLTask extends DBTask
 								connection.getUrl() == null ? this.url : connection.getUrl(),
 										connection.getUsername(), connection.getPassword(), progress ) );
 
-			processor.setCommandSource( Util.openSQLFile( project.getBaseDir(), this.sqlfile, progress ) );
+			processor.setSQLSource( Util.openSQLFile( project.getBaseDir(), this.sqlfile, progress ).getSource() );
 			try
 			{
 				progress.info( "Connecting to database..." );

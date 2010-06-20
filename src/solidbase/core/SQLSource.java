@@ -16,13 +16,11 @@
 
 package solidbase.core;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.regex.Matcher;
 
 import solidbase.core.Delimiter.Type;
+import solidbase.util.LineReader;
+import solidbase.util.StringLineReader;
 
 
 /**
@@ -31,7 +29,7 @@ import solidbase.core.Delimiter.Type;
  * @author René M. de Bloois
  * @since June 2010
  */
-public class SQLSource implements CommandSource
+public class SQLSource
 {
 	/**
 	 * The default default delimiter: GO with type {@link Type#ISOLATED}.
@@ -41,7 +39,7 @@ public class SQLSource implements CommandSource
 	/**
 	 * The underlying reader.
 	 */
-	protected BufferedReader reader;
+	protected LineReader reader;
 
 	/**
 	 * A buffer needed when a delimiter is used of type {@link Type#FREE}.
@@ -49,19 +47,9 @@ public class SQLSource implements CommandSource
 	protected String buffer;
 
 	/**
-	 * The default delimiters.
-	 */
-	protected Delimiter[] defaultDelimiters = DEFAULT_DELIMITERS;
-
-	/**
 	 * Temporary delimiters.
 	 */
-	protected Delimiter[] delimiters = null;
-
-	/**
-	 * Current line number.
-	 */
-	protected int lineNumber;
+	protected Delimiter[] delimiters = DEFAULT_DELIMITERS;
 
 
 	/**
@@ -69,13 +57,9 @@ public class SQLSource implements CommandSource
 	 * 
 	 * @param in The reader which is used to read the SQL.
 	 */
-	protected SQLSource( Reader in )
+	protected SQLSource( LineReader in )
 	{
-		if( in instanceof BufferedReader )
-			this.reader = (BufferedReader)in;
-		else
-			this.reader = new BufferedReader( in );
-		this.lineNumber = 0;
+		this.reader = in;
 	}
 
 
@@ -86,7 +70,7 @@ public class SQLSource implements CommandSource
 	 */
 	protected SQLSource( String sql )
 	{
-		this( new StringReader( sql ) );
+		this( new StringLineReader( sql ) );
 	}
 
 
@@ -98,8 +82,7 @@ public class SQLSource implements CommandSource
 	 */
 	protected SQLSource( String sql, int lineNumber )
 	{
-		this( new StringReader( sql ) );
-		this.lineNumber = lineNumber - 1;
+		this( new StringLineReader( sql, lineNumber ) );
 	}
 
 
@@ -108,25 +91,11 @@ public class SQLSource implements CommandSource
 	 */
 	public void close()
 	{
-		try
+		if( this.reader != null )
 		{
 			this.reader.close();
+			this.reader = null;
 		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
-	}
-
-
-	/**
-	 * Sets the default delimiters.
-	 * 
-	 * @param delimiters The delimiters.
-	 */
-	protected void setDefaultDelimiters( Delimiter[] delimiters )
-	{
-		this.defaultDelimiters = delimiters;
 	}
 
 
@@ -153,68 +122,60 @@ public class SQLSource implements CommandSource
 
 		while( true )
 		{
-			try
+			String line;
+			if( this.buffer != null )
 			{
-				String line;
-				if( this.buffer != null )
+				line = this.buffer;
+				this.buffer = null;
+			}
+			else
+			{
+				line = this.reader.readLine();
+				if( line == null )
 				{
-					line = this.buffer;
-					this.buffer = null;
-				}
-				else
-				{
-					line = this.reader.readLine();
-					this.lineNumber++;
-					if( line == null )
-					{
-						if( result.length() > 0 )
-							throw new UnterminatedStatementException( this.lineNumber );
-						return null;
-					}
-
-					if( line.startsWith( "--*" ) ) // Only if read from file
-					{
-						if( result.length() > 0 )
-							throw new UnterminatedStatementException( this.lineNumber );
-
-						line = line.substring( 3 ).trim();
-						if( !line.startsWith( "//" )) // skip comment
-						{
-							if( pos == 0 )
-								pos = this.lineNumber;
-							return new Command( line, true, pos );
-						}
-						continue;
-					}
+					if( result.length() > 0 )
+						throw new UnterminatedStatementException( this.reader.getLineNumber() - 1 );
+					return null;
 				}
 
-				if( pos == 0 && line.trim().length() == 0 ) // Skip the first empty lines
-					continue;
-
-				for( Delimiter delimiter : this.delimiters != null ? this.delimiters : this.defaultDelimiters )
+				if( line.startsWith( "--*" ) ) // Only if read from file
 				{
-					Matcher matcher = delimiter.pattern.matcher( line );
-					if( matcher.matches() )
+					if( result.length() > 0 )
+						throw new UnterminatedStatementException( this.reader.getLineNumber() - 1 );
+
+					line = line.substring( 3 ).trim();
+					if( !line.startsWith( "//" )) // skip comment
 					{
 						if( pos == 0 )
-							pos = this.lineNumber;
-						if( matcher.groupCount() > 0 )
-							result.append( matcher.group( 1 ) );
-						if( matcher.groupCount() > 1 )
-							this.buffer = matcher.group( 2 );
-						return new Command( result.toString(), false, pos );
+							pos = this.reader.getLineNumber() - 1;
+						return new Command( line, true, pos );
 					}
+					continue;
 				}
+			}
 
-				if( pos == 0 )
-					pos = this.lineNumber;
-				result.append( line );
-				result.append( '\n' );
-			}
-			catch( IOException e )
+			if( pos == 0 && line.trim().length() == 0 ) // Skip the first empty lines
+				continue;
+
+			for( Delimiter delimiter : this.delimiters )
 			{
-				throw new SystemException( e );
+				Matcher matcher = delimiter.pattern.matcher( line );
+				if( matcher.matches() )
+				{
+					if( pos == 0 )
+						pos = this.reader.getLineNumber() - 1;
+					if( matcher.groupCount() > 0 )
+						result.append( matcher.group( 1 ) );
+					if( matcher.groupCount() > 1 )
+						this.buffer = matcher.group( 2 );
+					return new Command( result.toString(), false, pos );
+				}
 			}
+
+			if( pos == 0 )
+				pos = this.reader.getLineNumber() - 1;
+			result.append( line );
+			result.append( '\n' );
 		}
 	}
 }
