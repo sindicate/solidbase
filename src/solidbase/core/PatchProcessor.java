@@ -31,8 +31,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
-import solidbase.util.RandomAccessLineReader;
-
 
 /**
  * This class is the coordinator. It requests an upgrade path from the {@link PatchFile}, and reads commands from it. It
@@ -558,7 +556,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 				if( init.getUserName() == null || init.getUserName().equalsIgnoreCase( database.getCurrentUser() ) )
 				{
 					SQLProcessor processor = new SQLProcessor( this.progress, database );
-					processor.setCommandSource( new SQLFile( new RandomAccessLineReader( init.getText(), init.getLineNumber() ) ) );
+					processor.setCommandSource( new SQLSource( init.getText(), init.getLineNumber() ) );
 					processor.execute();
 				}
 	}

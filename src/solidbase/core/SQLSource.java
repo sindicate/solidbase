@@ -16,33 +16,32 @@
 
 package solidbase.core;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import solidbase.core.Delimiter.Type;
-import solidbase.util.RandomAccessLineReader;
 
 
 /**
- * This class manages an SQL file's contents. It detects the encoding and reads commands from it.
+ * Source for SQL statements.
  * 
  * @author René M. de Bloois
- * @since Apr 2010
+ * @since June 2010
  */
-public class SQLFile implements CommandSource
+public class SQLSource implements CommandSource
 {
-	static private final Pattern ENCODING_PATTERN = Pattern.compile( "^--\\*[ \t]*ENCODING[ \t]+\"([^\"]*)\"[ \t]*$", Pattern.CASE_INSENSITIVE );
-
 	/**
 	 * The default default delimiter: GO with type {@link Type#ISOLATED}.
 	 */
 	static protected final Delimiter[] DEFAULT_DELIMITERS = new Delimiter[] { new Delimiter( ";", Type.TRAILING ) };
 
 	/**
-	 * The underlying file.
+	 * The underlying reader.
 	 */
-	protected RandomAccessLineReader file;
+	protected BufferedReader reader;
 
 	/**
 	 * A buffer needed when a delimiter is used of type {@link Type#FREE}.
@@ -59,41 +58,48 @@ public class SQLFile implements CommandSource
 	 */
 	protected Delimiter[] delimiters = null;
 
+	/**
+	 * Current line number.
+	 */
+	protected int lineNumber;
+
 
 	/**
-	 * Creates an new instance of an SQL file.
+	 * Creates a new instance of an SQL source.
 	 * 
-	 * @param file The reader which is used to read the contents of the file.
+	 * @param in The reader which is used to read the SQL.
 	 */
-	protected SQLFile( RandomAccessLineReader file )
+	protected SQLSource( Reader in )
 	{
-		this.file = file;
+		if( in instanceof BufferedReader )
+			this.reader = (BufferedReader)in;
+		else
+			this.reader = new BufferedReader( in );
+		this.lineNumber = 0;
+	}
 
-		try
-		{
-			String line = file.readLine();
-			//System.out.println( "First line [" + line + "]" );
-			StringBuilder s = new StringBuilder();
-			char[] chars = line.toCharArray();
-			for( char c : chars )
-				if( c != 0 )
-					s.append( c );
 
-			line = s.toString();
-			//System.out.println( "First line (fixed) [" + line + "]" );
-			Matcher matcher = ENCODING_PATTERN.matcher( line );
-			if( matcher.matches() )
-			{
-				file.reOpen( matcher.group( 1 ) );
-				file.readLine(); // skip the first line
-			}
-			else
-				file.gotoLine( 1 );
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
+	/**
+	 * Creates a new instance of an SQL source.
+	 * 
+	 * @param sql The SQL to read.
+	 */
+	protected SQLSource( String sql )
+	{
+		this( new StringReader( sql ) );
+	}
+
+
+	/**
+	 * Creates a new instance of an SQL source.
+	 * 
+	 * @param sql The SQL to read.
+	 * @param lineNumber The line number of the SQL within the original file.
+	 */
+	protected SQLSource( String sql, int lineNumber )
+	{
+		this( new StringReader( sql ) );
+		this.lineNumber = lineNumber - 1;
 	}
 
 
@@ -102,17 +108,13 @@ public class SQLFile implements CommandSource
 	 */
 	public void close()
 	{
-		if( this.file != null )
+		try
 		{
-			try
-			{
-				this.file.close();
-			}
-			catch( IOException e )
-			{
-				throw new SystemException( e );
-			}
-			this.file = null;
+			this.reader.close();
+		}
+		catch( IOException e )
+		{
+			throw new SystemException( e );
 		}
 	}
 
@@ -161,24 +163,25 @@ public class SQLFile implements CommandSource
 				}
 				else
 				{
-					line = this.file.readLine();
+					line = this.reader.readLine();
+					this.lineNumber++;
 					if( line == null )
 					{
 						if( result.length() > 0 )
-							throw new UnterminatedStatementException( this.file.getLineNumber() - 1 );
+							throw new UnterminatedStatementException( this.lineNumber );
 						return null;
 					}
 
 					if( line.startsWith( "--*" ) ) // Only if read from file
 					{
 						if( result.length() > 0 )
-							throw new UnterminatedStatementException( this.file.getLineNumber() - 1 );
+							throw new UnterminatedStatementException( this.lineNumber );
 
 						line = line.substring( 3 ).trim();
 						if( !line.startsWith( "//" )) // skip comment
 						{
 							if( pos == 0 )
-								pos = this.file.getLineNumber() - 1;
+								pos = this.lineNumber;
 							return new Command( line, true, pos );
 						}
 						continue;
@@ -194,7 +197,7 @@ public class SQLFile implements CommandSource
 					if( matcher.matches() )
 					{
 						if( pos == 0 )
-							pos = this.file.getLineNumber() - 1;
+							pos = this.lineNumber;
 						if( matcher.groupCount() > 0 )
 							result.append( matcher.group( 1 ) );
 						if( matcher.groupCount() > 1 )
@@ -204,7 +207,7 @@ public class SQLFile implements CommandSource
 				}
 
 				if( pos == 0 )
-					pos = this.file.getLineNumber() - 1;
+					pos = this.lineNumber;
 				result.append( line );
 				result.append( '\n' );
 			}
@@ -213,16 +216,5 @@ public class SQLFile implements CommandSource
 				throw new SystemException( e );
 			}
 		}
-	}
-
-
-	/**
-	 * Gets the encoding of the patch file.
-	 * 
-	 * @return The encoding of the patch file.
-	 */
-	public String getEncoding()
-	{
-		return this.file.getEncoding();
 	}
 }
