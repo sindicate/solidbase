@@ -35,8 +35,8 @@ public class EmptyLines
 		patchFile.scan();
 		Patch patch = patchFile.getPatch( "1.0.1", "1.0.2" );
 		assert patch != null;
-		patchFile.gotoPatch( patch );
-		Command command = patchFile.readCommand();
+		PatchSource source = patchFile.gotoPatch( patch );
+		Command command = source.readCommand();
 		assert command != null;
 		Assert.assertEquals( command.getCommand(), "INSERT 'This insert contains\n" +
 				"\n" +

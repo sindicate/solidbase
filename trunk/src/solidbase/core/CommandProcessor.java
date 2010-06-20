@@ -38,7 +38,7 @@ import solidbase.core.Delimiter.Type;
  * @author René M. de Bloois
  * @since May 2010
  */
-public class CommandProcessor
+abstract public class CommandProcessor
 {
 	// Don't need whitespace at the end of the Patterns
 
@@ -76,11 +76,6 @@ public class CommandProcessor
 	 * Pattern for SECTION.
 	 */
 	static protected final Pattern sectionPattern = Pattern.compile( "SECTION(?:\\.(\\d))?\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
-
-	/**
-	 * The command reader.
-	 */
-	protected CommandSource commandSource;
 
 	/**
 	 * A list of command listeners. A listener listens to the statements being executed and is able to intercept specific ones.
@@ -159,18 +154,6 @@ public class CommandProcessor
 		this.ignoreStack = new Stack();
 		this.ignoreSet = new HashSet();
 		setConnection( getDefaultDatabase() );
-		if( this.commandSource != null ) // TODO Still need this check?
-			this.commandSource.setDelimiters( null );
-	}
-
-	/**
-	 * Sets the SQL file to process.
-	 * 
-	 * @param commandSource The command reader.
-	 */
-	public void setCommandSource( CommandSource commandSource )
-	{
-		this.commandSource = commandSource;
 	}
 
 	/**
@@ -251,7 +234,7 @@ public class CommandProcessor
 			else if( ( matcher = startMessagePattern.matcher( sql ) ).matches() )
 				this.startMessage = matcher.group( 1 );
 			else if( ( matcher = delimiterPattern.matcher( sql ) ).matches() )
-				delimiter( matcher );
+				setDelimiters( parseDelimiters( matcher ) );
 			else if( ( matcher = ignoreSqlErrorPattern.matcher( sql ) ).matches() )
 				pushIgnores( matcher.group( 1 ) );
 			else if( ignoreEnd.matcher( sql ).matches() )
@@ -419,7 +402,6 @@ public class CommandProcessor
 	{
 		if( this.currentDatabase != null )
 			this.currentDatabase.closeConnections();
-		this.commandSource.close(); // TODO Unit test
 	}
 
 	/**
@@ -462,14 +444,11 @@ public class CommandProcessor
 	}
 
 	/**
-	 * Overrides the current delimiter.
+	 * Overrides the current delimiters.
 	 * 
-	 * @param matcher The command matcher.
+	 * @param delimiters The delimiters.
 	 */
-	protected void delimiter( Matcher matcher )
-	{
-		this.commandSource.setDelimiters( parseDelimiters( matcher ) );
-	}
+	abstract protected void setDelimiters( Delimiter[] delimiters );
 
 	/**
 	 * Add a database.

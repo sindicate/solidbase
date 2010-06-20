@@ -58,7 +58,7 @@ public class SQLMojo extends DBMojo
 									secondary.getUrl() == null ? this.url : secondary.getUrl(),
 											secondary.getUsername(), secondary.getPassword() == null ? "" : secondary.getPassword(), progress ) );
 
-			processor.setCommandSource( Util.openSQLFile( this.project.getBasedir(), this.sqlfile, progress ) );
+			processor.setSQLSource( Util.openSQLFile( this.project.getBasedir(), this.sqlfile, progress ).getSource() );
 			try
 			{
 				progress.info( "Connecting to database..." );

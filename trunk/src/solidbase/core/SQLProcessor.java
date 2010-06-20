@@ -30,6 +30,11 @@ import java.sql.SQLException;
 public class SQLProcessor extends CommandProcessor
 {
 	/**
+	 * The command reader.
+	 */
+	protected SQLSource sqlSource;
+
+	/**
 	 * Construct a new instance of the sql executer.
 	 * 
 	 * @param listener Listens to the progress.
@@ -51,17 +56,27 @@ public class SQLProcessor extends CommandProcessor
 	}
 
 	/**
+	 * Sets the source for the SQL.
+	 * 
+	 * @param source the source for the SQL.
+	 */
+	public void setSQLSource( SQLSource source )
+	{
+		this.sqlSource = source;
+	}
+
+	/**
 	 * Execute the SQL file.
 	 * 
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
 	public void execute() throws SQLExecutionException
 	{
-		Command command = this.commandSource.readCommand();
+		Command command = this.sqlSource.readCommand();
 		while( command != null )
 		{
 			executeWithListeners( command );
-			command = this.commandSource.readCommand();
+			command = this.sqlSource.readCommand();
 		}
 		this.progress.sqlExecutionComplete();
 	}
@@ -70,5 +85,18 @@ public class SQLProcessor extends CommandProcessor
 	protected void startSection( int level, String message )
 	{
 		super.startSection( level > 0 ? level - 1 : level, message );
+	}
+
+	@Override
+	public void end()
+	{
+		super.end();
+		this.sqlSource.close();
+	}
+
+	@Override
+	protected void setDelimiters( Delimiter[] delimiters )
+	{
+		this.sqlSource.setDelimiters( delimiters );
 	}
 }

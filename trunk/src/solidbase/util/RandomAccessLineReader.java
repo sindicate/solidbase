@@ -26,6 +26,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
 import solidbase.core.Assert;
+import solidbase.core.SystemException;
 
 
 /**
@@ -33,7 +34,7 @@ import solidbase.core.Assert;
  * 
  * @author René M. de Bloois
  */
-public class RandomAccessLineReader
+public class RandomAccessLineReader implements LineReader
 {
 	/**
 	 * Constant for the ISO-8859-1 character set.
@@ -99,9 +100,8 @@ public class RandomAccessLineReader
 	 * Creates a new line reader from the given URL.
 	 * 
 	 * @param url The URL to read from.
-	 * @throws IOException When a {@link IOException} occurs.
 	 */
-	public RandomAccessLineReader( URL url ) throws IOException
+	public RandomAccessLineReader( URL url )
 	{
 		try
 		{
@@ -123,7 +123,7 @@ public class RandomAccessLineReader
 		catch( IOException e )
 		{
 			close();
-			throw e;
+			throw new SystemException( e );
 		}
 		catch( RuntimeException e )
 		{
@@ -159,21 +159,25 @@ public class RandomAccessLineReader
 
 	/**
 	 * Reopens itself to reset the position or change the character encoding.
-	 * 
-	 * @throws UnsupportedEncodingException When an {@link UnsupportedEncodingException} occurs.
-	 * @throws IOException When an {@link IOException} occurs.
 	 */
-	protected void reOpen() throws UnsupportedEncodingException, IOException
+	protected void reOpen()
 	{
 		close();
 
 		if( this.url != null )
 		{
-			InputStream is = this.url.openStream();
-			if( this.bom != null )
-				is.read( new byte[ this.bom.length ] ); // Skip some bytes
-			this.reader = new BufferedReader( new InputStreamReader( is, this.encoding ) );
-			this.currentLineNumber = 1;
+			try
+			{
+				InputStream is = this.url.openStream();
+				if( this.bom != null )
+					is.read( new byte[ this.bom.length ] ); // Skip some bytes
+				this.reader = new BufferedReader( new InputStreamReader( is, this.encoding ) );
+				this.currentLineNumber = 1;
+			}
+			catch( IOException e )
+			{
+				throw new SystemException( e );
+			}
 		}
 		else
 		{
@@ -187,9 +191,8 @@ public class RandomAccessLineReader
 	 * Detects the encoding of the stream by looking at the first 2, 3 or 4 bytes.
 	 * 
 	 * @param firstLine The first line read from the stream.
-	 * @throws UnsupportedEncodingException When an {@link UnsupportedEncodingException} occurs.
 	 */
-	protected void detectEncoding( String firstLine ) throws UnsupportedEncodingException
+	protected void detectEncoding( String firstLine )
 	{
 		// BOMS:
 		// 00 00 FE FF  UTF-32, big-endian
@@ -198,27 +201,34 @@ public class RandomAccessLineReader
 		// FF FE 	    UTF-16, little-endian
 		// EF BB BF 	UTF-8
 
-		byte[] bytes = firstLine.getBytes( CHARSET_DEFAULT );
-		if( bytes.length >= 2 )
+		try
 		{
-			if( bytes.length >= 3 && bytes[ 0 ] == -17 && bytes[ 1 ] == -69 && bytes[ 2 ] == -65 )
+			byte[] bytes = firstLine.getBytes( CHARSET_DEFAULT );
+			if( bytes.length >= 2 )
 			{
-				this.encoding = CHARSET_UTF8;
-				this.bom = new byte[] { -17, -69, -65 };
-				return;
+				if( bytes.length >= 3 && bytes[ 0 ] == -17 && bytes[ 1 ] == -69 && bytes[ 2 ] == -65 )
+				{
+					this.encoding = CHARSET_UTF8;
+					this.bom = new byte[] { -17, -69, -65 };
+					return;
+				}
+				if( bytes[ 0 ] == -2 && bytes[ 1 ] == -1 )
+				{
+					this.encoding = CHARSET_UTF16BE;
+					this.bom = new byte[] { -2, -1 };
+					return;
+				}
+				if( bytes[ 0 ] == -1 && bytes[ 1 ] == -2 )
+				{
+					this.encoding = CHARSET_UTF16LE;
+					this.bom = new byte[] { -1, -2 };
+					return;
+				}
 			}
-			if( bytes[ 0 ] == -2 && bytes[ 1 ] == -1 )
-			{
-				this.encoding = CHARSET_UTF16BE;
-				this.bom = new byte[] { -2, -1 };
-				return;
-			}
-			if( bytes[ 0 ] == -1 && bytes[ 1 ] == -2 )
-			{
-				this.encoding = CHARSET_UTF16LE;
-				this.bom = new byte[] { -1, -2 };
-				return;
-			}
+		}
+		catch( UnsupportedEncodingException e )
+		{
+			throw new SystemException( e );
 		}
 	}
 
@@ -226,10 +236,8 @@ public class RandomAccessLineReader
 	 * Reopen the stream to change the character decoding.
 	 * 
 	 * @param encoding the requested encoding.
-	 * @throws UnsupportedEncodingException When an {@link UnsupportedEncodingException} occurs.
-	 * @throws IOException When an {@link IOException} occurs.
 	 */
-	public void reOpen( String encoding ) throws UnsupportedEncodingException, IOException
+	public void reOpen( String encoding )
 	{
 		this.encoding = encoding;
 		reOpen();
@@ -237,14 +245,19 @@ public class RandomAccessLineReader
 
 	/**
 	 * Close the reader. Other streams used by this reader are also closed.
-	 * 
-	 * @throws IOException When an {@link IOException} occurs.
 	 */
-	public void close() throws IOException
+	public void close()
 	{
 		if( this.reader != null )
 		{
-			this.reader.close();
+			try
+			{
+				this.reader.close();
+			}
+			catch( IOException e )
+			{
+				throw new SystemException( e );
+			}
 			this.reader = null;
 		}
 	}
@@ -253,14 +266,20 @@ public class RandomAccessLineReader
 	 * Reads a line from the stream. The line number count is incremented.
 	 * 
 	 * @return The line that is read or null of there are no more lines.
-	 * @throws IOException When an {@link IOException} occurs.
 	 */
-	public String readLine() throws IOException
+	public String readLine()
 	{
-		String result = this.reader.readLine();
-		if( result != null )
-			this.currentLineNumber++;
-		return result;
+		try
+		{
+			String result = this.reader.readLine();
+			if( result != null )
+				this.currentLineNumber++;
+			return result;
+		}
+		catch( IOException e )
+		{
+			throw new SystemException( e );
+		}
 	}
 
 	/**
@@ -279,9 +298,8 @@ public class RandomAccessLineReader
 	 * Repositions the stream so that the given line number is the one that is to be read next. The underlying stream will be reopened if needed.
 	 * 
 	 * @param lineNumber the number of the line that will be read next.
-	 * @throws IOException When an {@link IOException} occurs.
 	 */
-	public void gotoLine( int lineNumber ) throws IOException
+	public void gotoLine( int lineNumber )
 	{
 		if( this.reader == null )
 			throw new IllegalStateException( "Stream is not open" );

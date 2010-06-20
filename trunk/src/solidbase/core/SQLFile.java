@@ -16,12 +16,10 @@
 
 package solidbase.core;
 
-import java.io.IOException;
-import java.util.regex.Matcher;
+import java.io.BufferedInputStream;
 import java.util.regex.Pattern;
 
-import solidbase.core.Delimiter.Type;
-import solidbase.util.RandomAccessLineReader;
+import solidbase.util.BOMDetectingLineReader;
 
 
 /**
@@ -30,191 +28,37 @@ import solidbase.util.RandomAccessLineReader;
  * @author René M. de Bloois
  * @since Apr 2010
  */
-public class SQLFile implements CommandSource
+public class SQLFile
 {
-	static private final Pattern ENCODING_PATTERN = Pattern.compile( "^--\\*[ \t]*ENCODING[ \t]+\"([^\"]*)\"[ \t]*$", Pattern.CASE_INSENSITIVE );
-
-	/**
-	 * The default default delimiter: GO with type {@link Type#ISOLATED}.
-	 */
-	static protected final Delimiter[] DEFAULT_DELIMITERS = new Delimiter[] { new Delimiter( ";", Type.TRAILING ) };
+	static final Pattern ENCODING_PATTERN = Pattern.compile( "^--\\*[ \t]*ENCODING[ \t]+\"([^\"]*)\"[ \t]*$", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * The underlying file.
 	 */
-	protected RandomAccessLineReader file;
-
-	/**
-	 * A buffer needed when a delimiter is used of type {@link Type#FREE}.
-	 */
-	protected String buffer;
-
-	/**
-	 * The default delimiters.
-	 */
-	protected Delimiter[] defaultDelimiters = DEFAULT_DELIMITERS;
-
-	/**
-	 * Temporary delimiters.
-	 */
-	protected Delimiter[] delimiters = null;
+	protected BOMDetectingLineReader reader;
 
 
 	/**
 	 * Creates an new instance of an SQL file.
 	 * 
-	 * @param file The reader which is used to read the contents of the file.
+	 * @param in The input stream for the file.
 	 */
-	protected SQLFile( RandomAccessLineReader file )
+	protected SQLFile( BufferedInputStream in )
 	{
-		this.file = file;
-
-		try
-		{
-			String line = file.readLine();
-			//System.out.println( "First line [" + line + "]" );
-			StringBuilder s = new StringBuilder();
-			char[] chars = line.toCharArray();
-			for( char c : chars )
-				if( c != 0 )
-					s.append( c );
-
-			line = s.toString();
-			//System.out.println( "First line (fixed) [" + line + "]" );
-			Matcher matcher = ENCODING_PATTERN.matcher( line );
-			if( matcher.matches() )
-			{
-				file.reOpen( matcher.group( 1 ) );
-				file.readLine(); // skip the first line
-			}
-			else
-				file.gotoLine( 1 );
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
+		this.reader = new BOMDetectingLineReader( in, ENCODING_PATTERN );
 	}
-
 
 	/**
-	 * Close the patch file. This will also close the underlying file.
+	 * Close the SQL file. This will also close all underlying streams.
 	 */
-	public void close()
+	protected void close()
 	{
-		if( this.file != null )
+		if( this.reader != null )
 		{
-			try
-			{
-				this.file.close();
-			}
-			catch( IOException e )
-			{
-				throw new SystemException( e );
-			}
-			this.file = null;
+			this.reader.close();
+			this.reader = null;
 		}
 	}
-
-
-	/**
-	 * Sets the default delimiters.
-	 * 
-	 * @param delimiters The delimiters.
-	 */
-	protected void setDefaultDelimiters( Delimiter[] delimiters )
-	{
-		this.defaultDelimiters = delimiters;
-	}
-
-
-	/**
-	 * Overrides the default delimiter.
-	 * 
-	 * @param delimiters The delimiters.
-	 */
-	public void setDelimiters( Delimiter[] delimiters )
-	{
-		this.delimiters = delimiters;
-	}
-
-
-	/**
-	 * Reads a command from the patch file.
-	 * 
-	 * @return A command from the patch file or null when no more commands are available.
-	 */
-	public Command readCommand()
-	{
-		StringBuilder result = new StringBuilder();
-		int pos = 0; // No line found yet
-
-		while( true )
-		{
-			try
-			{
-				String line;
-				if( this.buffer != null )
-				{
-					line = this.buffer;
-					this.buffer = null;
-				}
-				else
-				{
-					line = this.file.readLine();
-					if( line == null )
-					{
-						if( result.length() > 0 )
-							throw new UnterminatedStatementException( this.file.getLineNumber() - 1 );
-						return null;
-					}
-
-					if( line.startsWith( "--*" ) ) // Only if read from file
-					{
-						if( result.length() > 0 )
-							throw new UnterminatedStatementException( this.file.getLineNumber() - 1 );
-
-						line = line.substring( 3 ).trim();
-						if( !line.startsWith( "//" )) // skip comment
-						{
-							if( pos == 0 )
-								pos = this.file.getLineNumber() - 1;
-							return new Command( line, true, pos );
-						}
-						continue;
-					}
-				}
-
-				if( pos == 0 && line.trim().length() == 0 ) // Skip the first empty lines
-					continue;
-
-				for( Delimiter delimiter : this.delimiters != null ? this.delimiters : this.defaultDelimiters )
-				{
-					Matcher matcher = delimiter.pattern.matcher( line );
-					if( matcher.matches() )
-					{
-						if( pos == 0 )
-							pos = this.file.getLineNumber() - 1;
-						if( matcher.groupCount() > 0 )
-							result.append( matcher.group( 1 ) );
-						if( matcher.groupCount() > 1 )
-							this.buffer = matcher.group( 2 );
-						return new Command( result.toString(), false, pos );
-					}
-				}
-
-				if( pos == 0 )
-					pos = this.file.getLineNumber() - 1;
-				result.append( line );
-				result.append( '\n' );
-			}
-			catch( IOException e )
-			{
-				throw new SystemException( e );
-			}
-		}
-	}
-
 
 	/**
 	 * Gets the encoding of the patch file.
@@ -223,6 +67,16 @@ public class SQLFile implements CommandSource
 	 */
 	public String getEncoding()
 	{
-		return this.file.getEncoding();
+		return this.reader.getEncoding();
+	}
+
+	/**
+	 * Returns a source for the SQL.
+	 * 
+	 * @return A source for the SQL.
+	 */
+	public SQLSource getSource()
+	{
+		return new SQLSource( this.reader );
 	}
 }

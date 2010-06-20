@@ -14,31 +14,32 @@
  * limitations under the License.
  */
 
-package solidbase.core;
+package solidbase.util;
+
 
 /**
- * Reads commands.
+ * A line reader.
  * 
- * @author René de Bloois
+ * @author René M. de Bloois
  */
-public interface CommandSource
+public interface LineReader
 {
 	/**
-	 * Reads a command from the source.
+	 * Reads a line. The line number count is incremented.
 	 * 
-	 * @return A command.
+	 * @return The line that is read or null of there are no more lines.
 	 */
-	Command readCommand();
+	String readLine();
 
 	/**
-	 * Sets the delimiters.
+	 * Returns the current line number. The current line number is the line that is about to be read.
 	 * 
-	 * @param delimiters The delimiters.
+	 * @return The current line number.
 	 */
-	void setDelimiters( Delimiter[] delimiters );
+	int getLineNumber();
 
 	/**
-	 * Close the source.
+	 * Closes the reader and any underlying streams/readers.
 	 */
 	void close();
 }
