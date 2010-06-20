@@ -17,10 +17,12 @@
 package solidbase.maven;
 
 import org.apache.maven.plugin.MojoFailureException;
+
 import solidbase.Version;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
 import solidbase.core.PatchProcessor;
+import solidbase.core.Util;
 
 
 /**
@@ -59,27 +61,28 @@ public class UpgradeMojo extends DBMojo
 
 		try
 		{
-			PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", this.driver, this.url, this.username, this.password == null ? "" : this.password, progress ) );
+			PatchProcessor processor = new PatchProcessor( progress, new Database( "default", this.driver, this.url, this.username, this.password == null ? "" : this.password, progress ) );
 
 			if( this.connections != null )
 				for( Secondary secondary : this.connections )
-					patcher.addDatabase(
+					processor.addDatabase(
 							new Database( secondary.getName(), secondary.getDriver() == null ? this.driver : secondary.getDriver(),
 									secondary.getUrl() == null ? this.url : secondary.getUrl(),
 											secondary.getUsername(), secondary.getPassword() == null ? "" : secondary.getPassword(), progress ) );
 
-			patcher.init( this.project.getBasedir(), this.upgradefile );
+			processor.setPatchFile( Util.openPatchFile( this.project.getBasedir(), this.upgradefile, progress ) );
 			try
 			{
+				processor.init();
 				progress.info( "Connecting to database..." );
-				progress.info( patcher.getVersionStatement() );
-				patcher.patch( this.target, this.downgradeallowed ); // TODO Print this target
+				progress.info( processor.getVersionStatement() );
+				processor.patch( this.target, this.downgradeallowed ); // TODO Print this target
 				progress.info( "" );
-				progress.info( patcher.getVersionStatement() );
+				progress.info( processor.getVersionStatement() );
 			}
 			finally
 			{
-				patcher.end();
+				processor.end();
 			}
 		}
 		catch( FatalException e )

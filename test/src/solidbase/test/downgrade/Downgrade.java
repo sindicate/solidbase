@@ -22,8 +22,10 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import solidbase.core.Database;
+import solidbase.core.PatchFile;
 import solidbase.core.PatchProcessor;
 import solidbase.core.TestUtil;
+import solidbase.core.Util;
 import solidbase.test.core.TestProgressListener;
 
 public class Downgrade
@@ -35,22 +37,20 @@ public class Downgrade
 
 		TestProgressListener progress = new TestProgressListener();
 		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-
-		patcher.init( "testpatch-downgrade-1.sql" );
+		PatchFile patchFile = Util.openPatchFile( "testpatch-downgrade-1.sql", progress );
+		patcher.setPatchFile( patchFile );
+		patcher.init();
 
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
-
 		System.out.println( "Patching to 1.1.0" );
 		patcher.patch( "1.1.0" );
 		TestUtil.verifyVersion( patcher, "1.1.0", null, 1, "1.1" );
 		TestUtil.verifyHistoryIncludes( patcher, "1.1.0" );
-
 		System.out.println( "Patching to 1.0.3" );
 		patcher.patch( "1.0.3" );
 		// TODO Why don't we get an error here?
 		TestUtil.verifyVersion( patcher, "1.1.0", null, 1, "1.1" );
-
 		System.out.println( "Patching to 1.0.3" );
 		patcher.patch( "1.0.3", true );
 		TestUtil.verifyVersion( patcher, "1.0.3", null, 1, "1.1" );

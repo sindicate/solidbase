@@ -78,9 +78,9 @@ public class CommandProcessor
 	static protected final Pattern sectionPattern = Pattern.compile( "SECTION(?:\\.(\\d))?\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
 
 	/**
-	 * The SQL file being executed.
+	 * The command reader.
 	 */
-	protected SQLFile sqlFile;
+	protected CommandSource commandSource;
 
 	/**
 	 * A list of command listeners. A listener listens to the statements being executed and is able to intercept specific ones.
@@ -147,7 +147,6 @@ public class CommandProcessor
 	public CommandProcessor( ProgressListener listener, Database database )
 	{
 		this( listener );
-		Assert.isTrue( database.getName().equals( "default" ) );
 		addDatabase( database );
 	}
 
@@ -160,18 +159,18 @@ public class CommandProcessor
 		this.ignoreStack = new Stack();
 		this.ignoreSet = new HashSet();
 		setConnection( getDefaultDatabase() );
-		if( this.sqlFile != null )
-			this.sqlFile.setDelimiters( null );
+		if( this.commandSource != null ) // TODO Still need this check?
+			this.commandSource.setDelimiters( null );
 	}
 
 	/**
 	 * Sets the SQL file to process.
 	 * 
-	 * @param sqlFile The SQL file to process.
+	 * @param commandSource The command reader.
 	 */
-	public void setSqlFile( SQLFile sqlFile )
+	public void setCommandSource( CommandSource commandSource )
 	{
-		this.sqlFile = sqlFile;
+		this.commandSource = commandSource;
 	}
 
 	/**
@@ -420,6 +419,7 @@ public class CommandProcessor
 	{
 		if( this.currentDatabase != null )
 			this.currentDatabase.closeConnections();
+		this.commandSource.close(); // TODO Unit test
 	}
 
 	/**
@@ -468,7 +468,7 @@ public class CommandProcessor
 	 */
 	protected void delimiter( Matcher matcher )
 	{
-		this.sqlFile.setDelimiters( parseDelimiters( matcher ) );
+		this.commandSource.setDelimiters( parseDelimiters( matcher ) );
 	}
 
 	/**

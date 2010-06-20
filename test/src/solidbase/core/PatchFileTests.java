@@ -47,7 +47,7 @@ public class PatchFileTests
 	{
 		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch1.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
-		patchFile.read();
+		patchFile.scan();
 		patchFile.close();
 
 		Map< String, Patch > patches = patchFile.patches;
@@ -107,7 +107,7 @@ public class PatchFileTests
 	{
 		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch1.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
-		patchFile.read();
+		patchFile.scan();
 		patchFile.close();
 
 		Map< String, Patch > patches = patchFile.patches = new MultiValueMap();

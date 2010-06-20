@@ -20,7 +20,6 @@ import java.sql.SQLException;
 
 import org.testng.annotations.Test;
 
-import solidbase.core.Database;
 import solidbase.core.SQLProcessor;
 import solidbase.core.TestUtil;
 
@@ -30,16 +29,12 @@ public class Sql
 	public void testSql1() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		SQLProcessor processor = Setup.setupSQLProcessor( "testsql1.sql" );
 
-		TestProgressListener progress = new TestProgressListener();
-		Database database = new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress );
-		SQLProcessor executer = new SQLProcessor( progress, database );
+		processor.execute();
+		processor.end();
 
-		executer.init( "testsql1.sql" );
-		executer.execute();
-		executer.end();
-
-		TestUtil.assertRecordCount( database, "USERS", 13 );
+		TestUtil.assertRecordCount( processor.getCurrentDatabase(), "USERS", 13 );
 	}
 
 	@Test
@@ -47,15 +42,11 @@ public class Sql
 	public void testSql2() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		SQLProcessor processor = Setup.setupSQLProcessor( "testsql-sections.sql" );
 
-		TestProgressListener progress = new TestProgressListener();
-		Database database = new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress );
-		SQLProcessor executer = new SQLProcessor( progress, database );
+		processor.execute();
+		processor.end();
 
-		executer.init( "testsql-sections.sql" );
-		executer.execute();
-		executer.end();
-
-		TestUtil.assertRecordCount( database, "USERS", 13 );
+		TestUtil.assertRecordCount( processor.getCurrentDatabase(), "USERS", 13 );
 	}
 }

@@ -34,7 +34,7 @@ public class MissingBlock
 		PatchFile patchFile = new PatchFile( ralr );
 		try
 		{
-			patchFile.read();
+			patchFile.scan();
 			Assert.fail( "Expected an exception" );
 		}
 		catch( FatalException e )
@@ -51,7 +51,7 @@ public class MissingBlock
 		PatchFile patchFile = new PatchFile( ralr );
 		try
 		{
-			patchFile.read();
+			patchFile.scan();
 			Assert.fail( "Expected an exception" );
 		}
 		catch( FatalException e )

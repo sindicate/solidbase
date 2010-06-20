@@ -16,11 +16,7 @@
 
 package solidbase.core;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.sql.SQLException;
-import solidbase.util.RandomAccessLineReader;
 
 
 /**
@@ -55,97 +51,17 @@ public class SQLProcessor extends CommandProcessor
 	}
 
 	/**
-	 * Initialize the sql executer.
-	 * 
-	 * @param baseDir The base folder from where to look for the upgrade file (optional).
-	 * @param sqlFileName The name of the sql file.
-	 */
-	// TODO Remove this init, should be in the constructor
-	public void init( File baseDir, String sqlFileName )
-	{
-		openSQLFile( baseDir, sqlFileName );
-	}
-
-	/**
-	 * Initialize the sql executer.
-	 * 
-	 * @param sqlFileName The name of the sql file.
-	 */
-	// TODO Remove this init, should be in the constructor
-	public void init( String sqlFileName )
-	{
-		init( null, sqlFileName );
-	}
-
-	/**
-	 * Open the specified sql file.
-	 * 
-	 * @param fileName The name and path of the sql file.
-	 */
-	protected void openSQLFile( String fileName )
-	{
-		openSQLFile( null, fileName );
-	}
-
-	/**
-	 * Open the specified sql file in the specified folder.
-	 * 
-	 * @param baseDir The base folder from where to look. May be null.
-	 * @param fileName The name and path of the sql file.
-	 */
-	protected void openSQLFile( File baseDir, String fileName )
-	{
-		Assert.notNull( fileName );
-
-		try
-		{
-			RandomAccessLineReader ralr;
-			// TODO Should we remove this "/"?
-			URL url = SQLProcessor.class.getResource( "/" + fileName ); // In the classpath
-			if( url != null )
-			{
-				this.progress.openingSQLFile( url );
-				ralr = new RandomAccessLineReader( url );
-			}
-			else
-			{
-				File file = new File( baseDir, fileName ); // In the current folder
-				this.progress.openingSQLFile( file );
-				ralr = new RandomAccessLineReader( file );
-			}
-
-			this.sqlFile = new SQLFile( ralr );
-
-			this.progress.openedSQLFile( this.sqlFile );
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
-	}
-
-	/**
-	 * Close the upgrade file.
-	 */
-	public void closeSQLFile()
-	{
-		if( this.sqlFile != null )
-			this.sqlFile.close();
-		this.sqlFile = null;
-	}
-
-	/**
-	 * Execute the sql file.
+	 * Execute the SQL file.
 	 * 
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
 	public void execute() throws SQLExecutionException
 	{
-		Command command = this.sqlFile.readStatement();
+		Command command = this.commandSource.readCommand();
 		while( command != null )
 		{
 			executeWithListeners( command );
-			command = this.sqlFile.readStatement();
+			command = this.commandSource.readCommand();
 		}
 		this.progress.sqlExecutionComplete();
 	}
@@ -154,15 +70,5 @@ public class SQLProcessor extends CommandProcessor
 	protected void startSection( int level, String message )
 	{
 		super.startSection( level > 0 ? level - 1 : level, message );
-	}
-
-	/**
-	 * Closes open files and closes connections.
-	 */
-	@Override
-	public void end()
-	{
-		super.end();
-		closeSQLFile();
 	}
 }

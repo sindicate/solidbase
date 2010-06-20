@@ -34,7 +34,7 @@ public class DoubleBlock
 		PatchFile patchFile = new PatchFile( ralr );
 		try
 		{
-			patchFile.read();
+			patchFile.scan();
 			Assert.fail( "Expected an exception" );
 		}
 		catch( FatalException e )

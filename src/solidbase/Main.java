@@ -39,6 +39,7 @@ import solidbase.core.PatchProcessor;
 import solidbase.core.SQLExecutionException;
 import solidbase.core.SQLProcessor;
 import solidbase.core.SystemException;
+import solidbase.core.Util;
 
 
 /**
@@ -194,7 +195,7 @@ public class Main
 								database.getUrl() == null ? defoult.getUrl() : database.getUrl(),
 										database.getUserName(), database.getPassword(), progress ) );
 
-			processor.init( configuration.getSqlFile() );
+			processor.setCommandSource( Util.openSQLFile( null, configuration.getSqlFile(), progress ) );
 			try
 			{
 				console.println( "Connecting to database..." );
@@ -208,35 +209,35 @@ public class Main
 		}
 		else
 		{
-			PatchProcessor patcher = new PatchProcessor( progress );
+			PatchProcessor processor = new PatchProcessor( progress );
 
 			solidbase.config.Database defoult = configuration.getDefaultDatabase();
-			patcher.addDatabase( new Database( "default", defoult.getDriver(), defoult.getUrl(), defoult.getUserName(), defoult.getPassword(), progress ) );
+			processor.addDatabase( new Database( "default", defoult.getDriver(), defoult.getUrl(), defoult.getUserName(), defoult.getPassword(), progress ) );
 
 			for( solidbase.config.Database database : configuration.getSecondaryDatabases() )
-				patcher.addDatabase(
+				processor.addDatabase(
 						new Database( database.getName(), database.getDriver() == null ? defoult.getDriver() : database.getDriver(),
 								database.getUrl() == null ? defoult.getUrl() : database.getUrl(),
 										database.getUserName(), database.getPassword(), progress ) );
 
-			patcher.init( configuration.getPatchFile() );
+			processor.setPatchFile( Util.openPatchFile( configuration.getPatchFile(), progress ) );
 			try
 			{
+				processor.init();
 				if( opts.dumplog )
 				{
-					patcher.logToXML( line.getOptionValue( "dumplog" ) );
+					processor.logToXML( line.getOptionValue( "dumplog" ) );
 					return;
 				}
-
 				console.println( "Connecting to database..." );
-				console.println( patcher.getVersionStatement() );
-				patcher.patch( configuration.getTarget(), opts.downgradeallowed ); // TODO Print this target
+				console.println( processor.getVersionStatement() );
+				processor.patch( configuration.getTarget(), opts.downgradeallowed ); // TODO Print this target
 				console.emptyLine();
-				console.println( patcher.getVersionStatement() );
+				console.println( processor.getVersionStatement() );
 			}
 			finally
 			{
-				patcher.end();
+				processor.end();
 			}
 		}
 	}

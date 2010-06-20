@@ -38,7 +38,7 @@ public class CharSets
 	{
 		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch1.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
-		patchFile.read();
+		patchFile.scan();
 		Assert.assertEquals( patchFile.file.getEncoding(), "ISO-8859-1" );
 		patchFile.close();
 	}
@@ -50,24 +50,19 @@ public class CharSets
 
 		TestProgressListener progress = new TestProgressListener();
 		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
+		PatchFile patchFile = Util.openPatchFile( "patch-utf-8-1.sql", progress );
+		patcher.setPatchFile( patchFile );
+		patcher.init();
 
-		patcher.init( "patch-utf-8-1.sql" );
 		Assert.assertEquals( patcher.patchFile.file.getEncoding(), "UTF-8" );
-		try
-		{
-			patcher.patch( "1.0.2" );
-		}
-		finally
-		{
-			patcher.closePatchFile();
-		}
-
+		patcher.patch( "1.0.2" );
 		Connection connection = patcher.currentDatabase.getConnection();
 		Statement stat = connection.createStatement();
 		ResultSet result = stat.executeQuery( "SELECT * FROM USERS" );
 		assert result.next();
 		String userName = result.getString( "USER_USERNAME" );
 		Assert.assertEquals( userName, "rené" );
+
 		patcher.end();
 	}
 
@@ -76,7 +71,7 @@ public class CharSets
 	{
 		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "patch-utf-16-bom-1.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
-		patchFile.read();
+		patchFile.scan();
 		Assert.assertEquals( patchFile.file.getBOM(), new byte[] { -1, -2 } );
 		Assert.assertEquals( patchFile.file.getEncoding(), "UTF-16LE" );
 		patchFile.close();
@@ -87,7 +82,7 @@ public class CharSets
 	{
 		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "patch-utf-16-bom-2.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
-		patchFile.read();
+		patchFile.scan();
 		Assert.assertEquals( patchFile.file.getBOM(), new byte[] { -1, -2 } );
 		Assert.assertEquals( patchFile.file.getEncoding(), "UTF-16LE" );
 
@@ -111,7 +106,7 @@ public class CharSets
 	{
 		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "patch-utf-16-nobom-1.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
-		patchFile.read();
+		patchFile.scan();
 		Assert.assertNull( patchFile.file.getBOM() );
 		Assert.assertEquals( patchFile.file.getEncoding(), "UTF-16LE" );
 

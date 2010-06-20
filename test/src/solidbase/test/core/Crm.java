@@ -22,8 +22,10 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import solidbase.core.Database;
+import solidbase.core.PatchFile;
 import solidbase.core.PatchProcessor;
 import solidbase.core.TestUtil;
+import solidbase.core.Util;
 
 public class Crm
 {
@@ -34,11 +36,12 @@ public class Crm
 
 		TestProgressListener progress = new TestProgressListener();
 		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.apache.derby.jdbc.EmbeddedDriver", "jdbc:derby:memory:test;create=true", "app", null, progress ) );
+		PatchFile patchFile = Util.openPatchFile( "testpatch-crm.sql", progress );
+		patcher.setPatchFile( patchFile );
+		patcher.init();
 
-		patcher.init( "testpatch-crm.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
-
 		patcher.patch( null );
 		//TestUtil.verifyVersion( patcher, "1.0.2", null, 1, "1.1" );
 

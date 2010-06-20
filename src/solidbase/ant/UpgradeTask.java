@@ -22,6 +22,7 @@ import solidbase.Version;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
 import solidbase.core.PatchProcessor;
+import solidbase.core.Util;
 
 
 /**
@@ -178,26 +179,27 @@ public class UpgradeTask extends DBTask
 
 		try
 		{
-			PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", this.driver, this.url, this.username, this.password, progress ) );
+			PatchProcessor processor = new PatchProcessor( progress, new Database( "default", this.driver, this.url, this.username, this.password, progress ) );
 
 			for( Connection connection : this.connections )
-				patcher.addDatabase(
+				processor.addDatabase(
 						new Database( connection.getName(), connection.getDriver() == null ? this.driver : connection.getDriver(),
 								connection.getUrl() == null ? this.url : connection.getUrl(),
 										connection.getUsername(), connection.getPassword(), progress ) );
 
-			patcher.init( project.getBaseDir(), this.upgradefile );
+			processor.setPatchFile( Util.openPatchFile( project.getBaseDir(), this.upgradefile, progress ) );
 			try
 			{
+				processor.init();
 				progress.info( "Connecting to database..." );
-				progress.info( patcher.getVersionStatement() );
-				patcher.patch( this.target, this.downgradeallowed ); // TODO Print this target
+				progress.info( processor.getVersionStatement() );
+				processor.patch( this.target, this.downgradeallowed ); // TODO Print this target
 				progress.info( "" );
-				progress.info( patcher.getVersionStatement() );
+				progress.info( processor.getVersionStatement() );
 			}
 			finally
 			{
-				patcher.end();
+				processor.end();
 			}
 		}
 		catch( FatalException e )
