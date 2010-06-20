@@ -26,7 +26,7 @@ public class Delimiters
 		SQLFile file = new SQLFile( ralr );
 		file.setDelimiters( new Delimiter[] { new Delimiter( "^", Type.ISOLATED ) } );
 
-		Command command = file.readStatement();
+		Command command = file.readCommand();
 		assert command != null;
 
 		Assert.assertEquals( command.getCommand(), "COMMAND\n" );

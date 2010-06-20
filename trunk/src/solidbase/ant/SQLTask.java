@@ -22,6 +22,7 @@ import solidbase.Version;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
 import solidbase.core.SQLProcessor;
+import solidbase.core.Util;
 
 
 /**
@@ -84,24 +85,24 @@ public class SQLTask extends DBTask
 
 		try
 		{
-			SQLProcessor executer = new SQLProcessor( progress, new Database( "default", this.driver, this.url, this.username, this.password, progress ) );
+			SQLProcessor processor = new SQLProcessor( progress, new Database( "default", this.driver, this.url, this.username, this.password, progress ) );
 
 			for( Connection connection : this.connections )
-				executer.addDatabase(
+				processor.addDatabase(
 						new Database( connection.getName(), connection.getDriver() == null ? this.driver : connection.getDriver(),
 								connection.getUrl() == null ? this.url : connection.getUrl(),
 										connection.getUsername(), connection.getPassword(), progress ) );
 
-			executer.init( project.getBaseDir(), this.sqlfile );
+			processor.setCommandSource( Util.openSQLFile( project.getBaseDir(), this.sqlfile, progress ) );
 			try
 			{
 				progress.info( "Connecting to database..." );
-				executer.execute();
+				processor.execute();
 				progress.info( "" );
 			}
 			finally
 			{
-				executer.end();
+				processor.end();
 			}
 		}
 		catch( FatalException e )

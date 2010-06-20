@@ -32,11 +32,11 @@ public class EmptyLines
 	{
 		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch-emptylines.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
-		patchFile.read();
+		patchFile.scan();
 		Patch patch = patchFile.getPatch( "1.0.1", "1.0.2" );
 		assert patch != null;
 		patchFile.gotoPatch( patch );
-		Command command = patchFile.readStatement();
+		Command command = patchFile.readCommand();
 		assert command != null;
 		Assert.assertEquals( command.getCommand(), "INSERT 'This insert contains\n" +
 				"\n" +

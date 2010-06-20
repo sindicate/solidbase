@@ -23,7 +23,6 @@ import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import solidbase.core.Database;
 import solidbase.core.PatchProcessor;
 import solidbase.core.SQLExecutionException;
 import solidbase.core.TestUtil;
@@ -35,15 +34,10 @@ public class Basic
 	public void testBasic() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch1.sql" );
 
-		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-		// TODO Learn to really shutdown an inmemory database
-
-		patcher.init( "testpatch1.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
-
 		patcher.patch( "1.0.2" );
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null );
 
@@ -53,15 +47,9 @@ public class Basic
 	@Test(dependsOnMethods="testBasic")
 	public void testRepeat() throws SQLException
 	{
-		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch1.sql" );
 
-		patcher.init( "testpatch1.sql" );
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null );
-
-		Set< String > targets = patcher.getTargets( false, null, false );
-		assert targets.size() > 0;
-
 		patcher.patch( "1.0.2" );
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null );
 
@@ -71,12 +59,7 @@ public class Basic
 	@Test(dependsOnMethods="testRepeat")
 	public void testMissingGo() throws SQLException
 	{
-		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-
-		patcher.init( "testpatch2.sql" );
-		Set< String > targets = patcher.getTargets( false, null, false );
-		assert targets.size() > 0;
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch2.sql" );
 
 		try
 		{
@@ -85,21 +68,18 @@ public class Basic
 		}
 		catch( SQLExecutionException e )
 		{
-			System.out.println( e.getMessage() );
+//			System.out.println( e.getMessage() );
 			Assert.assertTrue( e.getMessage().contains( "unexpected token: /" ) );
 		}
-
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null );
+
 		patcher.end();
 	}
 
 	@Test(dependsOnMethods="testMissingGo")
 	public void testDumpXML()
 	{
-		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-
-		patcher.init( "testpatch1.sql" );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch1.sql" );
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		patcher.logToXML( out );
@@ -112,15 +92,9 @@ public class Basic
 	@Test(dependsOnMethods="testMissingGo")
 	public void testOverrideControlTables() throws SQLException
 	{
-		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-overridecontroltables.sql" );
 
-		patcher.init( "testpatch-overridecontroltables.sql" );
 		assert patcher.getCurrentVersion() == null;
-
-		Set< String > targets = patcher.getTargets( false, null, false );
-		assert targets.size() > 0;
-
 		patcher.patch( "1.0.1" );
 		assert patcher.getCurrentVersion().equals( "1.0.1" );
 
@@ -131,16 +105,9 @@ public class Basic
 	public void testOpen() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-
-		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-
-		patcher.init( "testpatch-open.sql" );
-		Set< String > targets = patcher.getTargets( false, null, false );
-		assert targets.size() > 0;
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-open.sql" );
 
 		patcher.patch( "1.0.*" );
-
 		TestUtil.verifyVersion( patcher, "1.0.2", "1.0.3", 1, null );
 
 		patcher.end();
@@ -150,16 +117,10 @@ public class Basic
 	public void testUnterminatedCommand1() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-unterminated1.sql" );
 
-		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-
-		patcher.init( "testpatch-unterminated1.sql" );
 		try
 		{
-			Set< String > targets = patcher.getTargets( false, null, false );
-			assert targets.size() > 0;
-
 			patcher.patch( "1.0.1" );
 		}
 		finally
@@ -173,16 +134,10 @@ public class Basic
 	public void testUnterminatedCommand2() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-unterminated2.sql" );
 
-		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-
-		patcher.init( "testpatch-unterminated2.sql" );
 		try
 		{
-			Set< String > targets = patcher.getTargets( false, null, false );
-			assert targets.size() > 0;
-
 			patcher.patch( "1.0.1" );
 		}
 		finally
@@ -198,37 +153,19 @@ public class Basic
 	public void testSharedPatchBlock() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-sharedpatch1.sql" );
 
-		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-
-		patcher.init( "testpatch-sharedpatch1.sql" );
-		try
-		{
-			Set< String > targets = patcher.getTargets( false, null, false );
-			assert targets.size() > 0;
-
-			patcher.patch( "1.0.2" );
-		}
-		finally
-		{
-			patcher.closePatchFile();
-		}
-
+		patcher.patch( "1.0.2" );
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null );
+
+		patcher.end();
 	}
 
 	@Test(groups="new")
 	public void testConnectionSetup() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-
-		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-
-		patcher.init( "testpatch-connectionsetup1.sql" );
-		Set< String > targets = patcher.getTargets( false, null, false );
-		assert targets.size() > 0;
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-connectionsetup1.sql" );
 
 		patcher.patch( "1.0.1" );
 		TestUtil.verifyVersion( patcher, "1.0.1", null, 1, "1.1" );

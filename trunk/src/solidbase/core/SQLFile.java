@@ -30,7 +30,7 @@ import solidbase.util.RandomAccessLineReader;
  * @author René M. de Bloois
  * @since Apr 2010
  */
-public class SQLFile
+public class SQLFile implements CommandSource
 {
 	static private final Pattern ENCODING_PATTERN = Pattern.compile( "^--\\*[ \t]*ENCODING[ \t]+\"([^\"]*)\"[ \t]*$", Pattern.CASE_INSENSITIVE );
 
@@ -100,7 +100,7 @@ public class SQLFile
 	/**
 	 * Close the patch file. This will also close the underlying file.
 	 */
-	protected void close()
+	public void close()
 	{
 		if( this.file != null )
 		{
@@ -133,7 +133,7 @@ public class SQLFile
 	 * 
 	 * @param delimiters The delimiters.
 	 */
-	protected void setDelimiters( Delimiter[] delimiters )
+	public void setDelimiters( Delimiter[] delimiters )
 	{
 		this.delimiters = delimiters;
 	}
@@ -144,7 +144,7 @@ public class SQLFile
 	 * 
 	 * @return A command from the patch file or null when no more commands are available.
 	 */
-	protected Command readStatement()
+	public Command readCommand()
 	{
 		StringBuilder result = new StringBuilder();
 		int pos = 0; // No line found yet

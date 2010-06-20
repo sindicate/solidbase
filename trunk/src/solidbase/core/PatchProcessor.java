@@ -16,12 +16,9 @@
 
 package solidbase.core;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.Iterator;
@@ -135,27 +132,23 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	}
 
 	/**
-	 * Initialize the patcher.
+	 * Sets the patch file.
 	 * 
-	 * @param baseDir The base folder from where to look for the upgrade file (optional).
-	 * @param upgradeFileName The name of the upgrade file.
+	 * @param patchFile The patch file to set.
 	 */
-	// TODO Remove this init, should be in the constructor
-	public void init( File baseDir, String upgradeFileName )
+	public void setPatchFile( PatchFile patchFile )
 	{
-		openPatchFile( baseDir, upgradeFileName );
-		this.dbVersion = new DBVersion( getDefaultDatabase(), this.progress, this.patchFile.versionTableName, this.patchFile.logTableName );
+		this.patchFile = patchFile;
+		setCommandSource( patchFile );
 	}
 
 	/**
 	 * Initialize the patcher.
-	 * 
-	 * @param upgradeFileName The name of the upgrade file.
 	 */
 	// TODO Remove this init, should be in the constructor
-	public void init( String upgradeFileName )
+	public void init()
 	{
-		init( null, upgradeFileName );
+		this.dbVersion = new DBVersion( getDefaultDatabase(), this.progress, this.patchFile.versionTableName, this.patchFile.logTableName );
 	}
 
 	/**
@@ -167,75 +160,6 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 		super.reset();
 		this.dontCount = false;
 		this.conditionTrueCounter = this.conditionFalseCounter = 0;
-	}
-
-	/**
-	 * Open the specified upgrade file.
-	 * 
-	 * @param fileName The name and path of the upgrade file.
-	 */
-	protected void openPatchFile( String fileName )
-	{
-		openPatchFile( null, fileName );
-	}
-
-	/**
-	 * Open the specified upgrade file in the specified folder.
-	 * 
-	 * @param baseDir The base folder from where to look. May be null.
-	 * @param fileName The name and path of the upgrade file.
-	 */
-	protected void openPatchFile( File baseDir, String fileName )
-	{
-		if( fileName == null )
-			fileName = "upgrade.sql";
-
-		try
-		{
-			RandomAccessLineReader ralr;
-			// TODO Should we remove this "/"?
-			URL url = PatchProcessor.class.getResource( "/" + fileName ); // In the classpath
-			if( url != null )
-			{
-				this.progress.openingPatchFile( url );
-				ralr = new RandomAccessLineReader( url );
-			}
-			else
-			{
-				File file = new File( baseDir, fileName ); // In the current folder
-				this.progress.openingPatchFile( file );
-				ralr = new RandomAccessLineReader( file );
-			}
-
-			this.sqlFile = this.patchFile = new PatchFile( ralr );
-
-			this.progress.openedPatchFile( this.patchFile );
-
-			try
-			{
-				this.patchFile.read();
-			}
-			catch( RuntimeException e )
-			{
-				// When open() fails, it should cleanup after itself.
-				this.patchFile.close();
-				throw e;
-			}
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
-	}
-
-	/**
-	 * Close the upgrade file.
-	 */
-	public void closePatchFile()
-	{
-		if( this.patchFile != null )
-			this.patchFile.close();
-		this.sqlFile = this.patchFile = null;
 	}
 
 	/**
@@ -422,7 +346,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 		this.patch = patch;
 		try
 		{
-			Command command = this.patchFile.readStatement();
+			Command command = this.patchFile.readCommand();
 			while( command != null )
 			{
 				if( command.isPersistent() && !this.dontCount && !patch.isInit() )
@@ -452,7 +376,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 				else
 					executeWithListeners( command );
 
-				command = this.patchFile.readStatement();
+				command = this.patchFile.readCommand();
 			}
 
 			this.progress.patchFinished();
@@ -618,16 +542,6 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	}
 
 	/**
-	 * Closes open files and closes connections.
-	 */
-	@Override
-	public void end()
-	{
-		super.end();
-		closePatchFile();
-	}
-
-	/**
 	 * Returns a statement of the current version of the database in a user presentable form.
 	 * 
 	 * @return A statement of the current version of the database in a user presentable form.
@@ -644,8 +558,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 				if( init.getUserName() == null || init.getUserName().equalsIgnoreCase( database.getCurrentUser() ) )
 				{
 					SQLProcessor processor = new SQLProcessor( this.progress, database );
-					// TODO linenumber offset
-					processor.setSqlFile( new SQLFile( new RandomAccessLineReader( init.getText(), init.getLineNumber() ) ) );
+					processor.setCommandSource( new SQLFile( new RandomAccessLineReader( init.getText(), init.getLineNumber() ) ) );
 					processor.execute();
 				}
 	}

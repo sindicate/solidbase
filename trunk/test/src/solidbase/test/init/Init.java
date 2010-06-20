@@ -22,8 +22,10 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import solidbase.core.Database;
+import solidbase.core.PatchFile;
 import solidbase.core.PatchProcessor;
 import solidbase.core.TestUtil;
+import solidbase.core.Util;
 import solidbase.test.core.TestProgressListener;
 
 public class Init
@@ -35,11 +37,12 @@ public class Init
 
 		TestProgressListener progress = new TestProgressListener();
 		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
+		PatchFile patchFile = Util.openPatchFile( "testpatch1.sql", progress );
+		patcher.setPatchFile( patchFile );
+		patcher.init();
 
-		patcher.init( "testpatch1.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
-
 		patcher.patch( "1.0.1" );
 		TestUtil.verifyVersion( patcher, "1.0.1", null, 2, null );
 
@@ -51,14 +54,15 @@ public class Init
 	{
 		TestProgressListener progress = new TestProgressListener();
 		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
+		PatchFile patchFile = Util.openPatchFile( "testpatch-version-table-upgrade-2.sql", progress );
+		patcher.setPatchFile( patchFile );
+		patcher.init();
 
-		patcher.init( "testpatch-version-table-upgrade-2.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
-
 		patcher.patch( "1.0.2" );
-
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 1, "1.1.1" );
+
 		patcher.end();
 	}
 
@@ -69,14 +73,14 @@ public class Init
 
 		TestProgressListener progress = new TestProgressListener();
 		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
+		PatchFile patchFile = Util.openPatchFile( "testpatch-version-table-upgrade-2.sql", progress );
+		patcher.setPatchFile( patchFile );
+		patcher.init();
 
-		patcher.init( "testpatch-version-table-upgrade-2.sql" );
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
-
 		patcher.patch( "" );
 		TestUtil.verifyVersion( patcher, null, null, 0, "1.1.1" );
-
 		patcher.patch( "1.0.2" );
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 1, "1.1.1" );
 

@@ -104,110 +104,6 @@ public class PatchFile extends SQLFile
 
 
 	/**
-	 * Reads and analyzes the patch file. The result is that the patches map is filled with the available patches.
-	 */
-	protected void read()
-	{
-		boolean withinDefinition = false;
-		boolean definitionComplete = false;
-		while( !definitionComplete )
-		{
-			String line;
-			try
-			{
-				line = this.file.readLine();
-			}
-			catch( IOException e )
-			{
-				throw new SystemException( e );
-			}
-			if( line == null )
-				throw new CommandFileException( "Unexpected EOF found", this.file.getLineNumber() );
-
-			if( line.trim().length() > 0 )
-			{
-				Assert.isTrue( line.startsWith( "--*" ), "Line should start with --*" );
-				line = line.substring( 3 ).trim();
-				if( line.equalsIgnoreCase( "DEFINITION" ) || line.equalsIgnoreCase( "PATCHES" ) )
-				{
-					Assert.isFalse( withinDefinition, "Already within the definition" );
-					withinDefinition = true;
-				}
-				else if( line.startsWith( "//" ) )
-				{
-					// ignore line
-				}
-				else if( PATCH_DEFINITION_MARKER_PATTERN.matcher( line ).matches() )
-				{
-					Assert.isTrue( withinDefinition, "Not within the definition" );
-
-					Matcher matcher = PATCH_DEFINITION_PATTERN.matcher( line );
-					Assert.isTrue( matcher.matches(), PATCH_DEFINITION_SYNTAX_ERROR );
-					String action = matcher.group( 1 );
-					boolean open = matcher.group( 2 ) != null;
-					String source = matcher.group( 3 );
-					if( source.length() == 0 )
-						source = null;
-					String target = matcher.group( 4 );
-					Type type = stringToType( action );
-					Patch patch = new Patch( type, source, target, open );
-					if( type == Type.INIT )
-						this.inits.put( source, patch );
-					else
-					{
-						this.patches.put( source, patch );
-						this.versions.add( source );
-						this.versions.add( target );
-					}
-				}
-				else if( line.equalsIgnoreCase( "/DEFINITION" ) || line.equalsIgnoreCase( "/PATCHES" ) )
-				{
-					Assert.isTrue( withinDefinition, "Not within the definition" );
-					definitionComplete = true;
-				}
-				else if( withinDefinition )
-				{
-					Matcher matcher;
-					if( ( matcher = CONTROL_TABLES_PATTERN.matcher( line ) ).matches() )
-					{
-						this.versionTableName = matcher.group( 1 );
-						this.logTableName = matcher.group( 2 );
-					}
-					else if( ( matcher = CommandProcessor.delimiterPattern.matcher( line ) ).matches() )
-					{
-						setDefaultDelimiters( CommandProcessor.parseDelimiters( matcher ) );
-					}
-					else
-						throw new SystemException( "Unexpected line within definition: " + line );
-				}
-				else
-					throw new SystemException( "Unexpected line outside definition: " + line );
-			}
-		}
-
-		scan();
-
-		// Check that all defined upgrade blocks are found
-		Iterator< Patch > iterator = this.patches.values().iterator();
-		while( iterator.hasNext() )
-		{
-			Patch patch = iterator.next();
-			if( patch.getLineNumber() < 0 )
-				throw new FatalException( "Upgrade block \"" + StringUtils.defaultString( patch.getSource() ) + "\" --> \"" + patch.getTarget() + "\" not found" );
-		}
-
-		// Check that all defined init blocks are found
-		iterator = this.inits.values().iterator();
-		while( iterator.hasNext() )
-		{
-			Patch patch = iterator.next();
-			if( patch.getLineNumber() < 0 )
-				throw new FatalException( "Init block \"" + StringUtils.defaultString( patch.getSource() ) + "\" --> \"" + patch.getTarget() + "\" not found" );
-		}
-	}
-
-
-	/**
 	 * Translates a patch type string to a type enum.
 	 * 
 	 * @param type A patch type string.
@@ -229,12 +125,89 @@ public class PatchFile extends SQLFile
 
 
 	/**
-	 * Scans for patches in the file. Called by {@link #read()}.
+	 * Scans for patches in the file.
 	 */
 	protected void scan()
 	{
 		try
 		{
+			boolean withinDefinition = false;
+			boolean definitionComplete = false;
+			while( !definitionComplete )
+			{
+				String line;
+				try
+				{
+					line = this.file.readLine();
+				}
+				catch( IOException e )
+				{
+					throw new SystemException( e );
+				}
+				if( line == null )
+					throw new CommandFileException( "Unexpected EOF found", this.file.getLineNumber() );
+
+				if( line.trim().length() > 0 )
+				{
+					Assert.isTrue( line.startsWith( "--*" ), "Line should start with --*" );
+					line = line.substring( 3 ).trim();
+					if( line.equalsIgnoreCase( "DEFINITION" ) || line.equalsIgnoreCase( "PATCHES" ) )
+					{
+						Assert.isFalse( withinDefinition, "Already within the definition" );
+						withinDefinition = true;
+					}
+					else if( line.startsWith( "//" ) )
+					{
+						// ignore line
+					}
+					else if( PATCH_DEFINITION_MARKER_PATTERN.matcher( line ).matches() )
+					{
+						Assert.isTrue( withinDefinition, "Not within the definition" );
+
+						Matcher matcher = PATCH_DEFINITION_PATTERN.matcher( line );
+						Assert.isTrue( matcher.matches(), PATCH_DEFINITION_SYNTAX_ERROR );
+						String action = matcher.group( 1 );
+						boolean open = matcher.group( 2 ) != null;
+						String source = matcher.group( 3 );
+						if( source.length() == 0 )
+							source = null;
+						String target = matcher.group( 4 );
+						Type type = stringToType( action );
+						Patch patch = new Patch( type, source, target, open );
+						if( type == Type.INIT )
+							this.inits.put( source, patch );
+						else
+						{
+							this.patches.put( source, patch );
+							this.versions.add( source );
+							this.versions.add( target );
+						}
+					}
+					else if( line.equalsIgnoreCase( "/DEFINITION" ) || line.equalsIgnoreCase( "/PATCHES" ) )
+					{
+						Assert.isTrue( withinDefinition, "Not within the definition" );
+						definitionComplete = true;
+					}
+					else if( withinDefinition )
+					{
+						Matcher matcher;
+						if( ( matcher = CONTROL_TABLES_PATTERN.matcher( line ) ).matches() )
+						{
+							this.versionTableName = matcher.group( 1 );
+							this.logTableName = matcher.group( 2 );
+						}
+						else if( ( matcher = CommandProcessor.delimiterPattern.matcher( line ) ).matches() )
+						{
+							setDefaultDelimiters( CommandProcessor.parseDelimiters( matcher ) );
+						}
+						else
+							throw new SystemException( "Unexpected line within definition: " + line );
+					}
+					else
+						throw new SystemException( "Unexpected line outside definition: " + line );
+				}
+			}
+
 			String line = this.file.readLine();
 			while( line != null )
 			{
@@ -323,6 +296,24 @@ public class PatchFile extends SQLFile
 		catch( IOException e )
 		{
 			throw new SystemException( e );
+		}
+
+		// Check that all defined upgrade blocks are found
+		Iterator< Patch > iterator = this.patches.values().iterator();
+		while( iterator.hasNext() )
+		{
+			Patch patch = iterator.next();
+			if( patch.getLineNumber() < 0 )
+				throw new FatalException( "Upgrade block \"" + StringUtils.defaultString( patch.getSource() ) + "\" --> \"" + patch.getTarget() + "\" not found" );
+		}
+
+		// Check that all defined init blocks are found
+		iterator = this.inits.values().iterator();
+		while( iterator.hasNext() )
+		{
+			Patch patch = iterator.next();
+			if( patch.getLineNumber() < 0 )
+				throw new FatalException( "Init block \"" + StringUtils.defaultString( patch.getSource() ) + "\" --> \"" + patch.getTarget() + "\" not found" );
 		}
 	}
 
@@ -642,13 +633,13 @@ public class PatchFile extends SQLFile
 	 * @return A statement from the patch file or null when no more statements are available.
 	 */
 	@Override
-	protected Command readStatement()
+	public Command readCommand()
 	{
 		Command command;
 
 		do
 		{
-			command = super.readStatement();
+			command = super.readCommand();
 			Assert.notNull( command, "Premature end of file found" );
 
 			if( command.isTransient() )

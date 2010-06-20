@@ -17,11 +17,8 @@
 package solidbase.test.core;
 
 import java.sql.SQLException;
-import java.util.Set;
-
 import org.testng.annotations.Test;
 
-import solidbase.core.Database;
 import solidbase.core.PatchProcessor;
 import solidbase.core.TestUtil;
 
@@ -31,13 +28,7 @@ public class Conditional
 	public void testIfHistoryContains1() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-
-		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-
-		patcher.init( "testpatch-conditional1.sql" );
-		Set< String > targets = patcher.getTargets( false, null, false );
-		assert targets.size() > 0;
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-conditional1.sql" );
 
 		patcher.patch( "1.0.2" );
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null ); // TODO STATEMENTS should be 3.
@@ -48,12 +39,7 @@ public class Conditional
 	@Test(dependsOnMethods="testIfHistoryContains1")
 	public void testIfHistoryContains2() throws SQLException
 	{
-		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-
-		patcher.init( "testpatch-conditional2.sql" );
-		Set< String > targets = patcher.getTargets( false, null, false );
-		assert targets.size() > 0;
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-conditional2.sql" );
 
 		patcher.patch( "1.0.3" );
 		TestUtil.verifyVersion( patcher, "1.0.3", null, 4, "1.1" );
