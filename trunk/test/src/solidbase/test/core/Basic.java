@@ -23,6 +23,7 @@ import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import solidbase.core.Database;
 import solidbase.core.PatchProcessor;
 import solidbase.core.SQLExecutionException;
 import solidbase.core.TestUtil;
@@ -161,11 +162,12 @@ public class Basic
 		patcher.end();
 	}
 
-	@Test(groups="new")
+	//@Test TODO This is a test for INIT CONNECTION
 	public void testConnectionSetup() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-connectionsetup1.sql" );
+		patcher.addDatabase( new Database( "queues", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, patcher.getCallBack() ) );
 
 		patcher.patch( "1.0.1" );
 		TestUtil.verifyVersion( patcher, "1.0.1", null, 1, "1.1" );

@@ -72,7 +72,7 @@ public class UpgradeTaskTests extends BuildFileTest
 		return this.logBuffer.toString();
 	}
 
-	@Test(groups="new")
+	@Test
 	public void testUpgradeTask()
 	{
 		configureProject( "test-upgradetask.xml" );

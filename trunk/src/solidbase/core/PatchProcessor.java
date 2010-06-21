@@ -572,7 +572,8 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 			if( init.getConnectionName() == null || init.getConnectionName().equalsIgnoreCase( database.getName() ) )
 				if( init.getUserName() == null || init.getUserName().equalsIgnoreCase( database.getCurrentUser() ) )
 				{
-					SQLProcessor processor = new SQLProcessor( this.progress, database );
+					SQLProcessor processor = new SQLProcessor( this.progress );
+					processor.setConnection( database );
 					processor.setSQLSource( new SQLSource( init.getText(), init.getLineNumber() ) );
 					processor.execute();
 				}
