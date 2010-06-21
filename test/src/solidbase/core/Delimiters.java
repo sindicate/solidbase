@@ -9,7 +9,7 @@ import solidbase.core.Delimiter.Type;
 
 public class Delimiters
 {
-	@Test(groups="new")
+	@Test
 	public void testDelimiterRegexpCharacter() throws IOException
 	{
 		String contents = "COMMAND\n^\n";
