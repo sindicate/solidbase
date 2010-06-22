@@ -21,11 +21,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
-import solidbase.core.Assert;
 import solidbase.core.SystemException;
 
 
@@ -65,16 +63,6 @@ public class RandomAccessLineReader implements LineReader
 	 * The URL to read from.
 	 */
 	protected URL url;
-
-	/**
-	 * The text fragment to read from.
-	 */
-	protected String text;
-
-	/**
-	 * The line number of the text fragment in the original file.
-	 */
-	protected int textLineNumber;
 
 	/**
 	 * The reader used to read from the URL.
@@ -144,46 +132,23 @@ public class RandomAccessLineReader implements LineReader
 	}
 
 	/**
-	 * Create a new line reader from a String.
-	 * 
-	 * @param text The text fragment.
-	 * @param lineNumber The line number of the text fragment in the original file.
-	 */
-	public RandomAccessLineReader( String text, int lineNumber )
-	{
-		this.text = text;
-		this.encoding = CHARSET_UTF8;
-		this.reader = new BufferedReader( new StringReader( text ) );
-		this.currentLineNumber = this.textLineNumber = lineNumber;
-	}
-
-	/**
 	 * Reopens itself to reset the position or change the character encoding.
 	 */
 	protected void reOpen()
 	{
 		close();
 
-		if( this.url != null )
+		try
 		{
-			try
-			{
-				InputStream is = this.url.openStream();
-				if( this.bom != null )
-					is.read( new byte[ this.bom.length ] ); // Skip some bytes
-				this.reader = new BufferedReader( new InputStreamReader( is, this.encoding ) );
-				this.currentLineNumber = 1;
-			}
-			catch( IOException e )
-			{
-				throw new SystemException( e );
-			}
+			InputStream is = this.url.openStream();
+			if( this.bom != null )
+				is.read( new byte[ this.bom.length ] ); // Skip some bytes
+			this.reader = new BufferedReader( new InputStreamReader( is, this.encoding ) );
+			this.currentLineNumber = 1;
 		}
-		else
+		catch( IOException e )
 		{
-			Assert.notNull( this.text );
-			this.reader = new BufferedReader( new StringReader( this.text ) );
-			this.currentLineNumber = this.textLineNumber;
+			throw new SystemException( e );
 		}
 	}
 

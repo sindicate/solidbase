@@ -1,3 +1,11 @@
+Changes from 1.6.0 to 1.6.1
+---------------------------
+
+ENH  Introduced SECTION as a replacement for SET MESSAGE.
+ENH  Introduced TRANSIENT as a replacement for SESSIONCONFIG.
+CHA  The default delimiter is now a trailing ; . If you want to reconfigure the delimiter, see for an example /trunk/test/testpatch-open.sql .
+FIX  The delimiter is now quoted (escaped) before being added to a regular expression.
+
 Changes from 1.5.3 to 1.6.0
 ---------------------------
 
