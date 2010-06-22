@@ -26,23 +26,16 @@
 
 
 
---* // ========================================================================
 --* INIT "" --> "1.1"
---* // ========================================================================
 
---* SECTION "Creating table DBVERSION"
-
+--* SECTION "Creating SolidBase control tables"
 CREATE TABLE DBVERSION
 (
 	SPEC VARCHAR NOT NULL,
 	VERSION VARCHAR, 
 	TARGET VARCHAR, 
 	STATEMENTS INTEGER NOT NULL 
-)
-GO
-
---* SECTION "Creating table DBVERSIONLOG"
-
+);
 CREATE TABLE DBVERSIONLOG
 (
 	TYPE VARCHAR NOT NULL,
@@ -53,19 +46,15 @@ CREATE TABLE DBVERSIONLOG
 	COMMAND VARCHAR,
 	RESULT VARCHAR
 );
-
 CREATE INDEX DBVERSIONLOG_INDEX1 ON DBVERSIONLOG ( TYPE, TARGET );
 
 --* /INIT
 
 
 
---* // ========================================================================
 --* UPGRADE "" --> "1.0.1"
---* // ========================================================================
 
 --* SECTION "Creating table USERS"
-
 CREATE TABLE USERS
 (
 	USER_ID INT IDENTITY,
@@ -74,25 +63,20 @@ CREATE TABLE USERS
 );
 
 --* SECTION "Inserting admin user"
-
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' );
 
 --* SECTION "Inserting user"
-
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' );
 
 --* /UPGRADE
 
 
 
---* // ========================================================================
 --* UPGRADE "1.0.1" --> "1.0.2"
---* // ========================================================================
-
---* SECTION "Creating queue"
 
 --* SELECT CONNECTION QUEUES
 
+--* SECTION "Creating queue"
 CREATE TABLE QUEUE1
 (
 	PRIORITY INT NOT NULL,

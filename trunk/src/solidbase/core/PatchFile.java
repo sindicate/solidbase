@@ -58,7 +58,7 @@ public class PatchFile
 //	static private final String INIT_CONNECTION_SYNTAX = "INIT CONNECTION <connectionname> [USER <username>]";
 //	static private final Pattern INIT_CONNECTION_END_PATTERN = Pattern.compile( "--\\*\\s*/INIT\\s+CONNECTION\\s*", Pattern.CASE_INSENSITIVE );
 
-	static private final String MARKER_SYNTAX_ERROR = "Line should match the following syntax: (INIT|UPGRADE|SWITCH|DOWNGRADE) \"...\" --> \"...\" or INIT CONNECTION <name>";
+	static private final String MARKER_SYNTAX_ERROR = "Line should match the following syntax: (INIT|UPGRADE|SWITCH|DOWNGRADE) \"...\" --> \"...\"" /* or INIT CONNECTION <name> */;
 
 	/**
 	 * The upgrade file.
@@ -652,7 +652,7 @@ public class PatchFile
 
 		this.file.gotoLine( patch.getLineNumber() );
 		String line = this.file.readLine();
-		//			System.out.println( line );
+//		System.out.println( line );
 		Assert.isTrue( PATCH_START_MARKER_PATTERN.matcher( line ).matches() );
 		PatchSource source = new PatchSource( this.file );
 		source.setDelimiters( this.defaultDelimiters );

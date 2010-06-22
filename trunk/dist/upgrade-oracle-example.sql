@@ -25,23 +25,16 @@
 
 
 
---* // ========================================================================
 --* INIT "" --> "1.1"
---* // ========================================================================
 
---* SECTION "Creating table DBVERSION"
-
+--* SECTION "Creating SolidBase control tables"
 CREATE TABLE DBVERSION
 (
 	SPEC VARCHAR2(5) NOT NULL,
 	VERSION VARCHAR2(20),
 	TARGET VARCHAR2(20),
 	STATEMENTS INTEGER NOT NULL
-)
-GO
-
---* SECTION "Creating table DBVERSIONLOG"
-
+);
 CREATE TABLE DBVERSIONLOG
 (
 	TYPE VARCHAR2(1) NOT NULL,
@@ -51,37 +44,26 @@ CREATE TABLE DBVERSIONLOG
 	STAMP TIMESTAMP(0) NOT NULL,
 	COMMAND VARCHAR2(4000),
 	RESULT VARCHAR2(4000)
-)
-GO
-
-CREATE INDEX DBVERSIONLOG_INDEX1 ON DBVERSIONLOG ( TYPE, TARGET )
-GO
+);
+CREATE INDEX DBVERSIONLOG_INDEX1 ON DBVERSIONLOG ( TYPE, TARGET );
 
 --* /INIT
 
 
 
---* // ========================================================================
 --* UPGRADE "" --> "1.0.1"
---* // ========================================================================
 
 --* SECTION "Creating table USERS"
-
 CREATE TABLE USERS
 (
 	USER_USERNAME VARCHAR2(26) NOT NULL,
 	USER_PASSWORD VARCHAR2(30) NOT NULL
-)
-GO
+);
 
 --* SECTION "Inserting admin user"
-
-INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' )
-GO
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' );
 
 --* SECTION "Inserting user"
-
-INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' )
-GO
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' );
 
 --* /UPGRADE
