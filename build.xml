@@ -387,7 +387,7 @@
     </target>
 
 
-    <target name="gettingstarted">
+    <target name="gettingstarted" depends="build">
         <groovy src="scripts/GenerateGettingStarted.groovy" />
     </target>
 
