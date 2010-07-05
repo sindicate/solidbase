@@ -27,7 +27,6 @@ import org.testng.annotations.Test;
 
 import solidbase.core.Database;
 import solidbase.core.PatchProcessor;
-import solidbase.test.core.TestProgressListener;
 import solidbase.util.RandomAccessLineReader;
 
 

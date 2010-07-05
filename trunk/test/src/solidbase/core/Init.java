@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.test.init;
+package solidbase.core;
 
 import java.sql.SQLException;
 import java.util.Set;
@@ -24,9 +24,7 @@ import org.testng.annotations.Test;
 import solidbase.core.Database;
 import solidbase.core.PatchFile;
 import solidbase.core.PatchProcessor;
-import solidbase.core.TestUtil;
 import solidbase.core.Util;
-import solidbase.test.core.TestProgressListener;
 
 public class Init
 {

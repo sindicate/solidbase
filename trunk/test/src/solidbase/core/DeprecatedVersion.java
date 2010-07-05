@@ -1,4 +1,4 @@
-package solidbase.test.core;
+package solidbase.core;
 
 import java.sql.SQLException;
 
@@ -7,7 +7,6 @@ import org.testng.annotations.Test;
 
 import solidbase.core.FatalException;
 import solidbase.core.PatchProcessor;
-import solidbase.core.TestUtil;
 
 public class DeprecatedVersion
 {
