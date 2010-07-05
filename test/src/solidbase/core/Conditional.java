@@ -14,25 +14,34 @@
  * limitations under the License.
  */
 
-package solidbase.test.core;
+package solidbase.core;
 
 import java.sql.SQLException;
 import org.testng.annotations.Test;
 
 import solidbase.core.PatchProcessor;
-import solidbase.core.TestUtil;
 
-public class Import
+public class Conditional
 {
 	@Test
-	public void testImport() throws SQLException
+	public void testIfHistoryContains1() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-import1.sql" );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-conditional1.sql" );
 
 		patcher.patch( "1.0.2" );
-		TestUtil.verifyVersion( patcher, "1.0.2", null, 12, null );
-		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP", 7 );
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null ); // TODO STATEMENTS should be 3.
+
+		patcher.end();
+	}
+
+	@Test(dependsOnMethods="testIfHistoryContains1")
+	public void testIfHistoryContains2() throws SQLException
+	{
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-conditional2.sql" );
+
+		patcher.patch( "1.0.3" );
+		TestUtil.verifyVersion( patcher, "1.0.3", null, 4, "1.1" );
 
 		patcher.end();
 	}

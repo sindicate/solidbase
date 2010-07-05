@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package solidbase.test.core;
+package solidbase.core;
 
 import java.sql.SQLException;
 
 import org.testng.annotations.Test;
 
 import solidbase.core.SQLProcessor;
-import solidbase.core.TestUtil;
 
 public class Sql
 {

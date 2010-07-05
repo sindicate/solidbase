@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.test.core;
+package solidbase.core;
 
 import java.io.File;
 import java.net.URL;

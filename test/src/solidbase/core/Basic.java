@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.test.core;
+package solidbase.core;
 
 import java.io.ByteArrayOutputStream;
 import java.sql.SQLException;
@@ -26,16 +26,17 @@ import org.testng.annotations.Test;
 import solidbase.core.Database;
 import solidbase.core.PatchProcessor;
 import solidbase.core.SQLExecutionException;
-import solidbase.core.TestUtil;
 import solidbase.core.UnterminatedStatementException;
 
 public class Basic
 {
+	static private final String db = "jdbc:hsqldb:mem:testdb2";
+
 	@Test
 	public void testBasic() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch1.sql" );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch1.sql", db );
 
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
@@ -48,7 +49,7 @@ public class Basic
 	@Test(dependsOnMethods="testBasic")
 	public void testRepeat() throws SQLException
 	{
-		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch1.sql" );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch1.sql", db );
 
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null );
 		patcher.patch( "1.0.2" );
@@ -60,7 +61,7 @@ public class Basic
 	@Test(dependsOnMethods="testRepeat")
 	public void testMissingGo() throws SQLException
 	{
-		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch2.sql" );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch2.sql", db );
 
 		try
 		{
