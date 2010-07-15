@@ -16,17 +16,12 @@
 
 package solidbase.test.console;
 
-import mockit.Mockit;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidbase.Main;
-import solidbase.Progress;
-import solidbase.config.Configuration;
-import solidbase.config.Manipulator;
-import solidbase.config.Options;
 import solidbase.core.TestUtil;
+import solidbase.test.mocks.MockConsole;
 
 
 public class ThroughConsoleTests
@@ -34,28 +29,14 @@ public class ThroughConsoleTests
 	@Test
 	public void testConsole() throws Exception
 	{
-		// Mock the name of the property file
-
-		Mockit.tearDownMocks();
-		Mockit.redefineMethods( Configuration.class, new MockConfiguration( "solidbase1.properties" ) );
-
-		// Test the mock itself
-		Configuration configuration = new Configuration( new Progress( null, false ), 2, new Options( false, false, null, null, null, null, null, null, null, null, false, false ) );
-		Assert.assertEquals( Manipulator.getConfigurationPropertiesFile( configuration ).getName(), "solidbase1.properties" );
-
-		// Start test
-
 		MockConsole console = new MockConsole();
 		console.addAnswer( "" );
-
 		Main.console = console;
 
-		Main.pass2( "-verbose" );
+		Main.pass2( "-verbose", "-config", "solidbase1.properties" );
 
 		String output = TestUtil.generalizeOutput( console.getOutput() );
-
-		//		System.out.println( "[[[" + output + "]]]" );
-
+//		System.out.println( "[[[" + output + "]]]" );
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"Reading property file X:\\...\\solidbase1.properties\n" +
@@ -83,15 +64,12 @@ public class ThroughConsoleTests
 	{
 		MockConsole console = new MockConsole();
 		console.addAnswer( "" );
-
 		Main.console = console;
 
 		Main.pass2( "-verbose", "-config", "solidbase2.properties" );
 
 		String output = TestUtil.generalizeOutput( console.getOutput() );
-
-		//		System.out.println( "[[[" + output + "]]]" );
-
+//		System.out.println( "[[[" + output + "]]]" );
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"Reading property file X:\\...\\solidbase2.properties\n" +
@@ -123,9 +101,7 @@ public class ThroughConsoleTests
 		Main.pass2( "-verbose", "-config", "solidbase2.properties", "-upgradefile", "testpatch-print1.sql", "-password", "" );
 
 		String output = TestUtil.generalizeOutput( console.getOutput() );
-
-		//		System.out.println( "[[[" + output + "]]]" );
-
+//		System.out.println( "[[[" + output + "]]]" );
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"Reading property file X:\\...\\solidbase2.properties\n" +

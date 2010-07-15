@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 import solidbase.Main;
 import solidbase.core.FatalException;
 import solidbase.core.TestUtil;
+import solidbase.test.mocks.MockConsole;
 
 
 public class CommandLineTests
@@ -32,7 +33,6 @@ public class CommandLineTests
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 
 		MockConsole console = new MockConsole();
-
 		Main.console = console;
 
 		// TODO Rename patchfile to test the -patchfile option
@@ -45,9 +45,7 @@ public class CommandLineTests
 				"-upgradefile", "testpatch1.sql" );
 
 		String output = TestUtil.generalizeOutput( console.getOutput() );
-
-		//System.out.println( "[[[" + output + "]]]" );
-
+//		System.out.println( "[[[" + output + "]]]" );
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"Reading property file file:/.../solidbase-default.properties\n" +
@@ -97,10 +95,8 @@ public class CommandLineTests
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 
 		MockConsole console = new MockConsole();
-
 		Main.console = console;
 
-		// TODO Rename patchfile to test the -patchfile option
 		Main.main0( "-verbose",
 				"-driver", "org.hsqldb.jdbcDriver",
 				"-url", "jdbc:hsqldb:mem:testdb",
@@ -109,9 +105,7 @@ public class CommandLineTests
 				"-upgradefile", "testpatch1.sql" );
 
 		String output = TestUtil.generalizeOutput( console.getOutput() );
-
-		//System.out.println( "[[[" + output + "]]]" );
-
+//		System.out.println( "[[[" + output + "]]]" );
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
@@ -139,7 +133,6 @@ public class CommandLineTests
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 
 		MockConsole console = new MockConsole();
-
 		Main.console = console;
 
 		try
@@ -161,7 +154,6 @@ public class CommandLineTests
 		}
 
 		String output = TestUtil.generalizeOutput( console.getOutput() );
-
 		Assert.assertEquals( output,
 				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
@@ -176,15 +168,12 @@ public class CommandLineTests
 	public void testCommandLineNoArguments() throws Exception
 	{
 		MockConsole console = new MockConsole();
-
 		Main.console = console;
 
 		Main.main0();
 
 		String output = TestUtil.generalizeOutput( console.getOutput() );
-
 //		System.out.println( "[[[" + output + "]]]" );
-
 		Assert.assertEquals( output,
 				"usage: solidbase [-config <filename>] [-downgradeallowed] [-driver <classname>]\n" +
 				"       [-dumplog <filename>] [-help] [-password <password>] [-sqlfile <arg>]\n" +
@@ -209,15 +198,12 @@ public class CommandLineTests
 	public void testCommandLineHelp() throws Exception
 	{
 		MockConsole console = new MockConsole();
-
 		Main.console = console;
 
 		Main.main0( "-help" );
 
 		String output = TestUtil.generalizeOutput( console.getOutput() );
-
 //		System.out.println( "[[[" + output + "]]]" );
-
 		Assert.assertEquals( output,
 				"usage: solidbase [-config <filename>] [-downgradeallowed] [-driver <classname>]\n" +
 				"       [-dumplog <filename>] [-help] [-password <password>] [-sqlfile <arg>]\n" +
@@ -244,10 +230,8 @@ public class CommandLineTests
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 
 		MockConsole console = new MockConsole();
-
 		Main.console = console;
 
-		// TODO Rename patchfile to test the -patchfile option
 		Main.main0( "-driver", "org.hsqldb.jdbcDriver",
 				"-url", "jdbc:hsqldb:mem:testdb",
 				"-username", "sa",
@@ -255,9 +239,7 @@ public class CommandLineTests
 				"-sqlfile", "testsql-sections.sql" );
 
 		String output = TestUtil.generalizeOutput( console.getOutput() );
-
-		//System.out.println( "[[[" + output + "]]]" );
-
+//		System.out.println( "[[[" + output + "]]]" );
 		Assert.assertEquals( output,
 				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
 				"\n" +
