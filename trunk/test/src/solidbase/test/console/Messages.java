@@ -5,6 +5,7 @@ import org.testng.annotations.Test;
 
 import solidbase.Main;
 import solidbase.core.TestUtil;
+import solidbase.test.mocks.MockConsole;
 
 public class Messages
 {
@@ -14,7 +15,6 @@ public class Messages
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 
 		MockConsole console = new MockConsole();
-
 		Main.console = console;
 
 		Main.pass2( "-verbose",
@@ -26,9 +26,7 @@ public class Messages
 				"-upgradefile", "testpatch-import1.sql" );
 
 		String output = TestUtil.generalizeOutput( console.getOutput() );
-
-		//System.out.println( "[[[" + output + "]]]" );
-
+//		System.out.println( "[[[" + output + "]]]" );
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +

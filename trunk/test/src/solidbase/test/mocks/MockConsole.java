@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.test.console;
+package solidbase.test.mocks;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
