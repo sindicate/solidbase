@@ -28,7 +28,7 @@ import solidbase.test.mocks.MockConsole;
 public class CommandLineTests
 {
 	@Test
-	public void testCommandLine() throws Exception
+	static public void testCommandLine() throws Exception
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 
@@ -69,7 +69,7 @@ public class CommandLineTests
 	}
 
 	@Test(dependsOnMethods="testCommandLine")
-	public void testDumpLog() throws Exception
+	static public void testDumpLog() throws Exception
 	{
 		MockConsole console = new MockConsole();
 		Main.console = console;
@@ -90,7 +90,7 @@ public class CommandLineTests
 	}
 
 	@Test
-	public void testCommandLineNoTarget() throws Exception
+	static public void testCommandLineNoTarget() throws Exception
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 
@@ -128,7 +128,7 @@ public class CommandLineTests
 	}
 
 	@Test
-	public void testCommandLineNotPossible() throws Exception
+	static public void testCommandLineNotPossible() throws Exception
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 
@@ -165,7 +165,7 @@ public class CommandLineTests
 	}
 
 	@Test
-	public void testCommandLineNoArguments() throws Exception
+	static public void testCommandLineNoArguments() throws Exception
 	{
 		MockConsole console = new MockConsole();
 		Main.console = console;
@@ -195,7 +195,7 @@ public class CommandLineTests
 	}
 
 	@Test
-	public void testCommandLineHelp() throws Exception
+	static public void testCommandLineHelp() throws Exception
 	{
 		MockConsole console = new MockConsole();
 		Main.console = console;
@@ -225,7 +225,7 @@ public class CommandLineTests
 	}
 
 	@Test
-	public void testCommandLineSQLFile() throws Exception
+	static public void testCommandLineSQLFile() throws Exception
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 

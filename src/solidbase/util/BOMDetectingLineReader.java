@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import solidbase.core.Assert;
 import solidbase.core.SystemException;
 
 
@@ -91,7 +92,7 @@ public class BOMDetectingLineReader implements LineReader
 		{
 			in.mark( 1000 );
 			byte[] bytes = new byte[] { 2, 2, 2, 2 };
-			in.read( bytes );
+			in.read( bytes ); // No need to know how many bytes have been read
 			in.reset();
 
 			// BOMS:
@@ -117,7 +118,7 @@ public class BOMDetectingLineReader implements LineReader
 			}
 
 			if( this.bom != null )
-				in.skip( this.bom.length );
+				Assert.isTrue( in.skip( this.bom.length ) == this.bom.length );
 
 			this.reader = new BufferedReader( new InputStreamReader( in, this.encoding ) );
 			this.currentLineNumber = 1;
@@ -130,27 +131,30 @@ public class BOMDetectingLineReader implements LineReader
 				String firstLine = this.reader.readLine();
 				this.reader.reset();
 
-				// Remove zeroes
-				StringBuilder s = new StringBuilder();
-				for( char c : firstLine.toCharArray() )
-					if( c != 0 )
-						s.append( c );
-
-				Matcher matcher = encodingDetection.matcher( s.toString() );
-				if( matcher.matches() )
+				if( firstLine != null )
 				{
-					if( !this.encoding.equalsIgnoreCase( matcher.group( 1 ) ) )
-					{
-						this.encoding = matcher.group( 1 );
-						in.reset();
-						if( this.bom != null )
-							in.skip( this.bom.length );
-						this.reader = new BufferedReader( new InputStreamReader( in, this.encoding ) );
-					}
-					this.reader.readLine();
-					this.currentLineNumber = 2;
+					// Remove zeroes
+					StringBuilder s = new StringBuilder();
+					for( char c : firstLine.toCharArray() )
+						if( c != 0 )
+							s.append( c );
 
-					// BOM is skipped, reader created, line number = 2
+					Matcher matcher = encodingDetection.matcher( s.toString() );
+					if( matcher.matches() )
+					{
+						if( !this.encoding.equalsIgnoreCase( matcher.group( 1 ) ) )
+						{
+							this.encoding = matcher.group( 1 );
+							in.reset();
+							if( this.bom != null )
+								Assert.isTrue( in.skip( this.bom.length ) == this.bom.length );
+							this.reader = new BufferedReader( new InputStreamReader( in, this.encoding ) );
+						}
+						this.reader.readLine();
+						this.currentLineNumber = 2;
+
+						// BOM is skipped, reader created, line number = 2
+					}
 				}
 			}
 		}
