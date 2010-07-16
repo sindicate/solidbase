@@ -71,7 +71,7 @@ public class MockConsole extends Console
 	 */
 	public void addAnswer( String answer )
 	{
-		this.answerQueue.offer( answer );
+		this.answerQueue.add( answer );
 	}
 
 	/**

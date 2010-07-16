@@ -162,7 +162,7 @@ public class DBTask extends Task
 	 * 
 	 * @author René M. de Bloois
 	 */
-	protected class Connection
+	static protected class Connection
 	{
 		/**
 		 * The configured name of the secondary connection.

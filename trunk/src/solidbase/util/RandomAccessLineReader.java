@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
+import solidbase.core.Assert;
 import solidbase.core.SystemException;
 
 
@@ -142,7 +143,7 @@ public class RandomAccessLineReader implements LineReader
 		{
 			InputStream is = this.url.openStream();
 			if( this.bom != null )
-				is.read( new byte[ this.bom.length ] ); // Skip some bytes
+				Assert.isTrue( is.skip( this.bom.length ) == this.bom.length ); // Skip some bytes
 			this.reader = new BufferedReader( new InputStreamReader( is, this.encoding ) );
 			this.currentLineNumber = 1;
 		}

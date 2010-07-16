@@ -16,8 +16,8 @@
 
 package solidbase.core;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
@@ -547,9 +547,17 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 		{
 			try
 			{
-				logToXML( new FileOutputStream( filename ) );
+				OutputStream out = new FileOutputStream( filename );
+				try
+				{
+					logToXML( out );
+				}
+				finally
+				{
+					out.close();
+				}
 			}
-			catch( FileNotFoundException e )
+			catch( IOException e )
 			{
 				throw new SystemException( e );
 			}

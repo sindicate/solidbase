@@ -10,7 +10,7 @@ import solidbase.test.mocks.MockConsole;
 public class Messages
 {
 	@Test
-	public void testMessageBeforeListener() throws Exception
+	static public void testMessageBeforeListener() throws Exception
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 

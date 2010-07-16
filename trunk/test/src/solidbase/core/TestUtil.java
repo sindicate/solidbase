@@ -102,7 +102,7 @@ public class TestUtil
 			url = url + ";drop=true";
 		try
 		{
-			Connection connection = DriverManager.getConnection( url, null, null );
+			DriverManager.getConnection( url, null, null );
 		}
 		catch( SQLException e )
 		{

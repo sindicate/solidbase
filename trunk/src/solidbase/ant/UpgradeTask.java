@@ -40,7 +40,7 @@ public class UpgradeTask extends DBTask
 	/**
 	 * Field to store the configured target.
 	 */
-	protected String target;
+	protected String upgradeTarget;
 
 	/**
 	 * Field to store the configured downgrade allowed option.
@@ -85,7 +85,7 @@ public class UpgradeTask extends DBTask
 	 */
 	public String getTarget()
 	{
-		return this.target;
+		return this.upgradeTarget;
 	}
 
 	/**
@@ -95,7 +95,7 @@ public class UpgradeTask extends DBTask
 	 */
 	public void setTarget( String target )
 	{
-		this.target = target;
+		this.upgradeTarget = target;
 	}
 
 	/**
@@ -193,7 +193,7 @@ public class UpgradeTask extends DBTask
 				processor.init();
 				progress.info( "Connecting to database..." );
 				progress.info( processor.getVersionStatement() );
-				processor.patch( this.target, this.downgradeallowed ); // TODO Print this target
+				processor.patch( this.upgradeTarget, this.downgradeallowed ); // TODO Print this target
 				progress.info( "" );
 				progress.info( processor.getVersionStatement() );
 			}

@@ -27,7 +27,7 @@ import solidbase.test.mocks.MockConsole;
 public class ThroughConsoleTests
 {
 	@Test
-	public void testConsole() throws Exception
+	static public void testConsole() throws Exception
 	{
 		MockConsole console = new MockConsole();
 		console.addAnswer( "" );
@@ -60,7 +60,7 @@ public class ThroughConsoleTests
 	}
 
 	@Test
-	public void testConsole2() throws Exception
+	static public void testConsole2() throws Exception
 	{
 		MockConsole console = new MockConsole();
 		console.addAnswer( "" );
@@ -93,7 +93,7 @@ public class ThroughConsoleTests
 	}
 
 	@Test(dependsOnMethods="testConsole2")
-	public void testPrint1() throws Exception
+	static public void testPrint1() throws Exception
 	{
 		MockConsole console = new MockConsole();
 		Main.console = console;

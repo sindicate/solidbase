@@ -20,6 +20,7 @@ import java.io.File;
 import java.net.URL;
 
 import solidbase.config.ConfigListener;
+import solidbase.core.Assert;
 import solidbase.core.Command;
 import solidbase.core.Patch;
 import solidbase.core.PatchFile;
@@ -123,6 +124,8 @@ public class Progress extends ProgressListener implements ConfigListener
 			case DOWNGRADE:
 				this.console.print( "Downgrading" );
 				break;
+			default:
+				Assert.fail( "Unknown patch type: " + patch.getType() );
 		}
 		if( patch.getSource() == null )
 			this.console.print( " to \"" + patch.getTarget() + "\"" );

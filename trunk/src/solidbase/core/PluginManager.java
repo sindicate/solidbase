@@ -2,7 +2,6 @@ package solidbase.core;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
@@ -36,10 +35,9 @@ public class PluginManager
 			while( resources.hasMoreElements() )
 			{
 				URL url = resources.nextElement();
-				InputStream in = url.openStream();
+				BufferedReader reader = new BufferedReader( new InputStreamReader( url.openStream() ) );
 				try
 				{
-					BufferedReader reader = new BufferedReader( new InputStreamReader( in ) );
 					String line = reader.readLine();
 					while( line != null )
 					{
@@ -58,7 +56,7 @@ public class PluginManager
 				}
 				finally
 				{
-					in.close();
+					reader.close();
 				}
 			}
 		}

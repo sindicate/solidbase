@@ -17,6 +17,8 @@
 package solidbase.maven;
 
 import org.apache.maven.plugin.logging.Log;
+
+import solidbase.core.Assert;
 import solidbase.core.Command;
 import solidbase.core.Patch;
 import solidbase.core.PatchFile;
@@ -151,6 +153,8 @@ public class Progress extends ProgressListener
 			case DOWNGRADE:
 				this.buffer = new StringBuilder( "Downgrading" );
 				break;
+			default:
+				Assert.fail( "Unknown patch type: " + patch.getType() );
 		}
 		if( patch.getSource() == null )
 			this.buffer.append( " to \"" + patch.getTarget() + "\"" );
