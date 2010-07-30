@@ -44,7 +44,7 @@ public class PluginManager
 						line = line.trim();
 						if( line.length() > 0 )
 						{
-							Class pluginClass = Class.forName( line );
+							Class< ? > pluginClass = Class.forName( line );
 							Object plugin = pluginClass.getConstructor().newInstance();
 							if( !( plugin instanceof CommandListener ) )
 								throw new FatalException( "Plugin class '" + line + "' should be extending " + CommandListener.class.getName() );

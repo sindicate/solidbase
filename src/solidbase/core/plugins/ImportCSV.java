@@ -390,7 +390,7 @@ public class ImportCSV extends CommandListener
 			}
 			sql.append( ')' );
 		}
-		List< Integer > parameterMap = new ArrayList();
+		List< Integer > parameterMap = new ArrayList< Integer >();
 		if( parsed.values != null )
 		{
 			sql.append( " VALUES (" );

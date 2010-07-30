@@ -30,7 +30,7 @@ public class Setup
 		TestProgressListener progress = new TestProgressListener();
 		Database database = new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress );
 		SQLProcessor processor = new SQLProcessor( progress, database );
-		SQLFile sqlFile = Util.openSQLFile( "testsql1.sql", progress );
+		SQLFile sqlFile = Util.openSQLFile( fileName, progress );
 		processor.setSQLSource( sqlFile.getSource() );
 		return processor;
 	}

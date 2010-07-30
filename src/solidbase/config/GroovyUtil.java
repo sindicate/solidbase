@@ -48,7 +48,7 @@ public class GroovyUtil
 	 * @param binding The binding to use.
 	 * @return The return value of the groovy script.
 	 */
-	static public Object evaluate( File file, Map binding )
+	static public Object evaluate( File file, Map< String, ? > binding )
 	{
 		try
 		{

@@ -292,7 +292,7 @@ public class Main
 		classLoader = new URLClassLoader( urls, Main.class.getClassLoader().getParent() );
 
 		// Execute the main class through the new classloader with reflection
-		Class main;
+		Class< ? > main;
 		try
 		{
 			main = classLoader.loadClass( "solidbase.Main" );

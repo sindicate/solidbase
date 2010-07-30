@@ -178,7 +178,7 @@ public class Assert
 	 * 
 	 * @param collection The collection to be checked for not emptiness.
 	 */
-	static public void notEmpty( Collection collection )
+	static public void notEmpty( Collection< ? > collection )
 	{
 		if( collection == null || collection.isEmpty() )
 			throwAssertionFailure( null, 2 );
@@ -270,7 +270,7 @@ public class Assert
 	 * @param object The object of which the type is checked.
 	 * @param type The type to be checked.
 	 */
-	static public void isInstanceOf( Object object, Class type )
+	static public void isInstanceOf( Object object, Class< ? > type )
 	{
 		if( !type.isInstance( object ) )
 			throwAssertionFailure( null, 2 );
@@ -283,7 +283,7 @@ public class Assert
 	 * @param object The object of which the type is checked.
 	 * @param type The type to be checked.
 	 */
-	static public void notInstanceOf( Object object, Class type )
+	static public void notInstanceOf( Object object, Class< ? > type )
 	{
 		if( type.isInstance( object ) )
 			throwAssertionFailure( null, 2 );

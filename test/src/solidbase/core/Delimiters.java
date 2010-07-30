@@ -1,7 +1,5 @@
 package solidbase.core;
 
-import java.io.IOException;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -10,7 +8,7 @@ import solidbase.core.Delimiter.Type;
 public class Delimiters
 {
 	@Test
-	public void testDelimiterRegexpCharacter() throws IOException
+	public void testDelimiterRegexpCharacter()
 	{
 		String contents = "COMMAND\n^\n";
 		SQLSource source = new SQLSource( contents );

@@ -23,7 +23,7 @@ public class DeprecatedVersion
 	}
 
 	@Test(dependsOnMethods="testDeprecated1")
-	public void testDeprecated2() throws SQLException
+	public void testDeprecated2()
 	{
 		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-deprecated-version-1.sql" );
 
