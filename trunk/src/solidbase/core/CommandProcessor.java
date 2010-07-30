@@ -19,9 +19,9 @@ package solidbase.core;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -97,12 +97,12 @@ abstract public class CommandProcessor
 	/**
 	 * Errors that should be ignored. @{link #ignoreSet} is kept in sync with this stack.
 	 */
-	protected Stack ignoreStack;
+	protected Stack< String[] > ignoreStack;
 
 	/**
 	 * Errors that should be ignored. This set is kept in sync with the {@link #ignoreStack}.
 	 */
-	protected HashSet ignoreSet;
+	protected HashSet< String > ignoreSet;
 
 	/**
 	 * The progress listener.
@@ -151,8 +151,8 @@ abstract public class CommandProcessor
 	protected void reset()
 	{
 		this.startMessage = null;
-		this.ignoreStack = new Stack();
-		this.ignoreSet = new HashSet();
+		this.ignoreStack = new Stack< String[] >();
+		this.ignoreSet = new HashSet< String >();
 		setConnection( getDefaultDatabase() );
 	}
 
@@ -208,12 +208,9 @@ abstract public class CommandProcessor
 	 */
 	protected boolean executeListeners( Command command ) throws SQLException
 	{
-		for( Iterator iter = this.listeners.iterator(); iter.hasNext(); )
-		{
-			CommandListener listener = (CommandListener)iter.next();
+		for( CommandListener listener : this.listeners )
 			if( listener.execute( this, command ) )
 				return true;
-		}
 		return false;
 	}
 
@@ -364,13 +361,9 @@ abstract public class CommandProcessor
 	 */
 	protected void refreshIgnores()
 	{
-		HashSet ignores = new HashSet();
-		for( Iterator iter = this.ignoreStack.iterator(); iter.hasNext(); )
-		{
-			String[] ss = (String[])iter.next();
-			for( int i = 0; i < ss.length; i++ )
-				ignores.add( ss[ i ] );
-		}
+		HashSet< String > ignores = new HashSet< String >();
+		for( String[] ss : this.ignoreStack )
+			ignores.addAll( Arrays.asList( ss ) );
 		this.ignoreSet = ignores;
 	}
 

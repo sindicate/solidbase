@@ -80,7 +80,7 @@ public class Element
 	public List< Object > getChildren()
 	{
 		if( this.children == null )
-			return Collections.EMPTY_LIST;
+			return Collections.emptyList();
 		return this.children;
 	}
 
@@ -135,7 +135,7 @@ public class Element
 	public List< Element > findElements( String name )
 	{
 		if( this.children == null )
-			return Collections.EMPTY_LIST;
+			return Collections.emptyList();
 
 		List< Element > result = new ArrayList< Element >();
 

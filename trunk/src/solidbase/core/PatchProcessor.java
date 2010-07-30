@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -212,7 +211,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	 */
 	public LinkedHashSet< String > getTargets( boolean tips, String prefix, boolean downgradeable )
 	{
-		LinkedHashSet result = new LinkedHashSet();
+		LinkedHashSet< String > result = new LinkedHashSet< String >();
 		this.patchFile.collectTargets( this.dbVersion.getVersion(), this.dbVersion.getTarget(), tips, downgradeable, prefix, result );
 		return result;
 	}
@@ -226,16 +225,15 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	{
 		String spec = this.dbVersion.getSpec();
 
-		List patches = this.patchFile.getInitPath( spec );
+		List< Patch > patches = this.patchFile.getInitPath( spec );
 		if( patches == null )
 			return;
 
 		Assert.notEmpty( patches );
 
 		// INIT blocks get special treatment.
-		for( Iterator iter = patches.iterator(); iter.hasNext(); )
+		for( Patch patch : patches )
 		{
-			Patch patch = (Patch)iter.next();
 			patch( patch );
 			this.dbVersion.updateSpec( patch.getTarget() );
 			// TODO How do we get a more dramatic error message here, if something goes wrong?
@@ -400,7 +398,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 			{
 				if( patch.isDowngrade() )
 				{
-					Set versions = this.patchFile.getReachableVersions( patch.getTarget(), null, false );
+					Set< String > versions = this.patchFile.getReachableVersions( patch.getTarget(), null, false );
 					versions.remove( patch.getTarget() );
 					this.dbVersion.downgradeHistory( versions );
 				}

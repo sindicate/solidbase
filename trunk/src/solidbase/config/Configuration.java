@@ -179,7 +179,7 @@ public class Configuration
 
 			// Read the classpath extension
 
-			this.driverJars = new ArrayList();
+			this.driverJars = new ArrayList< String >();
 			String driversProperty = this.properties.getProperty( "classpath.ext" );
 			if( driversProperty != null )
 				for( String driverJar : driversProperty.split( ";" ) )
@@ -205,7 +205,7 @@ public class Configuration
 				this.target = target;
 				this.sqlFile = sqlFile;
 
-				for( Entry entry : this.properties.entrySet() )
+				for( Entry< Object, Object > entry : this.properties.entrySet() )
 				{
 					String key = (String)entry.getKey();
 					Matcher matcher = propertyPattern.matcher( key );

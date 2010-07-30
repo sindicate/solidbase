@@ -18,11 +18,13 @@ package solidbase.core;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.map.MultiValueMap;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -50,27 +52,27 @@ public class PatchFileTests
 		patchFile.scan();
 		patchFile.close();
 
-		Map< String, Patch > patches = patchFile.patches;
-		patches.put( "1.1", new Patch( Type.UPGRADE, "1.1", "1.2", false ) );
-		patches.put( "1.2", new Patch( Type.UPGRADE, "1.2", "1.3", false ) );
-		patches.put( "1.3", new Patch( Type.UPGRADE, "1.3", "1.4", false ) ); // branch
-		patches.put( "1.4", new Patch( Type.UPGRADE, "1.4", "1.5", false ) );
-		patches.put( "1.5", new Patch( Type.SWITCH, "1.5", "2.1", false ) );
-		patches.put( "1.3", new Patch( Type.UPGRADE, "1.3", "2.1", false ) );
-		patches.put( "2.1", new Patch( Type.UPGRADE, "2.1", "2.2", false ) );
-		patches.put( "2.2", new Patch( Type.UPGRADE, "2.2", "2.3", false ) );
-		patches.put( "2.3", new Patch( Type.UPGRADE, "2.3", "2.4", false ) ); // branch
-		patches.put( "2.4", new Patch( Type.UPGRADE, "2.4", "2.5", false ) );
-		patches.put( "2.5", new Patch( Type.SWITCH, "2.5", "3.1", false ) );
-		patches.put( "2.3", new Patch( Type.UPGRADE, "2.3", "3.1", false ) );
-		patches.put( "3.1", new Patch( Type.UPGRADE, "3.1", "3.2", false ) );
+		Map< String, Collection< Patch > > patches = patchFile.patches;
+		put( patches, "1.1", new Patch( Type.UPGRADE, "1.1", "1.2", false ) );
+		put( patches, "1.2", new Patch( Type.UPGRADE, "1.2", "1.3", false ) );
+		put( patches, "1.3", new Patch( Type.UPGRADE, "1.3", "1.4", false ) ); // branch
+		put( patches, "1.4", new Patch( Type.UPGRADE, "1.4", "1.5", false ) );
+		put( patches, "1.5", new Patch( Type.SWITCH, "1.5", "2.1", false ) );
+		put( patches, "1.3", new Patch( Type.UPGRADE, "1.3", "2.1", false ) );
+		put( patches, "2.1", new Patch( Type.UPGRADE, "2.1", "2.2", false ) );
+		put( patches, "2.2", new Patch( Type.UPGRADE, "2.2", "2.3", false ) );
+		put( patches, "2.3", new Patch( Type.UPGRADE, "2.3", "2.4", false ) ); // branch
+		put( patches, "2.4", new Patch( Type.UPGRADE, "2.4", "2.5", false ) );
+		put( patches, "2.5", new Patch( Type.SWITCH, "2.5", "3.1", false ) );
+		put( patches, "2.3", new Patch( Type.UPGRADE, "2.3", "3.1", false ) );
+		put( patches, "3.1", new Patch( Type.UPGRADE, "3.1", "3.2", false ) );
 
-		Set< String > result = new HashSet();
+		Set< String > result = new HashSet< String >();
 		patchFile.collectTargets( "1.1", null, true, false, null, result );
 		for( String tip : result )
 			System.out.println( tip );
 
-		Set< String > expected = new HashSet();
+		Set< String > expected = new HashSet< String >();
 		expected.add( "1.5" );
 		expected.add( "2.5" );
 		expected.add( "3.2" );
@@ -79,12 +81,12 @@ public class PatchFileTests
 
 		// Another one
 
-		result = new HashSet();
+		result = new HashSet< String >();
 		patchFile.collectTargets( "1.3", "2.1", true, false, null, result );
 		for( String tip : result )
 			System.out.println( tip );
 
-		expected = new HashSet();
+		expected = new HashSet< String >();
 		expected.add( "2.5" );
 		expected.add( "3.2" );
 
@@ -95,6 +97,14 @@ public class PatchFileTests
 		Path path = patchFile.getPatchPath( "1.3", "2.1", false );
 		Assert.assertEquals( path.size(), 1 );
 		Assert.assertEquals( path.iterator().next().getTarget(), "2.1" );
+	}
+
+	static public void put( Map< String, Collection< Patch > > map, String key, Patch value )
+	{
+		Collection< Patch > patches = map.get( key );
+		if( patches == null )
+			map.put( key, patches = new LinkedList< Patch >() );
+		patches.add( value );
 	}
 
 	/**
@@ -110,21 +120,21 @@ public class PatchFileTests
 		patchFile.scan();
 		patchFile.close();
 
-		Map< String, Patch > patches = patchFile.patches = new MultiValueMap();
-		patches.put( "1.1", new Patch( Type.UPGRADE, "1.1", "1.2", false ) );
-		patches.put( "1.2", new Patch( Type.UPGRADE, "1.2", "1.3", false ) );
-		patches.put( "1.3", new Patch( Type.UPGRADE, "1.3", "1.4", false ) );
-		patches.put( "1.4", new Patch( Type.UPGRADE, "1.4", "2.1", false ) );
-		patches.put( "2.1", new Patch( Type.UPGRADE, "2.1", "2.2", false ) );
-		patches.put( "2.2", new Patch( Type.UPGRADE, "2.2", "2.3", false ) );
-		patches.put( "2.3", new Patch( Type.UPGRADE, "2.3", "2.4", false ) );
+		Map< String, Collection< Patch > > patches = patchFile.patches = new HashMap< String, Collection< Patch > >();
+		put( patches, "1.1", new Patch( Type.UPGRADE, "1.1", "1.2", false ) );
+		put( patches, "1.2", new Patch( Type.UPGRADE, "1.2", "1.3", false ) );
+		put( patches, "1.3", new Patch( Type.UPGRADE, "1.3", "1.4", false ) );
+		put( patches, "1.4", new Patch( Type.UPGRADE, "1.4", "2.1", false ) );
+		put( patches, "2.1", new Patch( Type.UPGRADE, "2.1", "2.2", false ) );
+		put( patches, "2.2", new Patch( Type.UPGRADE, "2.2", "2.3", false ) );
+		put( patches, "2.3", new Patch( Type.UPGRADE, "2.3", "2.4", false ) );
 
-		Set< String > result = new HashSet();
+		Set< String > result = new HashSet< String >();
 		patchFile.collectTargets( "1.1", null, true, false, "1.", result );
 		for( String tip : result )
 			System.out.println( tip );
 
-		Set< String > expected = new HashSet();
+		Set< String > expected = new HashSet< String >();
 		expected.add( "1.4" );
 
 		Assert.assertEquals( result, expected );
@@ -142,30 +152,30 @@ public class PatchFileTests
 		PatchFile patchFile = new PatchFile( ralr );
 		patchFile.close();
 
-		Map< String, Patch > patches = patchFile.patches;
-		patches.put( "1.1", new Patch( Type.UPGRADE, "1.1", "1.2", false ) );
-		patches.put( "1.2", new Patch( Type.UPGRADE, "1.2", "1.3", false ) );
-		patches.put( "1.3", new Patch( Type.UPGRADE, "1.3", "1.4", false ) ); // branch
-		patches.put( "1.4", new Patch( Type.UPGRADE, "1.4", "1.5", false ) );
-		patches.put( "1.5", new Patch( Type.SWITCH, "1.5", "2.1", false ) );
-		patches.put( "1.3", new Patch( Type.UPGRADE, "1.3", "2.1", false ) );
-		patches.put( "2.1", new Patch( Type.UPGRADE, "2.1", "2.2", true ) ); // open
-		patches.put( "2.2", new Patch( Type.UPGRADE, "2.2", "2.3", false ) );
-		patches.put( "2.3", new Patch( Type.UPGRADE, "2.3", "2.4", false ) ); // branch
-		patches.put( "2.4", new Patch( Type.UPGRADE, "2.4", "2.5", false ) );
-		patches.put( "2.5", new Patch( Type.SWITCH, "2.5", "3.1", false ) );
-		patches.put( "2.3", new Patch( Type.UPGRADE, "2.3", "3.1", false ) );
-		patches.put( "3.1", new Patch( Type.UPGRADE, "3.1", "3.2", false ) );
+		Map< String, Collection< Patch > > patches = patchFile.patches;
+		put( patches, "1.1", new Patch( Type.UPGRADE, "1.1", "1.2", false ) );
+		put( patches, "1.2", new Patch( Type.UPGRADE, "1.2", "1.3", false ) );
+		put( patches, "1.3", new Patch( Type.UPGRADE, "1.3", "1.4", false ) ); // branch
+		put( patches, "1.4", new Patch( Type.UPGRADE, "1.4", "1.5", false ) );
+		put( patches, "1.5", new Patch( Type.SWITCH, "1.5", "2.1", false ) );
+		put( patches, "1.3", new Patch( Type.UPGRADE, "1.3", "2.1", false ) );
+		put( patches, "2.1", new Patch( Type.UPGRADE, "2.1", "2.2", true ) ); // open
+		put( patches, "2.2", new Patch( Type.UPGRADE, "2.2", "2.3", false ) );
+		put( patches, "2.3", new Patch( Type.UPGRADE, "2.3", "2.4", false ) ); // branch
+		put( patches, "2.4", new Patch( Type.UPGRADE, "2.4", "2.5", false ) );
+		put( patches, "2.5", new Patch( Type.SWITCH, "2.5", "3.1", false ) );
+		put( patches, "2.3", new Patch( Type.UPGRADE, "2.3", "3.1", false ) );
+		put( patches, "3.1", new Patch( Type.UPGRADE, "3.1", "3.2", false ) );
 
 		patchFile.versions.addAll( patches.keySet() );
 		patchFile.versions.add( "3.2" );
 
-		Set< String > result = new HashSet();
+		Set< String > result = new HashSet< String >();
 		patchFile.collectTargets( "1.1", null, false, false, null, result );
 		for( String target : result )
 			System.out.println( target );
 
-		Set< String > expected = new HashSet();
+		Set< String > expected = new HashSet< String >();
 		expected.add( "1.1" );
 		expected.add( "1.2" );
 		expected.add( "1.3" );

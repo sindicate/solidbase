@@ -17,16 +17,18 @@
 package solidbase.core;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -73,7 +75,7 @@ public class PatchFile
 	/**
 	 * All normal patches in a map indexed by source version.
 	 */
-	protected MultiValueMap patches = new MultiValueMap();
+	protected Map< String, Collection< Patch > > patches = new HashMap< String, Collection< Patch > >();
 
 	/**
 	 * Contains all known versions from the upgrade file.
@@ -83,7 +85,7 @@ public class PatchFile
 	/**
 	 * All init patches in a map indexed by source version.
 	 */
-	protected MultiValueMap inits = new MultiValueMap();
+	protected Map< String, Patch > inits = new HashMap< String, Patch >();
 
 	/**
 	 * Positions of connection init blocks.
@@ -193,10 +195,17 @@ public class PatchFile
 					Type type = stringToType( action );
 					Patch patch = new Patch( type, source, target, open );
 					if( type == Type.INIT )
+					{
+						if( this.inits.containsKey( source ) )
+							throw new CommandFileException( "Duplicate definition of init block for source version " + source, this.file.getLineNumber() - 1 );
 						this.inits.put( source, patch );
+					}
 					else
 					{
-						this.patches.put( source, patch );
+						Collection< Patch > patches = this.patches.get( source );
+						if( patches == null )
+							this.patches.put( source, patches = new LinkedList< Patch >() );
+						patches.add( patch );
 						this.versions.add( source );
 						this.versions.add( target );
 					}
@@ -311,22 +320,15 @@ public class PatchFile
 		}
 
 		// Check that all defined upgrade blocks are found
-		Iterator< Patch > iterator = this.patches.values().iterator();
-		while( iterator.hasNext() )
-		{
-			Patch patch = iterator.next();
-			if( patch.getLineNumber() < 0 )
-				throw new FatalException( "Upgrade block \"" + StringUtils.defaultString( patch.getSource() ) + "\" --> \"" + patch.getTarget() + "\" not found" );
-		}
+		for( Collection< Patch > patches : this.patches.values() )
+			for( Patch patch : patches )
+				if( patch.getLineNumber() < 0 )
+					throw new FatalException( "Upgrade block \"" + StringUtils.defaultString( patch.getSource() ) + "\" --> \"" + patch.getTarget() + "\" not found" );
 
 		// Check that all defined init blocks are found
-		iterator = this.inits.values().iterator();
-		while( iterator.hasNext() )
-		{
-			Patch patch = iterator.next();
+		for( Patch patch : this.inits.values() )
 			if( patch.getLineNumber() < 0 )
 				throw new FatalException( "Init block \"" + StringUtils.defaultString( patch.getSource() ) + "\" --> \"" + patch.getTarget() + "\" not found" );
-		}
 	}
 
 
@@ -365,18 +367,15 @@ public class PatchFile
 	{
 		Patch result = null;
 
-		List patches = (List)this.patches.get( source );
+		Collection< Patch > patches = this.patches.get( source );
 		if( patches != null )
-			for( Iterator iter = patches.iterator(); iter.hasNext(); )
-			{
-				Patch patch = (Patch)iter.next();
+			for( Patch patch : patches )
 				if( patch.getTarget().equals( target ) )
 				{
 					if( result != null )
 						throw new CommandFileException( "Duplicate upgrade block found", patch.getLineNumber() );
 					result = patch;
 				}
-			}
 
 		return result;
 	}
@@ -391,22 +390,10 @@ public class PatchFile
 	 */
 	protected Patch getInitPatch( String source, String target )
 	{
-		Patch result = null;
-
-		List patches = (List)this.inits.get( source );
-		if( patches != null )
-			for( Iterator iter = patches.iterator(); iter.hasNext(); )
-			{
-				Patch patch = (Patch)iter.next();
-				if( patch.getTarget().equals( target ) )
-				{
-					if( result != null )
-						throw new CommandFileException( "Duplicate init block found", patch.getLineNumber() );
-					result = patch;
-				}
-			}
-
-		return result;
+		Patch patch = this.inits.get( source );
+		if( patch.getTarget().equals( target ) )
+			return patch;
+		return null;
 	}
 
 
@@ -421,7 +408,7 @@ public class PatchFile
 	 */
 	protected Path getPatchPath( String source, String target, boolean downgradesAllowed )
 	{
-		Set< String > done = new HashSet();
+		Set< String > done = new HashSet< String >();
 		done.add( source );
 		return getPatchPath0( source, target, downgradesAllowed, done );
 	}
@@ -446,12 +433,12 @@ public class PatchFile
 			return result;
 
 		// Start with all the patches that have the given source
-		List< Patch > patches = (List)this.patches.get( source );
+		Collection< Patch > patches = this.patches.get( source );
 
 		// As long as only one patch found loop instead of recursion
 		while( patches != null && patches.size() == 1 )
 		{
-			Patch patch = patches.get( 0 );
+			Patch patch = patches.iterator().next();
 
 			if( targetsProcessed.contains( patch.getTarget() ) ) // Target already processed -> no path found
 				return null;
@@ -462,7 +449,7 @@ public class PatchFile
 			if( target.equals( patch.getTarget() ) ) // Target is requested target -> return result
 				return result;
 
-			patches = (List)this.patches.get( patch.getTarget() );
+			patches = this.patches.get( patch.getTarget() );
 		}
 
 		// No patches -> no path found
@@ -477,7 +464,7 @@ public class PatchFile
 				continue;
 
 			// Build new set for recursive call
-			Set< String > processed = new HashSet();
+			Set< String > processed = new HashSet< String >();
 			processed.addAll( targetsProcessed );
 			processed.add( patch.getTarget() );
 
@@ -508,20 +495,18 @@ public class PatchFile
 	 * @param source The source version.
 	 * @return A list of init patches that correspond to the given source.
 	 */
-	protected List getInitPath( String source )
+	protected List< Patch > getInitPath( String source )
 	{
 		List< Patch > result = new ArrayList< Patch >();
 
-		// Not expecting branches
+		// Branches not possible
 
 		// Start with all the patches that start with the given source
-		List patches = (List)this.inits.get( source );
-		while( patches != null )
+		Patch patch = this.inits.get( source );
+		while( patch != null )
 		{
-			Assert.isTrue( patches.size() == 1, "Expecting exactly 1" );
-			Patch patch = (Patch)patches.get( 0 );
 			result.add( patch );
-			patches = (List)this.inits.get( patch.getTarget() );
+			patch = this.inits.get( patch.getTarget() );
 		}
 
 		if( result.size() > 0 )
@@ -558,10 +543,10 @@ public class PatchFile
 			}
 
 		if( tips )
-			for( Iterator iterator = result.iterator(); iterator.hasNext(); )
+			for( Iterator< String > iterator = result.iterator(); iterator.hasNext(); )
 			{
-				String v = (String)iterator.next();
-				List< Patch > patches = (List)this.patches.get( v );
+				String v = iterator.next();
+				Collection< Patch > patches = this.patches.get( v );
 				if( patches != null )
 					for( Patch patch : patches )
 						if( patch.isUpgrade() )
@@ -584,7 +569,7 @@ public class PatchFile
 	 */
 	protected LinkedHashSet< String > getReachableVersions( String source, String targeting, boolean downgradesAllowed )
 	{
-		LinkedHashSet result = new LinkedHashSet();
+		LinkedHashSet< String > result = new LinkedHashSet< String >();
 		collectReachableVersions( source, targeting, downgradesAllowed, result );
 		return result;
 	}
@@ -603,11 +588,14 @@ public class PatchFile
 		if( targeting == null && this.versions.contains( source ) )
 			result.add( source ); // The source is recognized.
 
-		List< Patch > patches = (List)this.patches.get( source ); // Get all patches with the given source
+		Collection< Patch > patches = this.patches.get( source ); // Get all patches with the given source
 		if( patches == null )
 			return;
 
-		LinkedList< Patch > queue = new LinkedList();
+		// Queue contains patches that await processing
+		LinkedList< Patch > queue = new LinkedList< Patch >();
+
+		// Fill queue with patches
 		if( targeting != null )
 		{
 			for( Patch patch : patches )
@@ -622,18 +610,14 @@ public class PatchFile
 		{
 			Patch patch = queue.pop();
 			if( !result.contains( patch.getTarget() ) ) // Already there?
-				if( downgradesAllowed || !patch.isDowngrade() ) // Downgrades?
+				if( downgradesAllowed || !patch.isDowngrade() ) // Downgrades allowed?
 				{
 					result.add( patch.getTarget() );
 					if( !patch.isOpen() ) // Stop when patch is open.
 					{
-						patches = (List)this.patches.get( patch.getTarget() );
+						patches = this.patches.get( patch.getTarget() );
 						if( patches != null )
-						{
-							int size = patches.size();
-							while( size > 0 )
-								queue.push( patches.get( --size ) );
-						}
+							queue.addAll( patches ); // Add patches to the queue
 					}
 				}
 		}

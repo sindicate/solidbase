@@ -92,7 +92,7 @@ public class Basic
 	}
 
 	@Test(dependsOnMethods="testMissingGo")
-	public void testOverrideControlTables() throws SQLException
+	public void testOverrideControlTables()
 	{
 		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-overridecontroltables.sql" );
 
