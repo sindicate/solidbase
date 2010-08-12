@@ -33,7 +33,7 @@ public class Patch
 		/**
 		 * An init patch is used to create or maintain the DBVERSION and DBVERSIONLOG tables.
 		 */
-		INIT,
+		SETUP,
 		/**
 		 * An upgrade patch is used to upgrade the database.
 		 */
@@ -156,9 +156,9 @@ public class Patch
 	 * 
 	 * @return True if this patch is an init patch, false otherwise.
 	 */
-	protected boolean isInit()
+	protected boolean isSetup()
 	{
-		return this.type == Type.INIT;
+		return this.type == Type.SETUP;
 	}
 
 	/**
