@@ -217,21 +217,21 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	}
 
 	/**
-	 * Use the 'init' change sets to upgrade the DBVERSION and DBVERSIONLOG tables to the newest specification.
+	 * Use the 'setup' change sets to upgrade the DBVERSION and DBVERSIONLOG tables to the newest specification.
 	 * 
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	public void initializeControlTables() throws SQLExecutionException
+	public void setupControlTables() throws SQLExecutionException
 	{
 		String spec = this.dbVersion.getSpec();
 
-		List< Patch > patches = this.patchFile.getInitPath( spec );
+		List< Patch > patches = this.patchFile.getSetupPath( spec );
 		if( patches == null )
 			return;
 
 		Assert.notEmpty( patches );
 
-		// INIT blocks get special treatment.
+		// SETUP blocks get special treatment.
 		for( Patch patch : patches )
 		{
 			patch( patch );
@@ -260,7 +260,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	 */
 	public void patch( String target, boolean downgradeable ) throws SQLExecutionException
 	{
-		initializeControlTables();
+		setupControlTables();
 
 		if( target == null )
 		{
@@ -349,7 +349,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 
 		reset();
 
-		if( !patch.isInit() )
+		if( !patch.isSetup() )
 		{
 			Fragment initialization = this.patchFile.initialization;
 			if( initialization != null )
@@ -370,7 +370,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 			Command command = this.patchSource.readCommand();
 			while( command != null )
 			{
-				if( command.isPersistent() && !this.dontCount && !patch.isInit() )
+				if( command.isPersistent() && !this.dontCount && !patch.isSetup() )
 				{
 					count++;
 					if( count > skip && this.conditionFalseCounter == 0 )
@@ -403,7 +403,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 			this.progress.patchFinished();
 
 			this.dbVersion.setStale(); // TODO With a normal patch, only set stale if not both of the 2 version tables are found
-			if( patch.isInit() )
+			if( patch.isSetup() )
 			{
 				this.dbVersion.updateSpec( patch.getTarget() );
 				Assert.isFalse( patch.isOpen() );
@@ -467,13 +467,13 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 
 	private void upgrade( Command command ) throws SQLException
 	{
-		Assert.isTrue( this.patch.isInit(), "UPGRADE only allowed in INIT blocks" );
+		Assert.isTrue( this.patch.isSetup(), "UPGRADE only allowed in SETUP blocks" );
 		Assert.isTrue( this.patch.getSource().equals( "1.0" ) && this.patch.getTarget().equals( "1.1" ), "UPGRADE only possible from spec 1.0 to 1.1" );
 
 		int pos = command.getLineNumber();
 		jdbcExecute( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'S' WHERE RESULT IS NULL OR RESULT NOT LIKE 'COMPLETED VERSION %'", false, pos ) );
 		jdbcExecute( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'B', RESULT = 'COMPLETE' WHERE RESULT LIKE 'COMPLETED VERSION %'", false, pos ) );
-		jdbcExecute( new Command( "UPDATE DBVERSION SET SPEC = '1.1'", false, pos ) ); // We need this because the column is made NOT NULL in the upgrade init block
+		jdbcExecute( new Command( "UPDATE DBVERSION SET SPEC = '1.1'", false, pos ) ); // We need this because the column is made NOT NULL in the upgrade setup block
 	}
 
 	/**

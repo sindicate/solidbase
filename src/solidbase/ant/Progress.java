@@ -148,7 +148,7 @@ public class Progress extends ProgressListener
 		flush();
 		switch( patch.getType() )
 		{
-			case INIT:
+			case SETUP:
 				this.buffer = new StringBuilder( "Initializing" );
 				break;
 			case UPGRADE:

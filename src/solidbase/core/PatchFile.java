@@ -44,16 +44,16 @@ import solidbase.util.RandomAccessLineReader;
  */
 public class PatchFile
 {
-	static private final Pattern PATCH_DEFINITION_MARKER_PATTERN = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)[ \t]+.*", Pattern.CASE_INSENSITIVE );
-	static private final Pattern PATCH_DEFINITION_PATTERN = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
-	static private final String PATCH_DEFINITION_SYNTAX_ERROR = "Line should match the following syntax: (INIT|UPGRADE|SWITCH|DOWNGRADE) [OPEN] \"...\" --> \"...\"";
+	static private final Pattern PATCH_DEFINITION_MARKER_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN)[ \t]+.*", Pattern.CASE_INSENSITIVE );
+	static private final Pattern PATCH_DEFINITION_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
+	static private final String PATCH_DEFINITION_SYNTAX_ERROR = "Line should match the following syntax: (SETUP|UPGRADE|SWITCH|DOWNGRADE) [OPEN] \"...\" --> \"...\"";
 
 	static private final Pattern CONTROL_TABLES_PATTERN = Pattern.compile( "VERSION\\s+TABLE\\s+(\\S+)\\s+LOG\\s+TABLE\\s+(\\S+)", Pattern.CASE_INSENSITIVE );
 
-	static private final Pattern PATCH_START_MARKER_PATTERN = Pattern.compile( "--\\*[ \t]*(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN).*", Pattern.CASE_INSENSITIVE );
-	static final Pattern PATCH_START_PATTERN = Pattern.compile( "(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
+	static private final Pattern PATCH_START_MARKER_PATTERN = Pattern.compile( "--\\*[ \t]*(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN).*", Pattern.CASE_INSENSITIVE );
+	static final Pattern PATCH_START_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
 
-	static final Pattern PATCH_END_PATTERN = Pattern.compile( "/(INIT|UPGRADE|SWITCH|DOWNGRADE|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
+	static final Pattern PATCH_END_PATTERN = Pattern.compile( "/(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
 
 	static private final Pattern INITIALIZATION_TRIGGER = Pattern.compile( "--\\*\\s*INITIALIZATION\\s*", Pattern.CASE_INSENSITIVE );
 	static private final Pattern INITIALIZATION_END_PATTERN = Pattern.compile( "--\\*\\s*/INITIALIZATION\\s*", Pattern.CASE_INSENSITIVE );
@@ -63,7 +63,7 @@ public class PatchFile
 //	static private final String INIT_CONNECTION_SYNTAX = "INIT CONNECTION <connectionname> [USER <username>]";
 //	static private final Pattern INIT_CONNECTION_END_PATTERN = Pattern.compile( "--\\*\\s*/INIT\\s+CONNECTION\\s*", Pattern.CASE_INSENSITIVE );
 
-	static private final String MARKER_SYNTAX_ERROR = "Line should match the following syntax: (INIT|UPGRADE|SWITCH|DOWNGRADE) \"...\" --> \"...\"" /* or INIT CONNECTION <name> */;
+	static private final String MARKER_SYNTAX_ERROR = "Line should match the following syntax: (SETUP|UPGRADE|SWITCH|DOWNGRADE) \"...\" --> \"...\"" /* or INIT CONNECTION <name> */;
 
 	/**
 	 * The upgrade file.
@@ -86,9 +86,9 @@ public class PatchFile
 	protected Set< String > versions = new HashSet< String >();
 
 	/**
-	 * All init patches in a map indexed by source version.
+	 * All setup patches in a map indexed by source version.
 	 */
-	protected Map< String, Patch > inits = new HashMap< String, Patch >();
+	protected Map< String, Patch > setups = new HashMap< String, Patch >();
 
 	/**
 	 * Initialization fragment.
@@ -155,8 +155,8 @@ public class PatchFile
 			return Type.SWITCH;
 		if( "DOWNGRADE".equalsIgnoreCase( type ) )
 			return Type.DOWNGRADE;
-		if( "INIT".equalsIgnoreCase( type ) )
-			return Type.INIT;
+		if( "SETUP".equalsIgnoreCase( type ) || "INIT".equalsIgnoreCase( type ) )
+			return Type.SETUP;
 		Assert.fail( "Unexpected block type '" + type + "'" );
 		return null;
 	}
@@ -202,11 +202,11 @@ public class PatchFile
 					String target = matcher.group( 4 );
 					Type type = stringToType( action );
 					Patch patch = new Patch( type, source, target, open );
-					if( type == Type.INIT )
+					if( type == Type.SETUP )
 					{
-						if( this.inits.containsKey( source ) )
+						if( this.setups.containsKey( source ) )
 							throw new CommandFileException( "Duplicate definition of init block for source version " + source, this.file.getLineNumber() - 1 );
-						this.inits.put( source, patch );
+						this.setups.put( source, patch );
 					}
 					else
 					{
@@ -267,7 +267,7 @@ public class PatchFile
 						if( mode == 2 )
 						{
 							if( this.file.getLineNumber() > pos + 1000 )
-								throw new CommandFileException( "INIT CONNECTION block exceeded maximum line count of 1000", pos );
+								throw new CommandFileException( "INITIALIZATION block exceeded maximum line count of 1000", pos );
 							builder.append( line );
 							builder.append( '\n' );
 						}
@@ -334,11 +334,11 @@ public class PatchFile
 					String target = matcher.group( 3 );
 					Type type = stringToType( action );
 					Patch patch;
-					if( type == Type.INIT )
+					if( type == Type.SETUP )
 					{
-						patch = getInitPatch( source.length() == 0 ? null : source, target );
+						patch = getSetupPatch( source.length() == 0 ? null : source, target );
 						if( patch == null )
-							throw new CommandFileException( "Undefined init block found: \"" + source + "\" --> \"" + target + "\"", pos );
+							throw new CommandFileException( "Undefined setup block found: \"" + source + "\" --> \"" + target + "\"", pos );
 					}
 					else
 					{
@@ -363,10 +363,10 @@ public class PatchFile
 				if( patch.getLineNumber() < 0 )
 					throw new FatalException( "Upgrade block \"" + StringUtils.defaultString( patch.getSource() ) + "\" --> \"" + patch.getTarget() + "\" not found" );
 
-		// Check that all defined init blocks are found
-		for( Patch patch : this.inits.values() )
+		// Check that all defined setup blocks are found
+		for( Patch patch : this.setups.values() )
 			if( patch.getLineNumber() < 0 )
-				throw new FatalException( "Init block \"" + StringUtils.defaultString( patch.getSource() ) + "\" --> \"" + patch.getTarget() + "\" not found" );
+				throw new FatalException( "Setup block \"" + StringUtils.defaultString( patch.getSource() ) + "\" --> \"" + patch.getTarget() + "\" not found" );
 	}
 
 
@@ -426,9 +426,9 @@ public class PatchFile
 	 * @param target The target version.
 	 * @return The corresponding patch.
 	 */
-	protected Patch getInitPatch( String source, String target )
+	protected Patch getSetupPatch( String source, String target )
 	{
-		Patch patch = this.inits.get( source );
+		Patch patch = this.setups.get( source );
 		if( patch.getTarget().equals( target ) )
 			return patch;
 		return null;
@@ -528,23 +528,23 @@ public class PatchFile
 
 
 	/**
-	 * Returns an init patch path for the specified source. As initialization is always done to the latest version, no target is needed.
+	 * Returns an setup patch path for the specified source. As setup is always done to the latest version, no target is needed.
 	 * 
 	 * @param source The source version.
-	 * @return A list of init patches that correspond to the given source.
+	 * @return A list of setup patches that correspond to the given source.
 	 */
-	protected List< Patch > getInitPath( String source )
+	protected List< Patch > getSetupPath( String source )
 	{
 		List< Patch > result = new ArrayList< Patch >();
 
 		// Branches not possible
 
 		// Start with all the patches that start with the given source
-		Patch patch = this.inits.get( source );
+		Patch patch = this.setups.get( source );
 		while( patch != null )
 		{
 			result.add( patch );
-			patch = this.inits.get( patch.getTarget() );
+			patch = this.setups.get( patch.getTarget() );
 		}
 
 		if( result.size() > 0 )
@@ -670,7 +670,7 @@ public class PatchFile
 	 */
 	protected PatchSource gotoPatch( Patch patch )
 	{
-		Assert.isTrue( patch.getLineNumber() >= 0, "Upgrade or init block not found" );
+		Assert.isTrue( patch.getLineNumber() >= 0, "Upgrade or setup block not found" );
 
 		this.file.gotoLine( patch.getLineNumber() );
 		String line = this.file.readLine();
