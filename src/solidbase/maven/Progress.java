@@ -142,7 +142,7 @@ public class Progress extends ProgressListener
 		switch( patch.getType() )
 		{
 			case SETUP:
-				this.buffer = new StringBuilder( "Initializing" );
+				this.buffer = new StringBuilder( "Setting up control tables" );
 				break;
 			case UPGRADE:
 				this.buffer = new StringBuilder( "Upgrading" );

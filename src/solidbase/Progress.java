@@ -113,7 +113,7 @@ public class Progress extends ProgressListener implements ConfigListener
 		switch( patch.getType() )
 		{
 			case SETUP:
-				this.console.print( "Initializing" );
+				this.console.print( "Setting up control tables" );
 				break;
 			case UPGRADE:
 				this.console.print( "Upgrading" );

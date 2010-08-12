@@ -85,7 +85,7 @@ public class UpgradeTaskTests extends BuildFileTest
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
-				"Initializing to \"1.1\"\n" +
+				"Setting up control tables to \"1.1\"\n" +
 				"    Creating table DBVERSION.\n" +
 				"    Creating table DBVERSIONLOG..\n" +
 				"Upgrading to \"1.0.1\"\n" +
