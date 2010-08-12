@@ -20,7 +20,7 @@ package solidbase.core;
  * 
  * @author René de Bloois
  */
-public class InitConnectionFragment
+public class InitConnectionFragment extends Fragment
 {
 	/**
 	 * The name of the connection. If null then applies to all connections.
@@ -33,37 +33,18 @@ public class InitConnectionFragment
 	protected String userName;
 
 	/**
-	 * The line number of this fragment.
-	 */
-	protected int lineNumber;
-
-	/**
-	 * The text of the fragment.
-	 */
-	protected String text;
-
-	/**
-	 * Constructs a new SQL fragment.
-	 * 
-	 * @param connectionName The name of the connection.
-	 * @param userName The name of the user.
-	 */
-	protected InitConnectionFragment( String connectionName, String userName )
-	{
-		this.connectionName = connectionName;
-		this.userName = userName;
-	}
-
-	/**
-	 * Sets the text and line number offset of the fragment.
+	 * Constructor.
 	 * 
 	 * @param lineNumber The line number of the fragment in the original file.
 	 * @param text The text of the fragment.
+	 * @param connectionName The name of the connection.
+	 * @param userName The name of the user.
 	 */
-	protected void setText( int lineNumber, String text )
+	protected InitConnectionFragment( int lineNumber, String text, String connectionName, String userName )
 	{
-		this.lineNumber = lineNumber;
-		this.text = text;
+		super( lineNumber, text );
+		this.connectionName = connectionName;
+		this.userName = userName;
 	}
 
 	/**
@@ -84,24 +65,5 @@ public class InitConnectionFragment
 	public String getUserName()
 	{
 		return this.userName;
-	}
-
-	/**
-	 * Returns the line number of the fragment.
-	 * @return The line number of the fragment.
-	 */
-	public int getLineNumber()
-	{
-		return this.lineNumber;
-	}
-
-	/**
-	 * Returns the text of the fragment.
-	 * 
-	 * @return The text of the fragment.
-	 */
-	public String getText()
-	{
-		return this.text;
 	}
 }

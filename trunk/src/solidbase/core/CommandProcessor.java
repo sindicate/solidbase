@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,7 +34,7 @@ import solidbase.core.Delimiter.Type;
 
 
 /**
- * Processes and executes commands through JDBC, maintains state, triggers the listeners.
+ * Processes commands, maintains state, triggers the listeners.
  * 
  * @author René M. de Bloois
  * @since May 2010
@@ -82,7 +83,7 @@ abstract public class CommandProcessor
 	 */
 	protected List< CommandListener > listeners;
 
-	// The fields below are all part of the execution context. It's reset at the start of each change package.
+	// The fields below are all part of the execution context. It's reset at the start of each command set.
 
 	/**
 	 * The message that should be shown when a statement is executed.
@@ -102,7 +103,7 @@ abstract public class CommandProcessor
 	/**
 	 * Errors that should be ignored. This set is kept in sync with the {@link #ignoreStack}.
 	 */
-	protected HashSet< String > ignoreSet;
+	protected Set< String > ignoreSet;
 
 	/**
 	 * The progress listener.
@@ -120,7 +121,7 @@ abstract public class CommandProcessor
 	protected Map< String, Database > databases;
 
 	/**
-	 * Construct a new instance of the sql executer.
+	 * Constructor.
 	 * 
 	 * @param listener Listens to the progress.
 	 */
@@ -134,7 +135,7 @@ abstract public class CommandProcessor
 	}
 
 	/**
-	 * Construct a new instance of the sql executer.
+	 * Constructor.
 	 * 
 	 * @param listener Listens to the progress.
 	 * @param database The default database.

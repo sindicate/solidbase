@@ -349,6 +349,20 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 
 		reset();
 
+		if( !patch.isInit() )
+		{
+			Fragment initialization = this.patchFile.initialization;
+			if( initialization != null )
+			{
+				SQLProcessor processor = new SQLProcessor( this.progress );
+				for( Database database : this.databases.values() )
+					processor.addDatabase( database );
+				processor.setSQLSource( new SQLSource( initialization ) );
+				processor.reset();
+				processor.execute();
+			}
+		}
+
 		int count = 0;
 		this.patch = patch;
 		try
@@ -574,14 +588,14 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 
 	public void connected( Database database )
 	{
-		for( InitConnectionFragment init : this.patchFile.connectionInits )
-			if( init.getConnectionName() == null || init.getConnectionName().equalsIgnoreCase( database.getName() ) )
-				if( init.getUserName() == null || init.getUserName().equalsIgnoreCase( database.getCurrentUser() ) )
-				{
-					SQLProcessor processor = new SQLProcessor( this.progress );
-					processor.setConnection( database );
-					processor.setSQLSource( new SQLSource( init.getText(), init.getLineNumber() ) );
-					processor.execute();
-				}
+//		for( InitConnectionFragment init : this.patchFile.connectionInits )
+//		if( init.getConnectionName() == null || init.getConnectionName().equalsIgnoreCase( database.getName() ) )
+//			if( init.getUserName() == null || init.getUserName().equalsIgnoreCase( database.getCurrentUser() ) )
+//			{
+//				SQLProcessor processor = new SQLProcessor( this.progress );
+//				processor.setConnection( database );
+//				processor.setSQLSource( new SQLSource( init.getText(), init.getLineNumber() ) );
+//				processor.execute();
+//			}
 	}
 }

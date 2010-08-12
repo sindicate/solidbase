@@ -53,7 +53,7 @@ public class SQLSource
 
 
 	/**
-	 * Creates a new instance of an SQL source.
+	 * Constructor.
 	 * 
 	 * @param in The reader which is used to read the SQL.
 	 */
@@ -64,7 +64,7 @@ public class SQLSource
 
 
 	/**
-	 * Creates a new instance of an SQL source.
+	 * Constructor.
 	 * 
 	 * @param sql The SQL to read.
 	 */
@@ -75,7 +75,7 @@ public class SQLSource
 
 
 	/**
-	 * Creates a new instance of an SQL source.
+	 * Constructor.
 	 * 
 	 * @param sql The SQL to read.
 	 * @param lineNumber The line number of the SQL within the original file.
@@ -83,6 +83,17 @@ public class SQLSource
 	protected SQLSource( String sql, int lineNumber )
 	{
 		this( new StringLineReader( sql, lineNumber ) );
+	}
+
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param fragment The fragment of SQL from a file, includes a line number.
+	 */
+	protected SQLSource( Fragment fragment )
+	{
+		this( new StringLineReader( fragment.getText(), fragment.getLineNumber() ) );
 	}
 
 
