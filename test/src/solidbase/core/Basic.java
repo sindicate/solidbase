@@ -175,4 +175,17 @@ public class Basic
 
 		patcher.end();
 	}
+
+	@Test
+	public void testInitialization() throws SQLException
+	{
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-initialization.sql" );
+		patcher.addDatabase( new Database( "queues", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, patcher.getCallBack() ) );
+
+		patcher.patch( "1.0.1" );
+		TestUtil.verifyVersion( patcher, "1.0.1", null, 1, "1.1" );
+
+		patcher.end();
+	}
 }

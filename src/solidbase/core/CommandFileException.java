@@ -17,7 +17,7 @@
 package solidbase.core;
 
 /**
- * Represents a problem in the command file (upgrade file or SQL file). A stack trace is not required. The failure and
+ * Represents a problem in the file (upgrade file or SQL file). A stack trace is not required. The failure and
  * line number are enough to identify corrective actions.
  * 
  * @author René M. de Bloois
@@ -33,7 +33,7 @@ public class CommandFileException extends FatalException
 	 * Constructor.
 	 * 
 	 * @param message The failure message.
-	 * @param lineNumber The line number in the command file where the problem is located.
+	 * @param lineNumber The line number in the file where the problem is located.
 	 */
 	public CommandFileException( String message, int lineNumber )
 	{
@@ -48,9 +48,9 @@ public class CommandFileException extends FatalException
 	}
 
 	/**
-	 * Returns the line number in the command file where the problem is located.
+	 * Returns the line number in the file where the problem is located.
 	 * 
-	 * @return The line number in the command file where the problem is located.
+	 * @return The line number in the file where the problem is located.
 	 */
 	public int getLineNumber()
 	{

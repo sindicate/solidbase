@@ -18,7 +18,7 @@ package solidbase.core;
 
 /**
  * <p>
- * Represents a command in the upgrade file. A command can be transient or persistent. Transient commands start with
+ * Represents a command in an upgrade or SQL file. A command can be transient or persistent. Transient commands start with
  * <code>--*</code>. Example of a transient command is:
  * </p>
  * <blockquote>
@@ -34,8 +34,7 @@ package solidbase.core;
  * </p>
  * <blockquote>
  * <pre>
- * DROP TABLE A_TABLE
- * GO
+ * DROP TABLE A_TABLE;
  * </pre>
  * </blockquote>
  * <p>
@@ -57,20 +56,22 @@ public class Command
 	private boolean isTransient;
 
 	/**
-	 * The line number in the upgrade file where the command is found.
+	 * The line number in the file where the command is encountered.
 	 */
 	private int lineNumber;
 
 	/**
-	 * Instantiates a command.
+	 * Constructor.
 	 * 
 	 * @param command The text of the command.
 	 * @param isTransient Is the command transient or not?
-	 * @param lineNumber The line number in the upgrade file where the command is found.
+	 * @param lineNumber The line number in the upgrade file where the command is encountered.
 	 */
 	public Command( String command, boolean isTransient, int lineNumber )
 	{
 		Assert.isTrue( lineNumber > 0 );
+		Assert.notNull( command );
+
 		this.command = command;
 		this.isTransient = isTransient;
 		this.lineNumber = lineNumber;
@@ -117,9 +118,9 @@ public class Command
 	}
 
 	/**
-	 * Returns the line number in the upgrade file where the command is found.
+	 * Returns the line number in the upgrade file where the command is encountered.
 	 * 
-	 * @return The line number in the upgrade file where the command is found.
+	 * @return The line number in the upgrade file where the command is encountered.
 	 */
 	public int getLineNumber()
 	{
