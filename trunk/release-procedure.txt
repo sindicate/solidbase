@@ -11,21 +11,23 @@ Major/minor release
 		solidbase/build.properties, release.number (why did we call this release.number?)
 		solidbase/pom.xml, project/version
 		solidbase/deploy-pom.xml, project/version
+		solidbase/scripts/generategettingstarted.groovy (5 times)
 		Use 1.6.0-RC1 when doing a first major release
 			We don't do snapshots. Snapshot are automatic releases, we don't do automatic.
 	Changelog
 	Check 'svn update && ant dist'
 		Or 'ant clean build test'
 	If release a candidate, test it at your current project
+	Tag the revision that you want to deploy
 	'ant maven:deploy'
+		Use the revision from the tag
 		Always update the working copy, otherwise you won't get a correct revXXX
 		This deploys to the local solidbase-repository which is a checked out folder from subversion.
-	Check and commit this local solidbase-repository
-		Check that the size of the jar is indeed small (under 300KB)
-		Comment "Released 1.6.0-RC1"
-	Create a tag
 	Create a branch when you know that you are going to do major enhancements on the trunk
 		Otherwise wait till you start doing new developments on the trunk
 			or when a development branch is about to be merged to the trunk
+	Check and commit this local solidbase-repository
+		Check that the size of the jar is indeed small (under 300KB)
+		Comment "Released 1.6.0-RC1"
 	Check the Gettingstarteds
 	Check the content on the site
