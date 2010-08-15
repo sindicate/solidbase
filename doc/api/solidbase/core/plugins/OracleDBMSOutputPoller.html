@@ -210,14 +210,14 @@ public boolean <B>execute</B>(<A HREF="../../../solidbase/core/CommandProcessor.
 <DL>
 <DD><B>Description copied from class: <CODE><A HREF="../../../solidbase/core/CommandListener.html#execute(solidbase.core.CommandProcessor, solidbase.core.Command)">CommandListener</A></CODE></B></DD>
 <DD>Called when a command from the upgrade file needs to be executed. Commands can be transient or persistent (see
- <A HREF="../../../solidbase/core/Command.html#isTransient"><CODE>Command.isTransient</CODE></A>). This method should return true if it decides to process the command.
+ <A HREF="../../../solidbase/core/Command.html#isTransient"><CODE>Command.isTransient</CODE></A>). This method should return true if it accepted the command.
 <P>
 <DD><DL>
 <DT><B>Specified by:</B><DD><CODE><A HREF="../../../solidbase/core/CommandListener.html#execute(solidbase.core.CommandProcessor, solidbase.core.Command)">execute</A></CODE> in class <CODE><A HREF="../../../solidbase/core/CommandListener.html" title="class in solidbase.core">CommandListener</A></CODE></DL>
 </DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>processor</CODE> - The command processor.<DD><CODE>command</CODE> - The command that needs to be executed.
-<DT><B>Returns:</B><DD>True if it decides to process the command.
+<DT><B>Returns:</B><DD>True if it accepted the command.
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - When the execution of the command fails with an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A>.</DL>
 </DD>

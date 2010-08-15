@@ -349,19 +349,19 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 
 		reset();
 
-		if( !patch.isSetup() )
-		{
-			Fragment initialization = this.patchFile.initialization;
-			if( initialization != null )
-			{
-				SQLProcessor processor = new SQLProcessor( this.progress );
-				for( Database database : this.databases.values() )
-					processor.addDatabase( database );
-				processor.setSQLSource( new SQLSource( initialization ) );
-				processor.reset();
-				processor.execute();
-			}
-		}
+//		if( !patch.isSetup() )
+//		{
+//			Fragment initialization = this.patchFile.initialization;
+//			if( initialization != null )
+//			{
+//				SQLProcessor processor = new SQLProcessor( this.progress );
+//				for( Database database : this.databases.values() )
+//					processor.addDatabase( database );
+//				processor.setSQLSource( new SQLSource( initialization ) );
+//				processor.reset();
+//				processor.execute();
+//			}
+//		}
 
 		int count = 0;
 		this.patch = patch;

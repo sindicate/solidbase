@@ -92,12 +92,11 @@ solidbase.core</FONT>
 Class PatchFile</H2>
 <PRE>
 <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
-  <IMG SRC="../../resources/inherit.gif" ALT="extended by "><A HREF="../../solidbase/core/SQLFile.html" title="class in solidbase.core">solidbase.core.SQLFile</A>
-      <IMG SRC="../../resources/inherit.gif" ALT="extended by "><B>solidbase.core.PatchFile</B>
+  <IMG SRC="../../resources/inherit.gif" ALT="extended by "><B>solidbase.core.PatchFile</B>
 </PRE>
 <HR>
 <DL>
-<DT><PRE>public class <B>PatchFile</B><DT>extends <A HREF="../../solidbase/core/SQLFile.html" title="class in solidbase.core">SQLFile</A></DL>
+<DT><PRE>public class <B>PatchFile</B><DT>extends <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -124,11 +123,27 @@ This class manages the patch file contents and the paths between versions.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;org.apache.commons.collections.map.MultiValueMap</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#inits">inits</A></B></CODE>
+<CODE>protected &nbsp;solidbase.core.Delimiter[]</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#defaultDelimiters">defaultDelimiters</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;All init patches in a map indexed by source version.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The default delimiters.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="../../solidbase/util/RandomAccessLineReader.html" title="class in solidbase.util">RandomAccessLineReader</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#file">file</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The upgrade file.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="../../solidbase/core/Fragment.html" title="class in solidbase.core">Fragment</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#initialization">initialization</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initialization fragment.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -140,11 +155,19 @@ This class manages the patch file contents and the paths between versions.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;org.apache.commons.collections.map.MultiValueMap</CODE></FONT></TD>
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>&gt;&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#patches">patches</A></B></CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;All normal patches in a map indexed by source version.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#setups">setups</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;All setup patches in a map indexed by source version.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -161,15 +184,6 @@ This class manages the patch file contents and the paths between versions.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The name of the version control table as defined in the upgrade file.</TD>
-</TR>
-</TABLE>
-&nbsp;<A NAME="fields_inherited_from_class_solidbase.core.SQLFile"><!-- --></A>
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Fields inherited from class solidbase.core.<A HREF="../../solidbase/core/SQLFile.html" title="class in solidbase.core">SQLFile</A></B></TH>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../solidbase/core/SQLFile.html#buffer">buffer</A>, <A HREF="../../solidbase/core/SQLFile.html#DEFAULT_DELIMITERS">DEFAULT_DELIMITERS</A>, <A HREF="../../solidbase/core/SQLFile.html#defaultDelimiters">defaultDelimiters</A>, <A HREF="../../solidbase/core/SQLFile.html#delimiters">delimiters</A>, <A HREF="../../solidbase/core/SQLFile.html#file">file</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -202,6 +216,14 @@ This class manages the patch file contents and the paths between versions.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#close()">close</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Close the file and all underlying streams/readers.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#collectReachableVersions(java.lang.String, java.lang.String, boolean, java.util.Set)">collectReachableVersions</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;source,
                          <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;targeting,
                          boolean&nbsp;downgradesAllowed,
@@ -225,20 +247,11 @@ This class manages the patch file contents and the paths between versions.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#getInitPatch(java.lang.String, java.lang.String)">getInitPatch</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;source,
-             <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target)</CODE>
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#getEncoding()">getEncoding</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the patch belonging to the specified source and target.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#getInitPath(java.lang.String)">getInitPath</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;source)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns an init patch path for the specified source.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets the encoding of the patch file.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -282,27 +295,28 @@ This class manages the patch file contents and the paths between versions.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;void</CODE></FONT></TD>
+<CODE>protected &nbsp;<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#getSetupPatch(java.lang.String, java.lang.String)">getSetupPatch</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;source,
+              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the patch belonging to the specified source and target.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#getSetupPath(java.lang.String)">getSetupPath</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;source)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns an setup patch path for the specified source.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="../../solidbase/core/PatchSource.html" title="class in solidbase.core">PatchSource</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#gotoPatch(solidbase.core.Patch)">gotoPatch</A></B>(<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>&nbsp;patch)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Jump to the position in the patch file where the given patch starts.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#read()">read</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Reads and analyzes the patch file.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#readStatement()">readStatement</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Reads a statement from the patch file.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -319,15 +333,6 @@ This class manages the patch file contents and the paths between versions.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Translates a patch type string to a type enum.</TD>
-</TR>
-</TABLE>
-&nbsp;<A NAME="methods_inherited_from_class_solidbase.core.SQLFile"><!-- --></A>
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class solidbase.core.<A HREF="../../solidbase/core/SQLFile.html" title="class in solidbase.core">SQLFile</A></B></TH>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../solidbase/core/SQLFile.html#close()">close</A>, <A HREF="../../solidbase/core/SQLFile.html#getEncoding()">getEncoding</A>, <A HREF="../../solidbase/core/SQLFile.html#setDefaultDelimiters(solidbase.core.Delimiter[])">setDefaultDelimiters</A>, <A HREF="../../solidbase/core/SQLFile.html#setDelimiters(solidbase.core.Delimiter[])">setDelimiters</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -352,10 +357,34 @@ This class manages the patch file contents and the paths between versions.
 </TR>
 </TABLE>
 
+<A NAME="file"><!-- --></A><H3>
+file</H3>
+<PRE>
+protected <A HREF="../../solidbase/util/RandomAccessLineReader.html" title="class in solidbase.util">RandomAccessLineReader</A> <B>file</B></PRE>
+<DL>
+<DD>The upgrade file.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="defaultDelimiters"><!-- --></A><H3>
+defaultDelimiters</H3>
+<PRE>
+protected solidbase.core.Delimiter[] <B>defaultDelimiters</B></PRE>
+<DL>
+<DD>The default delimiters.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
 <A NAME="patches"><!-- --></A><H3>
 patches</H3>
 <PRE>
-protected org.apache.commons.collections.map.MultiValueMap <B>patches</B></PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Collection.html?is-external=true" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>&gt;&gt; <B>patches</B></PRE>
 <DL>
 <DD>All normal patches in a map indexed by source version.
 <P>
@@ -376,12 +405,24 @@ protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Set.html?is
 </DL>
 <HR>
 
-<A NAME="inits"><!-- --></A><H3>
-inits</H3>
+<A NAME="setups"><!-- --></A><H3>
+setups</H3>
 <PRE>
-protected org.apache.commons.collections.map.MultiValueMap <B>inits</B></PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>&gt; <B>setups</B></PRE>
 <DL>
-<DD>All init patches in a map indexed by source version.
+<DD>All setup patches in a map indexed by source version.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="initialization"><!-- --></A><H3>
+initialization</H3>
+<PRE>
+protected <A HREF="../../solidbase/core/Fragment.html" title="class in solidbase.core">Fragment</A> <B>initialization</B></PRE>
+<DL>
+<DD>Initialization fragment.
 <P>
 <DL>
 </DL>
@@ -442,19 +483,6 @@ protected <B>PatchFile</B>(<A HREF="../../solidbase/util/RandomAccessLineReader.
 </TR>
 </TABLE>
 
-<A NAME="read()"><!-- --></A><H3>
-read</H3>
-<PRE>
-protected void <B>read</B>()</PRE>
-<DL>
-<DD>Reads and analyzes the patch file. The result is that the patches map is filled with the available patches.
-<P>
-<DD><DL>
-</DL>
-</DD>
-</DL>
-<HR>
-
 <A NAME="stringToType(java.lang.String)"><!-- --></A><H3>
 stringToType</H3>
 <PRE>
@@ -474,7 +502,34 @@ scan</H3>
 <PRE>
 protected void <B>scan</B>()</PRE>
 <DL>
-<DD>Scans for patches in the file. Called by <A HREF="../../solidbase/core/PatchFile.html#read()"><CODE>read()</CODE></A>.
+<DD>Scans for patches in the file.
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getEncoding()"><!-- --></A><H3>
+getEncoding</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getEncoding</B>()</PRE>
+<DL>
+<DD>Gets the encoding of the patch file.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>The encoding of the patch file.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="close()"><!-- --></A><H3>
+close</H3>
+<PRE>
+protected void <B>close</B>()</PRE>
+<DL>
+<DD>Close the file and all underlying streams/readers.
 <P>
 <DD><DL>
 </DL>
@@ -497,11 +552,11 @@ protected <A HREF="../../solidbase/core/Patch.html" title="class in solidbase.co
 </DL>
 <HR>
 
-<A NAME="getInitPatch(java.lang.String, java.lang.String)"><!-- --></A><H3>
-getInitPatch</H3>
+<A NAME="getSetupPatch(java.lang.String, java.lang.String)"><!-- --></A><H3>
+getSetupPatch</H3>
 <PRE>
-protected <A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A> <B>getInitPatch</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;source,
-                             <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target)</PRE>
+protected <A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A> <B>getSetupPatch</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;source,
+                              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target)</PRE>
 <DL>
 <DD>Returns the patch belonging to the specified source and target. Also checks for duplicates.
 <P>
@@ -547,16 +602,16 @@ protected <A HREF="../../solidbase/core/Path.html" title="class in solidbase.cor
 </DL>
 <HR>
 
-<A NAME="getInitPath(java.lang.String)"><!-- --></A><H3>
-getInitPath</H3>
+<A NAME="getSetupPath(java.lang.String)"><!-- --></A><H3>
+getSetupPath</H3>
 <PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A> <B>getInitPath</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;source)</PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>&gt; <B>getSetupPath</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;source)</PRE>
 <DL>
-<DD>Returns an init patch path for the specified source. As initialization is always done to the latest version, no target is needed.
+<DD>Returns an setup patch path for the specified source. As setup is always done to the latest version, no target is needed.
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>source</CODE> - The source version.
-<DT><B>Returns:</B><DD>A list of init patches that correspond to the given source.</DL>
+<DT><B>Returns:</B><DD>A list of setup patches that correspond to the given source.</DL>
 </DD>
 </DL>
 <HR>
@@ -614,29 +669,13 @@ protected void <B>collectReachableVersions</B>(<A HREF="http://java.sun.com/j2se
 <A NAME="gotoPatch(solidbase.core.Patch)"><!-- --></A><H3>
 gotoPatch</H3>
 <PRE>
-protected void <B>gotoPatch</B>(<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>&nbsp;patch)</PRE>
+protected <A HREF="../../solidbase/core/PatchSource.html" title="class in solidbase.core">PatchSource</A> <B>gotoPatch</B>(<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>&nbsp;patch)</PRE>
 <DL>
 <DD>Jump to the position in the patch file where the given patch starts.
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>patch</CODE> - The patch to jump to.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="readStatement()"><!-- --></A><H3>
-readStatement</H3>
-<PRE>
-protected <A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A> <B>readStatement</B>()</PRE>
-<DL>
-<DD>Reads a statement from the patch file.
-<P>
-<DD><DL>
-<DT><B>Overrides:</B><DD><CODE><A HREF="../../solidbase/core/SQLFile.html#readStatement()">readStatement</A></CODE> in class <CODE><A HREF="../../solidbase/core/SQLFile.html" title="class in solidbase.core">SQLFile</A></CODE></DL>
-</DD>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>A statement from the patch file or null when no more statements are available.</DL>
+<DT><B>Parameters:</B><DD><CODE>patch</CODE> - The patch to jump to.
+<DT><B>Returns:</B><DD>The source for the given patch.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

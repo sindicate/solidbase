@@ -101,7 +101,7 @@ Class Command</H2>
 
 <P>
 <p>
- Represents a command in the upgrade file. A command can be transient or persistent. Transient commands start with
+ Represents a command in an upgrade or SQL file. A command can be transient or persistent. Transient commands start with
  <code>--*</code>. Example of a transient command is:
  </p>
  <blockquote>
@@ -117,8 +117,7 @@ Class Command</H2>
  </p>
  <blockquote>
  <pre>
- DROP TABLE A_TABLE
- GO
+ DROP TABLE A_TABLE;
  </pre>
  </blockquote>
  <p>
@@ -150,7 +149,7 @@ Class Command</H2>
         int&nbsp;lineNumber)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Instantiates a command.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructor.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -176,7 +175,7 @@ Class Command</H2>
 <TD><CODE><B><A HREF="../../solidbase/core/Command.html#getLineNumber()">getLineNumber</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the line number in the upgrade file where the command is found.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the line number in the upgrade file where the command is encountered.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -240,10 +239,10 @@ public <B>Command</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang
                boolean&nbsp;isTransient,
                int&nbsp;lineNumber)</PRE>
 <DL>
-<DD>Instantiates a command.
+<DD>Constructor.
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>command</CODE> - The text of the command.<DD><CODE>isTransient</CODE> - Is the command transient or not?<DD><CODE>lineNumber</CODE> - The line number in the upgrade file where the command is found.</DL>
+<DT><B>Parameters:</B><DD><CODE>command</CODE> - The text of the command.<DD><CODE>isTransient</CODE> - Is the command transient or not?<DD><CODE>lineNumber</CODE> - The line number in the upgrade file where the command is encountered.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -316,11 +315,11 @@ getLineNumber</H3>
 <PRE>
 public int <B>getLineNumber</B>()</PRE>
 <DL>
-<DD>Returns the line number in the upgrade file where the command is found.
+<DD>Returns the line number in the upgrade file where the command is encountered.
 <P>
 <DD><DL>
 
-<DT><B>Returns:</B><DD>The line number in the upgrade file where the command is found.</DL>
+<DT><B>Returns:</B><DD>The line number in the upgrade file where the command is encountered.</DL>
 </DD>
 </DL>
 <HR>

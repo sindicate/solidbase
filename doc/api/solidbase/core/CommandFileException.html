@@ -107,7 +107,7 @@ Class CommandFileException</H2>
 </PRE>
 
 <P>
-Represents a problem in the command file (upgrade file or SQL file). A stack trace is not required. The failure and
+Represents a problem in the file (upgrade file or SQL file). A stack trace is not required. The failure and
  line number are enough to identify corrective actions.
 <P>
 
@@ -151,7 +151,7 @@ Represents a problem in the command file (upgrade file or SQL file). A stack tra
 <TD><CODE><B><A HREF="../../solidbase/core/CommandFileException.html#getLineNumber()">getLineNumber</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the line number in the command file where the problem is located.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the line number in the file where the problem is located.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -202,7 +202,7 @@ public <B>CommandFileException</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/
 <DD>Constructor.
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>message</CODE> - The failure message.<DD><CODE>lineNumber</CODE> - The line number in the command file where the problem is located.</DL>
+<DT><B>Parameters:</B><DD><CODE>message</CODE> - The failure message.<DD><CODE>lineNumber</CODE> - The line number in the file where the problem is located.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -234,11 +234,11 @@ getLineNumber</H3>
 <PRE>
 public int <B>getLineNumber</B>()</PRE>
 <DL>
-<DD>Returns the line number in the command file where the problem is located.
+<DD>Returns the line number in the file where the problem is located.
 <P>
 <DD><DL>
 
-<DT><B>Returns:</B><DD>The line number in the command file where the problem is located.</DL>
+<DT><B>Returns:</B><DD>The line number in the file where the problem is located.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
