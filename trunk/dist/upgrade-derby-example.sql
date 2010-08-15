@@ -19,13 +19,13 @@
 
 
 --*	DEFINITION
---*		INIT "" --> "1.1"
+--*		SETUP "" --> "1.1"
 --*		UPGRADE "" --> "1.0.1"
 --*	/DEFINITION
 
 
 
---* INIT "" --> "1.1"
+--* SETUP "" --> "1.1"
 
 --* SECTION "Creating SolidBase control tables"
 CREATE TABLE DBVERSION
@@ -47,7 +47,7 @@ CREATE TABLE DBVERSIONLOG
 );
 CREATE INDEX DBVERSIONLOG_INDEX1 ON DBVERSIONLOG ( TYPE, TARGET );
 
---* /INIT
+--* /SETUP
 
 
 
