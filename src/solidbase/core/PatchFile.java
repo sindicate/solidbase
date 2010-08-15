@@ -55,8 +55,8 @@ public class PatchFile
 
 	static final Pattern PATCH_END_PATTERN = Pattern.compile( "/(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
 
-	static private final Pattern INITIALIZATION_TRIGGER = Pattern.compile( "--\\*\\s*INITIALIZATION\\s*", Pattern.CASE_INSENSITIVE );
-	static private final Pattern INITIALIZATION_END_PATTERN = Pattern.compile( "--\\*\\s*/INITIALIZATION\\s*", Pattern.CASE_INSENSITIVE );
+//	static private final Pattern INITIALIZATION_TRIGGER = Pattern.compile( "--\\*\\s*INITIALIZATION\\s*", Pattern.CASE_INSENSITIVE );
+//	static private final Pattern INITIALIZATION_END_PATTERN = Pattern.compile( "--\\*\\s*/INITIALIZATION\\s*", Pattern.CASE_INSENSITIVE );
 
 //	static private final Pattern INIT_CONNECTION_TRIGGER = Pattern.compile( "--\\*\\s*INIT\\s+CONNECTION.*", Pattern.CASE_INSENSITIVE );
 //	static private final Pattern INIT_CONNECTION_PARSER = Pattern.compile( "--\\*\\s*INIT\\s+CONNECTION(?:\\s+(\\S+)(?:\\s+USER\\s+(\\S+))?)?\\s*", Pattern.CASE_INSENSITIVE );
@@ -247,6 +247,7 @@ public class PatchFile
 			if( line.startsWith( "--*" ) )
 			{
 				Matcher matcher;
+				/*
 				if( ( matcher = INITIALIZATION_TRIGGER.matcher( line ) ).matches() )
 				{
 					line = this.file.readLine();
@@ -321,8 +322,10 @@ public class PatchFile
 							initConnectionFragment.setText( pos, builder.toString() );
 							this.connectionInits.add( initConnectionFragment );
 						}
-				} */
-				else if( PATCH_START_MARKER_PATTERN.matcher( line ).matches() )
+				}
+				else
+				 */
+				if( PATCH_START_MARKER_PATTERN.matcher( line ).matches() )
 				{
 					int pos = this.file.getLineNumber() - 1;
 					line = line.substring( 3 ).trim();

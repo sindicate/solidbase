@@ -176,7 +176,7 @@ public class Basic
 		patcher.end();
 	}
 
-	@Test
+	//@Test TODO This is a test for INITIALIZATION
 	public void testInitialization() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
