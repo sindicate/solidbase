@@ -55,7 +55,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../solidbase/core/CommandListener.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/core/ConnectionListener.html" title="interface in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/CommandProcessor.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="CommandProcessor.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -99,11 +99,11 @@ Class CommandProcessor</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <B>CommandProcessor</B><DT>extends <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public abstract class <B>CommandProcessor</B><DT>extends <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
-Processes and executes commands through JDBC, maintains state, triggers the listeners.
+Processes commands, maintains state, triggers the listeners.
 <P>
 
 <P>
@@ -158,7 +158,7 @@ Processes and executes commands through JDBC, maintains state, triggers the list
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/HashSet.html?is-external=true" title="class or interface in java.util">HashSet</A></CODE></FONT></TD>
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#ignoreSet">ignoreSet</A></B></CODE>
 
 <BR>
@@ -174,7 +174,7 @@ Processes and executes commands through JDBC, maintains state, triggers the list
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Stack.html?is-external=true" title="class or interface in java.util">Stack</A></CODE></FONT></TD>
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Stack.html?is-external=true" title="class or interface in java.util">Stack</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#ignoreStack">ignoreStack</A></B></CODE>
 
 <BR>
@@ -230,14 +230,6 @@ Processes and executes commands through JDBC, maintains state, triggers the list
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="../../solidbase/core/SQLFile.html" title="class in solidbase.core">SQLFile</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#sqlFile">sqlFile</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The SQL file being executed.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#startMessage">startMessage</A></B></CODE>
 
@@ -266,14 +258,14 @@ Processes and executes commands through JDBC, maintains state, triggers the list
 <TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#CommandProcessor(solidbase.core.ProgressListener)">CommandProcessor</A></B>(<A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;listener)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Construct a new instance of the sql executer.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructor.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#CommandProcessor(solidbase.core.ProgressListener, solidbase.core.Database)">CommandProcessor</A></B>(<A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;listener,
                  <A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Construct a new instance of the sql executer.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructor.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -288,19 +280,10 @@ Processes and executes commands through JDBC, maintains state, triggers the list
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#addDatabase(java.lang.String, solidbase.core.Database)">addDatabase</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
-            <A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#addDatabase(solidbase.core.Database)">addDatabase</A></B>(<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Add a database.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#delimiter(java.util.regex.Matcher)">delimiter</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Matcher.html?is-external=true" title="class or interface in java.util.regex">Matcher</A>&nbsp;matcher)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Overrides the current delimiter.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -443,6 +426,14 @@ Processes and executes commands through JDBC, maintains state, triggers the list
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected abstract &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#setDelimiters(solidbase.core.Delimiter[])">setDelimiters</A></B>(solidbase.core.Delimiter[]&nbsp;delimiters)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Overrides the current delimiters.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#setUser(java.lang.String)">setUser</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;user)</CODE>
 
@@ -573,18 +564,6 @@ protected static final <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/uti
 </DL>
 <HR>
 
-<A NAME="sqlFile"><!-- --></A><H3>
-sqlFile</H3>
-<PRE>
-protected <A HREF="../../solidbase/core/SQLFile.html" title="class in solidbase.core">SQLFile</A> <B>sqlFile</B></PRE>
-<DL>
-<DD>The SQL file being executed.
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
-
 <A NAME="listeners"><!-- --></A><H3>
 listeners</H3>
 <PRE>
@@ -624,7 +603,7 @@ protected int <B>sectionLevel</B></PRE>
 <A NAME="ignoreStack"><!-- --></A><H3>
 ignoreStack</H3>
 <PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Stack.html?is-external=true" title="class or interface in java.util">Stack</A> <B>ignoreStack</B></PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Stack.html?is-external=true" title="class or interface in java.util">Stack</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&gt; <B>ignoreStack</B></PRE>
 <DL>
 <DD>Errors that should be ignored. @{link #ignoreSet} is kept in sync with this stack.
 <P>
@@ -636,7 +615,7 @@ protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Stack.html?
 <A NAME="ignoreSet"><!-- --></A><H3>
 ignoreSet</H3>
 <PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/HashSet.html?is-external=true" title="class or interface in java.util">HashSet</A> <B>ignoreSet</B></PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt; <B>ignoreSet</B></PRE>
 <DL>
 <DD>Errors that should be ignored. This set is kept in sync with the <A HREF="../../solidbase/core/CommandProcessor.html#ignoreStack"><CODE>ignoreStack</CODE></A>.
 <P>
@@ -695,7 +674,7 @@ CommandProcessor</H3>
 <PRE>
 public <B>CommandProcessor</B>(<A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;listener)</PRE>
 <DL>
-<DD>Construct a new instance of the sql executer.
+<DD>Constructor.
 <P>
 <DL>
 <DT><B>Parameters:</B><DD><CODE>listener</CODE> - Listens to the progress.</DL>
@@ -708,7 +687,7 @@ CommandProcessor</H3>
 public <B>CommandProcessor</B>(<A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;listener,
                         <A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database)</PRE>
 <DL>
-<DD>Construct a new instance of the sql executer.
+<DD>Constructor.
 <P>
 <DL>
 <DT><B>Parameters:</B><DD><CODE>listener</CODE> - Listens to the progress.<DD><CODE>database</CODE> - The default database.</DL>
@@ -977,29 +956,28 @@ protected static solidbase.core.Delimiter[] <B>parseDelimiters</B>(<A HREF="http
 </DL>
 <HR>
 
-<A NAME="delimiter(java.util.regex.Matcher)"><!-- --></A><H3>
-delimiter</H3>
+<A NAME="setDelimiters(solidbase.core.Delimiter[])"><!-- --></A><H3>
+setDelimiters</H3>
 <PRE>
-protected void <B>delimiter</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Matcher.html?is-external=true" title="class or interface in java.util.regex">Matcher</A>&nbsp;matcher)</PRE>
+protected abstract void <B>setDelimiters</B>(solidbase.core.Delimiter[]&nbsp;delimiters)</PRE>
 <DL>
-<DD>Overrides the current delimiter.
+<DD>Overrides the current delimiters.
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>matcher</CODE> - The command matcher.</DL>
+<DT><B>Parameters:</B><DD><CODE>delimiters</CODE> - The delimiters.</DL>
 </DD>
 </DL>
 <HR>
 
-<A NAME="addDatabase(java.lang.String, solidbase.core.Database)"><!-- --></A><H3>
+<A NAME="addDatabase(solidbase.core.Database)"><!-- --></A><H3>
 addDatabase</H3>
 <PRE>
-public void <B>addDatabase</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;name,
-                        <A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database)</PRE>
+public void <B>addDatabase</B>(<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database)</PRE>
 <DL>
 <DD>Add a database.
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>name</CODE> - The name of the database.<DD><CODE>database</CODE> - The database.</DL>
+<DT><B>Parameters:</B><DD><CODE>database</CODE> - The database.</DL>
 </DD>
 </DL>
 <HR>
@@ -1061,7 +1039,7 @@ public <A HREF="../../solidbase/core/Database.html" title="class in solidbase.co
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../solidbase/core/CommandListener.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/core/ConnectionListener.html" title="interface in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/CommandProcessor.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="CommandProcessor.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;

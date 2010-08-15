@@ -90,10 +90,10 @@ public class PatchFile
 	 */
 	protected Map< String, Patch > setups = new HashMap< String, Patch >();
 
-	/**
-	 * Initialization fragment.
-	 */
-	protected Fragment initialization;
+//	/**
+//	 * Initialization fragment.
+//	 */
+//	protected Fragment initialization;
 
 //	/**
 //	 * Positions of connection init blocks.

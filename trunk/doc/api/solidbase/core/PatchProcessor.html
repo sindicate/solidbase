@@ -55,7 +55,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../solidbase/core/PatchFile.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/core/Path.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/core/PatchSource.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/PatchProcessor.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="PatchProcessor.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -95,9 +95,12 @@ Class PatchProcessor</H2>
   <IMG SRC="../../resources/inherit.gif" ALT="extended by "><A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">solidbase.core.CommandProcessor</A>
       <IMG SRC="../../resources/inherit.gif" ALT="extended by "><B>solidbase.core.PatchProcessor</B>
 </PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../solidbase/core/ConnectionListener.html" title="interface in solidbase.core">ConnectionListener</A></DD>
+</DL>
 <HR>
 <DL>
-<DT><PRE>public class <B>PatchProcessor</B><DT>extends <A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></DL>
+<DT><PRE>public class <B>PatchProcessor</B><DT>extends <A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A><DT>implements <A HREF="../../solidbase/core/ConnectionListener.html" title="interface in solidbase.core">ConnectionListener</A></DL>
 </PRE>
 
 <P>
@@ -191,19 +194,27 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected static&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#sessionConfigPattern">sessionConfigPattern</A></B></CODE>
+<CODE>protected &nbsp;<A HREF="../../solidbase/core/PatchSource.html" title="class in solidbase.core">PatchSource</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#patchSource">patchSource</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pattern for SESSIONCONFIG.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The current source of a patch.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected static&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#sessionConfigPatternEnd">sessionConfigPatternEnd</A></B></CODE>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#transientPattern">transientPattern</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pattern for /SESSIONCONFIG.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pattern for TRANSIENT.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected static&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#transientPatternEnd">transientPatternEnd</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pattern for /TRANSIENT.</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="fields_inherited_from_class_solidbase.core.CommandProcessor"><!-- --></A>
@@ -212,7 +223,7 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 <TH ALIGN="left"><B>Fields inherited from class solidbase.core.<A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#currentDatabase">currentDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#databases">databases</A>, <A HREF="../../solidbase/core/CommandProcessor.html#delimiterPattern">delimiterPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreEnd">ignoreEnd</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreSet">ignoreSet</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreSqlErrorPattern">ignoreSqlErrorPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreStack">ignoreStack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#listeners">listeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#progress">progress</A>, <A HREF="../../solidbase/core/CommandProcessor.html#sectionLevel">sectionLevel</A>, <A HREF="../../solidbase/core/CommandProcessor.html#sectionPattern">sectionPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#selectConnectionPattern">selectConnectionPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setUserPattern">setUserPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#sqlFile">sqlFile</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startMessage">startMessage</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startMessagePattern">startMessagePattern</A></CODE></TD>
+<TD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#currentDatabase">currentDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#databases">databases</A>, <A HREF="../../solidbase/core/CommandProcessor.html#delimiterPattern">delimiterPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreEnd">ignoreEnd</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreSet">ignoreSet</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreSqlErrorPattern">ignoreSqlErrorPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreStack">ignoreStack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#listeners">listeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#progress">progress</A>, <A HREF="../../solidbase/core/CommandProcessor.html#sectionLevel">sectionLevel</A>, <A HREF="../../solidbase/core/CommandProcessor.html#sectionPattern">sectionPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#selectConnectionPattern">selectConnectionPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setUserPattern">setUserPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startMessage">startMessage</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startMessagePattern">startMessagePattern</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -250,10 +261,18 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#closePatchFile()">closePatchFile</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#addDatabase(solidbase.core.Database)">addDatabase</A></B>(<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Close the upgrade file.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Add a database.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#connected(solidbase.core.Database)">connected</A></B>(<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A connection is created.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -332,27 +351,10 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#init(java.io.File, java.lang.String)">init</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A>&nbsp;baseDir,
-     <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;upgradeFileName)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#init()">init</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initialize the patcher.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#init(java.lang.String)">init</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;upgradeFileName)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initialize the patcher.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#initializeControlTables()">initializeControlTables</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Use the 'init' change sets to upgrade the DBVERSION and DBVERSIONLOG tables to the newest specification.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -369,23 +371,6 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Write the history to the given file name.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#openPatchFile(java.io.File, java.lang.String)">openPatchFile</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A>&nbsp;baseDir,
-              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;fileName)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Open the specified upgrade file in the specified folder.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#openPatchFile(java.lang.String)">openPatchFile</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;fileName)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Open the specified upgrade file.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -430,6 +415,30 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Resets the upgrade context.</TD>
 </TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#setDelimiters(solidbase.core.Delimiter[])">setDelimiters</A></B>(solidbase.core.Delimiter[]&nbsp;delimiters)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Overrides the current delimiters.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#setPatchFile(solidbase.core.PatchFile)">setPatchFile</A></B>(<A HREF="../../solidbase/core/PatchFile.html" title="class in solidbase.core">PatchFile</A>&nbsp;patchFile)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets the patch file.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#setupControlTables()">setupControlTables</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Use the 'setup' change sets to upgrade the DBVERSION and DBVERSIONLOG tables to the newest specification.</TD>
+</TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_solidbase.core.CommandProcessor"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
@@ -437,7 +446,7 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 <TH ALIGN="left"><B>Methods inherited from class solidbase.core.<A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#addDatabase(java.lang.String, solidbase.core.Database)">addDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#delimiter(java.util.regex.Matcher)">delimiter</A>, <A HREF="../../solidbase/core/CommandProcessor.html#executeListeners(solidbase.core.Command)">executeListeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#executeWithListeners(solidbase.core.Command)">executeWithListeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getCallBack()">getCallBack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getCurrentDatabase()">getCurrentDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getDefaultDatabase()">getDefaultDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#jdbcExecute(solidbase.core.Command)">jdbcExecute</A>, <A HREF="../../solidbase/core/CommandProcessor.html#parseDelimiters(java.util.regex.Matcher)">parseDelimiters</A>, <A HREF="../../solidbase/core/CommandProcessor.html#popIgnores()">popIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#pushIgnores(java.lang.String)">pushIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#refreshIgnores()">refreshIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#section(java.lang.String, java.lang.String, solidbase.core.Command)">section</A>, <A HREF="../../solidbase/core/CommandProcessor.html#selectConnection(java.lang.String, solidbase.core.Command)">selectConnection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setCallBack(solidbase.core.ProgressListener)">setCallBack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setConnection(solidbase.core.Database)">setConnection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setUser(java.lang.String)">setUser</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startSection(int, java.lang.String)">startSection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#terminateCommandListeners()">terminateCommandListeners</A></CODE></TD>
+<TD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#executeListeners(solidbase.core.Command)">executeListeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#executeWithListeners(solidbase.core.Command)">executeWithListeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getCallBack()">getCallBack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getCurrentDatabase()">getCurrentDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getDefaultDatabase()">getDefaultDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#jdbcExecute(solidbase.core.Command)">jdbcExecute</A>, <A HREF="../../solidbase/core/CommandProcessor.html#parseDelimiters(java.util.regex.Matcher)">parseDelimiters</A>, <A HREF="../../solidbase/core/CommandProcessor.html#popIgnores()">popIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#pushIgnores(java.lang.String)">pushIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#refreshIgnores()">refreshIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#section(java.lang.String, java.lang.String, solidbase.core.Command)">section</A>, <A HREF="../../solidbase/core/CommandProcessor.html#selectConnection(java.lang.String, solidbase.core.Command)">selectConnection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setCallBack(solidbase.core.ProgressListener)">setCallBack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setConnection(solidbase.core.Database)">setConnection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setUser(java.lang.String)">setUser</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startSection(int, java.lang.String)">startSection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#terminateCommandListeners()">terminateCommandListeners</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -462,24 +471,24 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 </TR>
 </TABLE>
 
-<A NAME="sessionConfigPattern"><!-- --></A><H3>
-sessionConfigPattern</H3>
+<A NAME="transientPattern"><!-- --></A><H3>
+transientPattern</H3>
 <PRE>
-protected static <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A> <B>sessionConfigPattern</B></PRE>
+protected static <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A> <B>transientPattern</B></PRE>
 <DL>
-<DD>Pattern for SESSIONCONFIG.
+<DD>Pattern for TRANSIENT.
 <P>
 <DL>
 </DL>
 </DL>
 <HR>
 
-<A NAME="sessionConfigPatternEnd"><!-- --></A><H3>
-sessionConfigPatternEnd</H3>
+<A NAME="transientPatternEnd"><!-- --></A><H3>
+transientPatternEnd</H3>
 <PRE>
-protected static <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A> <B>sessionConfigPatternEnd</B></PRE>
+protected static <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A> <B>transientPatternEnd</B></PRE>
 <DL>
-<DD>Pattern for /SESSIONCONFIG.
+<DD>Pattern for /TRANSIENT.
 <P>
 <DL>
 </DL>
@@ -562,6 +571,18 @@ protected <A HREF="../../solidbase/core/PatchFile.html" title="class in solidbas
 </DL>
 <HR>
 
+<A NAME="patchSource"><!-- --></A><H3>
+patchSource</H3>
+<PRE>
+protected <A HREF="../../solidbase/core/PatchSource.html" title="class in solidbase.core">PatchSource</A> <B>patchSource</B></PRE>
+<DL>
+<DD>The current source of a patch.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
 <A NAME="dbVersion"><!-- --></A><H3>
 dbVersion</H3>
 <PRE>
@@ -629,29 +650,51 @@ public <B>PatchProcessor</B>(<A HREF="../../solidbase/core/ProgressListener.html
 </TR>
 </TABLE>
 
-<A NAME="init(java.io.File, java.lang.String)"><!-- --></A><H3>
-init</H3>
+<A NAME="addDatabase(solidbase.core.Database)"><!-- --></A><H3>
+addDatabase</H3>
 <PRE>
-public void <B>init</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A>&nbsp;baseDir,
-                 <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;upgradeFileName)</PRE>
+public void <B>addDatabase</B>(<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database)</PRE>
 <DL>
-<DD>Initialize the patcher.
+<DD><B>Description copied from class: <CODE><A HREF="../../solidbase/core/CommandProcessor.html#addDatabase(solidbase.core.Database)">CommandProcessor</A></CODE></B></DD>
+<DD>Add a database.
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>baseDir</CODE> - The base folder from where to look for the upgrade file (optional).<DD><CODE>upgradeFileName</CODE> - The name of the upgrade file.</DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#addDatabase(solidbase.core.Database)">addDatabase</A></CODE> in class <CODE><A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>database</CODE> - The database.</DL>
 </DD>
 </DL>
 <HR>
 
-<A NAME="init(java.lang.String)"><!-- --></A><H3>
+<A NAME="setPatchFile(solidbase.core.PatchFile)"><!-- --></A><H3>
+setPatchFile</H3>
+<PRE>
+public void <B>setPatchFile</B>(<A HREF="../../solidbase/core/PatchFile.html" title="class in solidbase.core">PatchFile</A>&nbsp;patchFile)</PRE>
+<DL>
+<DD>Sets the patch file.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>patchFile</CODE> - The patch file to set.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="init()"><!-- --></A><H3>
 init</H3>
 <PRE>
-public void <B>init</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;upgradeFileName)</PRE>
+public void <B>init</B>()</PRE>
 <DL>
 <DD>Initialize the patcher.
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>upgradeFileName</CODE> - The name of the upgrade file.</DL>
+</DL>
+</DD>
+<DD><DL>
+</DL>
 </DD>
 </DL>
 <HR>
@@ -672,40 +715,17 @@ protected void <B>reset</B>()</PRE>
 </DL>
 <HR>
 
-<A NAME="openPatchFile(java.lang.String)"><!-- --></A><H3>
-openPatchFile</H3>
+<A NAME="end()"><!-- --></A><H3>
+end</H3>
 <PRE>
-protected void <B>openPatchFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;fileName)</PRE>
+public void <B>end</B>()</PRE>
 <DL>
-<DD>Open the specified upgrade file.
+<DD><B>Description copied from class: <CODE><A HREF="../../solidbase/core/CommandProcessor.html#end()">CommandProcessor</A></CODE></B></DD>
+<DD>Closes open files and closes connections.
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>fileName</CODE> - The name and path of the upgrade file.</DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#end()">end</A></CODE> in class <CODE><A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></CODE></DL>
 </DD>
-</DL>
-<HR>
-
-<A NAME="openPatchFile(java.io.File, java.lang.String)"><!-- --></A><H3>
-openPatchFile</H3>
-<PRE>
-protected void <B>openPatchFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A>&nbsp;baseDir,
-                             <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;fileName)</PRE>
-<DL>
-<DD>Open the specified upgrade file in the specified folder.
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>baseDir</CODE> - The base folder from where to look. May be null.<DD><CODE>fileName</CODE> - The name and path of the upgrade file.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="closePatchFile()"><!-- --></A><H3>
-closePatchFile</H3>
-<PRE>
-public void <B>closePatchFile</B>()</PRE>
-<DL>
-<DD>Close the upgrade file.
-<P>
 <DD><DL>
 </DL>
 </DD>
@@ -719,6 +739,9 @@ public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is
 <DL>
 <DD>Get the current version of the database.
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>The current version of the database.</DL>
@@ -734,6 +757,9 @@ public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is
 <DD>Get the current target.
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 
 <DT><B>Returns:</B><DD>The current target.</DL>
 </DD>
@@ -747,6 +773,9 @@ public int <B>getCurrentStatements</B>()</PRE>
 <DL>
 <DD>Get the number of persistent statements executed successfully.
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>The number of persistent statements executed successfully.</DL>
@@ -764,20 +793,26 @@ public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/LinkedHashSet.
 <DD>Returns all possible targets from the current version.
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>tips</CODE> - If true only the tips of the upgrade paths are returned.<DD><CODE>prefix</CODE> - Only return targets that start with the given prefix.<DD><CODE>downgradeable</CODE> - Also consider downgrade paths.
 <DT><B>Returns:</B><DD>All possible targets from the current version.</DL>
 </DD>
 </DL>
 <HR>
 
-<A NAME="initializeControlTables()"><!-- --></A><H3>
-initializeControlTables</H3>
+<A NAME="setupControlTables()"><!-- --></A><H3>
+setupControlTables</H3>
 <PRE>
-public void <B>initializeControlTables</B>()
-                             throws <A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></PRE>
+public void <B>setupControlTables</B>()
+                        throws <A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></PRE>
 <DL>
-<DD>Use the 'init' change sets to upgrade the DBVERSION and DBVERSIONLOG tables to the newest specification.
+<DD>Use the 'setup' change sets to upgrade the DBVERSION and DBVERSIONLOG tables to the newest specification.
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 
 <DT><B>Throws:</B>
@@ -795,6 +830,9 @@ public void <B>patch</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/l
 <DD>Patch to the given target.
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>target</CODE> - The target to patch to.
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE> - Whenever an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> occurs during the execution of a command.</DL>
@@ -811,6 +849,9 @@ public void <B>patch</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/l
 <DL>
 <DD>Patches to the given target version. The target version can end with an '*', indicating whatever tip version that matches the target prefix.
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>target</CODE> - The target requested.<DD><CODE>downgradeable</CODE> - Indicates that downgrade paths are allowed to reach the given target.
 <DT><B>Throws:</B>
@@ -830,6 +871,9 @@ protected void <B>patch</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/jav
 <DD>Upgrade the database from the given version to the given target.
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>version</CODE> - The current version of the database.<DD><CODE>target</CODE> - The target to upgrade to.<DD><CODE>downgradeable</CODE> - Allow downgrades to reach the target
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE> - Whenever an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> occurs during the execution of a command.</DL>
@@ -845,6 +889,9 @@ protected void <B>patch</B>(<A HREF="../../solidbase/core/Patch.html" title="cla
 <DL>
 <DD>Execute a patch.
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>patch</CODE> - The patch to be executed.
 <DT><B>Throws:</B>
@@ -883,6 +930,9 @@ protected void <B>enableDontCount</B>()</PRE>
 <DD><DL>
 </DL>
 </DD>
+<DD><DL>
+</DL>
+</DD>
 </DL>
 <HR>
 
@@ -896,6 +946,26 @@ protected void <B>disableDontCount</B>()</PRE>
 <DD><DL>
 </DL>
 </DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setDelimiters(solidbase.core.Delimiter[])"><!-- --></A><H3>
+setDelimiters</H3>
+<PRE>
+protected void <B>setDelimiters</B>(solidbase.core.Delimiter[]&nbsp;delimiters)</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE><A HREF="../../solidbase/core/CommandProcessor.html#setDelimiters(solidbase.core.Delimiter[])">CommandProcessor</A></CODE></B></DD>
+<DD>Overrides the current delimiters.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#setDelimiters(solidbase.core.Delimiter[])">setDelimiters</A></CODE> in class <CODE><A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>delimiters</CODE> - The delimiters.</DL>
+</DD>
 </DL>
 <HR>
 
@@ -906,6 +976,9 @@ public void <B>logToXML</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/jav
 <DL>
 <DD>Write the history to the given output stream.
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>out</CODE> - The output stream to write to.</DL>
 </DD>
@@ -920,23 +993,10 @@ public void <B>logToXML</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/jav
 <DD>Write the history to the given file name.
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>filename</CODE> - The file name to write to.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="end()"><!-- --></A><H3>
-end</H3>
-<PRE>
-public void <B>end</B>()</PRE>
-<DL>
-<DD>Closes open files and closes connections.
-<P>
-<DD><DL>
-<DT><B>Overrides:</B><DD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#end()">end</A></CODE> in class <CODE><A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></CODE></DL>
-</DD>
-<DD><DL>
-</DL>
 </DD>
 </DL>
 <HR>
@@ -949,8 +1009,28 @@ public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is
 <DD>Returns a statement of the current version of the database in a user presentable form.
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 
 <DT><B>Returns:</B><DD>A statement of the current version of the database in a user presentable form.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="connected(solidbase.core.Database)"><!-- --></A><H3>
+connected</H3>
+<PRE>
+public void <B>connected</B>(<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&nbsp;database)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../solidbase/core/ConnectionListener.html#connected(solidbase.core.Database)">ConnectionListener</A></CODE></B></DD>
+<DD>A connection is created.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../solidbase/core/ConnectionListener.html#connected(solidbase.core.Database)">connected</A></CODE> in interface <CODE><A HREF="../../solidbase/core/ConnectionListener.html" title="interface in solidbase.core">ConnectionListener</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>database</CODE> - The database.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
@@ -984,7 +1064,7 @@ public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../solidbase/core/PatchFile.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/core/Path.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/core/PatchSource.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/PatchProcessor.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="PatchProcessor.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;

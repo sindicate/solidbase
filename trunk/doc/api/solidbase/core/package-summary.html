@@ -91,6 +91,20 @@ This is the core of SolidBase.
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Interface Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../solidbase/core/ConnectionListener.html" title="interface in solidbase.core">ConnectionListener</A></B></TD>
+<TD>A listener to listen to connection events.</TD>
+</TR>
+</TABLE>
+&nbsp;
+
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Class Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -100,15 +114,15 @@ This is the core of SolidBase.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A></B></TD>
 <TD>
- Represents a command in the upgrade file.</TD>
+ Represents a command in an upgrade or SQL file.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/CommandListener.html" title="class in solidbase.core">CommandListener</A></B></TD>
-<TD>A CommandListener listens to commands from the upgrade file as they are being processed.</TD>
+<TD>A CommandListener listens to commands from the upgrade or SQL file as they are being processed.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></B></TD>
-<TD>Processes and executes commands through JDBC, maintains state, triggers the listeners.</TD>
+<TD>Processes commands, maintains state, triggers the listeners.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A></B></TD>
@@ -117,6 +131,14 @@ This is the core of SolidBase.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/DBVersion.html" title="class in solidbase.core">DBVersion</A></B></TD>
 <TD>This class represents the version information in the database.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../solidbase/core/Fragment.html" title="class in solidbase.core">Fragment</A></B></TD>
+<TD>An SQL fragment.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../solidbase/core/InitConnectionFragment.html" title="class in solidbase.core">InitConnectionFragment</A></B></TD>
+<TD>An SQL fragment.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A></B></TD>
@@ -129,6 +151,10 @@ This is the core of SolidBase.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/PatchProcessor.html" title="class in solidbase.core">PatchProcessor</A></B></TD>
 <TD>This class is the coordinator.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../solidbase/core/PatchSource.html" title="class in solidbase.core">PatchSource</A></B></TD>
+<TD>The source for command from a patch file.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/Path.html" title="class in solidbase.core">Path</A></B></TD>
@@ -149,6 +175,10 @@ This is the core of SolidBase.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/SQLProcessor.html" title="class in solidbase.core">SQLProcessor</A></B></TD>
 <TD>This class is the coordinator.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../solidbase/core/SQLSource.html" title="class in solidbase.core">SQLSource</A></B></TD>
+<TD>Source for SQL statements.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/Util.html" title="class in solidbase.core">Util</A></B></TD>
@@ -184,7 +214,7 @@ This is the core of SolidBase.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/CommandFileException.html" title="class in solidbase.core">CommandFileException</A></B></TD>
-<TD>Represents a problem in the command file (upgrade file or SQL file).</TD>
+<TD>Represents a problem in the file (upgrade file or SQL file).</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/core/FatalException.html" title="class in solidbase.core">FatalException</A></B></TD>

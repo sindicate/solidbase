@@ -92,10 +92,13 @@ Class Hierarchy
 <UL>
 <LI TYPE="circle">java.lang.<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang"><B>Object</B></A><UL>
 <LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/Assert.html" title="class in solidbase.core"><B>Assert</B></A><LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core"><B>Command</B></A><LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/CommandListener.html" title="class in solidbase.core"><B>CommandListener</B></A><LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core"><B>CommandProcessor</B></A><UL>
-<LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/PatchProcessor.html" title="class in solidbase.core"><B>PatchProcessor</B></A><LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/SQLProcessor.html" title="class in solidbase.core"><B>SQLProcessor</B></A></UL>
-<LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core"><B>Database</B></A><LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/DBVersion.html" title="class in solidbase.core"><B>DBVersion</B></A><LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core"><B>Patch</B></A><LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/Path.html" title="class in solidbase.core"><B>Path</B></A> (implements java.lang.<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;T&gt;)
-<LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/PluginManager.html" title="class in solidbase.core"><B>PluginManager</B></A><LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core"><B>ProgressListener</B></A><LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/SQLFile.html" title="class in solidbase.core"><B>SQLFile</B></A><UL>
-<LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/PatchFile.html" title="class in solidbase.core"><B>PatchFile</B></A></UL>
+<LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/PatchProcessor.html" title="class in solidbase.core"><B>PatchProcessor</B></A> (implements solidbase.core.<A HREF="../../solidbase/core/ConnectionListener.html" title="interface in solidbase.core">ConnectionListener</A>)
+<LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/SQLProcessor.html" title="class in solidbase.core"><B>SQLProcessor</B></A></UL>
+<LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core"><B>Database</B></A><LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/DBVersion.html" title="class in solidbase.core"><B>DBVersion</B></A><LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/Fragment.html" title="class in solidbase.core"><B>Fragment</B></A><UL>
+<LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/InitConnectionFragment.html" title="class in solidbase.core"><B>InitConnectionFragment</B></A></UL>
+<LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core"><B>Patch</B></A><LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/PatchFile.html" title="class in solidbase.core"><B>PatchFile</B></A><LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/Path.html" title="class in solidbase.core"><B>Path</B></A> (implements java.lang.<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Iterable.html?is-external=true" title="class or interface in java.lang">Iterable</A>&lt;T&gt;)
+<LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/PluginManager.html" title="class in solidbase.core"><B>PluginManager</B></A><LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core"><B>ProgressListener</B></A><LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/SQLFile.html" title="class in solidbase.core"><B>SQLFile</B></A><LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/SQLSource.html" title="class in solidbase.core"><B>SQLSource</B></A><UL>
+<LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/PatchSource.html" title="class in solidbase.core"><B>PatchSource</B></A></UL>
 <LI TYPE="circle">java.lang.<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang"><B>Throwable</B></A> (implements java.io.<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</A>)
 <UL>
 <LI TYPE="circle">java.lang.<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang"><B>Exception</B></A><UL>
@@ -107,6 +110,11 @@ Class Hierarchy
 </UL>
 <LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/Util.html" title="class in solidbase.core"><B>Util</B></A></UL>
 </UL>
+<H2>
+Interface Hierarchy
+</H2>
+<UL>
+<LI TYPE="circle">solidbase.core.<A HREF="../../solidbase/core/ConnectionListener.html" title="interface in solidbase.core"><B>ConnectionListener</B></A></UL>
 <H2>
 Enum Hierarchy
 </H2>

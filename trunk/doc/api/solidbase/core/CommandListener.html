@@ -95,7 +95,7 @@ Class CommandListener</H2>
   <IMG SRC="../../resources/inherit.gif" ALT="extended by "><B>solidbase.core.CommandListener</B>
 </PRE>
 <DL>
-<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../solidbase/core/plugins/AssertEmptyOrNotEmptySelect.html" title="class in solidbase.core.plugins">AssertEmptyOrNotEmptySelect</A>, <A HREF="../../solidbase/core/plugins/ImportCSV.html" title="class in solidbase.core.plugins">ImportCSV</A>, <A HREF="../../solidbase/core/plugins/OracleDBMSOutputPoller.html" title="class in solidbase.core.plugins">OracleDBMSOutputPoller</A>, <A HREF="../../solidbase/core/plugins/PrintSelect.html" title="class in solidbase.core.plugins">PrintSelect</A></DD>
+<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../solidbase/core/plugins/AssertExistsOrEmptySelect.html" title="class in solidbase.core.plugins">AssertExistsOrEmptySelect</A>, <A HREF="../../solidbase/core/plugins/ImportCSV.html" title="class in solidbase.core.plugins">ImportCSV</A>, <A HREF="../../solidbase/core/plugins/OracleDBMSOutputPoller.html" title="class in solidbase.core.plugins">OracleDBMSOutputPoller</A>, <A HREF="../../solidbase/core/plugins/PrintSelect.html" title="class in solidbase.core.plugins">PrintSelect</A></DD>
 </DL>
 <HR>
 <DL>
@@ -103,7 +103,7 @@ Class CommandListener</H2>
 </PRE>
 
 <P>
-A CommandListener listens to commands from the upgrade file as they are being processed.
+A CommandListener listens to commands from the upgrade or SQL file as they are being processed.
 <P>
 
 <P>
@@ -206,11 +206,11 @@ public abstract boolean <B>execute</B>(<A HREF="../../solidbase/core/CommandProc
                          throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></PRE>
 <DL>
 <DD>Called when a command from the upgrade file needs to be executed. Commands can be transient or persistent (see
- <A HREF="../../solidbase/core/Command.html#isTransient"><CODE>Command.isTransient</CODE></A>). This method should return true if it decides to process the command.
+ <A HREF="../../solidbase/core/Command.html#isTransient"><CODE>Command.isTransient</CODE></A>). This method should return true if it accepted the command.
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>processor</CODE> - The command processor.<DD><CODE>command</CODE> - The command that needs to be executed.
-<DT><B>Returns:</B><DD>True if it decides to process the command.
+<DT><B>Returns:</B><DD>True if it accepted the command.
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - When the execution of the command fails with an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A>.</DL>
 </DD>
