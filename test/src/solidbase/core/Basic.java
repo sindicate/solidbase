@@ -81,7 +81,7 @@ public class Basic
 	@Test(dependsOnMethods="testMissingGo")
 	public void testDumpXML()
 	{
-		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch1.sql" );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch1.sql", db );
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		patcher.logToXML( out );
