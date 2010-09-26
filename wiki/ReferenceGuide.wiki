@@ -152,7 +152,7 @@ Configuring multiple connections (TODO)
 
 ----------------------------------------
 == SET DELIMITER ==
-Changes the current delimiter for commands.
+Changes the current delimiter for commands. This a needed when stored procedures are part of the upgrade.
 === Since ===
 1.6.0
 === Syntax ===
@@ -161,10 +161,34 @@ Changes the current delimiter for commands.
 }}}
 === Examples ===
 {{{
---* SET DELIMITER TRAILING ;
+--* // Creating a stored procedure
 --* SET DELIMITER ISOLATED GO
+CREATE PROCEDURE APROCEDURE IS
+BEGIN
+	... a lot of semicolons are found here ...
+END; -- In Oracle you need this semicolon after the END
+GO
+--* SET DELIMITER TRAILING ;
+
+--* // Other examples
 --* SET DELIMITER ;;
 --* SET DELIMITER ISOLATED GO OR TRAILING ;;
+}}}
+
+To set the default delimiter, add the following to the upgrade file definition:
+
+=== Since ===
+1.6.0
+=== Syntax ===
+{{{
+--* DELIMITER IS [ ISOLATED | TRAILING ] <delimiter1> [ OR [ ISOLATED |TRAILING ] <delimiter2> ]
+}}}
+=== Example ===
+{{{
+--* DEFINITION
+--*		DELIMITER IS ISOLATED GO
+--*		...
+--* /DEFINITION
 }}}
 
 ----------------------------------------
