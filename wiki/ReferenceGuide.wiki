@@ -2,24 +2,169 @@
 This guide is based on the upcoming 1.6 release of !SolidBase.
 
 == Contents ==
- * [#SET_MESSAGE SET MESSAGE]
- * [#SET_USER SET USER]
- * [#SELECT_CONNECTION SELECT CONNECTION]
+ * [#IF_HISTORY IF HISTORY]
  * [#IGNORE_SQL_ERROR IGNORE SQL ERROR]
+ * [#IMPORT_CSV IMPORT CSV]
+ * [#PRINT_SELECT PRINT SELECT]
+ * [#SECTION SECTION]
+ * [#SELECT_CONNECTION SELECT CONNECTION]
+ * [#SET_DELIMITER SET DELIMITER]
+ * [#SET_USER SET USER]
+ * [#TRANSIENT TRANSIENT]
 
 ----------------------------------------
-== SET MESSAGE ==
-Sets the next message to be displayed. The message will be displayed as soon as a command is executed.
-In certain cases commands will be skipped, and the message will be ignored when it is overwritten with a new message before a command is executed.
+== IF HISTORY ==
+Conditional execution of commands depending on the historical upgrade path.
+=== Since ===
+1.5.0
+=== Syntax ===
+{{{
+--* IF HISTORY [NOT] CONTAINS <version>
+--* /IF
+}}}
+=== Example ===
+{{{
+--* // If the upgrade path includes version 1.1.5 then the column has already been added to the table.
+--* IF HISTORY NOT CONTAINS "1.1.5"
+ALTER TABLE ATABLE ADD ACOLUMN INTEGER;
+--* /IF
+}}}
+
+----------------------------------------
+== IGNORE SQL ERROR ==
+Enables ignoring of specific database errors.
+
+Ignores can be nested. Ignores are reset at the beginning of each upgrade block.
 === Since ===
 1.0
 === Syntax ===
 {{{
---* SET MESSAGE "<message>"
+--* IGNORE SQL ERROR <SQLState> [, <SQLState>, ...]
+--* /IGNORE SQL ERROR
 }}}
 === Example ===
 {{{
---* SET MESSAGE "    Creating indexes"
+--* IGNORE SQL ERROR S0001
+DROP VIEW NONEXISTING_VIEW;
+--* /IGNORE SQL ERROR
+}}}
+
+----------------------------------------
+== IMPORT CSV ==
+Fast import of inline CSV data. Uses JDBC batch updates for maximum insert rate.
+=== Since ===
+1.6.0
+=== Syntax ===
+{{{
+IMPORT CSV
+[ SEPARATED BY (TAB|<character>) ]
+INTO <tablename> 
+[ ( <columnlist> ) ]
+[ VALUES ( <valuelist> ) ]
+DATA
+... csv data delimited with the current delimiter ...
+}}}
+=== Examples ===
+{{{
+--* // This import dependends on the order of the columns in the table
+IMPORT CSV INTO ATABLE DATA
+1,2,3
+4,5,6;
+
+--* // This import explicitly specifies the columns, which is safer
+IMPORT CSV INTO ATABLE ( COL1, COL2, COL3 ) DATA
+1,2,3
+4,5,6;
+
+--* // Different separators
+IMPORT CSV SEPARATED BY TAB INTO ATABLE DATA
+1	2	3
+4	5	6;
+IMPORT CSV SEPARATED BY | INTO ATABLE DATA
+1|2|3
+4|5|6;
+
+--* // Using double quotes you can prevent whitespace from being stripped around the values
+--* // You need double quotes when commas are part of the values
+--* // Double quotes in the values should be doubled
+IMPORT CSV INTO ATABLE ( COL1, COL2, COL3 ) DATA
+"  surrounding whitespace   ", 2, 3
+"here is a comma, which is ok", 5, 6
+"""Life is good"", he said", 5, 6;
+
+--* // Values can be reordered, duplicated, ignored, transformed, and introduced
+IMPORT CSV
+INTO ATABLE ( ID, COL1, COL2, COL3 )
+VALUES ( ASEQUENCE.NEXTVAL, TO_DATE( :2, 'YYYY-MM-DD' ), :1, :1 )
+DATA
+"  surrounding whitespace   ", "2001-01-01", 3
+"here is a comma, which is ok", "2003-01-01", 6
+"""Life is good"", he said", "2004-01-01", 6;
+}}}
+
+----------------------------------------
+== PRINT SELECT ==
+Prints the result of the select statement.
+=== Since ===
+1.6.0
+=== Syntax ===
+{{{
+PRINT SELECT ... normal select statement ...;
+}}}
+=== Example ===
+{{{
+IMPORT CSV INTO ATABLE
+... csv data ...;
+PRINT SELECT "Imported " || COUNT(*) || " records into ATABLE" FROM ATABLE;
+}}}
+
+----------------------------------------
+== SECTION ==
+Sets the next message to be displayed. The message will be displayed as soon as a command is executed.
+=== Since ===
+1.6.0
+=== Syntax ===
+{{{
+--* SECTION "<message>"
+}}}
+=== Example ===
+{{{
+--* SECTION "Creating indexes"
+}}}
+
+----------------------------------------
+== SELECT CONNECTION ==
+Selects another connection/database.
+
+Each upgrade block starts with the default user and the default connection.
+=== Since ===
+1.5.0
+=== Syntax ===
+{{{
+--* SELECT CONNECTION <connectionname>
+}}}
+=== Example ===
+{{{
+--* SELECT CONNECTION QUEUES
+}}}
+=== See also ===
+Configuring multiple connections (TODO)
+
+----------------------------------------
+== SET DELIMITER ==
+Changes the current delimiter for commands.
+=== Since ===
+1.6.0
+=== Syntax ===
+{{{
+--* SET DELIMITER [ ISOLATED | TRAILING ] <delimiter1> [ OR [ ISOLATED |TRAILING ] <delimiter2> ]
+}}}
+=== Examples ===
+{{{
+--* SET DELIMITER TRAILING ;
+--* SET DELIMITER ISOLATED GO
+--* SET DELIMITER ;;
+--* SET DELIMITER ISOLATED GO OR TRAILING ;;
 }}}
 
 ----------------------------------------
@@ -43,40 +188,18 @@ Not supported when using the Ant task or Maven plugin, the secondary connections
 }}}
 
 ----------------------------------------
-== SELECT CONNECTION ==
-Selects another connection/database.
-
-Each upgrade block starts with the default user and the default connection.
+== TRANSIENT ==
+Marks commands as transient (not persisted).
 === Since ===
-1.5.0
+1.6.1
 === Syntax ===
 {{{
---* SELECT CONNECTION <connectionname>
+--* TRANSIENT
+--* /TRANSIENT
 }}}
 === Example ===
 {{{
---* SELECT CONNECTION QUEUES
+--* TRANSIENT
+ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD';
+--* /TRANSIENT
 }}}
-=== See also ===
-Configuring multiple connections
-
-----------------------------------------
-== IGNORE SQL ERROR ==
-Enables ignoring of specific database errors.
-
-Ignores can be nested. Ignores are reset at the beginning of each upgrade block.
-=== Since ===
-1.0
-=== Syntax ===
-{{{
---* IGNORE SQL ERROR <SQLState> [, <SQLState>, ...]
---* /IGNORE SQL ERROR
-}}}
-=== Example ===
-{{{
---* IGNORE SQL ERROR S0001
-DROP VIEW NONEXISTING_VIEW
-GO
---* /IGNORE SQL ERROR
-}}}
-
