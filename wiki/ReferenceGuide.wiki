@@ -1,5 +1,4 @@
 #summary Reference Guide describing every feature of SolidBase (in progress)
-This guide is based on the upcoming 1.6 release of !SolidBase.
 
 == Contents ==
  * [#IF_HISTORY IF HISTORY]
