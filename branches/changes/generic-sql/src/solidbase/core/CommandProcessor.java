@@ -221,7 +221,7 @@ abstract public class CommandProcessor
 	 * @param command The command to be executed.
 	 * @throws SQLException Whenever an SQLException is thrown from JDBC.
 	 */
-	protected void execute( Command command ) throws SQLException
+	public void execute( Command command ) throws SQLException
 	{
 		if( command.isTransient() )
 		{

@@ -147,11 +147,15 @@ public class Tokenizer
 					}
 				}
 			}
+			System.out.println( "Token: " + result );
 			return new Token( result.toString(), whiteSpace.toString() );
 		}
 
 		if( isSpecial( ch ) )
+		{
+			System.out.println( "Token: " + (char)ch );
 			return new Token( String.valueOf( (char)ch ), whiteSpace.toString() );
+		}
 
 		// Collect all characters until whitespace or special character
 		StringBuilder result = new StringBuilder( 16 );
@@ -167,7 +171,11 @@ public class Tokenizer
 
 		// Return the result
 		if( result.length() == 0 )
+		{
+			System.out.println( "Token: null" );
 			return null;
+		}
+		System.out.println( "Token: " + result );
 		return new Token( result.toString(), whiteSpace.toString() );
 	}
 
