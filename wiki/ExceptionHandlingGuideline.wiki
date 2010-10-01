@@ -28,6 +28,8 @@ _Originally from: http://dev2dev.bea.com/pub/a/2006/11/effective-exceptions.html
 
 _This reference was lost and later recovered: http://www.oracle.com/technology/pub/articles/dev2arch/2006/11/effective-exceptions.html (thanks to Google)_
 
+_And lost again, but found on web.archive.com: http://web.archive.org/web/dev2dev.bea.com/pub/a/2006/11/effective-exceptions.html _
+
 Barry Ruzek introduces the notion of Faults and Contingencies.
 
  * *Contingency:* An expected condition demanding an alternative response from a method that can be expressed in terms of the method's intended purpose. The caller of the method expects these kinds of conditions and has a strategy for coping with them.
