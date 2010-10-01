@@ -87,14 +87,14 @@ public class SqlSectionsTests extends BuildFileTest
 				"Opening file 'X:\\...\\testsql-sections.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
-				"Creating table USERS.\n" +
-				"Filling USERS\n" +
-				"    Inserting admin user.\n" +
+				"Creating table USERS...\n" +
+				"Filling USERS...\n" +
+				"    Inserting admin user...\n" +
 				"    Inserting 3 users...\n" +
-				"    Inserting 3 users.\n" +
-				"Adding more USERS\n" +
-				"    Inserting 3 users\n" +
-				"And a message.\n" +
+				"    Inserting 3 users...\n" +
+				"Adding more USERS...\n" +
+				"    Inserting 3 users...\n" +
+				"And a message...\n" +
 				"    Inserting 3 users...\n" +
 				"Execution complete.\n" +
 				"\n"
