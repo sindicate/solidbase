@@ -167,6 +167,7 @@ public class Progress extends ProgressListener
 			this.buffer.append( " to \"" + patch.getTarget() + "\"" );
 		else
 			this.buffer.append( " \"" + patch.getSource() + "\" to \"" + patch.getTarget() + "\"" );
+		flush();
 	}
 
 	@Override
@@ -184,7 +185,7 @@ public class Progress extends ProgressListener
 			if( m != null )
 			{
 				flush();
-				this.buffer = new StringBuilder().append( SPACES, 0, i * 4 ).append( m );
+				this.buffer = new StringBuilder().append( SPACES, 0, i * 4 ).append( m ).append( "..." );
 				this.messages[ i ] = null;
 			}
 		}
@@ -192,8 +193,10 @@ public class Progress extends ProgressListener
 		if( message != null ) // Message can be null, when a message has not been set, but sql is still being executed
 		{
 			flush();
-			this.buffer = new StringBuilder( message );
+			this.buffer = new StringBuilder( message ).append( "..." );
 		}
+
+		flush();
 	}
 
 	@Override
@@ -205,9 +208,7 @@ public class Progress extends ProgressListener
 	@Override
 	protected void executed()
 	{
-		if( this.buffer == null )
-			this.buffer = new StringBuilder();
-		this.buffer.append( '.' );
+		// Nothing to do
 	}
 
 	@Override
@@ -245,5 +246,6 @@ public class Progress extends ProgressListener
 	{
 		flush();
 		this.buffer = new StringBuilder( message );
+		flush();
 	}
 }

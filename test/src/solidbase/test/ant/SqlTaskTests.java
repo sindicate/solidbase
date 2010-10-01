@@ -84,11 +84,11 @@ public class SqlTaskTests extends BuildFileTest
 				"Opening file 'X:\\...\\testsql1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
-				"    Creating table USERS.\n" +
-				"    Inserting admin user.\n" +
+				"    Creating table USERS...\n" +
+				"    Inserting admin user...\n" +
 				"    Inserting 3 users...\n" +
-				"    Inserting 3 users.\n" +
-				"    Inserting 3 users.\n" +
+				"    Inserting 3 users...\n" +
+				"    Inserting 3 users...\n" +
 				"    Inserting 3 users...\n" +
 				"Execution complete.\n" +
 				"\n"

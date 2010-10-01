@@ -86,10 +86,10 @@ public class UpgradeTaskTests extends BuildFileTest
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
 				"Setting up control tables to \"1.1\"\n" +
-				"    Creating table DBVERSION.\n" +
-				"    Creating table DBVERSIONLOG..\n" +
+				"    Creating table DBVERSION...\n" +
+				"    Creating table DBVERSIONLOG...\n" +
 				"Upgrading to \"1.0.1\"\n" +
-				"Upgrading \"1.0.1\" to \"1.1.0\".\n" +
+				"Upgrading \"1.0.1\" to \"1.1.0\"\n" +
 				"    Inserting admin users...\n" +
 				"The database is upgraded.\n" +
 				"\n" +
@@ -122,11 +122,11 @@ public class UpgradeTaskTests extends BuildFileTest
 				"Connecting to database...\n" +
 				"The database has no version yet.\n" +
 				"Upgrading to \"1.0.1\"\n" +
-				"    Creating table DBVERSION.\n" +
-				"    Creating table DBVERSIONLOG.\n" +
+				"    Creating table DBVERSION...\n" +
+				"    Creating table DBVERSIONLOG...\n" +
 				"Upgrading \"1.0.1\" to \"1.0.2\"\n" +
-				"    Creating table USERS.\n" +
-				"    Inserting admin user.\n" +
+				"    Creating table USERS...\n" +
+				"    Inserting admin user...\n" +
 				"The database is upgraded.\n" +
 				"\n" +
 				"Current database version is \"1.0.2\".\n"
