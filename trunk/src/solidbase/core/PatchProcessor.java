@@ -72,20 +72,6 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	protected boolean dontCount;
 
 	/**
-	 * Together with {@link PatchProcessor#conditionFalseCounter} this enables nested conditions. As long as nested conditions
-	 * evaluate to true the {@link PatchProcessor#conditionTrueCounter} gets incremented. After the first nested condition
-	 * evaluates to false, the {@link PatchProcessor#conditionFalseCounter} get incremented.
-	 */
-	protected int conditionTrueCounter;
-
-	/**
-	 * Together with {@link PatchProcessor#conditionTrueCounter} this enables nested conditions. As long as nested conditions
-	 * evaluate to true the {@link PatchProcessor#conditionTrueCounter} gets incremented. After the first nested condition
-	 * evaluates to false, the {@link PatchProcessor#conditionFalseCounter} get incremented.
-	 */
-	protected int conditionFalseCounter;
-
-	/**
 	 * The upgrade file being executed.
 	 */
 	protected PatchFile patchFile;
@@ -160,7 +146,6 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	{
 		super.reset();
 		this.dontCount = false;
-		this.conditionTrueCounter = this.conditionFalseCounter = 0;
 	}
 
 	@Override
@@ -373,7 +358,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 				if( command.isPersistent() && !this.dontCount && !patch.isSetup() )
 				{
 					count++;
-					if( count > skip && this.conditionFalseCounter == 0 )
+					if( count > skip && this.skipCounter == 0 )
 					{
 						try
 						{
@@ -443,7 +428,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 			else if( ( matcher = ifHistoryContainsPattern.matcher( sql ) ).matches() )
 				ifHistoryContains( matcher.group( 1 ), matcher.group( 2 ) );
 			else if( ifHistoryContainsEnd.matcher( sql ).matches() )
-				popCondition();
+				endSkip();
 			else
 				super.execute( command );
 		}
@@ -502,38 +487,16 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	 */
 	private void ifHistoryContains( String not, String version )
 	{
-		if( this.conditionFalseCounter == 0 )
-		{
-			boolean c = this.dbVersion.logContains( version );
-			if( not != null )
-				c = !c;
-			if( c )
-				this.conditionTrueCounter++;
-			else
-				this.conditionFalseCounter++;
-		}
-		else
-			this.conditionFalseCounter++;
+		boolean c = this.dbVersion.logContains( version );
+		if( not != null )
+			c = !c;
+		skip( !c );
 	}
 
 	@Override
 	protected void setDelimiters( Delimiter[] delimiters )
 	{
 		this.patchSource.setDelimiters( delimiters );
-	}
-
-	/**
-	 * Pop a condition from the stack. If only true conditions remain, skipping of persistent commands is terminated.
-	 */
-	private void popCondition()
-	{
-		if( this.conditionFalseCounter > 0 )
-			this.conditionFalseCounter--;
-		else
-		{
-			Assert.isTrue( this.conditionTrueCounter > 0 );
-			this.conditionTrueCounter--;
-		}
 	}
 
 	/**

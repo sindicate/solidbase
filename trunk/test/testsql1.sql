@@ -41,6 +41,11 @@ INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '1', 'x' ); INSERT I
 USER_PASSWORD ) VALUES ( '3', 'z' );	
 
 
+--* SKIP 
+This is a skip test;
+--* /SKIP
+
+
 --* SET DELIMITER ISOLATED ; 	 
 
 
