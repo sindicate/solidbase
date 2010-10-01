@@ -75,7 +75,10 @@ public class SQLProcessor extends CommandProcessor
 		Command command = this.sqlSource.readCommand();
 		while( command != null )
 		{
-			executeWithListeners( command );
+			if( command.isTransient() || this.skipCounter == 0 )
+				executeWithListeners( command );
+			else
+				this.progress.skipped( command );
 			command = this.sqlSource.readCommand();
 		}
 		this.progress.sqlExecutionComplete();

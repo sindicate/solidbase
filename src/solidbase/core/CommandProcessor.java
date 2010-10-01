@@ -79,6 +79,16 @@ abstract public class CommandProcessor
 	static protected final Pattern sectionPattern = Pattern.compile( "SECTION(?:\\.(\\d))?\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
 
 	/**
+	 * Pattern for SKIP.
+	 */
+	static protected final Pattern skipPattern = Pattern.compile( "SKIP", Pattern.CASE_INSENSITIVE );
+
+	/**
+	 * Pattern for /SKIP.
+	 */
+	static protected final Pattern skipEnd = Pattern.compile( "/SKIP", Pattern.CASE_INSENSITIVE );
+
+	/**
 	 * A list of command listeners. A listener listens to the statements being executed and is able to intercept specific ones.
 	 */
 	protected List< CommandListener > listeners;
@@ -121,6 +131,20 @@ abstract public class CommandProcessor
 	protected Map< String, Database > databases;
 
 	/**
+	 * Together with {@link PatchProcessor#skipCounter} this enables nested conditions. As long as nested conditions
+	 * evaluate to true the {@link PatchProcessor#noSkipCounter} gets incremented. After the first nested condition
+	 * evaluates to false, the {@link PatchProcessor#skipCounter} get incremented.
+	 */
+	protected int noSkipCounter;
+
+	/**
+	 * Together with {@link PatchProcessor#noSkipCounter} this enables nested conditions. As long as nested conditions
+	 * evaluate to true the {@link PatchProcessor#noSkipCounter} gets incremented. After the first nested condition
+	 * evaluates to false, the {@link PatchProcessor#skipCounter} get incremented.
+	 */
+	protected int skipCounter;
+
+	/**
 	 * Constructor.
 	 * 
 	 * @param listener Listens to the progress.
@@ -154,6 +178,7 @@ abstract public class CommandProcessor
 		this.startMessage = null;
 		this.ignoreStack = new Stack< String[] >();
 		this.ignoreSet = new HashSet< String >();
+		this.noSkipCounter = this.skipCounter = 0;
 		setConnection( getDefaultDatabase() );
 	}
 
@@ -241,6 +266,10 @@ abstract public class CommandProcessor
 				selectConnection( matcher.group( 1 ), command );
 			else if( ( matcher = setUserPattern.matcher( sql ) ).matches() )
 				setUser( matcher.group( 1 ) );
+			else if( ( matcher = skipPattern.matcher( sql ) ).matches() )
+				skip( true );
+			else if( skipEnd.matcher( sql ).matches() )
+				endSkip();
 			else
 				throw new CommandFileException( "Unknown command " + sql, command.getLineNumber() );
 		}
@@ -326,6 +355,41 @@ abstract public class CommandProcessor
 	{
 		this.ignoreStack.pop();
 		refreshIgnores();
+	}
+
+	/**
+	 * Skip persistent commands depending on the boolean parameter. If the skip parameter is true commands will be
+	 * skipped, otherwise not. As {@link #skip(boolean)} and {@link #endSkip()} can be nested, the same number of
+	 * endSkips need to be called as the number of skips to stop the skipping.
+	 * 
+	 * @param skip If true, commands will be skipped, otherwise not.
+	 */
+	protected void skip( boolean skip )
+	{
+		if( this.skipCounter == 0 )
+		{
+			if( skip )
+				this.skipCounter++;
+			else
+				this.noSkipCounter++;
+		}
+		else
+			this.skipCounter++;
+	}
+
+	/**
+	 * Stop skipping commands. As {@link #skip(boolean)} and {@link #endSkip()} can be nested, only when the same number
+	 * of endSkips are called as the number of skips, the skipping will stop.
+	 */
+	protected void endSkip()
+	{
+		if( this.skipCounter > 0 )
+			this.skipCounter--;
+		else
+		{
+			Assert.isTrue( this.noSkipCounter > 0 );
+			this.noSkipCounter--;
+		}
 	}
 
 	/**
