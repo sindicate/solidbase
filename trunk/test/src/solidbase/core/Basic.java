@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 import solidbase.core.Database;
 import solidbase.core.PatchProcessor;
 import solidbase.core.SQLExecutionException;
-import solidbase.core.UnterminatedStatementException;
+import solidbase.core.NonDelimitedStatementException;
 
 public class Basic
 {
@@ -115,7 +115,7 @@ public class Basic
 		patcher.end();
 	}
 
-	@Test(expectedExceptions=UnterminatedStatementException.class)
+	@Test(expectedExceptions=NonDelimitedStatementException.class)
 	public void testUnterminatedCommand1() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
@@ -132,7 +132,7 @@ public class Basic
 		}
 	}
 
-	@Test(expectedExceptions=UnterminatedStatementException.class)
+	@Test(expectedExceptions=NonDelimitedStatementException.class)
 	public void testUnterminatedCommand2() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );

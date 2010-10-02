@@ -18,31 +18,19 @@ package solidbase.core;
 
 
 /**
- * Exception that is thrown when a statement is not terminated with a GO.
+ * Exception that is thrown when a statement is not delimited with the current delimiter.
  * 
  * @author René M. de Bloois
  */
-// TODO Maybe reuse FatalException
-public class UnterminatedStatementException extends RuntimeException
+public class NonDelimitedStatementException extends CommandFileException
 {
-	/**
-	 * The line number of the unterminated statement.
-	 */
-	protected int lineNumber;
-
 	/**
 	 * Constructor.
 	 * 
-	 * @param lineNumber The line number of the unterminated statement.
+	 * @param lineNumber The line number in the file where the problem is located.
 	 */
-	public UnterminatedStatementException( int lineNumber )
+	public NonDelimitedStatementException( int lineNumber )
 	{
-		this.lineNumber = lineNumber;
-	}
-
-	@Override
-	public String getMessage()
-	{
-		return "Unterminated statement found at line " + this.lineNumber;
+		super( "Non-delimited statement found", lineNumber );
 	}
 }
