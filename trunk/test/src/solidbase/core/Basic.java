@@ -163,6 +163,25 @@ public class Basic
 		patcher.end();
 	}
 
+	@Test(groups="new")
+	public void testMultipleTargets() throws SQLException
+	{
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-multipletargets.sql" );
+
+		try
+		{
+			patcher.patch( "1.0.*" );
+			assert false;
+		}
+		catch( FatalException e )
+		{
+			assert e.getMessage().startsWith( "More than one possible target found for" );
+		}
+
+		patcher.end();
+	}
+
 	//@Test TODO This is a test for INIT CONNECTION
 	public void testConnectionSetup() throws SQLException
 	{
