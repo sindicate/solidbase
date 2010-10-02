@@ -42,9 +42,8 @@ public class SQLMojo extends DBMojo
 
 		Progress progress = new Progress( getLog() );
 
-		String[] info = Version.getInfo();
-		getLog().info( info[ 0 ] );
-		getLog().info( info[ 1 ] );
+		String info = Version.getInfo();
+		getLog().info( info );
 		getLog().info( "" );
 
 		try

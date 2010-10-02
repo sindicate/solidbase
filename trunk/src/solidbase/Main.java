@@ -177,9 +177,8 @@ public class Main
 			return;
 		}
 
-		String[] info = Version.getInfo();
-		console.println( info[ 0 ] );
-		console.println( info[ 1 ] );
+		String info = Version.getInfo();
+		console.println( info );
 		console.println();
 
 		if( configuration.getSqlFile() != null )

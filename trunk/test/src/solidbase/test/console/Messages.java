@@ -29,7 +29,7 @@ public class Messages
 //		System.out.println( "[[[" + output + "]]]" );
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
-				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
+				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
 				"Opening file 'testpatch-import1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +

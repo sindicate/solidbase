@@ -79,7 +79,7 @@ public class UpgradeTaskTests extends BuildFileTest
 		this.project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
 		executeTarget( "ant-test" );
 		String log = TestUtil.generalizeOutput( getLog() );
-		Assert.assertEquals( log, "SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
+		Assert.assertEquals( log, "SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
 				"Opening file 'X:\\...\\testpatch-multiconnections.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
@@ -94,7 +94,7 @@ public class UpgradeTaskTests extends BuildFileTest
 				"The database is upgraded.\n" +
 				"\n" +
 				"Current database version is \"1.1.0\".\n" +
-				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
+				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
 				"Opening file 'X:\\...\\testpatch-multiconnections.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
@@ -115,7 +115,7 @@ public class UpgradeTaskTests extends BuildFileTest
 		this.project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
 		executeTarget( "ant-basedir-test" );
 		String log = TestUtil.generalizeOutput( getLog() );
-		Assert.assertEquals( log, "SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
+		Assert.assertEquals( log, "SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
 				"Opening file 'X:\\...\\testpatch-basedir.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +

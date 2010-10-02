@@ -82,7 +82,7 @@ public class SqlSectionsTests extends BuildFileTest
 		this.project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
 		executeTarget( "ant-test-sections" );
 		String log = TestUtil.generalizeOutput( getLog() );
-		Assert.assertEquals( log, "SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
+		Assert.assertEquals( log, "SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
 				"Opening file 'X:\\...\\testsql-sections.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +

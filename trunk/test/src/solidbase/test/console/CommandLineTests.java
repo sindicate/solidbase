@@ -49,7 +49,7 @@ public class CommandLineTests
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"Reading property file file:/.../solidbase-default.properties\n" +
-				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
+				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
 				"Opening file 'testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
@@ -83,7 +83,7 @@ public class CommandLineTests
 
 		String output = TestUtil.generalizeOutput( console.getOutput() );
 		// TODO Also test dump to file
-		Assert.assertEquals( output, "SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
+		Assert.assertEquals( output, "SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
 				"Opening file 'testpatch1.sql'\n" +
 		"    Encoding is 'ISO-8859-1'\n" );
@@ -108,7 +108,7 @@ public class CommandLineTests
 //		System.out.println( "[[[" + output + "]]]" );
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
-				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
+				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
 				"Opening file 'testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
@@ -155,7 +155,7 @@ public class CommandLineTests
 
 		String output = TestUtil.generalizeOutput( console.getOutput() );
 		Assert.assertEquals( output,
-				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
+				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
 				"Opening file 'testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
@@ -241,7 +241,7 @@ public class CommandLineTests
 		String output = TestUtil.generalizeOutput( console.getOutput() );
 //		System.out.println( "[[[" + output + "]]]" );
 		Assert.assertEquals( output,
-				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
+				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
 				"Opening file 'testsql-sections.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +

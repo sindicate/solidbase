@@ -78,9 +78,8 @@ public class SQLTask extends DBTask
 		Project project = getProject();
 		Progress progress = new Progress( project, this );
 
-		String[] info = Version.getInfo();
-		progress.info( info[ 0 ] );
-		progress.info( info[ 1 ] );
+		String info = Version.getInfo();
+		progress.info( info );
 		progress.info( "" );
 
 		try

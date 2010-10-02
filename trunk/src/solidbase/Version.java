@@ -70,10 +70,8 @@ public class Version
 	 * 
 	 * @return The SolidBase version & copyright info to be displayed to the user.
 	 */
-	static public String[] getInfo()
+	static public String getInfo()
 	{
-		// TODO Ant messes up the encoding, try add the é again
-		// TODO Put the copyright year in the properties file too
-		return new String[] { "SolidBase v" + version, "(C) 2006-2010 Rene M. de Bloois" };
+		return "SolidBase v" + version + " (http://solidbase.org)";
 	}
 }
