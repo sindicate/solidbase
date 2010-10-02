@@ -267,7 +267,8 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 		{
 			String targetPrefix = target.substring( 0, target.length() - 1 );
 			targets = getTargets( true, targetPrefix, downgradeable );
-			Assert.isTrue( targets.size() <= 1 );
+			if( targets.size() > 1 )
+				throw new FatalException( "More than one possible target found for " + target );
 			for( String t : targets )
 				if( t.startsWith( targetPrefix ) )
 				{
