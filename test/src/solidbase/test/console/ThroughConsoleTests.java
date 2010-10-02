@@ -40,7 +40,7 @@ public class ThroughConsoleTests
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"Reading property file X:\\...\\solidbase1.properties\n" +
-				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
+				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
 				"Opening file 'testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
@@ -73,7 +73,7 @@ public class ThroughConsoleTests
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"Reading property file X:\\...\\solidbase2.properties\n" +
-				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
+				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
 				"Opening file 'testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
@@ -105,7 +105,7 @@ public class ThroughConsoleTests
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"Reading property file X:\\...\\solidbase2.properties\n" +
-				"SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois\n" +
+				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
 				"Opening file 'testpatch-print1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
