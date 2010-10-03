@@ -45,7 +45,7 @@ public class ThroughConsoleTests
 				"Opening file 'testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
-				"Input password for user 'sa': The database has no version yet.\n" +
+				"Input password for user 'sa': The database is unmanaged.\n" +
 				"Upgrading to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +
@@ -78,7 +78,7 @@ public class ThroughConsoleTests
 				"Opening file 'testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
-				"Input password for user 'sa': The database has no version yet.\n" +
+				"Input password for user 'sa': The database is unmanaged.\n" +
 				"Upgrading to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +

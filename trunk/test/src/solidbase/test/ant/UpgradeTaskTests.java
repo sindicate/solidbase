@@ -84,7 +84,7 @@ public class UpgradeTaskTests extends BuildFileTest
 				"Opening file 'X:\\...\\testpatch-multiconnections.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
-				"The database has no version yet.\n" +
+				"The database is unmanaged.\n" +
 				"Setting up control tables to \"1.1\"\n" +
 				"    Creating table DBVERSION...\n" +
 				"    Creating table DBVERSIONLOG...\n" +
@@ -120,7 +120,7 @@ public class UpgradeTaskTests extends BuildFileTest
 				"Opening file 'X:\\...\\testpatch-basedir.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
-				"The database has no version yet.\n" +
+				"The database is unmanaged.\n" +
 				"Upgrading to \"1.0.1\"\n" +
 				"    Creating table DBVERSION...\n" +
 				"    Creating table DBVERSIONLOG...\n" +

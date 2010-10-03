@@ -675,8 +675,8 @@ public class DBVersion
 		if( version == null )
 		{
 			if( target != null )
-				return "The database has no version yet, incompletely patched to version \"" + target + "\" (" + statements + " statements successful).";
-			return "The database has no version yet.";
+				return "The database has no version, incompletely patched to version \"" + target + "\" (" + statements + " statements successful).";
+			return "The database is unmanaged.";
 		}
 		if( target != null )
 			return "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful).";

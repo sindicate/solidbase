@@ -54,7 +54,7 @@ public class CommandLineTests
 				"Opening file 'testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
-				"The database has no version yet.\n" +
+				"The database is unmanaged.\n" +
 				"Upgrading to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +
@@ -113,7 +113,7 @@ public class CommandLineTests
 				"Opening file 'testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
-				"The database has no version yet.\n" +
+				"The database is unmanaged.\n" +
 				"Upgrading to \"1.0.1\"\n" +
 				"Creating table DBVERSION.\n" +
 				"Creating table DBVERSIONLOG.\n" +
@@ -160,7 +160,7 @@ public class CommandLineTests
 				"Opening file 'testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
-				"The database has no version yet.\n"
+				"The database is unmanaged.\n"
 		);
 	}
 
