@@ -190,6 +190,14 @@ Processes commands, maintains state, triggers the listeners.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#noSkipCounter">noSkipCounter</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Together with <A HREF="../../solidbase/core/CommandProcessor.html#skipCounter"><CODE>skipCounter</CODE></A> this enables nested conditions.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;<A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#progress">progress</A></B></CODE>
 
@@ -227,6 +235,30 @@ Processes commands, maintains state, triggers the listeners.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pattern for SET USER.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#skipCounter">skipCounter</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Together with <A HREF="../../solidbase/core/CommandProcessor.html#noSkipCounter"><CODE>noSkipCounter</CODE></A> this enables nested conditions.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected static&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#skipEnd">skipEnd</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pattern for /SKIP.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected static&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#skipPattern">skipPattern</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pattern for SKIP.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -292,6 +324,14 @@ Processes commands, maintains state, triggers the listeners.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Closes open files and closes connections.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#endSkip()">endSkip</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stop skipping commands.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -443,6 +483,14 @@ Processes commands, maintains state, triggers the listeners.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#skip(boolean)">skip</A></B>(boolean&nbsp;skip)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Skip persistent commands depending on the boolean parameter.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#startSection(int, java.lang.String)">startSection</A></B>(int&nbsp;level,
              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</CODE>
 
@@ -564,6 +612,30 @@ protected static final <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/uti
 </DL>
 <HR>
 
+<A NAME="skipPattern"><!-- --></A><H3>
+skipPattern</H3>
+<PRE>
+protected static final <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A> <B>skipPattern</B></PRE>
+<DL>
+<DD>Pattern for SKIP.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="skipEnd"><!-- --></A><H3>
+skipEnd</H3>
+<PRE>
+protected static final <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A> <B>skipEnd</B></PRE>
+<DL>
+<DD>Pattern for /SKIP.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
 <A NAME="listeners"><!-- --></A><H3>
 listeners</H3>
 <PRE>
@@ -654,6 +726,34 @@ databases</H3>
 protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util">Map</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>,<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A>&gt; <B>databases</B></PRE>
 <DL>
 <DD>All configured databases. This is used when the upgrade file selects a different database by name.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="noSkipCounter"><!-- --></A><H3>
+noSkipCounter</H3>
+<PRE>
+protected int <B>noSkipCounter</B></PRE>
+<DL>
+<DD>Together with <A HREF="../../solidbase/core/CommandProcessor.html#skipCounter"><CODE>skipCounter</CODE></A> this enables nested conditions. As long as nested conditions
+ evaluate to true the <A HREF="../../solidbase/core/CommandProcessor.html#noSkipCounter"><CODE>noSkipCounter</CODE></A> gets incremented. After the first nested condition
+ evaluates to false, the <A HREF="../../solidbase/core/CommandProcessor.html#skipCounter"><CODE>skipCounter</CODE></A> get incremented.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="skipCounter"><!-- --></A><H3>
+skipCounter</H3>
+<PRE>
+protected int <B>skipCounter</B></PRE>
+<DL>
+<DD>Together with <A HREF="../../solidbase/core/CommandProcessor.html#noSkipCounter"><CODE>noSkipCounter</CODE></A> this enables nested conditions. As long as nested conditions
+ evaluate to true the <A HREF="../../solidbase/core/CommandProcessor.html#noSkipCounter"><CODE>noSkipCounter</CODE></A> gets incremented. After the first nested condition
+ evaluates to false, the <A HREF="../../solidbase/core/CommandProcessor.html#skipCounter"><CODE>skipCounter</CODE></A> get incremented.
 <P>
 <DL>
 </DL>
@@ -839,6 +939,35 @@ popIgnores</H3>
 protected void <B>popIgnores</B>()</PRE>
 <DL>
 <DD>Remove the last added list of ignores.
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="skip(boolean)"><!-- --></A><H3>
+skip</H3>
+<PRE>
+protected void <B>skip</B>(boolean&nbsp;skip)</PRE>
+<DL>
+<DD>Skip persistent commands depending on the boolean parameter. If the skip parameter is true commands will be
+ skipped, otherwise not. As <A HREF="../../solidbase/core/CommandProcessor.html#skip(boolean)"><CODE>skip(boolean)</CODE></A> and <A HREF="../../solidbase/core/CommandProcessor.html#endSkip()"><CODE>endSkip()</CODE></A> can be nested, the same number of
+ endSkips need to be called as the number of skips to stop the skipping.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>skip</CODE> - If true, commands will be skipped, otherwise not.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="endSkip()"><!-- --></A><H3>
+endSkip</H3>
+<PRE>
+protected void <B>endSkip</B>()</PRE>
+<DL>
+<DD>Stop skipping commands. As <A HREF="../../solidbase/core/CommandProcessor.html#skip(boolean)"><CODE>skip(boolean)</CODE></A> and <A HREF="../../solidbase/core/CommandProcessor.html#endSkip()"><CODE>endSkip()</CODE></A> can be nested, only when the same number
+ of endSkips are called as the number of skips, the skipping will stop.
 <P>
 <DD><DL>
 </DL>

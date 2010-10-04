@@ -130,22 +130,6 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;int</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#conditionFalseCounter">conditionFalseCounter</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Together with <A HREF="../../solidbase/core/PatchProcessor.html#conditionTrueCounter"><CODE>conditionTrueCounter</CODE></A> this enables nested conditions.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;int</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#conditionTrueCounter">conditionTrueCounter</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Together with <A HREF="../../solidbase/core/PatchProcessor.html#conditionFalseCounter"><CODE>conditionFalseCounter</CODE></A> this enables nested conditions.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;<A HREF="../../solidbase/core/DBVersion.html" title="class in solidbase.core">DBVersion</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#dbVersion">dbVersion</A></B></CODE>
 
@@ -223,7 +207,7 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 <TH ALIGN="left"><B>Fields inherited from class solidbase.core.<A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#currentDatabase">currentDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#databases">databases</A>, <A HREF="../../solidbase/core/CommandProcessor.html#delimiterPattern">delimiterPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreEnd">ignoreEnd</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreSet">ignoreSet</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreSqlErrorPattern">ignoreSqlErrorPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreStack">ignoreStack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#listeners">listeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#progress">progress</A>, <A HREF="../../solidbase/core/CommandProcessor.html#sectionLevel">sectionLevel</A>, <A HREF="../../solidbase/core/CommandProcessor.html#sectionPattern">sectionPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#selectConnectionPattern">selectConnectionPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setUserPattern">setUserPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startMessage">startMessage</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startMessagePattern">startMessagePattern</A></CODE></TD>
+<TD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#currentDatabase">currentDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#databases">databases</A>, <A HREF="../../solidbase/core/CommandProcessor.html#delimiterPattern">delimiterPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreEnd">ignoreEnd</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreSet">ignoreSet</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreSqlErrorPattern">ignoreSqlErrorPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreStack">ignoreStack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#listeners">listeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#noSkipCounter">noSkipCounter</A>, <A HREF="../../solidbase/core/CommandProcessor.html#progress">progress</A>, <A HREF="../../solidbase/core/CommandProcessor.html#sectionLevel">sectionLevel</A>, <A HREF="../../solidbase/core/CommandProcessor.html#sectionPattern">sectionPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#selectConnectionPattern">selectConnectionPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setUserPattern">setUserPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#skipCounter">skipCounter</A>, <A HREF="../../solidbase/core/CommandProcessor.html#skipEnd">skipEnd</A>, <A HREF="../../solidbase/core/CommandProcessor.html#skipPattern">skipPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startMessage">startMessage</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startMessagePattern">startMessagePattern</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -446,7 +430,7 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 <TH ALIGN="left"><B>Methods inherited from class solidbase.core.<A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#executeListeners(solidbase.core.Command)">executeListeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#executeWithListeners(solidbase.core.Command)">executeWithListeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getCallBack()">getCallBack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getCurrentDatabase()">getCurrentDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getDefaultDatabase()">getDefaultDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#jdbcExecute(solidbase.core.Command)">jdbcExecute</A>, <A HREF="../../solidbase/core/CommandProcessor.html#parseDelimiters(java.util.regex.Matcher)">parseDelimiters</A>, <A HREF="../../solidbase/core/CommandProcessor.html#popIgnores()">popIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#pushIgnores(java.lang.String)">pushIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#refreshIgnores()">refreshIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#section(java.lang.String, java.lang.String, solidbase.core.Command)">section</A>, <A HREF="../../solidbase/core/CommandProcessor.html#selectConnection(java.lang.String, solidbase.core.Command)">selectConnection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setCallBack(solidbase.core.ProgressListener)">setCallBack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setConnection(solidbase.core.Database)">setConnection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setUser(java.lang.String)">setUser</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startSection(int, java.lang.String)">startSection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#terminateCommandListeners()">terminateCommandListeners</A></CODE></TD>
+<TD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#endSkip()">endSkip</A>, <A HREF="../../solidbase/core/CommandProcessor.html#executeListeners(solidbase.core.Command)">executeListeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#executeWithListeners(solidbase.core.Command)">executeWithListeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getCallBack()">getCallBack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getCurrentDatabase()">getCurrentDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getDefaultDatabase()">getDefaultDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#jdbcExecute(solidbase.core.Command)">jdbcExecute</A>, <A HREF="../../solidbase/core/CommandProcessor.html#parseDelimiters(java.util.regex.Matcher)">parseDelimiters</A>, <A HREF="../../solidbase/core/CommandProcessor.html#popIgnores()">popIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#pushIgnores(java.lang.String)">pushIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#refreshIgnores()">refreshIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#section(java.lang.String, java.lang.String, solidbase.core.Command)">section</A>, <A HREF="../../solidbase/core/CommandProcessor.html#selectConnection(java.lang.String, solidbase.core.Command)">selectConnection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setCallBack(solidbase.core.ProgressListener)">setCallBack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setConnection(solidbase.core.Database)">setConnection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setUser(java.lang.String)">setUser</A>, <A HREF="../../solidbase/core/CommandProcessor.html#skip(boolean)">skip</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startSection(int, java.lang.String)">startSection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#terminateCommandListeners()">terminateCommandListeners</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -525,34 +509,6 @@ dontCount</H3>
 protected boolean <B>dontCount</B></PRE>
 <DL>
 <DD>Indicates that the statements are transient and should not be counted.
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
-
-<A NAME="conditionTrueCounter"><!-- --></A><H3>
-conditionTrueCounter</H3>
-<PRE>
-protected int <B>conditionTrueCounter</B></PRE>
-<DL>
-<DD>Together with <A HREF="../../solidbase/core/PatchProcessor.html#conditionFalseCounter"><CODE>conditionFalseCounter</CODE></A> this enables nested conditions. As long as nested conditions
- evaluate to true the <A HREF="../../solidbase/core/PatchProcessor.html#conditionTrueCounter"><CODE>conditionTrueCounter</CODE></A> gets incremented. After the first nested condition
- evaluates to false, the <A HREF="../../solidbase/core/PatchProcessor.html#conditionFalseCounter"><CODE>conditionFalseCounter</CODE></A> get incremented.
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
-
-<A NAME="conditionFalseCounter"><!-- --></A><H3>
-conditionFalseCounter</H3>
-<PRE>
-protected int <B>conditionFalseCounter</B></PRE>
-<DL>
-<DD>Together with <A HREF="../../solidbase/core/PatchProcessor.html#conditionTrueCounter"><CODE>conditionTrueCounter</CODE></A> this enables nested conditions. As long as nested conditions
- evaluate to true the <A HREF="../../solidbase/core/PatchProcessor.html#conditionTrueCounter"><CODE>conditionTrueCounter</CODE></A> gets incremented. After the first nested condition
- evaluates to false, the <A HREF="../../solidbase/core/PatchProcessor.html#conditionFalseCounter"><CODE>conditionFalseCounter</CODE></A> get incremented.
 <P>
 <DL>
 </DL>
