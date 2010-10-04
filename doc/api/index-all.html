@@ -245,12 +245,6 @@ Constructor for class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.
 <DT><A HREF="./solidbase/config/Database.Comparator.html#compare(solidbase.config.Database, solidbase.config.Database)"><B>compare(Database, Database)</B></A> - 
 Method in class solidbase.config.<A HREF="./solidbase/config/Database.Comparator.html" title="class in solidbase.config">Database.Comparator</A>
 <DD>&nbsp;
-<DT><A HREF="./solidbase/core/PatchProcessor.html#conditionFalseCounter"><B>conditionFalseCounter</B></A> - 
-Variable in class solidbase.core.<A HREF="./solidbase/core/PatchProcessor.html" title="class in solidbase.core">PatchProcessor</A>
-<DD>Together with <A HREF="./solidbase/core/PatchProcessor.html#conditionTrueCounter"><CODE>PatchProcessor.conditionTrueCounter</CODE></A> this enables nested conditions.
-<DT><A HREF="./solidbase/core/PatchProcessor.html#conditionTrueCounter"><B>conditionTrueCounter</B></A> - 
-Variable in class solidbase.core.<A HREF="./solidbase/core/PatchProcessor.html" title="class in solidbase.core">PatchProcessor</A>
-<DD>Together with <A HREF="./solidbase/core/PatchProcessor.html#conditionFalseCounter"><CODE>PatchProcessor.conditionFalseCounter</CODE></A> this enables nested conditions.
 <DT><A HREF="./solidbase/config/Options.html#config"><B>config</B></A> - 
 Variable in class solidbase.config.<A HREF="./solidbase/config/Options.html" title="class in solidbase.config">Options</A>
 <DD>A properties file to use.
@@ -444,6 +438,9 @@ Method in class solidbase.core.<A HREF="./solidbase/core/PatchProcessor.html" ti
 <DT><A HREF="./solidbase/core/SQLProcessor.html#end()"><B>end()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/SQLProcessor.html" title="class in solidbase.core">SQLProcessor</A>
 <DD>&nbsp;
+<DT><A HREF="./solidbase/core/CommandProcessor.html#endSkip()"><B>endSkip()</B></A> - 
+Method in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
+<DD>Stop skipping commands.
 <DT><A HREF="./solidbase/util/Tokenizer.Token.html#equals(java.lang.String)"><B>equals(String)</B></A> - 
 Method in class solidbase.util.<A HREF="./solidbase/util/Tokenizer.Token.html" title="class in solidbase.util">Tokenizer.Token</A>
 <DD>Does a case insensitive comparison with the given string.
@@ -709,9 +706,6 @@ Method in exception solidbase.core.<A HREF="./solidbase/core/CommandFileExceptio
 <DT><A HREF="./solidbase/core/SQLExecutionException.html#getMessage()"><B>getMessage()</B></A> - 
 Method in exception solidbase.core.<A HREF="./solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A>
 <DD>&nbsp;
-<DT><A HREF="./solidbase/core/UnterminatedStatementException.html#getMessage()"><B>getMessage()</B></A> - 
-Method in exception solidbase.core.<A HREF="./solidbase/core/UnterminatedStatementException.html" title="class in solidbase.core">UnterminatedStatementException</A>
-<DD>&nbsp;
 <DT><A HREF="./solidbase/ant/DBTask.Connection.html#getName()"><B>getName()</B></A> - 
 Method in class solidbase.ant.<A HREF="./solidbase/ant/DBTask.Connection.html" title="class in solidbase.ant">DBTask.Connection</A>
 <DD>Returns the configured name of the secondary connection.
@@ -962,9 +956,6 @@ Method in class solidbase.core.<A HREF="./solidbase/core/PatchProcessor.html" ti
 <DT><A HREF="./solidbase/core/InitConnectionFragment.html" title="class in solidbase.core"><B>InitConnectionFragment</B></A> - Class in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>An SQL fragment.<DT><A HREF="./solidbase/core/InitConnectionFragment.html#InitConnectionFragment(int, java.lang.String, java.lang.String, java.lang.String)"><B>InitConnectionFragment(int, String, String, String)</B></A> - 
 Constructor for class solidbase.core.<A HREF="./solidbase/core/InitConnectionFragment.html" title="class in solidbase.core">InitConnectionFragment</A>
 <DD>Constructor.
-<DT><A HREF="./solidbase/core/PatchFile.html#initialization"><B>initialization</B></A> - 
-Variable in class solidbase.core.<A HREF="./solidbase/core/PatchFile.html" title="class in solidbase.core">PatchFile</A>
-<DD>Initialization fragment.
 <DT><A HREF="./solidbase/Console.html#input()"><B>input()</B></A> - 
 Method in class solidbase.<A HREF="./solidbase/Console.html" title="class in solidbase">Console</A>
 <DD>Input a string.
@@ -1062,9 +1053,6 @@ Variable in class solidbase.core.<A HREF="./solidbase/core/Patch.html" title="cl
 <DT><A HREF="./solidbase/core/plugins/ImportCSV.Parsed.html#lineNumber"><B>lineNumber</B></A> - 
 Variable in class solidbase.core.plugins.<A HREF="./solidbase/core/plugins/ImportCSV.Parsed.html" title="class in solidbase.core.plugins">ImportCSV.Parsed</A>
 <DD>The current line number in the command file.
-<DT><A HREF="./solidbase/core/UnterminatedStatementException.html#lineNumber"><B>lineNumber</B></A> - 
-Variable in exception solidbase.core.<A HREF="./solidbase/core/UnterminatedStatementException.html" title="class in solidbase.core">UnterminatedStatementException</A>
-<DD>The line number of the unterminated statement.
 <DT><A HREF="./solidbase/util/PushbackReader.html#lineNumber"><B>lineNumber</B></A> - 
 Variable in class solidbase.util.<A HREF="./solidbase/util/PushbackReader.html" title="class in solidbase.util">PushbackReader</A>
 <DD>The current line number.
@@ -1150,6 +1138,12 @@ Variable in class solidbase.xml.elements.<A HREF="./solidbase/xml/elements/Eleme
 <DT><A HREF="./solidbase/core/plugins/ImportCSV.Parsed.html#noBatch"><B>noBatch</B></A> - 
 Variable in class solidbase.core.plugins.<A HREF="./solidbase/core/plugins/ImportCSV.Parsed.html" title="class in solidbase.core.plugins">ImportCSV.Parsed</A>
 <DD>Don't use JDBC batch update.
+<DT><A HREF="./solidbase/core/NonDelimitedStatementException.html" title="class in solidbase.core"><B>NonDelimitedStatementException</B></A> - Exception in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>Exception that is thrown when a statement is not delimited with the current delimiter.<DT><A HREF="./solidbase/core/NonDelimitedStatementException.html#NonDelimitedStatementException(int)"><B>NonDelimitedStatementException(int)</B></A> - 
+Constructor for exception solidbase.core.<A HREF="./solidbase/core/NonDelimitedStatementException.html" title="class in solidbase.core">NonDelimitedStatementException</A>
+<DD>Constructor.
+<DT><A HREF="./solidbase/core/CommandProcessor.html#noSkipCounter"><B>noSkipCounter</B></A> - 
+Variable in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
+<DD>Together with <A HREF="./solidbase/core/CommandProcessor.html#skipCounter"><CODE>CommandProcessor.skipCounter</CODE></A> this enables nested conditions.
 <DT><A HREF="./solidbase/core/Assert.html#notBlank(java.lang.String)"><B>notBlank(String)</B></A> - 
 Static method in class solidbase.core.<A HREF="./solidbase/core/Assert.html" title="class in solidbase.core">Assert</A>
 <DD>Assert that String argument s is not null and not "" and not whitespace.
@@ -1730,6 +1724,18 @@ Static variable in class solidbase.core.<A HREF="./solidbase/core/CommandProcess
 <DT><A HREF="./solidbase/core/Path.html#size()"><B>size()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/Path.html" title="class in solidbase.core">Path</A>
 <DD>Return the number of patches in this path.
+<DT><A HREF="./solidbase/core/CommandProcessor.html#skip(boolean)"><B>skip(boolean)</B></A> - 
+Method in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
+<DD>Skip persistent commands depending on the boolean parameter.
+<DT><A HREF="./solidbase/core/CommandProcessor.html#skipCounter"><B>skipCounter</B></A> - 
+Variable in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
+<DD>Together with <A HREF="./solidbase/core/CommandProcessor.html#noSkipCounter"><CODE>CommandProcessor.noSkipCounter</CODE></A> this enables nested conditions.
+<DT><A HREF="./solidbase/core/CommandProcessor.html#skipEnd"><B>skipEnd</B></A> - 
+Static variable in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
+<DD>Pattern for /SKIP.
+<DT><A HREF="./solidbase/core/CommandProcessor.html#skipPattern"><B>skipPattern</B></A> - 
+Static variable in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
+<DD>Pattern for SKIP.
 <DT><A HREF="./solidbase/core/ProgressListener.html#skipped(solidbase.core.Command)"><B>skipped(Command)</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>
 <DD>A command is skipped because it has been processed earlier in an upgrade that did not complete.
@@ -1933,9 +1939,6 @@ Variable in class solidbase.core.<A HREF="./solidbase/core/Patch.html" title="cl
 <A NAME="_U_"><!-- --></A><H2>
 <B>U</B></H2>
 <DL>
-<DT><A HREF="./solidbase/core/UnterminatedStatementException.html" title="class in solidbase.core"><B>UnterminatedStatementException</B></A> - Exception in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>Exception that is thrown when a statement is not terminated with a GO.<DT><A HREF="./solidbase/core/UnterminatedStatementException.html#UnterminatedStatementException(int)"><B>UnterminatedStatementException(int)</B></A> - 
-Constructor for exception solidbase.core.<A HREF="./solidbase/core/UnterminatedStatementException.html" title="class in solidbase.core">UnterminatedStatementException</A>
-<DD>Constructor.
 <DT><A HREF="./solidbase/core/DBVersion.html#updateProgress(java.lang.String, int)"><B>updateProgress(String, int)</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/DBVersion.html" title="class in solidbase.core">DBVersion</A>
 <DD>Sets the number of statements executed and the target version.
