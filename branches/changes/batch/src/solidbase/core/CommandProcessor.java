@@ -89,6 +89,16 @@ abstract public class CommandProcessor
 	static protected final Pattern skipEnd = Pattern.compile( "/SKIP", Pattern.CASE_INSENSITIVE );
 
 	/**
+	 * Pattern for BATCH.
+	 */
+	static protected final Pattern batchPattern = Pattern.compile( "BATCH", Pattern.CASE_INSENSITIVE );
+
+	/**
+	 * Pattern for /BATCH.
+	 */
+	static protected final Pattern batchEnd = Pattern.compile( "/BATCH", Pattern.CASE_INSENSITIVE );
+
+	/**
 	 * A list of command listeners. A listener listens to the statements being executed and is able to intercept specific ones.
 	 */
 	protected List< CommandListener > listeners;
@@ -143,6 +153,8 @@ abstract public class CommandProcessor
 	 * evaluates to false, the {@link PatchProcessor#skipCounter} get incremented.
 	 */
 	protected int skipCounter;
+
+	protected Statement batch;
 
 	/**
 	 * Constructor.
@@ -270,6 +282,10 @@ abstract public class CommandProcessor
 				skip( true );
 			else if( skipEnd.matcher( sql ).matches() )
 				endSkip();
+			else if( ( matcher = batchPattern.matcher( sql ) ).matches() )
+				startBatch();
+			else if( batchEnd.matcher( sql ).matches() )
+				endBatch();
 			else
 				throw new CommandFileException( "Unknown command " + sql, command.getLineNumber() );
 		}
@@ -293,22 +309,29 @@ abstract public class CommandProcessor
 		if( sql.length() == 0 )
 			return;
 
-		Connection connection = this.currentDatabase.getConnection();
-		Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
-		Statement statement = connection.createStatement();
-		boolean commit = false;
-		try
+		if( this.batch != null )
 		{
-			statement.execute( sql );
-			commit = true;
+			this.batch.addBatch( sql );
 		}
-		finally
+		else
 		{
-			statement.close();
-			if( commit )
-				connection.commit();
-			else
-				connection.rollback();
+			Connection connection = this.currentDatabase.getConnection();
+			Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
+			Statement statement = connection.createStatement();
+			boolean commit = false;
+			try
+			{
+				statement.execute( sql );
+				commit = true;
+			}
+			finally
+			{
+				statement.close();
+				if( commit )
+					connection.commit();
+				else
+					connection.rollback();
+			}
 		}
 	}
 
@@ -389,6 +412,33 @@ abstract public class CommandProcessor
 		{
 			Assert.isTrue( this.noSkipCounter > 0 );
 			this.noSkipCounter--;
+		}
+	}
+
+	protected void startBatch() throws SQLException
+	{
+		Connection connection = this.currentDatabase.getConnection();
+		Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
+		this.batch = connection.createStatement();
+	}
+
+	protected void endBatch() throws SQLException
+	{
+		boolean commit = false;
+		try
+		{
+			this.batch.executeBatch();
+			commit = true;
+		}
+		finally
+		{
+			Connection connection = this.batch.getConnection();
+			this.batch.close();
+			this.batch = null;
+			if( commit )
+				connection.commit();
+			else
+				connection.rollback();
 		}
 	}
 
