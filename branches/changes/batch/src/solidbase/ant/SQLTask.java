@@ -96,7 +96,7 @@ public class SQLTask extends DBTask
 			try
 			{
 				progress.info( "Connecting to database..." );
-				processor.execute();
+				processor.process();
 				progress.info( "" );
 			}
 			finally

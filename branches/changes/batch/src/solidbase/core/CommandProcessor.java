@@ -220,7 +220,10 @@ abstract public class CommandProcessor
 		try
 		{
 			if( !executeListeners( command ) )
-				execute( command );
+				if( command.isPersistent() )
+					executeJdbc( command );
+				else
+					executeTransient( command );
 		}
 		catch( SQLException e )
 		{
@@ -258,41 +261,36 @@ abstract public class CommandProcessor
 	 * @param command The command to be executed.
 	 * @throws SQLException Whenever an SQLException is thrown from JDBC.
 	 */
-	protected void execute( Command command ) throws SQLException
+	protected void executeTransient( Command command ) throws SQLException
 	{
-		if( command.isTransient() )
-		{
-			String sql = command.getCommand();
-			Matcher matcher;
-			if( ( matcher = sectionPattern.matcher( sql ) ).matches() )
-				section( matcher.group( 1 ), matcher.group( 2 ), command );
-			else if( ( matcher = startMessagePattern.matcher( sql ) ).matches() )
-				this.startMessage = matcher.group( 1 );
-			else if( ( matcher = delimiterPattern.matcher( sql ) ).matches() )
-				setDelimiters( parseDelimiters( matcher ) );
-			else if( ( matcher = ignoreSqlErrorPattern.matcher( sql ) ).matches() )
-				pushIgnores( matcher.group( 1 ) );
-			else if( ignoreEnd.matcher( sql ).matches() )
-				popIgnores();
-			else if( ( matcher = selectConnectionPattern.matcher( sql ) ).matches() )
-				selectConnection( matcher.group( 1 ), command );
-			else if( ( matcher = setUserPattern.matcher( sql ) ).matches() )
-				setUser( matcher.group( 1 ) );
-			else if( ( matcher = skipPattern.matcher( sql ) ).matches() )
-				skip( true );
-			else if( skipEnd.matcher( sql ).matches() )
-				endSkip();
-			else if( ( matcher = batchPattern.matcher( sql ) ).matches() )
-				startBatch();
-			else if( batchEnd.matcher( sql ).matches() )
-				endBatch();
-			else
-				throw new CommandFileException( "Unknown command " + sql, command.getLineNumber() );
-		}
+		Assert.isTrue( command.isTransient() );
+
+		String sql = command.getCommand();
+		Matcher matcher;
+		if( ( matcher = sectionPattern.matcher( sql ) ).matches() )
+			section( matcher.group( 1 ), matcher.group( 2 ), command );
+		else if( ( matcher = startMessagePattern.matcher( sql ) ).matches() )
+			this.startMessage = matcher.group( 1 );
+		else if( ( matcher = delimiterPattern.matcher( sql ) ).matches() )
+			setDelimiters( parseDelimiters( matcher ) );
+		else if( ( matcher = ignoreSqlErrorPattern.matcher( sql ) ).matches() )
+			pushIgnores( matcher.group( 1 ) );
+		else if( ignoreEnd.matcher( sql ).matches() )
+			popIgnores();
+		else if( ( matcher = selectConnectionPattern.matcher( sql ) ).matches() )
+			selectConnection( matcher.group( 1 ), command );
+		else if( ( matcher = setUserPattern.matcher( sql ) ).matches() )
+			setUser( matcher.group( 1 ) );
+		else if( ( matcher = skipPattern.matcher( sql ) ).matches() )
+			skip( true );
+		else if( skipEnd.matcher( sql ).matches() )
+			endSkip();
+		else if( ( matcher = batchPattern.matcher( sql ) ).matches() )
+			startBatch();
+		else if( batchEnd.matcher( sql ).matches() )
+			endBatch();
 		else
-		{
-			jdbcExecute( command );
-		}
+			throw new CommandFileException( "Unknown command " + sql, command.getLineNumber() );
 	}
 
 	/**
@@ -301,7 +299,7 @@ abstract public class CommandProcessor
 	 * @param command The command to be executed.
 	 * @throws SQLException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	protected void jdbcExecute( Command command ) throws SQLException
+	protected void executeJdbc( Command command ) throws SQLException
 	{
 		Assert.isTrue( command.isPersistent() ); // TODO Why?
 

@@ -70,7 +70,7 @@ public class SQLProcessor extends CommandProcessor
 	 * 
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	public void execute() throws SQLExecutionException
+	public void process() throws SQLExecutionException
 	{
 		Command command = this.sqlSource.readCommand();
 		while( command != null )
