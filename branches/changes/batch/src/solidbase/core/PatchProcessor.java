@@ -416,23 +416,35 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	}
 
 	@Override
-	protected void executeTransient( Command command ) throws SQLException
+	protected boolean executeListeners( Command command ) throws SQLException
 	{
-		Assert.isTrue( command.isTransient() );
+		if( command.isTransient() )
+		{
+			String sql = command.getCommand();
+			Matcher matcher;
+			if( transientPattern.matcher( sql ).matches() )
+			{
+				enableDontCount();
+				return true;
+			}
+			if( transientPatternEnd.matcher( sql ).matches() )
+			{
+				disableDontCount();
+				return true;
+			}
+			if( ( matcher = ifHistoryContainsPattern.matcher( sql ) ).matches() )
+			{
+				ifHistoryContains( matcher.group( 1 ), matcher.group( 2 ) );
+				return true;
+			}
+			if( ifHistoryContainsEnd.matcher( sql ).matches() )
+			{
+				endSkip();
+				return true;
+			}
+		}
 
-		String sql = command.getCommand();
-
-		Matcher matcher;
-		if( transientPattern.matcher( sql ).matches() )
-			enableDontCount();
-		else if( transientPatternEnd.matcher( sql ).matches() )
-			disableDontCount();
-		else if( ( matcher = ifHistoryContainsPattern.matcher( sql ) ).matches() )
-			ifHistoryContains( matcher.group( 1 ), matcher.group( 2 ) );
-		else if( ifHistoryContainsEnd.matcher( sql ).matches() )
-			endSkip();
-		else
-			super.executeTransient( command );
+		return super.executeListeners( command );
 	}
 
 	@Override

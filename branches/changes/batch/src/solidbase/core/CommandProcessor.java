@@ -154,6 +154,9 @@ abstract public class CommandProcessor
 	 */
 	protected int skipCounter;
 
+	/**
+	 * Batch mode statement. Not null when batch mode is on, null otherwise.
+	 */
 	protected Statement batch;
 
 	/**
@@ -219,11 +222,25 @@ abstract public class CommandProcessor
 
 		try
 		{
-			if( !executeListeners( command ) )
-				if( command.isPersistent() )
-					executeJdbc( command );
+			if( this.batch != null )
+			{
+				if( batchEnd.matcher( command.getCommand() ).matches() )
+					endBatch();
 				else
-					executeTransient( command );
+				{
+					if( command.isTransient() )
+						throw new CommandFileException( "Transient commands are not allowed during batch mode", command.getLineNumber() );
+					executeJdbc( command );
+				}
+			}
+			else
+			{
+				if( !executeListeners( command ) )
+					if( command.isPersistent() )
+						executeJdbc( command );
+					else
+						throw new CommandFileException( "Unknown command " + command.getCommand(), command.getLineNumber() );
+			}
 		}
 		catch( SQLException e )
 		{
@@ -249,48 +266,67 @@ abstract public class CommandProcessor
 	 */
 	protected boolean executeListeners( Command command ) throws SQLException
 	{
+		if( command.isTransient() )
+		{
+			String sql = command.getCommand();
+			Matcher matcher;
+			if( ( matcher = sectionPattern.matcher( sql ) ).matches() )
+			{
+				section( matcher.group( 1 ), matcher.group( 2 ), command );
+				return true;
+			}
+			if( ( matcher = startMessagePattern.matcher( sql ) ).matches() )
+			{
+				this.startMessage = matcher.group( 1 );
+				return true;
+			}
+			if( ( matcher = delimiterPattern.matcher( sql ) ).matches() )
+			{
+				setDelimiters( parseDelimiters( matcher ) );
+				return true;
+			}
+			if( ( matcher = ignoreSqlErrorPattern.matcher( sql ) ).matches() )
+			{
+				pushIgnores( matcher.group( 1 ) );
+				return true;
+			}
+			if( ignoreEnd.matcher( sql ).matches() )
+			{
+				popIgnores();
+				return true;
+			}
+			if( ( matcher = selectConnectionPattern.matcher( sql ) ).matches() )
+			{
+				selectConnection( matcher.group( 1 ), command );
+				return true;
+			}
+			if( ( matcher = setUserPattern.matcher( sql ) ).matches() )
+			{
+				setUser( matcher.group( 1 ) );
+				return true;
+			}
+			if( ( matcher = skipPattern.matcher( sql ) ).matches() )
+			{
+				skip( true );
+				return true;
+			}
+			if( skipEnd.matcher( sql ).matches() )
+			{
+				endSkip();
+				return true;
+			}
+			if( ( matcher = batchPattern.matcher( sql ) ).matches() )
+			{
+				startBatch();
+				return true;
+			}
+		}
+
 		for( CommandListener listener : this.listeners )
 			if( listener.execute( this, command ) )
 				return true;
+
 		return false;
-	}
-
-	/**
-	 * Executes the command.
-	 * 
-	 * @param command The command to be executed.
-	 * @throws SQLException Whenever an SQLException is thrown from JDBC.
-	 */
-	protected void executeTransient( Command command ) throws SQLException
-	{
-		Assert.isTrue( command.isTransient() );
-
-		String sql = command.getCommand();
-		Matcher matcher;
-		if( ( matcher = sectionPattern.matcher( sql ) ).matches() )
-			section( matcher.group( 1 ), matcher.group( 2 ), command );
-		else if( ( matcher = startMessagePattern.matcher( sql ) ).matches() )
-			this.startMessage = matcher.group( 1 );
-		else if( ( matcher = delimiterPattern.matcher( sql ) ).matches() )
-			setDelimiters( parseDelimiters( matcher ) );
-		else if( ( matcher = ignoreSqlErrorPattern.matcher( sql ) ).matches() )
-			pushIgnores( matcher.group( 1 ) );
-		else if( ignoreEnd.matcher( sql ).matches() )
-			popIgnores();
-		else if( ( matcher = selectConnectionPattern.matcher( sql ) ).matches() )
-			selectConnection( matcher.group( 1 ), command );
-		else if( ( matcher = setUserPattern.matcher( sql ) ).matches() )
-			setUser( matcher.group( 1 ) );
-		else if( ( matcher = skipPattern.matcher( sql ) ).matches() )
-			skip( true );
-		else if( skipEnd.matcher( sql ).matches() )
-			endSkip();
-		else if( ( matcher = batchPattern.matcher( sql ) ).matches() )
-			startBatch();
-		else if( batchEnd.matcher( sql ).matches() )
-			endBatch();
-		else
-			throw new CommandFileException( "Unknown command " + sql, command.getLineNumber() );
 	}
 
 	/**
@@ -413,6 +449,11 @@ abstract public class CommandProcessor
 		}
 	}
 
+	/**
+	 * Batch mode starts.
+	 * 
+	 * @throws SQLException Whenever JDBC throws an {@link SQLException}.
+	 */
 	protected void startBatch() throws SQLException
 	{
 		Connection connection = this.currentDatabase.getConnection();
@@ -420,6 +461,11 @@ abstract public class CommandProcessor
 		this.batch = connection.createStatement();
 	}
 
+	/**
+	 * Batch mode ends. The batch is executed.
+	 * 
+	 * @throws SQLException Whenever JDBC throws an {@link SQLException}.
+	 */
 	protected void endBatch() throws SQLException
 	{
 		boolean commit = false;
