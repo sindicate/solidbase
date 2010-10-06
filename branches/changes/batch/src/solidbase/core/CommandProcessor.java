@@ -305,7 +305,7 @@ abstract public class CommandProcessor
 				setUser( matcher.group( 1 ) );
 				return true;
 			}
-			if( ( matcher = skipPattern.matcher( sql ) ).matches() )
+			if( skipPattern.matcher( sql ).matches() )
 			{
 				skip( true );
 				return true;
@@ -315,7 +315,7 @@ abstract public class CommandProcessor
 				endSkip();
 				return true;
 			}
-			if( ( matcher = batchPattern.matcher( sql ) ).matches() )
+			if( batchPattern.matcher( sql ).matches() )
 			{
 				startBatch();
 				return true;

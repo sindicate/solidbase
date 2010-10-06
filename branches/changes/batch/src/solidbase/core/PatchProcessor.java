@@ -442,6 +442,8 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 				endSkip();
 				return true;
 			}
+			if( batchPattern.matcher( sql ).matches() )
+				throw new CommandFileException( "Batch mode not supported in upgrade files", command.getLineNumber() );
 		}
 
 		return super.executeListeners( command );
