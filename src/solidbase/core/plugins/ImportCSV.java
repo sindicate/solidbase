@@ -33,7 +33,6 @@ import solidbase.core.Command;
 import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
-import solidbase.core.SystemException;
 import solidbase.util.Tokenizer;
 import solidbase.util.Tokenizer.Token;
 
@@ -75,46 +74,43 @@ public class ImportCSV extends CommandListener
 
 		Parsed parsed = parse( command );
 
+		// Initialize csv reader & read first line
+		CSVReader reader = new CSVReader( parsed.reader, parsed.separator, '"', "#", true, false, true );
+		String[] line;
 		try
 		{
-			// Initialize csv reader & read first line
-			CSVReader reader = new CSVReader( parsed.reader, parsed.separator, '"', "#", true, false, true );
-			String[] line;
-			try
-			{
-				line = reader.getAllFieldsInLine();
-			}
-			catch( EOFException e )
-			{
-				return true; // Nothing to insert and nothing to clean up
-			}
-
-			// Get connection and initialize commit flag
-			Connection connection = processor.getCurrentDatabase().getConnection();
-			Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
-			boolean commit = false;
-			try
-			{
-				if( parsed.usePLBlock )
-					importUsingPLBlock( command, connection, reader, parsed, line );
-				else if( parsed.useValuesList )
-					importUsingValuesList( command, connection, reader, parsed, line );
-				else
-					importNormal( command, connection, reader, parsed, line );
-
-				commit = true;
-			}
-			finally
-			{
-				if( commit )
-					connection.commit();
-				else
-					connection.rollback();
-			}
+			line = reader.getAllFieldsInLine();
+		}
+		catch( EOFException e )
+		{
+			return true; // Nothing to insert and nothing to clean up
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new CommandFileException( "IOException: " + e.getMessage(), parsed.lineNumber );
+		}
+
+		// Get connection and initialize commit flag
+		Connection connection = processor.getCurrentDatabase().getConnection();
+		Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
+		boolean commit = false;
+		try
+		{
+			if( parsed.usePLBlock )
+				importUsingPLBlock( command, connection, reader, parsed, line );
+			else if( parsed.useValuesList )
+				importUsingValuesList( command, connection, reader, parsed, line );
+			else
+				importNormal( command, connection, reader, parsed, line );
+
+			commit = true;
+		}
+		finally
+		{
+			if( commit )
+				connection.commit();
+			else
+				connection.rollback();
 		}
 
 		return true;
@@ -138,9 +134,8 @@ public class ImportCSV extends CommandListener
 	 * @param parsed The parsed command.
 	 * @param line The first line of data read.
 	 * @throws SQLException Whenever SQL execution throws it.
-	 * @throws IOException Whenever CSV reading throws it.
 	 */
-	protected void importUsingPLBlock( Command command, Connection connection, CSVReader reader, Parsed parsed, String[] line ) throws SQLException, IOException
+	protected void importUsingPLBlock( Command command, Connection connection, CSVReader reader, Parsed parsed, String[] line ) throws SQLException
 	{
 		String sql = generateSQLUsingPLBlock( reader, parsed, line );
 		command.setCommand( sql );
@@ -163,10 +158,9 @@ public class ImportCSV extends CommandListener
 	 * @param parsed The parsed command.
 	 * @param line The first line of data read.
 	 * @return The generated SQL.
-	 * @throws IOException Whenever CSV reading throws it.
 	 */
 	// TODO Cope with variable number of values in the CSV list
-	static protected String generateSQLUsingPLBlock( CSVReader reader, Parsed parsed, String[] line ) throws IOException
+	static protected String generateSQLUsingPLBlock( CSVReader reader, Parsed parsed, String[] line )
 	{
 		String tableName = parsed.tableName;
 		String[] columns = parsed.columns;
@@ -229,6 +223,11 @@ public class ImportCSV extends CommandListener
 			{
 				line = null;
 			}
+			catch( IOException e )
+			{
+				throw new CommandFileException( "IOException: " + e.getMessage(), lineNumber );
+			}
+
 			lineNumber++;
 		}
 		sql.append( "END;\n" );
@@ -252,9 +251,8 @@ public class ImportCSV extends CommandListener
 	 * @param parsed The parsed command.
 	 * @param line The first line of data read.
 	 * @throws SQLException Whenever SQL execution throws it.
-	 * @throws IOException Whenever CSV reading throws it.
 	 */
-	protected void importUsingValuesList( Command command, Connection connection, CSVReader reader, Parsed parsed, String[] line ) throws SQLException, IOException
+	protected void importUsingValuesList( Command command, Connection connection, CSVReader reader, Parsed parsed, String[] line ) throws SQLException
 	{
 		String sql = generateSQLUsingValuesList( reader, parsed, line );
 		command.setCommand( sql );
@@ -277,9 +275,8 @@ public class ImportCSV extends CommandListener
 	 * @param parsed The parsed command.
 	 * @param line The first line of data read.
 	 * @return The generated SQL.
-	 * @throws IOException Whenever CSV reading throws it.
 	 */
-	static protected String generateSQLUsingValuesList( CSVReader reader, Parsed parsed, String[] line ) throws IOException
+	static protected String generateSQLUsingValuesList( CSVReader reader, Parsed parsed, String[] line )
 	{
 		String[] columns = parsed.columns;
 		String[] values = parsed.values;
@@ -345,6 +342,10 @@ public class ImportCSV extends CommandListener
 			{
 				line = null;
 			}
+			catch( IOException e )
+			{
+				throw new CommandFileException( "IOException: " + e.getMessage(), lineNumber );
+			}
 
 			if( line != null )
 				sql.append( ',' );
@@ -369,10 +370,9 @@ public class ImportCSV extends CommandListener
 	 * @param parsed The parsed command.
 	 * @param line The first line of data read.
 	 * @throws SQLException Whenever SQL execution throws it.
-	 * @throws IOException Whenever CSV reading throws it.
 	 */
 	// TODO Cope with variable number of values in the CSV list
-	protected void importNormal( @SuppressWarnings( "unused" ) Command command, Connection connection, CSVReader reader, Parsed parsed, String[] line ) throws SQLException, IOException
+	protected void importNormal( @SuppressWarnings( "unused" ) Command command, Connection connection, CSVReader reader, Parsed parsed, String[] line ) throws SQLException
 	{
 		boolean prependLineNumber = parsed.prependLineNumber;
 		int lineNumber = parsed.lineNumber;
@@ -449,6 +449,8 @@ public class ImportCSV extends CommandListener
 				else
 					statement.addBatch();
 
+				lineNumber++;
+
 				try
 				{
 					line = reader.getAllFieldsInLine();
@@ -459,8 +461,10 @@ public class ImportCSV extends CommandListener
 						statement.executeBatch();
 					return;
 				}
-
-				lineNumber++;
+				catch( IOException e )
+				{
+					throw new CommandFileException( "IOException: " + e.getMessage(), lineNumber );
+				}
 			}
 		}
 		finally

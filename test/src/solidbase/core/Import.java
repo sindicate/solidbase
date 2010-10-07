@@ -35,4 +35,33 @@ public class Import
 
 		patcher.end();
 	}
+
+	@Test(groups="new")
+	public void testImportLineNumber() throws SQLException
+	{
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-import2.sql" );
+
+		try
+		{
+			patcher.patch( "3" );
+			assert false;
+		}
+		catch( CommandFileException e )
+		{
+			assert e.getMessage().contains( "at line 52" );
+		}
+
+		try
+		{
+			patcher.patch( "4" );
+			assert false;
+		}
+		catch( CommandFileException e )
+		{
+			assert e.getMessage().contains( "at line 61" );
+		}
+
+		patcher.end();
+	}
 }
