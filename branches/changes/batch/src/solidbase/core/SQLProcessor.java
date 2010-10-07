@@ -82,6 +82,9 @@ public class SQLProcessor extends CommandProcessor
 			command = this.sqlSource.readCommand();
 		}
 		this.progress.sqlExecutionComplete();
+
+		if( this.batch != null )
+			throw new CommandFileException( "Missing end of batch mode", this.sqlSource.getLineNumber() );
 	}
 
 	@Override
