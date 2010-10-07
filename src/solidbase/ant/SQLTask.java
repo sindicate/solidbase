@@ -124,7 +124,7 @@ public class SQLTask extends DBTask
 						progress.info( "Connecting to database..." ); // TODO Let the database say that (for example the default connection)
 						first = false;
 					}
-					processor.execute();
+					processor.process();
 				}
 			}
 			finally
