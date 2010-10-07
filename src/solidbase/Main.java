@@ -199,12 +199,12 @@ public class Main
 			{
 				console.println( "Connecting to database..." );
 				processor.execute();
-				console.emptyLine();
 			}
 			finally
 			{
 				processor.end();
 			}
+			console.emptyLine();
 		}
 		else
 		{

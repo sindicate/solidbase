@@ -16,6 +16,9 @@
 
 package solidbase.ant;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import solidbase.Version;
@@ -33,28 +36,35 @@ import solidbase.core.Util;
 public class SQLTask extends DBTask
 {
 	/**
-	 * Field to store the configured sql file.
+	 * Field to store the sqlfile attribute.
 	 */
 	protected String sqlfile;
 
 	/**
-	 * Returns the configured sql file.
-	 * 
-	 * @return the configured sql file.
+	 * Field to store multiple nested sqlfile elements.
 	 */
-	public String getSqlfile()
-	{
-		return this.sqlfile;
-	}
+	protected List< Sqlfile > sqlfiles = new ArrayList< Sqlfile >();
 
 	/**
-	 * Sets the sql file to configure.
+	 * Sets the sqlfile attribute.
 	 * 
-	 * @param sqlfile The sql file to configure.
+	 * @param sqlfile The sqlfile attribute.
 	 */
 	public void setSqlfile( String sqlfile )
 	{
 		this.sqlfile = sqlfile;
+	}
+
+	/**
+	 * Creates a nested sqlfile element.
+	 * 
+	 * @return The nested sqlfile element.
+	 */
+	public Sqlfile createSqlfile()
+	{
+		Sqlfile sqlfile = new Sqlfile();
+		this.sqlfiles.add( sqlfile );
+		return sqlfile;
 	}
 
 	/**
@@ -66,7 +76,15 @@ public class SQLTask extends DBTask
 		super.validate();
 
 		if( this.sqlfile == null )
-			throw new BuildException( "The 'sqlfile' attribute is mandatory for the " + getTaskName() + " task" );
+		{
+			if( this.sqlfiles.isEmpty() )
+				throw new BuildException( "The " + getTaskName() + " task needs the 'sqlfile' attribute or nested 'sqlfile' elements" );
+		}
+		else
+		{
+			if( !this.sqlfiles.isEmpty() )
+				throw new BuildException( "The " + getTaskName() + " task does not accept both the 'sqlfile' attribute and nested 'sqlfile' elements" );
+		}
 	}
 
 
@@ -92,21 +110,73 @@ public class SQLTask extends DBTask
 								connection.getUrl() == null ? this.url : connection.getUrl(),
 										connection.getUsername(), connection.getPassword(), progress ) );
 
-			processor.setSQLSource( Util.openSQLFile( project.getBaseDir(), this.sqlfile, progress ).getSource() );
+			if( this.sqlfile != null )
+				this.sqlfiles.add( 0, new Sqlfile( this.sqlfile ) );
+
 			try
 			{
-				progress.info( "Connecting to database..." );
-				processor.execute();
-				progress.info( "" );
+				boolean first = true;
+				for( Sqlfile file : this.sqlfiles )
+				{
+					processor.setSQLSource( Util.openSQLFile( project.getBaseDir(), file.src, progress ).getSource() );
+					if( first )
+					{
+						progress.info( "Connecting to database..." ); // TODO Let the database say that (for example the default connection)
+						first = false;
+					}
+					processor.execute();
+				}
 			}
 			finally
 			{
 				processor.end();
 			}
+			progress.info( "" );
 		}
 		catch( FatalException e )
 		{
 			throw new BuildException( e.getMessage() );
+		}
+	}
+
+	/**
+	 * Object used to configure the nested sqlfile element of the SQLTask.
+	 * 
+	 * @author R.M. de Bloois
+	 */
+	static protected class Sqlfile
+	{
+		/**
+		 * The file path.
+		 */
+		protected String src;
+
+		/**
+		 * Constructor.
+		 */
+		public Sqlfile()
+		{
+			super();
+		}
+
+		/**
+		 * Constructor.
+		 * 
+		 * @param src The file path.
+		 */
+		public Sqlfile( String src )
+		{
+			this.src = src;
+		}
+
+		/**
+		 * Sets the file path.
+		 * 
+		 * @param src The file path.
+		 */
+		public void setSrc( String src )
+		{
+			this.src = src;
 		}
 	}
 }

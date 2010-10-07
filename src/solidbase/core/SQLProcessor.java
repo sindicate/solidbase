@@ -72,6 +72,8 @@ public class SQLProcessor extends CommandProcessor
 	 */
 	public void execute() throws SQLExecutionException
 	{
+		reset(); // TODO This is not unit-tested yet.
+
 		Command command = this.sqlSource.readCommand();
 		while( command != null )
 		{
@@ -81,7 +83,6 @@ public class SQLProcessor extends CommandProcessor
 				this.progress.skipped( command );
 			command = this.sqlSource.readCommand();
 		}
-		this.progress.sqlExecutionComplete();
 	}
 
 	@Override
@@ -95,6 +96,7 @@ public class SQLProcessor extends CommandProcessor
 	{
 		super.end();
 		this.sqlSource.close();
+		this.progress.sqlExecutionComplete();
 	}
 
 	@Override

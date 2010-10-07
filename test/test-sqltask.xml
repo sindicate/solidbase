@@ -26,11 +26,11 @@
 
 	<target name="ant-test">
 		<taskdef resource="solidbasetasks" classpathref="test.classpath" />
-		<solidbase-sql driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask2"
-				username="sa" password=""
-				sqlfile="testsql1.sql">
+		<solidbase-sql driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask2" username="sa" password="">
        		<secondary name="queues" url="jdbc:hsqldb:mem:queues" username="sa" password="geheim" />
        		<secondary name="user" username="sa" password="" />
+			<sqlfile src="testsql1.sql" />
+			<sqlfile src="testsql2.sql" />
         </solidbase-sql>
 	</target>
 

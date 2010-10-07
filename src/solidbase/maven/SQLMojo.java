@@ -62,12 +62,12 @@ public class SQLMojo extends DBMojo
 			{
 				progress.info( "Connecting to database..." );
 				processor.execute();
-				progress.info( "" );
 			}
 			finally
 			{
 				processor.end();
 			}
+			progress.info( "" );
 		}
 		catch( FatalException e )
 		{
