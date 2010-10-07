@@ -70,7 +70,7 @@ public class SQLProcessor extends CommandProcessor
 	 * 
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	public void execute() throws SQLExecutionException
+	public void process() throws SQLExecutionException
 	{
 		reset(); // TODO This is not unit-tested yet.
 
@@ -83,6 +83,9 @@ public class SQLProcessor extends CommandProcessor
 				this.progress.skipped( command );
 			command = this.sqlSource.readCommand();
 		}
+
+		if( this.batch != null )
+			throw new CommandFileException( "Missing end of batch mode", this.sqlSource.getLineNumber() );
 	}
 
 	@Override
