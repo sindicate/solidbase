@@ -30,7 +30,7 @@ public class Sql
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 		SQLProcessor processor = Setup.setupSQLProcessor( "testsql1.sql" );
 
-		processor.execute();
+		processor.process();
 		processor.end();
 
 		TestUtil.assertRecordCount( processor.getCurrentDatabase(), "USERS", 13 );
@@ -43,7 +43,7 @@ public class Sql
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 		SQLProcessor processor = Setup.setupSQLProcessor( "testsql-sections.sql" );
 
-		processor.execute();
+		processor.process();
 		processor.end();
 
 		TestUtil.assertRecordCount( processor.getCurrentDatabase(), "USERS", 13 );

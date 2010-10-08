@@ -198,7 +198,7 @@ public class Main
 			try
 			{
 				console.println( "Connecting to database..." );
-				processor.execute();
+				processor.process();
 			}
 			finally
 			{

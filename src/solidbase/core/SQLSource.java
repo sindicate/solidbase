@@ -189,4 +189,14 @@ public class SQLSource
 			result.append( '\n' );
 		}
 	}
+
+	/**
+	 * Returns the current line number. The current line number is the line that is about to be read.
+	 * 
+	 * @return The current line number.
+	 */
+	public int getLineNumber()
+	{
+		return this.reader.getLineNumber();
+	}
 }
