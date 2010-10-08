@@ -79,3 +79,8 @@ INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '1', 'x' ); INSERT I
 
 --* // To test the reset() between 2 SQL files
 --* SET DELIMITER ISOLATED GO
+
+COMMIT
+GO
+ROLLBACK
+GO
