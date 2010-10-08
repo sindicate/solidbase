@@ -219,7 +219,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 		// SETUP blocks get special treatment.
 		for( Patch patch : patches )
 		{
-			process( patch );
+			patch( patch );
 			this.dbVersion.updateSpec( patch.getTarget() );
 			// TODO How do we get a more dramatic error message here, if something goes wrong?
 		}
@@ -312,7 +312,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 		Assert.isTrue( path.size() > 0, "No upgrades found" );
 
 		for( Patch patch : path )
-			process( patch );
+			patch( patch );
 	}
 
 	/**
@@ -321,7 +321,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	 * @param patch The patch to be executed.
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	protected void process( Patch patch ) throws SQLExecutionException
+	protected void patch( Patch patch ) throws SQLExecutionException
 	{
 		Assert.notNull( patch );
 
@@ -416,46 +416,39 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	}
 
 	@Override
-	protected boolean executeListeners( Command command ) throws SQLException
+	protected void execute( Command command ) throws SQLException
 	{
+		String sql = command.getCommand();
 		if( command.isTransient() )
 		{
-			String sql = command.getCommand();
 			Matcher matcher;
 			if( transientPattern.matcher( sql ).matches() )
-			{
 				enableDontCount();
-				return true;
-			}
-			if( transientPatternEnd.matcher( sql ).matches() )
-			{
+			else if( transientPatternEnd.matcher( sql ).matches() )
 				disableDontCount();
-				return true;
-			}
-			if( ( matcher = ifHistoryContainsPattern.matcher( sql ) ).matches() )
-			{
+			else if( ( matcher = ifHistoryContainsPattern.matcher( sql ) ).matches() )
 				ifHistoryContains( matcher.group( 1 ), matcher.group( 2 ) );
-				return true;
-			}
-			if( ifHistoryContainsEnd.matcher( sql ).matches() )
-			{
+			else if( ifHistoryContainsEnd.matcher( sql ).matches() )
 				endSkip();
-				return true;
-			}
-			if( batchPattern.matcher( sql ).matches() )
-				throw new CommandFileException( "Batch mode not supported in upgrade files", command.getLineNumber() );
+			else
+				super.execute( command );
 		}
-
-		return super.executeListeners( command );
-	}
-
-	@Override
-	protected void executeJdbc( Command command ) throws SQLException
-	{
-		if( command.getCommand().trim().equalsIgnoreCase( "UPGRADE" ) )
-			upgrade( command );
+		else if( this.dontCount )
+		{
+			super.execute( command );
+		}
 		else
-			super.executeJdbc( command );
+		{
+			if( sql.trim().equalsIgnoreCase( "UPGRADE" ) )
+			{
+				this.progress.executing( command, this.startMessage );
+				this.startMessage = null;
+				upgrade( command );
+				this.progress.executed();
+			}
+			else
+				super.execute( command );
+		}
 	}
 
 	private void upgrade( Command command ) throws SQLException
@@ -464,9 +457,9 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 		Assert.isTrue( this.patch.getSource().equals( "1.0" ) && this.patch.getTarget().equals( "1.1" ), "UPGRADE only possible from spec 1.0 to 1.1" );
 
 		int pos = command.getLineNumber();
-		executeJdbc( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'S' WHERE RESULT IS NULL OR RESULT NOT LIKE 'COMPLETED VERSION %'", false, pos ) );
-		executeJdbc( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'B', RESULT = 'COMPLETE' WHERE RESULT LIKE 'COMPLETED VERSION %'", false, pos ) );
-		executeJdbc( new Command( "UPDATE DBVERSION SET SPEC = '1.1'", false, pos ) ); // We need this because the column is made NOT NULL in the upgrade setup block
+		jdbcExecute( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'S' WHERE RESULT IS NULL OR RESULT NOT LIKE 'COMPLETED VERSION %'", false, pos ) );
+		jdbcExecute( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'B', RESULT = 'COMPLETE' WHERE RESULT LIKE 'COMPLETED VERSION %'", false, pos ) );
+		jdbcExecute( new Command( "UPDATE DBVERSION SET SPEC = '1.1'", false, pos ) ); // We need this because the column is made NOT NULL in the upgrade setup block
 	}
 
 	/**

@@ -35,7 +35,7 @@ public class Basic
 	@Test
 	public void testBasic() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb2", "sa", null );
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch1.sql", db );
 
 		Set< String > targets = patcher.getTargets( false, null, false );
@@ -163,7 +163,7 @@ public class Basic
 		patcher.end();
 	}
 
-	@Test
+	@Test(groups="new")
 	public void testMultipleTargets() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
@@ -206,22 +206,5 @@ public class Basic
 		TestUtil.verifyVersion( patcher, "1.0.1", null, 1, "1.1" );
 
 		patcher.end();
-	}
-
-	@Test
-	public void testBatch() throws SQLException
-	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-batch.sql" );
-
-		try
-		{
-			patcher.patch( "1.0.2" );
-			assert false;
-		}
-		catch( CommandFileException e )
-		{
-			assert e.getMessage().contains( "Batch mode not supported in upgrade files" );
-		}
 	}
 }

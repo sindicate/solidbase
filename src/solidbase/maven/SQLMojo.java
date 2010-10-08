@@ -61,7 +61,7 @@ public class SQLMojo extends DBMojo
 			try
 			{
 				progress.info( "Connecting to database..." );
-				processor.process();
+				processor.execute();
 			}
 			finally
 			{
