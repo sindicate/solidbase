@@ -99,6 +99,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	public PatchProcessor( ProgressListener listener )
 	{
 		super( listener );
+		this.autoCommit = true;
 	}
 
 	/**

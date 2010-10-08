@@ -254,7 +254,7 @@ public class CommandLineTests
 				"Adding more USERS\n" +
 				"    Inserting 3 users\n" +
 				"And a message.\n" +
-				"    Inserting 3 users...\n" +
+				"    Inserting 3 users....\n" +
 				"Execution complete.\n\n"
 		);
 	}

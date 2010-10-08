@@ -145,6 +145,12 @@ abstract public class CommandProcessor
 	protected int skipCounter;
 
 	/**
+	 * If true ({@link PatchProcessor}), commands get committed automatically, and rolled back when an {@link SQLException} occurs.
+	 * If false ({@link SQLProcessor}), commit/rollback should be in the command source.
+	 */
+	protected boolean autoCommit;
+
+	/**
 	 * Constructor.
 	 * 
 	 * @param listener Listens to the progress.
@@ -305,10 +311,11 @@ abstract public class CommandProcessor
 		finally
 		{
 			statement.close();
-			if( commit )
-				connection.commit();
-			else
-				connection.rollback();
+			if( this.autoCommit )
+				if( commit )
+					connection.commit();
+				else
+					connection.rollback();
 		}
 	}
 
