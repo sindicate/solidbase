@@ -35,7 +35,7 @@ public class Basic
 	@Test
 	public void testBasic() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb2", "sa", null );
 		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch1.sql", db );
 
 		Set< String > targets = patcher.getTargets( false, null, false );
@@ -163,7 +163,7 @@ public class Basic
 		patcher.end();
 	}
 
-	@Test(groups="new")
+	@Test
 	public void testMultipleTargets() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
