@@ -30,6 +30,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
+import solidbase.util.ExceptionStoringThread;
+
 
 /**
  * This class is the coordinator. It requests an upgrade path from the {@link PatchFile}, and reads commands from it. It
@@ -222,6 +224,8 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 		{
 			process( patch );
 			this.dbVersion.updateSpec( patch.getTarget() );
+			if( Thread.currentThread().isInterrupted() )
+				throw new ThreadDeath();
 			// TODO How do we get a more dramatic error message here, if something goes wrong?
 		}
 	}
@@ -244,56 +248,90 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	 * @param downgradeable Indicates that downgrade paths are allowed to reach the given target.
 	 * @throws SQLExecutionException When the execution of a command throws an {@link SQLException}.
 	 */
-	public void patch( String target, boolean downgradeable ) throws SQLExecutionException
+	public void patch( final String target, final boolean downgradeable ) throws SQLExecutionException
 	{
-		setupControlTables();
-
-		if( target == null )
+		ExceptionStoringThread worker = new ExceptionStoringThread()
 		{
-			LinkedHashSet< String > targets = getTargets( true, null, downgradeable );
-			if( targets.size() > 1 )
-				throw new FatalException( "More than one possible target found, you should specify a target." );
-			if( targets.size() == 0 )
-				throw new SystemException( "Expected at least some targets" );
+			@Override
+			public void runHandled()
+			{
+				setupControlTables();
 
-			String t = targets.iterator().next();
-			patch( this.dbVersion.getVersion(), t, downgradeable );
-			this.progress.upgradeComplete();
-			return; // TODO What about the terminateCommandListeners below?
-		}
-
-		LinkedHashSet< String > targets;
-
-		if( target.endsWith( "*" ) )
-		{
-			String targetPrefix = target.substring( 0, target.length() - 1 );
-			targets = getTargets( true, targetPrefix, downgradeable );
-			if( targets.size() > 1 )
-				throw new FatalException( "More than one possible target found for " + target );
-			for( String t : targets )
-				if( t.startsWith( targetPrefix ) )
+				if( target == null )
 				{
-					patch( this.dbVersion.getVersion(), t, downgradeable );
-					break;
+					LinkedHashSet< String > targets = getTargets( true, null, downgradeable );
+					if( targets.size() > 1 )
+						throw new FatalException( "More than one possible target found, you should specify a target." );
+					if( targets.size() == 0 )
+						throw new SystemException( "Expected at least some targets" );
+
+					String t = targets.iterator().next();
+					patch( PatchProcessor.this.dbVersion.getVersion(), t, downgradeable );
+					PatchProcessor.this.progress.upgradeComplete();
+					return; // TODO What about the terminateCommandListeners below?
 				}
-		}
-		else
-		{
-			targets = getTargets( false, null, downgradeable );
-			for( String t : targets )
-				if( ObjectUtils.equals( t, target ) )
+
+				LinkedHashSet< String > targets;
+
+				if( target.endsWith( "*" ) )
 				{
-					patch( this.dbVersion.getVersion(), t, downgradeable );
-					break;
+					String targetPrefix = target.substring( 0, target.length() - 1 );
+					targets = getTargets( true, targetPrefix, downgradeable );
+					if( targets.size() > 1 )
+						throw new FatalException( "More than one possible target found for " + target );
+					for( String t : targets )
+						if( t.startsWith( targetPrefix ) )
+						{
+							patch( PatchProcessor.this.dbVersion.getVersion(), t, downgradeable );
+							break;
+						}
 				}
+				else
+				{
+					targets = getTargets( false, null, downgradeable );
+					for( String t : targets )
+						if( ObjectUtils.equals( t, target ) )
+						{
+							patch( PatchProcessor.this.dbVersion.getVersion(), t, downgradeable );
+							break;
+						}
+				}
+
+				terminateCommandListeners();
+
+				if( targets.size() == 0 )
+					throw new FatalException( "There is no upgrade path from the current version of the database (" + StringUtils.defaultString( PatchProcessor.this.dbVersion.getVersion(), "no version" ) + ") to the requested target version " + target );
+
+				PatchProcessor.this.progress.upgradeComplete();
+			}
+		};
+
+		// Protect from Ctrl-C aborting all threads, uses interrupt() instead.
+		ShutdownHook hook = new ShutdownHook( worker );
+		Runtime.getRuntime().addShutdownHook( hook );
+
+		worker.start();
+		try
+		{
+			worker.join();
+			if( worker.getException() != null )
+				throw worker.getException();
+			if( worker.isThreadDeath() )
+				throw new FatalException( "Interrupted by user" );
+			try
+			{
+				Runtime.getRuntime().removeShutdownHook( hook );
+			}
+			catch( IllegalStateException e )
+			{
+				// Can't use isInterrupted(), that one returns false after the thread ended
+				throw new FatalException( "Interrupted by user" );
+			}
 		}
-
-		terminateCommandListeners();
-
-		if( targets.size() == 0 )
-			throw new FatalException( "There is no upgrade path from the current version of the database (" + StringUtils.defaultString( this.dbVersion.getVersion(), "no version" ) + ") to the requested target version " + target );
-
-		this.progress.upgradeComplete();
+		catch( InterruptedException e )
+		{
+			Thread.currentThread().interrupt();
+		}
 	}
 
 	/**
@@ -313,7 +351,11 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 		Assert.isTrue( path.size() > 0, "No upgrades found" );
 
 		for( Patch patch : path )
+		{
 			process( patch );
+			if( Thread.currentThread().isInterrupted() )
+				throw new ThreadDeath();
+		}
 	}
 
 	/**
@@ -383,6 +425,10 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 				}
 				else
 					executeWithListeners( command );
+
+				if( !patch.isSetup() )
+					if( Thread.currentThread().isInterrupted() )
+						throw new ThreadDeath();
 
 				command = this.patchSource.readCommand();
 			}
