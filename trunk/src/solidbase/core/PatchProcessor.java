@@ -217,33 +217,12 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 
 		Assert.notEmpty( patches );
 
-		// Protect from CTRL-C
-		ShutdownHook hook = new ShutdownHook( Thread.currentThread() );
-		Runtime.getRuntime().addShutdownHook( hook );
-
 		// SETUP blocks get special treatment.
 		for( Patch patch : patches )
 		{
 			process( patch );
 			this.dbVersion.updateSpec( patch.getTarget() );
-			if( Thread.currentThread().isInterrupted() )
-			{
-				hook.interrupt();
-				throw new FatalException( "Interrupted by user" );
-			}
 			// TODO How do we get a more dramatic error message here, if something goes wrong?
-		}
-
-		try
-		{
-			// End protect from CTRL-C
-			Runtime.getRuntime().removeShutdownHook( hook );
-		}
-		catch( IllegalStateException e )
-		{
-			// There is a very small window of chance that the remove fails because the shutdown was just started.
-			// To prevent the JVM from hanging we need to send an interrupt to the shutdown hook.
-			hook.interrupt();
 		}
 	}
 
@@ -333,31 +312,8 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 		Path path = this.patchFile.getPatchPath( version, target, downgradeable );
 		Assert.isTrue( path.size() > 0, "No upgrades found" );
 
-		// Protect from CTRL-C
-		ShutdownHook hook = new ShutdownHook( Thread.currentThread() );
-		Runtime.getRuntime().addShutdownHook( hook );
-
 		for( Patch patch : path )
-		{
 			process( patch );
-			if( Thread.currentThread().isInterrupted() )
-			{
-				hook.interrupt();
-				throw new FatalException( "Interrupted by user" );
-			}
-		}
-
-		try
-		{
-			// End protect from CTRL-C
-			Runtime.getRuntime().removeShutdownHook( hook );
-		}
-		catch( IllegalStateException e )
-		{
-			// There is a very small window of chance that the remove fails because the shutdown was just started.
-			// To prevent the JVM from hanging we need to send an interrupt to the shutdown hook.
-			hook.interrupt();
-		}
 	}
 
 	/**
@@ -427,10 +383,6 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 				}
 				else
 					executeWithListeners( command );
-
-				if( !patch.isSetup() )
-					if( Thread.currentThread().isInterrupted() )
-						return;
 
 				command = this.patchSource.readCommand();
 			}
