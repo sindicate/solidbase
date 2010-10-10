@@ -55,7 +55,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../solidbase/ant/Progress.html" title="class in solidbase.ant"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/ant/UpgradeTask.html" title="class in solidbase.ant"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/ant/SQLTask.Sqlfile.html" title="class in solidbase.ant"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/ant/SQLTask.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="SQLTask.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -75,7 +75,7 @@ function windowTitle()
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;<A HREF="#nested_classes_inherited_from_class_solidbase.ant.DBTask">NESTED</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
 DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
@@ -125,6 +125,14 @@ The Sql Ant Task.
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Nested Class Summary</B></FONT></TH>
 </TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected static&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/ant/SQLTask.Sqlfile.html" title="class in solidbase.ant">SQLTask.Sqlfile</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Object used to configure the nested sqlfile element of the SQLTask.</TD>
+</TR>
 </TABLE>
 &nbsp;<A NAME="nested_classes_inherited_from_class_solidbase.ant.DBTask"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
@@ -150,7 +158,15 @@ The Sql Ant Task.
 <TD><CODE><B><A HREF="../../solidbase/ant/SQLTask.html#sqlfile">sqlfile</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Field to store the configured sql file.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Field to store the sqlfile attribute.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/ant/SQLTask.Sqlfile.html" title="class in solidbase.ant">SQLTask.Sqlfile</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/ant/SQLTask.html#sqlfiles">sqlfiles</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Field to store multiple nested sqlfile elements.</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="fields_inherited_from_class_solidbase.ant.DBTask"><!-- --></A>
@@ -207,6 +223,14 @@ The Sql Ant Task.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../solidbase/ant/SQLTask.Sqlfile.html" title="class in solidbase.ant">SQLTask.Sqlfile</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/ant/SQLTask.html#createSqlfile()">createSqlfile</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a nested sqlfile element.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/ant/SQLTask.html#execute()">execute</A></B>()</CODE>
 
@@ -215,19 +239,11 @@ The Sql Ant Task.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/ant/SQLTask.html#getSqlfile()">getSqlfile</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the configured sql file.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/ant/SQLTask.html#setSqlfile(java.lang.String)">setSqlfile</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;sqlfile)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets the sql file to configure.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets the sqlfile attribute.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -292,7 +308,19 @@ sqlfile</H3>
 <PRE>
 protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>sqlfile</B></PRE>
 <DL>
-<DD>Field to store the configured sql file.
+<DD>Field to store the sqlfile attribute.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="sqlfiles"><!-- --></A><H3>
+sqlfiles</H3>
+<PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/ant/SQLTask.Sqlfile.html" title="class in solidbase.ant">SQLTask.Sqlfile</A>&gt; <B>sqlfiles</B></PRE>
+<DL>
+<DD>Field to store multiple nested sqlfile elements.
 <P>
 <DL>
 </DL>
@@ -325,29 +353,29 @@ public <B>SQLTask</B>()</PRE>
 </TR>
 </TABLE>
 
-<A NAME="getSqlfile()"><!-- --></A><H3>
-getSqlfile</H3>
-<PRE>
-public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>getSqlfile</B>()</PRE>
-<DL>
-<DD>Returns the configured sql file.
-<P>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>the configured sql file.</DL>
-</DD>
-</DL>
-<HR>
-
 <A NAME="setSqlfile(java.lang.String)"><!-- --></A><H3>
 setSqlfile</H3>
 <PRE>
 public void <B>setSqlfile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;sqlfile)</PRE>
 <DL>
-<DD>Sets the sql file to configure.
+<DD>Sets the sqlfile attribute.
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>sqlfile</CODE> - The sql file to configure.</DL>
+<DT><B>Parameters:</B><DD><CODE>sqlfile</CODE> - The sqlfile attribute.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="createSqlfile()"><!-- --></A><H3>
+createSqlfile</H3>
+<PRE>
+public <A HREF="../../solidbase/ant/SQLTask.Sqlfile.html" title="class in solidbase.ant">SQLTask.Sqlfile</A> <B>createSqlfile</B>()</PRE>
+<DL>
+<DD>Creates a nested sqlfile element.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>The nested sqlfile element.</DL>
 </DD>
 </DL>
 <HR>
@@ -411,7 +439,7 @@ public void <B>execute</B>()</PRE>
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../solidbase/ant/Progress.html" title="class in solidbase.ant"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/ant/UpgradeTask.html" title="class in solidbase.ant"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/ant/SQLTask.Sqlfile.html" title="class in solidbase.ant"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/ant/SQLTask.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="SQLTask.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -431,7 +459,7 @@ public void <B>execute</B>()</PRE>
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;<A HREF="#nested_classes_inherited_from_class_solidbase.ant.DBTask">NESTED</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
 DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>

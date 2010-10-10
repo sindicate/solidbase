@@ -126,6 +126,14 @@ Processes commands, maintains state, triggers the listeners.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#autoCommit">autoCommit</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If true (<A HREF="../../solidbase/core/PatchProcessor.html" title="class in solidbase.core"><CODE>PatchProcessor</CODE></A>), commands get committed automatically, and rolled back when an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> occurs.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;<A HREF="../../solidbase/core/Database.html" title="class in solidbase.core">Database</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#currentDatabase">currentDatabase</A></B></CODE>
 
@@ -336,10 +344,10 @@ Processes commands, maintains state, triggers the listeners.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#execute(solidbase.core.Command)">execute</A></B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#executeJdbc(solidbase.core.Command)">executeJdbc</A></B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Executes the command.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Execute the given command.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -380,14 +388,6 @@ Processes commands, maintains state, triggers the listeners.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the default database.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#jdbcExecute(solidbase.core.Command)">jdbcExecute</A></B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Execute the given command.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -758,6 +758,19 @@ protected int <B>skipCounter</B></PRE>
 <DL>
 </DL>
 </DL>
+<HR>
+
+<A NAME="autoCommit"><!-- --></A><H3>
+autoCommit</H3>
+<PRE>
+protected boolean <B>autoCommit</B></PRE>
+<DL>
+<DD>If true (<A HREF="../../solidbase/core/PatchProcessor.html" title="class in solidbase.core"><CODE>PatchProcessor</CODE></A>), commands get committed automatically, and rolled back when an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> occurs.
+ If false (<A HREF="../../solidbase/core/SQLProcessor.html" title="class in solidbase.core"><CODE>SQLProcessor</CODE></A>), commit/rollback should be in the command source.
+<P>
+<DL>
+</DL>
+</DL>
 
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 
@@ -862,26 +875,10 @@ protected boolean <B>executeListeners</B>(<A HREF="../../solidbase/core/Command.
 </DL>
 <HR>
 
-<A NAME="execute(solidbase.core.Command)"><!-- --></A><H3>
-execute</H3>
+<A NAME="executeJdbc(solidbase.core.Command)"><!-- --></A><H3>
+executeJdbc</H3>
 <PRE>
-protected void <B>execute</B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)
-                throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></PRE>
-<DL>
-<DD>Executes the command.
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>command</CODE> - The command to be executed.
-<DT><B>Throws:</B>
-<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - Whenever an SQLException is thrown from JDBC.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="jdbcExecute(solidbase.core.Command)"><!-- --></A><H3>
-jdbcExecute</H3>
-<PRE>
-protected void <B>jdbcExecute</B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)
+protected void <B>executeJdbc</B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)
                     throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></PRE>
 <DL>
 <DD>Execute the given command.

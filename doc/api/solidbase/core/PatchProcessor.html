@@ -207,7 +207,7 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 <TH ALIGN="left"><B>Fields inherited from class solidbase.core.<A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#currentDatabase">currentDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#databases">databases</A>, <A HREF="../../solidbase/core/CommandProcessor.html#delimiterPattern">delimiterPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreEnd">ignoreEnd</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreSet">ignoreSet</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreSqlErrorPattern">ignoreSqlErrorPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreStack">ignoreStack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#listeners">listeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#noSkipCounter">noSkipCounter</A>, <A HREF="../../solidbase/core/CommandProcessor.html#progress">progress</A>, <A HREF="../../solidbase/core/CommandProcessor.html#sectionLevel">sectionLevel</A>, <A HREF="../../solidbase/core/CommandProcessor.html#sectionPattern">sectionPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#selectConnectionPattern">selectConnectionPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setUserPattern">setUserPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#skipCounter">skipCounter</A>, <A HREF="../../solidbase/core/CommandProcessor.html#skipEnd">skipEnd</A>, <A HREF="../../solidbase/core/CommandProcessor.html#skipPattern">skipPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startMessage">startMessage</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startMessagePattern">startMessagePattern</A></CODE></TD>
+<TD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#autoCommit">autoCommit</A>, <A HREF="../../solidbase/core/CommandProcessor.html#currentDatabase">currentDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#databases">databases</A>, <A HREF="../../solidbase/core/CommandProcessor.html#delimiterPattern">delimiterPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreEnd">ignoreEnd</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreSet">ignoreSet</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreSqlErrorPattern">ignoreSqlErrorPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreStack">ignoreStack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#listeners">listeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#noSkipCounter">noSkipCounter</A>, <A HREF="../../solidbase/core/CommandProcessor.html#progress">progress</A>, <A HREF="../../solidbase/core/CommandProcessor.html#sectionLevel">sectionLevel</A>, <A HREF="../../solidbase/core/CommandProcessor.html#sectionPattern">sectionPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#selectConnectionPattern">selectConnectionPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setUserPattern">setUserPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#skipCounter">skipCounter</A>, <A HREF="../../solidbase/core/CommandProcessor.html#skipEnd">skipEnd</A>, <A HREF="../../solidbase/core/CommandProcessor.html#skipPattern">skipPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startMessage">startMessage</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startMessagePattern">startMessagePattern</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -285,10 +285,18 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#execute(solidbase.core.Command)">execute</A></B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#executeJdbc(solidbase.core.Command)">executeJdbc</A></B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Executes the command.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Execute the given command.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#executeListeners(solidbase.core.Command)">executeListeners</A></B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Give the listeners a chance to react to the given command.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -358,14 +366,6 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#patch(solidbase.core.Patch)">patch</A></B>(<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>&nbsp;patch)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Execute a patch.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#patch(java.lang.String)">patch</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target)</CODE>
 
@@ -390,6 +390,14 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Upgrade the database from the given version to the given target.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#process(solidbase.core.Patch)">process</A></B>(<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>&nbsp;patch)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Execute a patch.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -430,7 +438,7 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 <TH ALIGN="left"><B>Methods inherited from class solidbase.core.<A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#endSkip()">endSkip</A>, <A HREF="../../solidbase/core/CommandProcessor.html#executeListeners(solidbase.core.Command)">executeListeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#executeWithListeners(solidbase.core.Command)">executeWithListeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getCallBack()">getCallBack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getCurrentDatabase()">getCurrentDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getDefaultDatabase()">getDefaultDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#jdbcExecute(solidbase.core.Command)">jdbcExecute</A>, <A HREF="../../solidbase/core/CommandProcessor.html#parseDelimiters(java.util.regex.Matcher)">parseDelimiters</A>, <A HREF="../../solidbase/core/CommandProcessor.html#popIgnores()">popIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#pushIgnores(java.lang.String)">pushIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#refreshIgnores()">refreshIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#section(java.lang.String, java.lang.String, solidbase.core.Command)">section</A>, <A HREF="../../solidbase/core/CommandProcessor.html#selectConnection(java.lang.String, solidbase.core.Command)">selectConnection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setCallBack(solidbase.core.ProgressListener)">setCallBack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setConnection(solidbase.core.Database)">setConnection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setUser(java.lang.String)">setUser</A>, <A HREF="../../solidbase/core/CommandProcessor.html#skip(boolean)">skip</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startSection(int, java.lang.String)">startSection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#terminateCommandListeners()">terminateCommandListeners</A></CODE></TD>
+<TD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#endSkip()">endSkip</A>, <A HREF="../../solidbase/core/CommandProcessor.html#executeWithListeners(solidbase.core.Command)">executeWithListeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getCallBack()">getCallBack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getCurrentDatabase()">getCurrentDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getDefaultDatabase()">getDefaultDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#parseDelimiters(java.util.regex.Matcher)">parseDelimiters</A>, <A HREF="../../solidbase/core/CommandProcessor.html#popIgnores()">popIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#pushIgnores(java.lang.String)">pushIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#refreshIgnores()">refreshIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#section(java.lang.String, java.lang.String, solidbase.core.Command)">section</A>, <A HREF="../../solidbase/core/CommandProcessor.html#selectConnection(java.lang.String, solidbase.core.Command)">selectConnection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setCallBack(solidbase.core.ProgressListener)">setCallBack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setConnection(solidbase.core.Database)">setConnection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setUser(java.lang.String)">setUser</A>, <A HREF="../../solidbase/core/CommandProcessor.html#skip(boolean)">skip</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startSection(int, java.lang.String)">startSection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#terminateCommandListeners()">terminateCommandListeners</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -837,11 +845,11 @@ protected void <B>patch</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/jav
 </DL>
 <HR>
 
-<A NAME="patch(solidbase.core.Patch)"><!-- --></A><H3>
-patch</H3>
+<A NAME="process(solidbase.core.Patch)"><!-- --></A><H3>
+process</H3>
 <PRE>
-protected void <B>patch</B>(<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>&nbsp;patch)
-              throws <A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></PRE>
+protected void <B>process</B>(<A HREF="../../solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>&nbsp;patch)
+                throws <A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></PRE>
 <DL>
 <DD>Execute a patch.
 <P>
@@ -856,22 +864,43 @@ protected void <B>patch</B>(<A HREF="../../solidbase/core/Patch.html" title="cla
 </DL>
 <HR>
 
-<A NAME="execute(solidbase.core.Command)"><!-- --></A><H3>
-execute</H3>
+<A NAME="executeListeners(solidbase.core.Command)"><!-- --></A><H3>
+executeListeners</H3>
 <PRE>
-protected void <B>execute</B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)
-                throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></PRE>
+protected boolean <B>executeListeners</B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)
+                            throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></PRE>
 <DL>
-<DD><B>Description copied from class: <CODE><A HREF="../../solidbase/core/CommandProcessor.html#execute(solidbase.core.Command)">CommandProcessor</A></CODE></B></DD>
-<DD>Executes the command.
+<DD><B>Description copied from class: <CODE><A HREF="../../solidbase/core/CommandProcessor.html#executeListeners(solidbase.core.Command)">CommandProcessor</A></CODE></B></DD>
+<DD>Give the listeners a chance to react to the given command.
 <P>
 <DD><DL>
-<DT><B>Overrides:</B><DD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#execute(solidbase.core.Command)">execute</A></CODE> in class <CODE><A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></CODE></DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#executeListeners(solidbase.core.Command)">executeListeners</A></CODE> in class <CODE><A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>command</CODE> - The command to be executed.
+<DT><B>Returns:</B><DD>True if a listener has processed the command, false otherwise.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - If the database throws an exception.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="executeJdbc(solidbase.core.Command)"><!-- --></A><H3>
+executeJdbc</H3>
+<PRE>
+protected void <B>executeJdbc</B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)
+                    throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></PRE>
+<DL>
+<DD><B>Description copied from class: <CODE><A HREF="../../solidbase/core/CommandProcessor.html#executeJdbc(solidbase.core.Command)">CommandProcessor</A></CODE></B></DD>
+<DD>Execute the given command.
+<P>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#executeJdbc(solidbase.core.Command)">executeJdbc</A></CODE> in class <CODE><A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></CODE></DL>
 </DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>command</CODE> - The command to be executed.
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - Whenever an SQLException is thrown from JDBC.</DL>
+<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - Whenever an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> occurs during the execution of a command.</DL>
 </DD>
 </DL>
 <HR>
