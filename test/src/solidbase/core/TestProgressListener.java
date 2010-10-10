@@ -73,13 +73,13 @@ public class TestProgressListener extends ProgressListener
 	@Override
 	protected void openedPatchFile( PatchFile patchFile )
 	{
-		System.out.println( "OPENEDPATCHFILE: " + patchFile );
+		System.out.println( "OPENEDPATCHFILE." );
 	}
 
 	@Override
 	protected void openedSQLFile( SQLFile sqlFile )
 	{
-		System.out.println( "OPENEDSQLFILE: " + sqlFile );
+		System.out.println( "OPENEDSQLFILE." );
 	}
 
 	@Override
