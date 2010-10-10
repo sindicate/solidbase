@@ -28,7 +28,6 @@
 
 --* SETUP "" --> "1.1"
 
---* SECTION "Creating SolidBase control tables"
 CREATE TABLE DBVERSION
 (
 	SPEC VARCHAR NOT NULL,

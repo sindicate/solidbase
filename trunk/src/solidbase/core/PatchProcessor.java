@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
-import solidbase.util.ExceptionStoringThread;
+import solidbase.util.WorkerThread;
 
 
 /**
@@ -250,10 +250,10 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	 */
 	public void patch( final String target, final boolean downgradeable ) throws SQLExecutionException
 	{
-		ExceptionStoringThread worker = new ExceptionStoringThread()
+		WorkerThread worker = new WorkerThread()
 		{
 			@Override
-			public void runHandled()
+			public void work()
 			{
 				setupControlTables();
 

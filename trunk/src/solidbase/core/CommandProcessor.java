@@ -481,8 +481,8 @@ abstract public class CommandProcessor
 	// TODO No signal to the listeners here?
 	public void end()
 	{
-		if( this.currentDatabase != null )
-			this.currentDatabase.closeConnections();
+		for( Database database : this.databases.values() )
+			database.closeConnections();
 	}
 
 	/**
