@@ -1,21 +1,29 @@
 package solidbase.util;
 
 /**
- * Thread that stores uncaught exceptions.
+ * Worker thread which stores the exception in case it ended with one. It also stores if the thread ended itself by throwing a ThreadDeath error.
  * 
  * @author René M. de Bloois
  */
-abstract public class ExceptionStoringThread extends Thread
+abstract public class WorkerThread extends Thread
 {
 	private RuntimeException exception;
 	private boolean threadDeath;
+
+	/**
+	 * Constructor.
+	 */
+	public WorkerThread()
+	{
+		super( "Worker" );
+	}
 
 	@Override
 	public void run()
 	{
 		try
 		{
-			runHandled();
+			work();
 		}
 		catch( RuntimeException e )
 		{
@@ -30,7 +38,7 @@ abstract public class ExceptionStoringThread extends Thread
 	/**
 	 * Override to implement the thread. If a RuntimeException is thrown, it is stored, and can be retrieved by {@link #getException()}.
 	 */
-	abstract public void runHandled();
+	abstract public void work();
 
 	/**
 	 * Returns the RuntimeException that the thread has thrown.
@@ -42,6 +50,11 @@ abstract public class ExceptionStoringThread extends Thread
 		return this.exception;
 	}
 
+	/**
+	 * Returns true if the thread threw a {@link ThreadDeath} error to indicated that it was interrupted, false otherwise.
+	 * 
+	 * @return true if the thread threw a {@link ThreadDeath} error to indicated that it was interrupted, false otherwise.
+	 */
 	public boolean isThreadDeath()
 	{
 		return this.threadDeath;
