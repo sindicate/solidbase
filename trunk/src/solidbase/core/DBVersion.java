@@ -326,10 +326,10 @@ public class DBVersion
 			init();
 
 		if( this.versionRecordExists )
-			execute( "UPDATE " + this.versionTableName + " SET TARGET = ?, STATEMENTS = ?", new Object[] { target, statements } );
+			execute( "UPDATE " + this.versionTableName + " SET TARGET = ?, STATEMENTS = ?", target, statements );
 		else
 		{
-			execute( "INSERT INTO " + this.versionTableName + " ( TARGET, STATEMENTS ) VALUES ( ?, ? )", new Object[] { target, statements } );
+			execute( "INSERT INTO " + this.versionTableName + " ( TARGET, STATEMENTS ) VALUES ( ?, ? )", target, statements );
 			this.versionRecordExists = true;
 		}
 
@@ -350,10 +350,10 @@ public class DBVersion
 			init();
 
 		if( this.versionRecordExists )
-			execute( "UPDATE " + this.versionTableName + " SET VERSION = ?, TARGET = NULL", new Object[] { version } );
+			execute( "UPDATE " + this.versionTableName + " SET VERSION = ?, TARGET = NULL", version );
 		else
 		{
-			execute( "INSERT INTO " + this.versionTableName + " ( VERSION, TARGET, STATEMENTS ) VALUES ( ?, NULL, 0 )", new Object[] { version } );
+			execute( "INSERT INTO " + this.versionTableName + " ( VERSION, TARGET, STATEMENTS ) VALUES ( ?, NULL, 0 )", version );
 			this.versionRecordExists = true;
 		}
 
@@ -384,10 +384,10 @@ public class DBVersion
 			Assert.isTrue( this.effectiveSpec.equals( SPEC11 ), "Only spec 1.0 or 1.1 allowed" );
 			Assert.isTrue( this.specColumnExists, "SPEC column should exist in the DBVERSION table" );
 			if( this.versionRecordExists )
-				execute( "UPDATE " + this.versionTableName + " SET SPEC = ?", new Object[] { spec } );
+				execute( "UPDATE " + this.versionTableName + " SET SPEC = ?", spec );
 			else
 			{
-				execute( "INSERT INTO " + this.versionTableName + " ( STATEMENTS, SPEC ) VALUES ( 0, ? )", new Object[] { spec } );
+				execute( "INSERT INTO " + this.versionTableName + " ( STATEMENTS, SPEC ) VALUES ( 0, ? )", spec );
 				this.versionRecordExists = true;
 			}
 		}
@@ -423,10 +423,10 @@ public class DBVersion
 
 		if( SPEC11.equals( this.effectiveSpec ) )
 			execute( "INSERT INTO " + this.logTableName + " ( TYPE, SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ?, ? )",
-					new Object[] { type, source, target, count, new Timestamp( System.currentTimeMillis() ), command, result } );
+					type, source, target, count, new Timestamp( System.currentTimeMillis() ), command, result );
 		else
 			execute( "INSERT INTO " + this.logTableName + " ( SOURCE, TARGET, STATEMENT, STAMP, COMMAND, RESULT ) VALUES ( ?, ?, ?, ?, ?, ? )",
-					new Object[] { source, target, count, new Timestamp( System.currentTimeMillis() ), command, result } );
+					source, target, count, new Timestamp( System.currentTimeMillis() ), command, result );
 	}
 
 	/**
@@ -589,7 +589,7 @@ public class DBVersion
 	 * @param sql The sql to be executed.
 	 * @param parameters The parameters for the sql.
 	 */
-	protected void execute( String sql, Object[] parameters )
+	protected void execute( String sql, Object... parameters )
 	{
 		try
 		{

@@ -207,4 +207,14 @@ public class Basic
 
 		patcher.end();
 	}
+
+	// @Test TODO
+	public void testSetUser() throws SQLException
+	{
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-setuser.sql" );
+
+		patcher.patch( null );
+		patcher.end();
+	}
 }

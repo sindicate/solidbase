@@ -70,7 +70,7 @@ public class Util
 	 * @param listener The progress listener.
 	 * @return A random access reader for the file.
 	 */
-	static public RandomAccessLineReader openFile( File baseDir, String fileName, ProgressListener listener )
+	static public RandomAccessLineReader openRALR( File baseDir, String fileName, ProgressListener listener )
 	{
 		Assert.notNull( fileName );
 
@@ -88,7 +88,7 @@ public class Util
 			}
 
 			File file = new File( baseDir, fileName ); // In the current folder
-			listener.openingSQLFile( file );
+			listener.openingPatchFile( file );
 			return new RandomAccessLineReader( file );
 		}
 		catch( IOException e )
@@ -171,7 +171,7 @@ public class Util
 	{
 		if( fileName == null )
 			fileName = "upgrade.sql";
-		RandomAccessLineReader reader = openFile( baseDir, fileName, listener );
+		RandomAccessLineReader reader = openRALR( baseDir, fileName, listener );
 		PatchFile result = new PatchFile( reader );
 		try
 		{

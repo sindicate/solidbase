@@ -36,7 +36,7 @@ public class Import
 		patcher.end();
 	}
 
-	@Test(groups="new")
+	@Test
 	public void testImportLineNumber() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
