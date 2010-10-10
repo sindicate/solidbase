@@ -381,8 +381,7 @@ protected void <B>importUsingPLBlock</B>(<A HREF="../../../solidbase/core/Comman
                                   com.mindprod.csv.CSVReader&nbsp;reader,
                                   <A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html" title="class in solidbase.core.plugins">ImportCSV.Parsed</A>&nbsp;parsed,
                                   <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;line)
-                           throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A>,
-                                  <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
+                           throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></PRE>
 <DL>
 <DD>Import data using a PL/SQL BEGIN/END block, like this:
  
@@ -397,8 +396,7 @@ protected void <B>importUsingPLBlock</B>(<A HREF="../../../solidbase/core/Comman
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>command</CODE> - The import command.<DD><CODE>connection</CODE> - The connection with the database.<DD><CODE>reader</CODE> - The CSV reader.<DD><CODE>parsed</CODE> - The parsed command.<DD><CODE>line</CODE> - The first line of data read.
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - Whenever SQL execution throws it.
-<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></CODE> - Whenever CSV reading throws it.</DL>
+<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - Whenever SQL execution throws it.</DL>
 </DD>
 </DL>
 <HR>
@@ -408,16 +406,13 @@ generateSQLUsingPLBlock</H3>
 <PRE>
 protected static <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>generateSQLUsingPLBlock</B>(com.mindprod.csv.CSVReader&nbsp;reader,
                                                 <A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html" title="class in solidbase.core.plugins">ImportCSV.Parsed</A>&nbsp;parsed,
-                                                <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;line)
-                                         throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
+                                                <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;line)</PRE>
 <DL>
 <DD>Generates the SQL for <A HREF="../../../solidbase/core/plugins/ImportCSV.html#importUsingPLBlock(solidbase.core.Command, java.sql.Connection, com.mindprod.csv.CSVReader, solidbase.core.plugins.ImportCSV.Parsed, java.lang.String[])"><CODE>importUsingPLBlock(Command, Connection, CSVReader, Parsed, String[])</CODE></A>.
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>reader</CODE> - The CSV reader.<DD><CODE>parsed</CODE> - The parsed command.<DD><CODE>line</CODE> - The first line of data read.
-<DT><B>Returns:</B><DD>The generated SQL.
-<DT><B>Throws:</B>
-<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></CODE> - Whenever CSV reading throws it.</DL>
+<DT><B>Returns:</B><DD>The generated SQL.</DL>
 </DD>
 </DL>
 <HR>
@@ -430,8 +425,7 @@ protected void <B>importUsingValuesList</B>(<A HREF="../../../solidbase/core/Com
                                      com.mindprod.csv.CSVReader&nbsp;reader,
                                      <A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html" title="class in solidbase.core.plugins">ImportCSV.Parsed</A>&nbsp;parsed,
                                      <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;line)
-                              throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A>,
-                                     <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
+                              throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></PRE>
 <DL>
 <DD>Import data using a ANSI SQL values list, like this:
  
@@ -445,8 +439,7 @@ protected void <B>importUsingValuesList</B>(<A HREF="../../../solidbase/core/Com
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>command</CODE> - The import command.<DD><CODE>connection</CODE> - The connection with the database.<DD><CODE>reader</CODE> - The CSV reader.<DD><CODE>parsed</CODE> - The parsed command.<DD><CODE>line</CODE> - The first line of data read.
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - Whenever SQL execution throws it.
-<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></CODE> - Whenever CSV reading throws it.</DL>
+<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - Whenever SQL execution throws it.</DL>
 </DD>
 </DL>
 <HR>
@@ -456,16 +449,13 @@ generateSQLUsingValuesList</H3>
 <PRE>
 protected static <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>generateSQLUsingValuesList</B>(com.mindprod.csv.CSVReader&nbsp;reader,
                                                    <A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html" title="class in solidbase.core.plugins">ImportCSV.Parsed</A>&nbsp;parsed,
-                                                   <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;line)
-                                            throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
+                                                   <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;line)</PRE>
 <DL>
 <DD>Generates the SQL for <A HREF="../../../solidbase/core/plugins/ImportCSV.html#importUsingValuesList(solidbase.core.Command, java.sql.Connection, com.mindprod.csv.CSVReader, solidbase.core.plugins.ImportCSV.Parsed, java.lang.String[])"><CODE>importUsingValuesList(Command, Connection, CSVReader, Parsed, String[])</CODE></A>.
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>reader</CODE> - The CSV reader.<DD><CODE>parsed</CODE> - The parsed command.<DD><CODE>line</CODE> - The first line of data read.
-<DT><B>Returns:</B><DD>The generated SQL.
-<DT><B>Throws:</B>
-<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></CODE> - Whenever CSV reading throws it.</DL>
+<DT><B>Returns:</B><DD>The generated SQL.</DL>
 </DD>
 </DL>
 <HR>
@@ -478,8 +468,7 @@ protected void <B>importNormal</B>(<A HREF="../../../solidbase/core/Command.html
                             com.mindprod.csv.CSVReader&nbsp;reader,
                             <A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html" title="class in solidbase.core.plugins">ImportCSV.Parsed</A>&nbsp;parsed,
                             <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;line)
-                     throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A>,
-                            <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
+                     throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></PRE>
 <DL>
 <DD>Import data using a JDBC prepared statement, like this:
  
@@ -490,8 +479,7 @@ protected void <B>importNormal</B>(<A HREF="../../../solidbase/core/Command.html
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>command</CODE> - The import command.<DD><CODE>connection</CODE> - The connection with the database.<DD><CODE>reader</CODE> - The CSV reader.<DD><CODE>parsed</CODE> - The parsed command.<DD><CODE>line</CODE> - The first line of data read.
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - Whenever SQL execution throws it.
-<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></CODE> - Whenever CSV reading throws it.</DL>
+<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - Whenever SQL execution throws it.</DL>
 </DD>
 </DL>
 <HR>

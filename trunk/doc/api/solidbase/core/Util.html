@@ -131,16 +131,6 @@ Some utilities.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="../../solidbase/util/RandomAccessLineReader.html" title="class in solidbase.util">RandomAccessLineReader</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/Util.html#openFile(java.io.File, java.lang.String, solidbase.core.ProgressListener)">openFile</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A>&nbsp;baseDir,
-         <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;fileName,
-         <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;listener)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Open the specified SQL file in the specified folder.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../solidbase/core/PatchFile.html" title="class in solidbase.core">PatchFile</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/Util.html#openPatchFile(java.io.File, java.lang.String, solidbase.core.ProgressListener)">openPatchFile</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A>&nbsp;baseDir,
               <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;fileName,
@@ -157,6 +147,16 @@ Some utilities.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Open the specified upgrade file in the specified folder.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../solidbase/util/RandomAccessLineReader.html" title="class in solidbase.util">RandomAccessLineReader</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/Util.html#openRALR(java.io.File, java.lang.String, solidbase.core.ProgressListener)">openRALR</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A>&nbsp;baseDir,
+         <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;fileName,
+         <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;listener)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Open the specified SQL file in the specified folder.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -228,10 +228,10 @@ public static boolean <B>hasColumn</B>(<A HREF="http://java.sun.com/j2se/1.5.0/d
 </DL>
 <HR>
 
-<A NAME="openFile(java.io.File, java.lang.String, solidbase.core.ProgressListener)"><!-- --></A><H3>
-openFile</H3>
+<A NAME="openRALR(java.io.File, java.lang.String, solidbase.core.ProgressListener)"><!-- --></A><H3>
+openRALR</H3>
 <PRE>
-public static <A HREF="../../solidbase/util/RandomAccessLineReader.html" title="class in solidbase.util">RandomAccessLineReader</A> <B>openFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A>&nbsp;baseDir,
+public static <A HREF="../../solidbase/util/RandomAccessLineReader.html" title="class in solidbase.util">RandomAccessLineReader</A> <B>openRALR</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A>&nbsp;baseDir,
                                               <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;fileName,
                                               <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>&nbsp;listener)</PRE>
 <DL>

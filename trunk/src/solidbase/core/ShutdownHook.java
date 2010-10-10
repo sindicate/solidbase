@@ -22,6 +22,7 @@ package solidbase.core;
  * 
  * @author René M. de Bloois
  */
+// TODO Move to the util package
 public class ShutdownHook extends Thread
 {
 	/**

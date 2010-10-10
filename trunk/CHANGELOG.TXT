@@ -1,3 +1,11 @@
+Changes from 1.6.2 to 1.6.3
+---------------------------
+
+ENH  Ant sb-sql task: ability to specify more than one SQL file to be executed using nested 'sqlfile' elements.
+ENH  CTRL-C (SIGTERM) during a database upgrade keeps the database in a consistent state by only allowing interruptions after the control tables have been updated.
+ENH  Errors in CSV data are now printed with the line number from the source file.
+CHA  For performance reasons, auto-commit is off during the execution of SQL files. Explicit COMMIT statements need to be added to the SQL files. 
+
 Changes from 1.6.1 to 1.6.2
 ---------------------------
 

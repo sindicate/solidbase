@@ -14,10 +14,10 @@ Major/minor release
 		solidbase/scripts/generategettingstarted.groovy (5 times)
 		Use 1.6.0-RC1 when doing a first major release
 			We don't do snapshots. Snapshot are automatic releases, we don't do automatic.
-	Changelog
-	Check 'svn update && ant dist'
-		Or 'ant clean build test'
+	Update the changelog
+	Check 'svn update && ant clean build test'
 	If release a candidate, test it at your current project
+	Commit
 	Tag the revision that you want to deploy
 	'ant maven:deploy'
 		Use the revision from the tag
