@@ -20,8 +20,8 @@ Major/minor release
 	Commit
 	Tag the revision that you want to deploy
 	'ant maven:deploy'
-		Use the revision from the tag
-		Always update the working copy, otherwise you won't get a correct revXXX
+		Use the revision from the trunk or branch
+		Update to the revision on the trunk or branch, otherwise you won't get a correct revXXX
 		This deploys to the local solidbase-repository which is a checked out folder from subversion.
 	Create a branch when you know that you are going to do major enhancements on the trunk
 		Otherwise wait till you start doing new developments on the trunk
