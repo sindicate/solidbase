@@ -79,6 +79,11 @@ CREATE TABLE USERS
 --* SET MESSAGE "Inserting admin user"
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' );
 
+--* // Test of the assert plugin
+ASSERT EXISTS MESSAGE "Expecting users"
+SELECT *
+FROM USERS;
+
 --* /PATCH
 
 --* // ========================================================================

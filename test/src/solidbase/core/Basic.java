@@ -158,7 +158,7 @@ public class Basic
 		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-sharedpatch1.sql" );
 
 		patcher.patch( "1.0.2" );
-		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null );
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 3, null );
 
 		patcher.end();
 	}
