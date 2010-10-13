@@ -1,7 +1,9 @@
-#summary Reference Guide describing every feature of SolidBase (in progress)
+#summary Reference Guide describing every feature of #summary Reference Guide describing every feature of SolidBase (in progress)
 
 == Contents ==
- * [#IF_HISTORY IF HISTORY]
+ * [#ASSERT_EMPTY ASSERT EMPTY]
+ * [#ASSERT_EXISTS ASSERT EXISTS]
+ * [#IF_HISTORY IF HISTORY] (upgrade only)
  * [#IGNORE_SQL_ERROR IGNORE SQL ERROR]
  * [#IMPORT_CSV IMPORT CSV]
  * [#PRINT_SELECT PRINT SELECT]
@@ -9,11 +11,55 @@
  * [#SELECT_CONNECTION SELECT CONNECTION]
  * [#SET_DELIMITER SET DELIMITER]
  * [#SET_USER SET USER]
- * [#TRANSIENT TRANSIENT]
+ * [#SKIP SKIP]
+ * [#TRANSIENT TRANSIENT] (upgrade only)
+
+----------------------------------------
+== ASSERT EMPTY ==
+Asserts that a given query does not return results.
+=== Since ===
+1.0
+=== Syntax ===
+{{{
+ASSERT EMPTY MESSAGE "<error message>" <select statement>
+}}}
+=== Example ===
+{{{
+--* // To support an action that does not work when data is present in the table.
+--* // For example adding a NOT NULL column.
+ASSERT EMPTY MESSAGE "The TEMP_DATA table should not contain any data during the upgrade"
+SELECT *
+FROM TEMP_DATA;
+}}}
+
+----------------------------------------
+== ASSERT EXISTS ==
+Asserts that a given query returns results.
+=== Since ===
+1.0
+=== Syntax ===
+{{{
+ASSERT EXISTS MESSAGE "<error message>" <select statement>
+}}}
+=== Example ===
+{{{
+--* // Switching from another change control tool to SolidBase:
+--* // We need to check that the database has the correct version in the version tables of the other tool.
+ASSERT EXISTS MESSAGE "The upgrade expects version 1.34 of the database"
+SELECT *
+FROM OLD_STYLE_VERSION_TABLE
+WHERE CURRENT_VERSION = '1.34';
+}}}
 
 ----------------------------------------
 == IF HISTORY ==
+(Upgrade only)
+
 Conditional execution of commands depending on the historical upgrade path.
+This is useful when the upgrade path contains branches.
+In that case, the main upgrade path needs to sometimes be able to change its behaviour depending on
+the branch path being followed or not.
+The complete history is stored in the database.
 === Since ===
 1.5.0
 === Syntax ===
@@ -23,7 +69,7 @@ Conditional execution of commands depending on the historical upgrade path.
 }}}
 === Example ===
 {{{
---* // If the upgrade path includes version 1.1.5 then the column has already been added to the table.
+--* // If the upgrade history includes version 1.1.5 then the column has already been added to the table.
 --* IF HISTORY NOT CONTAINS "1.1.5"
 ALTER TABLE ATABLE ADD ACOLUMN INTEGER;
 --* /IF
@@ -211,8 +257,33 @@ Not supported when using the Ant task or Maven plugin, the secondary connections
 }}}
 
 ----------------------------------------
+== SKIP ==
+Skips commands.
+=== Since ===
+1.6.2
+=== Syntax ===
+{{{
+--* SKIP
+--* /SKIP
+}}}
+=== Example ===
+{{{
+--* SKIP
+-- In Oracle this is a command that you sometimes see in SQL files to 
+-- prevent & from being recognized as a parameter to the SQL file.
+-- It is a SQLPlus command, and should be skipped when executing this SQL file with SolidBase.
+SET DEFINE OFF;
+--* /SKIP
+}}}
+
+----------------------------------------
 == TRANSIENT ==
+(Upgrade only)
+
 Marks commands as transient (not persisted).
+During upgrade, persistent statements are counted (all commands that do not start with --`*`). This is needed to restart the upgrade after a failure.
+After a restart, already executed persistent statements are skipped automatically.
+Transient commands however, like the one in the example below, should not be counted and not be skipped after a restart.
 === Since ===
 1.6.1
 === Syntax ===
