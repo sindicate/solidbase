@@ -18,6 +18,7 @@
 --*	PATCHES
 --*		PATCH "" --> "1.0.1"
 --*		PATCH "1.0.1" --> "1.0.2"
+--*		PATCH "1.0.2" --> "1.0.3"
 --*	/PATCHES
 
 
@@ -114,5 +115,18 @@ DATA
 3|4;
 
 PRINT SELECT TEMP1 || TEMP2 || TEMP3 FROM TEMP3;
+
+--* /PATCH
+
+
+
+
+--* PATCH "1.0.2" --> "1.0.3"
+
+CREATE TABLE TEMP4 ( TEMP1 VARCHAR(40), TEMP2 VARCHAR(40), TEMP3 VARCHAR(40) );
+
+--* // Empty string should become NULL 
+IMPORT CSV INTO TEMP4 DATA
+, "2", "3";
 
 --* /PATCH

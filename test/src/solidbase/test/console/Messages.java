@@ -22,7 +22,7 @@ public class Messages
 				"-url", "jdbc:hsqldb:mem:testdb",
 				"-username", "sa",
 				"-password", "",
-				"-target", "1.0.*",
+				"-target", "1.0.2",
 				"-upgradefile", "testpatch-import1.sql" );
 
 		String output = TestUtil.generalizeOutput( console.getOutput() );
@@ -42,9 +42,9 @@ public class Messages
 				"Starting import....\n" + // Message before listener execution
 				"    Generating SQLException.\n" + // There should be a dot here
 				"    Importing with linenumber..\n" +
-				"97\n" +
 				"98\n" +
-				"99.\n" +
+				"99\n" +
+				"100.\n" +
 				"        Importing with column list\n" +
 				"            And deeper..\n" +
 				"23Y\n" +
