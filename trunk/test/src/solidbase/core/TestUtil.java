@@ -143,4 +143,17 @@ public class TestUtil
 		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
 		return output.replaceAll( "\\\r", "" );
 	}
+
+	static public void assertQueryResultEquals( PatchProcessor patcher, String query, Object expected ) throws SQLException
+	{
+		Connection connection = patcher.currentDatabase.getConnection();
+		ResultSet result = connection.createStatement().executeQuery( query );
+		assert result.next() : "Expected 1 row";
+		Object value = result.getObject( 1 );
+		assert !result.next() : "Expected only 1 row";
+		if( expected == null )
+			assert value == null : "Expected null, got [" + value + "]";
+		else
+			assert expected.equals( value ) : "Expected [" + expected + "], got [" + value + "]";
+	}
 }
