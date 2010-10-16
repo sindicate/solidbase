@@ -16,9 +16,6 @@
 
 package solidbase.core.plugins;
 
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.Reader;
 import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,10 +30,9 @@ import solidbase.core.Command;
 import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
+import solidbase.util.CSVReader;
 import solidbase.util.Tokenizer;
 import solidbase.util.Tokenizer.Token;
-
-import com.mindprod.csv.CSVReader;
 
 
 /**
@@ -75,20 +71,12 @@ public class ImportCSV extends CommandListener
 		Parsed parsed = parse( command );
 
 		// Initialize csv reader & read first line
-		CSVReader reader = new CSVReader( parsed.reader, parsed.separator, '"', "#", true, false, true );
-		String[] line;
-		try
-		{
-			line = reader.getAllFieldsInLine();
-		}
-		catch( EOFException e )
-		{
-			return true; // Nothing to insert and nothing to clean up
-		}
-		catch( IOException e )
-		{
-			throw new CommandFileException( "IOException: " + e.getMessage(), parsed.lineNumber );
-		}
+		parsed.tokenizer.setMode( true, true, parsed.separator == '\t' );
+		CSVReader reader = new CSVReader( parsed.tokenizer, parsed.separator );
+		int lineNumber = reader.getLineNumber();
+		String[] line = reader.getLine();
+		if( line == null )
+			return true;
 
 		// Get connection and initialize commit flag
 		Connection connection = processor.getCurrentDatabase().getConnection();
@@ -96,12 +84,7 @@ public class ImportCSV extends CommandListener
 		boolean commit = false;
 		try
 		{
-			if( parsed.usePLBlock )
-				importUsingPLBlock( command, connection, reader, parsed, line );
-			else if( parsed.useValuesList )
-				importUsingValuesList( command, connection, reader, parsed, line );
-			else
-				importNormal( command, connection, reader, parsed, line );
+			importNormal( command, connection, reader, parsed, line, lineNumber );
 
 			commit = true;
 		}
@@ -114,246 +97,6 @@ public class ImportCSV extends CommandListener
 		}
 
 		return true;
-	}
-
-
-	/**
-	 * Import data using a PL/SQL BEGIN/END block, like this:
-	 * 
-	 * <blockquote><pre>
-	 * BEGIN
-	 *     INSERT INTO TABLE1 VALUES ( VALUE1, VALUE2 );
-	 *     INSERT INTO TABLE1 VALUES ( VALUE1, VALUE2 );
-	 *     INSERT INTO TABLE1 VALUES ( VALUE1, VALUE2 );
-	 * END;
-	 * </pre></blockquote>
-	 * 
-	 * @param command The import command.
-	 * @param connection The connection with the database.
-	 * @param reader The CSV reader.
-	 * @param parsed The parsed command.
-	 * @param line The first line of data read.
-	 * @throws SQLException Whenever SQL execution throws it.
-	 */
-	protected void importUsingPLBlock( Command command, Connection connection, CSVReader reader, Parsed parsed, String[] line ) throws SQLException
-	{
-		String sql = generateSQLUsingPLBlock( reader, parsed, line );
-		command.setCommand( sql );
-		PreparedStatement statement = connection.prepareStatement( sql );
-		try
-		{
-			statement.executeUpdate();
-		}
-		finally
-		{
-			statement.close();
-		}
-	}
-
-
-	/**
-	 * Generates the SQL for {@link #importUsingPLBlock(Command, Connection, CSVReader, Parsed, String[])}.
-	 * 
-	 * @param reader The CSV reader.
-	 * @param parsed The parsed command.
-	 * @param line The first line of data read.
-	 * @return The generated SQL.
-	 */
-	// TODO Cope with variable number of values in the CSV list
-	static protected String generateSQLUsingPLBlock( CSVReader reader, Parsed parsed, String[] line )
-	{
-		String tableName = parsed.tableName;
-		String[] columns = parsed.columns;
-		String[] values = parsed.values;
-		boolean prependLineNumber = parsed.prependLineNumber;
-		int lineNumber = parsed.lineNumber;
-
-		StringBuilder sql = new StringBuilder();
-		sql.append( "BEGIN\n" );
-		while( line != null )
-		{
-			preprocess( line );
-
-			sql.append( "INSERT INTO " );
-			sql.append( tableName );
-			if( columns != null )
-			{
-				sql.append( " (" );
-				for( int i = 0; i < columns.length; i++ )
-				{
-					if( i > 0 )
-						sql.append( ',' );
-					sql.append( columns[ i ] );
-				}
-				sql.append( ')' );
-			}
-			sql.append( " VALUES (" );
-			if( values != null )
-			{
-				for( int i = 0; i < values.length; i++ )
-				{
-					if( i > 0 )
-						sql.append( "," );
-					String value = values[ i ];
-					value = translateArgument( value, prependLineNumber, lineNumber, line );
-					sql.append( value );
-				}
-			}
-			else
-			{
-				if( prependLineNumber )
-				{
-					sql.append( lineNumber );
-					sql.append( ',' );
-				}
-				for( int i = 0; i < line.length; i++ )
-				{
-					if( i > 0 )
-						sql.append( ',' );
-					sql.append( quoteOrNull( line[ i ] ) );
-				}
-			}
-			sql.append( ");\n" );
-
-			try
-			{
-				line = reader.getAllFieldsInLine();
-			}
-			catch( EOFException e )
-			{
-				line = null;
-			}
-			catch( IOException e )
-			{
-				throw new CommandFileException( "IOException: " + e.getMessage(), lineNumber );
-			}
-
-			lineNumber++;
-		}
-		sql.append( "END;\n" );
-		return sql.toString();
-	}
-
-
-	/**
-	 * Import data using a ANSI SQL values list, like this:
-	 * 
-	 * <blockquote><pre>
-	 * INSERT INTO TABLE1 VALUES
-	 * ( VALUE1, VALUE2 ),
-	 * ( VALUE1, VALUE2 ),
-	 * ( VALUE1, VALUE2 );
-	 * </pre></blockquote>
-	 * 
-	 * @param command The import command.
-	 * @param connection The connection with the database.
-	 * @param reader The CSV reader.
-	 * @param parsed The parsed command.
-	 * @param line The first line of data read.
-	 * @throws SQLException Whenever SQL execution throws it.
-	 */
-	protected void importUsingValuesList( Command command, Connection connection, CSVReader reader, Parsed parsed, String[] line ) throws SQLException
-	{
-		String sql = generateSQLUsingValuesList( reader, parsed, line );
-		command.setCommand( sql );
-		PreparedStatement statement = connection.prepareStatement( sql );
-		try
-		{
-			statement.executeUpdate();
-		}
-		finally
-		{
-			statement.close();
-		}
-	}
-
-
-	/**
-	 * Generates the SQL for {@link #importUsingValuesList(Command, Connection, CSVReader, Parsed, String[])}.
-	 * 
-	 * @param reader The CSV reader.
-	 * @param parsed The parsed command.
-	 * @param line The first line of data read.
-	 * @return The generated SQL.
-	 */
-	static protected String generateSQLUsingValuesList( CSVReader reader, Parsed parsed, String[] line )
-	{
-		String[] columns = parsed.columns;
-		String[] values = parsed.values;
-		boolean prependLineNumber = parsed.prependLineNumber;
-		int lineNumber = parsed.lineNumber;
-
-		StringBuilder sql = new StringBuilder();
-		sql.append( "INSERT INTO " );
-		sql.append( parsed.tableName );
-		if( columns != null )
-		{
-			sql.append( " (" );
-			sql.append( columns[ 0 ] );
-			for( int i = 1; i < columns.length; i++ )
-			{
-				sql.append( ',' );
-				sql.append( columns[ i ] );
-			}
-			sql.append( ')' );
-		}
-		sql.append( " VALUES " );
-		while( line != null )
-		{
-			preprocess( line );
-
-			if( columns != null && values == null )
-				if( columns.length != ( prependLineNumber ? line.length + 1 : line.length ) )
-					throw new CommandFileException( "Number of values does not match number of specified columns", lineNumber );
-
-			sql.append( '(' );
-			if( values != null )
-			{
-				for( int i = 0; i < values.length; i++ )
-				{
-					if( i > 0 )
-						sql.append( "," );
-					String value = values[ i ];
-					value = translateArgument( value, prependLineNumber, lineNumber, line );
-					sql.append( value );
-				}
-			}
-			else
-			{
-				if( prependLineNumber )
-				{
-					sql.append( lineNumber );
-					sql.append( ',' );
-				}
-				for( int i = 0; i < line.length; i++ )
-				{
-					if( i > 0 )
-						sql.append( ',' );
-					sql.append( quoteOrNull( line[ i ] ) );
-				}
-			}
-			sql.append( ")" );
-
-			try
-			{
-				line = reader.getAllFieldsInLine();
-			}
-			catch( EOFException e )
-			{
-				line = null;
-			}
-			catch( IOException e )
-			{
-				throw new CommandFileException( "IOException: " + e.getMessage(), lineNumber );
-			}
-
-			if( line != null )
-				sql.append( ',' );
-			sql.append( '\n' );
-
-			lineNumber++;
-		}
-		return sql.toString();
 	}
 
 
@@ -372,10 +115,9 @@ public class ImportCSV extends CommandListener
 	 * @throws SQLException Whenever SQL execution throws it.
 	 */
 	// TODO Cope with variable number of values in the CSV list
-	protected void importNormal( @SuppressWarnings( "unused" ) Command command, Connection connection, CSVReader reader, Parsed parsed, String[] line ) throws SQLException
+	protected void importNormal( @SuppressWarnings( "unused" ) Command command, Connection connection, CSVReader reader, Parsed parsed, String[] line, int lineNumber ) throws SQLException
 	{
 		boolean prependLineNumber = parsed.prependLineNumber;
-		int lineNumber = parsed.lineNumber;
 
 		StringBuilder sql = new StringBuilder( "INSERT INTO " );
 		sql.append( parsed.tableName );
@@ -449,21 +191,13 @@ public class ImportCSV extends CommandListener
 				else
 					statement.addBatch();
 
-				lineNumber++;
-
-				try
-				{
-					line = reader.getAllFieldsInLine();
-				}
-				catch( EOFException e )
+				lineNumber = reader.getLineNumber();
+				line = reader.getLine();
+				if( line == null )
 				{
 					if( !parsed.noBatch )
 						statement.executeBatch();
 					return;
-				}
-				catch( IOException e )
-				{
-					throw new CommandFileException( "IOException: " + e.getMessage(), lineNumber );
 				}
 			}
 		}
@@ -609,17 +343,6 @@ public class ImportCSV extends CommandListener
 			t = tokenizer.get( "USING", "INTO" );
 		}
 
-		if( t.equals( "USING" ) )
-		{
-			t = tokenizer.get( "PLBLOCK", "VALUESLIST" );
-			if( t.equals( "PLBLOCK" ) )
-				result.usePLBlock = true;
-			else
-				result.useValuesList = true;
-
-			t = tokenizer.get( "INTO" );
-		}
-
 		if( !t.equals( "INTO" ) )
 			throw new CommandFileException( "Expecting [INTO], not [" + t + "]", tokenizer.getLineNumber() );
 		result.tableName = tokenizer.get().toString();
@@ -670,8 +393,7 @@ public class ImportCSV extends CommandListener
 			throw new CommandFileException( "Expecting [DATA], not [" + t + "]", tokenizer.getLineNumber() );
 		tokenizer.getNewline();
 
-		result.lineNumber = tokenizer.getLineNumber();
-		result.reader = tokenizer.getReader();
+		result.tokenizer = tokenizer;
 
 		if( columns.size() > 0 )
 			result.columns = columns.toArray( new String[ columns.size() ] );
@@ -750,21 +472,9 @@ public class ImportCSV extends CommandListener
 		 */
 		protected boolean prependLineNumber;
 		/**
-		 * The current line number in the command file.
-		 */
-		protected int lineNumber;
-		/**
 		 * Don't use JDBC batch update.
 		 */
 		protected boolean noBatch;
-		/**
-		 * Generate SQL with the ANSI SQL values list.
-		 */
-		protected boolean useValuesList;
-		/**
-		 * Generate SQL with the Oracle BEGIN END block.
-		 */
-		protected boolean usePLBlock;
 		/**
 		 * The table name to insert into.
 		 */
@@ -780,6 +490,6 @@ public class ImportCSV extends CommandListener
 		/**
 		 * The underlying reader from the {@link Tokenizer}.
 		 */
-		protected Reader reader;
+		protected Tokenizer tokenizer;
 	}
 }

@@ -23,7 +23,7 @@ import solidbase.core.PatchProcessor;
 
 public class Import
 {
-	@Test
+	@Test(groups="new")
 	public void testImport() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
@@ -39,7 +39,7 @@ public class Import
 		patcher.end();
 	}
 
-	@Test
+	@Test(groups="new")
 	public void testImportLineNumber() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
