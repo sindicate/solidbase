@@ -44,7 +44,8 @@ public class CSVReader
 	/**
 	 * Constructor.
 	 * 
-	 * @param tokenizer The source of tokens.
+	 * @param reader The source of the CSV data.
+	 * @param lineNumber The current line number.
 	 * @param separator The separator that separates the values.
 	 */
 	public CSVReader( Reader reader, int lineNumber, char separator )
@@ -68,11 +69,7 @@ public class CSVReader
 		while( !token.isEndOfInput() && !token.isNewline() )
 		{
 			if( token.equals( this.separator ) )
-			{
 				values.add( "" );
-				token = tokenizer.get();
-//				System.out.println( "Token: " + token );
-			}
 			else
 			{
 				String value = token.getValue();
@@ -81,13 +78,13 @@ public class CSVReader
 				values.add( value );
 				token = tokenizer.get( this.separator, "\n", null );
 //				System.out.println( "Token: " + token );
-				if( token.equals( this.separator ) )
-				{
-					token = tokenizer.get();
-//					System.out.println( "Token: " + token );
-					if( token.isEndOfInput() || token.isNewline() )
-						values.add( "" );
-				}
+			}
+			if( token.equals( this.separator ) )
+			{
+				token = tokenizer.get();
+//				System.out.println( "Token: " + token );
+				if( token.isEndOfInput() || token.isNewline() )
+					values.add( "" );
 			}
 		}
 		if( values.isEmpty() )

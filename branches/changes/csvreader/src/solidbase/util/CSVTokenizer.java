@@ -34,6 +34,9 @@ public class CSVTokenizer
 	 */
 	protected PushbackReader in;
 
+	/**
+	 * The CSV separator.
+	 */
 	protected int separator;
 
 
@@ -42,6 +45,7 @@ public class CSVTokenizer
 	 * 
 	 * @param in The input.
 	 * @param lineNumber The current line number.
+	 * @param separator The CSV separator.
 	 */
 	public CSVTokenizer( Reader in, int lineNumber, int separator )
 	{
@@ -69,7 +73,7 @@ public class CSVTokenizer
 	}
 
 	/**
-	 * Returns the next token from the input. The preceding whitespace is also contained separately in {@link Token#getWhiteSpace()}.
+	 * Returns the next token from the input.
 	 * 
 	 * @return A token from the input. Null if there are no more tokens available.
 	 */
