@@ -16,6 +16,7 @@
 
 package solidbase.core.plugins;
 
+import java.io.Reader;
 import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -71,8 +72,7 @@ public class ImportCSV extends CommandListener
 		Parsed parsed = parse( command );
 
 		// Initialize csv reader & read first line
-		parsed.tokenizer.setMode( true, true, parsed.separator == '\t' );
-		CSVReader reader = new CSVReader( parsed.tokenizer, parsed.separator );
+		CSVReader reader = new CSVReader( parsed.reader, parsed.lineNumber, parsed.separator );
 		int lineNumber = reader.getLineNumber();
 		String[] line = reader.getLine();
 		if( line == null )
@@ -176,15 +176,22 @@ public class ImportCSV extends CommandListener
 				int pos = 1;
 				for( int par : parameterMap )
 				{
-					if( prependLineNumber )
+					try
 					{
-						if( par == 1 )
-							statement.setInt( pos++, lineNumber );
+						if( prependLineNumber )
+						{
+							if( par == 1 )
+								statement.setInt( pos++, lineNumber );
+							else
+								statement.setString( pos++, line[ par - 2 ] );
+						}
 						else
-							statement.setString( pos++, line[ par - 2 ] );
+							statement.setString( pos++, line[ par - 1 ] );
 					}
-					else
-						statement.setString( pos++, line[ par - 1 ] );
+					catch( ArrayIndexOutOfBoundsException e )
+					{
+						throw new CommandFileException( e.getClass().getName() + ": " + e.getMessage(), lineNumber );
+					}
 				}
 
 				if( parsed.noBatch )
@@ -394,7 +401,8 @@ public class ImportCSV extends CommandListener
 			throw new CommandFileException( "Expecting [DATA], not [" + t + "]", tokenizer.getLineNumber() );
 		tokenizer.getNewline();
 
-		result.tokenizer = tokenizer;
+		result.lineNumber = tokenizer.getLineNumber();
+		result.reader = tokenizer.getReader();
 
 		if( columns.size() > 0 )
 			result.columns = columns.toArray( new String[ columns.size() ] );
@@ -473,6 +481,10 @@ public class ImportCSV extends CommandListener
 		 */
 		protected boolean prependLineNumber;
 		/**
+		 * The current line number in the command file.
+		 */
+		protected int lineNumber;
+		/**
 		 * Don't use JDBC batch update.
 		 */
 		protected boolean noBatch;
@@ -491,6 +503,6 @@ public class ImportCSV extends CommandListener
 		/**
 		 * The underlying reader from the {@link Tokenizer}.
 		 */
-		protected Tokenizer tokenizer;
+		protected Reader reader;
 	}
 }

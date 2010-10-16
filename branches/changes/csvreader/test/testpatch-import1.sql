@@ -73,14 +73,14 @@ IMPORT CSV SEPARATED BY TAB INTO TEMP
 DATA
 "1"	"2"	"3"
 "1"	"2"	"3"
-"1"	"2"	"3"
+"1"	"2"	
 ;
 
 IMPORT CSV SEPARATED BY ; INTO TEMP DATA
 "1"; "2"; "3"
 x; "2
 "; "3"
-"1"; "2"; "3";
+y; 2 2 ; " 3 " ;
 
 --* SECTION "Generating SQLException"
 
@@ -110,7 +110,8 @@ CREATE TABLE TEMP3 ( TEMP1 INTEGER, TEMP2 VARCHAR(40), TEMP3 VARCHAR(40), TEMP4 
 IMPORT CSV
 SEPARATED BY |
 INTO TEMP3 ( TEMP1, TEMP2, TEMP3, TEMP4 )
-VALUES ( :2, CONVERT( :1, INTEGER ) + :2, 'Y', '-)-", TEST ''X' )
+VALUES ( :2, CONVERT( :1, INTEGER ) + :2, 'Y', '-)-", 
+TEST ''X' )
 DATA
 1|2
 3|4;

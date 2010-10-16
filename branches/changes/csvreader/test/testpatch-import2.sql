@@ -47,17 +47,17 @@ CREATE TABLE TEMP ( TEMP1 VARCHAR(40), TEMP2 VARCHAR(40), TEMP3 VARCHAR(40) );
 --* /UPGRADE
 
 --* UPGRADE "2" --> "3"
---* // Missing " in the data
+--* // Can't have a character outside of the quotes
 IMPORT CSV INTO TEMP DATA
-1", "2", "3"
+"1"a, "2", "3"
 "1", "2", "3"
 "1", "2", "3";
 --* /UPGRADE
 
 --* UPGRADE "2" --> "4"
---* // Missing " in the data
+--* // Can't have a character outside of the quotes
 IMPORT CSV INTO TEMP DATA
 "1", "2", "3"
-1", "2", "3"
+"1"a, "2", "3"
 "1", "2", "3";
 --* /UPGRADE

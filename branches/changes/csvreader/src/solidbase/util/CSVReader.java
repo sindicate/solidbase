@@ -16,10 +16,11 @@
 
 package solidbase.util;
 
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-import solidbase.util.Tokenizer.Token;
+import solidbase.util.CSVTokenizer.Token;
 
 
 /**
@@ -32,7 +33,7 @@ public class CSVReader
 	/**
 	 * The source of tokens.
 	 */
-	protected Tokenizer tokenizer;
+	protected CSVTokenizer tokenizer;
 
 	/**
 	 * The separator that separates the values.
@@ -46,9 +47,9 @@ public class CSVReader
 	 * @param tokenizer The source of tokens.
 	 * @param separator The separator that separates the values.
 	 */
-	public CSVReader( Tokenizer tokenizer, char separator )
+	public CSVReader( Reader reader, int lineNumber, char separator )
 	{
-		this.tokenizer = tokenizer;
+		this.tokenizer = new CSVTokenizer( reader, lineNumber, separator );
 		this.separator = String.valueOf( separator );
 	}
 
@@ -59,7 +60,7 @@ public class CSVReader
 	 */
 	public String[] getLine()
 	{
-		Tokenizer tokenizer = this.tokenizer;
+		CSVTokenizer tokenizer = this.tokenizer;
 
 		List< String > values = new ArrayList< String >();
 		Token token = tokenizer.get();
@@ -84,6 +85,8 @@ public class CSVReader
 				{
 					token = tokenizer.get();
 //					System.out.println( "Token: " + token );
+					if( token.isEndOfInput() || token.isNewline() )
+						values.add( "" );
 				}
 			}
 		}
