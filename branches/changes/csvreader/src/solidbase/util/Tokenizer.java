@@ -34,8 +34,19 @@ public class Tokenizer
 	 */
 	protected PushbackReader in;
 
+	/**
+	 * If true, an end-of-input token is returned to the caller, rather the generating an exception.
+	 */
 	protected boolean expectEndOfInput;
+
+	/**
+	 * If true, newlines are not considered whitespace, and are returned to the caller as tokens.
+	 */
 	protected boolean expectNewLine;
+
+	/**
+	 * If true, tabs are not considered whitespace, and are returned to the caller as tokens.
+	 */
 	protected boolean expectTab;
 
 
@@ -50,6 +61,13 @@ public class Tokenizer
 		this.in = new PushbackReader( in, lineNumber );
 	}
 
+	/**
+	 * Changes the mode of the tokenizer.
+	 * 
+	 * @param expectEndOfInput If true, an end-of-input token is returned to the caller, rather the generating an exception.
+	 * @param expectNewLine If true, newlines are not considered whitespace, and are returned to the caller as tokens.
+	 * @param expectTab If true, tabs are not considered whitespace, and are returned to the caller as tokens.
+	 */
 	public void setMode( boolean expectEndOfInput, boolean expectNewLine, boolean expectTab )
 	{
 		this.expectEndOfInput = expectEndOfInput;
@@ -154,8 +172,6 @@ public class Tokenizer
 				ch = this.in.read();
 				if( ch == -1 )
 					throw new CommandFileException( "Unexpected end of statement", this.in.getLineNumber() );
-				if( ch == '\n' ) // \r are filtered out by the PushbackReader
-					throw new CommandFileException( "Unexpected end of line", this.in.getLineNumber() );
 				if( ch == quote )
 				{
 					result.append( (char)ch );
@@ -378,6 +394,11 @@ public class Tokenizer
 			return this.value.charAt( 0 ) == '\n'; // Assume that if char 0 is a newline then the whole string is just the newline
 		}
 
+		/**
+		 * Is this token the end-of-input token?
+		 * 
+		 * @return True if this token is the end-of-input token, false otherwise.
+		 */
 		public boolean isEndOfInput()
 		{
 			return this.value == null;

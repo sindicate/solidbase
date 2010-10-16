@@ -33,6 +33,8 @@ public class Import
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 12, null );
 		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP", 7 );
 
+		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP2 FROM TEMP WHERE TEMP1 = 'x'", "2\n" );
+
 		patcher.patch( "1.0.3" );
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP1 FROM TEMP4", null );
 

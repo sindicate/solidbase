@@ -112,6 +112,7 @@ public class ImportCSV extends CommandListener
 	 * @param reader The CSV reader.
 	 * @param parsed The parsed command.
 	 * @param line The first line of data read.
+	 * @param lineNumber The current line number.
 	 * @throws SQLException Whenever SQL execution throws it.
 	 */
 	// TODO Cope with variable number of values in the CSV list

@@ -78,7 +78,8 @@ DATA
 
 IMPORT CSV SEPARATED BY ; INTO TEMP DATA
 "1"; "2"; "3"
-"1"; "2"; "3"
+x; "2
+"; "3"
 "1"; "2"; "3";
 
 --* SECTION "Generating SQLException"
