@@ -16,8 +16,6 @@
 
 package solidbase.core.plugins;
 
-import java.io.Reader;
-import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -32,6 +30,8 @@ import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.util.CSVReader;
+import solidbase.util.LineReader;
+import solidbase.util.StringLineReader;
 import solidbase.util.Tokenizer;
 import solidbase.util.Tokenizer.Token;
 
@@ -321,7 +321,7 @@ public class ImportCSV extends CommandListener
 		List< String > columns = new ArrayList< String >();
 		List< String > values = new ArrayList< String >();
 
-		Tokenizer tokenizer = new Tokenizer( new StringReader( command.getCommand() ), command.getLineNumber() );
+		Tokenizer tokenizer = new Tokenizer( new StringLineReader( command.getCommand() ), command.getLineNumber() );
 
 		tokenizer.get( "IMPORT" );
 		tokenizer.get( "CSV" );
@@ -511,6 +511,6 @@ public class ImportCSV extends CommandListener
 		/**
 		 * The underlying reader from the {@link Tokenizer}.
 		 */
-		protected Reader reader;
+		protected LineReader reader;
 	}
 }

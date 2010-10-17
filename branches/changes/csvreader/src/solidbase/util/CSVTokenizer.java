@@ -16,8 +16,6 @@
 
 package solidbase.util;
 
-import java.io.Reader;
-
 import solidbase.core.Assert;
 import solidbase.core.CommandFileException;
 
@@ -47,7 +45,7 @@ public class CSVTokenizer
 	 * @param lineNumber The current line number.
 	 * @param separator The CSV separator.
 	 */
-	public CSVTokenizer( Reader in, int lineNumber, int separator )
+	public CSVTokenizer( LineReader in, int lineNumber, int separator )
 	{
 		this.in = new PushbackReader( in, lineNumber );
 		this.separator = separator;
@@ -222,7 +220,7 @@ public class CSVTokenizer
 	 * 
 	 * @return The underlying reader.
 	 */
-	public Reader getReader()
+	public LineReader getReader()
 	{
 		return this.in.getReader();
 	}

@@ -33,7 +33,7 @@ import solidbase.core.SystemException;
  * 
  * @author René M. de Bloois
  */
-public class RandomAccessLineReader implements LineReader
+public class RandomAccessLineReader extends LineReader
 {
 	/**
 	 * Constant for the ISO-8859-1 character set.
@@ -64,16 +64,6 @@ public class RandomAccessLineReader implements LineReader
 	 * The URL to read from.
 	 */
 	protected URL url;
-
-	/**
-	 * The reader used to read from the URL.
-	 */
-	protected BufferedReader reader;
-
-	/**
-	 * The current line the reader is positioned on.
-	 */
-	protected int currentLineNumber;
 
 	/**
 	 * The encoding of the stream.
@@ -207,57 +197,6 @@ public class RandomAccessLineReader implements LineReader
 	{
 		this.encoding = encoding;
 		reOpen();
-	}
-
-	/**
-	 * Close the reader. Other streams used by this reader are also closed.
-	 */
-	public void close()
-	{
-		if( this.reader != null )
-		{
-			try
-			{
-				this.reader.close();
-			}
-			catch( IOException e )
-			{
-				throw new SystemException( e );
-			}
-			this.reader = null;
-		}
-	}
-
-	/**
-	 * Reads a line from the stream. The line number count is incremented.
-	 * 
-	 * @return The line that is read or null of there are no more lines.
-	 */
-	public String readLine()
-	{
-		try
-		{
-			String result = this.reader.readLine();
-			if( result != null )
-				this.currentLineNumber++;
-			return result;
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
-	}
-
-	/**
-	 * Returns the current line number. The current line number is the line that is about to be read.
-	 * 
-	 * @return The current line number.
-	 */
-	public int getLineNumber()
-	{
-		if( this.reader == null )
-			throw new IllegalStateException( "Stream is not open" );
-		return this.currentLineNumber;
 	}
 
 	/**

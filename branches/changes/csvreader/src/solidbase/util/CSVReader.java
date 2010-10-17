@@ -16,7 +16,6 @@
 
 package solidbase.util;
 
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +47,7 @@ public class CSVReader
 	 * @param lineNumber The current line number.
 	 * @param separator The separator that separates the values.
 	 */
-	public CSVReader( Reader reader, int lineNumber, char separator )
+	public CSVReader( LineReader reader, int lineNumber, char separator )
 	{
 		this.tokenizer = new CSVTokenizer( reader, lineNumber, separator );
 		this.separator = String.valueOf( separator );

@@ -16,8 +16,6 @@
 
 package solidbase.util;
 
-import java.io.Reader;
-
 import solidbase.core.Assert;
 import solidbase.core.CommandFileException;
 
@@ -56,7 +54,7 @@ public class Tokenizer
 	 * @param in The input.
 	 * @param lineNumber The current line number.
 	 */
-	public Tokenizer( Reader in, int lineNumber )
+	public Tokenizer( LineReader in, int lineNumber )
 	{
 		this.in = new PushbackReader( in, lineNumber );
 	}
@@ -329,7 +327,7 @@ public class Tokenizer
 	 * 
 	 * @return The underlying reader.
 	 */
-	public Reader getReader()
+	public LineReader getReader()
 	{
 		return this.in.getReader();
 	}
