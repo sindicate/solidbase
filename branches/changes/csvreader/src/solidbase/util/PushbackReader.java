@@ -48,13 +48,12 @@ public class PushbackReader
 	 * Constructs a new instance of the PushbackReader.
 	 * 
 	 * @param reader A reader.
-	 * @param lineNumber The current line number.
 	 */
-	public PushbackReader( LineReader reader, int lineNumber )
+	public PushbackReader( LineReader reader )
 	{
 		this.reader = reader;
 		this.buffer = new StringBuilder();
-		this.lineNumber = lineNumber;
+		this.lineNumber = reader.currentLineNumber;
 	}
 
 	/**

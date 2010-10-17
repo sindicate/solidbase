@@ -72,7 +72,7 @@ public class ImportCSV extends CommandListener
 		Parsed parsed = parse( command );
 
 		// Initialize csv reader & read first line
-		CSVReader reader = new CSVReader( parsed.reader, parsed.lineNumber, parsed.separator );
+		CSVReader reader = new CSVReader( parsed.reader, parsed.separator );
 		int lineNumber = reader.getLineNumber();
 		String[] line = reader.getLine();
 		if( line == null )
@@ -321,7 +321,7 @@ public class ImportCSV extends CommandListener
 		List< String > columns = new ArrayList< String >();
 		List< String > values = new ArrayList< String >();
 
-		Tokenizer tokenizer = new Tokenizer( new StringLineReader( command.getCommand() ), command.getLineNumber() );
+		Tokenizer tokenizer = new Tokenizer( new StringLineReader( command.getCommand(), command.getLineNumber() ) );
 
 		tokenizer.get( "IMPORT" );
 		tokenizer.get( "CSV" );
@@ -409,7 +409,6 @@ public class ImportCSV extends CommandListener
 			throw new CommandFileException( "Expecting [DATA], not [" + t + "]", tokenizer.getLineNumber() );
 		tokenizer.getNewline();
 
-		result.lineNumber = tokenizer.getLineNumber();
 		result.reader = tokenizer.getReader();
 
 		if( columns.size() > 0 )
@@ -488,10 +487,6 @@ public class ImportCSV extends CommandListener
 		 * Prepend the values from the CSV list with the line number from the command file.
 		 */
 		protected boolean prependLineNumber;
-		/**
-		 * The current line number in the command file.
-		 */
-		protected int lineNumber;
 		/**
 		 * Don't use JDBC batch update.
 		 */

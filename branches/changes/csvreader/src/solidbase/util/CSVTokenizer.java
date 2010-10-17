@@ -42,12 +42,11 @@ public class CSVTokenizer
 	 * Constructs a new instance of the Tokenizer.
 	 * 
 	 * @param in The input.
-	 * @param lineNumber The current line number.
 	 * @param separator The CSV separator.
 	 */
-	public CSVTokenizer( LineReader in, int lineNumber, int separator )
+	public CSVTokenizer( LineReader in, int separator )
 	{
-		this.in = new PushbackReader( in, lineNumber );
+		this.in = new PushbackReader( in );
 		this.separator = separator;
 	}
 

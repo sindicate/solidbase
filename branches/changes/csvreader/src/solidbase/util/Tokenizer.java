@@ -52,11 +52,10 @@ public class Tokenizer
 	 * Constructs a new instance of the Tokenizer.
 	 * 
 	 * @param in The input.
-	 * @param lineNumber The current line number.
 	 */
-	public Tokenizer( LineReader in, int lineNumber )
+	public Tokenizer( LineReader in )
 	{
-		this.in = new PushbackReader( in, lineNumber );
+		this.in = new PushbackReader( in );
 	}
 
 	/**

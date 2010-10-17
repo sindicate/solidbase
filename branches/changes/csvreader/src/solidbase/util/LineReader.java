@@ -112,7 +112,14 @@ public class LineReader
 	{
 		if( this.buffer == null )
 		{
-			this.buffer = readLine();
+			try
+			{
+				this.buffer = this.reader.readLine();
+			}
+			catch( IOException e )
+			{
+				throw new SystemException( e );
+			}
 			if( this.buffer == null )
 				return -1;
 			this.pos = 0;

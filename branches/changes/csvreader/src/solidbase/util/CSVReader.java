@@ -44,12 +44,11 @@ public class CSVReader
 	 * Constructor.
 	 * 
 	 * @param reader The source of the CSV data.
-	 * @param lineNumber The current line number.
 	 * @param separator The separator that separates the values.
 	 */
-	public CSVReader( LineReader reader, int lineNumber, char separator )
+	public CSVReader( LineReader reader, char separator )
 	{
-		this.tokenizer = new CSVTokenizer( reader, lineNumber, separator );
+		this.tokenizer = new CSVTokenizer( reader, separator );
 		this.separator = String.valueOf( separator );
 	}
 
