@@ -208,43 +208,6 @@ public class CSVTokenizer
 	}
 
 	/**
-	 * Returns a newline token. Throws a {@link CommandFileException} if another token is found.
-	 * 
-	 * @return The newline token.
-	 */
-	public Token getNewline()
-	{
-		// Read whitespace
-		StringBuilder whiteSpace = new StringBuilder();
-		int ch = this.in.read();
-		while( ch != -1 && ch != '\n' && isWhitespace( ch ) )
-		{
-			whiteSpace.append( (char)ch );
-			ch = this.in.read();
-		}
-
-		// Check newline
-		if( ch == -1 )
-			throw new CommandFileException( "Unexpected end of statement", this.in.getLineNumber() );
-		if( ch != '\n' )
-			throw new CommandFileException( "Expecting end of line, not [" + (char)ch + "]", this.in.getLineNumber() );
-
-		// Return the result
-		return new Token( String.valueOf( (char)ch ) );
-	}
-
-//	/**
-//	 * Push back a token.
-//	 *
-//	 * @param token The token to push back.
-//	 */
-//	public void push( Token token )
-//	{
-//		this.in.push( token.getValue() );
-//		this.in.push( token.getWhiteSpace() );
-//	}
-
-	/**
 	 * Returns the current line number.
 	 * 
 	 * @return The current line number.
@@ -329,16 +292,6 @@ public class CSVTokenizer
 				return false;
 			return this.value.equals( s );
 		}
-
-//		/**
-//		 * The length of the value of this token.
-//		 *
-//		 * @return Length of the value of this token.
-//		 */
-//		public int length()
-//		{
-//			return this.value.length();
-//		}
 
 		@Override
 		public String toString()

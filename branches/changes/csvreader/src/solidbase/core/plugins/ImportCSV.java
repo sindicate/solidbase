@@ -166,7 +166,7 @@ public class ImportCSV extends CommandListener
 		}
 
 		PreparedStatement statement = connection.prepareStatement( sql.toString() );
-
+		int batchSize = 0;
 		try
 		{
 			while( true )
@@ -197,13 +197,21 @@ public class ImportCSV extends CommandListener
 				if( parsed.noBatch )
 					statement.executeUpdate();
 				else
+				{
 					statement.addBatch();
+					batchSize++;
+					if( batchSize >= 1000 )
+					{
+						statement.executeBatch();
+						batchSize = 0;
+					}
+				}
 
 				lineNumber = reader.getLineNumber();
 				line = reader.getLine();
 				if( line == null )
 				{
-					if( !parsed.noBatch )
+					if( batchSize > 0 )
 						statement.executeBatch();
 					return;
 				}
