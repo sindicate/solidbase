@@ -58,7 +58,7 @@ public class Import
 		catch( CommandFileException e )
 		{
 			assert e.getMessage().contains( "Expecting one of" );
-			assert e.getMessage().contains( "at line 52" );
+			assert e.getMessage().contains( "at line 53" );
 		}
 
 		try
@@ -69,7 +69,18 @@ public class Import
 		catch( CommandFileException e )
 		{
 			assert e.getMessage().contains( "Values that contain double quotes" );
-			assert e.getMessage().contains( "at line 61" );
+			assert e.getMessage().contains( "at line 62" );
+		}
+
+		try
+		{
+			patcher.patch( "5" );
+			assert false;
+		}
+		catch( SQLExecutionException e )
+		{
+			assert e.getMessage().contains( "integrity constraint violation" );
+			assert e.getMessage().contains( "executing line 70" );
 		}
 
 		patcher.end();

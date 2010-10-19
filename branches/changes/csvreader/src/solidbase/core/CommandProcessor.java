@@ -225,7 +225,7 @@ abstract public class CommandProcessor
 			String error = e.getSQLState();
 			if( !this.ignoreSet.contains( error ) )
 			{
-				SQLExecutionException newException = new SQLExecutionException( command, e );
+				SQLExecutionException newException = new SQLExecutionException( command.getCommand(), command.getLineNumber(), e );
 				this.progress.exception( newException );
 				throw newException;
 			}

@@ -20,6 +20,7 @@
 --*		UPGRADE "1" --> "2"
 --*		UPGRADE "2" --> "3"
 --*		UPGRADE "2" --> "4"
+--*		UPGRADE "2" --> "5"
 --*	/DEFINITION
 
 --* UPGRADE "" --> "1"
@@ -43,7 +44,7 @@ CREATE TABLE DBVERSIONLOG
 --* /UPGRADE
 
 --* UPGRADE "1" --> "2"
-CREATE TABLE TEMP ( TEMP1 VARCHAR(40), TEMP2 VARCHAR(40), TEMP3 VARCHAR(40) );
+CREATE TABLE TEMP ( TEMP1 VARCHAR(40) NOT NULL, TEMP2 VARCHAR(40), TEMP3 VARCHAR(40) );
 --* /UPGRADE
 
 --* UPGRADE "2" --> "3"
@@ -59,5 +60,13 @@ IMPORT CSV INTO TEMP DATA
 IMPORT CSV INTO TEMP DATA
 "1","2","3"
 "1", "2","3"
+"1","2","3";
+--* /UPGRADE
+
+--* UPGRADE "2" --> "5"
+--* // With no-batch you can see the exact line number where the insert goes wrong. 
+IMPORT CSV NOBATCH INTO TEMP DATA
+"1","2","3"
+,"2","3"
 "1","2","3";
 --* /UPGRADE

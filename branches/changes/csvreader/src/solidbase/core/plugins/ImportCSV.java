@@ -29,6 +29,7 @@ import solidbase.core.Command;
 import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
+import solidbase.core.SQLExecutionException;
 import solidbase.util.CSVReader;
 import solidbase.util.LineReader;
 import solidbase.util.StringLineReader;
@@ -202,7 +203,17 @@ public class ImportCSV extends CommandListener
 				}
 
 				if( parsed.noBatch )
-					statement.executeUpdate();
+				{
+					try
+					{
+						statement.executeUpdate();
+					}
+					catch( SQLException e )
+					{
+						// When NOBATCH is on, you can see the actual insert statement and line number in the file where the SQLException occurred.
+						throw new SQLExecutionException( sql.toString(), lineNumber, e );
+					}
+				}
 				else
 				{
 					statement.addBatch();
