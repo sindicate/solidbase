@@ -78,8 +78,6 @@ public class CSVTokenizer
 	{
 		// Read whitespace
 		int ch = this.in.read();
-		while( ch != -1 && isWhitespace( ch ) )
-			ch = this.in.read();
 
 		// Read a string enclosed by ' or "
 		if( ch == '"' )
@@ -114,20 +112,11 @@ public class CSVTokenizer
 
 		// Collect all characters until separator or newline or EOI
 		StringBuilder result = new StringBuilder( 16 );
-		StringBuilder whiteSpace = new StringBuilder();
 		do
 		{
-			if( isWhitespace( ch ) )
-				whiteSpace.append( (char)ch );
-			else
-			{
-				if( whiteSpace.length() > 0 )
-				{
-					result.append( whiteSpace );
-					whiteSpace.setLength( 0 );
-				}
-				result.append( (char)ch );
-			}
+			if( ch == '"' )
+				throw new CommandFileException( "Values that contain double quotes should be enclosed with double quotes", this.in.getLineNumber() );
+			result.append( (char)ch );
 			ch = this.in.read();
 		}
 		while( ch != this.separator && ch != -1 && ch != '\n' );

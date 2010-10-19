@@ -71,8 +71,15 @@ public class ImportCSV extends CommandListener
 
 		Parsed parsed = parse( command );
 
+		// If statement has DATA keyword then CSV is in the command, otherwise we need to read from the source
+		LineReader lineReader;
+		if( parsed.reader != null )
+			lineReader = parsed.reader;
+		else
+			lineReader = processor.getReader();
+
 		// Initialize csv reader & read first line
-		CSVReader reader = new CSVReader( parsed.reader, parsed.separator );
+		CSVReader reader = new CSVReader( lineReader, parsed.separator );
 		int lineNumber = reader.getLineNumber();
 		String[] line = reader.getLine();
 		if( line == null )
@@ -363,7 +370,7 @@ public class ImportCSV extends CommandListener
 			throw new CommandFileException( "Expecting [INTO], not [" + t + "]", tokenizer.getLineNumber() );
 		result.tableName = tokenizer.get().toString();
 
-		t = tokenizer.get( "(", "VALUES", "DATA" );
+		t = tokenizer.get( "(", "VALUES", "DATA", null );
 
 		if( t.equals( "(" ) )
 		{
@@ -381,7 +388,7 @@ public class ImportCSV extends CommandListener
 				t = tokenizer.get( ",", ")" );
 			}
 
-			t = tokenizer.get( "VALUES", "DATA" );
+			t = tokenizer.get( "VALUES", "DATA", null );
 		}
 
 		if( t.equals( "VALUES" ) )
@@ -402,19 +409,22 @@ public class ImportCSV extends CommandListener
 				if( columns.size() != values.size() )
 					throw new CommandFileException( "Number of specified columns does not match number of given values", tokenizer.getLineNumber() );
 
-			t = tokenizer.get( "DATA" );
+			t = tokenizer.get( "DATA", null );
 		}
+
+		if( columns.size() > 0 )
+			result.columns = columns.toArray( new String[ columns.size() ] );
+		if( values.size() > 0 )
+			result.values = values.toArray( new String[ values.size() ] );
+
+		if( t.isEndOfInput() )
+			return result;
 
 		if( !t.equals( "DATA" ) )
 			throw new CommandFileException( "Expecting [DATA], not [" + t + "]", tokenizer.getLineNumber() );
 		tokenizer.getNewline();
 
 		result.reader = tokenizer.getReader();
-
-		if( columns.size() > 0 )
-			result.columns = columns.toArray( new String[ columns.size() ] );
-		if( values.size() > 0 )
-			result.values = values.toArray( new String[ values.size() ] );
 
 		return result;
 	}

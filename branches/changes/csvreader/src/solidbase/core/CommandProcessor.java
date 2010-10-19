@@ -30,6 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import solidbase.core.Delimiter.Type;
+import solidbase.util.LineReader;
 
 
 
@@ -563,4 +564,6 @@ abstract public class CommandProcessor
 	{
 		return this.databases.get( "default" );
 	}
+
+	abstract public LineReader getReader();
 }

@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
+import solidbase.util.LineReader;
 import solidbase.util.WorkerThread;
 
 
@@ -613,5 +614,11 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 //				processor.setSQLSource( new SQLSource( init.getText(), init.getLineNumber() ) );
 //				processor.execute();
 //			}
+	}
+
+	@Override
+	public LineReader getReader()
+	{
+		return this.patchFile.file;
 	}
 }

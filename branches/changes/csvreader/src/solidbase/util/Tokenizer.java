@@ -32,21 +32,6 @@ public class Tokenizer
 	 */
 	protected PushbackReader in;
 
-	/**
-	 * If true, an end-of-input token is returned to the caller, rather the generating an exception.
-	 */
-	protected boolean expectEndOfInput;
-
-	/**
-	 * If true, newlines are not considered whitespace, and are returned to the caller as tokens.
-	 */
-	protected boolean expectNewLine;
-
-	/**
-	 * If true, tabs are not considered whitespace, and are returned to the caller as tokens.
-	 */
-	protected boolean expectTab;
-
 
 	/**
 	 * Constructs a new instance of the Tokenizer.
@@ -59,20 +44,6 @@ public class Tokenizer
 	}
 
 	/**
-	 * Changes the mode of the tokenizer.
-	 * 
-	 * @param expectEndOfInput If true, an end-of-input token is returned to the caller, rather the generating an exception.
-	 * @param expectNewLine If true, newlines are not considered whitespace, and are returned to the caller as tokens.
-	 * @param expectTab If true, tabs are not considered whitespace, and are returned to the caller as tokens.
-	 */
-	public void setMode( boolean expectEndOfInput, boolean expectNewLine, boolean expectTab )
-	{
-		this.expectEndOfInput = expectEndOfInput;
-		this.expectNewLine = expectNewLine;
-		this.expectTab = expectTab;
-	}
-
-	/**
 	 * Is the given character a whitespace?
 	 * 
 	 * @param ch The character to check.
@@ -80,16 +51,14 @@ public class Tokenizer
 	 */
 	protected boolean isWhitespace( int ch )
 	{
-		if( ch == ' ' )
-			return true;
-		if( !this.expectNewLine )
-			if( ch == '\n' )
+		switch( ch )
+		{
+			case ' ':
+			case '\n':
+			case '\t':
+			case '\f':
 				return true;
-		if( !this.expectTab )
-			if( ch == '\t' )
-				return true;
-		if( ch == '\f' )
-			return true;
+		}
 		return false;
 	}
 
@@ -187,11 +156,7 @@ public class Tokenizer
 			return new Token( String.valueOf( (char)ch ), whiteSpace.toString() );
 
 		if( ch == -1 )
-		{
-			if( this.expectEndOfInput )
-				return new Token( null, whiteSpace.toString() );
-			throw new CommandFileException( "Unexpected end of statement", this.in.getLineNumber() );
-		}
+			return new Token( null, whiteSpace.toString() );
 
 		// Collect all characters until whitespace or special character
 		StringBuilder result = new StringBuilder( 16 );

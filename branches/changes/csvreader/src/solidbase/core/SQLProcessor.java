@@ -18,6 +18,8 @@ package solidbase.core;
 
 import java.sql.SQLException;
 
+import solidbase.util.LineReader;
+
 
 /**
  * This class is the coordinator. It reads commands from the {@link SQLFile}. It calls the {@link CommandListener}s,
@@ -103,5 +105,11 @@ public class SQLProcessor extends CommandProcessor
 	protected void setDelimiters( Delimiter[] delimiters )
 	{
 		this.sqlSource.setDelimiters( delimiters );
+	}
+
+	@Override
+	public LineReader getReader()
+	{
+		return this.sqlSource.reader;
 	}
 }

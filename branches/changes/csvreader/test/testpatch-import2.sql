@@ -49,15 +49,15 @@ CREATE TABLE TEMP ( TEMP1 VARCHAR(40), TEMP2 VARCHAR(40), TEMP3 VARCHAR(40) );
 --* UPGRADE "2" --> "3"
 --* // Can't have a character outside of the quotes
 IMPORT CSV INTO TEMP DATA
-"1"a, "2", "3"
-"1", "2", "3"
-"1", "2", "3";
+"1"a,"2","3"
+"1","2","3"
+"1","2","3";
 --* /UPGRADE
 
 --* UPGRADE "2" --> "4"
---* // Can't have a character outside of the quotes
+--* // Spaces are considered part of the value (RFC4180). So this gives an error because a value does not start with a double quote
 IMPORT CSV INTO TEMP DATA
-"1", "2", "3"
-"1"a, "2", "3"
-"1", "2", "3";
+"1","2","3"
+"1", "2","3"
+"1","2","3";
 --* /UPGRADE

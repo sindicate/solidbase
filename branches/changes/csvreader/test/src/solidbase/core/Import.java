@@ -30,8 +30,8 @@ public class Import
 		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-import1.sql" );
 
 		patcher.patch( "1.0.2" );
-		TestUtil.verifyVersion( patcher, "1.0.2", null, 12, null );
-		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP", 7 );
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 13, null );
+		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP", 10 );
 
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP2 FROM TEMP WHERE TEMP1 = 'x'", "2\n" );
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP4 FROM TEMP3 WHERE TEMP1 = 2", "-)-\", \nTEST 'X" );
@@ -57,6 +57,7 @@ public class Import
 		}
 		catch( CommandFileException e )
 		{
+			assert e.getMessage().contains( "Expecting one of" );
 			assert e.getMessage().contains( "at line 52" );
 		}
 
@@ -67,6 +68,7 @@ public class Import
 		}
 		catch( CommandFileException e )
 		{
+			assert e.getMessage().contains( "Values that contain double quotes" );
 			assert e.getMessage().contains( "at line 61" );
 		}
 
