@@ -565,5 +565,10 @@ abstract public class CommandProcessor
 		return this.databases.get( "default" );
 	}
 
+	/**
+	 * Returns the {@link LineReader} that is the source of the commands.
+	 * 
+	 * @return the {@link LineReader} that is the source of the commands.
+	 */
 	abstract public LineReader getReader();
 }
