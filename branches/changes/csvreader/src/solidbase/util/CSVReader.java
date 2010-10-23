@@ -62,28 +62,34 @@ public class CSVReader
 	public String[] getLine()
 	{
 		CSVTokenizer tokenizer = this.tokenizer;
-
 		List< String > values = new ArrayList< String >();
-		Token token = tokenizer.get();
-		while( !token.isEndOfInput() && !token.isNewline() )
+
+		while( true )
 		{
+			Token token = tokenizer.get();
+
+			// We expect a value here. So if we get a separator/newline/EOI then we need to add an empty value
 			if( token.equals( this.separator ) )
+			{
 				values.add( "" );
+			}
+			else if( token.isNewline() || token.isEndOfInput() )
+			{
+				if( values.size() > 0 ) // Only if values are already found
+					values.add( "" );
+				break;
+			}
 			else
 			{
-				String value = token.getValue();
-				values.add( value );
+				values.add( token.getValue() );
 				token = tokenizer.get();
-				if( !token.equals( this.separator ) && !token.equals( "\n" ) && !token.isEndOfInput() )
+				if( token.isNewline() || token.isEndOfInput() )
+					break;
+				if( !token.equals( this.separator ) )
 					throw new CommandFileException( "Expecting <separator>, <newline> or <end-of-input>, not '" + token.getValue() + "'", tokenizer.getLineNumber() );
 			}
-			if( token.equals( this.separator ) )
-			{
-				token = tokenizer.get();
-				if( token.isEndOfInput() || token.isNewline() )
-					values.add( "" );
-			}
 		}
+
 		if( values.isEmpty() )
 			return null;
 		return values.toArray( new String[ values.size() ] );
