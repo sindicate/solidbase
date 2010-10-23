@@ -209,6 +209,7 @@ public class CSVTokenizer
 		 */
 		public Token( String value )
 		{
+			// Empty string is also expected because of "" tokens
 			this.value = value;
 		}
 
@@ -231,7 +232,9 @@ public class CSVTokenizer
 		{
 			if( this.value == null )
 				return false;
-			return this.value.charAt( 0 ) == '\n'; // Assume that if char 0 is a newline then the whole string is just the newline
+			if( this.value.length() != 1 )
+				return false;
+			return this.value.charAt( 0 ) == '\n';
 		}
 
 		/**
