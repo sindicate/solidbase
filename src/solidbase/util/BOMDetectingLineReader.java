@@ -32,7 +32,7 @@ import solidbase.core.SystemException;
  * 
  * @author René M. de Bloois
  */
-public class BOMDetectingLineReader implements LineReader
+public class BOMDetectingLineReader extends LineReader
 {
 	/**
 	 * Constant for the ISO-8859-1 character set.
@@ -58,16 +58,6 @@ public class BOMDetectingLineReader implements LineReader
 	 * Constant for the default character set, which is ISO-8859-1.
 	 */
 	static final public String CHARSET_DEFAULT = CHARSET_ISO;
-
-	/**
-	 * The reader used to read from the input stream.
-	 */
-	protected BufferedReader reader;
-
-	/**
-	 * The current line the reader is positioned on.
-	 */
-	protected int currentLineNumber;
 
 	/**
 	 * The encoding of the stream.
@@ -162,57 +152,6 @@ public class BOMDetectingLineReader implements LineReader
 		{
 			throw new SystemException( e );
 		}
-	}
-
-	/**
-	 * Close the reader and the underlying input stream.
-	 */
-	public void close()
-	{
-		if( this.reader != null )
-		{
-			try
-			{
-				this.reader.close();
-			}
-			catch( IOException e )
-			{
-				throw new SystemException( e );
-			}
-			this.reader = null;
-		}
-	}
-
-	/**
-	 * Reads a line from the stream. The line number count is incremented.
-	 * 
-	 * @return The line that is read or null of there are no more lines.
-	 */
-	public String readLine()
-	{
-		try
-		{
-			String result = this.reader.readLine();
-			if( result != null )
-				this.currentLineNumber++;
-			return result;
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
-	}
-
-	/**
-	 * Returns the current line number. The current line number is the line that is about to be read.
-	 * 
-	 * @return The current line number.
-	 */
-	public int getLineNumber()
-	{
-		if( this.reader == null )
-			throw new IllegalStateException( "Closed" );
-		return this.currentLineNumber;
 	}
 
 	/**

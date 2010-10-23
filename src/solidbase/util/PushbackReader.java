@@ -16,11 +16,7 @@
 
 package solidbase.util;
 
-import java.io.FilterReader;
 import java.io.IOException;
-import java.io.Reader;
-
-import solidbase.core.SystemException;
 
 
 /**
@@ -30,12 +26,12 @@ import solidbase.core.SystemException;
  * 
  * @author René M. de Bloois
  */
-public class PushbackReader extends FilterReader
+public class PushbackReader
 {
 	/**
 	 * The underlying reader.
 	 */
-	protected Reader reader;
+	protected LineReader reader;
 
 	/**
 	 * The push back buffer;
@@ -52,15 +48,12 @@ public class PushbackReader extends FilterReader
 	 * Constructs a new instance of the PushbackReader.
 	 * 
 	 * @param reader A reader.
-	 * @param lineNumber The current line number.
 	 */
-	public PushbackReader( Reader reader, int lineNumber )
+	public PushbackReader( LineReader reader )
 	{
-		super( reader );
-
 		this.reader = reader;
 		this.buffer = new StringBuilder();
-		this.lineNumber = lineNumber;
+		this.lineNumber = reader.currentLineNumber;
 	}
 
 	/**
@@ -78,7 +71,7 @@ public class PushbackReader extends FilterReader
 	 * 
 	 * @return The underlying reader.
 	 */
-	public Reader getReader()
+	public LineReader getReader()
 	{
 		if( this.buffer.length() > 0 )
 			throw new IllegalStateException( "There are still pushed back characters in the buffer" );
@@ -92,7 +85,6 @@ public class PushbackReader extends FilterReader
 	 * 
 	 * @return The character read or -1 if no more characters are available.
 	 */
-	@Override
 	public int read()
 	{
 		if( this.buffer.length() > 0 )
@@ -105,26 +97,19 @@ public class PushbackReader extends FilterReader
 			return ch;
 		}
 
-		try
+		int ch = this.reader.read();
+		if( ch == '\r' ) // Filter out carriage returns
 		{
-			int ch = this.reader.read();
-			if( ch == '\r' ) // Filter out carriage returns
-			{
-				ch = this.reader.read();
-				if( ch != '\n' )
-					push( ch );
-				this.lineNumber++;
-				return '\n';
-			}
-			else if( ch == '\n' )
-				this.lineNumber++;
+			ch = this.reader.read();
+			if( ch != '\n' )
+				push( ch );
+			this.lineNumber++;
+			return '\n';
+		}
+		else if( ch == '\n' )
+			this.lineNumber++;
 
-			return ch;
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
+		return ch;
 	}
 
 	/**

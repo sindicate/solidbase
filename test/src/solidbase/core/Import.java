@@ -23,15 +23,20 @@ import solidbase.core.PatchProcessor;
 
 public class Import
 {
-	@Test
+	@Test(groups="new")
 	public void testImport() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-import1.sql" );
 
 		patcher.patch( "1.0.2" );
-		TestUtil.verifyVersion( patcher, "1.0.2", null, 12, null );
-		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP", 7 );
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 13, null );
+		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP", 10 );
+
+		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP2 FROM TEMP WHERE TEMP1 = 'x'", "2\n" );
+		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP4 FROM TEMP3 WHERE TEMP1 = 2", "-)-\", \nTEST 'X" );
+		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP2 FROM TEMP WHERE TEMP1 = 'y'", "2 2" );
+		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP3 FROM TEMP WHERE TEMP1 = 'y'", " 3 " );
 
 		patcher.patch( "1.0.3" );
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP1 FROM TEMP4", null );
@@ -39,7 +44,7 @@ public class Import
 		patcher.end();
 	}
 
-	@Test
+	@Test(groups="new")
 	public void testImportLineNumber() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
@@ -52,7 +57,8 @@ public class Import
 		}
 		catch( CommandFileException e )
 		{
-			assert e.getMessage().contains( "at line 52" );
+			assert e.getMessage().contains( "<separator>, <newline>" );
+			assert e.getMessage().contains( "at line 53" );
 		}
 
 		try
@@ -62,7 +68,19 @@ public class Import
 		}
 		catch( CommandFileException e )
 		{
-			assert e.getMessage().contains( "at line 61" );
+			assert e.getMessage().contains( "Unexpected \"" );
+			assert e.getMessage().contains( "at line 62" );
+		}
+
+		try
+		{
+			patcher.patch( "5" );
+			assert false;
+		}
+		catch( SQLExecutionException e )
+		{
+			assert e.getMessage().contains( "integrity constraint violation" );
+			assert e.getMessage().contains( "executing line 70" );
 		}
 
 		patcher.end();

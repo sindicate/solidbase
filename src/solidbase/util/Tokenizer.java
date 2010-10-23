@@ -16,8 +16,7 @@
 
 package solidbase.util;
 
-import java.io.Reader;
-
+import solidbase.core.Assert;
 import solidbase.core.CommandFileException;
 
 
@@ -38,11 +37,10 @@ public class Tokenizer
 	 * Constructs a new instance of the Tokenizer.
 	 * 
 	 * @param in The input.
-	 * @param lineNumber The current line number.
 	 */
-	public Tokenizer( Reader in, int lineNumber )
+	public Tokenizer( LineReader in )
 	{
-		this.in = new PushbackReader( in, lineNumber );
+		this.in = new PushbackReader( in );
 	}
 
 	/**
@@ -51,15 +49,14 @@ public class Tokenizer
 	 * @param ch The character to check.
 	 * @return True if the characters is whitespace, false otherwise.
 	 */
-	static protected boolean isWhitespace( int ch )
+	protected boolean isWhitespace( int ch )
 	{
 		switch( ch )
 		{
-			case '\n':
-			case '\f':
-			case '\r':
-			case '\t':
 			case ' ':
+			case '\n':
+			case '\t':
+			case '\f':
 				return true;
 		}
 		return false;
@@ -78,6 +75,7 @@ public class Tokenizer
 			case '!':
 			case '"':
 			case '#':
+			case '$':
 			case '%':
 			case '&':
 			case '\'':
@@ -88,6 +86,7 @@ public class Tokenizer
 			case ',':
 			case '-':
 			case '.':
+			case '/':
 			case ':':
 			case ';':
 			case '<':
@@ -100,7 +99,12 @@ public class Tokenizer
 			case ']':
 			case '^':
 			case '`':
+			case '{':
+			case '|':
+			case '}':
 			case '~':
+			case '\n':
+			case '\t':
 				return true;
 		}
 		return false;
@@ -133,9 +137,7 @@ public class Tokenizer
 
 				ch = this.in.read();
 				if( ch == -1 )
-					throw new CommandFileException( "Unexpected EOF", this.in.getLineNumber() );
-				if( ch == '\n' ) // \r are filtered out by the PushbackReader
-					throw new CommandFileException( "Unexpected EOL", this.in.getLineNumber() );
+					throw new CommandFileException( "Unexpected end of statement", this.in.getLineNumber() );
 				if( ch == quote )
 				{
 					result.append( (char)ch );
@@ -153,6 +155,9 @@ public class Tokenizer
 		if( isSpecial( ch ) )
 			return new Token( String.valueOf( (char)ch ), whiteSpace.toString() );
 
+		if( ch == -1 )
+			return new Token( null, whiteSpace.toString() );
+
 		// Collect all characters until whitespace or special character
 		StringBuilder result = new StringBuilder( 16 );
 		do
@@ -166,8 +171,7 @@ public class Tokenizer
 		this.in.push( ch );
 
 		// Return the result
-		if( result.length() == 0 )
-			return null;
+		Assert.isFalse( result.length() == 0 );
 		return new Token( result.toString(), whiteSpace.toString() );
 	}
 
@@ -185,30 +189,54 @@ public class Tokenizer
 
 		Token token = get();
 
-		for( String exp : expected )
-			if( token.equals( exp ) )
-				return token;
+		if( token.isEndOfInput() )
+		{
+			for( String exp : expected )
+				if( exp == null )
+					return token;
+		}
+		else
+		{
+			for( String exp : expected )
+				if( token.equals( exp ) )
+					return token;
+		}
 
 		// Raise exception
+
+		StringBuilder error = new StringBuilder();
+
+		if( expected.length == 1 )
+		{
+			error.append( "Expecting [" );
+			error.append( expected[ 0 ] != null ? expected[ 0 ] : "<end of statement>" );
+			error.append( "]" );
+		}
+		else
+		{
+			error.append( "Expecting one of" );
+			for( String exp : expected )
+			{
+				error.append( " [" );
+				error.append( exp != null ? exp : "<end of statement>" );
+				error.append( ']' );
+			}
+		}
+
+		if( token.isEndOfInput() )
+			error.append( ", not end-of-statement" );
+		else
+		{
+			error.append( ", not [" );
+			error.append( token );
+			error.append( "]" );
+		}
 
 		int lineNumber = this.in.getLineNumber();
 		if( token.isNewline() )
 			lineNumber--;
 
-		if( expected.length == 1 )
-			throw new CommandFileException( "Expecting [" + expected[ 0 ] + "], not [" + token + "]", lineNumber );
-
-		StringBuilder b = new StringBuilder( "Expecting one of" );
-		for( String exp : expected )
-		{
-			b.append( " [" );
-			b.append( exp );
-			b.append( ']' );
-		}
-		b.append( ", not [" );
-		b.append( token );
-		b.append( "]" );
-		throw new CommandFileException( b.toString(), lineNumber );
+		throw new CommandFileException( error.toString(), lineNumber );
 	}
 
 	/**
@@ -229,9 +257,9 @@ public class Tokenizer
 
 		// Check newline
 		if( ch == -1 )
-			throw new CommandFileException( "Unexpected EOF", this.in.getLineNumber() );
+			throw new CommandFileException( "Unexpected end of statement", this.in.getLineNumber() );
 		if( ch != '\n' )
-			throw new CommandFileException( "Expecting NEWLINE, not [" + (char)ch + "]", this.in.getLineNumber() );
+			throw new CommandFileException( "Expecting end of line, not [" + (char)ch + "]", this.in.getLineNumber() );
 
 		// Return the result
 		return new Token( String.valueOf( (char)ch ), whiteSpace.toString() );
@@ -263,7 +291,7 @@ public class Tokenizer
 	 * 
 	 * @return The underlying reader.
 	 */
-	public Reader getReader()
+	public LineReader getReader()
 	{
 		return this.in.getReader();
 	}
@@ -329,6 +357,16 @@ public class Tokenizer
 		}
 
 		/**
+		 * Is this token the end-of-input token?
+		 * 
+		 * @return True if this token is the end-of-input token, false otherwise.
+		 */
+		public boolean isEndOfInput()
+		{
+			return this.value == null;
+		}
+
+		/**
 		 * Does a case insensitive comparison with the given string.
 		 * 
 		 * @param s A string to compare the value of this token with.
@@ -336,6 +374,8 @@ public class Tokenizer
 		 */
 		public boolean equals( String s )
 		{
+			if( this.value == null )
+				return false;
 			return this.value.equalsIgnoreCase( s );
 		}
 

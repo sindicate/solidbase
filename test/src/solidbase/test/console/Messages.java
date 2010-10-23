@@ -39,17 +39,17 @@ public class Messages
 				"    Creating control tables..\n" +
 				"DEBUG: version=null, target=1.0.1, statements=2\n" +
 				"Upgrading \"1.0.1\" to \"1.0.2\".\n" +
-				"Starting import....\n" + // Message before listener execution
+				"Starting import.....\n" + // Message before listener execution
 				"    Generating SQLException.\n" + // There should be a dot here
 				"    Importing with linenumber..\n" +
-				"98\n" +
-				"99\n" +
-				"100.\n" +
+				"104\n" +
+				"105\n" +
+				"106.\n" +
 				"        Importing with column list\n" +
 				"            And deeper..\n" +
 				"23Y\n" +
 				"47Y.\n" +
-				"DEBUG: version=1.0.1, target=1.0.2, statements=12\n" +
+				"DEBUG: version=1.0.1, target=1.0.2, statements=13\n" +
 				"The database is upgraded.\n" +
 				"\n" +
 				"Current database version is \"1.0.2\".\n"

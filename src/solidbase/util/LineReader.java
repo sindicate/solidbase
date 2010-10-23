@@ -16,30 +16,124 @@
 
 package solidbase.util;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+
+import solidbase.core.SystemException;
+
 
 /**
- * A line reader.
+ * Wraps a {@link BufferedReader} and adds a line counting functionality.
  * 
  * @author René M. de Bloois
  */
-public interface LineReader
+public class LineReader
 {
 	/**
-	 * Reads a line. The line number count is incremented.
+	 * The reader used to read from the string.
+	 */
+	protected BufferedReader reader;
+
+	/**
+	 * The current line the reader is positioned on.
+	 */
+	protected int currentLineNumber;
+
+	/**
+	 * A line in the buffer, needed when characters are read with {@link #read()}.
+	 */
+	protected String buffer;
+
+	/**
+	 * The current position in the {@link #buffer}.
+	 */
+	protected int pos;
+
+
+	/**
+	 * Close the reader and the underlying input stream.
+	 */
+	public void close()
+	{
+		if( this.reader != null )
+		{
+			try
+			{
+				this.reader.close();
+			}
+			catch( IOException e )
+			{
+				throw new SystemException( e );
+			}
+			this.reader = null;
+		}
+	}
+
+	/**
+	 * Reads a line from the stream. The line number count is incremented.
 	 * 
 	 * @return The line that is read or null of there are no more lines.
 	 */
-	String readLine();
+	public String readLine()
+	{
+		if( this.buffer != null )
+			throw new IllegalStateException( "There is a line in the buffer" );
+		try
+		{
+			String result = this.reader.readLine();
+			if( result != null )
+				this.currentLineNumber++;
+			return result;
+		}
+		catch( IOException e )
+		{
+			throw new SystemException( e );
+		}
+	}
 
 	/**
 	 * Returns the current line number. The current line number is the line that is about to be read.
 	 * 
 	 * @return The current line number.
 	 */
-	int getLineNumber();
+	public int getLineNumber()
+	{
+		if( this.reader == null )
+			throw new IllegalStateException( "Closed" );
+		return this.currentLineNumber;
+	}
 
 	/**
-	 * Closes the reader and any underlying streams/readers.
+	 * Reads a character. Must always be repeated until a \n is encountered, otherwise {@link #readLine()} will fail. \r is never returned.
+	 * 
+	 * @return a character. \r is never returned.
 	 */
-	void close();
+	public int read()
+	{
+		if( this.buffer == null )
+		{
+			try
+			{
+				this.buffer = this.reader.readLine();
+			}
+			catch( IOException e )
+			{
+				throw new SystemException( e );
+			}
+			if( this.buffer == null )
+				return -1;
+			this.pos = 0;
+		}
+
+		if( this.pos < this.buffer.length() )
+		{
+			int result = this.buffer.charAt( this.pos );
+			this.pos++;
+			return result;
+		}
+
+		this.buffer = null;
+		this.currentLineNumber++;
+		return '\n';
+	}
 }
