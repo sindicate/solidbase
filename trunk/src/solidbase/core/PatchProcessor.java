@@ -31,6 +31,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import solidbase.util.LineReader;
+import solidbase.util.ShutdownHook;
 import solidbase.util.WorkerThread;
 
 
