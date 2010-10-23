@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.core;
+package solidbase.util;
 
 /**
  * This shutdown hook prevents ctrl-c from aborting all threads.
