@@ -30,7 +30,12 @@ public class SQLExecutionException extends FatalException
 	/**
 	 * The command that caused the {@link SQLException}.
 	 */
-	private Command command;
+	private String command;
+
+	/**
+	 * The line number where the exception occurred.
+	 */
+	private int lineNumber;
 
 	/**
 	 * The {@link SQLException}.
@@ -41,9 +46,10 @@ public class SQLExecutionException extends FatalException
 	 * Constructor.
 	 * 
 	 * @param command The command that caused the {@link SQLException}.
+	 * @param lineNumber The line number where the exception occurred.
 	 * @param sqlException The {@link SQLException}.
 	 */
-	public SQLExecutionException( Command command, SQLException sqlException )
+	public SQLExecutionException( String command, int lineNumber, SQLException sqlException )
 	{
 		super( null );
 
@@ -51,6 +57,7 @@ public class SQLExecutionException extends FatalException
 		Assert.notNull( sqlException );
 
 		this.command = command;
+		this.lineNumber = lineNumber;
 		this.sqlException = sqlException;
 	}
 
@@ -81,10 +88,10 @@ public class SQLExecutionException extends FatalException
 	@Override
 	public String getMessage()
 	{
-		String command = this.command.getCommand();
+		String command = this.command;
 		if( command.length() > 1000 )
 			command = command.substring( 0, 1000 ) + "...";
 
-		return getSQLErrorMessages() + "\nWhile executing line " + this.command.getLineNumber() + ": " + command;
+		return getSQLErrorMessages() + "\nWhile executing line " + this.lineNumber + ": " + command;
 	}
 }

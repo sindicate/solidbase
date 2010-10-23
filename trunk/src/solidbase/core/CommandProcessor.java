@@ -30,6 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import solidbase.core.Delimiter.Type;
+import solidbase.util.LineReader;
 
 
 
@@ -224,7 +225,7 @@ abstract public class CommandProcessor
 			String error = e.getSQLState();
 			if( !this.ignoreSet.contains( error ) )
 			{
-				SQLExecutionException newException = new SQLExecutionException( command, e );
+				SQLExecutionException newException = new SQLExecutionException( command.getCommand(), command.getLineNumber(), e );
 				this.progress.exception( newException );
 				throw newException;
 			}
@@ -563,4 +564,11 @@ abstract public class CommandProcessor
 	{
 		return this.databases.get( "default" );
 	}
+
+	/**
+	 * Returns the {@link LineReader} that is the source of the commands.
+	 * 
+	 * @return the {@link LineReader} that is the source of the commands.
+	 */
+	abstract public LineReader getReader();
 }
