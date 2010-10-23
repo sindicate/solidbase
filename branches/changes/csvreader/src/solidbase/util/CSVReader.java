@@ -19,6 +19,7 @@ package solidbase.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import solidbase.core.CommandFileException;
 import solidbase.util.CSVTokenizer.Token;
 
 
@@ -37,7 +38,7 @@ public class CSVReader
 	/**
 	 * The separator that separates the values.
 	 */
-	protected String separator;
+	protected char separator;
 
 
 	/**
@@ -45,11 +46,12 @@ public class CSVReader
 	 * 
 	 * @param reader The source of the CSV data.
 	 * @param separator The separator that separates the values.
+	 * @param ignoreWhiteSpace Ignore white space, except white space enclosed in double quotes.
 	 */
-	public CSVReader( LineReader reader, char separator )
+	public CSVReader( LineReader reader, char separator, boolean ignoreWhiteSpace )
 	{
-		this.tokenizer = new CSVTokenizer( reader, separator );
-		this.separator = String.valueOf( separator );
+		this.tokenizer = new CSVTokenizer( reader, separator, ignoreWhiteSpace );
+		this.separator = separator;
 	}
 
 	/**
@@ -63,7 +65,6 @@ public class CSVReader
 
 		List< String > values = new ArrayList< String >();
 		Token token = tokenizer.get();
-//		System.out.println( "Token: " + token );
 		while( !token.isEndOfInput() && !token.isNewline() )
 		{
 			if( token.equals( this.separator ) )
@@ -71,16 +72,14 @@ public class CSVReader
 			else
 			{
 				String value = token.getValue();
-				if( value.startsWith( "\"" ) )
-					value = value.substring( 1, value.length() - 1 );
 				values.add( value );
-				token = tokenizer.get( this.separator, "\n", null );
-//				System.out.println( "Token: " + token );
+				token = tokenizer.get();
+				if( !token.equals( this.separator ) && !token.equals( "\n" ) && !token.isEndOfInput() )
+					throw new CommandFileException( "Expecting <separator>, <newline> or <end-of-input>, not '" + token.getValue() + "'", tokenizer.getLineNumber() );
 			}
 			if( token.equals( this.separator ) )
 			{
 				token = tokenizer.get();
-//				System.out.println( "Token: " + token );
 				if( token.isEndOfInput() || token.isNewline() )
 					values.add( "" );
 			}

@@ -37,17 +37,34 @@ public class CSVTokenizer
 	 */
 	protected int separator;
 
+	/**
+	 * If true, whitespace is ignored around the values, but not inside double quoted values.
+	 */
+	protected boolean ignoreWhiteSpace;
+
+	/**
+	 * Buffer for the result.
+	 */
+	protected StringBuilder result = new StringBuilder( 256 );
+
+	/**
+	 * Buffer for pending whitespace.
+	 */
+	protected StringBuilder whiteSpace = new StringBuilder( 16 );
+
 
 	/**
 	 * Constructs a new instance of the Tokenizer.
 	 * 
 	 * @param in The input.
 	 * @param separator The CSV separator.
+	 * @param ignoreWhiteSpace Ignore white space, except white space enclosed in double quotes.
 	 */
-	public CSVTokenizer( LineReader in, int separator )
+	public CSVTokenizer( LineReader in, int separator, boolean ignoreWhiteSpace )
 	{
 		this.in = new PushbackReader( in );
 		this.separator = separator;
+		this.ignoreWhiteSpace = ignoreWhiteSpace;
 	}
 
 	/**
@@ -58,14 +75,13 @@ public class CSVTokenizer
 	 */
 	protected boolean isWhitespace( int ch )
 	{
-		if( ch == ' ' )
-			return true;
-		if( ch == this.separator )
-			return false;
-		if( ch == '\t' )
-			return true;
-		if( ch == '\f' )
-			return true;
+		switch( ch )
+		{
+			case ' ':
+			case '\t':
+			case '\f':
+				return true;
+		}
 		return false;
 	}
 
@@ -76,30 +92,36 @@ public class CSVTokenizer
 	 */
 	public Token get()
 	{
-		// Read whitespace
+		boolean ignoreWhiteSpace = this.ignoreWhiteSpace;
+		StringBuilder result = this.result;
+		result.setLength( 0 );
+
 		int ch = this.in.read();
 
-		// Read a string enclosed by ' or "
+		// Ignore whitespace
+		if( ignoreWhiteSpace )
+			while( isWhitespace( ch ) && ch != this.separator )
+				ch = this.in.read();
+
+		// Read a string enclosed by "
 		if( ch == '"' )
 		{
-			StringBuilder result = new StringBuilder( 32 );
 			while( true )
 			{
-				result.append( (char)ch );
-
 				ch = this.in.read();
 				if( ch == -1 )
-					throw new CommandFileException( "Unexpected end of statement", this.in.getLineNumber() );
+					throw new CommandFileException( "Missing \"", this.in.getLineNumber() );
 				if( ch == '"' )
 				{
-					result.append( (char)ch );
 					ch = this.in.read();
-					if( ch != '"' ) // Double "" do not end the string
+					if( ch != '"' )
 					{
 						this.in.push( ch );
 						break;
 					}
+					// Double "" do not end the string
 				}
+				result.append( (char)ch );
 			}
 			return new Token( result.toString() );
 		}
@@ -111,12 +133,30 @@ public class CSVTokenizer
 			return new Token( null );
 
 		// Collect all characters until separator or newline or EOI
-		StringBuilder result = new StringBuilder( 16 );
+		StringBuilder whiteSpace = this.whiteSpace;
+		whiteSpace.setLength( 0 );
 		do
 		{
 			if( ch == '"' )
-				throw new CommandFileException( "Values that contain double quotes should be enclosed with double quotes", this.in.getLineNumber() );
-			result.append( (char)ch );
+				throw new CommandFileException( "Unexpected \"", this.in.getLineNumber() );
+			if( ignoreWhiteSpace )
+			{
+				if( isWhitespace( ch ) )
+					whiteSpace.append( (char)ch );
+				else
+				{
+					if( whiteSpace.length() > 0 )
+					{
+						result.append( whiteSpace );
+						whiteSpace.setLength( 0 );
+					}
+					result.append( (char)ch );
+				}
+			}
+			else
+			{
+				result.append( (char)ch );
+			}
 			ch = this.in.read();
 		}
 		while( ch != this.separator && ch != -1 && ch != '\n' );
@@ -127,70 +167,6 @@ public class CSVTokenizer
 		// Return the result
 		Assert.isFalse( result.length() == 0 );
 		return new Token( result.toString() );
-	}
-
-	/**
-	 * A token that matches one of the expected tokens. Throws a {@link CommandFileException} if a token is encountered
-	 * that does not match the given expected tokens.
-	 * 
-	 * @param expected The expected tokens.
-	 * @return One of the expected tokens.
-	 */
-	public Token get( String... expected )
-	{
-		if( expected.length == 0 )
-			throw new IllegalArgumentException( "Specify one ore more expected tokens" );
-
-		Token token = get();
-
-		if( token.isEndOfInput() )
-		{
-			for( String exp : expected )
-				if( exp == null )
-					return token;
-		}
-		else
-		{
-			for( String exp : expected )
-				if( token.equals( exp ) )
-					return token;
-		}
-
-		// Raise exception
-
-		StringBuilder error = new StringBuilder();
-
-		if( expected.length == 1 )
-		{
-			error.append( "Expecting [" );
-			error.append( expected[ 0 ] != null ? expected[ 0 ] : "<end of statement>" );
-			error.append( "]" );
-		}
-		else
-		{
-			error.append( "Expecting one of" );
-			for( String exp : expected )
-			{
-				error.append( " [" );
-				error.append( exp != null ? exp : "<end of statement>" );
-				error.append( ']' );
-			}
-		}
-
-		if( token.isEndOfInput() )
-			error.append( ", not end-of-statement" );
-		else
-		{
-			error.append( ", not [" );
-			error.append( token );
-			error.append( "]" );
-		}
-
-		int lineNumber = this.in.getLineNumber();
-		if( token.isNewline() )
-			lineNumber--;
-
-		throw new CommandFileException( error.toString(), lineNumber );
 	}
 
 	/**
@@ -277,6 +253,21 @@ public class CSVTokenizer
 			if( this.value == null )
 				return false;
 			return this.value.equals( s );
+		}
+
+		/**
+		 * Does a comparison with the given character.
+		 *
+		 * @param c A character to compare the value of this token with.
+		 * @return True if the value of this token and the given character are equal, false otherwise.
+		 */
+		public boolean equals( char c )
+		{
+			if( this.value == null )
+				return false;
+			if( this.value.length() != 1 )
+				return false;
+			return this.value.charAt( 0 ) == c;
 		}
 
 		@Override

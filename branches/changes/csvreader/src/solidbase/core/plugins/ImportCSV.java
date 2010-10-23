@@ -80,7 +80,7 @@ public class ImportCSV extends CommandListener
 			lineReader = processor.getReader();
 
 		// Initialize csv reader & read first line
-		CSVReader reader = new CSVReader( lineReader, parsed.separator );
+		CSVReader reader = new CSVReader( lineReader, parsed.separator, parsed.ignoreWhiteSpace );
 		int lineNumber = reader.getLineNumber();
 		String[] line = reader.getLine();
 		if( line == null )
@@ -344,7 +344,7 @@ public class ImportCSV extends CommandListener
 		tokenizer.get( "IMPORT" );
 		tokenizer.get( "CSV" );
 
-		Token t = tokenizer.get( "SEPARATED", "PREPEND", "NOBATCH", "USING", "INTO" );
+		Token t = tokenizer.get( "SEPARATED", "IGNORE", "PREPEND", "NOBATCH", "USING", "INTO" );
 
 		if( t.equals( "SEPARATED" ) )
 		{
@@ -358,6 +358,14 @@ public class ImportCSV extends CommandListener
 					throw new CommandFileException( "Expecting [TAB] or one character, not [" + t + "]", tokenizer.getLineNumber() );
 				result.separator = t.getValue().charAt( 0 );
 			}
+
+			t = tokenizer.get( "IGNORE", "PREPEND", "NOBATCH", "USING", "INTO" );
+		}
+
+		if( t.equals( "IGNORE" ) )
+		{
+			tokenizer.get( "WHITESPACE" );
+			result.ignoreWhiteSpace = true;
 
 			t = tokenizer.get( "PREPEND", "NOBATCH", "USING", "INTO" );
 		}
@@ -500,33 +508,28 @@ public class ImportCSV extends CommandListener
 	 */
 	static protected class Parsed
 	{
-		/**
-		 * The separator.
-		 */
+		/** The separator. */
 		protected char separator = ',';
-		/**
-		 * Prepend the values from the CSV list with the line number from the command file.
-		 */
+
+		/** Ignore white space, except white space enclosed in double quotes. */
+		protected boolean ignoreWhiteSpace;
+
+		/** Prepend the values from the CSV list with the line number from the command file. */
 		protected boolean prependLineNumber;
-		/**
-		 * Don't use JDBC batch update.
-		 */
+
+		/** Don't use JDBC batch update. */
 		protected boolean noBatch;
-		/**
-		 * The table name to insert into.
-		 */
+
+		/** The table name to insert into. */
 		protected String tableName;
-		/**
-		 * The columns to insert into.
-		 */
+
+		/** The columns to insert into. */
 		protected String[] columns;
-		/**
-		 * The values to insert. Use :1, :2, etc to replace with the values from the CSV list.
-		 */
+
+		/** The values to insert. Use :1, :2, etc to replace with the values from the CSV list. */
 		protected String[] values;
-		/**
-		 * The underlying reader from the {@link Tokenizer}.
-		 */
+
+		/** The underlying reader from the {@link Tokenizer}. */
 		protected LineReader reader;
 	}
 }

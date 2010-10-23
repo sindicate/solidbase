@@ -57,7 +57,7 @@ public class Import
 		}
 		catch( CommandFileException e )
 		{
-			assert e.getMessage().contains( "Expecting one of" );
+			assert e.getMessage().contains( "<separator>, <newline>" );
 			assert e.getMessage().contains( "at line 53" );
 		}
 
@@ -68,7 +68,7 @@ public class Import
 		}
 		catch( CommandFileException e )
 		{
-			assert e.getMessage().contains( "Values that contain double quotes" );
+			assert e.getMessage().contains( "Unexpected \"" );
 			assert e.getMessage().contains( "at line 62" );
 		}
 

@@ -81,11 +81,11 @@ DATA
 "1"	"2"	
 ;
 
-IMPORT CSV SEPARATED BY ; INTO TEMP DATA
-"1";"2";"3"
-x;"2
-";"3"
-y;2 2;" 3 ";
+IMPORT CSV SEPARATED BY ; IGNORE WHITESPACE INTO TEMP DATA
+ "1" ; "2" ; "3" 
+ x ; "2
+"; "3"
+	y	;	2 2	;	" 3 "	;
 
 --* SECTION "Generating SQLException"
 
