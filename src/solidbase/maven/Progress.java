@@ -21,13 +21,7 @@ import org.apache.maven.plugin.logging.Log;
 import solidbase.core.Assert;
 import solidbase.core.Command;
 import solidbase.core.Patch;
-import solidbase.core.PatchFile;
 import solidbase.core.ProgressListener;
-import solidbase.core.SQLExecutionException;
-import solidbase.core.SQLFile;
-
-import java.io.File;
-import java.net.URL;
 
 
 /**
@@ -51,11 +45,6 @@ public class Progress extends ProgressListener
 	protected StringBuilder buffer;
 
 	/**
-	 * A store for nested messages coming from SECTIONs in the command file.
-	 */
-	protected String[] messages = new String[ 10 ];
-
-	/**
 	 * Constructor.
 	 * 
 	 * @param log The Maven log.
@@ -63,6 +52,18 @@ public class Progress extends ProgressListener
 	public Progress( Log log )
 	{
 		this.log = log;
+	}
+
+	@Override
+	public void cr()
+	{
+		flush();
+	}
+
+	@Override
+	public void println( String message )
+	{
+		this.log.info( message );
 	}
 
 	/**
@@ -100,42 +101,6 @@ public class Progress extends ProgressListener
 	}
 
 	@Override
-	protected void openingPatchFile( File patchFile )
-	{
-		info( "Opening file '" + patchFile + "'" );
-	}
-
-	@Override
-	protected void openingPatchFile( URL patchFile )
-	{
-		info( "Opening file '" + patchFile + "'" );
-	}
-
-	@Override
-	protected void openingSQLFile( File sqlFile )
-	{
-		info( "Opening file '" + sqlFile + "'" );
-	}
-
-	@Override
-	protected void openingSQLFile( URL sqlFile )
-	{
-		info( "Opening file '" + sqlFile + "'" );
-	}
-
-	@Override
-	protected void openedPatchFile( PatchFile patchFile )
-	{
-		info( "    Encoding is '" + patchFile.getEncoding() + "'" );
-	}
-
-	@Override
-	protected void openedSQLFile( SQLFile sqlFile )
-	{
-		info( "    Encoding is '" + sqlFile.getEncoding() + "'" );
-	}
-
-	@Override
 	protected void patchStarting( Patch patch )
 	{
 		flush();
@@ -164,12 +129,6 @@ public class Progress extends ProgressListener
 	}
 
 	@Override
-	protected void startSection( int level, String message )
-	{
-		this.messages[ level ] = message;
-	}
-
-	@Override
 	protected void executing( Command command, String message )
 	{
 		for( int i = 0; i < this.messages.length; i++ )
@@ -193,39 +152,9 @@ public class Progress extends ProgressListener
 	}
 
 	@Override
-	protected void exception( SQLExecutionException exception )
-	{
-		// The sql is printed by the SQLExecutionException.printStackTrace().
-	}
-
-	@Override
 	protected void executed()
 	{
 		// Nothing to do
-	}
-
-	@Override
-	protected void patchFinished()
-	{
-		flush();
-	}
-
-	@Override
-	protected void sqlExecutionComplete()
-	{
-		info( "Execution complete." );
-	}
-
-	@Override
-	protected void upgradeComplete()
-	{
-		info( "The database is upgraded." );
-	}
-
-	@Override
-	protected String requestPassword( String username )
-	{
-		throw new UnsupportedOperationException();
 	}
 
 	@Override

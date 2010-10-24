@@ -29,6 +29,18 @@ import solidbase.core.SQLFile;
 public class TestProgressListener extends ProgressListener
 {
 	@Override
+	public void cr()
+	{
+		Assert.fail( "Should not be called" );
+	}
+
+	@Override
+	public void println( String message )
+	{
+		Assert.fail( "Should not be called" );
+	}
+
+	@Override
 	protected void debug( String message )
 	{
 		System.out.println( "DEBUG: " + message );
