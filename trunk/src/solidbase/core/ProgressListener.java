@@ -26,8 +26,26 @@ import java.net.URL;
  * @since Apr 14, 2006
  */
 @SuppressWarnings( "unused" )
-public class ProgressListener
+abstract public class ProgressListener
 {
+	/**
+	 * A store for nested messages coming from SECTIONs in the command file.
+	 */
+	protected String[] messages = new String[ 10 ];
+
+
+	/**
+	 * Returns to column 1 and generates a newline if needed.
+	 */
+	abstract public void cr();
+
+	/**
+	 * Prints a line completely by itself. Generates a carriage return before printing if needed.
+	 * 
+	 * @param message The message to be printed.
+	 */
+	abstract public void println( String message );
+
 	/**
 	 * An upgrade file is about to be opened.
 	 * 
@@ -35,7 +53,8 @@ public class ProgressListener
 	 */
 	protected void openingPatchFile( File patchFile )
 	{
-		// could be implemented in subclass
+		cr();
+		println( "Opening file '" + patchFile + "'" );
 	}
 
 	/**
@@ -45,7 +64,8 @@ public class ProgressListener
 	 */
 	protected void openingPatchFile( URL patchFile )
 	{
-		// could be implemented in subclass
+		cr();
+		println( "Opening file '" + patchFile + "'" );
 	}
 
 	/**
@@ -55,7 +75,8 @@ public class ProgressListener
 	 */
 	protected void openingSQLFile( File sqlFile )
 	{
-		// could be implemented in subclass
+		cr();
+		println( "Opening file '" + sqlFile + "'" );
 	}
 
 	/**
@@ -65,7 +86,8 @@ public class ProgressListener
 	 */
 	protected void openingSQLFile( URL sqlFile )
 	{
-		// could be implemented in subclass
+		cr();
+		println( "Opening file '" + sqlFile + "'" );
 	}
 
 	/**
@@ -75,7 +97,8 @@ public class ProgressListener
 	 */
 	protected void openedPatchFile( PatchFile patchFile )
 	{
-		// could be implemented in subclass
+		cr();
+		println( "    Encoding is '" + patchFile.getEncoding() + "'" );
 	}
 
 	/**
@@ -85,7 +108,8 @@ public class ProgressListener
 	 */
 	protected void openedSQLFile( SQLFile sqlFile )
 	{
-		// could be implemented in subclass
+		cr();
+		println( "    Encoding is '" + sqlFile.getEncoding() + "'" );
 	}
 
 	/**
@@ -106,7 +130,7 @@ public class ProgressListener
 	 */
 	protected void startSection( int level, String message )
 	{
-		// could be implemented in subclass
+		this.messages[ level ] = message;
 	}
 
 	/**
@@ -144,7 +168,7 @@ public class ProgressListener
 	 */
 	protected void patchFinished()
 	{
-		// could be implemented in subclass
+		cr();
 	}
 
 	/**
@@ -152,7 +176,8 @@ public class ProgressListener
 	 */
 	protected void upgradeComplete()
 	{
-		// could be implemented in subclass
+		cr();
+		println( "The database is upgraded." );
 	}
 
 	/**
@@ -160,7 +185,8 @@ public class ProgressListener
 	 */
 	protected void sqlExecutionComplete()
 	{
-		// could be implemented in subclass
+		cr();
+		println( "Execution complete." );
 	}
 
 	/**
@@ -171,8 +197,7 @@ public class ProgressListener
 	 */
 	protected String requestPassword( String user )
 	{
-		// could be implemented in subclass
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	/**
