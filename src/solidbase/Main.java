@@ -32,7 +32,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import solidbase.config.Configuration;
-import solidbase.core.Assert;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
 import solidbase.core.PatchProcessor;
@@ -40,6 +39,7 @@ import solidbase.core.SQLExecutionException;
 import solidbase.core.SQLProcessor;
 import solidbase.core.SystemException;
 import solidbase.core.Util;
+import solidbase.util.Assert;
 
 
 /**

@@ -1,5 +1,6 @@
 package solidbase.core;
 
+import solidbase.util.Assert;
 import solidbase.util.LineReader;
 
 

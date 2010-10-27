@@ -33,9 +33,9 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
-import solidbase.core.Assert;
 import solidbase.core.FatalException;
 import solidbase.core.SystemException;
+import solidbase.util.Assert;
 
 
 /**

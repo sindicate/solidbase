@@ -16,29 +16,10 @@
 
 package solidbase.core;
 
+import solidbase.util.Assert;
+
 /**
- * <p>
- * Represents a command in an upgrade or SQL file. A command can be transient or persistent. Transient commands start with
- * <code>--*</code>. Example of a transient command is:
- * </p>
- * <blockquote>
- * <pre>
- * --* SET USER A_USER
- * </pre>
- * </blockquote>
- * <p>
- * Transient commands are executed as they are encountered even when a patch package fails and is re-processed.
- * </p>
- * <p>
- * Example of a persistent command:
- * </p>
- * <blockquote>
- * <pre>
- * DROP TABLE A_TABLE;
- * </pre>
- * </blockquote>
- * <p>
- * </p>
+ * Represents a command in an upgrade or SQL file.
  * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:13:28 PM
@@ -107,15 +88,15 @@ public class Command
 		return this.command;
 	}
 
-	/**
-	 * Sets the command text.
-	 * 
-	 * @param command the command text.
-	 */
-	public void setCommand( String command )
-	{
-		this.command = command;
-	}
+//	/**
+//	 * Sets the command text.
+//	 *
+//	 * @param command the command text.
+//	 */
+//	public void setCommand( String command )
+//	{
+//		this.command = command;
+//	}
 
 	/**
 	 * Returns the line number in the upgrade file where the command is encountered.

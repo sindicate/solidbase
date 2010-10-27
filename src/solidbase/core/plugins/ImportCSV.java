@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import solidbase.core.Assert;
 import solidbase.core.Command;
 import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.SQLExecutionException;
+import solidbase.util.Assert;
 import solidbase.util.CSVReader;
 import solidbase.util.LineReader;
 import solidbase.util.StringLineReader;

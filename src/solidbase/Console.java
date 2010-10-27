@@ -23,8 +23,8 @@ import java.io.PrintStream;
 import java.text.DateFormat;
 import java.util.Date;
 
-import solidbase.core.Assert;
 import solidbase.core.SystemException;
+import solidbase.util.Assert;
 
 
 /**

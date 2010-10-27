@@ -23,7 +23,6 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import solidbase.core.Assert;
 import solidbase.core.SystemException;
 
 

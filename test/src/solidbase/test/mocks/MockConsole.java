@@ -25,7 +25,7 @@ import java.util.Queue;
 import org.apache.commons.io.output.TeeOutputStream;
 
 import solidbase.Console;
-import solidbase.core.Assert;
+import solidbase.util.Assert;
 
 
 /**

@@ -24,7 +24,6 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
-import solidbase.core.Assert;
 import solidbase.core.SystemException;
 
 

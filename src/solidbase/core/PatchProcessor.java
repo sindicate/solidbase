@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
+import solidbase.util.Assert;
 import solidbase.util.LineReader;
 import solidbase.util.ShutdownHook;
 import solidbase.util.WorkerThread;

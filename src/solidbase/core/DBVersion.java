@@ -37,6 +37,8 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.lang.StringUtils;
 
+import solidbase.util.Assert;
+
 
 /**
  * This class represents the version information in the database. It is able to interpret the data and modify the data.

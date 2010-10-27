@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
 
-import solidbase.core.Assert;
 import solidbase.core.SystemException;
+import solidbase.util.Assert;
 
 
 /**
