@@ -22,6 +22,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import solidbase.util.Assert;
+
 
 /**
  * Manages connections to the database.

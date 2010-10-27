@@ -20,8 +20,8 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-import solidbase.core.Assert;
 import solidbase.core.SystemException;
+import solidbase.util.Assert;
 
 
 /**

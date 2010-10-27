@@ -33,6 +33,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import solidbase.core.Patch.Type;
+import solidbase.util.Assert;
 import solidbase.util.RandomAccessLineReader;
 
 

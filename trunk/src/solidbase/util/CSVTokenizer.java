@@ -16,7 +16,6 @@
 
 package solidbase.util;
 
-import solidbase.core.Assert;
 import solidbase.core.CommandFileException;
 
 

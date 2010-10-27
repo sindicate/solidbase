@@ -25,6 +25,7 @@ import solidbase.core.PatchFile;
 import solidbase.core.ProgressListener;
 import solidbase.core.SQLExecutionException;
 import solidbase.core.SQLFile;
+import solidbase.util.Assert;
 
 public class TestProgressListener extends ProgressListener
 {

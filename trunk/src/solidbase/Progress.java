@@ -17,10 +17,10 @@
 package solidbase;
 
 import solidbase.config.ConfigListener;
-import solidbase.core.Assert;
 import solidbase.core.Command;
 import solidbase.core.Patch;
 import solidbase.core.ProgressListener;
+import solidbase.util.Assert;
 
 
 /**

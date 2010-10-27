@@ -19,10 +19,10 @@ package solidbase.ant;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
-import solidbase.core.Assert;
 import solidbase.core.Command;
 import solidbase.core.Patch;
 import solidbase.core.ProgressListener;
+import solidbase.util.Assert;
 
 
 /**

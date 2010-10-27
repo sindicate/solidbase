@@ -18,6 +18,8 @@ package solidbase.core;
 
 import java.sql.SQLException;
 
+import solidbase.util.Assert;
+
 
 /**
  * An {@link SQLException} has occurred during execution of a {@link Command}. As a subclass of {@link FatalException}

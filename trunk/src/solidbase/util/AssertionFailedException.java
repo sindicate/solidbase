@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.core;
+package solidbase.util;
 
 /**
  * Thrown when an assertion failed.
