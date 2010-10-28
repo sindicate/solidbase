@@ -642,7 +642,7 @@ public class PatchFile
 		{
 			for( Patch patch : patches )
 				if( targeting.equals( patch.getTarget() ) )
-					queue.push( patch );
+					queue.add( patch ); // Add patch to the end of the list
 			Assert.notEmpty( queue );
 		}
 		else
@@ -650,7 +650,7 @@ public class PatchFile
 
 		while( !queue.isEmpty() )
 		{
-			Patch patch = queue.pop();
+			Patch patch = queue.removeFirst(); // pop() is not available in java 5
 			if( !result.contains( patch.getTarget() ) ) // Already there?
 				if( downgradesAllowed || !patch.isDowngrade() ) // Downgrades allowed?
 				{
@@ -659,7 +659,7 @@ public class PatchFile
 					{
 						patches = this.patches.get( patch.getTarget() );
 						if( patches != null )
-							queue.addAll( patches ); // Add patches to the queue
+							queue.addAll( patches ); // Add patches to the end of the list
 					}
 				}
 		}
