@@ -77,8 +77,6 @@ public class Init
 
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
-		patcher.patch( "" );
-		TestUtil.verifyVersion( patcher, null, null, 0, "1.1.1" );
 		patcher.patch( "1.0.2" );
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 1, "1.1.1" );
 

@@ -571,11 +571,10 @@ public class PatchFile
 	{
 		Assert.notNull( result, "'result' must not be null" );
 
+		// Will throw errors when the version or targeting version is not available in the upgrade file
 		collectReachableVersions( version, targeting, downgradesAllowed, result );
 
-		if( result.size() == 0 )
-			throw new FatalException( "The current database version (" + StringUtils.defaultString( version, "no version" ) + ") is not available in the upgrade file. Maybe this version is deprecated or the wrong upgrade file is used." );
-
+		// Filter out all version that do not start with the prefix
 		if( prefix != null )
 			for( Iterator< String > iterator = result.iterator(); iterator.hasNext(); )
 			{
@@ -584,6 +583,7 @@ public class PatchFile
 					iterator.remove();
 			}
 
+		// Filter out all versions that are not the tips of the reachable path
 		if( tips )
 			for( Iterator< String > iterator = result.iterator(); iterator.hasNext(); )
 			{
@@ -618,7 +618,7 @@ public class PatchFile
 
 
 	/**
-	 * Retrieves all versions that are reachable from the given source version.
+	 * Retrieves all versions that are reachable from the given source version. The current version is also considered.
 	 * 
 	 * @param source The source version.
 	 * @param targeting Already targeting a specific version.
@@ -627,8 +627,11 @@ public class PatchFile
 	 */
 	protected void collectReachableVersions( String source, String targeting, boolean downgradesAllowed, Set< String > result )
 	{
-		if( targeting == null && this.versions.contains( source ) )
-			result.add( source ); // The source is recognized.
+		if( !this.versions.contains( source ) )
+			throw new FatalException( "The current database version " + StringUtils.defaultString( source, "<no version>" ) + " is not available in the upgrade file. Maybe this version is deprecated or the wrong upgrade file is used." );
+
+		if( targeting == null )
+			result.add( source ); // The source is reachable
 
 		Collection< Patch > patches = this.patches.get( source ); // Get all patches with the given source
 		if( patches == null )
@@ -643,11 +646,13 @@ public class PatchFile
 			for( Patch patch : patches )
 				if( targeting.equals( patch.getTarget() ) )
 					queue.add( patch ); // Add patch to the end of the list
-			Assert.notEmpty( queue );
+			if( queue.isEmpty() )
+				throw new FatalException( "The database is incompletely upgraded to version " + targeting + ", but that version is not reachable from version " + StringUtils.defaultString( source, "<no version>" ) );
 		}
 		else
 			queue.addAll( patches );
 
+		// Process the queue
 		while( !queue.isEmpty() )
 		{
 			Patch patch = queue.removeFirst(); // pop() is not available in java 5
@@ -657,7 +662,7 @@ public class PatchFile
 					result.add( patch.getTarget() );
 					if( !patch.isOpen() ) // Stop when patch is open.
 					{
-						patches = this.patches.get( patch.getTarget() );
+						patches = this.patches.get( patch.getTarget() ); // Add the next to the queue
 						if( patches != null )
 							queue.addAll( patches ); // Add patches to the end of the list
 					}

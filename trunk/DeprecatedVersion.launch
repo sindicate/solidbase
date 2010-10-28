@@ -4,10 +4,10 @@
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="solidbase"/>
 <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${workspace_loc:solidbase/test}"/>
 <mapAttribute key="org.testng.eclipse.ALL_CLASS_METHODS">
-<mapEntry key="solidbase.test.core.DeprecatedVersion" value=""/>
+<mapEntry key="solidbase.core.DeprecatedVersion" value=""/>
 </mapAttribute>
 <listAttribute key="org.testng.eclipse.CLASS_TEST_LIST">
-<listEntry value="solidbase.test.core.DeprecatedVersion"/>
+<listEntry value="solidbase.core.DeprecatedVersion"/>
 </listAttribute>
 <stringAttribute key="org.testng.eclipse.COMPLIANCE_LEVEL" value="JDK"/>
 <listAttribute key="org.testng.eclipse.GROUP_LIST"/>
