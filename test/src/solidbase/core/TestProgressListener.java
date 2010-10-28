@@ -132,6 +132,12 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
+	protected void noUpgradeNeeded()
+	{
+		System.out.println( "NOUPGRADENEEDED." );
+	}
+
+	@Override
 	protected void sqlExecutionComplete()
 	{
 		System.out.println( "SQLEXECUTIONFINISHED." );

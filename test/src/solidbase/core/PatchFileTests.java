@@ -67,6 +67,9 @@ public class PatchFileTests
 		put( patches, "2.3", new Patch( Type.UPGRADE, "2.3", "3.1", false ) );
 		put( patches, "3.1", new Patch( Type.UPGRADE, "3.1", "3.2", false ) );
 
+		patchFile.versions.add( "1.1" );
+		patchFile.versions.add( "1.3" );
+
 		Set< String > result = new HashSet< String >();
 		patchFile.collectTargets( "1.1", null, true, false, null, result );
 		for( String tip : result )
@@ -128,6 +131,8 @@ public class PatchFileTests
 		put( patches, "2.1", new Patch( Type.UPGRADE, "2.1", "2.2", false ) );
 		put( patches, "2.2", new Patch( Type.UPGRADE, "2.2", "2.3", false ) );
 		put( patches, "2.3", new Patch( Type.UPGRADE, "2.3", "2.4", false ) );
+
+		patchFile.versions.add( "1.1" );
 
 		Set< String > result = new HashSet< String >();
 		patchFile.collectTargets( "1.1", null, true, false, "1.", result );

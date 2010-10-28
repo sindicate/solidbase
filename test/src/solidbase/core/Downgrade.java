@@ -46,8 +46,15 @@ public class Downgrade
 		TestUtil.verifyVersion( patcher, "1.1.0", null, 1, "1.1" );
 		TestUtil.verifyHistoryIncludes( patcher, "1.1.0" );
 		System.out.println( "Patching to 1.0.3" );
-		patcher.patch( "1.0.3" );
-		// TODO Why don't we get an error here?
+		try
+		{
+			patcher.patch( "1.0.3" );
+			assert false;
+		}
+		catch( FatalException e )
+		{
+			assert e.getMessage().equals( "Target 1.0.3 is not reachable from version 1.1.0" );
+		}
 		TestUtil.verifyVersion( patcher, "1.1.0", null, 1, "1.1" );
 		System.out.println( "Patching to 1.0.3" );
 		patcher.patch( "1.0.3", true );

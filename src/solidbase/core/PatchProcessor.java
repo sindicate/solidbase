@@ -193,7 +193,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	}
 
 	/**
-	 * Returns all possible targets from the current version.
+	 * Returns all possible targets from the current version. The current version is also considered.
 	 * 
 	 * @param tips If true only the tips of the upgrade paths are returned.
 	 * @param prefix Only return targets that start with the given prefix.
@@ -245,7 +245,8 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	}
 
 	/**
-	 * Patches to the given target version. The target version can end with an '*', indicating whatever tip version that matches the target prefix.
+	 * Patches to the given target version. The target version can end with an '*', indicating whatever tip version that
+	 * matches the target prefix. This method protects itself against SIGTERMs (CTRL-C).
 	 * 
 	 * @param target The target requested.
 	 * @param downgradeable Indicates that downgrade paths are allowed to reach the given target.
@@ -258,54 +259,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 			@Override
 			public void work()
 			{
-				setupControlTables();
-
-				if( target == null )
-				{
-					LinkedHashSet< String > targets = getTargets( true, null, downgradeable );
-					if( targets.size() > 1 )
-						throw new FatalException( "More than one possible target found, you should specify a target." );
-					if( targets.size() == 0 )
-						throw new SystemException( "Expected at least some targets" );
-
-					String t = targets.iterator().next();
-					patch( PatchProcessor.this.dbVersion.getVersion(), t, downgradeable );
-					PatchProcessor.this.progress.upgradeComplete();
-					return; // TODO What about the terminateCommandListeners below?
-				}
-
-				LinkedHashSet< String > targets;
-
-				if( target.endsWith( "*" ) )
-				{
-					String targetPrefix = target.substring( 0, target.length() - 1 );
-					targets = getTargets( true, targetPrefix, downgradeable );
-					if( targets.size() > 1 )
-						throw new FatalException( "More than one possible target found for " + target );
-					for( String t : targets )
-						if( t.startsWith( targetPrefix ) )
-						{
-							patch( PatchProcessor.this.dbVersion.getVersion(), t, downgradeable );
-							break;
-						}
-				}
-				else
-				{
-					targets = getTargets( false, null, downgradeable );
-					for( String t : targets )
-						if( ObjectUtils.equals( t, target ) )
-						{
-							patch( PatchProcessor.this.dbVersion.getVersion(), t, downgradeable );
-							break;
-						}
-				}
-
-				terminateCommandListeners();
-
-				if( targets.size() == 0 )
-					throw new FatalException( "There is no upgrade path from the current version of the database (" + StringUtils.defaultString( PatchProcessor.this.dbVersion.getVersion(), "no version" ) + ") to the requested target version " + target );
-
-				PatchProcessor.this.progress.upgradeComplete();
+				patchProtected( target, downgradeable );
 			}
 		};
 
@@ -335,6 +289,71 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 		{
 			Thread.currentThread().interrupt();
 		}
+	}
+
+	/**
+	 * Patches to the given target version. The target version can end with an '*', indicating whatever tip version that
+	 * matches the target prefix.
+	 * 
+	 * @param target The target requested.
+	 * @param downgradeable Indicates that downgrade paths are allowed to reach the given target.
+	 * @throws SQLExecutionException When the execution of a command throws an {@link SQLException}.
+	 */
+	protected void patchProtected( String target, boolean downgradeable ) throws SQLExecutionException
+	{
+		setupControlTables();
+
+		String version = this.dbVersion.getVersion();
+
+		if( target == null )
+		{
+			LinkedHashSet< String > targets = getTargets( true, null, downgradeable );
+			if( targets.size() > 1 )
+				throw new FatalException( "More than one possible target found, you should specify a target." );
+			Assert.notEmpty( targets );
+
+			target = targets.iterator().next();
+		}
+		else if( target.endsWith( "*" ) )
+		{
+			String targetPrefix = target.substring( 0, target.length() - 1 );
+			LinkedHashSet< String > targets = getTargets( true, targetPrefix, downgradeable );
+			if( targets.size() > 1 )
+				throw new FatalException( "More than one possible target found for " + target );
+			if( targets.isEmpty() )
+				throw new FatalException( "Target " + target + " is not reachable from version " + StringUtils.defaultString( version, "<no version>" ) );
+
+			target = targets.iterator().next();
+		}
+		else
+		{
+			LinkedHashSet< String > targets = getTargets( false, null, downgradeable );
+			Assert.notEmpty( targets );
+
+			// TODO Refactor this, put this in getTargets()
+			boolean found = false;
+			for( String t : targets )
+				if( ObjectUtils.equals( t, target ) )
+				{
+					found = true;
+					break;
+				}
+
+			if( !found )
+				throw new FatalException( "Target " + target + " is not reachable from version " + StringUtils.defaultString( version, "<no version>" ) );
+		}
+
+		if( ObjectUtils.equals( target, version ) )
+		{
+			this.progress.noUpgradeNeeded();
+			terminateCommandListeners();
+			return;
+		}
+
+		patch( version, target, downgradeable );
+		this.progress.upgradeComplete();
+		terminateCommandListeners();
+		return;
 	}
 
 	/**

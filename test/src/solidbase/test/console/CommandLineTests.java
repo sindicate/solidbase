@@ -148,9 +148,7 @@ public class CommandLineTests
 		}
 		catch( FatalException e )
 		{
-			Assert.assertTrue( e.getMessage().contains( "no upgrade path" ) );
-			Assert.assertTrue( e.getMessage().contains( "(no version)" ) );
-			Assert.assertTrue( e.getMessage().contains( "target version 100.0.*" ) );
+			Assert.assertTrue( e.getMessage().equals( "Target 100.0.* is not reachable from version <no version>" ) );
 		}
 
 		String output = TestUtil.generalizeOutput( console.getOutput() );

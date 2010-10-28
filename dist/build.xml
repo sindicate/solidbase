@@ -2,7 +2,7 @@
 
 <project basedir="." name="upgrade">
 
-	<taskdef resource="solidbasetasks" classpath="solidbase.jar;hsqldb.jar;derby-10.2.1.6.jar" />
+	<taskdef resource="solidbasetasks" classpath="solidbase.jar;hsqldb.jar;derby-10.5.3.0.jar" />
 
 	<target name="upgrade">
 		<upgradedb driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testant" 

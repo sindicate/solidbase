@@ -181,6 +181,15 @@ abstract public class ProgressListener
 	}
 
 	/**
+	 * No upgrade is needed.
+	 */
+	protected void noUpgradeNeeded()
+	{
+		cr();
+		println( "No upgrade is needed." );
+	}
+
+	/**
 	 * The sql execution is completed.
 	 */
 	protected void sqlExecutionComplete()
