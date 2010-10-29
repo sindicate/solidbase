@@ -386,6 +386,11 @@
     <target name="gettingstarted" depends="build">
         <groovy src="scripts/GenerateGettingStarted.groovy" />
     </target>
+	
+	
+    <target name="http" depends="compile">
+        <java classname="solidbase.http.Main" classpath="${build.home}/classes" />
+    </target>
 
-
+	
 </project>
