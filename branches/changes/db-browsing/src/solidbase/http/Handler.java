@@ -33,14 +33,26 @@ public class Handler extends Thread
 		if( !token.equals( "GET" ) )
 			throw new SystemException( "Only GET requests are supported" );
 
-		request.setUrl( requestTokenizer.get().getValue() );
-
+		String url = requestTokenizer.get().getValue();
 		token = requestTokenizer.get();
 		if( !token.equals( "HTTP/1.1" ) )
 			throw new SystemException( "Only HTTP/1.1 requests are supported" );
-		requestTokenizer.getNewline();
 
-		System.out.println( "GET " + request.getUrl() + " HTTP/1.1" );
+		System.out.println( "GET " + url + " HTTP/1.1" );
+
+		String parameters = null;
+		int pos = url.indexOf( '?' );
+		if( pos >= 0 )
+		{
+			parameters = url.substring( pos + 1 );
+			url = url.substring( 0, pos );
+		}
+		if( url.endsWith( "/" ) )
+			url = url.substring( 0, url.length() - 1 );
+		request.setUrl( url );
+		request.setParameters( parameters );
+
+		requestTokenizer.getNewline();
 
 		HttpHeaderTokenizer headerTokenizer = new HttpHeaderTokenizer( reader );
 		Token field = headerTokenizer.getField();

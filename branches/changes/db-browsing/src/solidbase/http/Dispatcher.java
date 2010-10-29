@@ -2,19 +2,21 @@ package solidbase.http;
 
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+
+import solidbase.util.Assert;
 
 public class Dispatcher
 {
-	static protected Map< String, Servlet > mappings = new HashMap< String, Servlet >();
+	static protected List< ServletMapping > mappings = new ArrayList< ServletMapping >();
 
 	static public void dispatch( Request request, OutputStream response )
 	{
-		for( Map.Entry< String, Servlet > mapping : mappings.entrySet() )
-			if( mapping.getKey().equals( request.getUrl() ) )
+		for( ServletMapping mapping : mappings )
+			if( mapping.pattern.equals( request.getUrl() ) )
 			{
-				mapping.getValue().call( request, response );
+				mapping.servlet.call( request, response );
 				return;
 			}
 
@@ -26,6 +28,7 @@ public class Dispatcher
 
 	static public void registerServlet( String url, Servlet servlet )
 	{
-		mappings.put( url, servlet );
+		Assert.isFalse( url.endsWith( "/" ) );
+		mappings.add( new ServletMapping( url, servlet ) );
 	}
 }

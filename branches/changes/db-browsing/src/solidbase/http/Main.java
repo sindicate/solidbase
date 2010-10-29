@@ -10,7 +10,8 @@ public class Main
 	 */
 	public static void main( String[] args )
 	{
-		Dispatcher.registerServlet( "/", new RootServlet() );
+		Dispatcher.registerServlet( "/test", new TestServlet() );
+		Dispatcher.registerServlet( "", new RootServlet() );
 
 		try
 		{
