@@ -10,6 +10,8 @@ public class Main
 	 */
 	public static void main( String[] args )
 	{
+		Dispatcher.registerServlet( "/", new RootServlet() );
+
 		try
 		{
 			ServerSocket server = new ServerSocket( 80 );

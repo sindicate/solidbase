@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
 
 import solidbase.core.SystemException;
@@ -28,48 +26,35 @@ public class Handler extends Thread
 		InputStream in = socket.getInputStream();
 		PushbackReader reader = new PushbackReader( new LineReader( new BufferedReader( new InputStreamReader( in, "ISO_8859-1" ) ) ) );
 
+		Request request = new Request();
+
 		RequestTokenizer requestTokenizer = new RequestTokenizer( reader );
 		Token token = requestTokenizer.get();
 		if( !token.equals( "GET" ) )
 			throw new SystemException( "Only GET requests are supported" );
-		Token url = requestTokenizer.get();
+
+		request.setUrl( requestTokenizer.get().getValue() );
+
 		token = requestTokenizer.get();
 		if( !token.equals( "HTTP/1.1" ) )
 			throw new SystemException( "Only HTTP/1.1 requests are supported" );
 		requestTokenizer.getNewline();
 
-		System.out.println( "GET " + url + " HTTP/1.1" );
+		System.out.println( "GET " + request.getUrl() + " HTTP/1.1" );
 
-		if( !url.equals( "/" ) )
+		HttpHeaderTokenizer headerTokenizer = new HttpHeaderTokenizer( reader );
+		Token field = headerTokenizer.getField();
+		while( !field.isEndOfInput() )
 		{
-			OutputStream out = socket.getOutputStream();
-			PrintWriter writer = new PrintWriter( out );
-			writer.println( "HTTP/1.1 404" );
-			writer.println();
-			writer.flush();
+			Token value = headerTokenizer.getValue();
+			request.headers.add( new Header( field.getValue(), value.getValue() ) );
+			field = headerTokenizer.getField();
 		}
-		else
-		{
-			HttpHeaderTokenizer headerTokenizer = new HttpHeaderTokenizer( reader );
-			RequestHeader header = new RequestHeader();
-			Token field = headerTokenizer.getField();
-			while( !field.isEndOfInput() )
-			{
-				Token value = headerTokenizer.getValue();
-				header.addField( field.getValue(), value.getValue() );
-				field = headerTokenizer.getField();
-			}
 
-			for( HeaderField f : header.fields )
-				System.out.println( f.field + ": " + f.value );
+		for( Header f : request.headers )
+			System.out.println( f.field + ": " + f.value );
 
-			OutputStream out = socket.getOutputStream();
-			PrintWriter writer = new PrintWriter( out );
-			writer.println( "HTTP/1.1 200" );
-			writer.println();
-			writer.println( "Hello World!" );
-			writer.flush();
-		}
+		Dispatcher.dispatch( request, socket.getOutputStream() );
 
 		socket.close();
 	}

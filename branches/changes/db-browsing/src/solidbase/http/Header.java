@@ -1,11 +1,11 @@
 package solidbase.http;
 
-public class HeaderField
+public class Header
 {
 	protected String field;
 	protected String value;
 
-	public HeaderField( String field, String value )
+	public Header( String field, String value )
 	{
 		this.field = field;
 		this.value = value;
