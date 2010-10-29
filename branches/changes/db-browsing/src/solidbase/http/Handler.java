@@ -7,6 +7,9 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import solidbase.http.HttpHeaderTokenizer.Token;
+import solidbase.util.LineReader;
+
 public class Handler extends Thread
 {
 	protected Socket socket;
@@ -23,21 +26,23 @@ public class Handler extends Thread
 		try
 		{
 			InputStream in = socket.getInputStream();
-			BufferedReader reader = new BufferedReader( new InputStreamReader( in, "ISO_8859-1" ) );
-			String line = reader.readLine();
-			while( line != null && line.length() > 0 )
+			LineReader reader = new LineReader( new BufferedReader( new InputStreamReader( in, "ISO_8859-1" ) ) );
+			String request = reader.readLine();
+
+			System.out.println( request );
+
+			HttpHeaderTokenizer httpHeaderTokenizer = new HttpHeaderTokenizer( reader );
+			RequestHeader header = new RequestHeader();
+			Token field = httpHeaderTokenizer.getField();
+			while( !field.isEndOfInput() )
 			{
-				System.out.println( line );
-				line = reader.readLine();
+				Token value = httpHeaderTokenizer.getValue();
+				header.addField( field.getValue(), value.getValue() );
+				field = httpHeaderTokenizer.getField();
 			}
 
-//			byte[] buffer = new byte[ 4096 ];
-//			int len = in.read( buffer );
-//			while( len >= 0 )
-//			{
-//				System.out.write( buffer );
-//				len = in.read( buffer );
-//			}
+			for( HeaderField f : header.fields )
+				System.out.println( f.field + ": " + f.value );
 
 			OutputStream out = socket.getOutputStream();
 			PrintWriter writer = new PrintWriter( out );
@@ -45,11 +50,6 @@ public class Handler extends Thread
 			writer.println();
 			writer.println( "Hello World!" );
 			writer.flush();
-//			out.flush();
-//			writer.close();
-//			out.close();
-//
-//			in.close();
 
 			socket.close();
 		}

@@ -35,7 +35,6 @@ public class StringLineReader extends LineReader
 	public StringLineReader( String text )
 	{
 		this.reader = new BufferedReader( new StringReader( text ) );
-		this.currentLineNumber = 1;
 	}
 
 	/**

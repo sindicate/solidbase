@@ -50,6 +50,17 @@ public class LineReader
 	protected int pos;
 
 
+	public LineReader()
+	{
+		this.currentLineNumber = 1;
+	}
+
+	public LineReader( BufferedReader reader )
+	{
+		this.reader = reader;
+		this.currentLineNumber = 1;
+	}
+
 	/**
 	 * Close the reader and the underlying input stream.
 	 */
