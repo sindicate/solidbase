@@ -1,14 +1,16 @@
 package solidbase.http;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import solidbase.http.HttpHeaderTokenizer.Token;
+import solidbase.core.SystemException;
 import solidbase.util.LineReader;
+import solidbase.util.PushbackReader;
 
 public class Handler extends Thread
 {
@@ -19,26 +21,43 @@ public class Handler extends Thread
 		this.socket = socket;
 	}
 
-	@Override
-	public void run()
+	public void handle() throws IOException
 	{
 		Socket socket = this.socket;
-		try
+
+		InputStream in = socket.getInputStream();
+		PushbackReader reader = new PushbackReader( new LineReader( new BufferedReader( new InputStreamReader( in, "ISO_8859-1" ) ) ) );
+
+		RequestTokenizer requestTokenizer = new RequestTokenizer( reader );
+		Token token = requestTokenizer.get();
+		if( !token.equals( "GET" ) )
+			throw new SystemException( "Only GET requests are supported" );
+		Token url = requestTokenizer.get();
+		token = requestTokenizer.get();
+		if( !token.equals( "HTTP/1.1" ) )
+			throw new SystemException( "Only HTTP/1.1 requests are supported" );
+		requestTokenizer.getNewline();
+
+		System.out.println( "GET " + url + " HTTP/1.1" );
+
+		if( !url.equals( "/" ) )
 		{
-			InputStream in = socket.getInputStream();
-			LineReader reader = new LineReader( new BufferedReader( new InputStreamReader( in, "ISO_8859-1" ) ) );
-			String request = reader.readLine();
-
-			System.out.println( request );
-
-			HttpHeaderTokenizer httpHeaderTokenizer = new HttpHeaderTokenizer( reader );
+			OutputStream out = socket.getOutputStream();
+			PrintWriter writer = new PrintWriter( out );
+			writer.println( "HTTP/1.1 404" );
+			writer.println();
+			writer.flush();
+		}
+		else
+		{
+			HttpHeaderTokenizer headerTokenizer = new HttpHeaderTokenizer( reader );
 			RequestHeader header = new RequestHeader();
-			Token field = httpHeaderTokenizer.getField();
+			Token field = headerTokenizer.getField();
 			while( !field.isEndOfInput() )
 			{
-				Token value = httpHeaderTokenizer.getValue();
+				Token value = headerTokenizer.getValue();
 				header.addField( field.getValue(), value.getValue() );
-				field = httpHeaderTokenizer.getField();
+				field = headerTokenizer.getField();
 			}
 
 			for( HeaderField f : header.fields )
@@ -50,8 +69,17 @@ public class Handler extends Thread
 			writer.println();
 			writer.println( "Hello World!" );
 			writer.flush();
+		}
 
-			socket.close();
+		socket.close();
+	}
+
+	@Override
+	public void run()
+	{
+		try
+		{
+			handle();
 		}
 		catch( Throwable t )
 		{

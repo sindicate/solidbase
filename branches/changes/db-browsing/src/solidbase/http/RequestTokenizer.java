@@ -16,12 +16,13 @@
 
 package solidbase.http;
 
+import solidbase.core.CommandFileException;
 import solidbase.core.SystemException;
 import solidbase.util.LineReader;
 import solidbase.util.PushbackReader;
 
 
-public class HttpHeaderTokenizer
+public class RequestTokenizer
 {
 	/**
 	 * The reader used to read from and push back characters.
@@ -34,7 +35,7 @@ public class HttpHeaderTokenizer
 	 * 
 	 * @param in The input.
 	 */
-	public HttpHeaderTokenizer( PushbackReader in )
+	public RequestTokenizer( PushbackReader in )
 	{
 		this.in = in;
 	}
@@ -56,7 +57,7 @@ public class HttpHeaderTokenizer
 		return false;
 	}
 
-	public Token getField()
+	public Token get()
 	{
 		int ch = this.in.read();
 
@@ -64,60 +65,41 @@ public class HttpHeaderTokenizer
 		while( isWhitespace( ch ) && ch != -1 )
 			ch = this.in.read();
 
-		// Empty line
-		if( ch == '\n' )
-			return new Token( null );
-
 		StringBuilder result = new StringBuilder();
-		while( ch != ':' && !isWhitespace( ch ) )
+		while( !isWhitespace( ch ) && ch != '\n' )
 		{
 			if( ch == -1 )
 				throw new SystemException( "Unexpected end of statement" );
-			if( ch == '\n' )
-				throw new SystemException( "Unexpected end of line" );
 			result.append( (char)ch );
 			ch = this.in.read();
 		}
 
-		// Ignore whitespace
-		while( isWhitespace( ch ) && ch != -1 )
-			ch = this.in.read();
-
-		if( ch != ':' )
-			throw new SystemException( "Expecting a :" );
-
-		// Return the result
-		if( result.length() == 0 )
-			throw new SystemException( "Empty header field" );
+		this.in.push( ch );
 
 		return new Token( result.toString() );
 	}
 
-	public Token getValue()
+	/**
+	 * Returns a newline token. Throws a {@link CommandFileException} if another token is found.
+	 * 
+	 * @return The newline token.
+	 */
+	public Token getNewline()
 	{
-		// Read whitespace
 		int ch = this.in.read();
-		while( isWhitespace( ch ) )
+
+		// Ignore whitespace
+		while( isWhitespace( ch ) && ch != -1 )
 			ch = this.in.read();
 
-		// Read everything until end-of-line
-		StringBuilder result = new StringBuilder();
-		while( true )
-		{
-			if( ch == -1 )
-				throw new SystemException( "Unexpected end-of-input" );
-			if( ch == '\n' )
-			{
-				ch = this.in.read();
-				if( ch != ' ' && ch != '\t' )
-				{
-					this.in.push( ch );
-					return new Token( result.toString() );
-				}
-			}
-			result.append( (char)ch );
-			ch = this.in.read();
-		}
+		// Check newline
+		if( ch == -1 )
+			throw new CommandFileException( "Unexpected end of statement", this.in.getLineNumber() );
+		if( ch != '\n' )
+			throw new CommandFileException( "Expecting end of line, not [" + (char)ch + "]", this.in.getLineNumber() );
+
+		// Return the result
+		return new Token( String.valueOf( (char)ch ) );
 	}
 
 	/**
