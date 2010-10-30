@@ -13,13 +13,14 @@ public class TableServlet implements Servlet, Fragment
 {
 	public void call( Request request, Response response )
 	{
-		new Template().call( request, response, this );
+		String table = request.getParameter( "tablename" );
+		new Template().call( request, response, "SolidBrowser - table " + table, this );
 	}
 
 	public void fragment( Request request, Response response )
 	{
 		String table = request.getParameter( "tablename" );
-		String id = request.getParameter( "id" );
+//		String id = request.getParameter( "id" );
 
 		PrintWriter writer = response.getPrintWriter();
 
@@ -46,55 +47,58 @@ public class TableServlet implements Servlet, Fragment
 					{
 						ResultSetMetaData meta = result.getMetaData();
 						int count = meta.getColumnCount();
-						writer.append( "<table>" );
-						writer.append( "<tr><th colspan=\"" );
-						writer.append( Integer.toString( count ) );
-						writer.append( "\">" );
-						writer.append( "Table " );
-						writer.append( table );
-						writer.append( ", " );
-						writer.append( object.toString() );
-						writer.append( " records" );
-						writer.append( "</th>" );
-						writer.append( "</tr>" );
-						writer.append( "<tr>" );
+						writer.println( "<table>" );
+						writer.print( "<tr><th colspan=\"" );
+						writer.print( Integer.toString( count ) );
+						writer.print( "\">" );
+						writer.print( "Table " );
+						Util.printEscaped( writer, table );
+						writer.print( " - " );
+						Util.printEscaped( writer, object.toString() );
+						writer.print( " records" );
+						writer.print( "</th>" );
+						writer.println( "</tr>" );
+						writer.print( "<tr>" );
 						for( int i = 1; i <= count; i++ )
 						{
-							writer.append( "<th>" );
-							writer.append( meta.getColumnLabel( i ) );
-							writer.append( "</th>" );
+							writer.print( "<th>" );
+							Util.printEscaped( writer, meta.getColumnLabel( i ) );
+							writer.print( "</th>" );
 						}
-						writer.append( "</tr>" );
+						writer.println( "</tr>" );
 						do
 						{
-							writer.append( "<tr>" );
+							writer.print( "<tr>" );
 							for( int i = 1; i <= count; i++ )
 							{
-								writer.append( "<td>" );
+								writer.print( "<td>" );
 								object = result.getObject(  i );
-								writer.append( object == null ? "&lt;NULL&gt;" : object.toString() );
-								writer.append( "</td>" );
+								if( object != null )
+									Util.printEscaped( writer, object.toString() );
+								else
+									writer.print( "&lt;NULL&gt;" );
+								writer.print( "</td>" );
 							}
-							writer.append( "</tr>" );
+							writer.println( "</tr>" );
 						}
 						while( result.next() );
-						writer.append( "</table>" );
+						writer.println( "</table>" );
 					}
 					else
 					{
-						writer.append( "<table>" );
-						writer.append( "<tr><th>" );
-						writer.append( "Table " );
-						writer.append( table );
-						writer.append( ", " );
-						writer.append( object.toString() );
-						writer.append( " records" );
-						writer.append( "</th>" );
-						writer.append( "</tr>" );
-						writer.append( "<tr>" );
-						writer.append( "<td>No records.</td>" );
-						writer.append( "</tr>" );
-						writer.append( "</table>" );
+						writer.println( "<table>" );
+						writer.print( "<tr><th>" );
+						writer.print( "Table " );
+						Util.printEscaped( writer, table );
+						writer.print( ", " );
+						Util.printEscaped( writer, object.toString() );
+						writer.print( " records" );
+						writer.print( "</th>" );
+						writer.println( "</tr>" );
+						writer.print( "<tr>" );
+						writer.print( "<td>No records.</td>" );
+						writer.println( "</tr>" );
+						writer.println( "</table>" );
 					}
 				}
 				finally

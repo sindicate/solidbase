@@ -6,7 +6,7 @@ public class RootServlet implements Servlet, Fragment
 {
 	public void call( Request request, Response response )
 	{
-		new Template().call( request, response, this );
+		new Template().call( request, response, "SolidBrowser", this );
 	}
 
 	public void fragment( Request request, Response response )
