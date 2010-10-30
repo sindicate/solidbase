@@ -52,9 +52,9 @@ public class Dispatcher
 			}
 		}
 
+		response.setStatusCode( 404, "Not Found" );
+
 		PrintWriter writer = response.getPrintWriter();
-		writer.println( "HTTP/1.1 404" );
-		writer.println();
 		writer.flush();
 	}
 

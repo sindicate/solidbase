@@ -20,7 +20,7 @@ public class Database
 			return tableCache;
 
 		String sql = "SELECT TABLE_NAME FROM USER_TABLES ORDER BY TABLE_NAME";
-		System.out.println( "SQL: " + sql );
+//		System.out.println( "SQL: " + sql );
 
 		List< Table > tables = new ArrayList< Table >();
 		try
@@ -41,6 +41,8 @@ public class Database
 						Assert.isTrue( result.next() );
 						table.records = result.getInt( 1 );
 					}
+
+					tableCache = tables;
 				}
 				finally
 				{

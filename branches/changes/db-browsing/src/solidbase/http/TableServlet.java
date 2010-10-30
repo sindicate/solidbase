@@ -30,14 +30,14 @@ public class TableServlet implements Servlet, Fragment
 			try
 			{
 				String sql = "SELECT COUNT(*) FROM " + table;
-				System.out.println( "SQL: " + sql );
+//				System.out.println( "SQL: " + sql );
 
 				ResultSet result = connection.createStatement().executeQuery( sql );
 				Assert.isTrue( result.next() );
 				Object object = result.getObject( 1 );
 
 				sql = "SELECT * FROM " + table;
-				System.out.println( "SQL: " + sql );
+//				System.out.println( "SQL: " + sql );
 
 				Statement statement = connection.createStatement();
 				try
@@ -71,12 +71,14 @@ public class TableServlet implements Servlet, Fragment
 							writer.print( "<tr>" );
 							for( int i = 1; i <= count; i++ )
 							{
-								writer.print( "<td>" );
 								object = result.getObject(  i );
 								if( object != null )
+								{
+									writer.print( "<td>" );
 									Util.printEscaped( writer, object.toString() );
+								}
 								else
-									writer.print( "&lt;NULL&gt;" );
+									writer.print( "<td class=\"null\">" );
 								writer.print( "</td>" );
 							}
 							writer.println( "</tr>" );
@@ -96,7 +98,7 @@ public class TableServlet implements Servlet, Fragment
 						writer.print( "</th>" );
 						writer.println( "</tr>" );
 						writer.print( "<tr>" );
-						writer.print( "<td>No records.</td>" );
+						writer.print( "<td class=\"null\">No records.</td>" );
 						writer.println( "</tr>" );
 						writer.println( "</table>" );
 					}

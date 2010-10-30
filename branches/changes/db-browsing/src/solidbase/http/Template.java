@@ -8,10 +8,9 @@ public class Template
 
 	public void call( Request request, Response response, String title, Fragment fragment )
 	{
-		PrintWriter writer = response.getPrintWriter( "UTF-8" );
-		writer.println( "HTTP/1.1 200" );
-		writer.println();
+		response.setHeader( "Content-Type", "text/html; charset=UTF-8" );
 
+		PrintWriter writer = response.getPrintWriter( "UTF-8" );
 		writer.println( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" );
 		writer.println( "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">" );
 		writer.println( "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">" );
