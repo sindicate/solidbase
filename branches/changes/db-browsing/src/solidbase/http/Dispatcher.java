@@ -1,7 +1,5 @@
 package solidbase.http;
 
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +12,7 @@ public class Dispatcher
 {
 	static protected List< ServletMapping > mappings = new ArrayList< ServletMapping >();
 
-	static public void dispatch( Request request, OutputStream response )
+	static public void dispatch( Request request, Response response )
 	{
 		for( ServletMapping mapping : mappings )
 		{
@@ -35,26 +33,26 @@ public class Dispatcher
 				}
 				catch( Exception e )
 				{
-					PrintWriter writer = new PrintWriter( response );
+					PrintWriter writer = response.getPrintWriter();
 					writer.println( "HTTP/1.1 500 Exception" );
 					writer.println();
 					writer.flush();
 					if( e.getClass().equals( SystemException.class ) && e.getCause() != null )
 					{
 						e.getCause().printStackTrace( System.err );
-						e.getCause().printStackTrace( new PrintStream( response ) );
+						e.getCause().printStackTrace( response.getPrintWriter() );
 					}
 					else
 					{
 						e.printStackTrace( System.err );
-						e.printStackTrace( new PrintStream( response ) );
+						e.printStackTrace( response.getPrintWriter() );
 					}
 				}
 				return;
 			}
 		}
 
-		PrintWriter writer = new PrintWriter( response );
+		PrintWriter writer = response.getPrintWriter();
 		writer.println( "HTTP/1.1 404" );
 		writer.println();
 		writer.flush();

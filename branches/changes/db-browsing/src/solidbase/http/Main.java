@@ -13,6 +13,7 @@ public class Main
 		Dispatcher.registerServlet( "/table:([^/]*)", "tablename", new TableServlet() );
 		Dispatcher.registerServlet( "/tables", new TablesServlet() );
 		Dispatcher.registerServlet( "/test", new TestServlet() );
+		Dispatcher.registerServlet( "/styles.css", new StylesServlet() );
 		Dispatcher.registerServlet( "", new RootServlet() );
 
 		try

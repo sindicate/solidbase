@@ -1,16 +1,24 @@
 package solidbase.http;
 
-import java.io.OutputStream;
 import java.io.PrintWriter;
 
-public class RootServlet implements Servlet
+import solidbase.util.Assert;
+
+public class RootServlet extends Servlet
 {
-	public void call( Request request, OutputStream response )
+	@Override
+	public void call( Request request, Response response )
 	{
-		PrintWriter writer = new PrintWriter( response );
-		writer.println( "HTTP/1.1 200" );
-		writer.println();
-		writer.println( "<html><body><a href=\"/tables\">tables</a></body></html>" );
+		new Template().call( request, response, this );
+	}
+
+	@Override
+	public void fragment( Request request, Response response, String fragment )
+	{
+		Assert.isTrue( "body".equals( fragment ) );
+
+		PrintWriter writer = response.getPrintWriter();
+		writer.println( "<a href=\"/tables\">tables</a>" );
 		writer.flush();
 	}
 }

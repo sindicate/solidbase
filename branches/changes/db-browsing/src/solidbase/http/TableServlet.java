@@ -1,30 +1,31 @@
 package solidbase.http;
 
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-
 import solidbase.core.SystemException;
 import solidbase.util.Assert;
 
-public class TableServlet implements Servlet
+public class TableServlet extends Servlet
 {
-	public void call( Request request, OutputStream response )
+	@Override
+	public void call( Request request, Response response )
 	{
+		new Template().call( request, response, this );
+	}
+
+	@Override
+	public void fragment( Request request, Response response, String fragment )
+	{
+		Assert.isTrue( "body".equals( fragment ) );
+
 		String table = request.getParameter( "tablename" );
 		String id = request.getParameter( "id" );
 
-		PrintWriter writer = new PrintWriter( response );
-		writer.println( "HTTP/1.1 200" );
-		writer.println();
-		writer.println( "<html>" );
-		writer.println( "<body>" );
-		writer.println( "<p>Table " + table + "</p>" );
-		writer.println( "<p>Id " + id + "</p>" );
+		PrintWriter writer = response.getPrintWriter();
 
 		Connection connection = DataSource.getConnection();
 		try
@@ -37,7 +38,6 @@ public class TableServlet implements Servlet
 				ResultSet result = connection.createStatement().executeQuery( sql );
 				Assert.isTrue( result.next() );
 				Object object = result.getObject( 1 );
-				writer.println( "# records " + object );
 
 				sql = "SELECT * FROM " + table;
 				System.out.println( "SQL: " + sql );
@@ -51,6 +51,16 @@ public class TableServlet implements Servlet
 						ResultSetMetaData meta = result.getMetaData();
 						int count = meta.getColumnCount();
 						writer.append( "<table>" );
+						writer.append( "<tr><th colspan=\"" );
+						writer.append( Integer.toString( count ) );
+						writer.append( "\">" );
+						writer.append( "Table " );
+						writer.append( table );
+						writer.append( ", " );
+						writer.append( object.toString() );
+						writer.append( " records" );
+						writer.append( "</th>" );
+						writer.append( "</tr>" );
 						writer.append( "<tr>" );
 						for( int i = 1; i <= count; i++ )
 						{
@@ -74,6 +84,22 @@ public class TableServlet implements Servlet
 						while( result.next() );
 						writer.append( "</table>" );
 					}
+					else
+					{
+						writer.append( "<table>" );
+						writer.append( "<tr><th>" );
+						writer.append( "Table " );
+						writer.append( table );
+						writer.append( ", " );
+						writer.append( object.toString() );
+						writer.append( " records" );
+						writer.append( "</th>" );
+						writer.append( "</tr>" );
+						writer.append( "<tr>" );
+						writer.append( "<td>No records.</td>" );
+						writer.append( "</tr>" );
+						writer.append( "</table>" );
+					}
 				}
 				finally
 				{
@@ -90,8 +116,6 @@ public class TableServlet implements Servlet
 			throw new SystemException( e );
 		}
 
-		writer.println( "</body>" );
-		writer.println( "</html>" );
 		writer.flush();
 	}
 }

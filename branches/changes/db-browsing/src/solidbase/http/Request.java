@@ -11,6 +11,7 @@ public class Request
 	protected String query;
 	protected List< Header > headers = new ArrayList< Header >();
 	protected Map< String, List< String > > parameters = new HashMap< String, List< String > >();
+	protected String fragment;
 
 	public void setUrl( String url )
 	{

@@ -76,7 +76,9 @@ public class Handler extends Thread
 //		for( Header f : request.headers )
 //			System.out.println( f.field + ": " + f.value );
 
-		Dispatcher.dispatch( request, socket.getOutputStream() );
+		Response response = new Response( socket.getOutputStream() );
+
+		Dispatcher.dispatch( request, response );
 
 		socket.close();
 	}

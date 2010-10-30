@@ -1,18 +1,24 @@
 package solidbase.http;
 
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.List;
 
-public class TablesServlet implements Servlet
+import solidbase.util.Assert;
+
+public class TablesServlet extends Servlet
 {
-	public void call( Request request, OutputStream response )
+	@Override
+	public void call( Request request, Response response )
 	{
-		PrintWriter writer = new PrintWriter( response );
-		writer.println( "HTTP/1.1 200" );
-		writer.println();
-		writer.println( "<html>" );
-		writer.println( "<body>" );
+		new Template().call( request, response, this );
+	}
+
+	@Override
+	public void fragment( Request request, Response response, String fragment )
+	{
+		Assert.isTrue( "body".equals( fragment ) );
+
+		PrintWriter writer = response.getPrintWriter();
 
 		List< Table > tables = Database.getTables();
 
@@ -28,9 +34,5 @@ public class TablesServlet implements Servlet
 			writer.append( "</td></tr>" );
 		}
 		writer.append( "</table>" );
-
-		writer.println( "</body>" );
-		writer.println( "</html>" );
-		writer.flush();
 	}
 }
