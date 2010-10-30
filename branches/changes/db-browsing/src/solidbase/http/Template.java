@@ -4,7 +4,9 @@ import java.io.PrintWriter;
 
 public class Template
 {
-	public void call( Request request, Response response, Servlet servlet )
+//	protected Map< String, Fragment > fragments = new HashMap< String, Fragment >();
+
+	public void call( Request request, Response response, Fragment fragment )
 	{
 		PrintWriter writer = response.getPrintWriter();
 		writer.println( "HTTP/1.1 200" );
@@ -15,10 +17,17 @@ public class Template
 		writer.println( "</head>" );
 		writer.println( "<body>" );
 
-		servlet.fragment( request, response, "body" );
+//		this.fragments.get( "body" ).fragment( request, response );
+		fragment.fragment( request, response );
 
 		writer.println( "</body>" );
 		writer.println( "</html>" );
 		writer.flush();
 	}
+
+//	public Template addFragment( String name, Fragment fragment )
+//	{
+//		this.fragments.put( name, fragment );
+//		return this;
+//	}
 }

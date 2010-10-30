@@ -1,14 +1,6 @@
 package solidbase.http;
 
-public class Servlet
+public interface Servlet
 {
-	public void call( Request request, Response response )
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	public void fragment( Request request, Response response, String fragment )
-	{
-		throw new UnsupportedOperationException();
-	}
+	void call( Request request, Response response );
 }

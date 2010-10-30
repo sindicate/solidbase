@@ -9,19 +9,15 @@ import java.sql.Statement;
 import solidbase.core.SystemException;
 import solidbase.util.Assert;
 
-public class TableServlet extends Servlet
+public class TableServlet implements Servlet, Fragment
 {
-	@Override
 	public void call( Request request, Response response )
 	{
 		new Template().call( request, response, this );
 	}
 
-	@Override
-	public void fragment( Request request, Response response, String fragment )
+	public void fragment( Request request, Response response )
 	{
-		Assert.isTrue( "body".equals( fragment ) );
-
 		String table = request.getParameter( "tablename" );
 		String id = request.getParameter( "id" );
 

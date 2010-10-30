@@ -3,21 +3,15 @@ package solidbase.http;
 import java.io.PrintWriter;
 import java.util.List;
 
-import solidbase.util.Assert;
-
-public class TablesServlet extends Servlet
+public class TablesServlet implements Servlet, Fragment
 {
-	@Override
 	public void call( Request request, Response response )
 	{
 		new Template().call( request, response, this );
 	}
 
-	@Override
-	public void fragment( Request request, Response response, String fragment )
+	public void fragment( Request request, Response response )
 	{
-		Assert.isTrue( "body".equals( fragment ) );
-
 		PrintWriter writer = response.getPrintWriter();
 
 		List< Table > tables = Database.getTables();

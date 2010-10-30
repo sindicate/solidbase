@@ -2,9 +2,8 @@ package solidbase.http;
 
 import java.io.PrintWriter;
 
-public class StylesServlet extends Servlet
+public class StylesServlet implements Servlet
 {
-	@Override
 	public void call( Request request, Response response )
 	{
 		PrintWriter writer = response.getPrintWriter();
