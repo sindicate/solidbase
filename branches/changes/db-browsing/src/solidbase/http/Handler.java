@@ -46,6 +46,16 @@ public class Handler extends Thread
 		{
 			parameters = url.substring( pos + 1 );
 			url = url.substring( 0, pos );
+
+			String[] pars = parameters.split( "&" );
+			for( String par : pars )
+			{
+				pos = par.indexOf( '=' );
+				if( pos >= 0 )
+					request.addParameter( par.substring( 0, pos ), par.substring( pos + 1 ) );
+				else
+					request.addParameter( par, null );
+			}
 		}
 		if( url.endsWith( "/" ) )
 			url = url.substring( 0, url.length() - 1 );
@@ -63,8 +73,8 @@ public class Handler extends Thread
 			field = headerTokenizer.getField();
 		}
 
-		for( Header f : request.headers )
-			System.out.println( f.field + ": " + f.value );
+//		for( Header f : request.headers )
+//			System.out.println( f.field + ": " + f.value );
 
 		Dispatcher.dispatch( request, socket.getOutputStream() );
 
