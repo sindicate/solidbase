@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import solidbase.core.SystemException;
 import solidbase.util.Assert;
@@ -41,34 +42,42 @@ public class TableServlet implements Servlet
 				sql = "SELECT * FROM " + table;
 				System.out.println( "SQL: " + sql );
 
-				result = connection.createStatement().executeQuery( sql );
-				if( result.next() )
+				Statement statement = connection.createStatement();
+				try
 				{
-					ResultSetMetaData meta = result.getMetaData();
-					int count = meta.getColumnCount();
-					writer.append( "<table>" );
-					writer.append( "<tr>" );
-					for( int i = 1; i <= count; i++ )
+					result = statement.executeQuery( sql );
+					if( result.next() )
 					{
-						writer.append( "<th>" );
-						writer.append( meta.getColumnLabel( i ) );
-						writer.append( "</th>" );
-					}
-					writer.append( "</tr>" );
-					do
-					{
+						ResultSetMetaData meta = result.getMetaData();
+						int count = meta.getColumnCount();
+						writer.append( "<table>" );
 						writer.append( "<tr>" );
 						for( int i = 1; i <= count; i++ )
 						{
-							writer.append( "<td>" );
-							object = result.getObject(  i );
-							writer.append( object == null ? "&lt;NULL&gt;" : object.toString() );
-							writer.append( "</td>" );
+							writer.append( "<th>" );
+							writer.append( meta.getColumnLabel( i ) );
+							writer.append( "</th>" );
 						}
 						writer.append( "</tr>" );
+						do
+						{
+							writer.append( "<tr>" );
+							for( int i = 1; i <= count; i++ )
+							{
+								writer.append( "<td>" );
+								object = result.getObject(  i );
+								writer.append( object == null ? "&lt;NULL&gt;" : object.toString() );
+								writer.append( "</td>" );
+							}
+							writer.append( "</tr>" );
+						}
+						while( result.next() );
+						writer.append( "</table>" );
 					}
-					while( result.next() );
-					writer.append( "</table>" );
+				}
+				finally
+				{
+					statement.close();
 				}
 			}
 			finally

@@ -10,7 +10,7 @@ public class RootServlet implements Servlet
 		PrintWriter writer = new PrintWriter( response );
 		writer.println( "HTTP/1.1 200" );
 		writer.println();
-		writer.println( "Hello World!" );
+		writer.println( "<html><body><a href=\"/tables\">tables</a></body></html>" );
 		writer.flush();
 	}
 }

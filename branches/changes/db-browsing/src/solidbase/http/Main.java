@@ -11,6 +11,7 @@ public class Main
 	public static void main( String[] args )
 	{
 		Dispatcher.registerServlet( "/table:([^/]*)", "tablename", new TableServlet() );
+		Dispatcher.registerServlet( "/tables", new TablesServlet() );
 		Dispatcher.registerServlet( "/test", new TestServlet() );
 		Dispatcher.registerServlet( "", new RootServlet() );
 
