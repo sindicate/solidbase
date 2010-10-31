@@ -3,6 +3,7 @@ package solidbase.http.hyperdb;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import solidbase.http.DefaultServlet;
 import solidbase.http.Dispatcher;
 import solidbase.http.Handler;
 import solidbase.http.TestServlet;
@@ -19,6 +20,7 @@ public class Main
 		Dispatcher.registerServlet( "/test", new TestServlet() );
 		Dispatcher.registerServlet( "/styles.css", new StylesServlet() );
 		Dispatcher.registerServlet( "", new RootServlet() );
+		Dispatcher.registerServlet( ".*", new DefaultServlet() );
 
 		try
 		{

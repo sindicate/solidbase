@@ -104,4 +104,17 @@ public class Response
 			this.writer.flush();
 		this.out.flush();
 	}
+
+	public void setContentType( String contentType, String charSet )
+	{
+		if( charSet == null )
+			setContentType( contentType );
+		else
+			setHeader( "Content-Type", contentType + "; charset=" + charSet );
+	}
+
+	public void setContentType( String contentType )
+	{
+		setHeader( "Content-Type", contentType );
+	}
 }
