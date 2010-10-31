@@ -10,7 +10,8 @@ public class StylesServlet implements Servlet
 {
 	public void call( Request request, Response response )
 	{
-		response.setHeader( "Content-Type", "text/css; charset=ISO-8859-1" );
+		response.setContentType( "text/css", "ISO-8859-1" );
+		response.setHeader( "Cache-Control", "max-age=3600" );
 
 		PrintWriter writer = response.getPrintWriter( "ISO-8859-1" );
 

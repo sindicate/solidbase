@@ -389,7 +389,7 @@
 	
 	
     <target name="hyperdb" depends="compile">
-        <java classname="solidbase.http.hyperdb.Main" classpath="${build.home}/classes" />
+        <java classname="solidbase.http.hyperdb.Main" classpath="${build.home}/classes;../ojdbc5-11.2.0.2.0.jar" />
     </target>
 
 	

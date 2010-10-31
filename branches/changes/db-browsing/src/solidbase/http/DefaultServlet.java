@@ -37,6 +37,8 @@ public class DefaultServlet implements Servlet
 			}
 		}
 
+		response.setHeader( "Cache-Control", "max-age=3600" );
+
 		try
 		{
 			try
