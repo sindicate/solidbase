@@ -1,12 +1,9 @@
 package solidbase.http;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import solidbase.core.SystemException;
 
 public class Dispatcher
 {
@@ -27,31 +24,7 @@ public class Dispatcher
 						request.addParameter( name, matcher.group( i + 1 ) );
 					}
 				}
-				try
-				{
-					mapping.servlet.call( request, response );
-				}
-				catch( Throwable e )
-				{
-					if( !response.isCommitted() )
-					{
-						response.reset();
-						response.setStatusCode( 500, "Exception" );
-						response.setHeader( "Content-Type", "text/plain; charset=ISO-8859-1" );
-					}
-					PrintWriter writer = response.getPrintWriter( "ISO-8859-1" );
-					if( e.getClass().equals( SystemException.class ) && e.getCause() != null )
-					{
-						e.getCause().printStackTrace( System.err );
-						e.getCause().printStackTrace( writer );
-					}
-					else
-					{
-						e.printStackTrace( System.err );
-						e.printStackTrace( writer );
-					}
-					writer.flush();
-				}
+				mapping.servlet.call( request, response );
 				return;
 			}
 		}

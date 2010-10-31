@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 import solidbase.core.SystemException;
@@ -78,7 +79,30 @@ public class Handler extends Thread
 
 		Response response = new Response( socket.getOutputStream() );
 
-		Dispatcher.dispatch( request, response );
+		try
+		{
+			Dispatcher.dispatch( request, response );
+		}
+		catch( Throwable e )
+		{
+			if( !response.isCommitted() )
+			{
+				response.reset();
+				response.setStatusCode( 500, "Exception" );
+				response.setHeader( "Content-Type", "text/plain; charset=ISO-8859-1" );
+			}
+			PrintWriter writer = response.getPrintWriter( "ISO-8859-1" );
+			if( e.getClass().equals( SystemException.class ) && e.getCause() != null )
+			{
+				e.getCause().printStackTrace( System.err );
+				e.getCause().printStackTrace( writer );
+			}
+			else
+			{
+				e.printStackTrace( System.err );
+				e.printStackTrace( writer );
+			}
+		}
 
 		response.flush();
 		socket.close();

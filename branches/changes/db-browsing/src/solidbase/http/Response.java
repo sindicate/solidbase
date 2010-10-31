@@ -59,7 +59,7 @@ public class Response
 
 	public void writeHeader( OutputStream out )
 	{
-		ResponseWriter writer = new ResponseWriter( out, "ISO-8859-1" );
+		ResponseWriter writer = new ResponseWriter( new FlushBlockingOutputStream( out ), "ISO-8859-1" );
 		writer.write( "HTTP/1.1 " );
 		writer.write( Integer.toString( this.statusCode ) );
 		writer.write( " " );
@@ -74,6 +74,7 @@ public class Response
 				writer.write( '\n' );
 			}
 		writer.write( '\n' );
+		writer.flush();
 		this.committed = true;
 	}
 
@@ -99,6 +100,8 @@ public class Response
 
 	public void flush()
 	{
+		if( this.writer != null )
+			this.writer.flush();
 		this.out.flush();
 	}
 }
