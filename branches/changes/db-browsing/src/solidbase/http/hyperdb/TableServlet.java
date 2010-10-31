@@ -1,12 +1,17 @@
-package solidbase.http;
+package solidbase.http.hyperdb;
 
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import solidbase.core.SystemException;
+import solidbase.http.Fragment;
+import solidbase.http.Request;
+import solidbase.http.Response;
+import solidbase.http.ResponseWriter;
+import solidbase.http.Servlet;
+import solidbase.http.Util;
 import solidbase.util.Assert;
 
 public class TableServlet implements Servlet, Fragment
@@ -22,7 +27,7 @@ public class TableServlet implements Servlet, Fragment
 		String table = request.getParameter( "tablename" );
 //		String id = request.getParameter( "id" );
 
-		PrintWriter writer = response.getPrintWriter();
+		ResponseWriter writer = response.getWriter();
 
 		Connection connection = DataSource.getConnection();
 		try
@@ -47,60 +52,60 @@ public class TableServlet implements Servlet, Fragment
 					{
 						ResultSetMetaData meta = result.getMetaData();
 						int count = meta.getColumnCount();
-						writer.println( "<table>" );
-						writer.print( "<tr><th colspan=\"" );
-						writer.print( Integer.toString( count ) );
-						writer.print( "\">" );
-						writer.print( "Table " );
+						writer.write( "<table>\n" );
+						writer.write( "<tr><th colspan=\"" );
+						writer.write( Integer.toString( count ) );
+						writer.write( "\">" );
+						writer.write( "Table " );
 						Util.printEscaped( writer, table );
-						writer.print( " - " );
+						writer.write( " - " );
 						Util.printEscaped( writer, object.toString() );
-						writer.print( " records" );
-						writer.print( "</th>" );
-						writer.println( "</tr>" );
-						writer.print( "<tr>" );
+						writer.write( " records" );
+						writer.write( "</th>" );
+						writer.write( "</tr>\n" );
+						writer.write( "<tr>" );
 						for( int i = 1; i <= count; i++ )
 						{
-							writer.print( "<th>" );
+							writer.write( "<th>" );
 							Util.printEscaped( writer, meta.getColumnLabel( i ) );
-							writer.print( "</th>" );
+							writer.write( "</th>" );
 						}
-						writer.println( "</tr>" );
+						writer.write( "</tr>\n" );
 						do
 						{
-							writer.print( "<tr>" );
+							writer.write( "<tr>" );
 							for( int i = 1; i <= count; i++ )
 							{
 								object = result.getObject(  i );
 								if( object != null )
 								{
-									writer.print( "<td>" );
+									writer.write( "<td>" );
 									Util.printEscaped( writer, object.toString() );
 								}
 								else
-									writer.print( "<td class=\"null\">" );
-								writer.print( "</td>" );
+									writer.write( "<td class=\"null\">" );
+								writer.write( "</td>" );
 							}
-							writer.println( "</tr>" );
+							writer.write( "</tr>\n" );
 						}
 						while( result.next() );
-						writer.println( "</table>" );
+						writer.write( "</table>\n" );
 					}
 					else
 					{
-						writer.println( "<table>" );
-						writer.print( "<tr><th>" );
-						writer.print( "Table " );
+						writer.write( "<table>\n" );
+						writer.write( "<tr><th>" );
+						writer.write( "Table " );
 						Util.printEscaped( writer, table );
-						writer.print( ", " );
+						writer.write( ", " );
 						Util.printEscaped( writer, object.toString() );
-						writer.print( " records" );
-						writer.print( "</th>" );
-						writer.println( "</tr>" );
-						writer.print( "<tr>" );
-						writer.print( "<td class=\"null\">No records.</td>" );
-						writer.println( "</tr>" );
-						writer.println( "</table>" );
+						writer.write( " records" );
+						writer.write( "</th>" );
+						writer.write( "</tr>\n" );
+						writer.write( "<tr>" );
+						writer.write( "<td class=\"null\">No records.</td>" );
+						writer.write( "</tr>\n" );
+						writer.write( "</table>\n" );
 					}
 				}
 				finally
@@ -117,7 +122,5 @@ public class TableServlet implements Servlet, Fragment
 		{
 			throw new SystemException( e );
 		}
-
-		writer.flush();
 	}
 }

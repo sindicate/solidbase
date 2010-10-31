@@ -1,4 +1,4 @@
-package solidbase.http;
+package solidbase.http.hyperdb;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

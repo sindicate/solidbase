@@ -1,21 +1,19 @@
 package solidbase.http;
 
-import java.io.PrintWriter;
-
 public class Util
 {
-	static public void printEscaped( PrintWriter writer, String text )
+	static public void printEscaped( ResponseWriter writer, String text )
 	{
 		for( char ch : text.toCharArray() )
 		{
 			if( ch == '&' )
-				writer.print( "&amp;" );
+				writer.write( "&amp;" );
 			else if( ch == '<' )
-				writer.print( "&lt;" );
+				writer.write( "&lt;" );
 			else if( ch == '>' )
-				writer.print( "&gt;" );
+				writer.write( "&gt;" );
 			else
-				writer.print( ch );
+				writer.write( ch );
 		}
 	}
 }

@@ -3,6 +3,9 @@ package solidbase.http;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import solidbase.core.SystemException;
+import solidbase.util.Assert;
+
 public class ResponseOutputStream extends OutputStream
 {
 	protected OutputStream out;
@@ -17,75 +20,109 @@ public class ResponseOutputStream extends OutputStream
 	}
 
 	@Override
-	public void write( byte[] b, int off, int len ) throws IOException
+	public void write( byte[] b, int off, int len )
 	{
-		if( this.response.isCommitted() )
-			this.out.write( b, off, len );
-		else if( this.buffer.length - this.pos < len )
+		try
 		{
-			this.response.writeHeader( this.out );
-			this.out.write( this.buffer, 0, this.pos );
-			this.out.write( b, off, len );
+			if( this.response.isCommitted() )
+				this.out.write( b, off, len );
+			else if( this.buffer.length - this.pos < len )
+			{
+				this.response.writeHeader( this.out );
+				this.out.write( this.buffer, 0, this.pos );
+				this.out.write( b, off, len );
+			}
+			else
+			{
+				System.arraycopy( b, off, this.buffer, this.pos, len );
+				this.pos += len;
+			}
 		}
-		else
+		catch( IOException e )
 		{
-			System.arraycopy( b, off, this.buffer, this.pos, len );
-			this.pos += len;
+			throw new SystemException( e );
 		}
 	}
 
 	@Override
-	public void write( byte[] b ) throws IOException
+	public void write( byte[] b )
 	{
-		if( this.response.isCommitted() )
-			this.out.write( b );
-		else if( this.buffer.length - this.pos < b.length )
+		try
 		{
-			this.response.writeHeader( this.out );
-			this.out.write( this.buffer, 0, this.pos );
-			this.out.write( b );
+			if( this.response.isCommitted() )
+				this.out.write( b );
+			else if( this.buffer.length - this.pos < b.length )
+			{
+				this.response.writeHeader( this.out );
+				this.out.write( this.buffer, 0, this.pos );
+				this.out.write( b );
+			}
+			else
+			{
+				System.arraycopy( b, 0, this.buffer, this.pos, b.length );
+				this.pos += b.length;
+			}
 		}
-		else
+		catch( IOException e )
 		{
-			System.arraycopy( b, 0, this.buffer, this.pos, b.length );
-			this.pos += b.length;
+			throw new SystemException( e );
 		}
 	}
 
 	@Override
-	public void write( int b ) throws IOException
+	public void write( int b )
 	{
-		if( this.response.isCommitted() )
-			this.out.write( b );
-		else if( this.buffer.length - this.pos < 1 )
+		try
 		{
-			this.response.writeHeader( this.out );
-			this.out.write( this.buffer, 0, this.pos );
-			this.out.write( b );
+			if( this.response.isCommitted() )
+				this.out.write( b );
+			else if( this.buffer.length - this.pos < 1 )
+			{
+				this.response.writeHeader( this.out );
+				this.out.write( this.buffer, 0, this.pos );
+				this.out.write( b );
+			}
+			else
+			{
+				this.buffer[ this.pos ] = (byte)b;
+				this.pos ++;
+			}
 		}
-		else
+		catch( IOException e )
 		{
-			this.buffer[ this.pos ] = (byte)b;
-			this.pos ++;
+			throw new SystemException( e );
 		}
 	}
 
 	@Override
-	public void close() throws IOException
+	public void close()
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void flush() throws IOException
+	public void flush()
 	{
-		if( this.response.isCommitted() )
-			this.out.flush();
-		else
+		try
 		{
-			this.response.writeHeader( this.out );
-			this.out.write( this.buffer, 0, this.pos );
-			this.out.flush();
+			if( this.response.isCommitted() )
+				this.out.flush();
+			else
+			{
+				this.response.writeHeader( this.out );
+				this.out.write( this.buffer, 0, this.pos );
+				this.out.flush();
+			}
 		}
+		catch( IOException e )
+		{
+			throw new SystemException( e );
+		}
+	}
+
+	public void clear()
+	{
+		Assert.isFalse( this.response.isCommitted() );
+		this.pos = 0;
 	}
 }

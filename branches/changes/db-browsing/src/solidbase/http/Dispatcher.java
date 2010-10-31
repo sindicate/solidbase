@@ -31,31 +31,32 @@ public class Dispatcher
 				{
 					mapping.servlet.call( request, response );
 				}
-				catch( Exception e )
+				catch( Throwable e )
 				{
-					PrintWriter writer = response.getPrintWriter();
-					writer.println( "HTTP/1.1 500 Exception" );
-					writer.println();
-					writer.flush();
+					if( !response.isCommitted() )
+					{
+						response.reset();
+						response.setStatusCode( 500, "Exception" );
+						response.setHeader( "Content-Type", "text/plain; charset=ISO-8859-1" );
+					}
+					PrintWriter writer = response.getPrintWriter( "ISO-8859-1" );
 					if( e.getClass().equals( SystemException.class ) && e.getCause() != null )
 					{
 						e.getCause().printStackTrace( System.err );
-						e.getCause().printStackTrace( response.getPrintWriter() );
+						e.getCause().printStackTrace( writer );
 					}
 					else
 					{
 						e.printStackTrace( System.err );
-						e.printStackTrace( response.getPrintWriter() );
+						e.printStackTrace( writer );
 					}
+					writer.flush();
 				}
 				return;
 			}
 		}
 
 		response.setStatusCode( 404, "Not Found" );
-
-		PrintWriter writer = response.getPrintWriter();
-		writer.flush();
 	}
 
 	static public void registerServlet( String pattern, Servlet servlet )

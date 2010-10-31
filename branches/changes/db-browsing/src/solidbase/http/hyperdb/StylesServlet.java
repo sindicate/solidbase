@@ -1,6 +1,10 @@
-package solidbase.http;
+package solidbase.http.hyperdb;
 
 import java.io.PrintWriter;
+
+import solidbase.http.Request;
+import solidbase.http.Response;
+import solidbase.http.Servlet;
 
 public class StylesServlet implements Servlet
 {

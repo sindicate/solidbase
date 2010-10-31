@@ -80,6 +80,7 @@ public class Handler extends Thread
 
 		Dispatcher.dispatch( request, response );
 
+		response.flush();
 		socket.close();
 	}
 

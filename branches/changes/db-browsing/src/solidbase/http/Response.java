@@ -1,20 +1,17 @@
 package solidbase.http;
 
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import solidbase.core.SystemException;
-
 public class Response
 {
-	protected OutputStream out;
-	protected PrintWriter writer;
+	protected ResponseOutputStream out;
+	protected ResponseWriter writer;
+	protected PrintWriter printWriter;
 	protected Map< String, List< String > > headers = new HashMap< String, List<String> >();
 	protected boolean committed;
 	protected int statusCode = 200;
@@ -25,28 +22,32 @@ public class Response
 		this.out = new ResponseOutputStream( this, out );
 	}
 
-	public OutputStream getOutputStream()
+	public ResponseOutputStream getOutputStream()
 	{
 		return this.out;
 	}
 
-	public PrintWriter getPrintWriter()
+	public ResponseWriter getWriter()
 	{
-		return this.writer == null ? this.writer = new PrintWriter( this.out ) : this.writer;
+		if( this.writer != null )
+			return this.writer;
+		return getWriter( "ISO-8859-1" );
+	}
+
+	public ResponseWriter getWriter( String encoding )
+	{
+		if( this.writer != null )
+		{
+			if( this.writer.getEncoding().equals( encoding ) )
+				return this.writer;
+			this.writer.flush();
+		}
+		return this.writer = new ResponseWriter( this.out, encoding );
 	}
 
 	public PrintWriter getPrintWriter( String encoding )
 	{
-		if( this.writer != null )
-			this.writer.flush();
-		try
-		{
-			return this.writer = new PrintWriter( new OutputStreamWriter( this.out, encoding ) );
-		}
-		catch( UnsupportedEncodingException e )
-		{
-			throw new SystemException( e );
-		}
+		return new PrintWriter( getWriter( encoding ) );
 	}
 
 	public void setHeader( String name, String value )
@@ -58,24 +59,22 @@ public class Response
 
 	public void writeHeader( OutputStream out )
 	{
-		try
-		{
-			PrintWriter writer = new PrintWriter( new OutputStreamWriter( out, "ISO-8859-1" ) );
-			writer.print( "HTTP/1.1 " );
-			writer.print( Integer.toString( this.statusCode ) );
-			writer.print( " " );
-			writer.println( this.statusMessage );
-			for( Map.Entry< String, List< String > > entry : this.headers.entrySet() )
-				for( String value : entry.getValue() )
-					writer.println( entry.getKey() + ": " + value );
-			writer.println();
-			writer.flush(); // TODO flush() gets cascaded
-			this.committed = true;
-		}
-		catch( UnsupportedEncodingException e )
-		{
-			throw new SystemException( e );
-		}
+		ResponseWriter writer = new ResponseWriter( out, "ISO-8859-1" );
+		writer.write( "HTTP/1.1 " );
+		writer.write( Integer.toString( this.statusCode ) );
+		writer.write( " " );
+		writer.write( this.statusMessage );
+		writer.write( '\n' );
+		for( Map.Entry< String, List< String > > entry : this.headers.entrySet() )
+			for( String value : entry.getValue() )
+			{
+				writer.write( entry.getKey() );
+				writer.write( ": " );
+				writer.write( value );
+				writer.write( '\n' );
+			}
+		writer.write( '\n' );
+		this.committed = true;
 	}
 
 	public boolean isCommitted()
@@ -87,5 +86,19 @@ public class Response
 	{
 		this.statusCode = code;
 		this.statusMessage = message;
+	}
+
+	public void reset()
+	{
+		this.out.clear();
+		this.writer = null;
+		this.statusCode = 200;
+		this.statusMessage = "OK";
+		this.headers.clear();
+	}
+
+	public void flush()
+	{
+		this.out.flush();
 	}
 }

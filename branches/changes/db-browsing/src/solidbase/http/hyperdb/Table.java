@@ -1,4 +1,4 @@
-package solidbase.http;
+package solidbase.http.hyperdb;
 
 public class Table
 {
