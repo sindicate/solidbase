@@ -83,24 +83,19 @@ public class Handler extends Thread
 		{
 			Dispatcher.dispatch( request, response );
 		}
-		catch( Throwable e )
+		catch( Throwable t )
 		{
+			if( t.getClass().equals( SystemException.class ) && t.getCause() != null )
+				t = t.getCause();
+			t.printStackTrace( System.err );
 			if( !response.isCommitted() )
 			{
 				response.reset();
 				response.setStatusCode( 500, "Exception" );
 				response.setHeader( "Content-Type", "text/plain; charset=ISO-8859-1" );
-			}
-			PrintWriter writer = response.getPrintWriter( "ISO-8859-1" );
-			if( e.getClass().equals( SystemException.class ) && e.getCause() != null )
-			{
-				e.getCause().printStackTrace( System.err );
-				e.getCause().printStackTrace( writer );
-			}
-			else
-			{
-				e.printStackTrace( System.err );
-				e.printStackTrace( writer );
+				PrintWriter writer = response.getPrintWriter( "ISO-8859-1" );
+				t.printStackTrace( writer );
+				writer.flush();
 			}
 		}
 
