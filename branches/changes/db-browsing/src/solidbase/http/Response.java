@@ -1,5 +1,8 @@
 package solidbase.http;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -7,8 +10,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.tools.ant.util.TeeOutputStream;
+
+import solidbase.core.SystemException;
+
 public class Response
 {
+	static protected int count = 1;
+
 	protected ResponseOutputStream out;
 	protected ResponseWriter writer;
 	protected PrintWriter printWriter;
@@ -19,7 +28,15 @@ public class Response
 
 	public Response( OutputStream out )
 	{
-		this.out = new ResponseOutputStream( this, out );
+		try
+		{
+			this.out = new ResponseOutputStream( this, new TeeOutputStream( new FileOutputStream( new File( "response-" + count + ".out" ) ), out ) );
+			count++;
+		}
+		catch( FileNotFoundException e )
+		{
+			throw new SystemException( e );
+		}
 	}
 
 	public ResponseOutputStream getOutputStream()

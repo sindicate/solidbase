@@ -3,6 +3,7 @@ package solidbase.http.hyperdb;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import solidbase.http.CompressionFilter;
 import solidbase.http.DefaultServlet;
 import solidbase.http.Dispatcher;
 import solidbase.http.Handler;
@@ -22,7 +23,7 @@ public class Main
 		Dispatcher.registerServlet( "", new RootServlet() );
 		Dispatcher.registerServlet( ".*", new DefaultServlet() );
 
-//		Dispatcher.registerFilter( ".*", new CompressionFilter() );
+		Dispatcher.registerFilter( ".*", new CompressionFilter() );
 
 		try
 		{

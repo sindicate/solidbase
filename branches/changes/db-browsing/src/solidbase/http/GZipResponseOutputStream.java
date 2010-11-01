@@ -7,16 +7,15 @@ import solidbase.core.SystemException;
 
 public class GZipResponseOutputStream extends ResponseOutputStream
 {
-	protected ResponseOutputStream rout;
+	protected Response response;
 	protected GZIPOutputStream out;
 
-	public GZipResponseOutputStream( Response response, ResponseOutputStream out )
+	public GZipResponseOutputStream( Response response )
 	{
-		super( response, out );
-		this.rout = out;
+		this.response = response;
 		try
 		{
-			this.out = new GZIPOutputStream( out );
+			this.out = new GZIPOutputStream( response.getOutputStream() );
 		}
 		catch( IOException e )
 		{
@@ -92,10 +91,10 @@ public class GZipResponseOutputStream extends ResponseOutputStream
 	@Override
 	public void clear()
 	{
-		this.rout.clear();
+		this.response.getOutputStream().clear();
 		try
 		{
-			this.out = new GZIPOutputStream( this.rout );
+			this.out = new GZIPOutputStream( this.response.getOutputStream() );
 		}
 		catch( IOException e )
 		{

@@ -14,7 +14,7 @@ public class GZipResponse extends Response
 		super( response.out );
 
 		this.response = response;
-		this.out = new GZipResponseOutputStream( this, super.getOutputStream() );
+		this.out = new GZipResponseOutputStream( response );
 	}
 
 	@Override
@@ -76,12 +76,14 @@ public class GZipResponse extends Response
 	@Override
 	public void reset()
 	{
+		// TODO Hier nog wat doen denk ik
 		this.response.reset();
 	}
 
 	@Override
 	public void flush()
 	{
+		// TODO En hier ook
 		this.response.flush();
 	}
 

@@ -13,6 +13,11 @@ public class ResponseOutputStream extends OutputStream
 	protected byte[] buffer = new byte[ 8192 ];
 	protected int pos;
 
+	public ResponseOutputStream()
+	{
+
+	}
+
 	public ResponseOutputStream( Response response, OutputStream out )
 	{
 		this.response = response;
