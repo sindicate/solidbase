@@ -25,11 +25,16 @@ public class ResponseOutputStream extends OutputStream
 		try
 		{
 			if( this.response.isCommitted() )
+			{
+//				System.out.write( b, off, len );
 				this.out.write( b, off, len );
+			}
 			else if( this.buffer.length - this.pos < len )
 			{
 				this.response.writeHeader( this.out );
+//				System.out.write( this.buffer, 0, this.pos );
 				this.out.write( this.buffer, 0, this.pos );
+//				System.out.write( b, off, len );
 				this.out.write( b, off, len );
 			}
 			else
@@ -50,11 +55,16 @@ public class ResponseOutputStream extends OutputStream
 		try
 		{
 			if( this.response.isCommitted() )
+			{
+//				System.out.write( b );
 				this.out.write( b );
+			}
 			else if( this.buffer.length - this.pos < b.length )
 			{
 				this.response.writeHeader( this.out );
+//				System.out.write( this.buffer, 0, this.pos );
 				this.out.write( this.buffer, 0, this.pos );
+//				System.out.write( b );
 				this.out.write( b );
 			}
 			else
@@ -75,11 +85,16 @@ public class ResponseOutputStream extends OutputStream
 		try
 		{
 			if( this.response.isCommitted() )
+			{
+//				System.out.write( b );
 				this.out.write( b );
+			}
 			else if( this.buffer.length - this.pos < 1 )
 			{
 				this.response.writeHeader( this.out );
+//				System.out.write( this.buffer, 0, this.pos );
 				this.out.write( this.buffer, 0, this.pos );
+//				System.out.write( b );
 				this.out.write( b );
 			}
 			else
@@ -110,6 +125,7 @@ public class ResponseOutputStream extends OutputStream
 			else
 			{
 				this.response.writeHeader( this.out );
+//				System.out.write( this.buffer, 0, this.pos );
 				this.out.write( this.buffer, 0, this.pos );
 				this.out.flush();
 			}

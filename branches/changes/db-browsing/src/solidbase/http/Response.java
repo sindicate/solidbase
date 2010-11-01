@@ -91,7 +91,7 @@ public class Response
 
 	public void reset()
 	{
-		this.out.clear();
+		getOutputStream().clear();
 		this.writer = null;
 		this.statusCode = 200;
 		this.statusMessage = "OK";
@@ -102,7 +102,7 @@ public class Response
 	{
 		if( this.writer != null )
 			this.writer.flush();
-		this.out.flush();
+		getOutputStream().flush();
 	}
 
 	public void setContentType( String contentType, String charSet )

@@ -4,6 +4,8 @@ public class CompressionFilter implements Filter
 {
 	public void call( Request request, Response response, FilterChain chain )
 	{
-		chain.call( request, response );
+		response.setHeader( "Content-Encoding", "gzip" );
+		GZipResponse gzipResponse = new GZipResponse( response );
+		chain.call( request, gzipResponse );
 	}
 }
