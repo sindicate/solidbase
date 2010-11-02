@@ -1,6 +1,7 @@
-#Sat May 22 11:51:31 CEST 2010
+#Tue Nov 02 19:11:47 CET 2010
 eclipse.preferences.version=1
 encoding//dist/upgrade-derby-example.sql=ISO-8859-1
+encoding//test/folder/data.csv=UTF-8
 encoding//test/patch-utf-16-bom-1.sql=UTF-16LE
 encoding//test/patch-utf-16-bom-2.sql=UTF-16LE
 encoding//test/patch-utf-16-nobom-1.sql=UTF-16LE
