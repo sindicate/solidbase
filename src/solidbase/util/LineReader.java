@@ -50,6 +50,9 @@ public class LineReader
 	 */
 	protected int pos;
 
+	/**
+	 * The {@link URL} of the reader.
+	 */
 	protected URL url;
 
 
@@ -140,6 +143,11 @@ public class LineReader
 		return '\n';
 	}
 
+	/**
+	 * Returns the {@link URL} of the reader.
+	 * 
+	 * @return The {@link URL} of the reader.
+	 */
 	public URL getURL()
 	{
 		Assert.notNull( this.url );

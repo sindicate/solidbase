@@ -201,6 +201,11 @@ public class SQLSource
 		return this.reader.getLineNumber();
 	}
 
+	/**
+	 * Return the {@link URL} of the source.
+	 * 
+	 * @return The {@link URL} of the source.
+	 */
 	public URL getURL()
 	{
 		return this.reader.getURL();

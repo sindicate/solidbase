@@ -75,6 +75,7 @@ public class BOMDetectingLineReader extends LineReader
 	 * 
 	 * @param in The input stream to read lines from.
 	 * @param encodingDetection A regular expression to detect the encoding on the first line.
+	 * @param url The {@link URL} of the stream.
 	 */
 	public BOMDetectingLineReader( BufferedInputStream in, Pattern encodingDetection, URL url )
 	{
@@ -133,6 +134,7 @@ public class BOMDetectingLineReader extends LineReader
 	 * 
 	 * @param in The input stream to read lines from.
 	 * @param encoding The encoding of the file. If not null, it will override the BOM.
+	 * @param url The {@link URL} of the stream.
 	 */
 	public BOMDetectingLineReader( BufferedInputStream in, String encoding, URL url )
 	{
