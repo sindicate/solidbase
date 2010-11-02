@@ -129,6 +129,7 @@ public class BOMDetectingLineReader extends LineReader
 	 * Creates a new line reader for the given input streamL.
 	 * 
 	 * @param in The input stream to read lines from.
+	 * @param encoding The encoding of the file. If not null, it will override the BOM.
 	 */
 	public BOMDetectingLineReader( BufferedInputStream in, String encoding )
 	{
@@ -148,7 +149,12 @@ public class BOMDetectingLineReader extends LineReader
 		}
 	}
 
-	public void detectBOM( BufferedInputStream in )
+	/**
+	 * Detect the encoding from the BOM.
+	 * 
+	 * @param in The input stream.
+	 */
+	protected void detectBOM( BufferedInputStream in )
 	{
 		try
 		{

@@ -568,7 +568,10 @@ public class ImportCSV extends CommandListener
 		/** The underlying reader from the {@link Tokenizer}. */
 		protected LineReader reader;
 
+		/** The file path to import from */
 		protected String fileName;
+
+		/** The encoding of the file */
 		protected String encoding;
 	}
 }
