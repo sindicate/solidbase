@@ -125,7 +125,7 @@ PRINT SELECT TEMP1 || TEMP2 || TEMP3 FROM TEMP3;
 
 --* SECTION.2 "Importing from external file"
 
-IMPORT CSV INTO TEMP2 FILE "folder/data.csv" ENCODING "UTF-8";
+IMPORT CSV INTO TEMP2 FILE "data.csv" ENCODING "UTF-8";
 
 --* /PATCH
 

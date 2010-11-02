@@ -141,6 +141,7 @@ public class TestUtil
 		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
 		output = output.replaceAll( "[A-Z]:\\\\\\S+\\\\", "X:\\\\...\\\\" );
 		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
+		output = output.replaceAll( "folder\\\\", "folder/" );
 		return output.replaceAll( "\\\r", "" );
 	}
 

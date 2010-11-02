@@ -19,6 +19,7 @@ package solidbase.core;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.LinkedHashSet;
@@ -641,5 +642,11 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	public LineReader getReader()
 	{
 		return this.patchFile.file;
+	}
+
+	@Override
+	public URL getURL()
+	{
+		return this.patchFile.file.getURL();
 	}
 }

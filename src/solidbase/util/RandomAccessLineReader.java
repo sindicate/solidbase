@@ -60,11 +60,6 @@ public class RandomAccessLineReader extends LineReader
 	static final public String CHARSET_DEFAULT = CHARSET_ISO;
 
 	/**
-	 * The URL to read from.
-	 */
-	protected URL url;
-
-	/**
 	 * The encoding of the stream.
 	 */
 	protected String encoding = CHARSET_DEFAULT;

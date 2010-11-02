@@ -104,9 +104,10 @@ public class Util
 	 * @param baseDir The base folder from where to look. May be null.
 	 * @param fileName The name and path of the SQL file.
 	 * @param listener The progress listener.
-	 * @return A random access reader for the file.
+	 * @return The SQL file.
 	 */
-	static public InputStream toStream( File baseDir, String fileName, ProgressListener listener )
+	// TODO This should be done like openRALR
+	static public SQLFile openSQLFile( File baseDir, String fileName, ProgressListener listener )
 	{
 		Assert.notNull( fileName );
 
@@ -119,33 +120,24 @@ public class Util
 				if( url != null )
 				{
 					listener.openingSQLFile( url );
-					return url.openStream();
+					InputStream in = url.openStream();
+					SQLFile result = new SQLFile( new BufferedInputStream( in ), url );
+					listener.openedSQLFile( result );
+					return result;
 				}
 			}
 
 			File file = new File( baseDir, fileName ); // In the current folder
 			listener.openingSQLFile( file );
-			return new FileInputStream( file );
+			InputStream in = new FileInputStream( file );
+			SQLFile result = new SQLFile( new BufferedInputStream( in ), file.toURI().toURL() );
+			listener.openedSQLFile( result );
+			return result;
 		}
 		catch( IOException e )
 		{
 			throw new SystemException( e );
 		}
-	}
-
-	/**
-	 * Open the specified SQL file in the specified folder.
-	 *
-	 * @param baseDir The base folder from where to look. May be null.
-	 * @param fileName The name and path of the SQL file.
-	 * @param listener The progress listener.
-	 * @return The SQL file.
-	 */
-	static public SQLFile openSQLFile( File baseDir, String fileName, ProgressListener listener )
-	{
-		SQLFile result = new SQLFile( new BufferedInputStream( toStream( baseDir, fileName, listener ) ) );
-		listener.openedSQLFile( result );
-		return result;
 	}
 
 	/**
