@@ -23,20 +23,21 @@ import solidbase.core.PatchProcessor;
 
 public class Import
 {
-	@Test(groups="new")
+	@Test
 	public void testImport() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-import1.sql" );
 
 		patcher.patch( "1.0.2" );
-		TestUtil.verifyVersion( patcher, "1.0.2", null, 13, null );
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 14, null );
 		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP", 10 );
 
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP2 FROM TEMP WHERE TEMP1 = 'x'", "2\n" );
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP4 FROM TEMP3 WHERE TEMP1 = 2", "-)-\", \nTEST 'X" );
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP2 FROM TEMP WHERE TEMP1 = 'y'", "2 2" );
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP3 FROM TEMP WHERE TEMP1 = 'y'", " 3 " );
+		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP3 FROM TEMP2 WHERE LINENUMBER = 101", "René" );
 
 		patcher.patch( "1.0.3" );
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP1 FROM TEMP4", null );
@@ -44,7 +45,7 @@ public class Import
 		patcher.end();
 	}
 
-	@Test(groups="new")
+	@Test
 	public void testImportLineNumber() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );

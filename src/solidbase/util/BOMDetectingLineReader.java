@@ -79,35 +79,7 @@ public class BOMDetectingLineReader extends LineReader
 	{
 		try
 		{
-			in.mark( 1000 );
-			byte[] bytes = new byte[] { 2, 2, 2, 2 };
-			in.read( bytes ); // No need to know how many bytes have been read
-			in.reset();
-
-			// BOMS:
-			// 00 00 FE FF  UTF-32, big-endian
-			// FF FE 00 00 	UTF-32, little-endian
-			// FE FF 	    UTF-16, big-endian
-			// FF FE 	    UTF-16, little-endian
-			// EF BB BF 	UTF-8
-			if( bytes[ 0 ] == -17 && bytes[ 1 ] == -69 && bytes[ 2 ] == -65 )
-			{
-				this.encoding = CHARSET_UTF8;
-				this.bom = new byte[] { -17, -69, -65 };
-			}
-			else if( bytes[ 0 ] == -2 && bytes[ 1 ] == -1 )
-			{
-				this.encoding = CHARSET_UTF16BE;
-				this.bom = new byte[] { -2, -1 };
-			}
-			else if( bytes[ 0 ] == -1 && bytes[ 1 ] == -2 )
-			{
-				this.encoding = CHARSET_UTF16LE;
-				this.bom = new byte[] { -1, -2 };
-			}
-
-			if( this.bom != null )
-				Assert.isTrue( in.skip( this.bom.length ) == this.bom.length );
+			detectBOM( in );
 
 			this.reader = new BufferedReader( new InputStreamReader( in, this.encoding ) );
 			this.currentLineNumber = 1;
@@ -146,6 +118,69 @@ public class BOMDetectingLineReader extends LineReader
 					}
 				}
 			}
+		}
+		catch( IOException e )
+		{
+			throw new SystemException( e );
+		}
+	}
+
+	/**
+	 * Creates a new line reader for the given input streamL.
+	 * 
+	 * @param in The input stream to read lines from.
+	 */
+	public BOMDetectingLineReader( BufferedInputStream in, String encoding )
+	{
+		try
+		{
+			detectBOM( in );
+
+			if( encoding != null )
+				this.encoding = encoding;
+
+			this.reader = new BufferedReader( new InputStreamReader( in, this.encoding ) );
+			this.currentLineNumber = 1;
+		}
+		catch( IOException e )
+		{
+			throw new SystemException( e );
+		}
+	}
+
+	public void detectBOM( BufferedInputStream in )
+	{
+		try
+		{
+			in.mark( 1000 );
+			byte[] bytes = new byte[] { 2, 2, 2, 2 };
+			in.read( bytes ); // No need to know how many bytes have been read
+			in.reset();
+
+			// BOMS:
+			// 00 00 FE FF  UTF-32, big-endian
+			// FF FE 00 00 	UTF-32, little-endian
+			// FE FF 	    UTF-16, big-endian
+			// FF FE 	    UTF-16, little-endian
+			// EF BB BF 	UTF-8
+			if( bytes[ 0 ] == -17 && bytes[ 1 ] == -69 && bytes[ 2 ] == -65 )
+			{
+				this.encoding = CHARSET_UTF8;
+				this.bom = new byte[] { -17, -69, -65 };
+			}
+			else if( bytes[ 0 ] == -2 && bytes[ 1 ] == -1 )
+			{
+				this.encoding = CHARSET_UTF16BE;
+				this.bom = new byte[] { -2, -1 };
+			}
+			else if( bytes[ 0 ] == -1 && bytes[ 1 ] == -2 )
+			{
+				this.encoding = CHARSET_UTF16LE;
+				this.bom = new byte[] { -1, -2 };
+			}
+
+			if( this.bom != null )
+				Assert.isTrue( in.skip( this.bom.length ) == this.bom.length );
 		}
 		catch( IOException e )
 		{

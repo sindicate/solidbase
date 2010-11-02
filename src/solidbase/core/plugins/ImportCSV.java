@@ -16,6 +16,9 @@
 
 package solidbase.core.plugins;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -29,7 +32,9 @@ import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.SQLExecutionException;
+import solidbase.core.SystemException;
 import solidbase.util.Assert;
+import solidbase.util.BOMDetectingLineReader;
 import solidbase.util.CSVReader;
 import solidbase.util.LineReader;
 import solidbase.util.StringLineReader;
@@ -76,6 +81,18 @@ public class ImportCSV extends CommandListener
 		LineReader lineReader;
 		if( parsed.reader != null )
 			lineReader = parsed.reader;
+		else if( parsed.fileName != null )
+		{
+			try
+			{
+				// TODO What if the files are in the classpath?
+				lineReader = new BOMDetectingLineReader( new BufferedInputStream( new FileInputStream( parsed.fileName ) ), parsed.encoding );
+			}
+			catch( FileNotFoundException e )
+			{
+				throw new SystemException( e );
+			}
+		}
 		else
 			lineReader = processor.getReader();
 
@@ -389,7 +406,7 @@ public class ImportCSV extends CommandListener
 			throw new CommandFileException( "Expecting [INTO], not [" + t + "]", tokenizer.getLineNumber() );
 		result.tableName = tokenizer.get().toString();
 
-		t = tokenizer.get( "(", "VALUES", "DATA", null );
+		t = tokenizer.get( "(", "VALUES", "DATA", "FILE", null );
 
 		if( t.equals( "(" ) )
 		{
@@ -407,7 +424,7 @@ public class ImportCSV extends CommandListener
 				t = tokenizer.get( ",", ")" );
 			}
 
-			t = tokenizer.get( "VALUES", "DATA", null );
+			t = tokenizer.get( "VALUES", "DATA", "FILE", null );
 		}
 
 		if( t.equals( "VALUES" ) )
@@ -428,7 +445,7 @@ public class ImportCSV extends CommandListener
 				if( columns.size() != values.size() )
 					throw new CommandFileException( "Number of specified columns does not match number of given values", tokenizer.getLineNumber() );
 
-			t = tokenizer.get( "DATA", null );
+			t = tokenizer.get( "DATA", "FILE", null );
 		}
 
 		if( columns.size() > 0 )
@@ -439,12 +456,31 @@ public class ImportCSV extends CommandListener
 		if( t.isEndOfInput() )
 			return result;
 
-		if( !t.equals( "DATA" ) )
-			throw new CommandFileException( "Expecting [DATA], not [" + t + "]", tokenizer.getLineNumber() );
-		tokenizer.getNewline();
+		if( t.equals( "DATA" ) )
+		{
+			tokenizer.getNewline();
+			result.reader = tokenizer.getReader();
+			return result;
+		}
 
-		result.reader = tokenizer.getReader();
+		// File
+		t = tokenizer.get();
+		String file = t.getValue();
+		if( !file.startsWith( "\"" ) )
+			throw new CommandFileException( "Expecting filename enclosed with double quotes, not [" + t + "]", tokenizer.getLineNumber() );
+		file = file.substring( 1, file.length() - 1 );
 
+		t = tokenizer.get( "ENCODING" );
+		t = tokenizer.get();
+		String encoding = t.getValue();
+		if( !encoding.startsWith( "\"" ) )
+			throw new CommandFileException( "Expecting encoding enclosed with double quotes, not [" + t + "]", tokenizer.getLineNumber() );
+		encoding = encoding.substring( 1, encoding.length() - 1 );
+
+		tokenizer.get( (String)null );
+
+		result.fileName = file;
+		result.encoding = encoding;
 		return result;
 	}
 
@@ -531,5 +567,8 @@ public class ImportCSV extends CommandListener
 
 		/** The underlying reader from the {@link Tokenizer}. */
 		protected LineReader reader;
+
+		protected String fileName;
+		protected String encoding;
 	}
 }

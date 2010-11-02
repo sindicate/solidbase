@@ -49,7 +49,8 @@ public class Messages
 				"            And deeper..\n" +
 				"23Y\n" +
 				"47Y.\n" +
-				"DEBUG: version=1.0.1, target=1.0.2, statements=13\n" +
+				"        Importing from external file.\n" +
+				"DEBUG: version=1.0.1, target=1.0.2, statements=14\n" +
 				"The database is upgraded.\n" +
 				"\n" +
 				"Current database version is \"1.0.2\".\n"
