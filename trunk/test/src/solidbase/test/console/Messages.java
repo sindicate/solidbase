@@ -23,7 +23,7 @@ public class Messages
 				"-username", "sa",
 				"-password", "",
 				"-target", "1.0.2",
-				"-upgradefile", "testpatch-import1.sql" );
+				"-upgradefile", "folder/testpatch-import1.sql" );
 
 		String output = TestUtil.generalizeOutput( console.getOutput() );
 //		System.out.println( "[[[" + output + "]]]" );
@@ -31,7 +31,7 @@ public class Messages
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
-				"Opening file 'testpatch-import1.sql'\n" +
+				"Opening file 'folder/testpatch-import1.sql'\n" + // TODO Does not work on Unix
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"The database is unmanaged.\n" +

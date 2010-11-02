@@ -20,6 +20,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -75,8 +76,10 @@ public class BOMDetectingLineReader extends LineReader
 	 * @param in The input stream to read lines from.
 	 * @param encodingDetection A regular expression to detect the encoding on the first line.
 	 */
-	public BOMDetectingLineReader( BufferedInputStream in, Pattern encodingDetection )
+	public BOMDetectingLineReader( BufferedInputStream in, Pattern encodingDetection, URL url )
 	{
+		this.url = url;
+
 		try
 		{
 			detectBOM( in );
@@ -131,8 +134,10 @@ public class BOMDetectingLineReader extends LineReader
 	 * @param in The input stream to read lines from.
 	 * @param encoding The encoding of the file. If not null, it will override the BOM.
 	 */
-	public BOMDetectingLineReader( BufferedInputStream in, String encoding )
+	public BOMDetectingLineReader( BufferedInputStream in, String encoding, URL url )
 	{
+		this.url = url;
+
 		try
 		{
 			detectBOM( in );

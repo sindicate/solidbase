@@ -16,6 +16,7 @@
 
 package solidbase.core;
 
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -572,4 +573,11 @@ abstract public class CommandProcessor
 	 * @return the {@link LineReader} that is the source of the commands.
 	 */
 	abstract public LineReader getReader();
+
+	/**
+	 * Returns the {@link URL} of the current SQL file.
+	 * 
+	 * @return The {@link URL} of the current SQL file.
+	 */
+	abstract public URL getURL();
 }

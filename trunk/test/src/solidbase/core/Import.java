@@ -27,7 +27,7 @@ public class Import
 	public void testImport() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-import1.sql" );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "folder/testpatch-import1.sql" );
 
 		patcher.patch( "1.0.2" );
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 14, null );

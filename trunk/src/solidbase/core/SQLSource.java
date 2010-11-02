@@ -16,6 +16,7 @@
 
 package solidbase.core;
 
+import java.net.URL;
 import java.util.regex.Matcher;
 
 import solidbase.core.Delimiter.Type;
@@ -198,5 +199,10 @@ public class SQLSource
 	public int getLineNumber()
 	{
 		return this.reader.getLineNumber();
+	}
+
+	public URL getURL()
+	{
+		return this.reader.getURL();
 	}
 }

@@ -17,8 +17,9 @@
 package solidbase.core.plugins;
 
 import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -85,10 +86,14 @@ public class ImportCSV extends CommandListener
 		{
 			try
 			{
-				// TODO What if the files are in the classpath?
-				lineReader = new BOMDetectingLineReader( new BufferedInputStream( new FileInputStream( parsed.fileName ) ), parsed.encoding );
+				URL url = new URL( processor.getURL(), parsed.fileName );
+				lineReader = new BOMDetectingLineReader( new BufferedInputStream( url.openStream() ), parsed.encoding, url );
 			}
 			catch( FileNotFoundException e )
+			{
+				throw new CommandFileException( "java.io.FileNotFoundException: " + e.getMessage(), command.getLineNumber() );
+			}
+			catch( IOException e )
 			{
 				throw new SystemException( e );
 			}

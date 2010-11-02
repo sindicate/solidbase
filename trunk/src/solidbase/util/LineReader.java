@@ -18,6 +18,7 @@ package solidbase.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.URL;
 
 import solidbase.core.SystemException;
 
@@ -48,6 +49,8 @@ public class LineReader
 	 * The current position in the {@link #buffer}.
 	 */
 	protected int pos;
+
+	protected URL url;
 
 
 	/**
@@ -135,5 +138,11 @@ public class LineReader
 		this.buffer = null;
 		this.currentLineNumber++;
 		return '\n';
+	}
+
+	public URL getURL()
+	{
+		Assert.notNull( this.url );
+		return this.url;
 	}
 }
