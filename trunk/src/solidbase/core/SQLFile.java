@@ -43,6 +43,7 @@ public class SQLFile
 	 * Creates an new instance of an SQL file.
 	 * 
 	 * @param in The input stream for the file.
+	 * @param url The url of the file.
 	 */
 	protected SQLFile( BufferedInputStream in, URL url )
 	{

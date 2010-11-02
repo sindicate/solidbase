@@ -31,7 +31,7 @@ public class Messages
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
-				"Opening file 'folder/testpatch-import1.sql'\n" + // TODO Does not work on Unix
+				"Opening file 'folder/testpatch-import1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"The database is unmanaged.\n" +
