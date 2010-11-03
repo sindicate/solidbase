@@ -393,4 +393,13 @@
     </target>
 
 	
+	<target name="precompilepages" depends="compile">
+		<mkdir dir="${build.home}/pages"/>
+		<groovy src="precompilepages.groovy" classpathref="test.classpath">
+			<arg path="src"/>
+			<arg path="${build.home}/pages"/>
+		</groovy>
+	</target>
+
+
 </project>
