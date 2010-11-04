@@ -11,11 +11,13 @@ import solidbase.core.SystemException;
 public class ResponseWriter extends Writer
 {
 	protected OutputStreamWriter writer;
+	protected String contentType;
 
-	public ResponseWriter( OutputStream out, String charsetName )
+	public ResponseWriter( OutputStream out, String charsetName, String contentType )
 	{
 		super( out /* = lock object */ );
 
+		this.contentType = contentType;
 		try
 		{
 			this.writer = new OutputStreamWriter( out, charsetName );
@@ -24,6 +26,11 @@ public class ResponseWriter extends Writer
 		{
 			throw new SystemException( e );
 		}
+	}
+
+	public ResponseWriter( OutputStream out, String charsetName )
+	{
+		this( out, charsetName, null );
 	}
 
 	@Override
@@ -89,6 +96,25 @@ public class ResponseWriter extends Writer
 		{
 			throw new SystemException( e );
 		}
+	}
+
+	public void writeEncoded( String str )
+	{
+		if( this.contentType.equals( "text/html" ) )
+		{
+			for( char ch : str.toCharArray() )
+			{
+				switch( ch )
+				{
+					case '<': write( "&lt;" ); break;
+					case '>': write( "&gt;" ); break;
+					case '&': write( "&amp;" ); break;
+					default: write( ch );
+				}
+			}
+		}
+		else
+			write( str );
 	}
 
 	@Override

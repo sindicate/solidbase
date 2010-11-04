@@ -20,7 +20,7 @@ public class JspTranslater
 	{
 		try
 		{
-			translatePages( new File( "src" ), new String[] { "solidbase/http/hyperdb/tables.jsp" }, new File( "src/solidbase/http/hyperdb" ) );
+			translatePages( new File( "src" ), new String[] { "solidbase/http/hyperdb/tables.jsp" }, new File( "../BUILDS/solidbase/pages" ) );
 		}
 		catch( Throwable t )
 		{
@@ -39,9 +39,14 @@ public class JspTranslater
 			// TODO Directly to outputstream
 
 			File file = new File( page );
+			File parent = file.getParentFile();
+			String pkg = null;
+			if( parent != null )
+				pkg = parent.getPath().replaceAll( "[\\\\/]", "." );
+
 			String name = file.getName().replaceAll( "[\\.-]", "_" );
 			File inputfile = new File( baseDir.getPath() + "/" + page );
-			File outputfile = new File( outputDir, name + ".java" );
+			File outputfile = new File( new File( outputDir, parent.getPath() ), name + ".java" );
 
 //			if( inputfile.lastModified() > outputfile.lastModified() )
 //			{
@@ -49,7 +54,7 @@ public class JspTranslater
 			FileReader in = new FileReader( baseDir.getPath() + "/" + page );
 			try
 			{
-				script = new Parser().parse( new Scanner( in ), name );
+				script = new Parser().parse( new Scanner( in ), pkg, name );
 			}
 			finally
 			{
@@ -187,10 +192,10 @@ public class JspTranslater
 			// Constructor
 		}
 
-		protected String parse( Scanner reader, String cls )
+		protected String parse( Scanner reader, String pkg, String cls )
 		{
-			Writer writer = new Writer();
-			writer.writeRaw( "package solidbase.http.hyperdb;public class " + cls + "{public void call(Request request,Response response){" );
+			Writer writer = new Writer( cls );
+			writer.writeRaw( "package " + pkg + ";" );
 
 //			log.trace( "-> parse" );
 			String leading = reader.readWhitespace();
@@ -206,11 +211,13 @@ public class JspTranslater
 						c = reader.read();
 						if( c == '=' )
 						{
+							writer.endDirectives();
 							writer.writeWhiteSpaceAsString( leading ); leading = null;
-							readScript( reader, writer, MODES.EXPRESSION );
+							readScript( reader, writer, Mode.EXPRESSION );
 						}
 						else if( c == '-' && reader.read() == '-' )
 						{
+							writer.endDirectives();
 							if( leading == null )
 								readComment( reader );
 							else
@@ -229,15 +236,21 @@ public class JspTranslater
 								}
 							}
 						}
+						else if( c == '@' )
+						{
+							readDirective( reader, writer );
+						}
 						else
 						{
+							writer.endDirectives();
 							reader.reset();
 							if( leading == null )
-								readScript( reader, writer, MODES.SCRIPT );
+								readScript( reader, writer, Mode.SCRIPT );
 							else
 							{
 								Writer writer2 = new Writer();
-								readScript( reader, writer2, MODES.SCRIPT );
+								writer2.mode = Mode.UNKNOWN;
+								readScript( reader, writer2, Mode.SCRIPT );
 								String trailing = reader.readWhitespace();
 								c = reader.read();
 								if( (char)c == '\n' )
@@ -261,6 +274,7 @@ public class JspTranslater
 					}
 					else
 					{
+						writer.endDirectives();
 						writer.writeWhiteSpaceAsString( leading ); leading = null;
 						writer.writeAsString( '<' );
 						reader.unread( c );
@@ -268,15 +282,18 @@ public class JspTranslater
 				}
 				else
 				{
-					writer.writeWhiteSpaceAsString( leading ); leading = null;
+					if( writer.mode != Mode.DIRECTIVES )
+						writer.writeWhiteSpaceAsString( leading );
+					leading = null;
 					if( c == '$' )
 					{
+						writer.endDirectives();
 						// TODO And without {}?
 						c = reader.read();
 						if( c == '{' )
 							readGStringExpression( reader, writer );
 						else if( c == '[' )
-							readMessage( reader, writer, MODES.STRING );
+							readMessage( reader, writer, Mode.STRING );
 						else
 						{
 							writer.writeAsString( '$' );
@@ -285,6 +302,7 @@ public class JspTranslater
 					}
 					else if( c == '\\' )
 					{
+						writer.endDirectives();
 						c = reader.read();
 						if( c == '$' )
 						{
@@ -300,16 +318,21 @@ public class JspTranslater
 					}
 					else if( c == '"' )
 					{
+						writer.endDirectives();
 						writer.writeAsString( '\\' );
 						writer.writeAsString( (char)c );
 					}
 					else if( c == '\n' )
 					{
-						writer.writeAsString( (char)c );
+						if( writer.mode == Mode.DIRECTIVES )
+							writer.writeRaw( "\n" );
+						else
+							writer.writeAsString( (char)c );
 						leading = reader.readWhitespace();
 					}
 					else
 					{
+						writer.endDirectives();
 						writer.writeAsString( (char)c );
 					}
 				}
@@ -327,9 +350,9 @@ public class JspTranslater
 			return writer.getString();
 		}
 
-		protected void readScript( Scanner reader, Writer writer, MODES mode )
+		protected void readScript( Scanner reader, Writer writer, Mode mode )
 		{
-			Assert.isTrue( mode == MODES.SCRIPT || mode == MODES.EXPRESSION );
+			Assert.isTrue( mode == Mode.SCRIPT || mode == Mode.EXPRESSION );
 
 //			log.trace( "-> readScript" );
 			while( true )
@@ -354,7 +377,7 @@ public class JspTranslater
 //			log.trace( "<- readScript" );
 		}
 
-		protected void readString( Scanner reader, Writer writer, MODES mode )
+		protected void readString( Scanner reader, Writer writer, Mode mode )
 		{
 //			log.trace( "-> readString" );
 			writer.writeAs( '"', mode );
@@ -372,6 +395,23 @@ public class JspTranslater
 //			log.trace( "<- readString" );
 		}
 
+		protected String readString( Scanner reader )
+		{
+//			log.trace( "-> readString" );
+			StringBuilder result = new StringBuilder();
+			boolean escaped = false;
+			while( true )
+			{
+				int c = reader.read();
+				Assert.isTrue( c > 0 );
+				if( c == '"' && !escaped )
+					return result.toString();
+				escaped = c == '\\';
+				if( !escaped )
+					result.append( (char)c );
+			}
+		}
+
 		protected void readGStringExpression( Scanner reader, Writer writer )
 		{
 			writer.endAll();
@@ -385,7 +425,7 @@ public class JspTranslater
 				if( c == '}' )
 					break;
 				if( c == '"' )
-					readString( reader, writer, MODES.STRING );
+					readString( reader, writer, Mode.STRING );
 //				else if( c == '\'' )
 //					readString( reader, writer, mode );
 				else
@@ -395,7 +435,7 @@ public class JspTranslater
 //			log.trace( "<- readEuh" );
 		}
 
-		protected void readMessage( Scanner reader, Writer writer, MODES mode )
+		protected void readMessage( Scanner reader, Writer writer, Mode mode )
 		{
 			writer.writeAs( "${message(\"", mode );
 			while( true )
@@ -434,27 +474,55 @@ public class JspTranslater
 			}
 //			log.trace( "<- readComment" );
 		}
+
+		protected void readDirective( Scanner reader, Writer writer )
+		{
+			reader.readWhitespace();
+			if( reader.read() != 'p' || reader.read() != 'a' || reader.read() != 'g' || reader.read() != 'e' )
+				throw new SystemException( "Expecting 'page'" );
+			reader.readWhitespace();
+			if( reader.read() != 'i' || reader.read() != 'm' || reader.read() != 'p' || reader.read() != 'o' || reader.read() != 'r' || reader.read() != 't' )
+				throw new SystemException( "Expecting 'import'" );
+			reader.readWhitespace();
+			if( reader.read() != '=' )
+				throw new SystemException( "Expecting '='" );
+			reader.readWhitespace();
+			if( reader.read() != '"' )
+				throw new SystemException( "Expecting '\"'" );
+			String imp = readString( reader );
+			reader.readWhitespace();
+			if( reader.read() != '%' || reader.read() != '>' )
+				throw new SystemException( "Expecting '%>'" );
+			writer.writeImport( imp );
+		}
 	}
 
-	static protected enum MODES { UNKNOWN, STRING, SCRIPT, EXPRESSION, EXPRESSION2 }
+	static protected enum Mode { UNKNOWN, STRING, SCRIPT, EXPRESSION, EXPRESSION2, DIRECTIVES }
 
 	static protected class Writer
 	{
-		protected StringBuilder buffer;
-		protected MODES mode = MODES.UNKNOWN;
+		protected StringBuilder buffer = new StringBuilder();
+		protected Mode mode = Mode.UNKNOWN;
+		protected String cls;
 
 		protected Writer()
 		{
-			this.buffer = new StringBuilder();
+			// Empty constructor
+		}
+
+		protected Writer( String cls )
+		{
+			this.cls = cls;
+			this.mode = Mode.DIRECTIVES;
 		}
 
 		protected void writeAsString( char c )
 		{
-			endAllExcept( MODES.STRING );
-			if( this.mode == MODES.UNKNOWN )
+			endAllExcept( Mode.STRING );
+			if( this.mode == Mode.UNKNOWN )
 			{
 				this.buffer.append( "writer.write(\"" );
-				this.mode = MODES.STRING;
+				this.mode = Mode.STRING;
 			}
 			if( c == '\n' )
 			{
@@ -469,42 +537,42 @@ public class JspTranslater
 			if( string == null || string.length() == 0 )
 				return;
 
-			endAllExcept( MODES.STRING );
-			if( this.mode == MODES.UNKNOWN )
+			endAllExcept( Mode.STRING );
+			if( this.mode == Mode.UNKNOWN )
 			{
 				this.buffer.append( "writer.write(\"" );
-				this.mode = MODES.STRING;
+				this.mode = Mode.STRING;
 			}
 			this.buffer.append( string );
 		}
 
 		protected void writeAsExpression( char c )
 		{
-			endAllExcept( MODES.EXPRESSION );
-			if( this.mode == MODES.UNKNOWN )
+			endAllExcept( Mode.EXPRESSION );
+			if( this.mode == Mode.UNKNOWN )
 			{
 				this.buffer.append( "writer.write(" );
-				this.mode = MODES.EXPRESSION;
+				this.mode = Mode.EXPRESSION;
 			}
 			this.buffer.append( c );
 		}
 
 		protected void writeAsExpression2( char c )
 		{
-			endAllExcept( MODES.EXPRESSION2 );
-			if( this.mode == MODES.UNKNOWN )
+			endAllExcept( Mode.EXPRESSION2 );
+			if( this.mode == Mode.UNKNOWN )
 			{
-				this.buffer.append( "writer.write(encode(" );
-				this.mode = MODES.EXPRESSION2;
+				this.buffer.append( "writer.writeEncoded(" );
+				this.mode = Mode.EXPRESSION2;
 			}
 			this.buffer.append( c );
 		}
 
 		protected void writeAsScript( char c )
 		{
-			endAllExcept( MODES.SCRIPT );
-			if( this.mode == MODES.UNKNOWN )
-				this.mode = MODES.SCRIPT;
+			endAllExcept( Mode.SCRIPT );
+			if( this.mode == Mode.UNKNOWN )
+				this.mode = Mode.SCRIPT;
 			this.buffer.append( c );
 		}
 
@@ -514,40 +582,46 @@ public class JspTranslater
 			if( script == null || script.length() == 0 )
 				return;
 
-			endAllExcept( MODES.SCRIPT );
-			if( this.mode == MODES.UNKNOWN )
-				this.mode = MODES.SCRIPT;
+			endAllExcept( Mode.SCRIPT );
+			if( this.mode == Mode.UNKNOWN )
+				this.mode = Mode.SCRIPT;
 			this.buffer.append( script );
 		}
 
-		protected void writeAs( char c, MODES mode )
+		protected void writeAs( char c, Mode mode )
 		{
-			if( mode == MODES.EXPRESSION )
+			if( mode == Mode.EXPRESSION )
 				writeAsExpression( c );
-			else if( mode == MODES.EXPRESSION2 )
+			else if( mode == Mode.EXPRESSION2 )
 				writeAsExpression2( c );
-			else if( mode == MODES.SCRIPT )
+			else if( mode == Mode.SCRIPT )
 				writeAsScript( c );
-			else if( mode == MODES.STRING )
+			else if( mode == Mode.STRING )
 				writeAsString( c );
 			else
 				Assert.fail( "mode UNKNOWN not allowed" );
 		}
 
 		// TODO What about newlines?
-		protected void writeAs( CharSequence string, MODES mode )
+		protected void writeAs( CharSequence string, Mode mode )
 		{
 			if( string == null || string.length() == 0 )
 				return;
 
-			if( mode == MODES.EXPRESSION || mode == MODES.EXPRESSION2 )
+			if( mode == Mode.EXPRESSION || mode == Mode.EXPRESSION2 )
 				Assert.fail( "mode EXPRESSION not allowed" );
-			else if( mode == MODES.SCRIPT )
+			else if( mode == Mode.SCRIPT )
 				writeAsScript( string );
-			else if( mode == MODES.STRING )
+			else if( mode == Mode.STRING )
 				writeWhiteSpaceAsString( string );
 			else
 				Assert.fail( "mode UNKNOWN not allowed" );
+		}
+
+		protected void writeImport( String imp )
+		{
+			Assert.isTrue( this.mode == Mode.DIRECTIVES );
+			writeRaw( "import " + imp + ";" );
 		}
 
 		protected void writeRaw( String s )
@@ -557,45 +631,56 @@ public class JspTranslater
 
 		private void endExpression()
 		{
-			Assert.isTrue( this.mode == MODES.EXPRESSION );
+			Assert.isTrue( this.mode == Mode.EXPRESSION );
 			this.buffer.append( ");" );
-			this.mode = MODES.UNKNOWN;
+			this.mode = Mode.UNKNOWN;
 		}
 
 		private void endExpression2()
 		{
-			Assert.isTrue( this.mode == MODES.EXPRESSION2 );
-			this.buffer.append( "));" );
-			this.mode = MODES.UNKNOWN;
+			Assert.isTrue( this.mode == Mode.EXPRESSION2 );
+			this.buffer.append( ");" );
+			this.mode = Mode.UNKNOWN;
 		}
 
 		private void endScript()
 		{
-			Assert.isTrue( this.mode == MODES.SCRIPT );
-			this.buffer.append( ';' );
-			this.mode = MODES.UNKNOWN;
+			Assert.isTrue( this.mode == Mode.SCRIPT );
+//			this.buffer.append( ';' );
+			this.mode = Mode.UNKNOWN;
 		}
 
 		private void endString()
 		{
-			Assert.isTrue( this.mode == MODES.STRING );
+			Assert.isTrue( this.mode == Mode.STRING );
 			this.buffer.append( "\");" );
-			this.mode = MODES.UNKNOWN;
+			this.mode = Mode.UNKNOWN;
 		}
 
-		private void endAllExcept( MODES mode )
+		protected void endDirectives()
+		{
+			if( this.mode == Mode.DIRECTIVES )
+			{
+				this.mode = Mode.UNKNOWN;
+				writeRaw( "public class " + this.cls + "{public void call(Request request,Response response){" );
+			}
+		}
+
+		private void endAllExcept( Mode mode )
 		{
 			if( this.mode == mode )
 				return;
 
-			if( this.mode == MODES.STRING )
+			if( this.mode == Mode.STRING )
 				endString();
-			else if( this.mode == MODES.EXPRESSION )
+			else if( this.mode == Mode.EXPRESSION )
 				endExpression();
-			else if( this.mode == MODES.EXPRESSION2 )
+			else if( this.mode == Mode.EXPRESSION2 )
 				endExpression2();
-			else if( this.mode == MODES.SCRIPT )
+			else if( this.mode == Mode.SCRIPT )
 				endScript();
+			else if( this.mode == Mode.DIRECTIVES )
+				Assert.fail( "Can't end DIRECTIVES" );
 		}
 
 		protected void endAll()
