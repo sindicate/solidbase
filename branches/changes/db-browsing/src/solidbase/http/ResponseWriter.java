@@ -100,7 +100,7 @@ public class ResponseWriter extends Writer
 
 	public void writeEncoded( String str )
 	{
-		if( this.contentType.equals( "text/html" ) )
+		if( this.contentType != null && this.contentType.equals( "text/html" ) )
 		{
 			for( char ch : str.toCharArray() )
 			{

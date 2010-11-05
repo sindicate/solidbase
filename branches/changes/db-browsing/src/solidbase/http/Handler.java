@@ -78,10 +78,10 @@ public class Handler extends Thread
 //			System.out.println( f.field + ": " + f.value );
 
 		Response response = new Response( socket.getOutputStream() );
-
+		RequestContext context = new RequestContext( request, response );
 		try
 		{
-			Dispatcher.dispatch( request, response );
+			Dispatcher.dispatch( context );
 		}
 		catch( Throwable t )
 		{

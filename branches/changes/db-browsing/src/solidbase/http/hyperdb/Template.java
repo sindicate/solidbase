@@ -3,18 +3,17 @@ package solidbase.http.hyperdb;
 import java.io.PrintWriter;
 
 import solidbase.http.Fragment;
-import solidbase.http.Request;
-import solidbase.http.Response;
+import solidbase.http.RequestContext;
 
 public class Template
 {
 //	protected Map< String, Fragment > fragments = new HashMap< String, Fragment >();
 
-	public void call( Request request, Response response, String title, Fragment fragment )
+	public void call( RequestContext context, String title, Fragment fragment )
 	{
-		response.setHeader( "Content-Type", "text/html; charset=UTF-8" );
+		context.getResponse().setHeader( "Content-Type", "text/html; charset=UTF-8" );
 
-		PrintWriter writer = response.getPrintWriter( "UTF-8" );
+		PrintWriter writer = context.getResponse().getPrintWriter( "UTF-8" );
 		writer.println( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" );
 		writer.println( "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">" );
 		writer.println( "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">" );
@@ -25,7 +24,7 @@ public class Template
 		writer.println( "<body>" );
 
 //		this.fragments.get( "body" ).fragment( request, response );
-		fragment.fragment( request, response );
+		fragment.fragment( context );
 
 		writer.println( "</body>" );
 		writer.println( "</html>" );

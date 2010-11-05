@@ -2,11 +2,11 @@ package solidbase.http;
 
 public class CompressionFilter implements Filter
 {
-	public void call( Request request, Response response, FilterChain chain )
+	public void call( RequestContext context, FilterChain chain )
 	{
-		response.setHeader( "Content-Encoding", "gzip" );
-		GZipResponse gzipResponse = new GZipResponse( response );
-		chain.call( request, gzipResponse );
+		context.getResponse().setHeader( "Content-Encoding", "gzip" );
+		GZipResponse gzipResponse = new GZipResponse( context.getResponse() );
+		chain.call( new RequestContext( context.getRequest(), gzipResponse ) );
 		gzipResponse.finish();
 	}
 }

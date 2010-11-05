@@ -1,23 +1,20 @@
 package solidbase.http.hyperdb;
 
-import java.io.Writer;
-
 import solidbase.http.Fragment;
-import solidbase.http.Request;
-import solidbase.http.Response;
+import solidbase.http.RequestContext;
 import solidbase.http.ResponseWriter;
 import solidbase.http.Servlet;
 
 public class RootServlet implements Servlet, Fragment
 {
-	public void call( Request request, Response response )
+	public void call( RequestContext context )
 	{
-		new Template().call( request, response, "SolidBrowser", this );
+		new Template().call( context, "SolidBrowser", this );
 	}
 
-	public void fragment( Request request, Response response )
+	public void fragment( RequestContext context )
 	{
-		ResponseWriter writer = response.getWriter();
+		ResponseWriter writer = context.getResponse().getWriter();
 		writer.write( "<a href=\"/tables\">tables</a>\n" );
 	}
 }

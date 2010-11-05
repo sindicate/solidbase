@@ -10,13 +10,13 @@ public class Dispatcher
 	static protected List< ServletMapping > mappings = new ArrayList< ServletMapping >();
 	static protected List< FilterMapping > filterMappings = new ArrayList< FilterMapping >();
 
-	static public void dispatch( Request request, Response response )
+	static public void dispatch( RequestContext context )
 	{
 		FilterChain chain = null;
 
 		for( FilterMapping mapping : filterMappings )
 		{
-			Matcher matcher = mapping.pattern.matcher( request.getUrl() );
+			Matcher matcher = mapping.pattern.matcher( context.getRequest().getUrl() );
 			if( matcher.matches() )
 			{
 				if( chain == null )
@@ -27,7 +27,7 @@ public class Dispatcher
 
 		for( ServletMapping mapping : mappings )
 		{
-			Matcher matcher = mapping.pattern.matcher( request.getUrl() );
+			Matcher matcher = mapping.pattern.matcher( context.getRequest().getUrl() );
 			if( matcher.matches() )
 			{
 				if( mapping.names != null )
@@ -35,21 +35,21 @@ public class Dispatcher
 					for( int i = 0; i < mapping.names.length; i++ )
 					{
 						String name = mapping.names[ i ];
-						request.addParameter( name, matcher.group( i + 1 ) );
+						context.getRequest().addParameter( name, matcher.group( i + 1 ) );
 					}
 				}
 				if( chain != null )
 				{
 					chain.set( mapping.servlet  );
-					chain.call( request, response );
+					chain.call( context );
 				}
 				else
-					mapping.servlet.call( request, response );
+					mapping.servlet.call( context );
 				return;
 			}
 		}
 
-		response.setStatusCode( 404, "Not Found" );
+		context.getResponse().setStatusCode( 404, "Not Found" );
 	}
 
 	static public void registerServlet( String pattern, Servlet servlet )

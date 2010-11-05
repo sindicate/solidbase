@@ -7,8 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import solidbase.core.SystemException;
 import solidbase.http.Fragment;
-import solidbase.http.Request;
-import solidbase.http.Response;
+import solidbase.http.RequestContext;
 import solidbase.http.ResponseWriter;
 import solidbase.http.Servlet;
 import solidbase.http.Util;
@@ -16,18 +15,18 @@ import solidbase.util.Assert;
 
 public class TableServlet implements Servlet, Fragment
 {
-	public void call( Request request, Response response )
+	public void call( RequestContext context )
 	{
-		String table = request.getParameter( "tablename" );
-		new Template().call( request, response, "SolidBrowser - table " + table, this );
+		String table = context.getRequest().getParameter( "tablename" );
+		new Template().call( context, "SolidBrowser - table " + table, this );
 	}
 
-	public void fragment( Request request, Response response )
+	public void fragment( RequestContext context )
 	{
-		String table = request.getParameter( "tablename" );
+		String table = context.getRequest().getParameter( "tablename" );
 //		String id = request.getParameter( "id" );
 
-		ResponseWriter writer = response.getWriter();
+		ResponseWriter writer = context.getResponse().getWriter();
 
 		Connection connection = DataSource.getConnection();
 		try

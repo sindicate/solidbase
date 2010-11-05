@@ -5,15 +5,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import solidbase.core.SystemException;
-import solidbase.http.Request;
 import solidbase.http.Response;
 import solidbase.http.Servlet;
 
 public class DefaultServlet implements Servlet
 {
-	public void call( Request request, Response response )
+	public void call( RequestContext context )
 	{
-		String url = request.getUrl();
+		Response response = context.getResponse();
+
+		String url = context.getRequest().getUrl();
 		if( url.startsWith( "/" ) )
 			url = url.substring( 1 );
 

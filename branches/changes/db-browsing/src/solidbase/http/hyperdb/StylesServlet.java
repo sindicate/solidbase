@@ -2,14 +2,16 @@ package solidbase.http.hyperdb;
 
 import java.io.PrintWriter;
 
-import solidbase.http.Request;
+import solidbase.http.RequestContext;
 import solidbase.http.Response;
 import solidbase.http.Servlet;
 
 public class StylesServlet implements Servlet
 {
-	public void call( Request request, Response response )
+	public void call( RequestContext context )
 	{
+		Response response = context.getResponse();
+
 		response.setContentType( "text/css", "ISO-8859-1" );
 		response.setHeader( "Cache-Control", "max-age=3600" );
 
