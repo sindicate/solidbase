@@ -3,11 +3,11 @@
 <%@ page import="solidbase.http.hyperdb.*" %>
 
 <%
-new Template().call( context, "SolidBrowser - tables", new Fragment()
+new Template().call( request, "SolidBrowser - tables", new Fragment()
 {
-	public void fragment( RequestContext context )
+	public void fragment( RequestContext request )
 	{
-		ResponseWriter writer = context.getResponse().getWriter();
+		ResponseWriter writer = request.getResponse().getWriter();
 		List< Table > tables = Database.getTables();
 %>
 		<table>

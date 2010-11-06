@@ -2,13 +2,15 @@ package solidbase.http;
 
 public class RequestContext
 {
-	private Request request;
-	private Response reponse;
+	protected Request request;
+	protected Response reponse;
+	protected ApplicationContext applicationContext;
 
-	public RequestContext( Request request, Response response )
+	public RequestContext( Request request, Response response, ApplicationContext applicationContext )
 	{
 		this.request = request;
 		this.reponse = response;
+		this.applicationContext = applicationContext;
 	}
 
 	public Request getRequest()
@@ -23,6 +25,11 @@ public class RequestContext
 
 	public void callJsp( String jsp )
 	{
-		JspManager.call( jsp, this );
+		this.applicationContext.callJsp( jsp, this );
+	}
+
+	public ApplicationContext getApplication()
+	{
+		return this.applicationContext;
 	}
 }

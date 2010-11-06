@@ -3,10 +3,11 @@ package solidbase.http.hyperdb;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import solidbase.http.ApplicationContext;
 import solidbase.http.CompressionFilter;
 import solidbase.http.DefaultServlet;
-import solidbase.http.Dispatcher;
 import solidbase.http.Handler;
+import solidbase.http.JspServlet;
 import solidbase.http.TestServlet;
 
 public class Main
@@ -16,14 +17,19 @@ public class Main
 	 */
 	public static void main( String[] args )
 	{
-		Dispatcher.registerServlet( "/table:([^/]*)", "tablename", new TableServlet() );
-		Dispatcher.registerServlet( "/tables", new TablesServlet() );
-		Dispatcher.registerServlet( "/test", new TestServlet() );
-		Dispatcher.registerServlet( "/styles.css", new StylesServlet() );
-		Dispatcher.registerServlet( "", new RootServlet() );
-		Dispatcher.registerServlet( ".*", new DefaultServlet() );
+		ApplicationContext context = new ApplicationContext();
 
-		Dispatcher.registerFilter( ".*", new CompressionFilter() );
+		context.registerServlet( "/table:([^/]*)", "tablename", new TableServlet() );
+		context.registerServlet( "/tables", new TablesServlet() );
+		context.registerServlet( "/test", new TestServlet() );
+		context.registerServlet( "/styles.css", new StylesServlet() );
+		context.registerServlet( "", new RootServlet() );
+		context.registerServlet( ".*\\.jsp", new JspServlet() );
+		context.registerServlet( ".*", new DefaultServlet() );
+
+		context.registerFilter( ".*", new CompressionFilter() );
+
+		context.setJspBase( "solidbase.http.hyperdb" );
 
 		try
 		{
@@ -31,7 +37,7 @@ public class Main
 			while( true )
 			{
 				Socket socket = server.accept();
-				Handler handler = new Handler( socket );
+				Handler handler = new Handler( socket, context );
 				handler.start();
 			}
 		}

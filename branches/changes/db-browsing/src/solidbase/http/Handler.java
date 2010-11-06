@@ -14,10 +14,12 @@ import solidbase.util.PushbackReader;
 public class Handler extends Thread
 {
 	protected Socket socket;
+	protected ApplicationContext applicationContext;
 
-	public Handler( Socket socket )
+	public Handler( Socket socket, ApplicationContext applicationContext )
 	{
 		this.socket = socket;
+		this.applicationContext = applicationContext;
 	}
 
 	public void handle() throws IOException
@@ -78,10 +80,10 @@ public class Handler extends Thread
 //			System.out.println( f.field + ": " + f.value );
 
 		Response response = new Response( socket.getOutputStream() );
-		RequestContext context = new RequestContext( request, response );
+		RequestContext context = new RequestContext( request, response, this.applicationContext );
 		try
 		{
-			Dispatcher.dispatch( context );
+			this.applicationContext.dispatch( context );
 		}
 		catch( Throwable t )
 		{
