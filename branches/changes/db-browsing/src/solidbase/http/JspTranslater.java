@@ -20,7 +20,7 @@ public class JspTranslater
 	{
 		try
 		{
-			translatePages( new File( "src" ), new String[] { "solidbase/http/hyperdb/tables.jsp" }, new File( "../BUILDS/solidbase/pages" ) );
+			translatePages( new File( "src" ), new String[] { "solidbase/http/hyperdb/Template.jsp" }, new File( "target/pages" ) );
 		}
 		catch( Throwable t )
 		{
@@ -427,9 +427,9 @@ public class JspTranslater
 				if( c == '}' )
 					break;
 				if( c == '"' )
-					readString( reader, writer, Mode.STRING );
-//				else if( c == '\'' )
-//					readString( reader, writer, mode );
+					readString( reader, writer, Mode.EXPRESSION2 );
+//				else if( c == '\'' ) TODO This is important to, for example '}'
+//					readString( reader, writer, Mode.EXPRESSION2 );
 				else
 					writer.writeAsExpression2( (char)c );
 			}

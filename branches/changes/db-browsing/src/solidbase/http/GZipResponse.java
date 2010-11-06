@@ -56,18 +56,6 @@ public class GZipResponse extends Response
 	public void flush()
 	{
 		super.flush();
-		this.response.flush();
-	}
-
-	@Override
-	public void setContentType( String contentType, String charSet )
-	{
-		super.setContentType( contentType, charSet );
-		this.response.setContentType( contentType, charSet );
-	}
-
-	public void finish()
-	{
 		try
 		{
 			( (GZipResponseOutputStream)this.out ).out.finish();
@@ -76,5 +64,13 @@ public class GZipResponse extends Response
 		{
 			throw new SystemException( e );
 		}
+		this.response.flush(); // TODO Should we do this?
+	}
+
+	@Override
+	public void setContentType( String contentType, String charSet )
+	{
+		super.setContentType( contentType, charSet );
+		this.response.setContentType( contentType, charSet );
 	}
 }

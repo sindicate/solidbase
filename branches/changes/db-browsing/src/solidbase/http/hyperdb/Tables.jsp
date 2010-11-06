@@ -3,7 +3,7 @@
 <%@ page import="solidbase.http.hyperdb.*" %>
 
 <%
-new Template().call( request, params.put( "title", "All tables" ).put( "body", new Servlet()
+new TemplateServlet().call( request, params.put( "title", "All tables" ).put( "body", new Servlet()
 {
 	public void call( RequestContext request, Parameters params )
 	{
