@@ -1,39 +1,33 @@
 package solidbase.http.hyperdb;
 
-import java.io.PrintWriter;
-
-import solidbase.http.Fragment;
+import solidbase.http.Parameters;
 import solidbase.http.RequestContext;
+import solidbase.http.ResponseWriter;
+import solidbase.http.Servlet;
 
-public class Template
+public class Template implements Servlet
 {
-//	protected Map< String, Fragment > fragments = new HashMap< String, Fragment >();
-
-	public void call( RequestContext context, String title, Fragment fragment )
+	public void call( RequestContext request, Parameters params )
 	{
-		context.getResponse().setHeader( "Content-Type", "text/html; charset=UTF-8" );
+		String title = (String)params.get( "title" );
+		Servlet body = (Servlet)params.get( "body" );
 
-		PrintWriter writer = context.getResponse().getPrintWriter( "UTF-8" );
-		writer.println( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" );
-		writer.println( "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">" );
-		writer.println( "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">" );
-		writer.println( "<head>" );
-		writer.println( "	<title>" + title + "</title>" );
-		writer.println( "	<link rel=\"stylesheet\" type=\"text/css\" href=\"/styles.css\" />" );
-		writer.println( "</head>" );
-		writer.println( "<body>" );
+		request.getResponse().setContentType( "text/html", "UTF-8" );
 
-//		this.fragments.get( "body" ).fragment( request, response );
-		fragment.fragment( context );
+		ResponseWriter writer = request.getResponse().getWriter();
+		writer.write( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" );
+		writer.write( "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n" );
+		writer.write( "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">\n" );
+		writer.write( "<head>\n" );
+		writer.write( "	<title>HyperDB" + ( title == null ? "" : " - " + title ) + "</title>\n" );
+		writer.write( "	<link rel=\"stylesheet\" type=\"text/css\" href=\"/styles.css\" />\n" );
+		writer.write( "</head>\n" );
+		writer.write( "<body>\n" );
 
-		writer.println( "</body>" );
-		writer.println( "</html>" );
+		body.call( request, params );
+
+		writer.write( "</body>\n" );
+		writer.write( "</html>\n" );
 		writer.flush();
 	}
-
-//	public Template addFragment( String name, Fragment fragment )
-//	{
-//		this.fragments.put( name, fragment );
-//		return this;
-//	}
 }

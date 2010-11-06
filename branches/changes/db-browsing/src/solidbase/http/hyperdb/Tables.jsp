@@ -3,9 +3,9 @@
 <%@ page import="solidbase.http.hyperdb.*" %>
 
 <%
-new Template().call( request, "SolidBrowser - tables", new Fragment()
+new Template().call( request, params.put( "title", "All tables" ).put( "body", new Servlet()
 {
-	public void fragment( RequestContext request )
+	public void call( RequestContext request, Parameters params )
 	{
 		ResponseWriter writer = request.getResponse().getWriter();
 		List< Table > tables = Database.getTables();
@@ -13,10 +13,10 @@ new Template().call( request, "SolidBrowser - tables", new Fragment()
 		<table>
 			<tr><th>Table</th><th># records</th></tr>
 <%		for( Table table : tables ) { %>
-			<tr><td><a href="/table:${table.name}"><%=table.name%></a></td><td>${Integer.toString( table.records )}</td></tr>
+			<tr><td><a href="/table:${table.name}"><%=table.name%></a></td><td>${table.records}</td></tr>
 <%		} %>
 		</table>
 <%
 	}
-});
+}));
 %>

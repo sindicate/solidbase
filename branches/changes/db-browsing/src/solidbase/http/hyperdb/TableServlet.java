@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import solidbase.core.SystemException;
-import solidbase.http.Fragment;
 import solidbase.http.Parameters;
 import solidbase.http.RequestContext;
 import solidbase.http.Servlet;
@@ -30,15 +29,17 @@ public class TableServlet implements Servlet
 
 				final ResultSet result2 = statement.executeQuery( "SELECT * FROM " + table );
 
-				new Template().call( context, "SolidBrowser - table " + table, new Fragment()
-				{
-					public void fragment( RequestContext context )
-					{
-						Parameters params2 = params.put( "result", result2 );
-						params2.put( "count", object.toString() );
-						new TableViewServlet().call( context, params2 );
-					}
-				});
+				new Template().call( context,
+						params.put( "title", "table " + table ).
+						put( "body", new Servlet()
+						{
+							public void call( RequestContext context, Parameters params )
+							{
+								Parameters params2 = params.put( "result", result2 );
+								params2.put( "count", object.toString() );
+								new TableViewServlet().call( context, params2 );
+							}
+						}));
 			}
 			finally
 			{

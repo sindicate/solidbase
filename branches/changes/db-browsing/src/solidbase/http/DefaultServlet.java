@@ -34,7 +34,7 @@ public class DefaultServlet implements Servlet
 				if( extension.equals( "properties" ) )
 					response.setContentType( "text/plain", "ISO-8859-1" );
 				else if( extension.equals( "ico" ) )
-					response.setContentType( "image/vnd.microsoft.icon" );
+					response.setContentType( "image/vnd.microsoft.icon", null );
 			}
 		}
 

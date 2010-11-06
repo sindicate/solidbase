@@ -94,7 +94,7 @@ public class Handler extends Thread
 			{
 				response.reset();
 				response.setStatusCode( 500, "Exception" );
-				response.setHeader( "Content-Type", "text/plain; charset=ISO-8859-1" );
+				response.setContentType( "text/plain", "ISO-8859-1" );
 				PrintWriter writer = response.getPrintWriter( "ISO-8859-1" );
 				t.printStackTrace( writer );
 				writer.flush();

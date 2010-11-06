@@ -62,13 +62,8 @@ public class GZipResponse extends Response
 	@Override
 	public void setContentType( String contentType, String charSet )
 	{
+		super.setContentType( contentType, charSet );
 		this.response.setContentType( contentType, charSet );
-	}
-
-	@Override
-	public void setContentType( String contentType )
-	{
-		this.response.setContentType( contentType );
 	}
 
 	public void finish()

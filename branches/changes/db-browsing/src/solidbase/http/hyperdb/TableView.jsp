@@ -18,7 +18,7 @@ try
 		int count = meta.getColumnCount();
 %>
 <table>
-	<tr><th colspan="${Integer.toString(count)}">Table ${table} - ${recordCount} records</th></tr>
+	<tr><th colspan="${count}">Table ${table} - ${recordCount} records</th></tr>
 	<tr><% for( int i = 1; i <= count; i++ ) { %><th>${meta.getColumnLabel(i)}</th><% } %></tr>
 <%
 		do
@@ -28,7 +28,7 @@ try
 			for( int i = 1; i <= count; i++ )
 			{
 				Object object = result.getObject(  i );
-				if( object != null ) { %><td>${object.toString()}</td><% } else { %><td class="null"></td><% }
+				if( object != null ) { %><td>${object}</td><% } else { %><td class="null"></td><% }
 			}
 %></tr>
 <%

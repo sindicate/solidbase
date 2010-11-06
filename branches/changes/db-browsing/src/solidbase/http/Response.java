@@ -18,6 +18,8 @@ public class Response
 	protected boolean committed;
 	protected int statusCode = 200;
 	protected String statusMessage = "OK";
+	protected String contentType;
+	protected String charSet;
 
 	public Response()
 	{
@@ -47,6 +49,8 @@ public class Response
 	{
 		if( this.writer != null )
 			return this.writer;
+		if( this.charSet != null )
+			return getWriter( this.charSet );
 		return getWriter( "ISO-8859-1" );
 	}
 
@@ -68,6 +72,13 @@ public class Response
 
 	public void setHeader( String name, String value )
 	{
+		if( name.equals( "Content-Type" ) )
+			throw new IllegalArgumentException( "Content type should be set with setContentType()" );
+		setHeader0( name, value );
+	}
+
+	protected void setHeader0( String name, String value )
+	{
 		List< String > values = new ArrayList< String >();
 		values.add( value );
 		this.headers.put( name, values );
@@ -75,6 +86,12 @@ public class Response
 
 	public void writeHeader( OutputStream out )
 	{
+		if( this.contentType != null )
+			if( this.charSet != null )
+				setHeader0( "Content-Type", this.contentType + "; charset=" + this.charSet );
+			else
+				setHeader0( "Content-Type", this.contentType );
+
 		ResponseWriter writer = new ResponseWriter( new FlushBlockingOutputStream( out ), "ISO-8859-1" );
 		writer.write( "HTTP/1.1 " );
 		writer.write( Integer.toString( this.statusCode ) );
@@ -123,14 +140,7 @@ public class Response
 
 	public void setContentType( String contentType, String charSet )
 	{
-		if( charSet == null )
-			setContentType( contentType );
-		else
-			setHeader( "Content-Type", contentType + "; charset=" + charSet );
-	}
-
-	public void setContentType( String contentType )
-	{
-		setHeader( "Content-Type", contentType );
+		this.contentType = contentType;
+		this.charSet = charSet;
 	}
 }
