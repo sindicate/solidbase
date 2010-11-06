@@ -4,75 +4,81 @@
 <%@ page import="solidbase.http.*" %>
 
 <%
-String table = request.getRequest().getParameter( "tablename" );
-
-ResponseWriter writer = request.getResponse().getWriter();
-
-Connection connection = DataSource.getConnection();
-try
+new Template().call( request, "SolidBrowser - tables", new Fragment()
 {
-	try
+	public void fragment( RequestContext request )
 	{
-		String sql = "SELECT COUNT(*) FROM " + table;
-
-		ResultSet result = connection.createStatement().executeQuery( sql );
-		Assert.isTrue( result.next() );
-		Object object = result.getObject( 1 );
-
-		sql = "SELECT * FROM " + table;
-
-		Statement statement = connection.createStatement();
+		String table = request.getRequest().getParameter( "tablename" );
+		
+		ResponseWriter writer = request.getResponse().getWriter();
+		
+		Connection connection = DataSource.getConnection();
 		try
 		{
-			result = statement.executeQuery( sql );
-			if( result.next() )
+			try
 			{
-				ResultSetMetaData meta = result.getMetaData();
-				int count = meta.getColumnCount();
+				String sql = "SELECT COUNT(*) FROM " + table;
+		
+				ResultSet result = connection.createStatement().executeQuery( sql );
+				Assert.isTrue( result.next() );
+				Object object = result.getObject( 1 );
+		
+				sql = "SELECT * FROM " + table;
+		
+				Statement statement = connection.createStatement();
+				try
+				{
+					result = statement.executeQuery( sql );
+					if( result.next() )
+					{
+						ResultSetMetaData meta = result.getMetaData();
+						int count = meta.getColumnCount();
 %>
 <table>
 	<tr><th colspan="${Integer.toString(count)}">Table ${table} - ${object.toString()} records</th></tr>
 	<tr><% for( int i = 1; i <= count; i++ ) { %><th>${meta.getColumnLabel(i)}</th><% } %></tr>
 <%
-				do
-				{
+						do
+						{
 %>
 	<tr><%
-					for( int i = 1; i <= count; i++ )
-					{
-						object = result.getObject(  i );
-						if( object != null ) { %><td>${object.toString()}</td><% } else { %><td class="null"></td><% }
-					}
+							for( int i = 1; i <= count; i++ )
+							{
+								object = result.getObject(  i );
+								if( object != null ) { %><td>${object.toString()}</td><% } else { %><td class="null"></td><% }
+							}
 %></tr>
 <%
-				}
-				while( result.next() );
+						}
+						while( result.next() );
 %>
 </table>
 <%
-			}
-			else
-			{
+					}
+					else
+					{
 %>
 <table>
 	<tr><th>Table ${table}, ${object.toString()} records</th></tr>
 	<tr><td class="null">No records.</td></tr>
 </table>
 <%
+					}
+				}
+				finally
+				{
+					statement.close();
+				}
+			}
+			finally
+			{
+				DataSource.release( connection );
 			}
 		}
-		finally
+		catch( SQLException e )
 		{
-			statement.close();
+			throw new SystemException( e );
 		}
 	}
-	finally
-	{
-		DataSource.release( connection );
-	}
-}
-catch( SQLException e )
-{
-	throw new SystemException( e );
-}
+});
 %>

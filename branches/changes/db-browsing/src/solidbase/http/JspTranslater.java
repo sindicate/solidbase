@@ -44,34 +44,36 @@ public class JspTranslater
 			if( parent != null )
 				pkg = parent.getPath().replaceAll( "[\\\\/]", "." );
 
-			String name = file.getName().replaceAll( "[\\.-]", "_" );
+			String name = file.getName();
+			Assert.isTrue( name.endsWith( ".jsp" ) );
+			name = name.substring( 0, name.length() - 4 ) + "Servlet";
 			File inputfile = new File( baseDir.getPath() + "/" + page );
 			File outputfile = new File( new File( outputDir, parent.getPath() ), name + ".java" );
 
-//			if( inputfile.lastModified() > outputfile.lastModified() )
-//			{
-			String script;
-			FileReader in = new FileReader( baseDir.getPath() + "/" + page );
-			try
+			if( inputfile.lastModified() > outputfile.lastModified() )
 			{
-				script = new Parser().parse( new Scanner( in ), pkg, name );
+				String script;
+				FileReader in = new FileReader( baseDir.getPath() + "/" + page );
+				try
+				{
+					script = new Parser().parse( new Scanner( in ), pkg, name );
+				}
+				finally
+				{
+					in.close();
+				}
+				outputfile.getParentFile().mkdirs();
+				FileWriter out = new FileWriter( outputfile );
+				try
+				{
+					out.write( script );
+				}
+				finally
+				{
+					out.close();
+				}
+				count++;
 			}
-			finally
-			{
-				in.close();
-			}
-			outputfile.getParentFile().mkdirs();
-			FileWriter out = new FileWriter( outputfile );
-			try
-			{
-				out.write( script );
-			}
-			finally
-			{
-				out.close();
-			}
-			count++;
-//			}
 		}
 		if( count > 0 )
 			System.out.println( "Precompiled " + count + " pages" );

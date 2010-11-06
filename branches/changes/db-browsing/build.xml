@@ -115,19 +115,24 @@
 	<target name="clean" description="Clean out the output directories ">
 		<delete dir="${build.home}" />
 		<delete dir="${temp.home}" />
+		<delete dir="target" />
 	</target>
 
 
 	<target name="compile">
 		<echo message="java.home=${java.home}" />
 		<mkdir dir="${build.home}/classes" />
-		<javac srcdir="src" destdir="${build.home}/classes" source="${target-jre}" target="${target-jre}" optimize="true" debug="true" deprecation="true" classpathref="compile.classpath" />
+		<javac srcdir="src" excludes="solidbase/http/hyperdb/**" destdir="${build.home}/classes" source="${target-jre}" target="${target-jre}" optimize="true" debug="true" deprecation="true" classpathref="compile.classpath" />
 		<mkdir dir="target/pages"/>
 		<groovy src="precompilepages.groovy" classpathref="test.classpath">
 			<arg path="src"/>
 			<arg path="target/pages"/>
 		</groovy>
-		<javac srcdir="target/pages" destdir="${build.home}/classes" source="${target-jre}" target="${target-jre}" optimize="true" debug="true" deprecation="true" classpathref="compile.classpath" />
+		<javac destdir="${build.home}/classes" source="${target-jre}" target="${target-jre}" optimize="true" debug="true" deprecation="true" classpathref="compile.classpath">
+			<src path="src" />
+			<src path="target/pages" />
+			<include name="solidbase/http/hyperdb/**/*.java" />
+		</javac>
 		<sync todir="${build.home}/classes">
 			<fileset dir="src" excludes="**/*.java,**/*.html,**/*.jsp" />
 			<preserveInTarget includes="**/*.class" />
