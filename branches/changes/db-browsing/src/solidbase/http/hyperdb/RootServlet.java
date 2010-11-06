@@ -1,13 +1,14 @@
 package solidbase.http.hyperdb;
 
 import solidbase.http.Fragment;
+import solidbase.http.Parameters;
 import solidbase.http.RequestContext;
 import solidbase.http.ResponseWriter;
 import solidbase.http.Servlet;
 
 public class RootServlet implements Servlet, Fragment
 {
-	public void call( RequestContext context )
+	public void call( RequestContext context, Parameters params )
 	{
 		new Template().call( context, "SolidBrowser", this );
 	}

@@ -117,6 +117,11 @@ public class ResponseWriter extends Writer
 			write( str );
 	}
 
+	public void writeEncoded( Object o )
+	{
+		writeEncoded( o.toString() );
+	}
+
 	@Override
 	public void flush()
 	{

@@ -7,7 +7,6 @@ import solidbase.http.ApplicationContext;
 import solidbase.http.CompressionFilter;
 import solidbase.http.DefaultServlet;
 import solidbase.http.Handler;
-import solidbase.http.JspServlet;
 import solidbase.http.TestServlet;
 
 public class Main
@@ -24,7 +23,7 @@ public class Main
 		context.registerServlet( "/test", new TestServlet() );
 		context.registerServlet( "/styles.css", new StylesServlet() );
 		context.registerServlet( "", new RootServlet() );
-		context.registerServlet( ".*\\.jsp", new JspServlet() );
+//		context.registerServlet( ".*\\.jsp", new JspServlet() );
 		context.registerServlet( ".*", new DefaultServlet() );
 
 		context.registerFilter( ".*", new CompressionFilter() );

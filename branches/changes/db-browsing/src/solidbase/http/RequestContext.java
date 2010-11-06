@@ -23,10 +23,10 @@ public class RequestContext
 		return this.reponse;
 	}
 
-	public void callJsp( String jsp )
-	{
-		this.applicationContext.callJsp( jsp, this );
-	}
+//	public void callJsp( String jsp )
+//	{
+//		this.applicationContext.callJsp( jsp, this );
+//	}
 
 	public ApplicationContext getApplication()
 	{

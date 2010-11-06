@@ -2,13 +2,14 @@ package solidbase.http.hyperdb;
 
 import java.io.PrintWriter;
 
+import solidbase.http.Parameters;
 import solidbase.http.RequestContext;
 import solidbase.http.Response;
 import solidbase.http.Servlet;
 
 public class StylesServlet implements Servlet
 {
-	public void call( RequestContext context )
+	public void call( RequestContext context, Parameters params )
 	{
 		Response response = context.getResponse();
 

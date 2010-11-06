@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import solidbase.core.SystemException;
-
 public class ApplicationContext
 {
 	protected List< ServletMapping > mappings = new ArrayList< ServletMapping >();
@@ -70,7 +68,7 @@ public class ApplicationContext
 					chain.call( context );
 				}
 				else
-					mapping.servlet.call( context );
+					mapping.servlet.call( context, Parameters.NONE );
 				return;
 			}
 		}
@@ -78,37 +76,37 @@ public class ApplicationContext
 		context.getResponse().setStatusCode( 404, "Not Found" );
 	}
 
-	public void callJsp( String name, RequestContext context )
-	{
-		if( this.jspBase != null )
-			name = this.jspBase + "." + name;
-
-		Class< Servlet > jsp = this.jspCache.get( name );
-		if( jsp == null )
-		{
-			try
-			{
-				jsp = ( Class< Servlet > )ApplicationContext.class.getClassLoader().loadClass( name );
-			}
-			catch( ClassNotFoundException e )
-			{
-				throw new SystemException( e );
-			}
-			this.jspCache.put( name, jsp );
-		}
-		Servlet servlet;
-		try
-		{
-			servlet = jsp.newInstance();
-		}
-		catch( InstantiationException e )
-		{
-			throw new SystemException( e );
-		}
-		catch( IllegalAccessException e )
-		{
-			throw new SystemException( e );
-		}
-		servlet.call( context );
-	}
+//	public void callJsp( String name, RequestContext context )
+//	{
+//		if( this.jspBase != null )
+//			name = this.jspBase + "." + name;
+//
+//		Class< Servlet > jsp = this.jspCache.get( name );
+//		if( jsp == null )
+//		{
+//			try
+//			{
+//				jsp = ( Class< Servlet > )ApplicationContext.class.getClassLoader().loadClass( name );
+//			}
+//			catch( ClassNotFoundException e )
+//			{
+//				throw new SystemException( e );
+//			}
+//			this.jspCache.put( name, jsp );
+//		}
+//		Servlet servlet;
+//		try
+//		{
+//			servlet = jsp.newInstance();
+//		}
+//		catch( InstantiationException e )
+//		{
+//			throw new SystemException( e );
+//		}
+//		catch( IllegalAccessException e )
+//		{
+//			throw new SystemException( e );
+//		}
+//		servlet.call( context );
+//	}
 }

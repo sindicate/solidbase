@@ -664,7 +664,7 @@ public class JspTranslater
 			if( this.mode == Mode.DIRECTIVES )
 			{
 				this.mode = Mode.UNKNOWN;
-				writeRaw( "public class " + this.cls + " implements Servlet{public void call(RequestContext request){" );
+				writeRaw( "public class " + this.cls + " implements Servlet{public void call(RequestContext request,Parameters params){" );
 			}
 		}
 

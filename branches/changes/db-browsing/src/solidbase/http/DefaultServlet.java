@@ -10,7 +10,7 @@ import solidbase.http.Servlet;
 
 public class DefaultServlet implements Servlet
 {
-	public void call( RequestContext context )
+	public void call( RequestContext context, Parameters params )
 	{
 		Response response = context.getResponse();
 
