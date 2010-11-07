@@ -17,7 +17,6 @@
 package solidbase.http;
 
 import solidbase.core.CommandFileException;
-import solidbase.core.SystemException;
 import solidbase.util.LineReader;
 import solidbase.util.PushbackReader;
 
@@ -69,7 +68,7 @@ public class RequestTokenizer
 		while( !isWhitespace( ch ) && ch != '\n' )
 		{
 			if( ch == -1 )
-				throw new SystemException( "Unexpected end of statement" );
+				throw new HttpException( "Unexpected end of request" );
 			result.append( (char)ch );
 			ch = this.in.read();
 		}

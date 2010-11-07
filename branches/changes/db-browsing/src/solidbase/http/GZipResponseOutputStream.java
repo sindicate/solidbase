@@ -3,8 +3,6 @@ package solidbase.http;
 import java.io.IOException;
 import java.util.zip.GZIPOutputStream;
 
-import solidbase.core.SystemException;
-
 public class GZipResponseOutputStream extends ResponseOutputStream
 {
 	protected Response response;
@@ -19,7 +17,7 @@ public class GZipResponseOutputStream extends ResponseOutputStream
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 	}
 
@@ -32,7 +30,7 @@ public class GZipResponseOutputStream extends ResponseOutputStream
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 	}
 
@@ -45,7 +43,7 @@ public class GZipResponseOutputStream extends ResponseOutputStream
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 	}
 
@@ -58,7 +56,7 @@ public class GZipResponseOutputStream extends ResponseOutputStream
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 	}
 
@@ -71,7 +69,7 @@ public class GZipResponseOutputStream extends ResponseOutputStream
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 	}
 
@@ -84,7 +82,7 @@ public class GZipResponseOutputStream extends ResponseOutputStream
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 	}
 
@@ -98,7 +96,7 @@ public class GZipResponseOutputStream extends ResponseOutputStream
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 	}
 }

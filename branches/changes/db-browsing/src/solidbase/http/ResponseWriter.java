@@ -6,8 +6,6 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 
-import solidbase.core.SystemException;
-
 public class ResponseWriter extends Writer
 {
 	protected OutputStreamWriter writer;
@@ -24,7 +22,7 @@ public class ResponseWriter extends Writer
 		}
 		catch( UnsupportedEncodingException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 	}
 
@@ -42,7 +40,7 @@ public class ResponseWriter extends Writer
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 	}
 
@@ -55,7 +53,7 @@ public class ResponseWriter extends Writer
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 	}
 
@@ -68,7 +66,7 @@ public class ResponseWriter extends Writer
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 	}
 
@@ -81,7 +79,7 @@ public class ResponseWriter extends Writer
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 	}
 
@@ -94,7 +92,7 @@ public class ResponseWriter extends Writer
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 	}
 
@@ -131,7 +129,7 @@ public class ResponseWriter extends Writer
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 		// The reponse writer does not need to flush.
 		// We don't want to trigger the flushing of the output stream.

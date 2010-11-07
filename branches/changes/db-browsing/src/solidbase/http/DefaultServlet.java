@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import solidbase.core.SystemException;
 import solidbase.http.Response;
 import solidbase.http.Servlet;
 
@@ -60,7 +59,7 @@ public class DefaultServlet implements Servlet
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 	}
 }

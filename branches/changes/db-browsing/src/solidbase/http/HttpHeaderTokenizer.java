@@ -16,7 +16,6 @@
 
 package solidbase.http;
 
-import solidbase.core.SystemException;
 import solidbase.util.LineReader;
 import solidbase.util.PushbackReader;
 
@@ -72,9 +71,9 @@ public class HttpHeaderTokenizer
 		while( ch != ':' && !isWhitespace( ch ) )
 		{
 			if( ch == -1 )
-				throw new SystemException( "Unexpected end of statement" );
+				throw new HttpException( "Unexpected end of statement" );
 			if( ch == '\n' )
-				throw new SystemException( "Unexpected end of line" );
+				throw new HttpException( "Unexpected end of line" );
 			result.append( (char)ch );
 			ch = this.in.read();
 		}
@@ -84,11 +83,11 @@ public class HttpHeaderTokenizer
 			ch = this.in.read();
 
 		if( ch != ':' )
-			throw new SystemException( "Expecting a :" );
+			throw new HttpException( "Expecting a :" );
 
 		// Return the result
 		if( result.length() == 0 )
-			throw new SystemException( "Empty header field" );
+			throw new HttpException( "Empty header field" );
 
 		return new Token( result.toString() );
 	}
@@ -105,7 +104,7 @@ public class HttpHeaderTokenizer
 		while( true )
 		{
 			if( ch == -1 )
-				throw new SystemException( "Unexpected end-of-input" );
+				throw new HttpException( "Unexpected end-of-input" );
 			if( ch == '\n' )
 			{
 				ch = this.in.read();

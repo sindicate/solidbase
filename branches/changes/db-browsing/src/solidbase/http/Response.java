@@ -36,7 +36,7 @@ public class Response
 //		}
 //		catch( FileNotFoundException e )
 //		{
-//			throw new SystemException( e );
+//			throw new HttpException( e );
 //		}
 	}
 

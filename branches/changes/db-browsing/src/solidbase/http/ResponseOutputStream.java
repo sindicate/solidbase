@@ -3,7 +3,6 @@ package solidbase.http;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import solidbase.core.SystemException;
 import solidbase.util.Assert;
 
 public class ResponseOutputStream extends OutputStream
@@ -50,7 +49,7 @@ public class ResponseOutputStream extends OutputStream
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 	}
 
@@ -80,7 +79,7 @@ public class ResponseOutputStream extends OutputStream
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 	}
 
@@ -110,7 +109,7 @@ public class ResponseOutputStream extends OutputStream
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 	}
 
@@ -137,7 +136,7 @@ public class ResponseOutputStream extends OutputStream
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 	}
 

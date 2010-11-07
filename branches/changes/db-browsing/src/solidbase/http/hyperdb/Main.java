@@ -21,7 +21,6 @@ public class Main
 		context.registerServlet( "/table:([^/]*)", "tablename", new TableServlet() );
 		context.registerServlet( "/tables", new TablesServlet() );
 		context.registerServlet( "/test", new TestServlet() );
-		context.registerServlet( "/styles.css", new StylesServlet() );
 		context.registerServlet( "", new RootServlet() );
 //		context.registerServlet( ".*\\.jsp", new JspServlet() );
 		context.registerServlet( ".*", new DefaultServlet() );

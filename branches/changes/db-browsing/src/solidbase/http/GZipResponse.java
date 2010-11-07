@@ -3,8 +3,6 @@ package solidbase.http;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import solidbase.core.SystemException;
-
 public class GZipResponse extends Response
 {
 	protected Response response;
@@ -62,7 +60,7 @@ public class GZipResponse extends Response
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 		this.response.flush(); // TODO Should we do this?
 	}

@@ -9,7 +9,6 @@ import java.io.Reader;
 import java.util.Stack;
 import java.util.regex.Pattern;
 
-import solidbase.core.SystemException;
 import solidbase.util.Assert;
 
 public class JspTranslater
@@ -134,7 +133,7 @@ public class JspTranslater
 			}
 			catch( IOException e )
 			{
-				throw new SystemException( e );
+				throw new HttpException( e );
 			}
 			return this.pushBack.pop();
 		}
@@ -152,7 +151,7 @@ public class JspTranslater
 			}
 			catch( IOException e )
 			{
-				throw new SystemException( e );
+				throw new HttpException( e );
 			}
 			this.pushBackMarked = (Stack)this.pushBack.clone();
 		}
@@ -165,7 +164,7 @@ public class JspTranslater
 			}
 			catch( IOException e )
 			{
-				throw new SystemException( e );
+				throw new HttpException( e );
 			}
 			this.pushBack = this.pushBackMarked;
 			this.pushBackMarked = null;
@@ -481,20 +480,20 @@ public class JspTranslater
 		{
 			reader.readWhitespace();
 			if( reader.read() != 'p' || reader.read() != 'a' || reader.read() != 'g' || reader.read() != 'e' )
-				throw new SystemException( "Expecting 'page'" );
+				throw new HttpException( "Expecting 'page'" );
 			reader.readWhitespace();
 			if( reader.read() != 'i' || reader.read() != 'm' || reader.read() != 'p' || reader.read() != 'o' || reader.read() != 'r' || reader.read() != 't' )
-				throw new SystemException( "Expecting 'import'" );
+				throw new HttpException( "Expecting 'import'" );
 			reader.readWhitespace();
 			if( reader.read() != '=' )
-				throw new SystemException( "Expecting '='" );
+				throw new HttpException( "Expecting '='" );
 			reader.readWhitespace();
 			if( reader.read() != '"' )
-				throw new SystemException( "Expecting '\"'" );
+				throw new HttpException( "Expecting '\"'" );
 			String imp = readString( reader );
 			reader.readWhitespace();
 			if( reader.read() != '%' || reader.read() != '>' )
-				throw new SystemException( "Expecting '%>'" );
+				throw new HttpException( "Expecting '%>'" );
 			writer.writeImport( imp );
 		}
 	}

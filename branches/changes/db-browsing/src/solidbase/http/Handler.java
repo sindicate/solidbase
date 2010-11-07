@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import solidbase.core.SystemException;
 import solidbase.util.LineReader;
 import solidbase.util.PushbackReader;
 
@@ -34,12 +33,12 @@ public class Handler extends Thread
 		RequestTokenizer requestTokenizer = new RequestTokenizer( reader );
 		Token token = requestTokenizer.get();
 		if( !token.equals( "GET" ) )
-			throw new SystemException( "Only GET requests are supported" );
+			throw new HttpException( "Only GET requests are supported" );
 
 		String url = requestTokenizer.get().getValue();
 		token = requestTokenizer.get();
 		if( !token.equals( "HTTP/1.1" ) )
-			throw new SystemException( "Only HTTP/1.1 requests are supported" );
+			throw new HttpException( "Only HTTP/1.1 requests are supported" );
 
 		System.out.println( "GET " + url + " HTTP/1.1" );
 
@@ -87,13 +86,13 @@ public class Handler extends Thread
 		}
 		catch( Throwable t )
 		{
-			if( t.getClass().equals( SystemException.class ) && t.getCause() != null )
+			if( t.getClass().equals( HttpException.class ) && t.getCause() != null )
 				t = t.getCause();
 			t.printStackTrace( System.err );
 			if( !response.isCommitted() )
 			{
 				response.reset();
-				response.setStatusCode( 500, "Exception" );
+				response.setStatusCode( 500, "Internal Server Error" );
 				response.setContentType( "text/plain", "ISO-8859-1" );
 				PrintWriter writer = response.getPrintWriter( "ISO-8859-1" );
 				t.printStackTrace( writer );
