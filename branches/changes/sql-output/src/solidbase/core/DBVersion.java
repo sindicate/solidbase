@@ -119,6 +119,8 @@ public class DBVersion
 	 */
 	protected ProgressListener callBack;
 
+	protected PrintWriter sqlWriter;
+
 	/**
 	 * An instance of this class needs to now in which database the version tables can be found. The default
 	 * connection of this database determines the schema where those tables reside.
@@ -221,6 +223,9 @@ public class DBVersion
 	 */
 	protected void init()
 	{
+		if( this.sqlWriter != null )
+			return;
+
 		Assert.notNull( this.database.getDefaultUser(), "Default user is not set" );
 		Assert.isTrue( this.stale );
 
@@ -593,6 +598,15 @@ public class DBVersion
 	 */
 	protected void execute( String sql, Object... parameters )
 	{
+		if( this.sqlWriter != null )
+		{
+			for( Object parameter : parameters )
+			{
+				sql.replaceFirst( "\\?", parameter.toString() );
+			}
+			this.sqlWriter.println( sql );
+			return;
+		}
 		try
 		{
 			Connection connection = this.database.getConnection();

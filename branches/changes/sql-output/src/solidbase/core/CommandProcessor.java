@@ -16,6 +16,7 @@
 
 package solidbase.core;
 
+import java.io.PrintWriter;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -152,6 +153,8 @@ abstract public class CommandProcessor
 	 * If false ({@link SQLProcessor}), commit/rollback should be in the command source.
 	 */
 	protected boolean autoCommit;
+
+	protected PrintWriter sqlWriter;
 
 	/**
 	 * Constructor.
@@ -318,23 +321,30 @@ abstract public class CommandProcessor
 		if( sql.length() == 0 )
 			return;
 
-		Connection connection = this.currentDatabase.getConnection();
-		Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
-		Statement statement = connection.createStatement();
-		boolean commit = false;
-		try
+		if( this.sqlWriter != null )
 		{
-			statement.execute( sql );
-			commit = true;
+			this.sqlWriter.println( sql );
 		}
-		finally
+		else
 		{
-			statement.close();
-			if( this.autoCommit )
-				if( commit )
-					connection.commit();
-				else
-					connection.rollback();
+			Connection connection = this.currentDatabase.getConnection();
+			Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
+			Statement statement = connection.createStatement();
+			boolean commit = false;
+			try
+			{
+				statement.execute( sql );
+				commit = true;
+			}
+			finally
+			{
+				statement.close();
+				if( this.autoCommit )
+					if( commit )
+						connection.commit();
+					else
+						connection.rollback();
+			}
 		}
 	}
 
@@ -486,6 +496,8 @@ abstract public class CommandProcessor
 	{
 		for( Database database : this.databases.values() )
 			database.closeConnections();
+		if( this.sqlWriter != null )
+			this.sqlWriter.close();
 	}
 
 	/**
