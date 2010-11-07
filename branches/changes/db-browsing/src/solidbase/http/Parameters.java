@@ -5,14 +5,16 @@ import java.util.Map;
 
 public class Parameters
 {
-	static public final Parameters NONE = new Parameters();
-
 	protected Map< String, Object > params = new HashMap< String, Object >();
+
+	public Parameters( Parameters parent )
+	{
+		if( parent != null )
+			this.params.putAll( parent.params );
+	}
 
 	public Parameters put( String name, Object value )
 	{
-		if( this == NONE )
-			return new Parameters().put( name, value );
 		this.params.put( name, value );
 		return this;
 	}

@@ -68,7 +68,7 @@ public class ApplicationContext
 					chain.call( context );
 				}
 				else
-					mapping.servlet.call( context, Parameters.NONE );
+					mapping.servlet.call( context, null );
 				return;
 			}
 		}

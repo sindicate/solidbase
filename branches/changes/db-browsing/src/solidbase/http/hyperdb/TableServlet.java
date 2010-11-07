@@ -29,17 +29,11 @@ public class TableServlet implements Servlet
 
 				final ResultSet result2 = statement.executeQuery( "SELECT * FROM " + table );
 
-				new TemplateServlet().call( context,
-						params.put( "title", "table " + table ).
-						put( "body", new Servlet()
-						{
-							public void call( RequestContext context, Parameters params )
-							{
-								Parameters params2 = params.put( "result", result2 );
-								params2.put( "count", object.toString() );
-								new TableViewServlet().call( context, params2 );
-							}
-						}));
+				new TemplateServlet().call( context, new Parameters( params ).
+						put( "title", "table " + table ).
+						put( "result", result2 ).
+						put( "count", object.toString() ).
+						put( "body", new TableViewServlet() ) );
 			}
 			finally
 			{

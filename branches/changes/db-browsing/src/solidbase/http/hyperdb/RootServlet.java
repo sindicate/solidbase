@@ -9,7 +9,7 @@ public class RootServlet implements Servlet
 {
 	public void call( RequestContext context, Parameters params )
 	{
-		new TemplateServlet().call( context, params.put( "title", null ).put( "body", new Servlet()
+		new TemplateServlet().call( context, new Parameters( params ).put( "title", null ).put( "body", new Servlet()
 		{
 			public void call( RequestContext request, Parameters params )
 			{
