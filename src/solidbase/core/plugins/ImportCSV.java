@@ -61,7 +61,7 @@ public class ImportCSV extends CommandListener
 {
 	static private final Pattern triggerPattern = Pattern.compile( "IMPORT\\s+CSV\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
-	static private final Pattern parameterPattern = Pattern.compile( ":{1,2}(\\d+)" );
+	static private final Pattern parameterPattern = Pattern.compile( ":(\\d+)" );
 
 //	static private final String syntax = "IMPORT CSV [SEPARATED BY TAB|<char>] [PREPEND LINENUMBER] [USING PLBLOCK|VALUESLIST] INTO <table> [(<colums>)] [VALUES (<values>)] DATA <newline> <data>";
 
@@ -78,12 +78,12 @@ public class ImportCSV extends CommandListener
 
 		Parsed parsed = parse( command );
 
-		// If statement has DATA keyword then CSV is in the command, otherwise we need to read from the source
 		LineReader lineReader;
 		if( parsed.reader != null )
-			lineReader = parsed.reader;
+			lineReader = parsed.reader; // Data is in the command
 		else if( parsed.fileName != null )
 		{
+			// Data is in a file
 			try
 			{
 				URL url = new URL( processor.getURL(), parsed.fileName );
@@ -99,10 +99,16 @@ public class ImportCSV extends CommandListener
 			}
 		}
 		else
-			lineReader = processor.getReader();
+			lineReader = processor.getReader(); // Data is in the source file
 
-		// Initialize csv reader & read first line
+		// Initialize csv reader & read first line (and skip header if needed)
 		CSVReader reader = new CSVReader( lineReader, parsed.separator, parsed.ignoreWhiteSpace );
+		if( parsed.skipHeader )
+		{
+			String[] line = reader.getLine();
+			if( line == null )
+				return true;
+		}
 		int lineNumber = reader.getLineNumber();
 		String[] line = reader.getLine();
 		if( line == null )
@@ -287,42 +293,6 @@ public class ImportCSV extends CommandListener
 
 
 	/**
-	 * Replaces arguments within the given value with values from the CSV line.
-	 * 
-	 * @param value Value to be translated.
-	 * @param prependLineNumber Is the line number added to the front of the CSV values?
-	 * @param lineNumber The current line number.
-	 * @param line Line of CSV values.
-	 * @return The translated value.
-	 */
-	static protected String translateArgument( String value, boolean prependLineNumber, int lineNumber, String[] line )
-	{
-		Matcher matcher = parameterPattern.matcher( value );
-		StringBuffer result = new StringBuffer();
-		while( matcher.find() )
-		{
-			int num = Integer.parseInt( matcher.group( 1 ) );
-			if( prependLineNumber && num == 1 )
-				matcher.appendReplacement( result, String.valueOf( lineNumber ) );
-			else
-			{
-				if( prependLineNumber )
-					num--;
-				String field = line[ num - 1 ];
-				if( !matcher.group().startsWith( "::" ) )
-					field = quoteOrNull( field );
-				else
-					if( field == null )
-						field = "NULL";
-				matcher.appendReplacement( result, field );
-			}
-		}
-		matcher.appendTail( result );
-		return result.toString();
-	}
-
-
-	/**
 	 * Replaces empty strings with null.
 	 * 
 	 * @param line The line to preprocess.
@@ -332,20 +302,6 @@ public class ImportCSV extends CommandListener
 		for( int i = 0; i < line.length; i++ )
 			if( line[ i ].length() == 0 )
 				line[ i ] = null;
-	}
-
-
-	/**
-	 * Adds quotes, escapes, and return NULL if the value == null.
-	 * 
-	 * @param value The value to escape.
-	 * @return Quoted value.
-	 */
-	static protected String quoteOrNull( String value )
-	{
-		if( value == null )
-			return "NULL";
-		return "'" + value.replaceAll( "'", "''" ) + "'";
 	}
 
 
@@ -366,7 +322,15 @@ public class ImportCSV extends CommandListener
 		tokenizer.get( "IMPORT" );
 		tokenizer.get( "CSV" );
 
-		Token t = tokenizer.get( "SEPARATED", "IGNORE", "PREPEND", "NOBATCH", "USING", "INTO" );
+		Token t = tokenizer.get( "SKIP", "SEPARATED", "IGNORE", "PREPEND", "NOBATCH", "USING", "INTO" );
+
+		if( t.equals( "SKIP" ) )
+		{
+			tokenizer.get( "HEADER" );
+			result.skipHeader = true;
+
+			t = tokenizer.get( "SEPARATED", "IGNORE", "PREPEND", "NOBATCH", "USING", "INTO" );
+		}
 
 		if( t.equals( "SEPARATED" ) )
 		{
@@ -549,6 +513,9 @@ public class ImportCSV extends CommandListener
 	 */
 	static protected class Parsed
 	{
+		/** Skip the header line. */
+		protected boolean skipHeader = false;
+
 		/** The separator. */
 		protected char separator = ',';
 
