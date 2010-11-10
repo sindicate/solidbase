@@ -26,7 +26,7 @@ public class Handler extends Thread
 		Socket socket = this.socket;
 
 		InputStream in = socket.getInputStream();
-		PushbackReader reader = new PushbackReader( new LineReader( new BufferedReader( new InputStreamReader( in, "ISO_8859-1" ) ) ) );
+		PushbackReader reader = new PushbackReader( new LineReader( new BufferedReader( new InputStreamReader( in, "ISO-8859-1" ) ) ) );
 
 		Request request = new Request();
 
