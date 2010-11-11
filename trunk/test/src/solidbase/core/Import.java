@@ -41,6 +41,7 @@ public class Import
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP3 FROM TEMP2 WHERE LINENUMBER = 101", "René" );
 
 		patcher.patch( "1.0.3" );
+		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP5", 3 );
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP1 FROM TEMP4", null );
 
 		patcher.end();
