@@ -257,7 +257,7 @@ public class CommandLineTests
 		);
 	}
 
-	@Test(groups="new")
+	@Test
 	static public void testSkip() throws Exception
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
