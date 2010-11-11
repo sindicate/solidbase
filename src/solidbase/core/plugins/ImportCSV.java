@@ -207,6 +207,9 @@ public class ImportCSV extends CommandListener
 		{
 			while( true )
 			{
+				if( Thread.currentThread().isInterrupted() )
+					throw new ThreadDeath();
+
 				preprocess( line );
 
 				int pos = 1;
