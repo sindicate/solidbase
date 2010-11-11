@@ -55,7 +55,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../solidbase/core/PluginManager.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/core/ShutdownHook.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/ProgressListener.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="ProgressListener.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -75,9 +75,9 @@ function windowTitle()
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
 </TABLE>
 <A NAME="skip-navbar_top"></A>
@@ -99,7 +99,7 @@ Class ProgressListener</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <B>ProgressListener</B><DT>extends <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public abstract class <B>ProgressListener</B><DT>extends <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
 </PRE>
 
 <P>
@@ -116,7 +116,24 @@ Listener adapter.
 <HR>
 
 <P>
+<!-- =========== FIELD SUMMARY =========== -->
 
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/ProgressListener.html#messages">messages</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A store for nested messages coming from SECTIONs in the command file.</TD>
+</TR>
+</TABLE>
+&nbsp;
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 
 <A NAME="constructor_summary"><!-- --></A>
@@ -140,6 +157,14 @@ Listener adapter.
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>abstract &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/ProgressListener.html#cr()">cr</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns to column 1 and generates a newline if needed.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -173,6 +198,14 @@ Listener adapter.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;About to execute to given command with the given message for the user.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/ProgressListener.html#noUpgradeNeeded()">noUpgradeNeeded</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;No upgrade is needed.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -248,6 +281,14 @@ Listener adapter.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>abstract &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/ProgressListener.html#println(java.lang.String)">println</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Prints a line completely by itself.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/ProgressListener.html#requestPassword(java.lang.String)">requestPassword</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;user)</CODE>
 
@@ -300,6 +341,27 @@ Listener adapter.
 &nbsp;
 <P>
 
+<!-- ============ FIELD DETAIL =========== -->
+
+<A NAME="field_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Field Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="messages"><!-- --></A><H3>
+messages</H3>
+<PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[] <B>messages</B></PRE>
+<DL>
+<DD>A store for nested messages coming from SECTIONs in the command file.
+<P>
+<DL>
+</DL>
+</DL>
+
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 
 <A NAME="constructor_detail"><!-- --></A>
@@ -326,6 +388,32 @@ public <B>ProgressListener</B>()</PRE>
 <B>Method Detail</B></FONT></TH>
 </TR>
 </TABLE>
+
+<A NAME="cr()"><!-- --></A><H3>
+cr</H3>
+<PRE>
+public abstract void <B>cr</B>()</PRE>
+<DL>
+<DD>Returns to column 1 and generates a newline if needed.
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="println(java.lang.String)"><!-- --></A><H3>
+println</H3>
+<PRE>
+public abstract void <B>println</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</PRE>
+<DL>
+<DD>Prints a line completely by itself. Generates a carriage return before printing if needed.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>message</CODE> - The message to be printed.</DL>
+</DD>
+</DL>
+<HR>
 
 <A NAME="openingPatchFile(java.io.File)"><!-- --></A><H3>
 openingPatchFile</H3>
@@ -498,6 +586,19 @@ protected void <B>upgradeComplete</B>()</PRE>
 </DL>
 <HR>
 
+<A NAME="noUpgradeNeeded()"><!-- --></A><H3>
+noUpgradeNeeded</H3>
+<PRE>
+protected void <B>noUpgradeNeeded</B>()</PRE>
+<DL>
+<DD>No upgrade is needed.
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="sqlExecutionComplete()"><!-- --></A><H3>
 sqlExecutionComplete</H3>
 <PRE>
@@ -593,7 +694,7 @@ public void <B>print</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/l
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../solidbase/core/PluginManager.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/core/ShutdownHook.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/ProgressListener.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="ProgressListener.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -613,9 +714,9 @@ public void <B>print</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/l
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
 </TABLE>
 <A NAME="skip-navbar_bottom"></A>

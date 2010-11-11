@@ -54,7 +54,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../solidbase/core/ShutdownHook.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../solidbase/core/SQLFile.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/SQLExecutionException.html" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -129,7 +129,8 @@ An <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?i
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../solidbase/core/SQLExecutionException.html#SQLExecutionException(solidbase.core.Command, java.sql.SQLException)">SQLExecutionException</A></B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command,
+<TD><CODE><B><A HREF="../../solidbase/core/SQLExecutionException.html#SQLExecutionException(java.lang.String, int, java.sql.SQLException)">SQLExecutionException</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;command,
+                      int&nbsp;lineNumber,
                       <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A>&nbsp;sqlException)</CODE>
 
 <BR>
@@ -193,16 +194,17 @@ An <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?i
 </TR>
 </TABLE>
 
-<A NAME="SQLExecutionException(solidbase.core.Command, java.sql.SQLException)"><!-- --></A><H3>
+<A NAME="SQLExecutionException(java.lang.String, int, java.sql.SQLException)"><!-- --></A><H3>
 SQLExecutionException</H3>
 <PRE>
-public <B>SQLExecutionException</B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command,
+public <B>SQLExecutionException</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;command,
+                             int&nbsp;lineNumber,
                              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A>&nbsp;sqlException)</PRE>
 <DL>
 <DD>Constructor.
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>command</CODE> - The command that caused the <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A>.<DD><CODE>sqlException</CODE> - The <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A>.</DL>
+<DT><B>Parameters:</B><DD><CODE>command</CODE> - The command that caused the <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A>.<DD><CODE>lineNumber</CODE> - The line number where the exception occurred.<DD><CODE>sqlException</CODE> - The <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A>.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -271,7 +273,7 @@ public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../solidbase/core/ShutdownHook.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../solidbase/core/SQLFile.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/SQLExecutionException.html" target="_top"><B>FRAMES</B></A>  &nbsp;

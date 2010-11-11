@@ -1,3 +1,19 @@
+Changes from 1.6.3 to 1.6.4
+---------------------------
+
+ENH  Dropped MindProd's CSVReader/Writer. Implemented my own CSV reader.
+ENH  Newlines in CSV data now work.
+ENH  CSV can now be imported in streaming mode from the SQL file instead of as part of the statement.
+ENH  CSV can now be imported from an external file.
+ENH  The first line of CSV data can now be skipped.
+ENH  More CSV data can now be imported in one go, because the JDBC batch size is limited to 1000 records.
+ENH  When doing an IMPORT CSV with NOBATCH, you can exactly see which line in the CSV data causes an error.
+ENH  Added SIGTERM/CTRL-C protection to prevent inconsistencies during upgrade.
+ENH  When no upgrade is needed, you will now see "No upgrade is needed".
+CHA  As per RFC4180, whitespace is not stripped from CSV values. Added the IGNORE WHITESPACE option to restore previous behavior.
+FIX  Section levels were not cleared when a higher level was set.
+FIX  Removed a dependency on java 6. SolidBase should now work with java 5 again.
+
 Changes from 1.6.2 to 1.6.3
 ---------------------------
 

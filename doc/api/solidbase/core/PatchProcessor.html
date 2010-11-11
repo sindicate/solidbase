@@ -324,6 +324,14 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#getReader()">getReader</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the <A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util"><CODE>LineReader</CODE></A> that is the source of the commands.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/LinkedHashSet.html?is-external=true" title="class or interface in java.util">LinkedHashSet</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#getTargets(boolean, java.lang.String, boolean)">getTargets</A></B>(boolean&nbsp;tips,
            <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;prefix,
@@ -331,6 +339,14 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns all possible targets from the current version.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net">URL</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#getURL()">getURL</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net"><CODE>URL</CODE></A> of the current SQL file.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -390,6 +406,15 @@ This class is the coordinator. It requests an upgrade path from the <A HREF="../
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Upgrade the database from the given version to the given target.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchProcessor.html#patchProtected(java.lang.String, boolean)">patchProtected</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target,
+               boolean&nbsp;downgradeable)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Patches to the given target version.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -754,7 +779,7 @@ public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/LinkedHashSet.
                                         <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;prefix,
                                         boolean&nbsp;downgradeable)</PRE>
 <DL>
-<DD>Returns all possible targets from the current version.
+<DD>Returns all possible targets from the current version. The current version is also considered.
 <P>
 <DD><DL>
 </DL>
@@ -811,7 +836,29 @@ public void <B>patch</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/l
                   boolean&nbsp;downgradeable)
            throws <A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></PRE>
 <DL>
-<DD>Patches to the given target version. The target version can end with an '*', indicating whatever tip version that matches the target prefix.
+<DD>Patches to the given target version. The target version can end with an '*', indicating whatever tip version that
+ matches the target prefix. This method protects itself against SIGTERMs (CTRL-C).
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>target</CODE> - The target requested.<DD><CODE>downgradeable</CODE> - Indicates that downgrade paths are allowed to reach the given target.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></CODE> - When the execution of a command throws an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A>.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="patchProtected(java.lang.String, boolean)"><!-- --></A><H3>
+patchProtected</H3>
+<PRE>
+protected void <B>patchProtected</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;target,
+                              boolean&nbsp;downgradeable)
+                       throws <A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></PRE>
+<DL>
+<DD>Patches to the given target version. The target version can end with an '*', indicating whatever tip version that
+ matches the target prefix.
 <P>
 <DD><DL>
 </DL>
@@ -1016,6 +1063,42 @@ public void <B>connected</B>(<A HREF="../../solidbase/core/Database.html" title=
 </DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>database</CODE> - The database.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getReader()"><!-- --></A><H3>
+getReader</H3>
+<PRE>
+public <A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A> <B>getReader</B>()</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE><A HREF="../../solidbase/core/CommandProcessor.html#getReader()">CommandProcessor</A></CODE></B></DD>
+<DD>Returns the <A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util"><CODE>LineReader</CODE></A> that is the source of the commands.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#getReader()">getReader</A></CODE> in class <CODE><A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the <A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util"><CODE>LineReader</CODE></A> that is the source of the commands.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getURL()"><!-- --></A><H3>
+getURL</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net">URL</A> <B>getURL</B>()</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE><A HREF="../../solidbase/core/CommandProcessor.html#getURL()">CommandProcessor</A></CODE></B></DD>
+<DD>Returns the <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net"><CODE>URL</CODE></A> of the current SQL file.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#getURL()">getURL</A></CODE> in class <CODE><A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>The <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net"><CODE>URL</CODE></A> of the current SQL file.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

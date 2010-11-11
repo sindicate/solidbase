@@ -174,76 +174,17 @@ This plugin executes IMPORT CSV statements.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected static&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../solidbase/core/plugins/ImportCSV.html#generateSQLUsingPLBlock(com.mindprod.csv.CSVReader, solidbase.core.plugins.ImportCSV.Parsed, java.lang.String[])">generateSQLUsingPLBlock</A></B>(com.mindprod.csv.CSVReader&nbsp;reader,
-                        <A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html" title="class in solidbase.core.plugins">ImportCSV.Parsed</A>&nbsp;parsed,
-                        <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;line)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Generates the SQL for <A HREF="../../../solidbase/core/plugins/ImportCSV.html#importUsingPLBlock(solidbase.core.Command, java.sql.Connection, com.mindprod.csv.CSVReader, solidbase.core.plugins.ImportCSV.Parsed, java.lang.String[])"><CODE>importUsingPLBlock(Command, Connection, CSVReader, Parsed, String[])</CODE></A>.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected static&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../solidbase/core/plugins/ImportCSV.html#generateSQLUsingValuesList(com.mindprod.csv.CSVReader, solidbase.core.plugins.ImportCSV.Parsed, java.lang.String[])">generateSQLUsingValuesList</A></B>(com.mindprod.csv.CSVReader&nbsp;reader,
-                           <A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html" title="class in solidbase.core.plugins">ImportCSV.Parsed</A>&nbsp;parsed,
-                           <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;line)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Generates the SQL for <A HREF="../../../solidbase/core/plugins/ImportCSV.html#importUsingValuesList(solidbase.core.Command, java.sql.Connection, com.mindprod.csv.CSVReader, solidbase.core.plugins.ImportCSV.Parsed, java.lang.String[])"><CODE>importUsingValuesList(Command, Connection, CSVReader, Parsed, String[])</CODE></A>.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../solidbase/core/plugins/ImportCSV.html#importNormal(solidbase.core.Command, java.sql.Connection, com.mindprod.csv.CSVReader, solidbase.core.plugins.ImportCSV.Parsed, java.lang.String[])">importNormal</A></B>(<A HREF="../../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command,
+<TD><CODE><B><A HREF="../../../solidbase/core/plugins/ImportCSV.html#importNormal(solidbase.core.Command, java.sql.Connection, solidbase.util.CSVReader, solidbase.core.plugins.ImportCSV.Parsed, java.lang.String[], int)">importNormal</A></B>(<A HREF="../../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command,
              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</A>&nbsp;connection,
-             com.mindprod.csv.CSVReader&nbsp;reader,
+             <A HREF="../../../solidbase/util/CSVReader.html" title="class in solidbase.util">CSVReader</A>&nbsp;reader,
              <A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html" title="class in solidbase.core.plugins">ImportCSV.Parsed</A>&nbsp;parsed,
-             <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;line)</CODE>
+             <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;line,
+             int&nbsp;lineNumber)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Import data using a JDBC prepared statement, like this:
  
- 
- INSERT INTO TABLE1 VALUES ( ?</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../solidbase/core/plugins/ImportCSV.html#importUsingPLBlock(solidbase.core.Command, java.sql.Connection, com.mindprod.csv.CSVReader, solidbase.core.plugins.ImportCSV.Parsed, java.lang.String[])">importUsingPLBlock</A></B>(<A HREF="../../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command,
-                   <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</A>&nbsp;connection,
-                   com.mindprod.csv.CSVReader&nbsp;reader,
-                   <A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html" title="class in solidbase.core.plugins">ImportCSV.Parsed</A>&nbsp;parsed,
-                   <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;line)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Import data using a PL/SQL BEGIN/END block, like this:
- 
- 
- BEGIN
-     INSERT INTO TABLE1 VALUES ( VALUE1, VALUE2 );
-     INSERT INTO TABLE1 VALUES ( VALUE1, VALUE2 );
-     INSERT INTO TABLE1 VALUES ( VALUE1, VALUE2 );
- END;
- </TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../solidbase/core/plugins/ImportCSV.html#importUsingValuesList(solidbase.core.Command, java.sql.Connection, com.mindprod.csv.CSVReader, solidbase.core.plugins.ImportCSV.Parsed, java.lang.String[])">importUsingValuesList</A></B>(<A HREF="../../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command,
-                      <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</A>&nbsp;connection,
-                      com.mindprod.csv.CSVReader&nbsp;reader,
-                      <A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html" title="class in solidbase.core.plugins">ImportCSV.Parsed</A>&nbsp;parsed,
-                      <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;line)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Import data using a ANSI SQL values list, like this:
- 
- 
- INSERT INTO TABLE1 VALUES
- ( VALUE1, VALUE2 ),
- ( VALUE1, VALUE2 ),
- ( VALUE1, VALUE2 );
  </TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -276,30 +217,11 @@ This plugin executes IMPORT CSV statements.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected static&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../solidbase/core/plugins/ImportCSV.html#quoteOrNull(java.lang.String)">quoteOrNull</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;value)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Adds quotes, escapes, and return NULL if the value == null.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected static&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../solidbase/core/plugins/ImportCSV.html#translateArgument(java.lang.String, boolean, int, java.lang.String[])">translateArgument</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;value,
-                  boolean&nbsp;prependLineNumber,
-                  int&nbsp;lineNumber,
-                  <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;line)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Replaces arguments within the given value with values from the CSV line.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected static&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../solidbase/core/plugins/ImportCSV.html#translateArgument(java.lang.String, java.util.List)">translateArgument</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;value,
                   <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Integer.html?is-external=true" title="class or interface in java.lang">Integer</A>&gt;&nbsp;parameterMap)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Replaces arguments within the given value with ?</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Replaces arguments within the given value with ? and maintains a map.</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_solidbase.core.CommandListener"><!-- --></A>
@@ -373,101 +295,15 @@ public boolean <B>execute</B>(<A HREF="../../../solidbase/core/CommandProcessor.
 </DL>
 <HR>
 
-<A NAME="importUsingPLBlock(solidbase.core.Command, java.sql.Connection, com.mindprod.csv.CSVReader, solidbase.core.plugins.ImportCSV.Parsed, java.lang.String[])"><!-- --></A><H3>
-importUsingPLBlock</H3>
-<PRE>
-protected void <B>importUsingPLBlock</B>(<A HREF="../../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command,
-                                  <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</A>&nbsp;connection,
-                                  com.mindprod.csv.CSVReader&nbsp;reader,
-                                  <A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html" title="class in solidbase.core.plugins">ImportCSV.Parsed</A>&nbsp;parsed,
-                                  <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;line)
-                           throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></PRE>
-<DL>
-<DD>Import data using a PL/SQL BEGIN/END block, like this:
- 
- <blockquote><pre>
- BEGIN
-     INSERT INTO TABLE1 VALUES ( VALUE1, VALUE2 );
-     INSERT INTO TABLE1 VALUES ( VALUE1, VALUE2 );
-     INSERT INTO TABLE1 VALUES ( VALUE1, VALUE2 );
- END;
- </pre></blockquote>
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>command</CODE> - The import command.<DD><CODE>connection</CODE> - The connection with the database.<DD><CODE>reader</CODE> - The CSV reader.<DD><CODE>parsed</CODE> - The parsed command.<DD><CODE>line</CODE> - The first line of data read.
-<DT><B>Throws:</B>
-<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - Whenever SQL execution throws it.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="generateSQLUsingPLBlock(com.mindprod.csv.CSVReader, solidbase.core.plugins.ImportCSV.Parsed, java.lang.String[])"><!-- --></A><H3>
-generateSQLUsingPLBlock</H3>
-<PRE>
-protected static <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>generateSQLUsingPLBlock</B>(com.mindprod.csv.CSVReader&nbsp;reader,
-                                                <A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html" title="class in solidbase.core.plugins">ImportCSV.Parsed</A>&nbsp;parsed,
-                                                <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;line)</PRE>
-<DL>
-<DD>Generates the SQL for <A HREF="../../../solidbase/core/plugins/ImportCSV.html#importUsingPLBlock(solidbase.core.Command, java.sql.Connection, com.mindprod.csv.CSVReader, solidbase.core.plugins.ImportCSV.Parsed, java.lang.String[])"><CODE>importUsingPLBlock(Command, Connection, CSVReader, Parsed, String[])</CODE></A>.
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>reader</CODE> - The CSV reader.<DD><CODE>parsed</CODE> - The parsed command.<DD><CODE>line</CODE> - The first line of data read.
-<DT><B>Returns:</B><DD>The generated SQL.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="importUsingValuesList(solidbase.core.Command, java.sql.Connection, com.mindprod.csv.CSVReader, solidbase.core.plugins.ImportCSV.Parsed, java.lang.String[])"><!-- --></A><H3>
-importUsingValuesList</H3>
-<PRE>
-protected void <B>importUsingValuesList</B>(<A HREF="../../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command,
-                                     <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</A>&nbsp;connection,
-                                     com.mindprod.csv.CSVReader&nbsp;reader,
-                                     <A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html" title="class in solidbase.core.plugins">ImportCSV.Parsed</A>&nbsp;parsed,
-                                     <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;line)
-                              throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></PRE>
-<DL>
-<DD>Import data using a ANSI SQL values list, like this:
- 
- <blockquote><pre>
- INSERT INTO TABLE1 VALUES
- ( VALUE1, VALUE2 ),
- ( VALUE1, VALUE2 ),
- ( VALUE1, VALUE2 );
- </pre></blockquote>
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>command</CODE> - The import command.<DD><CODE>connection</CODE> - The connection with the database.<DD><CODE>reader</CODE> - The CSV reader.<DD><CODE>parsed</CODE> - The parsed command.<DD><CODE>line</CODE> - The first line of data read.
-<DT><B>Throws:</B>
-<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - Whenever SQL execution throws it.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="generateSQLUsingValuesList(com.mindprod.csv.CSVReader, solidbase.core.plugins.ImportCSV.Parsed, java.lang.String[])"><!-- --></A><H3>
-generateSQLUsingValuesList</H3>
-<PRE>
-protected static <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>generateSQLUsingValuesList</B>(com.mindprod.csv.CSVReader&nbsp;reader,
-                                                   <A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html" title="class in solidbase.core.plugins">ImportCSV.Parsed</A>&nbsp;parsed,
-                                                   <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;line)</PRE>
-<DL>
-<DD>Generates the SQL for <A HREF="../../../solidbase/core/plugins/ImportCSV.html#importUsingValuesList(solidbase.core.Command, java.sql.Connection, com.mindprod.csv.CSVReader, solidbase.core.plugins.ImportCSV.Parsed, java.lang.String[])"><CODE>importUsingValuesList(Command, Connection, CSVReader, Parsed, String[])</CODE></A>.
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>reader</CODE> - The CSV reader.<DD><CODE>parsed</CODE> - The parsed command.<DD><CODE>line</CODE> - The first line of data read.
-<DT><B>Returns:</B><DD>The generated SQL.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="importNormal(solidbase.core.Command, java.sql.Connection, com.mindprod.csv.CSVReader, solidbase.core.plugins.ImportCSV.Parsed, java.lang.String[])"><!-- --></A><H3>
+<A NAME="importNormal(solidbase.core.Command, java.sql.Connection, solidbase.util.CSVReader, solidbase.core.plugins.ImportCSV.Parsed, java.lang.String[], int)"><!-- --></A><H3>
 importNormal</H3>
 <PRE>
 protected void <B>importNormal</B>(<A HREF="../../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command,
                             <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</A>&nbsp;connection,
-                            com.mindprod.csv.CSVReader&nbsp;reader,
+                            <A HREF="../../../solidbase/util/CSVReader.html" title="class in solidbase.util">CSVReader</A>&nbsp;reader,
                             <A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html" title="class in solidbase.core.plugins">ImportCSV.Parsed</A>&nbsp;parsed,
-                            <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;line)
+                            <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;line,
+                            int&nbsp;lineNumber)
                      throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></PRE>
 <DL>
 <DD>Import data using a JDBC prepared statement, like this:
@@ -477,7 +313,7 @@ protected void <B>importNormal</B>(<A HREF="../../../solidbase/core/Command.html
  </pre></blockquote>
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>command</CODE> - The import command.<DD><CODE>connection</CODE> - The connection with the database.<DD><CODE>reader</CODE> - The CSV reader.<DD><CODE>parsed</CODE> - The parsed command.<DD><CODE>line</CODE> - The first line of data read.
+<DT><B>Parameters:</B><DD><CODE>command</CODE> - The import command.<DD><CODE>connection</CODE> - The connection with the database.<DD><CODE>reader</CODE> - The CSV reader.<DD><CODE>parsed</CODE> - The parsed command.<DD><CODE>line</CODE> - The first line of data read.<DD><CODE>lineNumber</CODE> - The current line number.
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - Whenever SQL execution throws it.</DL>
 </DD>
@@ -499,23 +335,6 @@ protected static <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Stri
 </DL>
 <HR>
 
-<A NAME="translateArgument(java.lang.String, boolean, int, java.lang.String[])"><!-- --></A><H3>
-translateArgument</H3>
-<PRE>
-protected static <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>translateArgument</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;value,
-                                          boolean&nbsp;prependLineNumber,
-                                          int&nbsp;lineNumber,
-                                          <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>[]&nbsp;line)</PRE>
-<DL>
-<DD>Replaces arguments within the given value with values from the CSV line.
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>value</CODE> - Value to be translated.<DD><CODE>prependLineNumber</CODE> - Is the line number added to the front of the CSV values?<DD><CODE>lineNumber</CODE> - The current line number.<DD><CODE>line</CODE> - Line of CSV values.
-<DT><B>Returns:</B><DD>The translated value.</DL>
-</DD>
-</DL>
-<HR>
-
 <A NAME="preprocess(java.lang.String[])"><!-- --></A><H3>
 preprocess</H3>
 <PRE>
@@ -525,20 +344,6 @@ protected static void <B>preprocess</B>(<A HREF="http://java.sun.com/j2se/1.5.0/
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>line</CODE> - The line to preprocess.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="quoteOrNull(java.lang.String)"><!-- --></A><H3>
-quoteOrNull</H3>
-<PRE>
-protected static <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>quoteOrNull</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;value)</PRE>
-<DL>
-<DD>Adds quotes, escapes, and return NULL if the value == null.
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>value</CODE> - The value to escape.
-<DT><B>Returns:</B><DD>Quoted value.</DL>
 </DD>
 </DL>
 <HR>

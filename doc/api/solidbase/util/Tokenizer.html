@@ -155,8 +155,7 @@ This is a tokenizer for a language like SQL. It maintains the current line numbe
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../solidbase/util/Tokenizer.html#Tokenizer(java.io.Reader, int)">Tokenizer</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/Reader.html?is-external=true" title="class or interface in java.io">Reader</A>&nbsp;in,
-          int&nbsp;lineNumber)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/util/Tokenizer.html#Tokenizer(solidbase.util.LineReader)">Tokenizer</A></B>(<A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A>&nbsp;in)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs a new instance of the Tokenizer.</TD>
@@ -205,7 +204,7 @@ This is a tokenizer for a language like SQL. It maintains the current line numbe
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/Reader.html?is-external=true" title="class or interface in java.io">Reader</A></CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/util/Tokenizer.html#getReader()">getReader</A></B>()</CODE>
 
 <BR>
@@ -221,7 +220,7 @@ This is a tokenizer for a language like SQL. It maintains the current line numbe
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected static&nbsp;boolean</CODE></FONT></TD>
+<CODE>protected &nbsp;boolean</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/util/Tokenizer.html#isWhitespace(int)">isWhitespace</A></B>(int&nbsp;ch)</CODE>
 
 <BR>
@@ -279,16 +278,15 @@ protected <A HREF="../../solidbase/util/PushbackReader.html" title="class in sol
 </TR>
 </TABLE>
 
-<A NAME="Tokenizer(java.io.Reader, int)"><!-- --></A><H3>
+<A NAME="Tokenizer(solidbase.util.LineReader)"><!-- --></A><H3>
 Tokenizer</H3>
 <PRE>
-public <B>Tokenizer</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/Reader.html?is-external=true" title="class or interface in java.io">Reader</A>&nbsp;in,
-                 int&nbsp;lineNumber)</PRE>
+public <B>Tokenizer</B>(<A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A>&nbsp;in)</PRE>
 <DL>
 <DD>Constructs a new instance of the Tokenizer.
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>in</CODE> - The input.<DD><CODE>lineNumber</CODE> - The current line number.</DL>
+<DT><B>Parameters:</B><DD><CODE>in</CODE> - The input.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -304,7 +302,7 @@ public <B>Tokenizer</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io
 <A NAME="isWhitespace(int)"><!-- --></A><H3>
 isWhitespace</H3>
 <PRE>
-protected static boolean <B>isWhitespace</B>(int&nbsp;ch)</PRE>
+protected boolean <B>isWhitespace</B>(int&nbsp;ch)</PRE>
 <DL>
 <DD>Is the given character a whitespace?
 <P>
@@ -402,7 +400,7 @@ public int <B>getLineNumber</B>()</PRE>
 <A NAME="getReader()"><!-- --></A><H3>
 getReader</H3>
 <PRE>
-public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/Reader.html?is-external=true" title="class or interface in java.io">Reader</A> <B>getReader</B>()</PRE>
+public <A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A> <B>getReader</B>()</PRE>
 <DL>
 <DD>Returns the underlying reader. But only if the back buffer is empty, otherwise an IllegalStateException is thrown.
 <P>
