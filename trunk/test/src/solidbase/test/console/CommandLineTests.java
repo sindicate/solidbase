@@ -256,4 +256,42 @@ public class CommandLineTests
 				"Execution complete.\n\n"
 		);
 	}
+
+	@Test(groups="new")
+	static public void testSkip() throws Exception
+	{
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+
+		MockConsole console = new MockConsole();
+		Main.console = console;
+
+		Main.main0( "-verbose",
+				"-driver", "org.hsqldb.jdbcDriver",
+				"-url", "jdbc:hsqldb:mem:testdb",
+				"-username", "sa",
+				"-password", "",
+				"-target", "1.0.*",
+				"-upgradefile", "testpatch-skip.sql" );
+
+		String output = TestUtil.generalizeOutput( console.getOutput() );
+//		System.out.println( "[[[" + output + "]]]" );
+		Assert.assertEquals( output,
+				"Reading property file file:/.../solidbase-default.properties\n" +
+				"SolidBase v1.5.x (http://solidbase.org)\n" +
+				"\n" +
+				"Opening file 'testpatch-skip.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
+				"Connecting to database...\n" +
+				"The database is unmanaged.\n" +
+				"Setting up control tables to \"1.1\"...\n" +
+				"Upgrading to \"1.0.1\"\n" +
+				"    Section 1.\n" +
+				"    Section 3.\n" +
+				"    Section 5.\n" +
+				"DEBUG: version=null, target=1.0.1, statements=4\n" +
+				"The database is upgraded.\n" +
+				"\n" +
+				"Current database version is \"1.0.1\".\n"
+		);
+	}
 }
