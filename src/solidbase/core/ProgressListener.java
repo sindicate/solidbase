@@ -130,7 +130,9 @@ abstract public class ProgressListener
 	 */
 	protected void startSection( int level, String message )
 	{
-		this.messages[ level ] = message;
+		this.messages[ level++ ] = message;
+		while( level < this.messages.length )
+			this.messages[ level++ ] = null; // Deeper sections are reset
 	}
 
 	/**
