@@ -391,6 +391,22 @@ Processes commands, maintains state, triggers the listeners.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>abstract &nbsp;<A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#getReader()">getReader</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the <A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util"><CODE>LineReader</CODE></A> that is the source of the commands.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>abstract &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net">URL</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#getURL()">getURL</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net"><CODE>URL</CODE></A> of the current SQL file.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected static&nbsp;solidbase.core.Delimiter[]</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#parseDelimiters(java.util.regex.Matcher)">parseDelimiters</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Matcher.html?is-external=true" title="class or interface in java.util.regex">Matcher</A>&nbsp;matcher)</CODE>
 
@@ -1132,6 +1148,34 @@ public <A HREF="../../solidbase/core/Database.html" title="class in solidbase.co
 <DD><DL>
 
 <DT><B>Returns:</B><DD>The default database.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getReader()"><!-- --></A><H3>
+getReader</H3>
+<PRE>
+public abstract <A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A> <B>getReader</B>()</PRE>
+<DL>
+<DD>Returns the <A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util"><CODE>LineReader</CODE></A> that is the source of the commands.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the <A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util"><CODE>LineReader</CODE></A> that is the source of the commands.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getURL()"><!-- --></A><H3>
+getURL</H3>
+<PRE>
+public abstract <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net">URL</A> <B>getURL</B>()</PRE>
+<DL>
+<DD>Returns the <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net"><CODE>URL</CODE></A> of the current SQL file.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>The <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net"><CODE>URL</CODE></A> of the current SQL file.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

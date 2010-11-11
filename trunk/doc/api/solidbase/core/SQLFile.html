@@ -142,7 +142,8 @@ This class manages an SQL file's contents. It detects the encoding and reads com
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected </CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/SQLFile.html#SQLFile(java.io.BufferedInputStream)">SQLFile</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/BufferedInputStream.html?is-external=true" title="class or interface in java.io">BufferedInputStream</A>&nbsp;in)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/core/SQLFile.html#SQLFile(java.io.BufferedInputStream, java.net.URL)">SQLFile</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/BufferedInputStream.html?is-external=true" title="class or interface in java.io">BufferedInputStream</A>&nbsp;in,
+        <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net">URL</A>&nbsp;url)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates an new instance of an SQL file.</TD>
@@ -225,15 +226,16 @@ protected <A HREF="../../solidbase/util/BOMDetectingLineReader.html" title="clas
 </TR>
 </TABLE>
 
-<A NAME="SQLFile(java.io.BufferedInputStream)"><!-- --></A><H3>
+<A NAME="SQLFile(java.io.BufferedInputStream, java.net.URL)"><!-- --></A><H3>
 SQLFile</H3>
 <PRE>
-protected <B>SQLFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/BufferedInputStream.html?is-external=true" title="class or interface in java.io">BufferedInputStream</A>&nbsp;in)</PRE>
+protected <B>SQLFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/BufferedInputStream.html?is-external=true" title="class or interface in java.io">BufferedInputStream</A>&nbsp;in,
+                  <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net">URL</A>&nbsp;url)</PRE>
 <DL>
 <DD>Creates an new instance of an SQL file.
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>in</CODE> - The input stream for the file.</DL>
+<DT><B>Parameters:</B><DD><CODE>in</CODE> - The input stream for the file.<DD><CODE>url</CODE> - The url of the file.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->

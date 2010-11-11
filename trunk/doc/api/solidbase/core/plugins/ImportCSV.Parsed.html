@@ -132,11 +132,27 @@ A parsed command.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;int</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html#lineNumber">lineNumber</A></B></CODE>
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html#encoding">encoding</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The current line number in the command file.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The encoding of the file</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html#fileName">fileName</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The file path to import from</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html#ignoreWhiteSpace">ignoreWhiteSpace</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ignore white space, except white space enclosed in double quotes.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -156,7 +172,7 @@ A parsed command.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/Reader.html?is-external=true" title="class or interface in java.io">Reader</A></CODE></FONT></TD>
+<CODE>protected &nbsp;<A HREF="../../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html#reader">reader</A></B></CODE>
 
 <BR>
@@ -172,27 +188,19 @@ A parsed command.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html#skipHeader">skipHeader</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Skip the header line.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html#tableName">tableName</A></B></CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The table name to insert into.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;boolean</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html#usePLBlock">usePLBlock</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Generate SQL with the Oracle BEGIN END block.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;boolean</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../solidbase/core/plugins/ImportCSV.Parsed.html#useValuesList">useValuesList</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Generate SQL with the ANSI SQL values list.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -253,12 +261,36 @@ A parsed command.
 </TR>
 </TABLE>
 
+<A NAME="skipHeader"><!-- --></A><H3>
+skipHeader</H3>
+<PRE>
+protected boolean <B>skipHeader</B></PRE>
+<DL>
+<DD>Skip the header line.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
 <A NAME="separator"><!-- --></A><H3>
 separator</H3>
 <PRE>
 protected char <B>separator</B></PRE>
 <DL>
 <DD>The separator.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="ignoreWhiteSpace"><!-- --></A><H3>
+ignoreWhiteSpace</H3>
+<PRE>
+protected boolean <B>ignoreWhiteSpace</B></PRE>
+<DL>
+<DD>Ignore white space, except white space enclosed in double quotes.
 <P>
 <DL>
 </DL>
@@ -277,48 +309,12 @@ protected boolean <B>prependLineNumber</B></PRE>
 </DL>
 <HR>
 
-<A NAME="lineNumber"><!-- --></A><H3>
-lineNumber</H3>
-<PRE>
-protected int <B>lineNumber</B></PRE>
-<DL>
-<DD>The current line number in the command file.
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
-
 <A NAME="noBatch"><!-- --></A><H3>
 noBatch</H3>
 <PRE>
 protected boolean <B>noBatch</B></PRE>
 <DL>
 <DD>Don't use JDBC batch update.
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
-
-<A NAME="useValuesList"><!-- --></A><H3>
-useValuesList</H3>
-<PRE>
-protected boolean <B>useValuesList</B></PRE>
-<DL>
-<DD>Generate SQL with the ANSI SQL values list.
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
-
-<A NAME="usePLBlock"><!-- --></A><H3>
-usePLBlock</H3>
-<PRE>
-protected boolean <B>usePLBlock</B></PRE>
-<DL>
-<DD>Generate SQL with the Oracle BEGIN END block.
 <P>
 <DL>
 </DL>
@@ -364,9 +360,33 @@ protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html
 <A NAME="reader"><!-- --></A><H3>
 reader</H3>
 <PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/Reader.html?is-external=true" title="class or interface in java.io">Reader</A> <B>reader</B></PRE>
+protected <A HREF="../../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A> <B>reader</B></PRE>
 <DL>
 <DD>The underlying reader from the <A HREF="../../../solidbase/util/Tokenizer.html" title="class in solidbase.util"><CODE>Tokenizer</CODE></A>.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="fileName"><!-- --></A><H3>
+fileName</H3>
+<PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>fileName</B></PRE>
+<DL>
+<DD>The file path to import from
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="encoding"><!-- --></A><H3>
+encoding</H3>
+<PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>encoding</B></PRE>
+<DL>
+<DD>The encoding of the file
 <P>
 <DL>
 </DL>

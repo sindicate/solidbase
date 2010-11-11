@@ -54,8 +54,8 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;PREV CLASS&nbsp;
-&nbsp;<A HREF="../../solidbase/util/LineReader.html" title="interface in solidbase.util"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/util/AssertionFailedException.html" title="class in solidbase.util"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../solidbase/util/CSVReader.html" title="class in solidbase.util"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/util/BOMDetectingLineReader.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="BOMDetectingLineReader.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -92,14 +92,12 @@ solidbase.util</FONT>
 Class BOMDetectingLineReader</H2>
 <PRE>
 <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
-  <IMG SRC="../../resources/inherit.gif" ALT="extended by "><B>solidbase.util.BOMDetectingLineReader</B>
+  <IMG SRC="../../resources/inherit.gif" ALT="extended by "><A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">solidbase.util.LineReader</A>
+      <IMG SRC="../../resources/inherit.gif" ALT="extended by "><B>solidbase.util.BOMDetectingLineReader</B>
 </PRE>
-<DL>
-<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../solidbase/util/LineReader.html" title="interface in solidbase.util">LineReader</A></DD>
-</DL>
 <HR>
 <DL>
-<DT><PRE>public class <B>BOMDetectingLineReader</B><DT>extends <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../solidbase/util/LineReader.html" title="interface in solidbase.util">LineReader</A></DL>
+<DT><PRE>public class <B>BOMDetectingLineReader</B><DT>extends <A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A></DL>
 </PRE>
 
 <P>
@@ -172,27 +170,20 @@ A line reader that automatically detects character encoding through the BOM and 
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;int</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/util/BOMDetectingLineReader.html#currentLineNumber">currentLineNumber</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The current line the reader is positioned on.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/util/BOMDetectingLineReader.html#encoding">encoding</A></B></CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The encoding of the stream.</TD>
 </TR>
+</TABLE>
+&nbsp;<A NAME="fields_inherited_from_class_solidbase.util.LineReader"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Fields inherited from class solidbase.util.<A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A></B></TH>
+</TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/BufferedReader.html?is-external=true" title="class or interface in java.io">BufferedReader</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/util/BOMDetectingLineReader.html#reader">reader</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The reader used to read from the input stream.</TD>
+<TD><CODE><A HREF="../../solidbase/util/LineReader.html#buffer">buffer</A>, <A HREF="../../solidbase/util/LineReader.html#currentLineNumber">currentLineNumber</A>, <A HREF="../../solidbase/util/LineReader.html#pos">pos</A>, <A HREF="../../solidbase/util/LineReader.html#reader">reader</A>, <A HREF="../../solidbase/util/LineReader.html#url">url</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -205,8 +196,17 @@ A line reader that automatically detects character encoding through the BOM and 
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../solidbase/util/BOMDetectingLineReader.html#BOMDetectingLineReader(java.io.BufferedInputStream, java.util.regex.Pattern)">BOMDetectingLineReader</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/BufferedInputStream.html?is-external=true" title="class or interface in java.io">BufferedInputStream</A>&nbsp;in,
-                       <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A>&nbsp;encodingDetection)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/util/BOMDetectingLineReader.html#BOMDetectingLineReader(java.io.BufferedInputStream, java.util.regex.Pattern, java.net.URL)">BOMDetectingLineReader</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/BufferedInputStream.html?is-external=true" title="class or interface in java.io">BufferedInputStream</A>&nbsp;in,
+                       <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A>&nbsp;encodingDetection,
+                       <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net">URL</A>&nbsp;url)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new line reader for the given input streamL.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../solidbase/util/BOMDetectingLineReader.html#BOMDetectingLineReader(java.io.BufferedInputStream, java.lang.String, java.net.URL)">BOMDetectingLineReader</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/BufferedInputStream.html?is-external=true" title="class or interface in java.io">BufferedInputStream</A>&nbsp;in,
+                       <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;encoding,
+                       <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net">URL</A>&nbsp;url)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new line reader for the given input streamL.</TD>
@@ -223,11 +223,11 @@ A line reader that automatically detects character encoding through the BOM and 
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/util/BOMDetectingLineReader.html#close()">close</A></B>()</CODE>
+<CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/util/BOMDetectingLineReader.html#detectBOM(java.io.BufferedInputStream)">detectBOM</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/BufferedInputStream.html?is-external=true" title="class or interface in java.io">BufferedInputStream</A>&nbsp;in)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Close the reader and the underlying input stream.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Detect the encoding from the BOM.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -245,21 +245,14 @@ A line reader that automatically detects character encoding through the BOM and 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the current character encoding of the stream.</TD>
 </TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;int</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/util/BOMDetectingLineReader.html#getLineNumber()">getLineNumber</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the current line number.</TD>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_solidbase.util.LineReader"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class solidbase.util.<A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/util/BOMDetectingLineReader.html#readLine()">readLine</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Reads a line from the stream.</TD>
+<TD><CODE><A HREF="../../solidbase/util/LineReader.html#close()">close</A>, <A HREF="../../solidbase/util/LineReader.html#getLineNumber()">getLineNumber</A>, <A HREF="../../solidbase/util/LineReader.html#getURL()">getURL</A>, <A HREF="../../solidbase/util/LineReader.html#read()">read</A>, <A HREF="../../solidbase/util/LineReader.html#readLine()">readLine</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -344,30 +337,6 @@ public static final <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/S
 </DL>
 <HR>
 
-<A NAME="reader"><!-- --></A><H3>
-reader</H3>
-<PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/BufferedReader.html?is-external=true" title="class or interface in java.io">BufferedReader</A> <B>reader</B></PRE>
-<DL>
-<DD>The reader used to read from the input stream.
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
-
-<A NAME="currentLineNumber"><!-- --></A><H3>
-currentLineNumber</H3>
-<PRE>
-protected int <B>currentLineNumber</B></PRE>
-<DL>
-<DD>The current line the reader is positioned on.
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
-
 <A NAME="encoding"><!-- --></A><H3>
 encoding</H3>
 <PRE>
@@ -401,16 +370,31 @@ protected byte[] <B>bom</B></PRE>
 </TR>
 </TABLE>
 
-<A NAME="BOMDetectingLineReader(java.io.BufferedInputStream, java.util.regex.Pattern)"><!-- --></A><H3>
+<A NAME="BOMDetectingLineReader(java.io.BufferedInputStream, java.util.regex.Pattern, java.net.URL)"><!-- --></A><H3>
 BOMDetectingLineReader</H3>
 <PRE>
 public <B>BOMDetectingLineReader</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/BufferedInputStream.html?is-external=true" title="class or interface in java.io">BufferedInputStream</A>&nbsp;in,
-                              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A>&nbsp;encodingDetection)</PRE>
+                              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A>&nbsp;encodingDetection,
+                              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net">URL</A>&nbsp;url)</PRE>
 <DL>
 <DD>Creates a new line reader for the given input streamL.
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>in</CODE> - The input stream to read lines from.<DD><CODE>encodingDetection</CODE> - A regular expression to detect the encoding on the first line.</DL>
+<DT><B>Parameters:</B><DD><CODE>in</CODE> - The input stream to read lines from.<DD><CODE>encodingDetection</CODE> - A regular expression to detect the encoding on the first line.<DD><CODE>url</CODE> - The <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net"><CODE>URL</CODE></A> of the stream.</DL>
+</DL>
+<HR>
+
+<A NAME="BOMDetectingLineReader(java.io.BufferedInputStream, java.lang.String, java.net.URL)"><!-- --></A><H3>
+BOMDetectingLineReader</H3>
+<PRE>
+public <B>BOMDetectingLineReader</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/BufferedInputStream.html?is-external=true" title="class or interface in java.io">BufferedInputStream</A>&nbsp;in,
+                              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;encoding,
+                              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net">URL</A>&nbsp;url)</PRE>
+<DL>
+<DD>Creates a new line reader for the given input streamL.
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>in</CODE> - The input stream to read lines from.<DD><CODE>encoding</CODE> - The encoding of the file. If not null, it will override the BOM.<DD><CODE>url</CODE> - The <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net"><CODE>URL</CODE></A> of the stream.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -423,52 +407,15 @@ public <B>BOMDetectingLineReader</B>(<A HREF="http://java.sun.com/j2se/1.5.0/doc
 </TR>
 </TABLE>
 
-<A NAME="close()"><!-- --></A><H3>
-close</H3>
+<A NAME="detectBOM(java.io.BufferedInputStream)"><!-- --></A><H3>
+detectBOM</H3>
 <PRE>
-public void <B>close</B>()</PRE>
+protected void <B>detectBOM</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/BufferedInputStream.html?is-external=true" title="class or interface in java.io">BufferedInputStream</A>&nbsp;in)</PRE>
 <DL>
-<DD>Close the reader and the underlying input stream.
+<DD>Detect the encoding from the BOM.
 <P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../solidbase/util/LineReader.html#close()">close</A></CODE> in interface <CODE><A HREF="../../solidbase/util/LineReader.html" title="interface in solidbase.util">LineReader</A></CODE></DL>
-</DD>
-<DD><DL>
-</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="readLine()"><!-- --></A><H3>
-readLine</H3>
-<PRE>
-public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>readLine</B>()</PRE>
-<DL>
-<DD>Reads a line from the stream. The line number count is incremented.
-<P>
-<DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../solidbase/util/LineReader.html#readLine()">readLine</A></CODE> in interface <CODE><A HREF="../../solidbase/util/LineReader.html" title="interface in solidbase.util">LineReader</A></CODE></DL>
-</DD>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>The line that is read or null of there are no more lines.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="getLineNumber()"><!-- --></A><H3>
-getLineNumber</H3>
-<PRE>
-public int <B>getLineNumber</B>()</PRE>
-<DL>
-<DD>Returns the current line number. The current line number is the line that is about to be read.
-<P>
-<DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../solidbase/util/LineReader.html#getLineNumber()">getLineNumber</A></CODE> in interface <CODE><A HREF="../../solidbase/util/LineReader.html" title="interface in solidbase.util">LineReader</A></CODE></DL>
-</DD>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>The current line number.</DL>
+<DT><B>Parameters:</B><DD><CODE>in</CODE> - The input stream.</DL>
 </DD>
 </DL>
 <HR>
@@ -480,9 +427,6 @@ public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is
 <DL>
 <DD>Returns the current character encoding of the stream.
 <P>
-<DD><DL>
-</DL>
-</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>The current character encoding of the stream.</DL>
@@ -497,9 +441,6 @@ public byte[] <B>getBOM</B>()</PRE>
 <DL>
 <DD>Returns the Byte Order Mark found in the stream.
 <P>
-<DD><DL>
-</DL>
-</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>The Byte Order Mark found. Will be null if no BOM was present.</DL>
@@ -535,8 +476,8 @@ public byte[] <B>getBOM</B>()</PRE>
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;PREV CLASS&nbsp;
-&nbsp;<A HREF="../../solidbase/util/LineReader.html" title="interface in solidbase.util"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/util/AssertionFailedException.html" title="class in solidbase.util"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../solidbase/util/CSVReader.html" title="class in solidbase.util"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/util/BOMDetectingLineReader.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="BOMDetectingLineReader.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;

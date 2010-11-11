@@ -91,25 +91,31 @@ Common utilities.
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
-<B>Interface Summary</B></FONT></TH>
+<B>Class Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../solidbase/util/LineReader.html" title="interface in solidbase.util">LineReader</A></B></TD>
-<TD>A line reader.</TD>
-</TR>
-</TABLE>
-&nbsp;
-
-<P>
-
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
-<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
-<B>Class Summary</B></FONT></TH>
+<TD WIDTH="15%"><B><A HREF="../../solidbase/util/Assert.html" title="class in solidbase.util">Assert</A></B></TD>
+<TD>Assert methods.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/util/BOMDetectingLineReader.html" title="class in solidbase.util">BOMDetectingLineReader</A></B></TD>
 <TD>A line reader that automatically detects character encoding through the BOM and the first line.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../solidbase/util/CSVReader.html" title="class in solidbase.util">CSVReader</A></B></TD>
+<TD>Reads CSV data from the given <A HREF="../../solidbase/util/Tokenizer.html" title="class in solidbase.util"><CODE>Tokenizer</CODE></A>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../solidbase/util/CSVTokenizer.html" title="class in solidbase.util">CSVTokenizer</A></B></TD>
+<TD>This is a tokenizer for CSV.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../solidbase/util/CSVTokenizer.Token.html" title="class in solidbase.util">CSVTokenizer.Token</A></B></TD>
+<TD>A token.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A></B></TD>
+<TD>Wraps a <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/BufferedReader.html?is-external=true" title="class or interface in java.io"><CODE>BufferedReader</CODE></A> and adds a line counting functionality.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/util/PushbackReader.html" title="class in solidbase.util">PushbackReader</A></B></TD>
@@ -118,6 +124,10 @@ Common utilities.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/util/RandomAccessLineReader.html" title="class in solidbase.util">RandomAccessLineReader</A></B></TD>
 <TD>A line reader that automatically detects character encoding through the BOM and is able to reposition itself on a line.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../solidbase/util/ShutdownHook.html" title="class in solidbase.util">ShutdownHook</A></B></TD>
+<TD>This shutdown hook prevents ctrl-c from aborting all threads.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/util/StringLineReader.html" title="class in solidbase.util">StringLineReader</A></B></TD>
@@ -134,6 +144,20 @@ Common utilities.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../solidbase/util/WorkerThread.html" title="class in solidbase.util">WorkerThread</A></B></TD>
 <TD>Worker thread which stores the exception in case it ended with one.</TD>
+</TR>
+</TABLE>
+&nbsp;
+
+<P>
+
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Exception Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../solidbase/util/AssertionFailedException.html" title="class in solidbase.util">AssertionFailedException</A></B></TD>
+<TD>Thrown when an assertion failed.</TD>
 </TR>
 </TABLE>
 &nbsp;
