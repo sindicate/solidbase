@@ -96,20 +96,55 @@ DROP VIEW NONEXISTING_VIEW;
 
 ----------------------------------------
 == IMPORT CSV ==
-Fast import of inline CSV data. Uses JDBC batch updates for maximum insert rate.
+Fast import of inline or external CSV data. Uses JDBC batch updates for maximum insert rate.
+With NOBATCH however, JDBC batch updates will be disabled, which is useful when an error exists in the CSV data 
+and you are interested in the line number where this error occurs.
 === Since ===
 1.6.0
 === Syntax ===
+==== Syntax 1 ====
+CSV data is part of the import statement and will be read into memory first.
 {{{
 IMPORT CSV
+[ SKIP HEADER ]
 [ SEPARATED BY (TAB|<character>) ]
+[ IGNORE WHITESPACE ]
+[ NOBATCH ]
 INTO <tablename> 
 [ ( <columnlist> ) ]
 [ VALUES ( <valuelist> ) ]
 DATA
-... csv data delimited with the current delimiter ...
+... csv data ... <current delimiter>
+}}}
+==== Syntax 2 ====
+CSV data comes after the import statement and is read directly from the source file.
+{{{
+IMPORT CSV
+[ SKIP HEADER ]
+[ SEPARATED BY (TAB|<character>) ]
+[ IGNORE WHITESPACE ]
+[ NOBATCH ]
+INTO <tablename> 
+[ ( <columnlist> ) ]
+[ VALUES ( <valuelist> ) ] <current delimiter>
+... csv data ...
+<empty line>
+}}}
+==== Syntax 3 ====
+CSV data is in another file.
+{{{
+IMPORT CSV
+[ SKIP HEADER ]
+[ SEPARATED BY (TAB|<character>) ]
+[ IGNORE WHITESPACE ]
+[ NOBATCH ]
+INTO <tablename> 
+[ ( <columnlist> ) ]
+[ VALUES ( <valuelist> ) ]
+FILE "<filename>" ENCODING "<encoding>" <current delimiter>
 }}}
 === Examples ===
+These are all syntax 1 examples, but they work with syntax 2 and 3 too.
 {{{
 --* // This import depends on the order of the columns in the table
 IMPORT CSV INTO ATABLE DATA
@@ -129,22 +164,32 @@ IMPORT CSV SEPARATED BY | INTO ATABLE DATA
 1|2|3
 4|5|6;
 
---* // Using double quotes you can prevent whitespace from being stripped around the values
---* // You need double quotes when commas are part of the values
---* // Double quotes in the values should be doubled
+--* // Skipping the first line
+IMPORT CSV SKIP HEADER SEPARATED BY TAB INTO ATABLE DATA
+value1	value2	value3
+1	2	3
+4	5	6;
+
+--* // You need double quotes when a comma or a newline is part of the value
+--* // Double quotes in the value should be doubled
 IMPORT CSV INTO ATABLE ( COL1, COL2, COL3 ) DATA
-"  surrounding whitespace   ", 2, 3
-"here is a comma, which is ok", 5, 6
-"""Life is good"", he said", 5, 6;
+"here is a comma, which is ok",5,6
+"newlines work
+too, excellent",7,8
+"""Life is good"", he said",5,6;
+
+--* // Since 1.6.4, whitespace is part of the value, but you can ignore it with the IGNORE WHITESPACE option.
+--* // However, whitespace between double quotes is always considered to be part of the value.
+IMPORT CSV IGNORE WHITESPACE INTO ATABLE ( COL1, COL2, COL3 ) DATA
+"  surrounding whitespace   ", 2 , 3 ;
 
 --* // Values can be reordered, duplicated, ignored, transformed, and introduced
 IMPORT CSV
 INTO ATABLE ( ID, COL1, COL2, COL3 )
 VALUES ( ASEQUENCE.NEXTVAL, TO_DATE( :2, 'YYYY-MM-DD' ), :1, :1 )
 DATA
-"  surrounding whitespace   ", "2001-01-01", 3
-"here is a comma, which is ok", "2003-01-01", 6
-"""Life is good"", he said", "2004-01-01", 6;
+"here is a comma, which is ok",2003-01-01,6
+"""Life is good"", he said",2004-01-01,6;
 }}}
 
 ----------------------------------------
