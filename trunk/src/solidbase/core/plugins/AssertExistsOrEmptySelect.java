@@ -30,33 +30,17 @@ import solidbase.util.Assert;
 
 
 /**
- * This plugin asserts that a given query statement returns results. It generates an error with the given message otherwise. This plugin can be used to check the state of the database. Example:
- *
- * <blockquote><pre>
- * ASSERT EXISTS MESSAGE 'Expecting old style version 2.0.17'
- * SELECT *
- * FROM VERSION_CONTROL
- * WHERE VERS_CONT_ID = 'VERSION'
- * AND VERS_REG_NUM = 'DHL TTS 2.0.17'
- * GO
- * </pre></blockquote>
- *
+ * This plugin asserts that a given query statement returns results or no results. It generates an error with the given message
+ * if the assertion fails. This plugin can be used to check the state of the database.
+ * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:13:28 PM
  */
-public class AssertExistsOrEmptySelect extends CommandListener
+public class AssertExistsOrEmptySelect implements CommandListener
 {
 	static private final Pattern assertPattern = Pattern.compile( "\\s*ASSERT\\s+(EXISTS|EMPTY)\\s+MESSAGE\\s+['\"]([^']*)['\"]\\s+(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
-	/**
-	 * Constructor.
-	 */
-	public AssertExistsOrEmptySelect()
-	{
-		super();
-	}
-
-	@Override
+	//@Override
 	public boolean execute( CommandProcessor processor, Command command ) throws SQLException
 	{
 		if( command.isTransient() )
@@ -88,5 +72,11 @@ public class AssertExistsOrEmptySelect extends CommandListener
 			return true;
 		}
 		return false;
+	}
+
+	//@Override
+	public void terminate()
+	{
+		// Nothing to clean up
 	}
 }

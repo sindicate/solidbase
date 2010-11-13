@@ -38,7 +38,7 @@ import solidbase.core.SystemException;
  * @author René M. de Bloois
  * @since May 29, 2006
  */
-public class OracleDBMSOutputPoller extends CommandListener
+public class OracleDBMSOutputPoller implements CommandListener
 {
 	static private Pattern disablePattern = Pattern.compile( "\\s*DISABLE\\s+DBMSOUTPUT\\s*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 	static private Pattern enablePattern = Pattern.compile( "\\s*ENABLE\\s+DBMSOUTPUT\\s*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
@@ -53,7 +53,7 @@ public class OracleDBMSOutputPoller extends CommandListener
 		super();
 	}
 
-	@Override
+	//@Override
 	public boolean execute( CommandProcessor processor, Command command ) throws SQLException
 	{
 		if( command.isPersistent() )
@@ -102,7 +102,7 @@ public class OracleDBMSOutputPoller extends CommandListener
 		return false;
 	}
 
-	@Override
+	//@Override
 	public void terminate()
 	{
 		if( this.poller != null )

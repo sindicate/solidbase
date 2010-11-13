@@ -96,6 +96,12 @@ abstract public class CommandProcessor
 	 */
 	protected List< CommandListener > listeners;
 
+	/**
+	 * If true ({@link PatchProcessor}), commands get committed automatically, and rolled back when an {@link SQLException} occurs.
+	 * If false ({@link SQLProcessor}), commit/rollback should be in the command source.
+	 */
+	protected boolean autoCommit;
+
 	// The fields below are all part of the execution context. It's reset at the start of each command set.
 
 	/**
@@ -148,12 +154,6 @@ abstract public class CommandProcessor
 	protected int skipCounter;
 
 	/**
-	 * If true ({@link PatchProcessor}), commands get committed automatically, and rolled back when an {@link SQLException} occurs.
-	 * If false ({@link SQLProcessor}), commit/rollback should be in the command source.
-	 */
-	protected boolean autoCommit;
-
-	/**
 	 * Constructor.
 	 * 
 	 * @param listener Listens to the progress.
@@ -185,6 +185,8 @@ abstract public class CommandProcessor
 	protected void reset()
 	{
 		this.startMessage = null;
+		this.sectionLevel = 0;
+		this.progress.reset();
 		this.ignoreStack = new Stack< String[] >();
 		this.ignoreSet = new HashSet< String >();
 		this.noSkipCounter = this.skipCounter = 0;
@@ -419,7 +421,7 @@ abstract public class CommandProcessor
 	}
 
 	/**
-	 * Starts a new section. Calls {@link #startSection(int, String)} to actually pass it on to the {@link ProgressListener}.
+	 * Starts a new section.
 	 * 
 	 * @param level The level of the section.
 	 * @param message The message to be shown.
@@ -437,7 +439,7 @@ abstract public class CommandProcessor
 	}
 
 	/**
-	 * Starts a new section. Called by {@link #section(String, String, Command)}.
+	 * Starts a new section.
 	 * 
 	 * @param level The level of the section.
 	 * @param message The message to be shown.
@@ -484,6 +486,7 @@ abstract public class CommandProcessor
 	// TODO No signal to the listeners here?
 	public void end()
 	{
+		terminateCommandListeners();
 		for( Database database : this.databases.values() )
 			database.closeConnections();
 	}

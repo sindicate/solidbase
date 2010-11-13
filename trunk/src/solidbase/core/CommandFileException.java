@@ -22,6 +22,7 @@ package solidbase.core;
  * 
  * @author René M. de Bloois
  */
+// TODO Look for another name for this exception, like LocalizedFatalException and include the file's url
 public class CommandFileException extends FatalException
 {
 	/**

@@ -62,6 +62,13 @@ public class Progress extends ProgressListener
 	}
 
 	@Override
+	public void reset()
+	{
+		super.reset();
+		this.buffer = null;
+	}
+
+	@Override
 	public void cr()
 	{
 		flush();

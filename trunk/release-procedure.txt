@@ -19,6 +19,7 @@ Major/minor release
 	If release a candidate, test it at your current project
 	Commit
 	Tag the revision that you want to deploy
+	update the solidbase-repository
 	'ant maven:deploy'
 		Use the revision from the trunk or branch
 		Update to the revision on the trunk or branch, otherwise you won't get a correct revXXX
