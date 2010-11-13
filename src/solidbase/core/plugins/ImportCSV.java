@@ -57,16 +57,14 @@ import solidbase.util.Tokenizer.Token;
  * @since Dec 2, 2009
  */
 // TODO Make this more strict, like assert that the number of values stays the same in the CSV data
-public class ImportCSV extends CommandListener
+public class ImportCSV implements CommandListener
 {
 	static private final Pattern triggerPattern = Pattern.compile( "IMPORT\\s+CSV\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 	static private final Pattern parameterPattern = Pattern.compile( ":(\\d+)" );
 
-//	static private final String syntax = "IMPORT CSV [SEPARATED BY TAB|<char>] [PREPEND LINENUMBER] [USING PLBLOCK|VALUESLIST] INTO <table> [(<colums>)] [VALUES (<values>)] DATA <newline> <data>";
 
-
-	@Override
+	//@Override
 	public boolean execute( CommandProcessor processor, Command command ) throws SQLException
 	{
 		if( command.isTransient() )
@@ -548,5 +546,12 @@ public class ImportCSV extends CommandListener
 
 		/** The encoding of the file */
 		protected String encoding;
+	}
+
+
+	//@Override
+	public void terminate()
+	{
+		// Nothing to clean up
 	}
 }

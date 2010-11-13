@@ -31,24 +31,22 @@ import solidbase.util.Assert;
 
 
 /**
- * This plugin executes PRINT SELECT statements.
+ * This plugin will print the results from the SELECT to the console.
  *
  * <blockquote><pre>
- * PRINT SELECT 'Inserted ' || COUNT(*) || ' users.'
- * FROM USERS
+ * PRINT SELECT 'Inserted ' || COUNT(*) || ' records in ATABLE.'
+ * FROM ATABLE
  * GO
  * </pre></blockquote>
  * 
- * This plugin will print the results from the SELECT to the console.
- *
  * @author René M. de Bloois
  * @since May 2010
  */
-public class PrintSelect extends CommandListener
+public class PrintSelect implements CommandListener
 {
 	static private final Pattern printSelectPattern = Pattern.compile( "PRINT\\s+(SELECT\\s+.+)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
-	@Override
+	//@Override
 	public boolean execute( CommandProcessor processor, Command command ) throws SQLException
 	{
 		if( command.isTransient() )
@@ -82,5 +80,11 @@ public class PrintSelect extends CommandListener
 		}
 
 		return true;
+	}
+
+	//@Override
+	public void terminate()
+	{
+		// Nothing to clean up
 	}
 }

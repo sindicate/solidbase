@@ -347,13 +347,12 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 		if( ObjectUtils.equals( target, version ) )
 		{
 			this.progress.noUpgradeNeeded();
-			terminateCommandListeners();
 			return;
 		}
 
 		patch( version, target, downgradeable );
+
 		this.progress.upgradeComplete();
-		terminateCommandListeners();
 		return;
 	}
 

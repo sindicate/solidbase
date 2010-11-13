@@ -47,6 +47,14 @@ abstract public class ProgressListener
 	abstract public void println( String message );
 
 	/**
+	 * Resets all state that the listener has.
+	 */
+	public void reset()
+	{
+		startSection( 0, null ); // This clears up all section levels.
+	}
+
+	/**
 	 * An upgrade file is about to be opened.
 	 * 
 	 * @param patchFile The upgrade file that is about to be opened.
