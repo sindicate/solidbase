@@ -17,14 +17,18 @@ try
 		ResultSetMetaData meta = result.getMetaData();
 		int count = meta.getColumnCount();
 %>
+<div id="popup" style="visibility: hidden; left: 0px; top: 0px;">
+	<a href="detail1">detail1</a><br/>
+	<a href="detail2">detail2</a>
+</div>
 <table>
-	<tr><th colspan="${count+1}">Table ${table} - ${recordCount} records</th></tr>
-	<tr><th>links</th><% for( int i = 1; i <= count; i++ ) { %><th>${meta.getColumnLabel(i)}</th><% } %></tr>
+	<tr><th colspan="${count}">Table ${table} - ${recordCount} records</th></tr>
+	<tr><% for( int i = 1; i <= count; i++ ) { %><th>${meta.getColumnLabel(i)}</th><% } %></tr>
 <%
 		do
 		{
 %>
-	<tr><td><a href="details">details</a></td><%
+	<tr class="data"></td><%
 			for( int i = 1; i <= count; i++ )
 			{
 				Object object = result.getObject(  i );
@@ -54,13 +58,28 @@ catch( SQLException e )
 }
 %>
 <script>
-	var detailClick = function() { return false }
+	var popup = document.getElementById( "popup" )
+	popup.onmouseover = function() { popup.style.visibility = "visible" }
+	popup.onmouseout = function() { popup.style.visibility = "hidden" }
+	
+	function detailClick() { return false }
+	function dataRowClick()
+	{
+		popup.style.left = ( event.clientX - 10 ) + "px"
+		popup.style.top = ( event.clientY - 10 ) + "px"
+		popup.style.visibility = "visible"
+		return false
+	}
+	
 	walker( document.body,
 		function( node )
 		{
-			if( node instanceof HTMLAnchorElement )
-				if( node.getAttribute( "href" ) == "details" )
-					node.onclick = detailClick
+			if( node instanceof HTMLTableRowElement )
+			{
+				if( node.className == "data" )
+					node.onclick = dataRowClick
+			}
+			return true
 		}
 	)
 </script>

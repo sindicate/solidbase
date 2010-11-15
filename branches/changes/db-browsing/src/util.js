@@ -6,8 +6,8 @@ var walker = function( element, f )
 	{
 		if( node instanceof Element )
 		{
-			f( node )
-			walker( node, f )
+			if( f( node ) )
+				walker( node, f )
 		}
 		node = node.nextSibling
 	}

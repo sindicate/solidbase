@@ -4,11 +4,16 @@ body { margin: 8px 8px 8px 8px; background-color: #88F; color: black; }
 p { margin: 0px 0px 10px 0px; }
 
 table { border-collapse: collapse; padding: 0px; border: 0px; border-spacing: 0px; background-color: white; font-size: 12px; }
+tr.data { cursor: pointer; }
+tr.data:hover { background-color: #FF8; }
+tr.data:hover td.null { background-color: #CC4; }
 th, td { padding: 4px; border: 1px solid black; vertical-align: top; }
 td.null { background-color: #CCC; }
 
 a { color: black; }
 a:hover { color: #CC0000; }
+
+div#popup { position: fixed; background-color: white; border: 1px solid black; padding: 10px; }
 
 /*
 form { margin-top: 0px; margin-bottom: 0px; padding: 0px; }
