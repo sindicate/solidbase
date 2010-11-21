@@ -4,7 +4,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import solidbase.http.ApplicationContext;
-import solidbase.http.CompressionFilter;
 import solidbase.http.DefaultServlet;
 import solidbase.http.Handler;
 import solidbase.http.TestServlet;
@@ -25,7 +24,7 @@ public class Main
 //		context.registerServlet( ".*\\.jsp", new JspServlet() );
 		context.registerServlet( ".*", new DefaultServlet() );
 
-		context.registerFilter( ".*", new CompressionFilter() );
+//		context.registerFilter( ".*", new CompressionFilter() );
 
 		context.setJspBase( "solidbase.http.hyperdb" );
 

@@ -6,9 +6,9 @@ p { margin: 0px 0px 10px 0px; }
 table { border-collapse: collapse; padding: 0px; border: 0px; border-spacing: 0px; background-color: white; font-size: 12px; }
 tr.data { cursor: pointer; }
 tr.data:hover { background-color: #FF8; }
-tr.data:hover td.null { background-color: #CC4; }
+tr.data:hover td.null { background-color: #DD5; }
 th, td { padding: 4px; border: 1px solid black; vertical-align: top; }
-td.null { background-color: #CCC; }
+td.null { background-color: #DDD; }
 
 a { color: black; }
 a:hover { color: #CC0000; }

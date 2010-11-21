@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import solidbase.util.Assert;
+
 public class Response
 {
 //	static protected int count = 1;
@@ -72,6 +74,8 @@ public class Response
 
 	public void setHeader( String name, String value )
 	{
+		if( this.committed )
+			throw new IllegalStateException( "Response is already committed" );
 		if( name.equals( "Content-Type" ) )
 			throw new IllegalArgumentException( "Content type should be set with setContentType()" );
 		setHeader0( name, value );
@@ -86,6 +90,9 @@ public class Response
 
 	public void writeHeader( OutputStream out )
 	{
+		if( getHeader( "Content-Length" ) == null ) // TODO What about empty string?
+			setHeader0( "Transfer-Encoding", "chunked" );
+
 		if( this.contentType != null )
 			if( this.charSet != null )
 				setHeader0( "Content-Type", this.contentType + "; charset=" + this.charSet );
@@ -109,6 +116,10 @@ public class Response
 		writer.write( '\n' );
 		writer.flush();
 		this.committed = true;
+
+		// TODO Are these header names case sensitive or not? And the values like 'chunked'?
+		if( "chunked".equals( getHeader( "Transfer-Encoding" ) ) )
+			this.out.out = new ChunkedOutputStream( this.out.out );
 	}
 
 	public boolean isCommitted()
@@ -118,12 +129,16 @@ public class Response
 
 	public void setStatusCode( int code, String message )
 	{
+		if( this.committed )
+			throw new IllegalStateException( "Response is already committed" );
 		this.statusCode = code;
 		this.statusMessage = message;
 	}
 
 	public void reset()
 	{
+		if( this.committed )
+			throw new IllegalStateException( "Response is already committed" );
 		getOutputStream().clear();
 		this.writer = null;
 		this.statusCode = 200;
@@ -140,7 +155,20 @@ public class Response
 
 	public void setContentType( String contentType, String charSet )
 	{
+		if( this.committed )
+			throw new IllegalStateException( "Response is already committed" );
 		this.contentType = contentType;
 		this.charSet = charSet;
+	}
+
+	public String getHeader( String name )
+	{
+		List< String > values = this.headers.get( name );
+		if( values == null )
+			return null;
+		Assert.isTrue( !values.isEmpty() );
+		if( values.size() > 1 )
+			throw new IllegalStateException( "Found more than 1 value for the header " + name );
+		return values.get( 0 );
 	}
 }

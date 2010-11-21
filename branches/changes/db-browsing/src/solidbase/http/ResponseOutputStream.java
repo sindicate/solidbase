@@ -130,6 +130,7 @@ public class ResponseOutputStream extends OutputStream
 			{
 				this.response.writeHeader( this.out );
 //				System.out.write( this.buffer, 0, this.pos );
+				// The outputstream may be changed at this point
 				this.out.write( this.buffer, 0, this.pos );
 				this.out.flush();
 			}
