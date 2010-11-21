@@ -49,6 +49,8 @@ public class ChunkedOutputStream extends OutputStream
 		this.out.write( '0' );
 		this.out.write( '\r' );
 		this.out.write( '\n' );
+		this.out.write( '\r' );
+		this.out.write( '\n' );
 		this.out.flush();
 		this.out.close();
 	}
