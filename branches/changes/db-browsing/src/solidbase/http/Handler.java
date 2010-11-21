@@ -127,7 +127,11 @@ public class Handler extends Thread
 
 					String length = response.getHeader( "Content-Length" );
 					if( length == null )
-						socket.close();
+					{
+						String transfer = response.getHeader( "Transfer-Encoding" );
+						if( !"chunked".equals( transfer ) )
+							socket.close();
+					}
 				}
 				finally
 				{
