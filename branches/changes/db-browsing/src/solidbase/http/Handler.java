@@ -95,6 +95,7 @@ public class Handler extends Thread
 				try
 				{
 					OutputStream out = socket.getOutputStream();
+					out = new CloseBlockingOutputStream( out );
 					out = new TeeOutputStream( out, file );
 					Response response = new Response( out );
 					RequestContext context = new RequestContext( request, response, this.applicationContext );
@@ -118,7 +119,7 @@ public class Handler extends Thread
 						}
 					}
 
-					response.flush();
+					response.close();
 
 					// TODO Detect Connection: close headers on the request & response
 					// TODO A GET request has no body, when a POST comes without content size, the connection should be closed.

@@ -51,9 +51,9 @@ public class GZipResponse extends Response
 	}
 
 	@Override
-	public void flush()
+	public void close()
 	{
-		super.flush();
+		super.close();
 		try
 		{
 			( (GZipResponseOutputStream)this.out ).out.finish();
@@ -62,7 +62,7 @@ public class GZipResponse extends Response
 		{
 			throw new HttpException( e );
 		}
-		this.response.flush(); // TODO Should we do this?
+		this.response.close(); // TODO Should we do this?
 	}
 
 	@Override

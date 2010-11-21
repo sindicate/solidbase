@@ -40,15 +40,16 @@ public class ChunkedOutputStream extends OutputStream
 	@Override
 	public void flush() throws IOException
 	{
-		this.out.write( '0' );
-		this.out.write( '\r' );
-		this.out.write( '\n' );
 		this.out.flush();
 	}
 
 	@Override
 	public void close() throws IOException
 	{
-		throw new UnsupportedOperationException();
+		this.out.write( '0' );
+		this.out.write( '\r' );
+		this.out.write( '\n' );
+		this.out.flush();
+		this.out.close();
 	}
 }

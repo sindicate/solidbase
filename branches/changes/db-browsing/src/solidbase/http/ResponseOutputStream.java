@@ -116,7 +116,15 @@ public class ResponseOutputStream extends OutputStream
 	@Override
 	public void close()
 	{
-		throw new UnsupportedOperationException();
+		flush();
+		try
+		{
+			this.out.close();
+		}
+		catch( IOException e )
+		{
+			throw new HttpException( e );
+		}
 	}
 
 	@Override

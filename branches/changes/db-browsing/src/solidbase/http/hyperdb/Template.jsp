@@ -15,8 +15,6 @@ ResponseWriter writer = request.getResponse().getWriter();
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 	<title>HyperDB${ title == null ? "" : " - " + title }</title>
-	<link rel="stylesheet" type="text/css" href="/styles.css" />
-	<script type="text/javascript" src="/util.js"></script>
 </head>
 <body>
 <% body.call( request, params ); %>

@@ -104,6 +104,7 @@ public class Response
 		writer.write( Integer.toString( this.statusCode ) );
 		writer.write( " " );
 		writer.write( this.statusMessage );
+		writer.write( '\r' );
 		writer.write( '\n' );
 		for( Map.Entry< String, List< String > > entry : this.headers.entrySet() )
 			for( String value : entry.getValue() )
@@ -111,8 +112,10 @@ public class Response
 				writer.write( entry.getKey() );
 				writer.write( ": " );
 				writer.write( value );
+				writer.write( '\r' );
 				writer.write( '\n' );
 			}
+		writer.write( '\r' );
 		writer.write( '\n' );
 		writer.flush();
 		this.committed = true;
@@ -146,11 +149,12 @@ public class Response
 		this.headers.clear();
 	}
 
-	public void flush()
+	public void close()
 	{
 		if( this.writer != null )
 			this.writer.flush();
 		getOutputStream().flush();
+		getOutputStream().close();
 	}
 
 	public void setContentType( String contentType, String charSet )
