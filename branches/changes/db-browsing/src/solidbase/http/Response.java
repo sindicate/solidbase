@@ -13,6 +13,7 @@ public class Response
 {
 //	static protected int count = 1;
 
+	protected Request request;
 	protected ResponseOutputStream out;
 	protected ResponseWriter writer;
 	protected PrintWriter printWriter;
@@ -23,23 +24,14 @@ public class Response
 	protected String contentType;
 	protected String charSet;
 
-	public Response()
+	protected Response()
 	{
-
 	}
 
-	public Response( OutputStream out )
+	public Response( Request request, OutputStream out )
 	{
-//		try
-//		{
+		this.request = request;
 		this.out = new ResponseOutputStream( this, out );
-//			this.out = new ResponseOutputStream( this, new TeeOutputStream( new FileOutputStream( new File( "response-" + count + ".out" ) ), out ) );
-//			count++;
-//		}
-//		catch( FileNotFoundException e )
-//		{
-//			throw new HttpException( e );
-//		}
 	}
 
 	public ResponseOutputStream getOutputStream()
@@ -90,8 +82,11 @@ public class Response
 
 	public void writeHeader( OutputStream out )
 	{
-		if( getHeader( "Content-Length" ) == null ) // TODO What about empty string?
-			setHeader0( "Transfer-Encoding", "chunked" );
+		if( this.request.isConnectionClose() )
+			setHeader( "Connection", "close" );
+		else
+			if( getHeader( "Content-Length" ) == null ) // TODO What about empty string?
+				setHeader0( "Transfer-Encoding", "chunked" );
 
 		if( this.contentType != null )
 			if( this.charSet != null )
@@ -99,6 +94,7 @@ public class Response
 			else
 				setHeader0( "Content-Type", this.contentType );
 
+//		System.out.println( "Response:" );
 		ResponseWriter writer = new ResponseWriter( new FlushBlockingOutputStream( out ), "ISO-8859-1" );
 		writer.write( "HTTP/1.1 " );
 		writer.write( Integer.toString( this.statusCode ) );
@@ -114,6 +110,7 @@ public class Response
 				writer.write( value );
 				writer.write( '\r' );
 				writer.write( '\n' );
+//				System.out.println( "    " + entry.getKey() + " = " + value );
 			}
 		writer.write( '\r' );
 		writer.write( '\n' );

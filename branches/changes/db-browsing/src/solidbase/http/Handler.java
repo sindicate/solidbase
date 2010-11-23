@@ -1,15 +1,12 @@
 package solidbase.http;
 
 import java.io.BufferedReader;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
-
-import org.apache.commons.io.output.TeeOutputStream;
 
 import solidbase.util.LineReader;
 import solidbase.util.PushbackReader;
@@ -24,7 +21,7 @@ public class Handler extends Thread
 {
 	private Socket socket;
 	private ApplicationContext applicationContext;
-	static int counter;
+//	static int counter;
 
 	/**
 	 * Constructor.
@@ -99,61 +96,65 @@ public class Handler extends Thread
 				while( !field.isEndOfInput() )
 				{
 					Token value = headerTokenizer.getValue();
-//					System.out.println( field.getValue() + "=" + value.getValue() );
-					request.headers.add( new Header( field.getValue(), value.getValue() ) );
+//					System.out.println( "    "+ field.getValue() + " = " + value.getValue() );
+					request.addHeader( field.getValue(), value.getValue() );
 					field = headerTokenizer.getField();
 				}
 
-//				for( Header f : request.headers )
-//					System.out.println( f.field + ": " + f.value );
-
-				String filename = "response" + (++counter) + ".out";
-				OutputStream file = new FileOutputStream( filename );
+//				String filename = "response" + (++counter) + ".out";
+//				OutputStream file = new FileOutputStream( filename );
+//				try
+//				{
+				OutputStream out = socket.getOutputStream();
+//					out = new TeeOutputStream( out, file );
+				out = new CloseBlockingOutputStream( out );
+				Response response = new Response( request, out );
+				RequestContext context = new RequestContext( request, response, this.applicationContext );
 				try
 				{
-					OutputStream out = socket.getOutputStream();
-					out = new TeeOutputStream( out, file );
-					out = new CloseBlockingOutputStream( out );
-					Response response = new Response( out );
-					RequestContext context = new RequestContext( request, response, this.applicationContext );
-					try
-					{
-						this.applicationContext.dispatch( context );
-					}
-					catch( Throwable t )
-					{
-						if( t.getClass().equals( HttpException.class ) && t.getCause() != null )
-							t = t.getCause();
-						t.printStackTrace( System.err );
-						if( !response.isCommitted() )
-						{
-							response.reset();
-							response.setStatusCode( 500, "Internal Server Error" );
-							response.setContentType( "text/plain", "ISO-8859-1" );
-							PrintWriter writer = response.getPrintWriter( "ISO-8859-1" );
-							t.printStackTrace( writer );
-							writer.flush();
-						}
-					}
-
-					response.finish();
-
-					// TODO Detect Connection: close headers on the request & response
-					// TODO A GET request has no body, when a POST comes without content size, the connection should be closed.
-					// TODO What about socket.getKeepAlive() and the other properties?
-
-					String length = response.getHeader( "Content-Length" );
-					if( length == null )
-					{
-						String transfer = response.getHeader( "Transfer-Encoding" );
-						if( !"chunked".equals( transfer ) )
-							socket.close();
-					}
+					this.applicationContext.dispatch( context );
 				}
-				finally
+				catch( Throwable t )
 				{
-					file.close();
+					if( t.getClass().equals( HttpException.class ) && t.getCause() != null )
+						t = t.getCause();
+					t.printStackTrace( System.err );
+					if( !response.isCommitted() )
+					{
+						response.reset();
+						response.setStatusCode( 500, "Internal Server Error" );
+						response.setContentType( "text/plain", "ISO-8859-1" );
+						PrintWriter writer = response.getPrintWriter( "ISO-8859-1" );
+						t.printStackTrace( writer );
+						writer.flush();
+					}
 				}
+
+				response.finish();
+
+				// TODO Detect Connection: close headers on the request & response
+				// TODO A GET request has no body, when a POST comes without content size, the connection should be closed.
+				// TODO What about socket.getKeepAlive() and the other properties?
+
+				String length = response.getHeader( "Content-Length" );
+				if( length == null )
+				{
+					String transfer = response.getHeader( "Transfer-Encoding" );
+					if( !"chunked".equals( transfer ) )
+						socket.close();
+				}
+
+				if( !socket.isClosed() )
+				{
+					String connection = request.getHeader( "Connection" );
+					if( request.isConnectionClose() )
+						socket.close();
+				}
+//				}
+//				finally
+//				{
+//					file.close();
+//				}
 			}
 		}
 		finally

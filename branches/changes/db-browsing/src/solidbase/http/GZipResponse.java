@@ -10,8 +10,8 @@ public class GZipResponse extends Response
 
 	public GZipResponse( Response response )
 	{
-		this.response = response;
 		this.out = new GZipResponseOutputStream( response );
+		this.response = response;
 	}
 
 	@Override
