@@ -3,6 +3,7 @@ package solidbase.http;
 import java.io.IOException;
 import java.io.OutputStream;
 
+
 public class GZipResponse extends Response
 {
 	protected Response response;
@@ -51,9 +52,9 @@ public class GZipResponse extends Response
 	}
 
 	@Override
-	public void close()
+	public void finish()
 	{
-		super.close();
+		super.finish();
 		try
 		{
 			( (GZipResponseOutputStream)this.out ).out.finish();
@@ -62,7 +63,7 @@ public class GZipResponse extends Response
 		{
 			throw new HttpException( e );
 		}
-		this.response.close(); // TODO Should we do this?
+//		this.response.finish();
 	}
 
 	@Override

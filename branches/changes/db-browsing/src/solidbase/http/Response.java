@@ -149,11 +149,16 @@ public class Response
 		this.headers.clear();
 	}
 
-	public void close()
+	public void flush()
 	{
 		if( this.writer != null )
 			this.writer.flush();
 		getOutputStream().flush();
+	}
+
+	public void finish()
+	{
+		flush();
 		getOutputStream().close();
 	}
 

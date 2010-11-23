@@ -600,7 +600,7 @@ public class JspTranslater
 			else if( mode == Mode.STRING )
 				writeAsString( c );
 			else
-				Assert.fail( "mode UNKNOWN not allowed" );
+				Assert.fail( "Mode not allowed: " + mode );
 		}
 
 		// TODO What about newlines?

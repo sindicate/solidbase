@@ -14,18 +14,35 @@ import org.apache.commons.io.output.TeeOutputStream;
 import solidbase.util.LineReader;
 import solidbase.util.PushbackReader;
 
+
+/**
+ * Thread that handles an incoming connection.
+ * 
+ * @author René M. de Bloois
+ */
 public class Handler extends Thread
 {
-	protected Socket socket;
-	protected ApplicationContext applicationContext;
+	private Socket socket;
+	private ApplicationContext applicationContext;
 	static int counter;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param socket The incoming connection.
+	 * @param applicationContext The {@link ApplicationContext}.
+	 */
 	public Handler( Socket socket, ApplicationContext applicationContext )
 	{
 		this.socket = socket;
 		this.applicationContext = applicationContext;
 	}
 
+	/**
+	 * This method actually handles the connection.
+	 * 
+	 * @throws IOException Whenever the socket throws an {@link IOException}.
+	 */
 	public void handle() throws IOException
 	{
 		try
@@ -87,16 +104,16 @@ public class Handler extends Thread
 					field = headerTokenizer.getField();
 				}
 
-//			for( Header f : request.headers )
-//				System.out.println( f.field + ": " + f.value );
+//				for( Header f : request.headers )
+//					System.out.println( f.field + ": " + f.value );
 
 				String filename = "response" + (++counter) + ".out";
 				OutputStream file = new FileOutputStream( filename );
 				try
 				{
 					OutputStream out = socket.getOutputStream();
-					out = new CloseBlockingOutputStream( out );
 					out = new TeeOutputStream( out, file );
+					out = new CloseBlockingOutputStream( out );
 					Response response = new Response( out );
 					RequestContext context = new RequestContext( request, response, this.applicationContext );
 					try
@@ -119,7 +136,7 @@ public class Handler extends Thread
 						}
 					}
 
-					response.close();
+					response.finish();
 
 					// TODO Detect Connection: close headers on the request & response
 					// TODO A GET request has no body, when a POST comes without content size, the connection should be closed.

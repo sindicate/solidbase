@@ -3,10 +3,24 @@ package solidbase.http;
 import java.io.IOException;
 import java.io.OutputStream;
 
+
+/**
+ * Converts a byte stream into a stream that complies with HTTP's chunked Transfer-Encoding.
+ * 
+ * @author René M. de Bloois
+ */
 public class ChunkedOutputStream extends OutputStream
 {
+	/**
+	 * The real {@link OutputStream}.
+	 */
 	protected OutputStream out;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param out The real {@link OutputStream}.
+	 */
 	public ChunkedOutputStream( OutputStream out )
 	{
 		this.out = out;
@@ -21,7 +35,7 @@ public class ChunkedOutputStream extends OutputStream
 	@Override
 	public void write( byte[] b ) throws IOException
 	{
-		throw new UnsupportedOperationException();
+		write( b, 0, b.length );
 	}
 
 	@Override
@@ -29,7 +43,7 @@ public class ChunkedOutputStream extends OutputStream
 	{
 		if( len == 0 )
 			return;
-		this.out.write( Integer.toHexString( len ).toUpperCase().getBytes() ); // TODO Give a CharSet here?
+		this.out.write( Integer.toHexString( len ).getBytes() ); // TODO Give a CharSet here?
 		this.out.write( '\r' );
 		this.out.write( '\n' );
 		this.out.write( b, off, len );
@@ -51,7 +65,6 @@ public class ChunkedOutputStream extends OutputStream
 		this.out.write( '\n' );
 		this.out.write( '\r' );
 		this.out.write( '\n' );
-		this.out.flush();
 		this.out.close();
 	}
 }
