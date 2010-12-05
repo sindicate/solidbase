@@ -3,47 +3,89 @@ package solidbase.http;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+
+import solidbase.util.Assert;
 
 
 // TODO Improve performance?
 public class SocketChannelOutputStream extends OutputStream
 {
-	protected SocketChannel channel;
+	protected SocketChannelAdapter adapter;
+	protected ByteBuffer buffer;
 
-	public SocketChannelOutputStream( SocketChannel channel )
+	public SocketChannelOutputStream( SocketChannelAdapter adapter )
 	{
-		this.channel = channel;
+		this.adapter = adapter;
+		this.buffer = ByteBuffer.allocate( 8192 );
 	}
 
 	@Override
 	public void write( int b )
 	{
-//		throw new UnsupportedOperationException();
-		ByteBuffer buffer = ByteBuffer.wrap( new byte[] { (byte)b } );
-		try
-		{
-			int written = this.channel.write( buffer );
-			if( written == 0 )
-				throw new FatalSocketException( "A byte is not written" );
-		}
-		catch( IOException e )
-		{
-			throw new FatalSocketException( e );
-		}
+		Assert.isTrue( this.buffer.hasRemaining() );
+		this.buffer.put( (byte)b );
+		if( !this.buffer.hasRemaining() )
+			writeChannel();
 	}
 
 	@Override
 	public void write( byte[] b, int off, int len )
 	{
-		if( len == 0 )
-			return;
-		ByteBuffer buffer = ByteBuffer.wrap( b, off, len );
+		while( len > 0 )
+		{
+			int l = len;
+			if( l > this.buffer.remaining() )
+				l = this.buffer.remaining();
+			this.buffer.put( b, off, l );
+			off += l;
+			len -= l;
+			if( !this.buffer.hasRemaining() )
+				writeChannel();
+		}
+	}
+
+	@Override
+	public void flush() throws IOException
+	{
+		if( this.buffer.position() > 0 )
+			writeChannel();
+	}
+
+	protected void writeChannel()
+	{
+		SocketChannel channel = this.adapter.channel;
+
+		Assert.isTrue( channel.isOpen() && channel.isConnected() );
+		this.buffer.flip();
+		Assert.isTrue( this.buffer.hasRemaining() );
+
 		try
 		{
-			int written = this.channel.write( buffer );
-			if( written != len )
-				throw new FatalSocketException( "Not all bytes have been written" );
+			int written = channel.write( this.buffer );
+//			System.out.println( "Channel (" + DebugId.getId( this.channel ) + ") written #" + written + " bytes to channel" );
+			while( this.buffer.hasRemaining() )
+			{
+				System.out.println( "Channel (" + DebugId.getId( channel ) + ") Waiting for write" );
+				this.adapter.addInterest( SelectionKey.OP_WRITE );
+				try
+				{
+					synchronized( this )
+					{
+						wait();
+					}
+				}
+				catch( InterruptedException e )
+				{
+					throw new FatalSocketException( e );
+				}
+				System.out.println( "Channel (" + DebugId.getId( channel ) + ") Waiting for write, ready" );
+				written = channel.write( this.buffer );
+//				System.out.println( "Channel (" + DebugId.getId( this.channel ) + ") written #" + written + " bytes to channel" );
+			}
+
+			this.buffer.clear();
 		}
 		catch( IOException e )
 		{

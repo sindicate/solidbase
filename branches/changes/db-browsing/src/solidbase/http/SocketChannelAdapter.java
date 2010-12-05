@@ -10,6 +10,7 @@ import java.nio.channels.SocketChannel;
 public class SocketChannelAdapter implements SocketProxy
 {
 	protected SocketChannel channel;
+	protected SelectionKey key;
 	protected ByteBuffer buffer;
 	protected SocketChannelInputStream inputStream;
 	protected SocketChannelOutputStream outputStream;
@@ -17,15 +18,26 @@ public class SocketChannelAdapter implements SocketProxy
 	public SocketChannelAdapter( SocketChannel channel, SelectionKey key )
 	{
 		this.channel = channel;
-		this.inputStream = new SocketChannelInputStream( channel, key );
-		this.outputStream = new SocketChannelOutputStream( channel );
+		this.key = key;
+		this.inputStream = new SocketChannelInputStream( this );
+		this.outputStream = new SocketChannelOutputStream( this );
 	}
 
 	public void readable()
 	{
 		synchronized( this.inputStream )
 		{
+			System.out.println( "Channel (" + DebugId.getId( this.channel ) + ") Data ready, notify" );
 			this.inputStream.notify();
+		}
+	}
+
+	public void writeable()
+	{
+		synchronized( this.outputStream )
+		{
+			System.out.println( "Channel (" + DebugId.getId( this.channel ) + ") Write ready, notify" );
+			this.outputStream.notify();
 		}
 	}
 
@@ -52,5 +64,23 @@ public class SocketChannelAdapter implements SocketProxy
 	public boolean isThreadPerConnection()
 	{
 		return false;
+	}
+
+	public void addInterest( int interest )
+	{
+		synchronized( this.key )
+		{
+			this.key.interestOps( this.key.interestOps() | interest );
+		}
+		this.key.selector().wakeup();
+	}
+
+	public void removeInterest( int interest )
+	{
+		synchronized( this.key )
+		{
+			this.key.interestOps( this.key.interestOps() ^ interest );
+		}
+		this.key.selector().wakeup();
 	}
 }

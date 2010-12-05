@@ -43,10 +43,10 @@ public class Server
 
 		while( true )
 		{
-			System.out.println( "* selecting" );
+			System.out.println( "Selector selecting from " + selector.keys().size() + " keys" );
 			int selected = selector.select();
 			Set< SelectionKey > keys = selector.selectedKeys();
-			System.out.println( "* selected:#keys = " + selected + ":" + keys.size() );
+			System.out.println( "Selector selected = " + selected + ":" + keys.size() );
 
 			for( Iterator< SelectionKey > i = keys.iterator(); i.hasNext(); )
 			{
@@ -59,50 +59,74 @@ public class Server
 					SocketChannel channel = server.accept();
 					if( channel != null )
 					{
-						System.out.println( "* (" + DebugId.getId( channel ) + ") <-- (new)" );
+						System.out.println( "Channel (" + DebugId.getId( channel ) + ") New channel" );
 						channel.configureBlocking( false );
 						channel.register( selector, SelectionKey.OP_READ );
 					}
 					else
-						System.out.println( "no channel" );
+						System.out.println( "Selector bogus accept" );
 				}
 				else if( key.isReadable() )
 				{
 					final SocketChannel channel = (SocketChannel)key.channel();
-					System.out.println( "* (" + DebugId.getId( channel ) + ") <-- data" );
-					System.out.println( "* (" + DebugId.getId( channel ) + ") <-- no read" );
-					key.interestOps( 0 );
 					SocketChannelAdapter adapter = (SocketChannelAdapter)key.attachment();
 					if( adapter != null )
 					{
+						System.out.println( "Channel (" + DebugId.getId( channel ) + ") Data ready, unregister" );
+						adapter.removeInterest( SelectionKey.OP_READ );
 						adapter.readable();
 					}
 					else
 					{
-						adapter = new SocketChannelAdapter( channel, key );
-						key.attach( adapter );
-						System.out.println( "* (" + DebugId.getId( channel ) + ") handler added" );
-						Handler handler = new Handler( adapter, context )
+						final SocketChannelAdapter adapter2 = new SocketChannelAdapter( channel, key );
+						System.out.println( "Channel (" + DebugId.getId( channel ) + ") Data ready, unregister" );
+						adapter2.removeInterest( SelectionKey.OP_READ );
+						if( !adapter2.inputStream.readChannel() )
 						{
-							@Override
-							public void end() throws IOException
+							// Appearantly the channel is closing
+							System.out.println( "Channel (" + DebugId.getId( channel ) + ") Close" );
+							channel.close();
+						}
+						else
+						{
+							System.out.println( "Channel (" + DebugId.getId( channel ) + ") Handler attach/start" );
+							key.attach( adapter2 );
+							Handler handler = new Handler( adapter2, context )
 							{
-								key.attach( null );
-								System.out.println( "* (" + DebugId.getId( channel ) + ") handler removed" );
-								if( channel.isOpen() )
+								@Override
+								public void end() throws IOException
 								{
-									System.out.println( "* (" + DebugId.getId( channel ) + ") <-- want read" );
-									key.interestOps( key.interestOps() | SelectionKey.OP_READ ); // TODO This has race conditions
-									System.out.println( "* (" + DebugId.getId( channel ) + ") wakeup" );
-									selector.wakeup();
+									System.out.println( "Channel (" + DebugId.getId( channel ) + ") Handler detach/end" );
+									key.attach( null );
+									if( channel.isOpen() )
+									{
+										System.out.println( "Channel (" + DebugId.getId( channel ) + ") Register" );
+										adapter2.addInterest( SelectionKey.OP_READ );
+									}
+									else
+										System.out.println( "Channel (" + DebugId.getId( channel ) + ") Closed" );
 								}
-								else
-									System.out.println( "* (" + DebugId.getId( channel ) + ") <-- closed" );
-							}
-						};
-						handler.start();
+							};
+							handler.start();
+						}
 					}
 				}
+				else if( key.isWritable() )
+				{
+					final SocketChannel channel = (SocketChannel)key.channel();
+					System.out.println( "Channel (" + DebugId.getId( channel ) + ") Write ready, unregister" );
+					SocketChannelAdapter adapter = (SocketChannelAdapter)key.attachment();
+					if( adapter != null )
+					{
+						adapter.removeInterest( SelectionKey.OP_WRITE );
+						adapter.writeable();
+					}
+				}
+//				else if( key.isConnectable() )
+//				{
+//					final SocketChannel channel = (SocketChannel)key.channel();
+//					System.out.println( "Channel (" + DebugId.getId( channel ) + ") Connection event" );
+//				}
 				else
 					throw new HttpException( "Unexpected ops: " + key.readyOps() );
 			}

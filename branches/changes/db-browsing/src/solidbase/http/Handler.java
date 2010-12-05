@@ -154,10 +154,11 @@ public class Handler extends Thread
 					//			file.close();
 					//		}
 
-					if( !this.socket.isThreadPerConnection() )
-						return;
 					if( this.socket.isClosed() )
 						return;
+					if( !this.socket.isThreadPerConnection() )
+						if( in.available() <= 0 )
+							return;
 				}
 			}
 			catch( Throwable t )
