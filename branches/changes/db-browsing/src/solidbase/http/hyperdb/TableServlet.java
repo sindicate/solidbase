@@ -5,7 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import solidbase.core.SystemException;
+import solidbase.http.HttpException;
 import solidbase.http.Parameters;
 import solidbase.http.RequestContext;
 import solidbase.http.Servlet;
@@ -42,10 +42,11 @@ public class TableServlet implements Servlet
 		}
 		catch( SQLException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 		finally
 		{
+			// TODO What if the connection has been broken?: java.sql.SQLException: Closed Connection
 			DataSource.release( connection );
 		}
 	}

@@ -7,7 +7,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import solidbase.core.SystemException;
+import solidbase.http.HttpException;
 import solidbase.util.Assert;
 
 public class Database
@@ -56,7 +56,7 @@ public class Database
 		}
 		catch( SQLException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 
 		return tables;

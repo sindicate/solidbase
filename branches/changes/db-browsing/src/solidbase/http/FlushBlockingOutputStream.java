@@ -11,6 +11,20 @@ public class FlushBlockingOutputStream extends FilterOutputStream
 		super( out );
 	}
 
+	// This one has bad implementation in FilterOutputStream
+	@Override
+	public void write( byte[] b ) throws IOException
+	{
+		this.out.write( b );
+	}
+
+	// This one has bad implementation in FilterOutputStream
+	@Override
+	public void write( byte[] b, int off, int len ) throws IOException
+	{
+		this.out.write( b, off, len );
+	}
+
 	@Override
 	public void flush() throws IOException
 	{

@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.LinkedList;
 
-import solidbase.core.SystemException;
+import solidbase.http.HttpException;
 
 public class DataSource
 {
@@ -19,7 +19,7 @@ public class DataSource
 		}
 		catch( ClassNotFoundException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 	}
 
@@ -31,11 +31,11 @@ public class DataSource
 		try
 		{
 			System.out.println( "Getting new connection" );
-			return DriverManager.getConnection( "jdbc:oracle:thin:@192.168.1.106:1521:XE", "TAXI", "TAXI" );
+			return DriverManager.getConnection( "jdbc:oracle:thin:@192.168.1.103:1521:XE", "TAXI", "TAXI" );
 		}
 		catch( SQLException e )
 		{
-			throw new SystemException( e );
+			throw new HttpException( e );
 		}
 	}
 

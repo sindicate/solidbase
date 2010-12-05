@@ -90,7 +90,7 @@ public class ApplicationContext
 //			}
 //			catch( ClassNotFoundException e )
 //			{
-//				throw new SystemException( e );
+//				throw new HttpException( e );
 //			}
 //			this.jspCache.put( name, jsp );
 //		}
@@ -101,11 +101,11 @@ public class ApplicationContext
 //		}
 //		catch( InstantiationException e )
 //		{
-//			throw new SystemException( e );
+//			throw new HttpException( e );
 //		}
 //		catch( IllegalAccessException e )
 //		{
-//			throw new SystemException( e );
+//			throw new HttpException( e );
 //		}
 //		servlet.call( context );
 //	}

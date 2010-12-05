@@ -1,5 +1,4 @@
 <%@ page import="java.sql.*" %>
-<%@ page import="solidbase.core.SystemException" %>
 <%@ page import="solidbase.util.Assert" %>
 <%@ page import="solidbase.http.*" %>
 
@@ -54,7 +53,7 @@ try
 }
 catch( SQLException e )
 {
-	throw new SystemException( e );
+	throw new HttpException( e );
 }
 %>
 <script>

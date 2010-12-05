@@ -1,12 +1,9 @@
 package solidbase.http.hyperdb;
 
-import java.net.ServerSocket;
-import java.net.Socket;
-
 import solidbase.http.ApplicationContext;
 import solidbase.http.CompressionFilter;
 import solidbase.http.DefaultServlet;
-import solidbase.http.Handler;
+import solidbase.http.Server;
 import solidbase.http.TestServlet;
 
 public class Main
@@ -31,13 +28,7 @@ public class Main
 
 		try
 		{
-			ServerSocket server = new ServerSocket( 80 );
-			while( true )
-			{
-				Socket socket = server.accept();
-				Handler handler = new Handler( socket, context );
-				handler.start();
-			}
+			new Server().start( context, 80 );
 		}
 		catch( Throwable t )
 		{
