@@ -117,7 +117,13 @@ public class ResponseWriter extends Writer
 
 	public void writeEncoded( Object o )
 	{
-		writeEncoded( o.toString() );
+		if( o != null )
+			writeEncoded( o.toString() );
+	}
+
+	public void write( Object o )
+	{
+		write( o != null ? o.toString() : "null" );
 	}
 
 	@Override

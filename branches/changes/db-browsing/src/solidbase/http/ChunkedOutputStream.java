@@ -15,6 +15,7 @@ public class ChunkedOutputStream extends OutputStream
 	 * The real {@link OutputStream}.
 	 */
 	protected OutputStream out;
+	protected boolean closed;
 
 	/**
 	 * Constructor.
@@ -60,11 +61,14 @@ public class ChunkedOutputStream extends OutputStream
 	@Override
 	public void close() throws IOException
 	{
+		if( this.closed )
+			return;
 		this.out.write( '0' );
 		this.out.write( '\r' );
 		this.out.write( '\n' );
 		this.out.write( '\r' );
 		this.out.write( '\n' );
 		this.out.close();
+		this.closed = true;
 	}
 }

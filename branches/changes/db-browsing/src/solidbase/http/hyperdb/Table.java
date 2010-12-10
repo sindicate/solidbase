@@ -3,11 +3,10 @@ package solidbase.http.hyperdb;
 public class Table
 {
 	protected String name;
-	protected int records;
+//	protected Integer records;
 
-	public Table( String name, int records )
+	public Table( String name )
 	{
 		this.name = name;
-		this.records = records;
 	}
 }

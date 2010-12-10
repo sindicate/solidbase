@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import solidbase.http.HttpException;
-import solidbase.util.Assert;
 
 public class Database
 {
@@ -33,14 +32,14 @@ public class Database
 				{
 					ResultSet result = statement.executeQuery( sql );
 					while( result.next() )
-						tables.add( new Table( result.getString( 1 ), 0 ) );
+						tables.add( new Table( result.getString( 1 ) ) );
 
-					for( Table table : tables )
-					{
-						result = statement.executeQuery( "SELECT COUNT(*) FROM " + table.name );
-						Assert.isTrue( result.next() );
-						table.records = result.getInt( 1 );
-					}
+//					for( Table table : tables )
+//					{
+//						result = statement.executeQuery( "SELECT COUNT(*) FROM " + table.name );
+//						Assert.isTrue( result.next() );
+//						table.records = result.getInt( 1 );
+//					}
 
 					tableCache = tables;
 				}
