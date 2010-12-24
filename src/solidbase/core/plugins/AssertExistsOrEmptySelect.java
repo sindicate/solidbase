@@ -54,7 +54,7 @@ public class AssertExistsOrEmptySelect implements CommandListener
 			String select  = matcher.group( 3 ).trim();
 			Assert.isTrue( select.substring( 0, 7 ).equalsIgnoreCase( "SELECT " ), "Check should be a SELECT" );
 			Connection connection = processor.getCurrentDatabase().getConnection();
-			Statement statement = connection.createStatement();
+			Statement statement = processor.createStatement( connection );
 			try
 			{
 				boolean result = statement.executeQuery( select ).next();

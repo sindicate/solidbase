@@ -7,6 +7,7 @@ package solidbase.util;
  */
 abstract public class WorkerThread extends Thread
 {
+	private StackTraceElement[] startTrace;
 	private RuntimeException exception;
 	private boolean threadDeath;
 
@@ -27,12 +28,30 @@ abstract public class WorkerThread extends Thread
 		}
 		catch( RuntimeException e )
 		{
+			StackTraceElement[] exceptionTrace = e.getStackTrace();
+			StackTraceElement[] newTrace = new StackTraceElement[ exceptionTrace.length + this.startTrace.length ];
+			System.arraycopy( exceptionTrace, 0, newTrace, 0, exceptionTrace.length );
+			System.arraycopy( this.startTrace, 0, newTrace, exceptionTrace.length, this.startTrace.length );
+			e.setStackTrace( newTrace );
 			this.exception = e;
 		}
 		catch( ThreadDeath e )
 		{
 			this.threadDeath = true;
 		}
+	}
+
+	@Override
+	public synchronized void start()
+	{
+		this.startTrace = Thread.currentThread().getStackTrace();
+		if( this.startTrace.length > 0 && this.startTrace[ 0 ].getMethodName().equals( "getStackTrace" ) )
+		{
+			StackTraceElement[] newTrace = new StackTraceElement[ this.startTrace.length - 1 ];
+			System.arraycopy( this.startTrace, 1, newTrace, 0, newTrace.length );
+			this.startTrace = newTrace;
+		}
+		super.start();
 	}
 
 	/**

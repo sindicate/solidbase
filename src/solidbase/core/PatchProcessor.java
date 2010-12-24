@@ -288,6 +288,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 		}
 		catch( InterruptedException e )
 		{
+			// TODO Shouldn't we throw "Interrupted by user" here?
 			Thread.currentThread().interrupt();
 		}
 	}
