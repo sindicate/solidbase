@@ -217,4 +217,26 @@ public class Basic
 		patcher.patch( null );
 		patcher.end();
 	}
+
+	@Test
+	public void testJdbcEscaping() throws SQLException
+	{
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-jdbc-escaping.sql" );
+
+		try
+		{
+			patcher.patch( "2" );
+			assert false;
+		}
+		catch( SQLExecutionException e )
+		{
+			assert e.getMessage().contains( "42582" );
+			assert e.getMessage().contains( "unknown token" );
+		}
+
+		patcher.patch( "3" );
+
+		patcher.end();
+	}
 }

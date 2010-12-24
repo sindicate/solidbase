@@ -17,9 +17,9 @@
 package solidbase.core.plugins;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,7 +27,6 @@ import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.Database;
-import solidbase.util.Assert;
 
 
 /**
@@ -60,12 +59,10 @@ public class PrintSelect implements CommandListener
 
 		Database database = processor.getCurrentDatabase();
 		Connection connection = database.getConnection();
-		PreparedStatement statement = null;
+		Statement statement = processor.createStatement( connection );
 		try
 		{
-			Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
-			statement = connection.prepareStatement( sql );
-			ResultSet result = statement.executeQuery();
+			ResultSet result = statement.executeQuery( sql );
 			while( result.next() )
 			{
 				Object object = result.getObject( 1 );

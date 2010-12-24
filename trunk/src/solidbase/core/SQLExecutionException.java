@@ -40,11 +40,6 @@ public class SQLExecutionException extends FatalException
 	private int lineNumber;
 
 	/**
-	 * The {@link SQLException}.
-	 */
-	private SQLException sqlException;
-
-	/**
 	 * Constructor.
 	 * 
 	 * @param command The command that caused the {@link SQLException}.
@@ -53,14 +48,13 @@ public class SQLExecutionException extends FatalException
 	 */
 	public SQLExecutionException( String command, int lineNumber, SQLException sqlException )
 	{
-		super( null );
+		super( sqlException );
 
 		Assert.notNull( command );
 		Assert.notNull( sqlException );
 
 		this.command = command;
 		this.lineNumber = lineNumber;
-		this.sqlException = sqlException;
 	}
 
 	/**
@@ -73,7 +67,7 @@ public class SQLExecutionException extends FatalException
 	public String getSQLErrorMessages()
 	{
 		StringBuilder result = new StringBuilder();
-		SQLException e = this.sqlException;
+		SQLException e = (SQLException)getCause();
 		while( true )
 		{
 			result.append( e.getSQLState() );

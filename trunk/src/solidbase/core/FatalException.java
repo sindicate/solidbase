@@ -27,6 +27,16 @@ public class FatalException extends RuntimeException
 	/**
 	 * Constructor.
 	 * 
+	 * @param cause The cause.
+	 */
+	protected FatalException( Throwable cause )
+	{
+		super( cause );
+	}
+
+	/**
+	 * Constructor.
+	 * 
 	 * @param message The failure message.
 	 */
 	public FatalException( String message )

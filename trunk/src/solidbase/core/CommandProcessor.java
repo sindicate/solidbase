@@ -92,6 +92,11 @@ abstract public class CommandProcessor
 	static protected final Pattern skipEnd = Pattern.compile( "/SKIP", Pattern.CASE_INSENSITIVE );
 
 	/**
+	 * Pattern for JDBC ESCAPE PROCESSING
+	 */
+	static protected final Pattern JDBC_ESCAPING = Pattern.compile( "JDBC\\s+ESCAPE\\s+PROCESSING\\s+(ON|OFF)", Pattern.CASE_INSENSITIVE );
+
+	/**
 	 * A list of command listeners. A listener listens to the statements being executed and is able to intercept specific ones.
 	 */
 	protected List< CommandListener > listeners;
@@ -103,6 +108,11 @@ abstract public class CommandProcessor
 	protected boolean autoCommit;
 
 	// The fields below are all part of the execution context. It's reset at the start of each command set.
+
+	/**
+	 * Is JDBC escape processing enabled or not?
+	 */
+	protected boolean jdbcEscaping;
 
 	/**
 	 * The message that should be shown when a statement is executed.
@@ -184,6 +194,7 @@ abstract public class CommandProcessor
 	 */
 	protected void reset()
 	{
+		this.jdbcEscaping = false;
 		this.startMessage = null;
 		this.sectionLevel = 0;
 		this.progress.reset();
@@ -297,6 +308,11 @@ abstract public class CommandProcessor
 				endSkip();
 				return true;
 			}
+			if( ( matcher = JDBC_ESCAPING.matcher( sql ) ).matches() )
+			{
+				this.jdbcEscaping = matcher.group( 1 ).equalsIgnoreCase( "ON" );
+				return true;
+			}
 		}
 
 		for( CommandListener listener : this.listeners )
@@ -304,6 +320,22 @@ abstract public class CommandProcessor
 				return true;
 
 		return false;
+	}
+
+	/**
+	 * Creates a new statement. JDBC escape processing is enabled or disabled according to the current configuration.
+	 * 
+	 * @param connection The connection to create a statement from.
+	 * @return The statement.
+	 * @throws SQLException Whenever JDBC throws an SQLException.
+	 */
+	// TODO Maybe we should wrap the connection and override the createStatement there.
+	public Statement createStatement( Connection connection ) throws SQLException
+	{
+		Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
+		Statement statement = connection.createStatement();
+		statement.setEscapeProcessing( this.jdbcEscaping );
+		return statement;
 	}
 
 	/**
@@ -321,8 +353,7 @@ abstract public class CommandProcessor
 			return;
 
 		Connection connection = this.currentDatabase.getConnection();
-		Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
-		Statement statement = connection.createStatement();
+		Statement statement = createStatement( connection );
 		boolean commit = false;
 		try
 		{
