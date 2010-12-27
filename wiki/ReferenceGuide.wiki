@@ -1,6 +1,8 @@
 #summary Reference Guide describing every feature of SolidBase (in progress)
 
-== Contents ==
+= Contents =
+ * [#Upgrade_file_defition Upgrade file definition]
+=== Annotations ===
  * [#ASSERT_EMPTY ASSERT EMPTY]
  * [#ASSERT_EXISTS ASSERT EXISTS]
  * [#IF_HISTORY IF HISTORY] (upgrade only)
@@ -13,6 +15,70 @@
  * [#SET_USER SET USER]
  * [#SKIP SKIP]
  * [#TRANSIENT TRANSIENT] (upgrade only)
+
+----------------------------------------
+== Upgrade file definition ==
+An upgrade file needs to start with a definition.
+=== Examples ===
+A simple start:
+{{{
+--* DEFINITION
+--*     SETUP "" --> "1.1"
+--*     UPGRADE "" --> "1.0.1"
+--* /DEFINITION
+}}}
+As you have learned from the Getting Started, the setup to 1.1 is mandatory. It tells !SolidBase what the structure of the control tables is.
+
+Working on the next version:
+{{{
+--* DEFINITION
+--*     SETUP "" --> "1.1"
+--*     UPGRADE "" --> "1.0.1"
+--*     UPGRADE OPEN "1.0.1" --> "1.0.2"
+--* /DEFINITION
+}}}
+This example shows that you can work on a specific version for a longer period. Changes can be added as development progresses.
+When the version is complete, just remove OPEN from the definition.
+
+You do not HAVE to use this feature, you can also choose to give every individual change a new version number.
+
+A release/stable branch is created for release 1.0, the next release will be 1.1:
+{{{
+--* DEFINITION
+--*     SETUP "" --> "1.1"
+--*     UPGRADE "" --> "1.0.1"
+--*     UPGRADE "1.0.1" --> "1.0.2"
+--*         UPGRADE "1.0.2" --> "1.0.3" // Start of release branch
+--*         UPGRADE "1.0.3" --> "1.0.4"
+--*         SWITCH "1.0.4" --> "1.1.1" // Return to the main development branch
+--*     UPGRADE "1.0.2" --> "1.1.1"
+--*     UPGRADE "1.1.1" --> "1.1.2"
+--* /DEFINITION
+}}}
+From version 1.0.2 two paths are defined: one is to version 1.0.3, and the other to 1.1.1.
+The SWITCH tells !SolidBase that it should try to avoid that path as long as there are other paths available that do not go through a SWITCH.
+
+Indentation is not mandatory, it is only used for clarity.
+
+Release branch and main development branch further progressed:
+{{{
+--* DEFINITION
+--*     SETUP "" --> "1.1"
+--*     UPGRADE "" --> "1.0.1"
+--*     UPGRADE "1.0.1" --> "1.0.2"
+--*         UPGRADE "1.0.2" --> "1.0.3" // Start of release branch
+--*         UPGRADE "1.0.3" --> "1.0.4"
+--*         UPGRADE "1.0.4" --> "1.0.5"
+--*         SWITCH "1.0.5" --> "1.1.2" // Return to the main development branch
+--*     UPGRADE "1.0.2" --> "1.1.1"
+--*     UPGRADE "1.1.1" --> "1.1.2"
+--*     UPGRADE "1.1.2" --> "1.1.3"
+--*     UPGRADE "1.1.3" --> "1.1.4"
+--* /DEFINITION
+}}}
+The SWITCH should always start from the last version of the release branch and will go to ANY version of the main development branch. Use whatever makes sense in any given situation, but remember, a specific version of the database should have a structure that is independent from the path that has been followed through the upgrade file. Exceptions to this rule are inevitable, but these should only be temporary and should be carefully managed.
+
+I will add examples of dealing with this later. A hint: you can use the [#IF_HISTORY IF HISTORY] or the [#IGNORE_SQL_ERROR IGNORE SQL ERROR] annotations to deal with this situation in the main development branch.
 
 ----------------------------------------
 == ASSERT EMPTY ==
