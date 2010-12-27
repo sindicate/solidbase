@@ -1,7 +1,7 @@
 #summary Reference Guide describing every feature of SolidBase (in progress)
 
 = Contents =
- * [#Upgrade_file_defition Upgrade file definition]
+ * [#Upgrade_file_definition Upgrade file definition]
 === Annotations ===
  * [#ASSERT_EMPTY ASSERT EMPTY]
  * [#ASSERT_EXISTS ASSERT EXISTS]
