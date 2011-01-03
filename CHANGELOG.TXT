@@ -1,3 +1,9 @@
+Changes from 1.6.4 to 1.6.5
+---------------------------
+
+ENH  Added the JDBC ESCAPE PROCESSING ON|OFF annotation. JDBC Escape Processing is disabled by default.
+FIX  Java source code can now be sent to Oracle because JDBC Escape Processing is disabled.
+
 Changes from 1.6.3 to 1.6.4
 ---------------------------
 

@@ -105,9 +105,9 @@ Method in class solidbase.core.<A HREF="./solidbase/core/Path.html" title="class
 <DT><A HREF="./solidbase/core/Path.html#append(solidbase.core.Path)"><B>append(Path)</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/Path.html" title="class in solidbase.core">Path</A>
 <DD>Appends a path to the end of this path.
-<DT><A HREF="./solidbase/util/Assert.html" title="class in solidbase.util"><B>Assert</B></A> - Class in <A HREF="./solidbase/util/package-summary.html">solidbase.util</A><DD>Assert methods.<DT><A HREF="./solidbase/core/plugins/AssertExistsOrEmptySelect.html" title="class in solidbase.core.plugins"><B>AssertExistsOrEmptySelect</B></A> - Class in <A HREF="./solidbase/core/plugins/package-summary.html">solidbase.core.plugins</A><DD>This plugin asserts that a given query statement returns results.<DT><A HREF="./solidbase/core/plugins/AssertExistsOrEmptySelect.html#AssertExistsOrEmptySelect()"><B>AssertExistsOrEmptySelect()</B></A> - 
+<DT><A HREF="./solidbase/util/Assert.html" title="class in solidbase.util"><B>Assert</B></A> - Class in <A HREF="./solidbase/util/package-summary.html">solidbase.util</A><DD>Assert methods.<DT><A HREF="./solidbase/core/plugins/AssertExistsOrEmptySelect.html" title="class in solidbase.core.plugins"><B>AssertExistsOrEmptySelect</B></A> - Class in <A HREF="./solidbase/core/plugins/package-summary.html">solidbase.core.plugins</A><DD>This plugin asserts that a given query statement returns results or no results.<DT><A HREF="./solidbase/core/plugins/AssertExistsOrEmptySelect.html#AssertExistsOrEmptySelect()"><B>AssertExistsOrEmptySelect()</B></A> - 
 Constructor for class solidbase.core.plugins.<A HREF="./solidbase/core/plugins/AssertExistsOrEmptySelect.html" title="class in solidbase.core.plugins">AssertExistsOrEmptySelect</A>
-<DD>Constructor.
+<DD>&nbsp;
 <DT><A HREF="./solidbase/util/AssertionFailedException.html" title="class in solidbase.util"><B>AssertionFailedException</B></A> - Exception in <A HREF="./solidbase/util/package-summary.html">solidbase.util</A><DD>Thrown when an assertion failed.<DT><A HREF="./solidbase/util/AssertionFailedException.html#AssertionFailedException(java.lang.String)"><B>AssertionFailedException(String)</B></A> - 
 Constructor for exception solidbase.util.<A HREF="./solidbase/util/AssertionFailedException.html" title="class in solidbase.util">AssertionFailedException</A>
 <DD>Constructs a <code>AssertionFailedException</code> object with a detail message.
@@ -232,10 +232,7 @@ Constructor for class solidbase.core.<A HREF="./solidbase/core/Command.html" tit
 <DT><A HREF="./solidbase/core/CommandFileException.html" title="class in solidbase.core"><B>CommandFileException</B></A> - Exception in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>Represents a problem in the file (upgrade file or SQL file).<DT><A HREF="./solidbase/core/CommandFileException.html#CommandFileException(java.lang.String, int)"><B>CommandFileException(String, int)</B></A> - 
 Constructor for exception solidbase.core.<A HREF="./solidbase/core/CommandFileException.html" title="class in solidbase.core">CommandFileException</A>
 <DD>Constructor.
-<DT><A HREF="./solidbase/core/CommandListener.html" title="class in solidbase.core"><B>CommandListener</B></A> - Class in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>A CommandListener listens to commands from the upgrade or SQL file as they are being processed.<DT><A HREF="./solidbase/core/CommandListener.html#CommandListener()"><B>CommandListener()</B></A> - 
-Constructor for class solidbase.core.<A HREF="./solidbase/core/CommandListener.html" title="class in solidbase.core">CommandListener</A>
-<DD>&nbsp;
-<DT><A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core"><B>CommandProcessor</B></A> - Class in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>Processes commands, maintains state, triggers the listeners.<DT><A HREF="./solidbase/core/CommandProcessor.html#CommandProcessor(solidbase.core.ProgressListener)"><B>CommandProcessor(ProgressListener)</B></A> - 
+<DT><A HREF="./solidbase/core/CommandListener.html" title="interface in solidbase.core"><B>CommandListener</B></A> - Interface in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>A CommandListener listens to commands from the upgrade or SQL file as they are being processed.<DT><A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core"><B>CommandProcessor</B></A> - Class in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>Processes commands, maintains state, triggers the listeners.<DT><A HREF="./solidbase/core/CommandProcessor.html#CommandProcessor(solidbase.core.ProgressListener)"><B>CommandProcessor(ProgressListener)</B></A> - 
 Constructor for class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
 <DD>Constructor.
 <DT><A HREF="./solidbase/core/CommandProcessor.html#CommandProcessor(solidbase.core.ProgressListener, solidbase.core.Database)"><B>CommandProcessor(ProgressListener, Database)</B></A> - 
@@ -295,6 +292,9 @@ Method in class solidbase.ant.<A HREF="./solidbase/ant/DBTask.html" title="class
 <DT><A HREF="./solidbase/ant/SQLTask.html#createSqlfile()"><B>createSqlfile()</B></A> - 
 Method in class solidbase.ant.<A HREF="./solidbase/ant/SQLTask.html" title="class in solidbase.ant">SQLTask</A>
 <DD>Creates a nested sqlfile element.
+<DT><A HREF="./solidbase/core/CommandProcessor.html#createStatement(java.sql.Connection)"><B>createStatement(Connection)</B></A> - 
+Method in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
+<DD>Creates a new statement.
 <DT><A HREF="./solidbase/util/CSVReader.html" title="class in solidbase.util"><B>CSVReader</B></A> - Class in <A HREF="./solidbase/util/package-summary.html">solidbase.util</A><DD>Reads CSV data from the given <A HREF="./solidbase/util/Tokenizer.html" title="class in solidbase.util"><CODE>Tokenizer</CODE></A>.<DT><A HREF="./solidbase/util/CSVReader.html#CSVReader(solidbase.util.LineReader, char, boolean)"><B>CSVReader(LineReader, char, boolean)</B></A> - 
 Constructor for class solidbase.util.<A HREF="./solidbase/util/CSVReader.html" title="class in solidbase.util">CSVReader</A>
 <DD>Constructor.
@@ -483,7 +483,7 @@ Method in class solidbase.ant.<A HREF="./solidbase/ant/SQLTask.html" title="clas
 Method in class solidbase.ant.<A HREF="./solidbase/ant/UpgradeTask.html" title="class in solidbase.ant">UpgradeTask</A>
 <DD>&nbsp;
 <DT><A HREF="./solidbase/core/CommandListener.html#execute(solidbase.core.CommandProcessor, solidbase.core.Command)"><B>execute(CommandProcessor, Command)</B></A> - 
-Method in class solidbase.core.<A HREF="./solidbase/core/CommandListener.html" title="class in solidbase.core">CommandListener</A>
+Method in interface solidbase.core.<A HREF="./solidbase/core/CommandListener.html" title="interface in solidbase.core">CommandListener</A>
 <DD>Called when a command from the upgrade file needs to be executed.
 <DT><A HREF="./solidbase/core/DBVersion.html#execute(java.lang.String, java.lang.Object...)"><B>execute(String, Object...)</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/DBVersion.html" title="class in solidbase.core">DBVersion</A>
@@ -556,7 +556,10 @@ Static method in class solidbase.util.<A HREF="./solidbase/util/Assert.html" tit
 <DT><A HREF="./solidbase/util/Assert.html#fail()"><B>fail()</B></A> - 
 Static method in class solidbase.util.<A HREF="./solidbase/util/Assert.html" title="class in solidbase.util">Assert</A>
 <DD>Throws an <A HREF="./solidbase/util/AssertionFailedException.html" title="class in solidbase.util"><CODE>AssertionFailedException</CODE></A>.
-<DT><A HREF="./solidbase/core/FatalException.html" title="class in solidbase.core"><B>FatalException</B></A> - Exception in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>Represents an expected failure caused by a system check.<DT><A HREF="./solidbase/core/FatalException.html#FatalException(java.lang.String)"><B>FatalException(String)</B></A> - 
+<DT><A HREF="./solidbase/core/FatalException.html" title="class in solidbase.core"><B>FatalException</B></A> - Exception in <A HREF="./solidbase/core/package-summary.html">solidbase.core</A><DD>Represents an expected failure caused by a system check.<DT><A HREF="./solidbase/core/FatalException.html#FatalException(java.lang.Throwable)"><B>FatalException(Throwable)</B></A> - 
+Constructor for exception solidbase.core.<A HREF="./solidbase/core/FatalException.html" title="class in solidbase.core">FatalException</A>
+<DD>Constructor.
+<DT><A HREF="./solidbase/core/FatalException.html#FatalException(java.lang.String)"><B>FatalException(String)</B></A> - 
 Constructor for exception solidbase.core.<A HREF="./solidbase/core/FatalException.html" title="class in solidbase.core">FatalException</A>
 <DD>Constructor.
 <DT><A HREF="./solidbase/core/PatchFile.html#file"><B>file</B></A> - 
@@ -969,6 +972,7 @@ Method in class solidbase.core.plugins.<A HREF="./solidbase/core/plugins/ImportC
 <DD>Import data using a JDBC prepared statement, like this:
  
  
+ INSERT INTO TABLE1 VALUES ( ?
 <DT><A HREF="./solidbase/util/CSVTokenizer.html#in"><B>in</B></A> - 
 Variable in class solidbase.util.<A HREF="./solidbase/util/CSVTokenizer.html" title="class in solidbase.util">CSVTokenizer</A>
 <DD>The reader used to read from and push back characters.
@@ -1082,6 +1086,12 @@ Method in class solidbase.core.<A HREF="./solidbase/core/Path.html" title="class
 <DT><A HREF="./solidbase/Console.html#java6console"><B>java6console</B></A> - 
 Variable in class solidbase.<A HREF="./solidbase/Console.html" title="class in solidbase">Console</A>
 <DD>The java 6 <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/System.html?is-external=true#console()" title="class or interface in java.lang"><CODE>System.console()</CODE></A>.
+<DT><A HREF="./solidbase/core/CommandProcessor.html#JDBC_ESCAPING"><B>JDBC_ESCAPING</B></A> - 
+Static variable in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
+<DD>Pattern for JDBC ESCAPE PROCESSING
+<DT><A HREF="./solidbase/core/CommandProcessor.html#jdbcEscaping"><B>jdbcEscaping</B></A> - 
+Variable in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
+<DD>Is JDBC escape processing enabled or not?
 </DL>
 <HR>
 <A NAME="_L_"><!-- --></A><H2>
@@ -1425,7 +1435,7 @@ Method in class solidbase.<A HREF="./solidbase/Progress.html" title="class in so
 <DT><A HREF="./solidbase/Console.html#printlnBare(java.lang.String)"><B>printlnBare(String)</B></A> - 
 Method in class solidbase.<A HREF="./solidbase/Console.html" title="class in solidbase">Console</A>
 <DD>Prints the string without prefixing the current date/time, add a newline to the end.
-<DT><A HREF="./solidbase/core/plugins/PrintSelect.html" title="class in solidbase.core.plugins"><B>PrintSelect</B></A> - Class in <A HREF="./solidbase/core/plugins/package-summary.html">solidbase.core.plugins</A><DD>This plugin executes PRINT SELECT statements.<DT><A HREF="./solidbase/core/plugins/PrintSelect.html#PrintSelect()"><B>PrintSelect()</B></A> - 
+<DT><A HREF="./solidbase/core/plugins/PrintSelect.html" title="class in solidbase.core.plugins"><B>PrintSelect</B></A> - Class in <A HREF="./solidbase/core/plugins/package-summary.html">solidbase.core.plugins</A><DD>This plugin will print the results from the SELECT to the console.<DT><A HREF="./solidbase/core/plugins/PrintSelect.html#PrintSelect()"><B>PrintSelect()</B></A> - 
 Constructor for class solidbase.core.plugins.<A HREF="./solidbase/core/plugins/PrintSelect.html" title="class in solidbase.core.plugins">PrintSelect</A>
 <DD>&nbsp;
 <DT><A HREF="./solidbase/Console.html#printStacktrace(java.lang.Throwable)"><B>printStacktrace(Throwable)</B></A> - 
@@ -1550,12 +1560,21 @@ Method in class solidbase.core.<A HREF="./solidbase/core/ProgressListener.html" 
 <DT><A HREF="./solidbase/Progress.html#requestPassword(java.lang.String)"><B>requestPassword(String)</B></A> - 
 Method in class solidbase.<A HREF="./solidbase/Progress.html" title="class in solidbase">Progress</A>
 <DD>&nbsp;
+<DT><A HREF="./solidbase/ant/Progress.html#reset()"><B>reset()</B></A> - 
+Method in class solidbase.ant.<A HREF="./solidbase/ant/Progress.html" title="class in solidbase.ant">Progress</A>
+<DD>&nbsp;
 <DT><A HREF="./solidbase/core/CommandProcessor.html#reset()"><B>reset()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
 <DD>Resets the execution context.
 <DT><A HREF="./solidbase/core/PatchProcessor.html#reset()"><B>reset()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/PatchProcessor.html" title="class in solidbase.core">PatchProcessor</A>
 <DD>Resets the upgrade context.
+<DT><A HREF="./solidbase/core/ProgressListener.html#reset()"><B>reset()</B></A> - 
+Method in class solidbase.core.<A HREF="./solidbase/core/ProgressListener.html" title="class in solidbase.core">ProgressListener</A>
+<DD>Resets all state that the listener has.
+<DT><A HREF="./solidbase/maven/Progress.html#reset()"><B>reset()</B></A> - 
+Method in class solidbase.maven.<A HREF="./solidbase/maven/Progress.html" title="class in solidbase.maven">Progress</A>
+<DD>&nbsp;
 <DT><A HREF="./solidbase/util/CSVTokenizer.html#result"><B>result</B></A> - 
 Variable in class solidbase.util.<A HREF="./solidbase/util/CSVTokenizer.html" title="class in solidbase.util">CSVTokenizer</A>
 <DD>Buffer for the result.
@@ -1807,6 +1826,9 @@ Variable in class solidbase.ant.<A HREF="./solidbase/ant/SQLTask.Sqlfile.html" t
 <DT><A HREF="./solidbase/core/DBVersion.html#stale"><B>stale</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/DBVersion.html" title="class in solidbase.core">DBVersion</A>
 <DD>Need to refresh this instance from the data in the DBVERSION table.
+<DT><A HREF="./solidbase/util/WorkerThread.html#start()"><B>start()</B></A> - 
+Method in class solidbase.util.<A HREF="./solidbase/util/WorkerThread.html" title="class in solidbase.util">WorkerThread</A>
+<DD>&nbsp;
 <DT><A HREF="./solidbase/core/CommandProcessor.html#startMessage"><B>startMessage</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
 <DD>The message that should be shown when a statement is executed.
@@ -1824,8 +1846,7 @@ Method in class solidbase.core.<A HREF="./solidbase/core/SQLProcessor.html" titl
 <DD>&nbsp;
 <DT><A HREF="./solidbase/core/DBVersion.html#statements"><B>statements</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/DBVersion.html" title="class in solidbase.core">DBVersion</A>
-<DD>How many statements have been successfully executed for the current target? If the target is null, then not
- relevant, but will contain the number of statements executed for the current version.
+<DD>How many statements have been successfully executed for the current target?
 <DT><A HREF="./solidbase/xml/elements/StaxNodeReader.html" title="class in solidbase.xml.elements"><B>StaxNodeReader</B></A> - Class in <A HREF="./solidbase/xml/elements/package-summary.html">solidbase.xml.elements</A><DD>Reads an element from an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/javax/xml/stream.XMLStreamReader.html?is-external=true" title="class or interface in javax.xml"><CODE>XMLStreamReader</CODE></A>.<DT><A HREF="./solidbase/Console.html#stdin"><B>stdin</B></A> - 
 Variable in class solidbase.<A HREF="./solidbase/Console.html" title="class in solidbase">Console</A>
 <DD>The input reader.
@@ -1877,10 +1898,19 @@ Variable in class solidbase.maven.<A HREF="./solidbase/maven/UpgradeMojo.html" t
 Variable in class solidbase.ant.<A HREF="./solidbase/ant/Progress.html" title="class in solidbase.ant">Progress</A>
 <DD>The Ant task.
 <DT><A HREF="./solidbase/core/CommandListener.html#terminate()"><B>terminate()</B></A> - 
-Method in class solidbase.core.<A HREF="./solidbase/core/CommandListener.html" title="class in solidbase.core">CommandListener</A>
+Method in interface solidbase.core.<A HREF="./solidbase/core/CommandListener.html" title="interface in solidbase.core">CommandListener</A>
 <DD>Gives this listener a chance to cleanup.
+<DT><A HREF="./solidbase/core/plugins/AssertExistsOrEmptySelect.html#terminate()"><B>terminate()</B></A> - 
+Method in class solidbase.core.plugins.<A HREF="./solidbase/core/plugins/AssertExistsOrEmptySelect.html" title="class in solidbase.core.plugins">AssertExistsOrEmptySelect</A>
+<DD>&nbsp;
+<DT><A HREF="./solidbase/core/plugins/ImportCSV.html#terminate()"><B>terminate()</B></A> - 
+Method in class solidbase.core.plugins.<A HREF="./solidbase/core/plugins/ImportCSV.html" title="class in solidbase.core.plugins">ImportCSV</A>
+<DD>&nbsp;
 <DT><A HREF="./solidbase/core/plugins/OracleDBMSOutputPoller.html#terminate()"><B>terminate()</B></A> - 
 Method in class solidbase.core.plugins.<A HREF="./solidbase/core/plugins/OracleDBMSOutputPoller.html" title="class in solidbase.core.plugins">OracleDBMSOutputPoller</A>
+<DD>&nbsp;
+<DT><A HREF="./solidbase/core/plugins/PrintSelect.html#terminate()"><B>terminate()</B></A> - 
+Method in class solidbase.core.plugins.<A HREF="./solidbase/core/plugins/PrintSelect.html" title="class in solidbase.core.plugins">PrintSelect</A>
 <DD>&nbsp;
 <DT><A HREF="./solidbase/core/CommandProcessor.html#terminateCommandListeners()"><B>terminateCommandListeners()</B></A> - 
 Method in class solidbase.core.<A HREF="./solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>
@@ -1924,7 +1954,7 @@ Static variable in class solidbase.core.<A HREF="./solidbase/core/PatchProcessor
 <DD>Pattern for /TRANSIENT.
 <DT><A HREF="./solidbase/core/plugins/ImportCSV.html#translateArgument(java.lang.String, java.util.List)"><B>translateArgument(String, List&lt;Integer&gt;)</B></A> - 
 Static method in class solidbase.core.plugins.<A HREF="./solidbase/core/plugins/ImportCSV.html" title="class in solidbase.core.plugins">ImportCSV</A>
-<DD>Replaces arguments within the given value with ? and maintains a map.
+<DD>Replaces arguments within the given value with ?
 <DT><A HREF="./solidbase/core/Patch.html#type"><B>type</B></A> - 
 Variable in class solidbase.core.<A HREF="./solidbase/core/Patch.html" title="class in solidbase.core">Patch</A>
 <DD>The type of this patch.

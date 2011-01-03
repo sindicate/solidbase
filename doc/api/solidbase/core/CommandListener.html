@@ -75,9 +75,9 @@ function windowTitle()
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
 </TABLE>
 <A NAME="skip-navbar_top"></A>
@@ -89,17 +89,13 @@ DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&n
 <FONT SIZE="-1">
 solidbase.core</FONT>
 <BR>
-Class CommandListener</H2>
-<PRE>
-<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
-  <IMG SRC="../../resources/inherit.gif" ALT="extended by "><B>solidbase.core.CommandListener</B>
-</PRE>
+Interface CommandListener</H2>
 <DL>
-<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../solidbase/core/plugins/AssertExistsOrEmptySelect.html" title="class in solidbase.core.plugins">AssertExistsOrEmptySelect</A>, <A HREF="../../solidbase/core/plugins/ImportCSV.html" title="class in solidbase.core.plugins">ImportCSV</A>, <A HREF="../../solidbase/core/plugins/OracleDBMSOutputPoller.html" title="class in solidbase.core.plugins">OracleDBMSOutputPoller</A>, <A HREF="../../solidbase/core/plugins/PrintSelect.html" title="class in solidbase.core.plugins">PrintSelect</A></DD>
+<DT><B>All Known Implementing Classes:</B> <DD><A HREF="../../solidbase/core/plugins/AssertExistsOrEmptySelect.html" title="class in solidbase.core.plugins">AssertExistsOrEmptySelect</A>, <A HREF="../../solidbase/core/plugins/ImportCSV.html" title="class in solidbase.core.plugins">ImportCSV</A>, <A HREF="../../solidbase/core/plugins/OracleDBMSOutputPoller.html" title="class in solidbase.core.plugins">OracleDBMSOutputPoller</A>, <A HREF="../../solidbase/core/plugins/PrintSelect.html" title="class in solidbase.core.plugins">PrintSelect</A></DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public abstract class <B>CommandListener</B><DT>extends <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public interface <B>CommandListener</B></DL>
 </PRE>
 
 <P>
@@ -117,22 +113,6 @@ A CommandListener listens to commands from the upgrade or SQL file as they are b
 
 <P>
 
-<!-- ======== CONSTRUCTOR SUMMARY ======== -->
-
-<A NAME="constructor_summary"><!-- --></A>
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
-<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
-<B>Constructor Summary</B></FONT></TH>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../solidbase/core/CommandListener.html#CommandListener()">CommandListener</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
-</TR>
-</TABLE>
-&nbsp;
 <!-- ========== METHOD SUMMARY =========== -->
 
 <A NAME="method_summary"><!-- --></A>
@@ -143,7 +123,7 @@ A CommandListener listens to commands from the upgrade or SQL file as they are b
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>abstract &nbsp;boolean</CODE></FONT></TD>
+<CODE>&nbsp;boolean</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/CommandListener.html#execute(solidbase.core.CommandProcessor, solidbase.core.Command)">execute</A></B>(<A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>&nbsp;processor,
         <A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)</CODE>
 
@@ -159,34 +139,8 @@ A CommandListener listens to commands from the upgrade or SQL file as they are b
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gives this listener a chance to cleanup.</TD>
 </TR>
 </TABLE>
-&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></B></TH>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#clone()" title="class or interface in java.lang">clone</A>, <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang">equals</A>, <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang">finalize</A>, <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang">getClass</A>, <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang">hashCode</A>, <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang">notify</A>, <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang">toString</A>, <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang">wait</A>, <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang">wait</A>, <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
-</TR>
-</TABLE>
 &nbsp;
 <P>
-
-<!-- ========= CONSTRUCTOR DETAIL ======== -->
-
-<A NAME="constructor_detail"><!-- --></A>
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
-<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
-<B>Constructor Detail</B></FONT></TH>
-</TR>
-</TABLE>
-
-<A NAME="CommandListener()"><!-- --></A><H3>
-CommandListener</H3>
-<PRE>
-public <B>CommandListener</B>()</PRE>
-<DL>
-</DL>
 
 <!-- ============ METHOD DETAIL ========== -->
 
@@ -201,18 +155,25 @@ public <B>CommandListener</B>()</PRE>
 <A NAME="execute(solidbase.core.CommandProcessor, solidbase.core.Command)"><!-- --></A><H3>
 execute</H3>
 <PRE>
-public abstract boolean <B>execute</B>(<A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>&nbsp;processor,
-                                <A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)
-                         throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></PRE>
+boolean <B>execute</B>(<A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A>&nbsp;processor,
+                <A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)
+                throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></PRE>
 <DL>
 <DD>Called when a command from the upgrade file needs to be executed. Commands can be transient or persistent (see
  <A HREF="../../solidbase/core/Command.html#isTransient"><CODE>Command.isTransient</CODE></A>). This method should return true if it accepted the command.
+ 
+ Problems caused by the user (command syntax, configuration mistakes or problems in data files) should be wrapped
+ in a <A HREF="../../solidbase/core/FatalException.html" title="class in solidbase.core"><CODE>FatalException</CODE></A>.
+ 
+ <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A>s should be wrapped in a <A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core"><CODE>SQLExecutionException</CODE></A>. You can choose to give it the
+ original command that triggered this listener or the actual SQL being sent to the database. You may choose to let
+ the <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> pass, then SolidBase will wrap it for you.
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>processor</CODE> - The command processor.<DD><CODE>command</CODE> - The command that needs to be executed.
 <DT><B>Returns:</B><DD>True if it accepted the command.
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - When the execution of the command fails with an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A>.</DL>
+<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - Whenever an unhandled <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> is thrown.</DL>
 </DD>
 </DL>
 <HR>
@@ -220,7 +181,7 @@ public abstract boolean <B>execute</B>(<A HREF="../../solidbase/core/CommandProc
 <A NAME="terminate()"><!-- --></A><H3>
 terminate</H3>
 <PRE>
-public void <B>terminate</B>()</PRE>
+void <B>terminate</B>()</PRE>
 <DL>
 <DD>Gives this listener a chance to cleanup. For example to kill threads that it started or temporary tables that it
  created.
@@ -280,9 +241,9 @@ public void <B>terminate</B>()</PRE>
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
 </TABLE>
 <A NAME="skip-navbar_bottom"></A>

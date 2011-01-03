@@ -353,28 +353,6 @@
 
 	
 	<target name="test-maven-plugin" depends="build">
-		
-		<!-- Deploy -->
-		<mkdir dir="${build.home}/mavenuser" /> <!-- Will contain the local maven repo -->
-		<delete dir="${build.home}/mavenuser/.m2/repository/solidbase" /> <!-- Remove solidbase from the local repo -->
-		<delete dir="${build.home}/remote" /> <!-- Delete the remote repo -->
-		<maven:deploy file="${dist.home}/solidbase.jar"> <!-- Deploy to the remote repo -->
-			<pom file="deploy-pom.xml" />
-			<remoterepository url="file:///${build.home}/remote" />
-			<localrepository path="${build.home}/mavenuser/.m2/repository" />
-		</maven:deploy>
-		<delete dir="${build.home}/mavenuser/.m2/repository/solidbase" /> <!-- Remove solidbase from the local repo -->
-		
-		<!-- Test with our own private maven tool -->
-		<java dir="maven-plugin/test" classname="org.codehaus.classworlds.Launcher" classpathref="maven2.classpath" fork="yes" failonerror="yes">
-			<jvmarg value="-Dclassworlds.conf=${basedir}/tools/maven/bin/m2.conf" />
-			<jvmarg value="-Duser.home=${build.home}/mavenuser" /> <!-- Use our own user folder -->
-			<jvmarg value="-Dmaven.home=${basedir}/tools/maven" />
-			<jvmarg value="-Dtest.repo.url=file:///${build.home}/remote" /> <!-- Used in the pom.xml -->
-			<arg value="--batch-mode" />
-			<arg value="solidbase:upgrade" />
-			<arg value="solidbase:sql" />
-		</java>
 	</target>
 	
 
