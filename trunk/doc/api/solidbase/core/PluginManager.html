@@ -101,7 +101,7 @@ Class PluginManager</H2>
 
 <P>
 Reads plugins from the classpath. First it collects all of the following files: META-INF/solidbase.plugins.
- Each (non-empty) line in these files represents a plugin class. A plugin should extend <A HREF="../../solidbase/core/CommandListener.html" title="class in solidbase.core"><CODE>CommandListener</CODE></A>.
+ Each (non-empty) line in these files represents a plugin class. A plugin should extend <A HREF="../../solidbase/core/CommandListener.html" title="interface in solidbase.core"><CODE>CommandListener</CODE></A>.
 <P>
 
 <P>
@@ -124,7 +124,7 @@ Reads plugins from the classpath. First it collects all of the following files: 
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected static&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/core/CommandListener.html" title="class in solidbase.core">CommandListener</A>&gt;</CODE></FONT></TD>
+<CODE>protected static&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/core/CommandListener.html" title="interface in solidbase.core">CommandListener</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/PluginManager.html#listeners">listeners</A></B></CODE>
 
 <BR>
@@ -158,7 +158,7 @@ Reads plugins from the classpath. First it collects all of the following files: 
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/core/CommandListener.html" title="class in solidbase.core">CommandListener</A>&gt;</CODE></FONT></TD>
+<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/core/CommandListener.html" title="interface in solidbase.core">CommandListener</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/PluginManager.html#getListeners()">getListeners</A></B>()</CODE>
 
 <BR>
@@ -190,7 +190,7 @@ Reads plugins from the classpath. First it collects all of the following files: 
 <A NAME="listeners"><!-- --></A><H3>
 listeners</H3>
 <PRE>
-protected static <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/core/CommandListener.html" title="class in solidbase.core">CommandListener</A>&gt; <B>listeners</B></PRE>
+protected static <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/core/CommandListener.html" title="interface in solidbase.core">CommandListener</A>&gt; <B>listeners</B></PRE>
 <DL>
 <DD>All the plugins found.
 <P>
@@ -228,7 +228,7 @@ public <B>PluginManager</B>()</PRE>
 <A NAME="getListeners()"><!-- --></A><H3>
 getListeners</H3>
 <PRE>
-public static <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/core/CommandListener.html" title="class in solidbase.core">CommandListener</A>&gt; <B>getListeners</B>()</PRE>
+public static <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/core/CommandListener.html" title="interface in solidbase.core">CommandListener</A>&gt; <B>getListeners</B>()</PRE>
 <DL>
 <DD>Returns a list of all the plugins.
 <P>

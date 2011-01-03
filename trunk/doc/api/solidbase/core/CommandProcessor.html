@@ -54,7 +54,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../solidbase/core/CommandListener.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../solidbase/core/CommandListener.html" title="interface in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../solidbase/core/ConnectionListener.html" title="interface in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/CommandProcessor.html" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -190,7 +190,23 @@ Processes commands, maintains state, triggers the listeners.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/core/CommandListener.html" title="class in solidbase.core">CommandListener</A>&gt;</CODE></FONT></TD>
+<CODE>protected static&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#JDBC_ESCAPING">JDBC_ESCAPING</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pattern for JDBC ESCAPE PROCESSING</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#jdbcEscaping">jdbcEscaping</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Is JDBC escape processing enabled or not?</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/core/CommandListener.html" title="interface in solidbase.core">CommandListener</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#listeners">listeners</A></B></CODE>
 
 <BR>
@@ -324,6 +340,14 @@ Processes commands, maintains state, triggers the listeners.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Add a database.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/Statement.html?is-external=true" title="class or interface in java.sql">Statement</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/CommandProcessor.html#createStatement(java.sql.Connection)">createStatement</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</A>&nbsp;connection)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a new statement.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -652,12 +676,49 @@ protected static final <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/uti
 </DL>
 <HR>
 
+<A NAME="JDBC_ESCAPING"><!-- --></A><H3>
+JDBC_ESCAPING</H3>
+<PRE>
+protected static final <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/regex/Pattern.html?is-external=true" title="class or interface in java.util.regex">Pattern</A> <B>JDBC_ESCAPING</B></PRE>
+<DL>
+<DD>Pattern for JDBC ESCAPE PROCESSING
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
 <A NAME="listeners"><!-- --></A><H3>
 listeners</H3>
 <PRE>
-protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/core/CommandListener.html" title="class in solidbase.core">CommandListener</A>&gt; <B>listeners</B></PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../solidbase/core/CommandListener.html" title="interface in solidbase.core">CommandListener</A>&gt; <B>listeners</B></PRE>
 <DL>
 <DD>A list of command listeners. A listener listens to the statements being executed and is able to intercept specific ones.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="autoCommit"><!-- --></A><H3>
+autoCommit</H3>
+<PRE>
+protected boolean <B>autoCommit</B></PRE>
+<DL>
+<DD>If true (<A HREF="../../solidbase/core/PatchProcessor.html" title="class in solidbase.core"><CODE>PatchProcessor</CODE></A>), commands get committed automatically, and rolled back when an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> occurs.
+ If false (<A HREF="../../solidbase/core/SQLProcessor.html" title="class in solidbase.core"><CODE>SQLProcessor</CODE></A>), commit/rollback should be in the command source.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="jdbcEscaping"><!-- --></A><H3>
+jdbcEscaping</H3>
+<PRE>
+protected boolean <B>jdbcEscaping</B></PRE>
+<DL>
+<DD>Is JDBC escape processing enabled or not?
 <P>
 <DL>
 </DL>
@@ -774,19 +835,6 @@ protected int <B>skipCounter</B></PRE>
 <DL>
 </DL>
 </DL>
-<HR>
-
-<A NAME="autoCommit"><!-- --></A><H3>
-autoCommit</H3>
-<PRE>
-protected boolean <B>autoCommit</B></PRE>
-<DL>
-<DD>If true (<A HREF="../../solidbase/core/PatchProcessor.html" title="class in solidbase.core"><CODE>PatchProcessor</CODE></A>), commands get committed automatically, and rolled back when an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> occurs.
- If false (<A HREF="../../solidbase/core/SQLProcessor.html" title="class in solidbase.core"><CODE>SQLProcessor</CODE></A>), commit/rollback should be in the command source.
-<P>
-<DL>
-</DL>
-</DL>
 
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 
@@ -887,6 +935,23 @@ protected boolean <B>executeListeners</B>(<A HREF="../../solidbase/core/Command.
 <DT><B>Returns:</B><DD>True if a listener has processed the command, false otherwise.
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - If the database throws an exception.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="createStatement(java.sql.Connection)"><!-- --></A><H3>
+createStatement</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/Statement.html?is-external=true" title="class or interface in java.sql">Statement</A> <B>createStatement</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/Connection.html?is-external=true" title="class or interface in java.sql">Connection</A>&nbsp;connection)
+                          throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></PRE>
+<DL>
+<DD>Creates a new statement. JDBC escape processing is enabled or disabled according to the current configuration.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>connection</CODE> - The connection to create a statement from.
+<DT><B>Returns:</B><DD>The statement.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - Whenever JDBC throws an SQLException.</DL>
 </DD>
 </DL>
 <HR>
@@ -995,7 +1060,7 @@ protected void <B>section</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/j
                        <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message,
                        <A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)</PRE>
 <DL>
-<DD>Starts a new section. Calls <A HREF="../../solidbase/core/CommandProcessor.html#startSection(int, java.lang.String)"><CODE>startSection(int, String)</CODE></A> to actually pass it on to the <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core"><CODE>ProgressListener</CODE></A>.
+<DD>Starts a new section.
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>level</CODE> - The level of the section.<DD><CODE>message</CODE> - The message to be shown.<DD><CODE>command</CODE> - The command that started this.</DL>
@@ -1009,7 +1074,7 @@ startSection</H3>
 protected void <B>startSection</B>(int&nbsp;level,
                             <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</PRE>
 <DL>
-<DD>Starts a new section. Called by <A HREF="../../solidbase/core/CommandProcessor.html#section(java.lang.String, java.lang.String, solidbase.core.Command)"><CODE>section(String, String, Command)</CODE></A>.
+<DD>Starts a new section.
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>level</CODE> - The level of the section.<DD><CODE>message</CODE> - The message to be shown.</DL>
@@ -1208,7 +1273,7 @@ public abstract <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.ht
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../solidbase/core/CommandListener.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../solidbase/core/CommandListener.html" title="interface in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../solidbase/core/ConnectionListener.html" title="interface in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/CommandProcessor.html" target="_top"><B>FRAMES</B></A>  &nbsp;

@@ -92,24 +92,24 @@ solidbase.core.plugins</FONT>
 Class PrintSelect</H2>
 <PRE>
 <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
-  <IMG SRC="../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../solidbase/core/CommandListener.html" title="class in solidbase.core">solidbase.core.CommandListener</A>
-      <IMG SRC="../../../resources/inherit.gif" ALT="extended by "><B>solidbase.core.plugins.PrintSelect</B>
+  <IMG SRC="../../../resources/inherit.gif" ALT="extended by "><B>solidbase.core.plugins.PrintSelect</B>
 </PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../solidbase/core/CommandListener.html" title="interface in solidbase.core">CommandListener</A></DD>
+</DL>
 <HR>
 <DL>
-<DT><PRE>public class <B>PrintSelect</B><DT>extends <A HREF="../../../solidbase/core/CommandListener.html" title="class in solidbase.core">CommandListener</A></DL>
+<DT><PRE>public class <B>PrintSelect</B><DT>extends <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../solidbase/core/CommandListener.html" title="interface in solidbase.core">CommandListener</A></DL>
 </PRE>
 
 <P>
-This plugin executes PRINT SELECT statements.
+This plugin will print the results from the SELECT to the console.
 
  <blockquote><pre>
- PRINT SELECT 'Inserted ' || COUNT(*) || ' users.'
- FROM USERS
+ PRINT SELECT 'Inserted ' || COUNT(*) || ' records in ATABLE.'
+ FROM ATABLE
  GO
  </pre></blockquote>
- 
- This plugin will print the results from the SELECT to the console.
 <P>
 
 <P>
@@ -156,14 +156,13 @@ This plugin executes PRINT SELECT statements.
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Called when a command from the upgrade file needs to be executed.</TD>
 </TR>
-</TABLE>
-&nbsp;<A NAME="methods_inherited_from_class_solidbase.core.CommandListener"><!-- --></A>
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from class solidbase.core.<A HREF="../../../solidbase/core/CommandListener.html" title="class in solidbase.core">CommandListener</A></B></TH>
-</TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../solidbase/core/CommandListener.html#terminate()">terminate</A></CODE></TD>
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../solidbase/core/plugins/PrintSelect.html#terminate()">terminate</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gives this listener a chance to cleanup.</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -212,18 +211,43 @@ public boolean <B>execute</B>(<A HREF="../../../solidbase/core/CommandProcessor.
                        <A HREF="../../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command)
                 throws <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></PRE>
 <DL>
-<DD><B>Description copied from class: <CODE><A HREF="../../../solidbase/core/CommandListener.html#execute(solidbase.core.CommandProcessor, solidbase.core.Command)">CommandListener</A></CODE></B></DD>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../solidbase/core/CommandListener.html#execute(solidbase.core.CommandProcessor, solidbase.core.Command)">CommandListener</A></CODE></B></DD>
 <DD>Called when a command from the upgrade file needs to be executed. Commands can be transient or persistent (see
  <A HREF="../../../solidbase/core/Command.html#isTransient"><CODE>Command.isTransient</CODE></A>). This method should return true if it accepted the command.
+ 
+ Problems caused by the user (command syntax, configuration mistakes or problems in data files) should be wrapped
+ in a <A HREF="../../../solidbase/core/FatalException.html" title="class in solidbase.core"><CODE>FatalException</CODE></A>.
+ 
+ <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A>s should be wrapped in a <A HREF="../../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core"><CODE>SQLExecutionException</CODE></A>. You can choose to give it the
+ original command that triggered this listener or the actual SQL being sent to the database. You may choose to let
+ the <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> pass, then SolidBase will wrap it for you.
 <P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../../solidbase/core/CommandListener.html#execute(solidbase.core.CommandProcessor, solidbase.core.Command)">execute</A></CODE> in class <CODE><A HREF="../../../solidbase/core/CommandListener.html" title="class in solidbase.core">CommandListener</A></CODE></DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../solidbase/core/CommandListener.html#execute(solidbase.core.CommandProcessor, solidbase.core.Command)">execute</A></CODE> in interface <CODE><A HREF="../../../solidbase/core/CommandListener.html" title="interface in solidbase.core">CommandListener</A></CODE></DL>
 </DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>processor</CODE> - The command processor.<DD><CODE>command</CODE> - The command that needs to be executed.
 <DT><B>Returns:</B><DD>True if it accepted the command.
 <DT><B>Throws:</B>
-<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - When the execution of the command fails with an <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A>.</DL>
+<DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A></CODE> - Whenever an unhandled <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A> is thrown.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="terminate()"><!-- --></A><H3>
+terminate</H3>
+<PRE>
+public void <B>terminate</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../solidbase/core/CommandListener.html#terminate()">CommandListener</A></CODE></B></DD>
+<DD>Gives this listener a chance to cleanup. For example to kill threads that it started or temporary tables that it
+ created.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../solidbase/core/CommandListener.html#terminate()">terminate</A></CODE> in interface <CODE><A HREF="../../../solidbase/core/CommandListener.html" title="interface in solidbase.core">CommandListener</A></CODE></DL>
+</DD>
+<DD><DL>
+</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
