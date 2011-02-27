@@ -361,7 +361,7 @@
     </target>
 
 
-    <target name="gettingstarted" depends="build">
+    <target name="gettingstarted" depends="clean,build">
         <groovy src="scripts/GenerateGettingStarted.groovy" />
     </target>
 
