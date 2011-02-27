@@ -56,9 +56,9 @@ From version 1.0.2 two upgrade paths are defined: one to version 1.0.3, and the 
 
 Indentation is not mandatory, it is only used for clarity.
 
-Having more than one branch in the upgrade file implies that there must be a way to select which version you want to upgrade your database to. This is done with the 'target' parameter which you can specify on the commandline, in a properties file, Maven pom.xml or Ant build.xml. Examples: [http:source/browse/trunk/dist/build.xml build.xml], [http:source/browse/trunk/dist/pom.xml pom.xml] and [http:source/browse/trunk/dist/solidbase.properties solidbase.properties]. If your database evolution has branches, your sourcecode probably has too. In the sourcecode for the release branch you can configure the target database version as '1.0.*', while in the main development branch you can configure the target database version as '1.1.*'.
+*Targeting specific versions:* Having more than one branch in the upgrade file implies that there must be a way to select which version you want to upgrade your database to. This is done with the 'target' parameter which you can specify on the commandline, in a properties file, Maven pom.xml or Ant build.xml. Examples: [http:source/browse/trunk/dist/build.xml build.xml], [http:source/browse/trunk/dist/pom.xml pom.xml] and [http:source/browse/trunk/dist/solidbase.properties solidbase.properties]. If your database evolution has branches, your sourcecode probably has too. In the sourcecode for the release branch you can configure the target database version as '1.0.`*`', while in the main development branch you can configure the target database version as '1.1.`*`'.
 
-After some more time, the release branch and main development branch have further progressed:
+After some time, the release branch and main development branch have further progressed:
 {{{
 --* DEFINITION
 --*     SETUP "" --> "1.1"
