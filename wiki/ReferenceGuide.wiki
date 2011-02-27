@@ -18,18 +18,18 @@
 
 ----------------------------------------
 == Upgrade file definition ==
-An upgrade file needs to start with a definition.
-=== Examples ===
-A simple start:
+Below I will give some examples with respect to versions and branches. In the examples I use version numbers with 3 digits. The first 2 digits represent a specific release of the database or system where the database is a part of. The 3 digits together represent the consecutive versions within one release.
+
+An upgrade file needs to start with a definition. Here is an initial definition:
 {{{
 --* DEFINITION
 --*     SETUP "" --> "1.1"
 --*     UPGRADE "" --> "1.0.1"
 --* /DEFINITION
 }}}
-As you have learned from the Getting Started, the setup to 1.1 is mandatory. It tells !SolidBase what the structure of the control tables is.
+As you have learned from the GettingStarted, the setup to 1.1 is mandatory. It tells !SolidBase what the structure of the control tables is.
 
-Working on the next version:
+Work in progress on the next version:
 {{{
 --* DEFINITION
 --*     SETUP "" --> "1.1"
@@ -37,36 +37,48 @@ Working on the next version:
 --*     UPGRADE OPEN "1.0.1" --> "1.0.2"
 --* /DEFINITION
 }}}
-This example shows that you can work on a specific version for a longer period. Changes can be added as development progresses.
-When the version is complete, just remove OPEN from the definition.
+This example shows that you can work on a specific version for a longer period of time. Changes can be added as development progresses. When the version is complete and you need to finalize it, simply remove OPEN from the definition.
 
-You do not HAVE to use this feature, you can also choose to give every individual change a new version number.
+You do not HAVE to use this OPEN feature, you can also choose to give every individual change a new version number.
 
-A release/stable branch is created for release 1.0, the next release will be 1.1:
+After some time, a release/stable branch is created for release 1.0 which is about to be released, and work for a future release 1.1 is done on the main development branch:
 {{{
 --* DEFINITION
 --*     SETUP "" --> "1.1"
 --*     UPGRADE "" --> "1.0.1"
 --*     UPGRADE "1.0.1" --> "1.0.2"
---*         UPGRADE "1.0.2" --> "1.0.3" // Start of release branch
+--*         UPGRADE "1.0.2" --> "1.0.3" // Start of release branch for release 1.0
+--*         SWITCH "1.0.3" --> "1.0.2" // Return to the main development branch
+--*     UPGRADE "1.0.2" --> "1.1.1" // The main development branch continues with the future release of 1.1
+--* /DEFINITION
+}}}
+From version 1.0.2 two upgrade paths are defined: one to version 1.0.3, and the other one to 1.1.1. You see a SWITCH from 1.0.3 back to 1.0.2. !SolidBase will try to avoid following a path with a SWITCH in it as long as there are other paths available. In the SWITCH you can do whatever you need to get the database in the correct state for the main development branch.
+
+Indentation is not mandatory, it is only used for clarity.
+
+Having more than one branch in the upgrade file implies that there must be a way to select which version you want to upgrade your database to. This is done with the 'target' parameter which you can specify on the commandline, in a properties file, Maven pom.xml or Ant build.xml. Examples: [http:source/browse/trunk/dist/build.xml build.xml], [http:source/browse/trunk/dist/pom.xml pom.xml] and [http:source/browse/trunk/dist/solidbase.properties solidbase.properties]. If your database evolution has branches, your sourcecode probably has too. In the sourcecode for the release branch you can configure the target database version as '1.0.*', while in the main development branch you can configure the target database version as '1.1.*'.
+
+After some more time, the release branch and main development branch have further progressed:
+{{{
+--* DEFINITION
+--*     SETUP "" --> "1.1"
+--*     UPGRADE "" --> "1.0.1"
+--*     UPGRADE "1.0.1" --> "1.0.2"
+--*         UPGRADE "1.0.2" --> "1.0.3" // Start of release branch for release 1.0
 --*         UPGRADE "1.0.3" --> "1.0.4"
 --*         SWITCH "1.0.4" --> "1.1.1" // Return to the main development branch
 --*     UPGRADE "1.0.2" --> "1.1.1"
 --*     UPGRADE "1.1.1" --> "1.1.2"
 --* /DEFINITION
 }}}
-From version 1.0.2 two paths are defined: one is to version 1.0.3, and the other to 1.1.1.
-The SWITCH tells !SolidBase that it should try to avoid that path as long as there are other paths available that do not go through a SWITCH.
 
-Indentation is not mandatory, it is only used for clarity.
-
-Release branch and main development branch further progressed:
+And even more progress:
 {{{
 --* DEFINITION
 --*     SETUP "" --> "1.1"
 --*     UPGRADE "" --> "1.0.1"
 --*     UPGRADE "1.0.1" --> "1.0.2"
---*         UPGRADE "1.0.2" --> "1.0.3" // Start of release branch
+--*         UPGRADE "1.0.2" --> "1.0.3" // Start of release branch for release 1.0
 --*         UPGRADE "1.0.3" --> "1.0.4"
 --*         UPGRADE "1.0.4" --> "1.0.5"
 --*         SWITCH "1.0.5" --> "1.1.2" // Return to the main development branch
