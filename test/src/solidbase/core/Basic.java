@@ -35,7 +35,7 @@ public class Basic
 	@Test
 	public void testBasic() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb2", "sa", null );
+		TestUtil.dropHSQLDBSchema( db, "sa", null );
 		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch1.sql", db );
 
 		Set< String > targets = patcher.getTargets( false, null, false );

@@ -221,14 +221,13 @@ public class DBVersion
 	 */
 	protected void init()
 	{
-		Assert.notNull( this.database.getDefaultUser(), "Default user is not set" );
 		Assert.isTrue( this.stale );
 
 		this.version = null;
 		this.target = null;
 		this.statements = 0;
 
-		Connection connection = this.database.getConnection();
+		Connection connection = this.database.getDefaultConnection();
 		try
 		{
 			try
@@ -492,7 +491,7 @@ public class DBVersion
 
 		try
 		{
-			Connection connection = this.database.getConnection();
+			Connection connection = this.database.getDefaultConnection();
 			Statement stat = connection.createStatement();
 			try
 			{
@@ -564,7 +563,7 @@ public class DBVersion
 		else
 			sql = "SELECT 1 FROM " + this.logTableName + " WHERE RESULT = 'COMPLETED VERSION " + version + "'";
 
-		Connection connection = this.database.getConnection();
+		Connection connection = this.database.getDefaultConnection();
 		try
 		{
 			PreparedStatement stat = connection.prepareStatement( sql );
@@ -595,7 +594,7 @@ public class DBVersion
 	{
 		try
 		{
-			Connection connection = this.database.getConnection();
+			Connection connection = this.database.getDefaultConnection();
 			PreparedStatement statement = connection.prepareStatement( sql );
 			int i = 1;
 			for( Object parameter : parameters )
@@ -635,7 +634,7 @@ public class DBVersion
 		Assert.notEmpty( versions );
 		try
 		{
-			Connection connection = this.database.getConnection();
+			Connection connection = this.database.getDefaultConnection();
 			PreparedStatement statement = connection.prepareStatement( "UPDATE " + this.logTableName + " SET RESULT = 'DOWNGRADED' WHERE TYPE = 'B' AND TARGET = ? AND RESULT = 'COMPLETE'" );
 			boolean commit = false;
 			try
