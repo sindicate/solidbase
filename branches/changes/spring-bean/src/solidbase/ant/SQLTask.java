@@ -25,7 +25,7 @@ import solidbase.Version;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
 import solidbase.core.SQLProcessor;
-import solidbase.core.Util;
+import solidbase.core.Factory;
 
 
 /**
@@ -118,7 +118,7 @@ public class SQLTask extends DBTask
 				boolean first = true;
 				for( Sqlfile file : this.sqlfiles )
 				{
-					processor.setSQLSource( Util.openSQLFile( project.getBaseDir(), file.src, progress ).getSource() );
+					processor.setSQLSource( Factory.openSQLFile( project.getBaseDir(), file.src, progress ).getSource() );
 					if( first )
 					{
 						progress.info( "Connecting to database..." ); // TODO Let the database say that (for example the default connection)

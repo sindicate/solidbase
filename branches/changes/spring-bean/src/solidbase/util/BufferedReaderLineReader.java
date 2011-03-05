@@ -18,8 +18,6 @@ package solidbase.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.URL;
-
 import solidbase.core.SystemException;
 
 
@@ -51,9 +49,9 @@ public class BufferedReaderLineReader implements LineReader
 	protected int pos;
 
 	/**
-	 * The {@link URL} of the reader.
+	 * The underlying resource.
 	 */
-	protected URL url;
+	protected Resource resource;
 
 
 	/**
@@ -128,10 +126,9 @@ public class BufferedReaderLineReader implements LineReader
 		return '\n';
 	}
 
-	public URL getURL()
+	public Resource getResource()
 	{
-		Assert.notNull( this.url );
-		return this.url;
+		return this.resource;
 	}
 
 	public String getEncoding()

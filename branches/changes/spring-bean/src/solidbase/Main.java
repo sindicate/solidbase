@@ -38,7 +38,7 @@ import solidbase.core.PatchProcessor;
 import solidbase.core.SQLExecutionException;
 import solidbase.core.SQLProcessor;
 import solidbase.core.SystemException;
-import solidbase.core.Util;
+import solidbase.core.Factory;
 import solidbase.util.Assert;
 
 
@@ -194,7 +194,7 @@ public class Main
 								database.getUrl() == null ? defoult.getUrl() : database.getUrl(),
 										database.getUserName(), database.getPassword(), progress ) );
 
-			processor.setSQLSource( Util.openSQLFile( null, configuration.getSqlFile(), progress ).getSource() );
+			processor.setSQLSource( Factory.openSQLFile( null, configuration.getSqlFile(), progress ).getSource() );
 			try
 			{
 				console.println( "Connecting to database..." );
@@ -219,7 +219,7 @@ public class Main
 								database.getUrl() == null ? defoult.getUrl() : database.getUrl(),
 										database.getUserName(), database.getPassword(), progress ) );
 
-			processor.setPatchFile( Util.openPatchFile( configuration.getPatchFile(), progress ) );
+			processor.setPatchFile( Factory.openPatchFile( configuration.getPatchFile(), progress ) );
 			try
 			{
 				processor.init();

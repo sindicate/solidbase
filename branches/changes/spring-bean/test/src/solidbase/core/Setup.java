@@ -5,7 +5,7 @@ import solidbase.core.PatchFile;
 import solidbase.core.PatchProcessor;
 import solidbase.core.SQLFile;
 import solidbase.core.SQLProcessor;
-import solidbase.core.Util;
+import solidbase.core.Factory;
 
 public class Setup
 {
@@ -14,7 +14,7 @@ public class Setup
 		TestProgressListener progress = new TestProgressListener();
 		Database database = new Database( "default", "org.hsqldb.jdbcDriver", url, "sa", null, progress );
 		PatchProcessor processor = new PatchProcessor( progress, database );
-		PatchFile patchFile = Util.openPatchFile( fileName, progress );
+		PatchFile patchFile = Factory.openPatchFile( fileName, progress );
 		processor.setPatchFile( patchFile );
 		processor.init();
 		return processor;
@@ -30,7 +30,7 @@ public class Setup
 		TestProgressListener progress = new TestProgressListener();
 		Database database = new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress );
 		SQLProcessor processor = new SQLProcessor( progress, database );
-		SQLFile sqlFile = Util.openSQLFile( fileName, progress );
+		SQLFile sqlFile = Factory.openSQLFile( fileName, progress );
 		processor.setSQLSource( sqlFile.getSource() );
 		return processor;
 	}

@@ -1,7 +1,5 @@
 package solidbase.util;
 
-import java.net.URL;
-
 /**
  * A reader that reads lines or characters and maintains the current line number.
  * 
@@ -36,11 +34,11 @@ public interface LineReader
 	int read();
 
 	/**
-	 * Returns the {@link URL} of the source where the lines are read from.
+	 * Returns the underlying resource.
 	 * 
-	 * @return The {@link URL} of the source where the lines are read from.
+	 * @return The underlying resource.
 	 */
-	URL getURL();
+	Resource getResource();
 
 	/**
 	 * Returns the character encoding of the source where the bytes are read from.

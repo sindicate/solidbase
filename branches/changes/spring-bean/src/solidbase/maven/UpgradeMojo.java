@@ -22,7 +22,7 @@ import solidbase.Version;
 import solidbase.core.Database;
 import solidbase.core.FatalException;
 import solidbase.core.PatchProcessor;
-import solidbase.core.Util;
+import solidbase.core.Factory;
 
 
 /**
@@ -69,7 +69,7 @@ public class UpgradeMojo extends DBMojo
 									secondary.getUrl() == null ? this.url : secondary.getUrl(),
 											secondary.getUsername(), secondary.getPassword() == null ? "" : secondary.getPassword(), progress ) );
 
-			processor.setPatchFile( Util.openPatchFile( this.project.getBasedir(), this.upgradefile, progress ) );
+			processor.setPatchFile( Factory.openPatchFile( this.project.getBasedir(), this.upgradefile, progress ) );
 			try
 			{
 				processor.init();

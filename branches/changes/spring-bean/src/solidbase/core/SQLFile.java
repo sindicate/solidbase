@@ -16,11 +16,10 @@
 
 package solidbase.core;
 
-import java.io.BufferedInputStream;
-import java.net.URL;
 import java.util.regex.Pattern;
 
 import solidbase.util.BOMDetectingLineReader;
+import solidbase.util.Resource;
 
 
 /**
@@ -45,9 +44,9 @@ public class SQLFile
 	 * @param in The input stream for the file.
 	 * @param url The url of the file.
 	 */
-	protected SQLFile( BufferedInputStream in, URL url )
+	protected SQLFile( Resource resource )
 	{
-		this.reader = new BOMDetectingLineReader( in, ENCODING_PATTERN, url );
+		this.reader = new BOMDetectingLineReader( resource, ENCODING_PATTERN );
 	}
 
 	/**

@@ -77,14 +77,15 @@ public class BOMDetectingLineReader extends BufferedReaderLineReader
 	 * @param encodingDetection A regular expression to detect the encoding on the first line.
 	 * @param url The {@link URL} of the stream.
 	 */
-	public BOMDetectingLineReader( BufferedInputStream in, Pattern encodingDetection, URL url )
+	public BOMDetectingLineReader( Resource resource, Pattern encodingDetection )
 	{
-		this.url = url;
+		this.resource = resource;
+
+		BufferedInputStream in = new BufferedInputStream( resource.getInputStream() );
+		detectBOM( in );
 
 		try
 		{
-			detectBOM( in );
-
 			this.reader = new BufferedReader( new InputStreamReader( in, this.encoding ) );
 			this.currentLineNumber = 1;
 
@@ -136,14 +137,15 @@ public class BOMDetectingLineReader extends BufferedReaderLineReader
 	 * @param encoding The encoding of the file. If not null, it will override the BOM.
 	 * @param url The {@link URL} of the stream.
 	 */
-	public BOMDetectingLineReader( BufferedInputStream in, String encoding, URL url )
+	public BOMDetectingLineReader( Resource resource, String encoding )
 	{
-		this.url = url;
+		this.resource = resource;
+
+		BufferedInputStream in = new BufferedInputStream( resource.getInputStream() );
+		detectBOM( in );
 
 		try
 		{
-			detectBOM( in );
-
 			if( encoding != null )
 				this.encoding = encoding;
 
@@ -206,6 +208,7 @@ public class BOMDetectingLineReader extends BufferedReaderLineReader
 	 * 
 	 * @return The current character encoding of the stream.
 	 */
+	@Override
 	public String getEncoding()
 	{
 		return this.encoding;
@@ -216,6 +219,7 @@ public class BOMDetectingLineReader extends BufferedReaderLineReader
 	 * 
 	 * @return The Byte Order Mark found. Will be null if no BOM was present.
 	 */
+	@Override
 	public byte[] getBOM()
 	{
 		return this.bom;

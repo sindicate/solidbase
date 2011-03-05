@@ -16,18 +16,16 @@
 
 package solidbase.core;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 import solidbase.util.Assert;
+import solidbase.util.FileResource;
 import solidbase.util.URLRandomAccessLineReader;
+import solidbase.util.URLResource;
 
 
 /**
@@ -35,12 +33,12 @@ import solidbase.util.URLRandomAccessLineReader;
  * 
  * @author René M. de Bloois
  */
-public class Util
+public class Factory
 {
 	/**
 	 * This utility class cannot be constructed.
 	 */
-	private Util()
+	private Factory()
 	{
 		super();
 	}
@@ -75,27 +73,33 @@ public class Util
 	{
 		Assert.notNull( fileName );
 
-		try
+		if( baseDir == null )
 		{
-			if( baseDir == null )
+			// TODO Should we remove this "/"?
+			URL url = Factory.class.getResource( "/" + fileName ); // In the classpath
+			if( url != null )
 			{
-				// TODO Should we remove this "/"?
-				URL url = Util.class.getResource( "/" + fileName ); // In the classpath
-				if( url != null )
-				{
-					listener.openingSQLFile( url );
-					return new URLRandomAccessLineReader( url );
-				}
+				listener.openingSQLFile( url );
+				return new URLRandomAccessLineReader( new URLResource( url ) );
 			}
+		}
 
-			File file = new File( baseDir, fileName ); // In the current folder
-			listener.openingPatchFile( file );
-			return new URLRandomAccessLineReader( file );
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
+		File file = new File( baseDir, fileName ); // In the current folder
+		listener.openingPatchFile( file );
+		return new URLRandomAccessLineReader( new FileResource( file ) );
+	}
+
+	/**
+	 * Open the specified SQL file in the specified folder.
+	 *
+	 * @param listener The progress listener.
+	 * @return A random access reader for the file.
+	 */
+	static public URLRandomAccessLineReader openRALR( URL url, ProgressListener listener )
+	{
+		Assert.notNull( url );
+		listener.openingPatchFile( url );
+		return new URLRandomAccessLineReader( new URLResource( url ) );
 	}
 
 	/**
@@ -111,33 +115,24 @@ public class Util
 	{
 		Assert.notNull( fileName );
 
-		try
+		if( baseDir == null )
 		{
-			if( baseDir == null )
+			// TODO Should we remove this "/"?
+			URL url = Factory.class.getResource( "/" + fileName ); // In the classpath
+			if( url != null )
 			{
-				// TODO Should we remove this "/"?
-				URL url = Util.class.getResource( "/" + fileName ); // In the classpath
-				if( url != null )
-				{
-					listener.openingSQLFile( url );
-					InputStream in = url.openStream();
-					SQLFile result = new SQLFile( new BufferedInputStream( in ), url );
-					listener.openedSQLFile( result );
-					return result;
-				}
+				listener.openingSQLFile( url );
+				SQLFile result = new SQLFile( new URLResource( url ) );
+				listener.openedSQLFile( result );
+				return result;
 			}
+		}
 
-			File file = new File( baseDir, fileName ); // In the current folder
-			listener.openingSQLFile( file );
-			InputStream in = new FileInputStream( file );
-			SQLFile result = new SQLFile( new BufferedInputStream( in ), file.toURI().toURL() );
-			listener.openedSQLFile( result );
-			return result;
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
+		File file = new File( baseDir, fileName ); // In the current folder
+		listener.openingSQLFile( file );
+		SQLFile result = new SQLFile( new FileResource( file ) );
+		listener.openedSQLFile( result );
+		return result;
 	}
 
 	/**
@@ -190,5 +185,23 @@ public class Util
 	static public PatchFile openPatchFile( String fileName, ProgressListener listener )
 	{
 		return openPatchFile( null, fileName, listener );
+	}
+
+	static public PatchFile openPatchFile( URL url, ProgressListener listener )
+	{
+		URLRandomAccessLineReader reader = openRALR( url, listener );
+		PatchFile result = new PatchFile( reader );
+		try
+		{
+			result.scan();
+		}
+		catch( RuntimeException e )
+		{
+			// When read() fails, close the file.
+			reader.close();
+			throw e;
+		}
+		listener.openedPatchFile( result );
+		return result;
 	}
 }

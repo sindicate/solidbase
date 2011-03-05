@@ -1,20 +1,20 @@
 package solidbase.spring;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.apache.tools.ant.BuildException;
 import org.springframework.core.io.Resource;
 
 import solidbase.Console;
 import solidbase.Progress;
 import solidbase.Version;
 import solidbase.core.Database;
-import solidbase.core.FatalException;
 import solidbase.core.PatchProcessor;
-import solidbase.core.Util;
+import solidbase.core.Factory;
+import solidbase.core.SystemException;
 
 public class UpgradeBean
 {
@@ -117,14 +117,12 @@ public class UpgradeBean
 		progress.println( info );
 		progress.println( "" );
 
-		try
-		{
-			Database database;
-			if( this.datasource != null )
-				database = new Database( "default", this.datasource, this.username, this.password, progress );
-			else
-				database = new Database( "default", this.driver, this.url, this.username, this.password, progress );
-			PatchProcessor processor = new PatchProcessor( progress, database );
+		Database database;
+		if( this.datasource != null )
+			database = new Database( "default", this.datasource, this.username, this.password, progress );
+		else
+			database = new Database( "default", this.driver, this.url, this.username, this.password, progress );
+		PatchProcessor processor = new PatchProcessor( progress, database );
 
 //			for( Connection connection : this.connections )
 //				processor.addDatabase(
@@ -132,24 +130,26 @@ public class UpgradeBean
 //								connection.getUrl() == null ? this.url : connection.getUrl(),
 //										connection.getUsername(), connection.getPassword(), progress ) );
 
-			processor.setPatchFile( Util.openPatchFile( null, this.upgradefile.getFilename(), progress ) );
-			try
-			{
-				processor.init();
-				progress.println( "Connecting to database..." );
-				progress.println( processor.getVersionStatement() );
-				processor.patch( this.target, false );
-				progress.println( "" );
-				progress.println( processor.getVersionStatement() );
-			}
-			finally
-			{
-				processor.end();
-			}
-		}
-		catch( FatalException e )
+		try
 		{
-			throw new BuildException( e.getMessage() );
+			processor.setPatchFile( Factory.openPatchFile( this.upgradefile.getURL(), progress ) );
+		}
+		catch( IOException e )
+		{
+			throw new SystemException( e.getMessage() );
+		}
+		try
+		{
+			processor.init();
+			progress.println( "Connecting to database..." );
+			progress.println( processor.getVersionStatement() );
+			processor.patch( this.target, false );
+			progress.println( "" );
+			progress.println( processor.getVersionStatement() );
+		}
+		finally
+		{
+			processor.end();
 		}
 	}
 }

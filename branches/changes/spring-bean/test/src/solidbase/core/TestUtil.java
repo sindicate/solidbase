@@ -74,7 +74,7 @@ public class TestUtil
 		Assert.assertEquals( result.getString( "TARGET" ), target, "target:" );
 		Assert.assertEquals( result.getInt( "STATEMENTS" ), statements, "statements:" );
 		if( spec == null )
-			Assert.assertFalse( Util.hasColumn( result, "SPEC" ), "SPEC column should not exist in the DBVERSION table" );
+			Assert.assertFalse( Factory.hasColumn( result, "SPEC" ), "SPEC column should not exist in the DBVERSION table" );
 		else
 			Assert.assertEquals( result.getString( "SPEC" ), spec, "spec:" );
 		Assert.assertFalse( result.next() );

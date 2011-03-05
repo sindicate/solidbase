@@ -236,7 +236,7 @@ public class DBVersion
 				try
 				{
 					ResultSet resultSet = statement.executeQuery(); // Resultset is closed when the statement is closed
-					if( Util.hasColumn( resultSet, "SPEC" ) )
+					if( Factory.hasColumn( resultSet, "SPEC" ) )
 						this.specColumnExists = true;
 					else
 						Assert.isFalse( this.specColumnExists, "SPEC column in DBVERSION table has disappeared" );

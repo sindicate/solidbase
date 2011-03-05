@@ -17,13 +17,10 @@
 package solidbase.util;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
-
 import solidbase.core.SystemException;
 
 
@@ -74,11 +71,11 @@ public class URLRandomAccessLineReader extends BufferedReaderLineReader implemen
 	 * 
 	 * @param url The URL to read from.
 	 */
-	public URLRandomAccessLineReader( URL url )
+	public URLRandomAccessLineReader( Resource resource )
 	{
 		try
 		{
-			this.url = url;
+			this.resource = resource;
 			reOpen();
 
 			this.reader.mark( 1000 ); // 1000 is smaller then the default buffer size of 8192, which is ok
@@ -106,26 +103,14 @@ public class URLRandomAccessLineReader extends BufferedReaderLineReader implemen
 	}
 
 	/**
-	 * Creates a new line reader from the given file.
-	 * 
-	 * @param file The file to read from.
-	 * @throws IOException When a {@link IOException} occurs.
-	 */
-	public URLRandomAccessLineReader( File file ) throws IOException
-	{
-		this( file.toURI().toURL() );
-	}
-
-	/**
 	 * Reopens itself to reset the position or change the character encoding.
 	 */
 	protected void reOpen()
 	{
 		close();
-
+		InputStream is = this.resource.getInputStream();
 		try
 		{
-			InputStream is = this.url.openStream();
 			if( this.bom != null )
 				Assert.isTrue( is.skip( this.bom.length ) == this.bom.length ); // Skip some bytes
 			this.reader = new BufferedReader( new InputStreamReader( is, this.encoding ) );
@@ -216,6 +201,7 @@ public class URLRandomAccessLineReader extends BufferedReaderLineReader implemen
 	 * 
 	 * @return The current character encoding of the stream.
 	 */
+	@Override
 	public String getEncoding()
 	{
 		return this.encoding;
@@ -226,6 +212,7 @@ public class URLRandomAccessLineReader extends BufferedReaderLineReader implemen
 	 * 
 	 * @return The Byte Order Mark found. Will be null if no BOM was present.
 	 */
+	@Override
 	public byte[] getBOM()
 	{
 		return this.bom;

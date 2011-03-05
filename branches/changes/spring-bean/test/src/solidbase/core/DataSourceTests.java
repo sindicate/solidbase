@@ -18,7 +18,7 @@ public class DataSourceTests
 		DriverDataSource dataSource = new DriverDataSource( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb2", "sa", null );
 		Database database = new Database( "default", dataSource, progress );
 		PatchProcessor processor = new PatchProcessor( progress, database );
-		PatchFile patchFile = Util.openPatchFile( "testpatch1.sql", progress );
+		PatchFile patchFile = Factory.openPatchFile( "testpatch1.sql", progress );
 		processor.setPatchFile( patchFile );
 		processor.init();
 
@@ -39,7 +39,7 @@ public class DataSourceTests
 		DriverDataSource dataSource = new DriverDataSource( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb2", "sa", null );
 		Database database = new Database( "default", dataSource, "sa", null, progress );
 		PatchProcessor processor = new PatchProcessor( progress, database );
-		PatchFile patchFile = Util.openPatchFile( "testpatch1.sql", progress );
+		PatchFile patchFile = Factory.openPatchFile( "testpatch1.sql", progress );
 		processor.setPatchFile( patchFile );
 		processor.init();
 

@@ -21,6 +21,7 @@ import java.util.regex.Matcher;
 
 import solidbase.core.Delimiter.Type;
 import solidbase.util.LineReader;
+import solidbase.util.Resource;
 import solidbase.util.StringLineReader;
 
 
@@ -206,8 +207,8 @@ public class SQLSource
 	 * 
 	 * @return The {@link URL} of the source.
 	 */
-	public URL getURL()
+	public Resource getResource()
 	{
-		return this.reader.getURL();
+		return this.reader.getResource();
 	}
 }

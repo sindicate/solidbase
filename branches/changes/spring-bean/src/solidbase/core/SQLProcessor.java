@@ -16,10 +16,10 @@
 
 package solidbase.core;
 
-import java.net.URL;
 import java.sql.SQLException;
 
 import solidbase.util.LineReader;
+import solidbase.util.Resource;
 
 
 /**
@@ -115,8 +115,8 @@ public class SQLProcessor extends CommandProcessor
 	}
 
 	@Override
-	public URL getURL()
+	public Resource getResource()
 	{
-		return this.sqlSource.getURL();
+		return this.sqlSource.getResource();
 	}
 }
