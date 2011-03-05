@@ -118,7 +118,7 @@ public class PatchFile
 	 * 
 	 * @param file The reader which is used to read the contents of the file.
 	 */
-	protected PatchFile( URLRandomAccessLineReader file )
+	protected PatchFile( RandomAccessLineReader file )
 	{
 		this.file = file;
 

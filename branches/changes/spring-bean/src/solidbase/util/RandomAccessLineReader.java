@@ -13,4 +13,11 @@ public interface RandomAccessLineReader extends LineReader
 	 * @param lineNumber The number of the line that needs to be read next.
 	 */
 	void gotoLine( int lineNumber );
+
+	/**
+	 * Re-open the file with another encoding.
+	 * 
+	 * @param encoding The new encoding.
+	 */
+	void reOpen( String encoding );
 }

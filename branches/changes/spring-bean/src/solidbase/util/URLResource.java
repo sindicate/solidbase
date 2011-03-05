@@ -16,6 +16,11 @@ public class URLResource implements Resource
 		this.url = url;
 	}
 
+	public boolean supportsURL()
+	{
+		return true;
+	}
+
 	public URL getURL()
 	{
 		return this.url;

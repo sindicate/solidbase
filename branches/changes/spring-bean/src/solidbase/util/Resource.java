@@ -5,7 +5,8 @@ import java.net.URL;
 
 public interface Resource
 {
+	boolean supportsURL();
 	URL getURL();
-	Resource createRelative( String path );
 	InputStream getInputStream();
+	Resource createRelative( String path );
 }

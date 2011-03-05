@@ -23,6 +23,11 @@ public class InputStreamResource implements Resource
 		return result;
 	}
 
+	public boolean supportsURL()
+	{
+		return false;
+	}
+
 	public URL getURL()
 	{
 		throw new UnsupportedOperationException();

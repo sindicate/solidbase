@@ -24,6 +24,11 @@ public class FileResource implements Resource
 		this( new File( path ) );
 	}
 
+	public boolean supportsURL()
+	{
+		return true;
+	}
+
 	public URL getURL()
 	{
 		try

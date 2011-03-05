@@ -24,6 +24,9 @@ import java.sql.SQLException;
 
 import solidbase.util.Assert;
 import solidbase.util.FileResource;
+import solidbase.util.MemoryResource;
+import solidbase.util.RandomAccessLineReader;
+import solidbase.util.Resource;
 import solidbase.util.URLRandomAccessLineReader;
 import solidbase.util.URLResource;
 
@@ -100,6 +103,19 @@ public class Factory
 		Assert.notNull( url );
 		listener.openingPatchFile( url );
 		return new URLRandomAccessLineReader( new URLResource( url ) );
+	}
+
+	static public RandomAccessLineReader openRALR( Resource resource, ProgressListener listener )
+	{
+		if( resource.supportsURL() ) // TODO supportsReopen()
+		{
+			listener.openingPatchFile( resource.getURL() );
+			return new URLRandomAccessLineReader( resource );
+		}
+
+		MemoryResource resource2 = new MemoryResource();
+		resource2.readFromInputStream( resource.getInputStream() );
+		return new URLRandomAccessLineReader( resource2 );
 	}
 
 	/**
@@ -190,6 +206,24 @@ public class Factory
 	static public PatchFile openPatchFile( URL url, ProgressListener listener )
 	{
 		URLRandomAccessLineReader reader = openRALR( url, listener );
+		PatchFile result = new PatchFile( reader );
+		try
+		{
+			result.scan();
+		}
+		catch( RuntimeException e )
+		{
+			// When read() fails, close the file.
+			reader.close();
+			throw e;
+		}
+		listener.openedPatchFile( result );
+		return result;
+	}
+
+	static public PatchFile openPatchFile( Resource resource, ProgressListener listener )
+	{
+		RandomAccessLineReader reader = openRALR( resource, listener );
 		PatchFile result = new PatchFile( reader );
 		try
 		{

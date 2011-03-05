@@ -1,5 +1,6 @@
 package solidbase.spring;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,9 +13,11 @@ import solidbase.Console;
 import solidbase.Progress;
 import solidbase.Version;
 import solidbase.core.Database;
-import solidbase.core.PatchProcessor;
 import solidbase.core.Factory;
+import solidbase.core.PatchProcessor;
 import solidbase.core.SystemException;
+import solidbase.util.InputStreamResource;
+import solidbase.util.URLResource;
 
 public class UpgradeBean
 {
@@ -124,6 +127,7 @@ public class UpgradeBean
 			database = new Database( "default", this.driver, this.url, this.username, this.password, progress );
 		PatchProcessor processor = new PatchProcessor( progress, database );
 
+		// TODO Secondary connections
 //			for( Connection connection : this.connections )
 //				processor.addDatabase(
 //						new Database( connection.getName(), connection.getDriver() == null ? this.driver : connection.getDriver(),
@@ -132,11 +136,20 @@ public class UpgradeBean
 
 		try
 		{
-			processor.setPatchFile( Factory.openPatchFile( this.upgradefile.getURL(), progress ) );
+			solidbase.util.Resource resource;
+			try
+			{
+				resource = new URLResource( this.upgradefile.getURL() );
+			}
+			catch( FileNotFoundException e )
+			{
+				resource = new InputStreamResource( this.upgradefile.getInputStream() );
+			}
+			processor.setPatchFile( Factory.openPatchFile( resource, progress ) );
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e.getMessage() );
+			throw new SystemException( e );
 		}
 		try
 		{
