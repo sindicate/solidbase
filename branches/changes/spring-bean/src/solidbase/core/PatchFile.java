@@ -34,6 +34,7 @@ import org.apache.commons.lang.StringUtils;
 
 import solidbase.core.Patch.Type;
 import solidbase.util.Assert;
+import solidbase.util.RandomAccessLineReader;
 import solidbase.util.URLRandomAccessLineReader;
 
 
@@ -69,7 +70,7 @@ public class PatchFile
 	/**
 	 * The upgrade file.
 	 */
-	protected URLRandomAccessLineReader file;
+	protected RandomAccessLineReader file;
 
 	/**
 	 * The default delimiters.

@@ -32,7 +32,7 @@ import solidbase.core.SystemException;
  * 
  * @author René M. de Bloois
  */
-public class URLRandomAccessLineReader extends LineReader
+public class URLRandomAccessLineReader extends BufferedReaderLineReader implements RandomAccessLineReader
 {
 	/**
 	 * Constant for the ISO-8859-1 character set.

@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 
 import solidbase.core.Database;
 import solidbase.core.PatchProcessor;
+import solidbase.util.RandomAccessLineReader;
 import solidbase.util.URLRandomAccessLineReader;
 
 
@@ -85,7 +86,7 @@ public class CharSets
 		Assert.assertEquals( patchFile.file.getBOM(), new byte[] { -1, -2 } );
 		Assert.assertEquals( patchFile.file.getEncoding(), "UTF-16LE" );
 
-		URLRandomAccessLineReader reader = patchFile.file;
+		RandomAccessLineReader reader = patchFile.file;
 		reader.gotoLine( 1 );
 		boolean found = false;
 		String line = reader.readLine();
@@ -109,7 +110,7 @@ public class CharSets
 		Assert.assertNull( patchFile.file.getBOM() );
 		Assert.assertEquals( patchFile.file.getEncoding(), "UTF-16LE" );
 
-		URLRandomAccessLineReader reader = patchFile.file;
+		RandomAccessLineReader reader = patchFile.file;
 		reader.gotoLine( 1 );
 		boolean found = false;
 		String line = reader.readLine();

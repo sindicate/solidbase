@@ -32,7 +32,7 @@ import solidbase.core.SystemException;
  * 
  * @author René M. de Bloois
  */
-public class BOMDetectingLineReader extends LineReader
+public class BOMDetectingLineReader extends BufferedReaderLineReader
 {
 	/**
 	 * Constant for the ISO-8859-1 character set.
