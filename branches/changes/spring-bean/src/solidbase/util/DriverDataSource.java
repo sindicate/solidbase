@@ -1,17 +1,18 @@
-package solidbase.core;
+package solidbase.util;
 
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import solidbase.util.Assert;
 
-public class TestDataSource implements javax.sql.DataSource
+import solidbase.core.SystemException;
+
+public class DriverDataSource implements javax.sql.DataSource
 {
 	/**
 	 * The class name of the driver to be used to access the database.
 	 */
-	protected String driverName;
+	protected String driverClassName;
 
 	/**
 	 * The URL of the database.
@@ -21,12 +22,12 @@ public class TestDataSource implements javax.sql.DataSource
 	/**
 	 * The default user name to use for this database.
 	 */
-	protected String defaultUser;
+	protected String username;
 
 	/**
 	 * The password belonging to the default user.
 	 */
-	protected String defaultPassword;
+	protected String password;
 
 
 	/**
@@ -34,18 +35,18 @@ public class TestDataSource implements javax.sql.DataSource
 	 *
 	 * @param driverClassName
 	 * @param url
-	 * @param defaultUser
-	 * @param defaultPassword
+	 * @param username
+	 * @param password
 	 */
-	public TestDataSource( String driverClassName, String url, String defaultUser, String defaultPassword )
+	public DriverDataSource( String driverClassName, String url, String username, String password )
 	{
 		Assert.notNull( driverClassName );
 		Assert.notNull( url );
 
-		this.driverName = driverClassName;
+		this.driverClassName = driverClassName;
 		this.url = url;
-		this.defaultUser = defaultUser;
-		this.defaultPassword = defaultPassword;
+		this.username = username;
+		this.password = password;
 
 		try
 		{
@@ -61,7 +62,7 @@ public class TestDataSource implements javax.sql.DataSource
 	{
 		try
 		{
-			Connection connection = DriverManager.getConnection( this.url, this.defaultUser, this.defaultPassword );
+			Connection connection = DriverManager.getConnection( this.url, this.username, this.password );
 			connection.setAutoCommit( false );
 			return connection;
 		}

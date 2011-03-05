@@ -22,7 +22,7 @@ import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import solidbase.util.RandomAccessLineReader;
+import solidbase.util.URLRandomAccessLineReader;
 
 
 public class EmptyLines
@@ -30,7 +30,7 @@ public class EmptyLines
 	@Test
 	public void testEmptyLines() throws IOException
 	{
-		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch-emptylines.sql" ) );
+		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new File( "testpatch-emptylines.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
 		patchFile.scan();
 		Patch patch = patchFile.getPatch( "1.0.1", "1.0.2" );

@@ -27,7 +27,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 import solidbase.util.Assert;
-import solidbase.util.RandomAccessLineReader;
+import solidbase.util.URLRandomAccessLineReader;
 
 
 /**
@@ -71,7 +71,7 @@ public class Util
 	 * @param listener The progress listener.
 	 * @return A random access reader for the file.
 	 */
-	static public RandomAccessLineReader openRALR( File baseDir, String fileName, ProgressListener listener )
+	static public URLRandomAccessLineReader openRALR( File baseDir, String fileName, ProgressListener listener )
 	{
 		Assert.notNull( fileName );
 
@@ -84,13 +84,13 @@ public class Util
 				if( url != null )
 				{
 					listener.openingSQLFile( url );
-					return new RandomAccessLineReader( url );
+					return new URLRandomAccessLineReader( url );
 				}
 			}
 
 			File file = new File( baseDir, fileName ); // In the current folder
 			listener.openingPatchFile( file );
-			return new RandomAccessLineReader( file );
+			return new URLRandomAccessLineReader( file );
 		}
 		catch( IOException e )
 		{
@@ -164,7 +164,7 @@ public class Util
 	{
 		if( fileName == null )
 			fileName = "upgrade.sql";
-		RandomAccessLineReader reader = openRALR( baseDir, fileName, listener );
+		URLRandomAccessLineReader reader = openRALR( baseDir, fileName, listener );
 		PatchFile result = new PatchFile( reader );
 		try
 		{

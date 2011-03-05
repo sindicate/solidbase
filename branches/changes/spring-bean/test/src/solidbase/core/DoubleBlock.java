@@ -23,14 +23,14 @@ import org.testng.annotations.Test;
 
 import solidbase.core.FatalException;
 import solidbase.core.PatchFile;
-import solidbase.util.RandomAccessLineReader;
+import solidbase.util.URLRandomAccessLineReader;
 
 public class DoubleBlock
 {
 	@Test
 	public void testDoubleBlock() throws IOException
 	{
-		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch-doubleblock.sql" ) );
+		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new File( "testpatch-doubleblock.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
 		try
 		{

@@ -5,6 +5,8 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import solidbase.util.DriverDataSource;
+
 public class DataSourceTests
 {
 	@Test
@@ -13,7 +15,7 @@ public class DataSourceTests
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb2", "sa", null );
 
 		TestProgressListener progress = new TestProgressListener();
-		TestDataSource dataSource = new TestDataSource( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb2", "sa", null );
+		DriverDataSource dataSource = new DriverDataSource( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb2", "sa", null );
 		Database database = new Database( "default", dataSource, progress );
 		PatchProcessor processor = new PatchProcessor( progress, database );
 		PatchFile patchFile = Util.openPatchFile( "testpatch1.sql", progress );
@@ -34,7 +36,7 @@ public class DataSourceTests
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb2", "sa", null );
 
 		TestProgressListener progress = new TestProgressListener();
-		TestDataSource dataSource = new TestDataSource( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb2", "sa", null );
+		DriverDataSource dataSource = new DriverDataSource( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb2", "sa", null );
 		Database database = new Database( "default", dataSource, "sa", null, progress );
 		PatchProcessor processor = new PatchProcessor( progress, database );
 		PatchFile patchFile = Util.openPatchFile( "testpatch1.sql", progress );

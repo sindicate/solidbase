@@ -32,7 +32,7 @@ import solidbase.core.SystemException;
  * 
  * @author René M. de Bloois
  */
-public class RandomAccessLineReader extends LineReader
+public class URLRandomAccessLineReader extends LineReader
 {
 	/**
 	 * Constant for the ISO-8859-1 character set.
@@ -74,7 +74,7 @@ public class RandomAccessLineReader extends LineReader
 	 * 
 	 * @param url The URL to read from.
 	 */
-	public RandomAccessLineReader( URL url )
+	public URLRandomAccessLineReader( URL url )
 	{
 		try
 		{
@@ -111,7 +111,7 @@ public class RandomAccessLineReader extends LineReader
 	 * @param file The file to read from.
 	 * @throws IOException When a {@link IOException} occurs.
 	 */
-	public RandomAccessLineReader( File file ) throws IOException
+	public URLRandomAccessLineReader( File file ) throws IOException
 	{
 		this( file.toURI().toURL() );
 	}

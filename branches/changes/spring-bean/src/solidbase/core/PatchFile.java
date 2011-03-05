@@ -34,7 +34,7 @@ import org.apache.commons.lang.StringUtils;
 
 import solidbase.core.Patch.Type;
 import solidbase.util.Assert;
-import solidbase.util.RandomAccessLineReader;
+import solidbase.util.URLRandomAccessLineReader;
 
 
 /**
@@ -69,7 +69,7 @@ public class PatchFile
 	/**
 	 * The upgrade file.
 	 */
-	protected RandomAccessLineReader file;
+	protected URLRandomAccessLineReader file;
 
 	/**
 	 * The default delimiters.
@@ -117,7 +117,7 @@ public class PatchFile
 	 * 
 	 * @param file The reader which is used to read the contents of the file.
 	 */
-	protected PatchFile( RandomAccessLineReader file )
+	protected PatchFile( URLRandomAccessLineReader file )
 	{
 		this.file = file;
 

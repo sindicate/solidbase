@@ -23,14 +23,14 @@ import org.testng.annotations.Test;
 
 import solidbase.core.FatalException;
 import solidbase.core.PatchFile;
-import solidbase.util.RandomAccessLineReader;
+import solidbase.util.URLRandomAccessLineReader;
 
 public class MissingBlock
 {
 	@Test
 	public void testBasic() throws IOException
 	{
-		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch-missingblock.sql" ) );
+		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new File( "testpatch-missingblock.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
 		try
 		{
@@ -47,7 +47,7 @@ public class MissingBlock
 	@Test
 	public void testMissingInitBlock() throws IOException
 	{
-		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch-missinginitblock.sql" ) );
+		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new File( "testpatch-missinginitblock.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
 		try
 		{
