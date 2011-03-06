@@ -3,11 +3,33 @@ package solidbase.util;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * An input stream that reads from a 2-dimensional byte array.
+ *
+ * @author René M. de Bloois
+ */
 public class ByteMatrixInputStream extends InputStream
 {
+	/**
+	 * The 2-dimensional byte array where the input stream reads its bytes from.
+	 */
 	protected byte[][] matrix;
-	protected int pos1, pos2;
 
+	/**
+	 * The position in the first dimension.
+	 */
+	protected int pos1;
+
+	/**
+	 * The position in the second dimension.
+	 */
+	protected int pos2;
+
+	/**
+	 * Constructs an input stream for the given 2-dimensional byte array.
+	 *
+	 * @param matrix The 2-dimensional byte array.
+	 */
 	public ByteMatrixInputStream( byte[][] matrix )
 	{
 		this.matrix = matrix;

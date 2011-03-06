@@ -20,7 +20,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +28,7 @@ import solidbase.core.SystemException;
 
 /**
  * A line reader that automatically detects character encoding through the BOM and the first line.
- * 
+ *
  * @author René M. de Bloois
  */
 public class BOMDetectingLineReader extends BufferedReaderLineReader
@@ -71,11 +70,10 @@ public class BOMDetectingLineReader extends BufferedReaderLineReader
 
 
 	/**
-	 * Creates a new line reader for the given input streamL.
-	 * 
-	 * @param in The input stream to read lines from.
+	 * Creates a new linereader for the given resource.
+	 *
+	 * @param resource The resource to be read.
 	 * @param encodingDetection A regular expression to detect the encoding on the first line.
-	 * @param url The {@link URL} of the stream.
 	 */
 	public BOMDetectingLineReader( Resource resource, Pattern encodingDetection )
 	{
@@ -131,11 +129,10 @@ public class BOMDetectingLineReader extends BufferedReaderLineReader
 	}
 
 	/**
-	 * Creates a new line reader for the given input streamL.
-	 * 
-	 * @param in The input stream to read lines from.
+	 * Creates a new linereader for the given resource.
+	 *
+	 * @param resource The resource to be read.
 	 * @param encoding The encoding of the file. If not null, it will override the BOM.
-	 * @param url The {@link URL} of the stream.
 	 */
 	public BOMDetectingLineReader( Resource resource, String encoding )
 	{
@@ -160,7 +157,7 @@ public class BOMDetectingLineReader extends BufferedReaderLineReader
 
 	/**
 	 * Detect the encoding from the BOM.
-	 * 
+	 *
 	 * @param in The input stream.
 	 */
 	protected void detectBOM( BufferedInputStream in )
@@ -205,7 +202,7 @@ public class BOMDetectingLineReader extends BufferedReaderLineReader
 
 	/**
 	 * Returns the current character encoding of the stream.
-	 * 
+	 *
 	 * @return The current character encoding of the stream.
 	 */
 	@Override
@@ -216,7 +213,7 @@ public class BOMDetectingLineReader extends BufferedReaderLineReader
 
 	/**
 	 * Returns the Byte Order Mark found in the stream.
-	 * 
+	 *
 	 * @return The Byte Order Mark found. Will be null if no BOM was present.
 	 */
 	@Override

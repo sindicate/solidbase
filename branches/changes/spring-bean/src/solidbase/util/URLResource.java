@@ -7,15 +7,34 @@ import java.net.URL;
 
 import solidbase.core.SystemException;
 
+/**
+ * A resource identified by a URL.
+ *
+ * @author René M. de Bloois
+ */
 public class URLResource implements Resource
 {
+	/**
+	 * The URL.
+	 */
 	protected URL url;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param url The URL.
+	 */
 	public URLResource( URL url )
 	{
 		this.url = url;
 	}
 
+	/**
+	 * Constructor.
+	 *
+	 * @param url The URL.
+	 * @throws MalformedURLException If the string specifies an unknown protocol.
+	 */
 	public URLResource( String url ) throws MalformedURLException
 	{
 		this( new URL( url ) );

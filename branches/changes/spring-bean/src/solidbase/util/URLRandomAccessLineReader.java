@@ -21,12 +21,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+
 import solidbase.core.SystemException;
 
 
 /**
  * A line reader that automatically detects character encoding through the BOM and is able to reposition itself on a line.
- * 
+ *
  * @author René M. de Bloois
  */
 public class URLRandomAccessLineReader extends BufferedReaderLineReader implements RandomAccessLineReader
@@ -68,8 +69,8 @@ public class URLRandomAccessLineReader extends BufferedReaderLineReader implemen
 
 	/**
 	 * Creates a new line reader from the given URL.
-	 * 
-	 * @param url The URL to read from.
+	 *
+	 * @param resource The resource to read from.
 	 */
 	public URLRandomAccessLineReader( Resource resource )
 	{
@@ -124,7 +125,7 @@ public class URLRandomAccessLineReader extends BufferedReaderLineReader implemen
 
 	/**
 	 * Detects the encoding of the stream by looking at the first 2, 3 or 4 bytes.
-	 * 
+	 *
 	 * @param firstLine The first line read from the stream.
 	 */
 	protected void detectEncoding( String firstLine )
@@ -169,7 +170,7 @@ public class URLRandomAccessLineReader extends BufferedReaderLineReader implemen
 
 	/**
 	 * Reopen the stream to change the character decoding.
-	 * 
+	 *
 	 * @param encoding the requested encoding.
 	 */
 	public void reOpen( String encoding )
@@ -180,7 +181,7 @@ public class URLRandomAccessLineReader extends BufferedReaderLineReader implemen
 
 	/**
 	 * Repositions the stream so that the given line number is the one that is to be read next. The underlying stream will be reopened if needed.
-	 * 
+	 *
 	 * @param lineNumber the number of the line that will be read next.
 	 */
 	public void gotoLine( int lineNumber )
@@ -198,7 +199,7 @@ public class URLRandomAccessLineReader extends BufferedReaderLineReader implemen
 
 	/**
 	 * Returns the current character encoding of the stream.
-	 * 
+	 *
 	 * @return The current character encoding of the stream.
 	 */
 	@Override
@@ -209,7 +210,7 @@ public class URLRandomAccessLineReader extends BufferedReaderLineReader implemen
 
 	/**
 	 * Returns the Byte Order Mark found in the stream.
-	 * 
+	 *
 	 * @return The Byte Order Mark found. Will be null if no BOM was present.
 	 */
 	@Override

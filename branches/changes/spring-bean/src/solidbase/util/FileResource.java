@@ -9,21 +9,45 @@ import java.net.URL;
 
 import solidbase.core.SystemException;
 
+/**
+ * A file resource.
+ *
+ * @author René M. de Bloois
+ */
 public class FileResource implements Resource
 {
+	/**
+	 * The file.
+	 */
 	protected File file;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param file The file. The file cannot be a directory.
+	 */
 	public FileResource( File file )
 	{
 		Assert.isFalse( file.isDirectory(), "File can't be a directory" );
 		this.file = file;
 	}
 
+	/**
+	 * Constructor.
+	 *
+	 * @param path The path of the file. The file cannot be a directory.
+	 */
 	public FileResource( String path )
 	{
 		this( new File( path ) );
 	}
 
+	/**
+	 * Constructor for a relative file resource.
+	 *
+	 * @param parent The parent folder.
+	 * @param path The path of the resource.
+	 */
 	public FileResource( File parent, String path )
 	{
 		this( new File( parent, path ) );
@@ -42,7 +66,7 @@ public class FileResource implements Resource
 		}
 		catch( MalformedURLException e )
 		{
-			throw new SystemException( e );
+			throw new SystemException( e ); // Not expected
 		}
 	}
 

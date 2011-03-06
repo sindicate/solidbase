@@ -2,6 +2,11 @@ package solidbase.spring;
 
 import javax.sql.DataSource;
 
+/**
+ * Secondary connections used by the {@link UpgradeBean}.
+ *
+ * @author René M. de Bloois
+ */
 public class SecondaryConnection
 {
 	/**
@@ -94,11 +99,21 @@ public class SecondaryConnection
 		this.url = url;
 	}
 
+	/**
+	 * Returns the data source.
+	 *
+	 * @return The data source.
+	 */
 	public DataSource getDatasource()
 	{
 		return this.datasource;
 	}
 
+	/**
+	 * Sets the data source.
+	 *
+	 * @param datasource the data source.
+	 */
 	public void setDatasource( DataSource datasource )
 	{
 		this.datasource = datasource;

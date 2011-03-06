@@ -9,20 +9,41 @@ import java.util.List;
 
 import solidbase.core.SystemException;
 
+/**
+ * A memory resource.
+ *
+ * @author René M. de Bloois
+ */
 public class MemoryResource implements Resource
 {
+	/**
+	 * The buffer containing the resource's bytes.
+	 */
 	protected List< byte[] > buffer = new LinkedList< byte[] >();
 
+	/**
+	 * Constructor for an empty memory resource.
+	 */
 	public MemoryResource()
 	{
 		// Default constructor
 	}
 
+	/**
+	 * Constructs a new memory resource with the given bytes.
+	 *
+	 * @param bytes Bytes to use for the resource.
+	 */
 	public MemoryResource( byte[] bytes )
 	{
 		this.buffer.add( bytes );
 	}
 
+	/**
+	 * Constructs a new memory resource by reading the input stream to the end.
+	 *
+	 * @param input The input stream to be read.
+	 */
 	public MemoryResource( InputStream input )
 	{
 		append( input );
@@ -48,13 +69,18 @@ public class MemoryResource implements Resource
 		throw new UnsupportedOperationException();
 	}
 
-	public void append( InputStream in )
+	/**
+	 * Appends the contents of the input stream to this memory resource.
+	 *
+	 * @param input The input stream to be read.
+	 */
+	public void append( InputStream input )
 	{
 		byte[] buffer = new byte[ 4096 ];
 		int count;
 		try
 		{
-			while( ( count = in.read( buffer ) ) > 0 )
+			while( ( count = input.read( buffer ) ) > 0 )
 				this.buffer.add( Arrays.copyOf( buffer, count ) );
 		}
 		catch( IOException e )

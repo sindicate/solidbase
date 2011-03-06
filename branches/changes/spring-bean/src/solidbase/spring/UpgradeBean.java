@@ -19,100 +19,220 @@ import solidbase.util.DriverDataSource;
 import solidbase.util.MemoryResource;
 import solidbase.util.URLResource;
 
+/**
+ * The Upgrade
+ * @author Rene
+ *
+ */
 public class UpgradeBean
 {
+	/**
+	 * The database driver class. Gets overruled by datasource.
+	 */
 	private String driver;
+
+	/**
+	 * The URL of the database. Gets overruled by datasource.
+	 */
 	private String url;
+
+	/**
+	 * The datasource. Overrules driver and URL.
+	 */
 	private DataSource datasource;
+
+	/**
+	 * The user name to use for connecting to the database.
+	 */
 	private String username;
+
+	/**
+	 * Password for the user.
+	 */
 	private String password;
+
+	/**
+	 * The configured upgrade file.
+	 */
 	private Resource upgradefile;
+
+	/**
+	 * The configured target.
+	 */
 	private String target;
+
+	/**
+	 * The configured downgrade allowed option.
+	 */
+	protected boolean downgradeallowed;
+
+	/**
+	 * The secondary connections.
+	 */
 	private List< SecondaryConnection > secondary = new ArrayList< SecondaryConnection >();
 
+	/**
+	 * Returns the database driver class name.
+	 *
+	 * @return The database driver class name.
+	 */
 	public String getDriver()
 	{
 		return this.driver;
 	}
 
+	/**
+	 * Sets the database driver class name.
+	 *
+	 * @param driver The database driver class name.
+	 */
 	public void setDriver( String driver )
 	{
 		this.driver = driver;
 	}
 
+	/**
+	 * Returns the database URL.
+	 *
+	 * @return The database URL.
+	 */
 	public String getUrl()
 	{
 		return this.url;
 	}
 
+	/**
+	 * Sets the database URL.
+	 *
+	 * @param url The database URL.
+	 */
 	public void setUrl( String url )
 	{
 		this.url = url;
 	}
 
+	/**
+	 * Returns the data source.
+	 *
+	 * @return The data source.
+	 */
 	public DataSource getDatasource()
 	{
 		return this.datasource;
 	}
 
+	/**
+	 * Sets the data source.
+	 *
+	 * @param datasource The data source.
+	 */
 	public void setDatasource( DataSource datasource )
 	{
 		this.datasource = datasource;
 	}
 
+	/**
+	 * Returns the user name that is used to connect to the database.
+	 *
+	 * @return The user name.
+	 */
 	public String getUsername()
 	{
 		return this.username;
 	}
 
+	/**
+	 * Sets the user name to use to connect to the database.
+	 *
+	 * @param username The user name.
+	 */
 	public void setUsername( String username )
 	{
 		this.username = username;
 	}
 
+	/**
+	 * Returns the password for the user.
+	 *
+	 * @return The password.
+	 */
 	public String getPassword()
 	{
 		return this.password;
 	}
 
+	/**
+	 * Sets the password for the user.
+	 *
+	 * @param password The password.
+	 */
 	public void setPassword( String password )
 	{
 		this.password = password;
 	}
 
+	/**
+	 * Returns the upgrade file.
+	 *
+	 * @return The upgrade file.
+	 */
 	public Resource getUpgradefile()
 	{
 		return this.upgradefile;
 	}
 
+	/**
+	 * Sets the upgrade file.
+	 *
+	 * @param upgradefile The upgrade file.
+	 */
 	public void setUpgradefile( Resource upgradefile )
 	{
 		this.upgradefile = upgradefile;
 	}
 
+	/**
+	 * Returns the target to upgrade the database to.
+	 *
+	 * @return The target.
+	 */
 	public String getTarget()
 	{
 		return this.target;
 	}
 
+	/**
+	 * Sets the target to upgrade the database to.
+	 *
+	 * @param target The target.
+	 */
 	public void setTarget( String target )
 	{
 		this.target = target;
 	}
 
+	/**
+	 * Returns the secondary connections.
+	 *
+	 * @return The secondary connections.
+	 */
 	public List< SecondaryConnection > getSecondary()
 	{
 		return this.secondary;
 	}
 
+	/**
+	 * Sets the secondary connections.
+	 *
+	 * @param secondary The secondary connections.
+	 */
 	public void setSecondary( List< SecondaryConnection > secondary )
 	{
 		this.secondary = secondary;
 	}
 
-
 	/**
-	 * Validates the configuration of the Upgrade bean.
+	 * Validates the configuration of the upgrade bean.
 	 */
 	protected void validate()
 	{
@@ -134,6 +254,9 @@ public class UpgradeBean
 			}
 	}
 
+	/**
+	 * Upgrades the database.
+	 */
 	public void upgrade()
 	{
 		validate();
@@ -167,7 +290,7 @@ public class UpgradeBean
 			if( this.upgradefile instanceof ByteArrayResource )
 				resource = new MemoryResource( ( (ByteArrayResource)this.upgradefile ).getByteArray() );
 			else if( this.upgradefile.isOpen() )
-				// Open means that the resource cannot be reopened. Thats why we read it into memory.
+				// Spring resource isOpen means that the resource cannot be reopened. Thats why we read it into memory.
 				resource = new MemoryResource( this.upgradefile.getInputStream() );
 			else
 				resource = new URLResource( this.upgradefile.getURL() );

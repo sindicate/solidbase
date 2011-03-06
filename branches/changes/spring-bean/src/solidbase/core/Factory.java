@@ -18,6 +18,7 @@ package solidbase.core;
 
 import java.io.File;
 import java.net.MalformedURLException;
+
 import solidbase.util.ClassPathResource;
 import solidbase.util.FileResource;
 import solidbase.util.MemoryResource;
@@ -29,7 +30,7 @@ import solidbase.util.URLResource;
 
 /**
  * A factory to create some difficult data structures.
- * 
+ *
  * @author René M. de Bloois
  */
 public final class Factory
@@ -42,12 +43,29 @@ public final class Factory
 		super();
 	}
 
+	/**
+	 * Creates a resource for the given path. If the path starts with classpath:, a {@link ClassPathResource} will be
+	 * returned. If the path is a URL, a {@link URLResource} will be returned. Otherwise a {@link FileResource} is
+	 * returned.
+	 *
+	 * @param path The path for the resource.
+	 * @return The resource.
+	 */
 	static public Resource getResource( String path )
 	{
 		return getResource( null, path );
 	}
 
-	static public Resource getResource( File baseDir, String path )
+	/**
+	 * Creates a resource for the given path. If the path starts with classpath:, a {@link ClassPathResource} will be
+	 * returned. If the path is a URL, a {@link URLResource} will be returned. Otherwise a {@link FileResource} is
+	 * returned. The parent argument is only used when returning a {@link FileResource}.
+	 *
+	 * @param parent The parent folder of the resource.
+	 * @param path The path for the resource.
+	 * @return The resource.
+	 */
+	static public Resource getResource( File parent, String path )
 	{
 		if( path.startsWith( "classpath:" ) )
 			return new ClassPathResource( path );
@@ -57,20 +75,21 @@ public final class Factory
 		}
 		catch( MalformedURLException e )
 		{
-			return new FileResource( baseDir, path );
+			return new FileResource( parent, path );
 		}
 	}
 
 	/**
 	 * Open the specified SQL file in the specified folder.
-	 * 
+	 *
 	 * @param resource The resource to open.
 	 * @param listener The progress listener.
 	 * @return A random access reader for the file.
 	 */
 	static public RandomAccessLineReader openRALR( Resource resource, ProgressListener listener )
 	{
-		if( resource.supportsURL() ) // TODO supportsReopen()
+		// TODO supportsURL() is not right for this purpose.
+		if( resource.supportsURL() )
 		{
 			listener.openingPatchFile( resource );
 			return new URLRandomAccessLineReader( resource );
@@ -84,8 +103,7 @@ public final class Factory
 	/**
 	 * Open the specified SQL file in the specified folder.
 	 *
-	 * @param baseDir The base folder from where to look. May be null.
-	 * @param fileName The name and path of the SQL file.
+	 * @param resource The resource containing the SQL file.
 	 * @param listener The progress listener.
 	 * @return The SQL file.
 	 */
@@ -100,9 +118,8 @@ public final class Factory
 
 	/**
 	 * Open the specified upgrade file in the specified folder.
-	 * 
-	 * @param baseDir The base folder from where to look. May be null.
-	 * @param fileName The name and path of the upgrade file.
+	 *
+	 * @param resource The resource containing the upgrade file.
 	 * @param listener The progress listener.
 	 * @return The patch file.
 	 */

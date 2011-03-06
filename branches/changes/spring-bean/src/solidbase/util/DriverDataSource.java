@@ -7,6 +7,11 @@ import java.sql.SQLException;
 
 import solidbase.core.SystemException;
 
+/**
+ * A datasource that gets its connections from the DriverManager.
+ *
+ * @author René M. de Bloois
+ */
 public class DriverDataSource implements javax.sql.DataSource
 {
 	/**
@@ -33,10 +38,10 @@ public class DriverDataSource implements javax.sql.DataSource
 	/**
 	 * Constructor.
 	 *
-	 * @param driverClassName
-	 * @param url
-	 * @param username
-	 * @param password
+	 * @param driverClassName The database driver class name.
+	 * @param url The database URL.
+	 * @param username The default user name.
+	 * @param password The password for the default user.
 	 */
 	public DriverDataSource( String driverClassName, String url, String username, String password )
 	{
@@ -58,6 +63,9 @@ public class DriverDataSource implements javax.sql.DataSource
 		}
 	}
 
+	/**
+	 * Returns a new connection using the default user.
+	 */
 	public Connection getConnection() throws SQLException
 	{
 		try
@@ -72,6 +80,12 @@ public class DriverDataSource implements javax.sql.DataSource
 		}
 	}
 
+	/**
+	 * Returns a new connection using the given user name and password.
+	 *
+	 * @param username The user name to connect with.
+	 * @param password The password of the user.
+	 */
 	public Connection getConnection( String username, String password ) throws SQLException
 	{
 		try

@@ -3,10 +3,23 @@ package solidbase.util;
 import java.io.InputStream;
 import java.net.URL;
 
+/**
+ * An input stream resource.
+ *
+ * @author René M. de Bloois
+ */
 public class InputStreamResource implements Resource
 {
+	/**
+	 * The input stream.
+	 */
 	protected InputStream inputStream;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param inputStream The input stream.
+	 */
 	public InputStreamResource( InputStream inputStream )
 	{
 		if( inputStream == null )
