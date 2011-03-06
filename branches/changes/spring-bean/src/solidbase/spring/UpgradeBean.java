@@ -1,22 +1,22 @@
 package solidbase.spring;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.util.Assert;
 
-import solidbase.Console;
-import solidbase.Progress;
 import solidbase.Version;
 import solidbase.core.Database;
 import solidbase.core.Factory;
 import solidbase.core.PatchProcessor;
 import solidbase.core.SystemException;
-import solidbase.util.InputStreamResource;
+import solidbase.util.DriverDataSource;
+import solidbase.util.MemoryResource;
 import solidbase.util.URLResource;
 
 public class UpgradeBean
@@ -110,47 +110,74 @@ public class UpgradeBean
 		this.secondary = secondary;
 	}
 
+
+	/**
+	 * Validates the configuration of the Upgrade bean.
+	 */
+	protected void validate()
+	{
+		if( this.datasource == null )
+		{
+			Assert.hasText( this.driver, "Missing 'datasource' or 'driver' for " + getClass().getName() );
+			Assert.hasText( this.url, "Missing 'datasource' or 'url' for " + getClass().getName() );
+			Assert.notNull( this.username, "Missing 'username' for " + getClass().getName() );
+			Assert.notNull( this.password, "Missing 'password' for " + getClass().getName() );
+		}
+
+		for( SecondaryConnection connection : this.secondary )
+			if( connection.getDatasource() == null )
+			{
+				Assert.hasText( connection.getName(), "Missing 'name' for " + connection.getClass().getName() );
+				Assert.isTrue( !connection.getName().equals( "default" ), "The connection name 'default' is reserved" );
+				Assert.notNull( connection.getUsername(), "Missing 'username' for " + connection.getClass().getName() );
+				Assert.notNull( connection.getPassword(), "Missing 'password' for " + connection.getClass().getName() );
+			}
+	}
+
 	public void upgrade()
 	{
-//		validate(); TODO
+		validate();
 
-		Progress progress = new Progress( new Console(), false );
+		ProgressLogger progress = new ProgressLogger();
 
 		String info = Version.getInfo();
 		progress.println( info );
 		progress.println( "" );
 
-		Database database;
-		if( this.datasource != null )
-			database = new Database( "default", this.datasource, this.username, this.password, progress );
-		else
-			database = new Database( "default", this.driver, this.url, this.username, this.password, progress );
+		DataSource dataSource = this.datasource;
+		if( dataSource == null )
+			dataSource = new DriverDataSource( this.driver, this.url, this.username, this.password );
+		Database database = new Database( "default", dataSource, this.username, this.password, progress );
 		PatchProcessor processor = new PatchProcessor( progress, database );
 
-		// TODO Secondary connections
-//			for( Connection connection : this.connections )
-//				processor.addDatabase(
-//						new Database( connection.getName(), connection.getDriver() == null ? this.driver : connection.getDriver(),
-//								connection.getUrl() == null ? this.url : connection.getUrl(),
-//										connection.getUsername(), connection.getPassword(), progress ) );
+		for( SecondaryConnection secondary : this.secondary )
+		{
+			DataSource secondaryDataSource = secondary.getDatasource();
+			if( secondaryDataSource == null )
+				if( secondary.getDriver() != null )
+					secondaryDataSource = new DriverDataSource( secondary.getDriver(), secondary.getUrl(), secondary.getUsername(), secondary.getPassword() );
+				else
+					secondaryDataSource = dataSource;
+			processor.addDatabase( new Database( secondary.getName(), secondaryDataSource, secondary.getUsername(), secondary.getPassword(), progress ) );
+		}
 
 		try
 		{
 			solidbase.util.Resource resource;
-			try
-			{
+			if( this.upgradefile instanceof ByteArrayResource )
+				resource = new MemoryResource( ( (ByteArrayResource)this.upgradefile ).getByteArray() );
+			else if( this.upgradefile.isOpen() )
+				// Open means that the resource cannot be reopened. Thats why we read it into memory.
+				resource = new MemoryResource( this.upgradefile.getInputStream() );
+			else
 				resource = new URLResource( this.upgradefile.getURL() );
-			}
-			catch( FileNotFoundException e )
-			{
-				resource = new InputStreamResource( this.upgradefile.getInputStream() );
-			}
 			processor.setPatchFile( Factory.openPatchFile( resource, progress ) );
 		}
 		catch( IOException e )
 		{
 			throw new SystemException( e );
 		}
+
 		try
 		{
 			processor.init();

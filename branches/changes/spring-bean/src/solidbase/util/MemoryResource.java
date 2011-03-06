@@ -13,6 +13,21 @@ public class MemoryResource implements Resource
 {
 	protected List< byte[] > buffer = new LinkedList< byte[] >();
 
+	public MemoryResource()
+	{
+		// Default constructor
+	}
+
+	public MemoryResource( byte[] bytes )
+	{
+		this.buffer.add( bytes );
+	}
+
+	public MemoryResource( InputStream input )
+	{
+		append( input );
+	}
+
 	public boolean supportsURL()
 	{
 		return false;
@@ -33,7 +48,7 @@ public class MemoryResource implements Resource
 		throw new UnsupportedOperationException();
 	}
 
-	public void readFromInputStream( InputStream in )
+	public void append( InputStream in )
 	{
 		byte[] buffer = new byte[ 4096 ];
 		int count;

@@ -77,7 +77,7 @@ public final class Factory
 		}
 
 		MemoryResource resource2 = new MemoryResource();
-		resource2.readFromInputStream( resource.getInputStream() );
+		resource2.append( resource.getInputStream() );
 		return new URLRandomAccessLineReader( resource2 );
 	}
 
