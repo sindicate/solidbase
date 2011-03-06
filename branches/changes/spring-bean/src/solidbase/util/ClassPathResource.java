@@ -1,5 +1,6 @@
 package solidbase.util;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -67,8 +68,7 @@ public class ClassPathResource implements Resource
 	 */
 	public Resource createRelative( String path )
 	{
-		// TODO Implement
-		throw new UnsupportedOperationException();
+		return new ClassPathResource( new File( new File( this.path ).getParentFile(), path ).getPath() );
 	}
 
 	@Override

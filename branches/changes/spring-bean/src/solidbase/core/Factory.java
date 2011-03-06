@@ -95,6 +95,7 @@ public final class Factory
 			return new URLRandomAccessLineReader( resource );
 		}
 
+		// TODO What about the message? "Opening internal resource..."
 		MemoryResource resource2 = new MemoryResource();
 		resource2.append( resource.getInputStream() );
 		return new URLRandomAccessLineReader( resource2 );
@@ -110,6 +111,7 @@ public final class Factory
 	// TODO This should be done like openRALR
 	static public SQLFile openSQLFile( Resource resource, ProgressListener listener )
 	{
+		// What if the resource does not have a URL?
 		listener.openingSQLFile( resource );
 		SQLFile result = new SQLFile( resource );
 		listener.openedSQLFile( result );

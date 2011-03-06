@@ -10,7 +10,7 @@ import solidbase.core.TestUtil;
 
 public class SpringBeanTest
 {
-	@Test(groups="new")
+	@Test
 	public void testSpringUpgrade() throws BeansException, SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
