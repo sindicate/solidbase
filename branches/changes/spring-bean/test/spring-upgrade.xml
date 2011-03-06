@@ -9,7 +9,7 @@
 		<property name="url" value="jdbc:hsqldb:mem:testdb2" />
 		<property name="username" value="sa" />
 		<property name="password" value="" />
-		<property name="upgradefile" value="testpatch1.sql" />
+		<property name="upgradefile" value="classpath:testpatch-classpath.sql" />
 		<property name="target" value="1.0.2" />
 		<property name="secondary">
 			<list>
@@ -20,7 +20,8 @@
 
 	<bean id="solidbase2" class="solidbase.spring.UpgradeBean" init-method="upgrade">
 		<property name="datasource">
-			<bean class="org.springframework.jdbc.datasource.SimpleDriverDataSource" p:driverClass="org.hsqldb.jdbcDriver" p:url="jdbc:hsqldb:mem:testdb" p:username="sa" p:password="" />
+			<bean class="org.springframework.jdbc.datasource.SimpleDriverDataSource"
+				p:driverClass="org.hsqldb.jdbcDriver" p:url="jdbc:hsqldb:mem:testdb" p:username="sa" p:password="" />
 		</property>
 		<property name="upgradefile">
 			<bean class="org.springframework.core.io.InputStreamResource">

@@ -84,7 +84,7 @@ public class SqlSectionsTests extends BuildFileTest
 		String log = TestUtil.generalizeOutput( getLog() );
 		Assert.assertEquals( log, "SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
-				"Opening file 'X:\\...\\testsql-sections.sql'\n" +
+				"Opening file 'X:/.../testsql-sections.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"Creating table USERS...\n" +

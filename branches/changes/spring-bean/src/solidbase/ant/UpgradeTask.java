@@ -23,6 +23,7 @@ import solidbase.core.Database;
 import solidbase.core.FatalException;
 import solidbase.core.PatchProcessor;
 import solidbase.core.Factory;
+import solidbase.util.Resource;
 
 
 /**
@@ -186,7 +187,8 @@ public class UpgradeTask extends DBTask
 								connection.getUrl() == null ? this.url : connection.getUrl(),
 										connection.getUsername(), connection.getPassword(), progress ) );
 
-			processor.setPatchFile( Factory.openPatchFile( project.getBaseDir(), this.upgradefile, progress ) );
+			Resource resource = Factory.getResource( project.getBaseDir(), this.upgradefile );
+			processor.setPatchFile( Factory.openPatchFile( resource, progress ) );
 			try
 			{
 				processor.init();

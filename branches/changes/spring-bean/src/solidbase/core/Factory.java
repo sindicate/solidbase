@@ -17,12 +17,8 @@
 package solidbase.core;
 
 import java.io.File;
-import java.net.URL;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-
-import solidbase.util.Assert;
+import java.net.MalformedURLException;
+import solidbase.util.ClassPathResource;
 import solidbase.util.FileResource;
 import solidbase.util.MemoryResource;
 import solidbase.util.RandomAccessLineReader;
@@ -32,84 +28,51 @@ import solidbase.util.URLResource;
 
 
 /**
- * Some utilities.
+ * A factory to create some difficult data structures.
  * 
  * @author René M. de Bloois
  */
-public class Factory
+public final class Factory
 {
 	/**
-	 * This utility class cannot be constructed.
+	 * This utility class cannot be instantiated.
 	 */
 	private Factory()
 	{
 		super();
 	}
 
-	/**
-	 * Determines if the specified column is present in the resultset.
-	 * 
-	 * @param resultSet The resultset to check.
-	 * @param columnName The column name to look for.
-	 * @return True if the column is present in the resultset, false otherwise.
-	 * @throws SQLException Can be thrown by JDBC.
-	 */
-	static public boolean hasColumn( ResultSet resultSet, String columnName ) throws SQLException
+	static public Resource getResource( String path )
 	{
-		ResultSetMetaData metaData = resultSet.getMetaData();
-		int columns = metaData.getColumnCount();
-		for( int i = 1; i <= columns; i++ )
-			if( metaData.getColumnName( i ).equalsIgnoreCase( columnName ) )
-				return true;
-		return false;
+		return getResource( null, path );
 	}
 
-	/**
-	 * Open the specified SQL file in the specified folder.
-	 *
-	 * @param baseDir The base folder from where to look. May be null.
-	 * @param fileName The name and path of the SQL file.
-	 * @param listener The progress listener.
-	 * @return A random access reader for the file.
-	 */
-	static public URLRandomAccessLineReader openRALR( File baseDir, String fileName, ProgressListener listener )
+	static public Resource getResource( File baseDir, String path )
 	{
-		Assert.notNull( fileName );
-
-		if( baseDir == null )
+		if( path.startsWith( "classpath:" ) )
+			return new ClassPathResource( path );
+		try
 		{
-			// TODO Should we remove this "/"?
-			URL url = Factory.class.getResource( "/" + fileName ); // In the classpath
-			if( url != null )
-			{
-				listener.openingSQLFile( url );
-				return new URLRandomAccessLineReader( new URLResource( url ) );
-			}
+			return new URLResource( path );
 		}
-
-		File file = new File( baseDir, fileName ); // In the current folder
-		listener.openingPatchFile( file );
-		return new URLRandomAccessLineReader( new FileResource( file ) );
+		catch( MalformedURLException e )
+		{
+			return new FileResource( baseDir, path );
+		}
 	}
 
 	/**
 	 * Open the specified SQL file in the specified folder.
-	 *
+	 * 
+	 * @param resource The resource to open.
 	 * @param listener The progress listener.
 	 * @return A random access reader for the file.
 	 */
-	static public URLRandomAccessLineReader openRALR( URL url, ProgressListener listener )
-	{
-		Assert.notNull( url );
-		listener.openingPatchFile( url );
-		return new URLRandomAccessLineReader( new URLResource( url ) );
-	}
-
 	static public RandomAccessLineReader openRALR( Resource resource, ProgressListener listener )
 	{
 		if( resource.supportsURL() ) // TODO supportsReopen()
 		{
-			listener.openingPatchFile( resource.getURL() );
+			listener.openingPatchFile( resource );
 			return new URLRandomAccessLineReader( resource );
 		}
 
@@ -127,40 +90,12 @@ public class Factory
 	 * @return The SQL file.
 	 */
 	// TODO This should be done like openRALR
-	static public SQLFile openSQLFile( File baseDir, String fileName, ProgressListener listener )
+	static public SQLFile openSQLFile( Resource resource, ProgressListener listener )
 	{
-		Assert.notNull( fileName );
-
-		if( baseDir == null )
-		{
-			// TODO Should we remove this "/"?
-			URL url = Factory.class.getResource( "/" + fileName ); // In the classpath
-			if( url != null )
-			{
-				listener.openingSQLFile( url );
-				SQLFile result = new SQLFile( new URLResource( url ) );
-				listener.openedSQLFile( result );
-				return result;
-			}
-		}
-
-		File file = new File( baseDir, fileName ); // In the current folder
-		listener.openingSQLFile( file );
-		SQLFile result = new SQLFile( new FileResource( file ) );
+		listener.openingSQLFile( resource );
+		SQLFile result = new SQLFile( resource );
 		listener.openedSQLFile( result );
 		return result;
-	}
-
-	/**
-	 * Open the specified SQL file.
-	 *
-	 * @param fileName The name and path of the SQL file.
-	 * @param listener The progress listener.
-	 * @return The SQL file.
-	 */
-	static public SQLFile openSQLFile( String fileName, ProgressListener listener )
-	{
-		return openSQLFile( null, fileName, listener );
 	}
 
 	/**
@@ -171,56 +106,6 @@ public class Factory
 	 * @param listener The progress listener.
 	 * @return The patch file.
 	 */
-	static public PatchFile openPatchFile( File baseDir, String fileName, ProgressListener listener )
-	{
-		if( fileName == null )
-			fileName = "upgrade.sql";
-		URLRandomAccessLineReader reader = openRALR( baseDir, fileName, listener );
-		PatchFile result = new PatchFile( reader );
-		try
-		{
-			result.scan();
-		}
-		catch( RuntimeException e )
-		{
-			// When read() fails, close the file.
-			reader.close();
-			throw e;
-		}
-		listener.openedPatchFile( result );
-		return result;
-	}
-
-	/**
-	 * Open the specified upgrade file in the specified folder.
-	 * 
-	 * @param fileName The name and path of the upgrade file.
-	 * @param listener The progress listener.
-	 * @return The patch file.
-	 */
-	static public PatchFile openPatchFile( String fileName, ProgressListener listener )
-	{
-		return openPatchFile( null, fileName, listener );
-	}
-
-	static public PatchFile openPatchFile( URL url, ProgressListener listener )
-	{
-		URLRandomAccessLineReader reader = openRALR( url, listener );
-		PatchFile result = new PatchFile( reader );
-		try
-		{
-			result.scan();
-		}
-		catch( RuntimeException e )
-		{
-			// When read() fails, close the file.
-			reader.close();
-			throw e;
-		}
-		listener.openedPatchFile( result );
-		return result;
-	}
-
 	static public PatchFile openPatchFile( Resource resource, ProgressListener listener )
 	{
 		RandomAccessLineReader reader = openRALR( resource, listener );

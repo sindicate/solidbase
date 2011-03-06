@@ -16,9 +16,6 @@
 
 package solidbase.core;
 
-import java.io.File;
-import java.net.URL;
-
 import solidbase.core.Command;
 import solidbase.core.Patch;
 import solidbase.core.PatchFile;
@@ -26,6 +23,7 @@ import solidbase.core.ProgressListener;
 import solidbase.core.SQLExecutionException;
 import solidbase.core.SQLFile;
 import solidbase.util.Assert;
+import solidbase.util.Resource;
 
 public class TestProgressListener extends ProgressListener
 {
@@ -60,25 +58,13 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	protected void openingPatchFile( File patchFile )
+	protected void openingPatchFile( Resource patchFile )
 	{
 		System.out.println( "OPENINGPATCHFILE: " + patchFile );
 	}
 
 	@Override
-	protected void openingPatchFile( URL patchFile )
-	{
-		System.out.println( "OPENINGPATCHFILE: " + patchFile );
-	}
-
-	@Override
-	protected void openingSQLFile( File sqlFile )
-	{
-		System.out.println( "OPENINGSQLFILE: " + sqlFile );
-	}
-
-	@Override
-	public void openingSQLFile( URL sqlFile )
+	protected void openingSQLFile( Resource sqlFile )
 	{
 		System.out.println( "OPENINGSQLFILE: " + sqlFile );
 	}

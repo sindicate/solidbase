@@ -24,6 +24,11 @@ public class FileResource implements Resource
 		this( new File( path ) );
 	}
 
+	public FileResource( File parent, String path )
+	{
+		this( new File( parent, path ) );
+	}
+
 	public boolean supportsURL()
 	{
 		return true;
@@ -56,5 +61,11 @@ public class FileResource implements Resource
 	public Resource createRelative( String path )
 	{
 		return new FileResource( new File( this.file.getParentFile(), path ) );
+	}
+
+	@Override
+	public String toString()
+	{
+		return this.file.getAbsolutePath();
 	}
 }

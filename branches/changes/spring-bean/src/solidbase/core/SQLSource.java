@@ -16,7 +16,6 @@
 
 package solidbase.core;
 
-import java.net.URL;
 import java.util.regex.Matcher;
 
 import solidbase.core.Delimiter.Type;
@@ -203,9 +202,9 @@ public class SQLSource
 	}
 
 	/**
-	 * Return the {@link URL} of the source.
+	 * Returns the underlying resource.
 	 * 
-	 * @return The {@link URL} of the source.
+	 * @return The underlying resource.
 	 */
 	public Resource getResource()
 	{

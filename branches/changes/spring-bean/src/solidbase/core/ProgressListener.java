@@ -19,6 +19,8 @@ package solidbase.core;
 import java.io.File;
 import java.net.URL;
 
+import solidbase.util.Resource;
+
 /**
  * Listener adapter.
  * 
@@ -59,18 +61,7 @@ abstract public class ProgressListener
 	 * 
 	 * @param patchFile The upgrade file that is about to be opened.
 	 */
-	protected void openingPatchFile( File patchFile )
-	{
-		cr();
-		println( "Opening file '" + patchFile + "'" );
-	}
-
-	/**
-	 * An upgrade file is about to be opened.
-	 * 
-	 * @param patchFile The upgrade file that is about to be opened.
-	 */
-	protected void openingPatchFile( URL patchFile )
+	protected void openingPatchFile( Resource patchFile )
 	{
 		cr();
 		println( "Opening file '" + patchFile + "'" );
@@ -81,18 +72,7 @@ abstract public class ProgressListener
 	 * 
 	 * @param sqlFile The sql file that is about to be opened.
 	 */
-	protected void openingSQLFile( File sqlFile )
-	{
-		cr();
-		println( "Opening file '" + sqlFile + "'" );
-	}
-
-	/**
-	 * An sql file is about to be opened.
-	 * 
-	 * @param sqlFile The sql file that is about to be opened.
-	 */
-	protected void openingSQLFile( URL sqlFile )
+	protected void openingSQLFile( Resource sqlFile )
 	{
 		cr();
 		println( "Opening file '" + sqlFile + "'" );

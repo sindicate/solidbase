@@ -74,7 +74,7 @@ public class TestUtil
 		Assert.assertEquals( result.getString( "TARGET" ), target, "target:" );
 		Assert.assertEquals( result.getInt( "STATEMENTS" ), statements, "statements:" );
 		if( spec == null )
-			Assert.assertFalse( Factory.hasColumn( result, "SPEC" ), "SPEC column should not exist in the DBVERSION table" );
+			Assert.assertFalse( Util.hasColumn( result, "SPEC" ), "SPEC column should not exist in the DBVERSION table" );
 		else
 			Assert.assertEquals( result.getString( "SPEC" ), spec, "spec:" );
 		Assert.assertFalse( result.next() );
@@ -139,7 +139,7 @@ public class TestUtil
 	static public String generalizeOutput( String output )
 	{
 		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
-		output = output.replaceAll( "[A-Z]:\\\\\\S+\\\\", "X:\\\\...\\\\" );
+		output = output.replaceAll( "[A-Z]:\\\\\\S+\\\\", "X:/.../" );
 		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
 		output = output.replaceAll( "folder\\\\", "folder/" );
 		return output.replaceAll( "\\\r", "" );

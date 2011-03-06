@@ -22,6 +22,7 @@ import solidbase.core.Database;
 import solidbase.core.FatalException;
 import solidbase.core.SQLProcessor;
 import solidbase.core.Factory;
+import solidbase.util.Resource;
 
 
 /**
@@ -57,7 +58,8 @@ public class SQLMojo extends DBMojo
 									secondary.getUrl() == null ? this.url : secondary.getUrl(),
 											secondary.getUsername(), secondary.getPassword() == null ? "" : secondary.getPassword(), progress ) );
 
-			processor.setSQLSource( Factory.openSQLFile( this.project.getBasedir(), this.sqlfile, progress ).getSource() );
+			Resource resource = Factory.getResource( this.project.getBasedir(), this.sqlfile );
+			processor.setSQLSource( Factory.openSQLFile( resource, progress ).getSource() );
 			try
 			{
 				progress.info( "Connecting to database..." );

@@ -16,6 +16,11 @@ public class URLResource implements Resource
 		this.url = url;
 	}
 
+	public URLResource( String url ) throws MalformedURLException
+	{
+		this( new URL( url ) );
+	}
+
 	public boolean supportsURL()
 	{
 		return true;
@@ -48,5 +53,11 @@ public class URLResource implements Resource
 		{
 			throw new SystemException( e );
 		}
+	}
+
+	@Override
+	public String toString()
+	{
+		return this.url.toString();
 	}
 }

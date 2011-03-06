@@ -50,7 +50,7 @@ public class CharSets
 
 		TestProgressListener progress = new TestProgressListener();
 		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-		PatchFile patchFile = Factory.openPatchFile( "patch-utf-8-1.sql", progress );
+		PatchFile patchFile = Factory.openPatchFile( new FileResource( "patch-utf-8-1.sql" ), progress );
 		patcher.setPatchFile( patchFile );
 		patcher.init();
 

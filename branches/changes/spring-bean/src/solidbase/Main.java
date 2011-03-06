@@ -194,7 +194,7 @@ public class Main
 								database.getUrl() == null ? defoult.getUrl() : database.getUrl(),
 										database.getUserName(), database.getPassword(), progress ) );
 
-			processor.setSQLSource( Factory.openSQLFile( null, configuration.getSqlFile(), progress ).getSource() );
+			processor.setSQLSource( Factory.openSQLFile( Factory.getResource( configuration.getSqlFile() ), progress ).getSource() );
 			try
 			{
 				console.println( "Connecting to database..." );
@@ -219,7 +219,7 @@ public class Main
 								database.getUrl() == null ? defoult.getUrl() : database.getUrl(),
 										database.getUserName(), database.getPassword(), progress ) );
 
-			processor.setPatchFile( Factory.openPatchFile( configuration.getPatchFile(), progress ) );
+			processor.setPatchFile( Factory.openPatchFile( Factory.getResource( configuration.getPatchFile() ), progress ) );
 			try
 			{
 				processor.init();
