@@ -36,9 +36,9 @@ import solidbase.util.MemoryResource;
 import solidbase.util.URLResource;
 
 /**
- * The Upgrade
- * @author Rene
+ * An upgrade Spring bean.
  *
+ * @author René M. de Bloois
  */
 public class UpgradeBean
 {
