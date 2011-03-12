@@ -31,6 +31,7 @@ import solidbase.core.Database;
 import solidbase.core.Factory;
 import solidbase.core.PatchProcessor;
 import solidbase.core.SystemException;
+import solidbase.runner.Connection;
 import solidbase.util.DriverDataSource;
 import solidbase.util.MemoryResource;
 import solidbase.util.URLResource;
@@ -85,7 +86,7 @@ public class UpgradeBean
 	/**
 	 * The secondary connections.
 	 */
-	private List< SecondaryConnection > secondary = new ArrayList< SecondaryConnection >();
+	private List< Connection > secondary = new ArrayList< Connection >();
 
 	/**
 	 * Returns the database driver class name.
@@ -232,7 +233,7 @@ public class UpgradeBean
 	 *
 	 * @return The secondary connections.
 	 */
-	public List< SecondaryConnection > getSecondary()
+	public List< Connection > getSecondary()
 	{
 		return this.secondary;
 	}
@@ -242,7 +243,7 @@ public class UpgradeBean
 	 *
 	 * @param secondary The secondary connections.
 	 */
-	public void setSecondary( List< SecondaryConnection > secondary )
+	public void setSecondary( List< Connection > secondary )
 	{
 		this.secondary = secondary;
 	}
@@ -260,7 +261,7 @@ public class UpgradeBean
 			Assert.notNull( this.password, "Missing 'password' for " + getClass().getName() );
 		}
 
-		for( SecondaryConnection connection : this.secondary )
+		for( Connection connection : this.secondary )
 			if( connection.getDatasource() == null )
 			{
 				Assert.hasText( connection.getName(), "Missing 'name' for " + connection.getClass().getName() );
@@ -289,7 +290,7 @@ public class UpgradeBean
 		Database database = new Database( "default", dataSource, this.username, this.password, progress );
 		PatchProcessor processor = new PatchProcessor( progress, database );
 
-		for( SecondaryConnection secondary : this.secondary )
+		for( Connection secondary : this.secondary )
 		{
 			DataSource secondaryDataSource = secondary.getDatasource();
 			if( secondaryDataSource == null )

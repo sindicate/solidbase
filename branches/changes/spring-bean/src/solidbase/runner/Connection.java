@@ -55,6 +55,15 @@ public class Connection
 	 */
 	protected String password;
 
+
+	/**
+	 * Constructor.
+	 */
+	public Connection()
+	{
+		// Default constructor
+	}
+
 	/**
 	 * Constructor.
 	 *
