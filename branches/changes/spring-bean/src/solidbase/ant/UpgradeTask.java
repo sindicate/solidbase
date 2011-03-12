@@ -22,9 +22,9 @@ import org.apache.tools.ant.Project;
 import solidbase.core.Factory;
 import solidbase.core.FatalException;
 import solidbase.runner.Runner;
-import solidbase.runner.SetConnection;
-import solidbase.runner.SetProgressListener;
-import solidbase.runner.Upgrade;
+import solidbase.runner.SetDatabaseAction;
+import solidbase.runner.SetProgressListenerAction;
+import solidbase.runner.UpgradeAction;
 
 
 /**
@@ -174,11 +174,11 @@ public class UpgradeTask extends DBTask
 		Project project = getProject();
 
 		Runner runner = new Runner();
-		runner.step( new SetProgressListener( new Progress( project, this ) ) );
-		runner.step( new SetConnection( "default", this.driver, this.url, this.username, this.password ) );
+		runner.step( new SetProgressListenerAction( new Progress( project, this ) ) );
+		runner.step( new SetDatabaseAction( "default", this.driver, this.url, this.username, this.password ) );
 		for( Connection connection : this.connections )
 			runner.step(
-				new SetConnection(
+				new SetDatabaseAction(
 					connection.getName(),
 					connection.getDriver() == null ? this.driver : connection.getDriver(),
 					connection.getUrl() == null ? this.url : connection.getUrl(),
@@ -186,7 +186,7 @@ public class UpgradeTask extends DBTask
 					connection.getPassword()
 				)
 			);
-		runner.step( new Upgrade( Factory.getResource( project.getBaseDir(), this.upgradefile ), this.upgradeTarget, this.downgradeallowed ) );
+		runner.step( new UpgradeAction( Factory.getResource( project.getBaseDir(), this.upgradefile ), this.upgradeTarget, this.downgradeallowed ) );
 
 		try
 		{

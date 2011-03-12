@@ -2,11 +2,11 @@ package solidbase.runner;
 
 import solidbase.core.ProgressListener;
 
-public class SetProgressListener implements Step
+public class SetProgressListenerAction implements Action
 {
 	protected ProgressListener listener;
 
-	public SetProgressListener( ProgressListener listener )
+	public SetProgressListenerAction( ProgressListener listener )
 	{
 		if( listener == null )
 			throw new NullPointerException( "listener is null" );

@@ -1,7 +1,7 @@
 package solidbase.runner;
 
 
-public class SetConnection implements Step
+public class SetDatabaseAction implements Action
 {
 	protected String name;
 	protected String driver;
@@ -9,7 +9,7 @@ public class SetConnection implements Step
 	protected String username;
 	protected String password;
 
-	public SetConnection( String name, String driver, String url, String username, String password )
+	public SetDatabaseAction( String name, String driver, String url, String username, String password )
 	{
 		this.name = name;
 		this.driver = driver;

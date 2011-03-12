@@ -1,21 +1,26 @@
 package solidbase.runner;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import solidbase.core.Database;
 import solidbase.core.Factory;
-import solidbase.core.PatchProcessor;
+import solidbase.core.SQLProcessor;
 import solidbase.util.Resource;
 
-public class Upgrade implements Step
+public class ExecuteSQLAction implements Action
 {
-	protected Resource upgradeFile;
-	protected String target;
-	protected boolean downgradeAllowed;
+	protected List< Resource > sqlFiles;
 
-	public Upgrade( Resource upgradeFile, String target, boolean downgradeAllowed )
+	public ExecuteSQLAction( List< Resource > SQLFiles )
 	{
-		this.upgradeFile = upgradeFile;
-		this.target = target;
-		this.downgradeAllowed = downgradeAllowed;
+		this.sqlFiles = SQLFiles;
+	}
+
+	public ExecuteSQLAction( Resource SQLFile )
+	{
+		this.sqlFiles = new ArrayList< Resource >();
+		this.sqlFiles.add( SQLFile );
 	}
 
 	public void execute( Runner runner )
@@ -23,7 +28,7 @@ public class Upgrade implements Step
 		if( runner.listener == null )
 			throw new IllegalStateException( "ProgressListener not set" );
 
-		PatchProcessor processor = new PatchProcessor( runner.listener );
+		SQLProcessor processor = new SQLProcessor( runner.listener );
 
 		Connection def = runner.connections.get( "default" );
 		if( def == null )
@@ -41,19 +46,25 @@ public class Upgrade implements Step
 					)
 			);
 
-		processor.setPatchFile( Factory.openPatchFile( this.upgradeFile, runner.listener ) );
 		try
 		{
-			processor.init();
-			runner.listener.println( "Connecting to database..." );
-			runner.listener.println( processor.getVersionStatement() );
-			processor.patch( this.target, this.downgradeAllowed ); // TODO Print this target
-			runner.listener.println( "" );
-			runner.listener.println( processor.getVersionStatement() );
+			boolean first = true;
+			for( Resource resource : this.sqlFiles )
+			{
+				processor.setSQLSource( Factory.openSQLFile( resource, runner.listener ).getSource() );
+				if( first )
+				{
+					runner.listener.println( "Connecting to database..." ); // TODO Let the database say that (for example the default connection)
+					first = false;
+				}
+				processor.process();
+			}
 		}
 		finally
 		{
 			processor.end();
 		}
+
+		runner.listener.println( "" );
 	}
 }

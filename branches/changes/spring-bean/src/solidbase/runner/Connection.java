@@ -18,45 +18,52 @@ package solidbase.runner;
 
 import javax.sql.DataSource;
 
-import solidbase.spring.UpgradeBean;
-
 /**
- * Secondary connections used by the {@link UpgradeBean}.
+ * A connection used by the {@link Runner}.
  *
  * @author René M. de Bloois
  */
 public class Connection
 {
 	/**
-	 * The configured name of the secondary connection.
+	 * The name of the connection.
 	 */
 	protected String name;
 
 	/**
-	 * The configured database driver of the secondary connection.
+	 * The driver class name of the connection.
 	 */
 	protected String driver;
 
 	/**
-	 * The configured database url of the secondary connection.
+	 * The URL of the connection.
 	 */
 	protected String url;
 
 	/**
-	 * The configured datasource of the secondary connection.
+	 * The data source for the connection.
 	 */
 	protected DataSource datasource;
 
 	/**
-	 * The configured user name of the secondary connection.
+	 * The user name of the connection.
 	 */
 	protected String username;
 
 	/**
-	 * The configured password of the secondary connection.
+	 * The password of the connection.
 	 */
 	protected String password;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param name The name of the connection.
+	 * @param driver The driver class name of the connection.
+	 * @param url The URL of the connection.
+	 * @param username The user name of the connection.
+	 * @param password The password of the connection.
+	 */
 	public Connection( String name, String driver, String url, String username, String password )
 	{
 		this.name = name;
@@ -67,9 +74,25 @@ public class Connection
 	}
 
 	/**
-	 * Returns the configured name of the secondary connection.
+	 * Constructor.
 	 *
-	 * @return The configured name of the secondary connection.
+	 * @param name The name of the connection.
+	 * @param dataSource The data source for the connection.
+	 * @param username The user name of the connection.
+	 * @param password The password of the connection.
+	 */
+	public Connection( String name, DataSource dataSource, String username, String password )
+	{
+		this.name = name;
+		this.datasource = dataSource;
+		this.username = username;
+		this.password = password;
+	}
+
+	/**
+	 * Returns the name of the connection.
+	 *
+	 * @return The name of the connection.
 	 */
 	public String getName()
 	{
@@ -77,9 +100,9 @@ public class Connection
 	}
 
 	/**
-	 * Sets the name of the secondary connection to configure.
+	 * Sets the name of the connection.
 	 *
-	 * @param name The name of the secondary connection to configure.
+	 * @param name The name of the connection.
 	 */
 	public void setName( String name )
 	{
@@ -87,9 +110,9 @@ public class Connection
 	}
 
 	/**
-	 * Returns the configured database driver of the secondary connection.
+	 * Returns the driver class name of the connection.
 	 *
-	 * @return The configured database driver of the secondary connection.
+	 * @return The driver class name of the connection.
 	 */
 	public String getDriver()
 	{
@@ -97,9 +120,9 @@ public class Connection
 	}
 
 	/**
-	 * Sets the database driver of the secondary connection to configure.
+	 * Sets the driver class name of the connection.
 	 *
-	 * @param driver The database driver of the secondary connection to configure.
+	 * @param driver The driver class name of the connection.
 	 */
 	public void setDriver( String driver )
 	{
@@ -107,9 +130,9 @@ public class Connection
 	}
 
 	/**
-	 * Returns the configured database url of the secondary connection.
+	 * Returns the URL of the connection.
 	 *
-	 * @return The configured database url of the secondary connection.
+	 * @return The URL of the connection.
 	 */
 	public String getUrl()
 	{
@@ -117,9 +140,9 @@ public class Connection
 	}
 
 	/**
-	 * Sets the database url of the secondary connection to configure.
+	 * Sets the URL of the connection.
 	 *
-	 * @param url The database url of the secondary connection to configure.
+	 * @param url The URL of the connection.
 	 */
 	public void setUrl( String url )
 	{
@@ -147,9 +170,9 @@ public class Connection
 	}
 
 	/**
-	 * Returns the configured user name of the secondary connection.
+	 * Returns the user name of the connection.
 	 *
-	 * @return The configured user name of the secondary connection.
+	 * @return The user name of the connection.
 	 */
 	public String getUsername()
 	{
@@ -157,9 +180,9 @@ public class Connection
 	}
 
 	/**
-	 * Sets the user name of the secondary connection to configure.
+	 * Sets the user name of the connection.
 	 *
-	 * @param username The user name of the secondary connection to configure.
+	 * @param username The user name of the connection.
 	 */
 	public void setUsername( String username )
 	{
@@ -167,9 +190,9 @@ public class Connection
 	}
 
 	/**
-	 * Returns the configured password of the secondary connection.
+	 * Returns the password of the connection.
 	 *
-	 * @return The configured password of the secondary connection.
+	 * @return The password of the connection.
 	 */
 	public String getPassword()
 	{
@@ -177,9 +200,9 @@ public class Connection
 	}
 
 	/**
-	 * Sets the password of the secondary connection to configure.
+	 * Sets the password of the connection.
 	 *
-	 * @param password The password of the secondary connection to configure.
+	 * @param password The password of the connection.
 	 */
 	public void setPassword( String password )
 	{

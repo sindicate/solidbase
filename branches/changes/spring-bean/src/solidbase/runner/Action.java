@@ -1,6 +1,6 @@
 package solidbase.runner;
 
-public interface Step
+public interface Action
 {
 	void execute( Runner runner );
 }

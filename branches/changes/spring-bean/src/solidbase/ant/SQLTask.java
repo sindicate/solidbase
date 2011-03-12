@@ -24,10 +24,10 @@ import org.apache.tools.ant.Project;
 
 import solidbase.core.Factory;
 import solidbase.core.FatalException;
-import solidbase.runner.ExecuteSQL;
+import solidbase.runner.ExecuteSQLAction;
 import solidbase.runner.Runner;
-import solidbase.runner.SetConnection;
-import solidbase.runner.SetProgressListener;
+import solidbase.runner.SetDatabaseAction;
+import solidbase.runner.SetProgressListenerAction;
 import solidbase.util.Resource;
 
 
@@ -99,11 +99,11 @@ public class SQLTask extends DBTask
 		Project project = getProject();
 
 		Runner runner = new Runner();
-		runner.step( new SetProgressListener( new Progress( project, this ) ) );
-		runner.step( new SetConnection( "default", this.driver, this.url, this.username, this.password ) );
+		runner.step( new SetProgressListenerAction( new Progress( project, this ) ) );
+		runner.step( new SetDatabaseAction( "default", this.driver, this.url, this.username, this.password ) );
 		for( Connection connection : this.connections )
 			runner.step(
-				new SetConnection(
+				new SetDatabaseAction(
 					connection.getName(),
 					connection.getDriver() == null ? this.driver : connection.getDriver(),
 					connection.getUrl() == null ? this.url : connection.getUrl(),
@@ -116,7 +116,7 @@ public class SQLTask extends DBTask
 			sqlFiles.add( Factory.getResource( project.getBaseDir(), this.sqlfile ) );
 		for( Sqlfile file : this.sqlfiles )
 			sqlFiles.add( Factory.getResource( project.getBaseDir(), file.src ) );
-		runner.step( new ExecuteSQL( sqlFiles ) );
+		runner.step( new ExecuteSQLAction( sqlFiles ) );
 
 		try
 		{

@@ -10,11 +10,11 @@ import solidbase.core.ProgressListener;
 
 public class Runner
 {
-	protected List< Step > steps = new ArrayList< Step >();
+	protected List< Action > steps = new ArrayList< Action >();
 	protected ProgressListener listener;
 	protected Map< String, Connection > connections = new HashMap< String, Connection >();
 
-	public void step( Step step )
+	public void step( Action step )
 	{
 		this.steps.add( step );
 	}
@@ -37,7 +37,7 @@ public class Runner
 	public void run()
 	{
 		boolean infoPrinted = false;
-		for( Step step : this.steps )
+		for( Action step : this.steps )
 		{
 			step.execute( this );
 			if( !infoPrinted && this.listener != null )
