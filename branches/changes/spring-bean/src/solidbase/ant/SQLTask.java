@@ -24,11 +24,7 @@ import org.apache.tools.ant.Project;
 
 import solidbase.core.Factory;
 import solidbase.core.FatalException;
-import solidbase.runner.ExecuteSQLAction;
 import solidbase.runner.Runner;
-import solidbase.runner.SetDatabaseAction;
-import solidbase.runner.SetProgressListenerAction;
-import solidbase.runner.SetSQLFilesAction;
 import solidbase.util.Resource;
 
 
@@ -100,14 +96,14 @@ public class SQLTask extends DBTask
 		Project project = getProject();
 
 		Runner runner = new Runner();
-		runner.addAction( new SetProgressListenerAction( new Progress( project, this ) ) );
-		runner.addAction( new SetDatabaseAction( "default", this.driver, this.url, this.username, this.password ) );
+		runner.setProgress( new Progress( project, this ) );
+		runner.setDatabase( new solidbase.runner.Connection( "default", this.driver, this.url, this.username, this.password ) );
 		for( Connection connection : this.connections )
-			runner.addAction(
-				new SetDatabaseAction(
+			runner.setDatabase(
+				new solidbase.runner.Connection(
 					connection.getName(),
-					connection.getDriver() == null ? this.driver : connection.getDriver(),
-					connection.getUrl() == null ? this.url : connection.getUrl(),
+					connection.getDriver(),
+					connection.getUrl(),
 					connection.getUsername(),
 					connection.getPassword()
 				)
@@ -117,12 +113,10 @@ public class SQLTask extends DBTask
 			sqlFiles.add( Factory.getResource( project.getBaseDir(), this.sqlfile ) );
 		for( Sqlfile file : this.sqlfiles )
 			sqlFiles.add( Factory.getResource( project.getBaseDir(), file.src ) );
-		runner.addAction( new SetSQLFilesAction( sqlFiles ) );
-		runner.addAction( new ExecuteSQLAction() );
-
+		runner.setSQLFiles( sqlFiles );
 		try
 		{
-			runner.run();
+			runner.executeSQL();
 		}
 		catch( FatalException e )
 		{

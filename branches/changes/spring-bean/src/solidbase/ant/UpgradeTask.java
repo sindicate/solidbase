@@ -22,9 +22,6 @@ import org.apache.tools.ant.Project;
 import solidbase.core.Factory;
 import solidbase.core.FatalException;
 import solidbase.runner.Runner;
-import solidbase.runner.SetDatabaseAction;
-import solidbase.runner.SetProgressListenerAction;
-import solidbase.runner.UpgradeAction;
 
 
 /**
@@ -174,23 +171,24 @@ public class UpgradeTask extends DBTask
 		Project project = getProject();
 
 		Runner runner = new Runner();
-		runner.addAction( new SetProgressListenerAction( new Progress( project, this ) ) );
-		runner.addAction( new SetDatabaseAction( "default", this.driver, this.url, this.username, this.password ) );
+		runner.setProgress( new Progress( project, this ) );
+		runner.setDatabase( new solidbase.runner.Connection( "default", this.driver, this.url, this.username, this.password ) );
 		for( Connection connection : this.connections )
-			runner.addAction(
-				new SetDatabaseAction(
+			runner.setDatabase(
+				new solidbase.runner.Connection(
 					connection.getName(),
-					connection.getDriver() == null ? this.driver : connection.getDriver(),
-					connection.getUrl() == null ? this.url : connection.getUrl(),
+					connection.getDriver(),
+					connection.getUrl(),
 					connection.getUsername(),
 					connection.getPassword()
 				)
 			);
-		runner.addAction( new UpgradeAction( Factory.getResource( project.getBaseDir(), this.upgradefile ), this.upgradeTarget, this.downgradeallowed ) );
-
+		runner.setUpgradeFile( Factory.getResource( project.getBaseDir(), this.upgradefile ) );
+		runner.setUpgradeTarget( this.upgradeTarget );
+		runner.setDowngradeAllowed( this.downgradeallowed );
 		try
 		{
-			runner.run();
+			runner.upgrade();
 		}
 		catch( FatalException e )
 		{
