@@ -28,6 +28,7 @@ import solidbase.runner.ExecuteSQLAction;
 import solidbase.runner.Runner;
 import solidbase.runner.SetDatabaseAction;
 import solidbase.runner.SetProgressListenerAction;
+import solidbase.runner.SetSQLFilesAction;
 import solidbase.util.Resource;
 
 
@@ -99,10 +100,10 @@ public class SQLTask extends DBTask
 		Project project = getProject();
 
 		Runner runner = new Runner();
-		runner.step( new SetProgressListenerAction( new Progress( project, this ) ) );
-		runner.step( new SetDatabaseAction( "default", this.driver, this.url, this.username, this.password ) );
+		runner.addAction( new SetProgressListenerAction( new Progress( project, this ) ) );
+		runner.addAction( new SetDatabaseAction( "default", this.driver, this.url, this.username, this.password ) );
 		for( Connection connection : this.connections )
-			runner.step(
+			runner.addAction(
 				new SetDatabaseAction(
 					connection.getName(),
 					connection.getDriver() == null ? this.driver : connection.getDriver(),
@@ -116,7 +117,8 @@ public class SQLTask extends DBTask
 			sqlFiles.add( Factory.getResource( project.getBaseDir(), this.sqlfile ) );
 		for( Sqlfile file : this.sqlfiles )
 			sqlFiles.add( Factory.getResource( project.getBaseDir(), file.src ) );
-		runner.step( new ExecuteSQLAction( sqlFiles ) );
+		runner.addAction( new SetSQLFilesAction( sqlFiles ) );
+		runner.addAction( new ExecuteSQLAction() );
 
 		try
 		{

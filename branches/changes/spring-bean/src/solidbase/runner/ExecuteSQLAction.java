@@ -1,8 +1,5 @@
 package solidbase.runner;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import solidbase.core.Database;
 import solidbase.core.Factory;
 import solidbase.core.SQLProcessor;
@@ -10,19 +7,6 @@ import solidbase.util.Resource;
 
 public class ExecuteSQLAction implements Action
 {
-	protected List< Resource > sqlFiles;
-
-	public ExecuteSQLAction( List< Resource > SQLFiles )
-	{
-		this.sqlFiles = SQLFiles;
-	}
-
-	public ExecuteSQLAction( Resource SQLFile )
-	{
-		this.sqlFiles = new ArrayList< Resource >();
-		this.sqlFiles.add( SQLFile );
-	}
-
 	public void execute( Runner runner )
 	{
 		if( runner.listener == null )
@@ -49,7 +33,7 @@ public class ExecuteSQLAction implements Action
 		try
 		{
 			boolean first = true;
-			for( Resource resource : this.sqlFiles )
+			for( Resource resource : runner.sqlFiles )
 			{
 				processor.setSQLSource( Factory.openSQLFile( resource, runner.listener ).getSource() );
 				if( first )

@@ -174,10 +174,10 @@ public class UpgradeTask extends DBTask
 		Project project = getProject();
 
 		Runner runner = new Runner();
-		runner.step( new SetProgressListenerAction( new Progress( project, this ) ) );
-		runner.step( new SetDatabaseAction( "default", this.driver, this.url, this.username, this.password ) );
+		runner.addAction( new SetProgressListenerAction( new Progress( project, this ) ) );
+		runner.addAction( new SetDatabaseAction( "default", this.driver, this.url, this.username, this.password ) );
 		for( Connection connection : this.connections )
-			runner.step(
+			runner.addAction(
 				new SetDatabaseAction(
 					connection.getName(),
 					connection.getDriver() == null ? this.driver : connection.getDriver(),
@@ -186,7 +186,7 @@ public class UpgradeTask extends DBTask
 					connection.getPassword()
 				)
 			);
-		runner.step( new UpgradeAction( Factory.getResource( project.getBaseDir(), this.upgradefile ), this.upgradeTarget, this.downgradeallowed ) );
+		runner.addAction( new UpgradeAction( Factory.getResource( project.getBaseDir(), this.upgradefile ), this.upgradeTarget, this.downgradeallowed ) );
 
 		try
 		{

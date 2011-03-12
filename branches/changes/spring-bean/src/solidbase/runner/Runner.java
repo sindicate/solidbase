@@ -7,16 +7,18 @@ import java.util.Map;
 
 import solidbase.Version;
 import solidbase.core.ProgressListener;
+import solidbase.util.Resource;
 
 public class Runner
 {
-	protected List< Action > steps = new ArrayList< Action >();
+	protected List< Action > actions = new ArrayList< Action >();
 	protected ProgressListener listener;
 	protected Map< String, Connection > connections = new HashMap< String, Connection >();
+	protected List< Resource > sqlFiles = new ArrayList< Resource >();
 
-	public void step( Action step )
+	public void addAction( Action step )
 	{
-		this.steps.add( step );
+		this.actions.add( step );
 	}
 
 //	public void setProgressListener( ProgressListener listener )
@@ -37,7 +39,7 @@ public class Runner
 	public void run()
 	{
 		boolean infoPrinted = false;
-		for( Action step : this.steps )
+		for( Action step : this.actions )
 		{
 			step.execute( this );
 			if( !infoPrinted && this.listener != null )
