@@ -24,6 +24,7 @@ import solidbase.util.FileResource;
 import solidbase.util.MemoryResource;
 import solidbase.util.RandomAccessLineReader;
 import solidbase.util.Resource;
+import solidbase.util.SystemInOutResource;
 import solidbase.util.URLRandomAccessLineReader;
 import solidbase.util.URLResource;
 
@@ -67,6 +68,8 @@ public final class Factory
 	 */
 	static public Resource getResource( File parent, String path )
 	{
+		if( path.equals( "-" ) )
+			return new SystemInOutResource();
 		if( path.startsWith( "classpath:" ) )
 			return new ClassPathResource( path );
 		try

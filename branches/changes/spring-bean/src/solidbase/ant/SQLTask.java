@@ -24,7 +24,7 @@ import org.apache.tools.ant.Project;
 
 import solidbase.core.Factory;
 import solidbase.core.FatalException;
-import solidbase.runner.Runner;
+import solidbase.core.Runner;
 import solidbase.util.Resource;
 
 
@@ -96,17 +96,15 @@ public class SQLTask extends DBTask
 		Project project = getProject();
 
 		Runner runner = new Runner();
-		runner.setProgress( new Progress( project, this ) );
-		runner.setDatabase( new solidbase.runner.Connection( "default", this.driver, this.url, this.username, this.password ) );
+		runner.setProgressListener( new Progress( project, this ) );
+		runner.setConnectionAttributes( "default", this.driver, this.url, this.username, this.password );
 		for( Connection connection : this.connections )
-			runner.setDatabase(
-				new solidbase.runner.Connection(
-					connection.getName(),
-					connection.getDriver(),
-					connection.getUrl(),
-					connection.getUsername(),
-					connection.getPassword()
-				)
+			runner.setConnectionAttributes(
+				connection.getName(),
+				connection.getDriver(),
+				connection.getUrl(),
+				connection.getUsername(),
+				connection.getPassword()
 			);
 		List< Resource > sqlFiles = new ArrayList< Resource >();
 		if( this.sqlfile != null )

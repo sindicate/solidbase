@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.runner;
+package solidbase.core;
 
 import javax.sql.DataSource;
 
@@ -23,7 +23,7 @@ import javax.sql.DataSource;
  *
  * @author René M. de Bloois
  */
-public class Connection
+public class ConnectionAttributes
 {
 	/**
 	 * The name of the connection.
@@ -59,7 +59,7 @@ public class Connection
 	/**
 	 * Constructor.
 	 */
-	public Connection()
+	public ConnectionAttributes()
 	{
 		// Default constructor
 	}
@@ -73,7 +73,7 @@ public class Connection
 	 * @param username The user name of the connection.
 	 * @param password The password of the connection.
 	 */
-	public Connection( String name, String driver, String url, String username, String password )
+	public ConnectionAttributes( String name, String driver, String url, String username, String password )
 	{
 		this.name = name;
 		this.driver = driver;
@@ -90,7 +90,7 @@ public class Connection
 	 * @param username The user name of the connection.
 	 * @param password The password of the connection.
 	 */
-	public Connection( String name, DataSource dataSource, String username, String password )
+	public ConnectionAttributes( String name, DataSource dataSource, String username, String password )
 	{
 		this.name = name;
 		this.datasource = dataSource;

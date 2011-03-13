@@ -19,7 +19,9 @@ package solidbase.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -91,6 +93,18 @@ public class FileResource implements Resource
 		try
 		{
 			return new FileInputStream( this.file );
+		}
+		catch( FileNotFoundException e )
+		{
+			throw new SystemException( e );
+		}
+	}
+
+	public OutputStream getOutputStream()
+	{
+		try
+		{
+			return new FileOutputStream( this.file );
 		}
 		catch( FileNotFoundException e )
 		{

@@ -27,11 +27,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 
 import solidbase.Version;
+import solidbase.core.ConnectionAttributes;
 import solidbase.core.Database;
 import solidbase.core.Factory;
 import solidbase.core.PatchProcessor;
 import solidbase.core.SystemException;
-import solidbase.runner.Connection;
 import solidbase.util.DriverDataSource;
 import solidbase.util.MemoryResource;
 import solidbase.util.URLResource;
@@ -86,7 +86,7 @@ public class UpgradeBean
 	/**
 	 * The secondary connections.
 	 */
-	private List< Connection > secondary = new ArrayList< Connection >();
+	private List< ConnectionAttributes > secondary = new ArrayList< ConnectionAttributes >();
 
 	/**
 	 * Returns the database driver class name.
@@ -233,7 +233,7 @@ public class UpgradeBean
 	 *
 	 * @return The secondary connections.
 	 */
-	public List< Connection > getSecondary()
+	public List< ConnectionAttributes > getSecondary()
 	{
 		return this.secondary;
 	}
@@ -243,7 +243,7 @@ public class UpgradeBean
 	 *
 	 * @param secondary The secondary connections.
 	 */
-	public void setSecondary( List< Connection > secondary )
+	public void setSecondary( List< ConnectionAttributes > secondary )
 	{
 		this.secondary = secondary;
 	}
@@ -261,7 +261,7 @@ public class UpgradeBean
 			Assert.notNull( this.password, "Missing 'password' for " + getClass().getName() );
 		}
 
-		for( Connection connection : this.secondary )
+		for( ConnectionAttributes connection : this.secondary )
 			if( connection.getDatasource() == null )
 			{
 				Assert.hasText( connection.getName(), "Missing 'name' for " + connection.getClass().getName() );
@@ -290,7 +290,7 @@ public class UpgradeBean
 		Database database = new Database( "default", dataSource, this.username, this.password, progress );
 		PatchProcessor processor = new PatchProcessor( progress, database );
 
-		for( Connection secondary : this.secondary )
+		for( ConnectionAttributes secondary : this.secondary )
 		{
 			DataSource secondaryDataSource = secondary.getDatasource();
 			if( secondaryDataSource == null )

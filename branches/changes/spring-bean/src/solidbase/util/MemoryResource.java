@@ -18,6 +18,7 @@ package solidbase.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -78,6 +79,12 @@ public class MemoryResource implements Resource
 	public InputStream getInputStream()
 	{
 		return new ByteMatrixInputStream( this.buffer.toArray( new byte[ this.buffer.size() ][] ) );
+	}
+
+	public OutputStream getOutputStream()
+	{
+		// TODO Should we implement this?
+		throw new UnsupportedOperationException();
 	}
 
 	public Resource createRelative( String path )

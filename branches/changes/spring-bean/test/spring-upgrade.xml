@@ -13,7 +13,7 @@
 		<property name="target" value="1.0.2" />
 		<property name="secondary">
 			<list>
-				<bean class="solidbase.runner.Connection" p:name="queues" p:username="sa" p:password=""/>
+				<bean class="solidbase.core.ConnectionAttributes" p:name="queues" p:username="sa" p:password=""/>
 			</list>
 		</property>
 	</bean>
@@ -34,7 +34,7 @@
 		</property>
 		<property name="secondary">
 			<list>
-				<bean class="solidbase.runner.Connection" p:name="queues">
+				<bean class="solidbase.core.ConnectionAttributes" p:name="queues">
 					<property name="datasource">
 						<bean class="org.springframework.jdbc.datasource.SimpleDriverDataSource"
 							p:driverClass="org.hsqldb.jdbcDriver" p:url="jdbc:hsqldb:mem:testdb" p:username="sa" p:password="" />

@@ -18,6 +18,7 @@ package solidbase.util;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 
 import solidbase.core.FatalException;
@@ -77,6 +78,14 @@ public class ClassPathResource implements Resource
 			// TODO Are we sure we want to throw this FatalException?
 			throw new FatalException( "File " + toString() + " not found in classpath" );
 		return result;
+	}
+
+	/**
+	 * Returns an OutputStream for this resource.
+	 */
+	public OutputStream getOutputStream()
+	{
+		throw new UnsupportedOperationException();
 	}
 
 	/**

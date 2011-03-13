@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.runner;
+package solidbase.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,11 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import solidbase.Version;
-import solidbase.core.Database;
-import solidbase.core.Factory;
-import solidbase.core.PatchProcessor;
-import solidbase.core.ProgressListener;
-import solidbase.core.SQLProcessor;
 import solidbase.util.Resource;
 
 /**
@@ -44,7 +39,7 @@ public class Runner
 	/**
 	 * The named database connections.
 	 */
-	protected Map< String, Connection > connections = new HashMap< String, Connection >();
+	protected Map< String, ConnectionAttributes > connections = new HashMap< String, ConnectionAttributes >();
 
 	/**
 	 * SQL files to execute.
@@ -66,13 +61,18 @@ public class Runner
 	 */
 	protected boolean downgradeAllowed;
 
+	/**
+	 * Where to send output.
+	 */
+	protected Resource outputFile;
+
 
 	/**
 	 * Sets the progress listener.
 	 *
 	 * @param listener The progress listener.
 	 */
-	public void setProgress( ProgressListener listener )
+	public void setProgressListener( ProgressListener listener )
 	{
 		this.listener = listener;
 	}
@@ -80,11 +80,15 @@ public class Runner
 	/**
 	 * Sets a connection to use.
 	 *
-	 * @param connection A connection to use.
+	 * @param name The name of the connection.
+	 * @param driver The driver class name to connect with.
+	 * @param url The URL to connect with.
+	 * @param username The user name to connect with.
+	 * @param password The password of the user.
 	 */
-	public void setDatabase( Connection connection )
+	public void setConnectionAttributes( String name, String driver, String url, String username, String password )
 	{
-		this.connections.put( connection.getName(), connection );
+		this.connections.put( name, new ConnectionAttributes( name, driver, url, username, password ) );
 	}
 
 	/**
@@ -139,6 +143,16 @@ public class Runner
 	}
 
 	/**
+	 * Sets where to send output to.
+	 *
+	 * @param outputFile Where to send output to.
+	 */
+	public void setOutputFile( Resource outputFile )
+	{
+		this.outputFile = outputFile;
+	}
+
+	/**
 	 * Execute the SQL files.
 	 */
 	public void executeSQL()
@@ -151,11 +165,11 @@ public class Runner
 
 		SQLProcessor processor = new SQLProcessor( this.listener );
 
-		Connection def = this.connections.get( "default" );
+		ConnectionAttributes def = this.connections.get( "default" );
 		if( def == null )
 			throw new IllegalArgumentException( "Missing 'default' connection." );
 
-		for( Connection connection : this.connections.values() )
+		for( ConnectionAttributes connection : this.connections.values() )
 			processor.addDatabase(
 					new Database(
 							connection.getName(),
@@ -202,11 +216,11 @@ public class Runner
 
 		PatchProcessor processor = new PatchProcessor( this.listener );
 
-		Connection def = this.connections.get( "default" );
+		ConnectionAttributes def = this.connections.get( "default" );
 		if( def == null )
 			throw new IllegalArgumentException( "Missing 'default' connection." );
 
-		for( Connection connection : this.connections.values() )
+		for( ConnectionAttributes connection : this.connections.values() )
 			processor.addDatabase(
 					new Database(
 							connection.getName(),
@@ -227,6 +241,47 @@ public class Runner
 			processor.patch( this.upgradeTarget, this.downgradeAllowed ); // TODO Print this target
 			this.listener.println( "" );
 			this.listener.println( processor.getVersionStatement() );
+		}
+		finally
+		{
+			processor.end();
+		}
+	}
+
+	/**
+	 * Dump the database log to an XML file.
+	 */
+	public void logToXML()
+	{
+		if( this.listener == null )
+			throw new IllegalStateException( "ProgressListener not set" );
+
+		this.listener.println( Version.getInfo() );
+		this.listener.println( "" );
+
+		PatchProcessor processor = new PatchProcessor( this.listener );
+
+		ConnectionAttributes def = this.connections.get( "default" );
+		if( def == null )
+			throw new IllegalArgumentException( "Missing 'default' connection." );
+
+		for( ConnectionAttributes connection : this.connections.values() )
+			processor.addDatabase(
+					new Database(
+							connection.getName(),
+							connection.getDriver() == null ? def.driver : connection.getDriver(),
+							connection.getUrl() == null ? def.url : connection.getUrl(),
+							connection.getUsername(),
+							connection.getPassword(),
+							this.listener
+					)
+			);
+
+		processor.setPatchFile( Factory.openPatchFile( this.upgradeFile, this.listener ) );
+		try
+		{
+			processor.init();
+			processor.logToXML( this.outputFile );
 		}
 		finally
 		{

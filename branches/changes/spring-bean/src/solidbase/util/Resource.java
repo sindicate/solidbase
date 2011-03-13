@@ -17,6 +17,7 @@
 package solidbase.util;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 
 /**
@@ -47,6 +48,13 @@ public interface Resource
 	 * @return The input stream for this resource.
 	 */
 	InputStream getInputStream();
+
+	/**
+	 * Returns the output stream for this resource. Some resources allow only a single output stream to be retrieved.
+	 *
+	 * @return The output stream for this resource.
+	 */
+	OutputStream getOutputStream();
 
 	/**
 	 * Creates a resource with the given path relative to this resource.

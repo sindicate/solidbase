@@ -18,6 +18,7 @@ package solidbase.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -76,6 +77,11 @@ public class URLResource implements Resource
 		{
 			throw new SystemException( e );
 		}
+	}
+
+	public OutputStream getOutputStream()
+	{
+		throw new UnsupportedOperationException();
 	}
 
 	public Resource createRelative( String path )
