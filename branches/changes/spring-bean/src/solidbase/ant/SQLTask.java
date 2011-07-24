@@ -99,19 +99,16 @@ public class SQLTask extends DBTask
 		runner.setProgressListener( new Progress( project, this ) );
 		runner.setConnectionAttributes( "default", this.driver, this.url, this.username, this.password );
 		for( Connection connection : this.connections )
-			runner.setConnectionAttributes(
-				connection.getName(),
-				connection.getDriver(),
-				connection.getUrl(),
-				connection.getUsername(),
-				connection.getPassword()
-			);
+			runner.setConnectionAttributes( connection.getName(), connection.getDriver(), connection.getUrl(),
+					connection.getUsername(), connection.getPassword() );
+
 		List< Resource > sqlFiles = new ArrayList< Resource >();
 		if( this.sqlfile != null )
 			sqlFiles.add( Factory.getResource( project.getBaseDir(), this.sqlfile ) );
 		for( Sqlfile file : this.sqlfiles )
 			sqlFiles.add( Factory.getResource( project.getBaseDir(), file.src ) );
 		runner.setSQLFiles( sqlFiles );
+
 		try
 		{
 			runner.executeSQL();

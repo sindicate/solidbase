@@ -174,16 +174,13 @@ public class UpgradeTask extends DBTask
 		runner.setProgressListener( new Progress( project, this ) );
 		runner.setConnectionAttributes( "default", this.driver, this.url, this.username, this.password );
 		for( Connection connection : this.connections )
-			runner.setConnectionAttributes(
-				connection.getName(),
-				connection.getDriver(),
-				connection.getUrl(),
-				connection.getUsername(),
-				connection.getPassword()
-			);
+			runner.setConnectionAttributes( connection.getName(), connection.getDriver(), connection.getUrl(),
+					connection.getUsername(), connection.getPassword() );
+
 		runner.setUpgradeFile( Factory.getResource( project.getBaseDir(), this.upgradefile ) );
 		runner.setUpgradeTarget( this.upgradeTarget );
 		runner.setDowngradeAllowed( this.downgradeallowed );
+
 		try
 		{
 			runner.upgrade();
