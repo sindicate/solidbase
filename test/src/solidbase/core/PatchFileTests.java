@@ -16,7 +16,6 @@
 
 package solidbase.core;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,7 +28,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidbase.core.Patch.Type;
-import solidbase.util.RandomAccessLineReader;
+import solidbase.util.FileResource;
+import solidbase.util.URLRandomAccessLineReader;
 
 
 /**
@@ -47,7 +47,7 @@ public class PatchFileTests
 	@Test
 	public void testCollectTipVersions1() throws IOException
 	{
-		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch1.sql" ) );
+		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "testpatch1.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
 		patchFile.scan();
 		patchFile.close();
@@ -118,7 +118,7 @@ public class PatchFileTests
 	@Test
 	public void testCollectTipVersions2() throws IOException
 	{
-		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch1.sql" ) );
+		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "testpatch1.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
 		patchFile.scan();
 		patchFile.close();
@@ -153,7 +153,7 @@ public class PatchFileTests
 	@Test
 	public void testOpenPatch() throws IOException
 	{
-		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch1.sql" ) );
+		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "testpatch1.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
 		patchFile.close();
 

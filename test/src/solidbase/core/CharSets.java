@@ -16,7 +16,6 @@
 
 package solidbase.core;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -27,7 +26,9 @@ import org.testng.annotations.Test;
 
 import solidbase.core.Database;
 import solidbase.core.PatchProcessor;
+import solidbase.util.FileResource;
 import solidbase.util.RandomAccessLineReader;
+import solidbase.util.URLRandomAccessLineReader;
 
 
 public class CharSets
@@ -35,7 +36,7 @@ public class CharSets
 	@Test
 	public void testIso8859() throws IOException
 	{
-		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch1.sql" ) );
+		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "testpatch1.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
 		patchFile.scan();
 		Assert.assertEquals( patchFile.file.getEncoding(), "ISO-8859-1" );
@@ -49,7 +50,7 @@ public class CharSets
 
 		TestProgressListener progress = new TestProgressListener();
 		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-		PatchFile patchFile = Util.openPatchFile( "patch-utf-8-1.sql", progress );
+		PatchFile patchFile = Factory.openPatchFile( new FileResource( "patch-utf-8-1.sql" ), progress );
 		patcher.setPatchFile( patchFile );
 		patcher.init();
 
@@ -68,7 +69,7 @@ public class CharSets
 	@Test
 	public void testUtf16Bom() throws IOException
 	{
-		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "patch-utf-16-bom-1.sql" ) );
+		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "patch-utf-16-bom-1.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
 		patchFile.scan();
 		Assert.assertEquals( patchFile.file.getBOM(), new byte[] { -1, -2 } );
@@ -79,7 +80,7 @@ public class CharSets
 	@Test
 	public void testUtf16BomAndExplicit() throws IOException
 	{
-		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "patch-utf-16-bom-2.sql" ) );
+		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "patch-utf-16-bom-2.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
 		patchFile.scan();
 		Assert.assertEquals( patchFile.file.getBOM(), new byte[] { -1, -2 } );
@@ -103,7 +104,7 @@ public class CharSets
 	@Test
 	public void testUtf16NoBom() throws IOException
 	{
-		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "patch-utf-16-nobom-1.sql" ) );
+		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "patch-utf-16-nobom-1.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
 		patchFile.scan();
 		Assert.assertNull( patchFile.file.getBOM() );

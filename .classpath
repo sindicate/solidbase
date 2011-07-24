@@ -16,5 +16,10 @@
 	<classpathentry kind="lib" path="test/lib/junit-4.7.jar"/>
 	<classpathentry kind="lib" path="lib/maven-plugin-api-2.0.8.jar"/>
 	<classpathentry kind="lib" path="lib/maven-project-2.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/org.springframework.beans-3.0.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/org.springframework.context-3.0.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/org.springframework.core-3.0.5.RELEASE.jar" sourcepath="G:/Users/Rene/.m2/repository/org/springframework/spring-core/3.0.5.RELEASE/spring-core-3.0.5.RELEASE-sources.jar"/>
+	<classpathentry kind="lib" path="lib/apache-ant-launcher-1.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

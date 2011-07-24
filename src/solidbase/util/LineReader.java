@@ -16,141 +16,57 @@
 
 package solidbase.util;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.net.URL;
-
-import solidbase.core.SystemException;
-
-
 /**
- * Wraps a {@link BufferedReader} and adds a line counting functionality.
- * 
+ * A reader that reads lines or characters and maintains the current line number.
+ *
  * @author René M. de Bloois
  */
-public class LineReader
+public interface LineReader
 {
 	/**
-	 * The reader used to read from the string.
+	 * Close the reader.
 	 */
-	protected BufferedReader reader;
+	void close();
 
 	/**
-	 * The current line the reader is positioned on.
-	 */
-	protected int currentLineNumber;
-
-	/**
-	 * A line in the buffer, needed when characters are read with {@link #read()}.
-	 */
-	protected String buffer;
-
-	/**
-	 * The current position in the {@link #buffer}.
-	 */
-	protected int pos;
-
-	/**
-	 * The {@link URL} of the reader.
-	 */
-	protected URL url;
-
-
-	/**
-	 * Close the reader and the underlying input stream.
-	 */
-	public void close()
-	{
-		if( this.reader != null )
-		{
-			try
-			{
-				this.reader.close();
-			}
-			catch( IOException e )
-			{
-				throw new SystemException( e );
-			}
-			this.reader = null;
-		}
-	}
-
-	/**
-	 * Reads a line from the stream. The line number count is incremented.
-	 * 
+	 * Reads a line. The line number count is incremented.
+	 *
 	 * @return The line that is read or null of there are no more lines.
 	 */
-	public String readLine()
-	{
-		if( this.buffer != null )
-			throw new IllegalStateException( "There is a line in the buffer" );
-		try
-		{
-			String result = this.reader.readLine();
-			if( result != null )
-				this.currentLineNumber++;
-			return result;
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
-	}
+	String readLine();
 
 	/**
 	 * Returns the current line number. The current line number is the line that is about to be read.
-	 * 
+	 *
 	 * @return The current line number.
 	 */
-	public int getLineNumber()
-	{
-		if( this.reader == null )
-			throw new IllegalStateException( "Closed" );
-		return this.currentLineNumber;
-	}
+	int getLineNumber();
 
 	/**
-	 * Reads a character. Must always be repeated until a \n is encountered, otherwise {@link #readLine()} will fail. \r is never returned.
-	 * 
-	 * @return a character. \r is never returned.
+	 * Reads a character. Must always be repeated until a \n is encountered, otherwise {@link #readLine()} will fail. An \r (carriage return) is never returned.
+	 *
+	 * @return A character. An \r is never returned.
 	 */
-	public int read()
-	{
-		if( this.buffer == null )
-		{
-			try
-			{
-				this.buffer = this.reader.readLine();
-			}
-			catch( IOException e )
-			{
-				throw new SystemException( e );
-			}
-			if( this.buffer == null )
-				return -1;
-			this.pos = 0;
-		}
-
-		if( this.pos < this.buffer.length() )
-		{
-			int result = this.buffer.charAt( this.pos );
-			this.pos++;
-			return result;
-		}
-
-		this.buffer = null;
-		this.currentLineNumber++;
-		return '\n';
-	}
+	int read();
 
 	/**
-	 * Returns the {@link URL} of the reader.
-	 * 
-	 * @return The {@link URL} of the reader.
+	 * Returns the underlying resource.
+	 *
+	 * @return The underlying resource.
 	 */
-	public URL getURL()
-	{
-		Assert.notNull( this.url );
-		return this.url;
-	}
+	Resource getResource();
+
+	/**
+	 * Returns the character encoding of the source where the bytes are read from.
+	 *
+	 * @return The character encoding of the source where the bytes are read from.
+	 */
+	String getEncoding();
+
+	/**
+	 * Returns the BOM (Byte Order Mark) of the source where the bytes are read from.
+	 *
+	 * @return The BOM of the source where the bytes are read from.
+	 */
+	byte[] getBOM();
 }

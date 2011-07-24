@@ -16,21 +16,22 @@
 
 package solidbase.core;
 
-import java.io.File;
 import java.io.IOException;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidbase.core.FatalException;
 import solidbase.core.PatchFile;
-import solidbase.util.RandomAccessLineReader;
+import solidbase.util.FileResource;
+import solidbase.util.URLRandomAccessLineReader;
 
 public class DoubleBlock
 {
 	@Test
 	public void testDoubleBlock() throws IOException
 	{
-		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch-doubleblock.sql" ) );
+		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "testpatch-doubleblock.sql" ) );
 		PatchFile patchFile = new PatchFile( ralr );
 		try
 		{

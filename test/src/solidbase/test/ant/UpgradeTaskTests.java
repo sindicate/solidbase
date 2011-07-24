@@ -81,7 +81,7 @@ public class UpgradeTaskTests extends BuildFileTest
 		String log = TestUtil.generalizeOutput( getLog() );
 		Assert.assertEquals( log, "SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
-				"Opening file 'X:\\...\\testpatch-multiconnections.sql'\n" +
+				"Opening file 'X:/.../testpatch-multiconnections.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"The database is unmanaged.\n" +
@@ -96,7 +96,7 @@ public class UpgradeTaskTests extends BuildFileTest
 				"Current database version is \"1.1.0\".\n" +
 				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
-				"Opening file 'X:\\...\\testpatch-multiconnections.sql'\n" +
+				"Opening file 'X:/.../testpatch-multiconnections.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"Current database version is \"1.1.0\".\n" +
@@ -117,7 +117,7 @@ public class UpgradeTaskTests extends BuildFileTest
 		String log = TestUtil.generalizeOutput( getLog() );
 		Assert.assertEquals( log, "SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
-				"Opening file 'X:\\...\\testpatch-basedir.sql'\n" +
+				"Opening file 'X:/.../testpatch-basedir.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"The database is unmanaged.\n" +

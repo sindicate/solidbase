@@ -16,7 +16,6 @@
 
 package solidbase.core;
 
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -33,6 +32,7 @@ import java.util.regex.Pattern;
 import solidbase.core.Delimiter.Type;
 import solidbase.util.Assert;
 import solidbase.util.LineReader;
+import solidbase.util.Resource;
 
 
 
@@ -609,9 +609,9 @@ abstract public class CommandProcessor
 	abstract public LineReader getReader();
 
 	/**
-	 * Returns the {@link URL} of the current SQL file.
+	 * Returns the underlying resource.
 	 * 
-	 * @return The {@link URL} of the current SQL file.
+	 * @return The underlying resource.
 	 */
-	abstract public URL getURL();
+	abstract public Resource getResource();
 }

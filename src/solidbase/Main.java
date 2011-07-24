@@ -31,20 +31,19 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+
 import solidbase.config.Configuration;
-import solidbase.core.Database;
+import solidbase.core.Factory;
 import solidbase.core.FatalException;
-import solidbase.core.PatchProcessor;
+import solidbase.core.Runner;
 import solidbase.core.SQLExecutionException;
-import solidbase.core.SQLProcessor;
 import solidbase.core.SystemException;
-import solidbase.core.Util;
 import solidbase.util.Assert;
 
 
 /**
  * This class contains the main method for the command line version of SolidBase.
- * 
+ *
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
@@ -72,7 +71,7 @@ public class Main
 
 	/**
 	 * The main method for the command line version of SolidBase.
-	 * 
+	 *
 	 * @param args The arguments from the command line.
 	 */
 	static public void main( String... args )
@@ -93,7 +92,7 @@ public class Main
 
 	/**
 	 * For internal (testing) use only: a main method that does not catch and print exceptions.
-	 * 
+	 *
 	 * @param args The arguments from the command line.
 	 * @throws SQLExecutionException When an {@link SQLException} is thrown during execution of a database change.
 	 */
@@ -177,74 +176,43 @@ public class Main
 			return;
 		}
 
-		String info = Version.getInfo();
-		console.println( info );
-		console.println();
+		solidbase.config.Database def = configuration.getDefaultDatabase();
+		Runner runner = new Runner();
+		runner.setProgressListener( progress );
+		runner.setConnectionAttributes( "default", def.getDriver(), def.getUrl(), def.getUserName(), def.getPassword() );
+		for( solidbase.config.Database connection : configuration.getSecondaryDatabases() )
+			runner.setConnectionAttributes(
+				connection.getName(),
+				connection.getDriver(),
+				connection.getUrl(),
+				connection.getUserName(),
+				connection.getPassword()
+			);
 
 		if( configuration.getSqlFile() != null )
 		{
-			SQLProcessor processor = new SQLProcessor( progress );
-
-			solidbase.config.Database defoult = configuration.getDefaultDatabase();
-			processor.addDatabase( new Database( "default", defoult.getDriver(), defoult.getUrl(), defoult.getUserName(), defoult.getPassword(), progress ) );
-
-			for( solidbase.config.Database database : configuration.getSecondaryDatabases() )
-				processor.addDatabase(
-						new Database( database.getName(), database.getDriver() == null ? defoult.getDriver() : database.getDriver(),
-								database.getUrl() == null ? defoult.getUrl() : database.getUrl(),
-										database.getUserName(), database.getPassword(), progress ) );
-
-			processor.setSQLSource( Util.openSQLFile( null, configuration.getSqlFile(), progress ).getSource() );
-			try
-			{
-				console.println( "Connecting to database..." );
-				processor.process();
-			}
-			finally
-			{
-				processor.end();
-			}
-			console.emptyLine();
+			runner.setSQLFile( Factory.getResource( configuration.getSqlFile() ) );
+			runner.executeSQL();
+		}
+		else if( opts.dumplog )
+		{
+			runner.setUpgradeFile( Factory.getResource( configuration.getPatchFile() ) );
+			runner.setOutputFile( Factory.getResource( line.getOptionValue( "dumplog" ) ) );
+			runner.logToXML();
 		}
 		else
 		{
-			PatchProcessor processor = new PatchProcessor( progress );
-
-			solidbase.config.Database defoult = configuration.getDefaultDatabase();
-			processor.addDatabase( new Database( "default", defoult.getDriver(), defoult.getUrl(), defoult.getUserName(), defoult.getPassword(), progress ) );
-
-			for( solidbase.config.Database database : configuration.getSecondaryDatabases() )
-				processor.addDatabase(
-						new Database( database.getName(), database.getDriver() == null ? defoult.getDriver() : database.getDriver(),
-								database.getUrl() == null ? defoult.getUrl() : database.getUrl(),
-										database.getUserName(), database.getPassword(), progress ) );
-
-			processor.setPatchFile( Util.openPatchFile( configuration.getPatchFile(), progress ) );
-			try
-			{
-				processor.init();
-				if( opts.dumplog )
-				{
-					processor.logToXML( line.getOptionValue( "dumplog" ) );
-					return;
-				}
-				console.println( "Connecting to database..." );
-				console.println( processor.getVersionStatement() );
-				processor.patch( configuration.getTarget(), opts.downgradeallowed ); // TODO Print this target
-				console.emptyLine();
-				console.println( processor.getVersionStatement() );
-			}
-			finally
-			{
-				processor.end();
-			}
+			runner.setUpgradeFile( Factory.getResource( configuration.getPatchFile() ) );
+			runner.setUpgradeTarget( configuration.getTarget() );
+			runner.setDowngradeAllowed( opts.downgradeallowed );
+			runner.upgrade();
 		}
 	}
 
 
 	/**
 	 * Reload SolidBase with an extended classpath. Calls {@link #pass2(String...)} when it's done.
-	 * 
+	 *
 	 * @param args The arguments from the command line.
 	 * @param jars The jars that need to be added to the classpath.
 	 * @param verbose Show more information.
@@ -334,7 +302,7 @@ public class Main
 
 	/**
 	 * Gets called after reloading with an extended classpath.
-	 * 
+	 *
 	 * @param args The arguments from the command line.
 	 * @throws SQLExecutionException When an {@link SQLException} is thrown during execution of a database change.
 	 */
@@ -368,7 +336,7 @@ public class Main
 
 	/**
 	 * Print the help from commons cli to the writer registered on the {@link Console}.
-	 * 
+	 *
 	 * @param options The commons cli option configuration.
 	 */
 	static protected void printHelp( Options options )

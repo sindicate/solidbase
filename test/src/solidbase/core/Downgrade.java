@@ -24,7 +24,8 @@ import org.testng.annotations.Test;
 import solidbase.core.Database;
 import solidbase.core.PatchFile;
 import solidbase.core.PatchProcessor;
-import solidbase.core.Util;
+import solidbase.core.Factory;
+import solidbase.util.FileResource;
 
 public class Downgrade
 {
@@ -35,7 +36,7 @@ public class Downgrade
 
 		TestProgressListener progress = new TestProgressListener();
 		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-		PatchFile patchFile = Util.openPatchFile( "testpatch-downgrade-1.sql", progress );
+		PatchFile patchFile = Factory.openPatchFile( new FileResource( "testpatch-downgrade-1.sql" ), progress );
 		patcher.setPatchFile( patchFile );
 		patcher.init();
 

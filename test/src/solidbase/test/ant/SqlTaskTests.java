@@ -81,7 +81,7 @@ public class SqlTaskTests extends BuildFileTest
 		String log = TestUtil.generalizeOutput( getLog() );
 		Assert.assertEquals( log, "SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
-				"Opening file 'X:\\...\\testsql1.sql'\n" +
+				"Opening file 'X:/.../testsql1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"Creating table USERS...\n" +
@@ -90,7 +90,7 @@ public class SqlTaskTests extends BuildFileTest
 				"Inserting 3 users...\n" +
 				"Inserting 3 users...\n" +
 				"Inserting 3 users...\n" +
-				"Opening file 'X:\\...\\testsql2.sql'\n" +
+				"Opening file 'X:/.../testsql2.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Inserting 3 users...\n" +
 				"Execution complete.\n" +
