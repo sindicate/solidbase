@@ -22,7 +22,7 @@ import java.io.OutputStream;
 
 
 /**
- * An OutputStream wrapper that will not pass the close call to the wrapped OutputStream.
+ * An OutputStream wrapper that will ignore the call to close().
  *
  * @author René M. de Bloois
  */
@@ -55,6 +55,6 @@ public class NonClosingOutputStream extends FilterOutputStream
 	@Override
 	public void close() throws IOException
 	{
-		// Stop the close cascade.
+		// Ignore the close()
 	}
 }

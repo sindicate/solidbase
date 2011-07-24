@@ -20,8 +20,18 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * An InputStream wrapper that will ignore the call to close().
+ *
+ * @author René M. de Bloois
+ */
 public class NonClosingInputStream extends FilterInputStream
 {
+	/**
+	 * Constructor.
+	 *
+	 * @param in The real input stream.
+	 */
 	public NonClosingInputStream( InputStream in )
 	{
 		super( in );
@@ -30,6 +40,6 @@ public class NonClosingInputStream extends FilterInputStream
 	@Override
 	public void close() throws IOException
 	{
-		// Stop the close cascade.
+		// Ignore the close()
 	}
 }
