@@ -37,7 +37,7 @@ public class Tokenizer
 	 * 
 	 * @param in The input.
 	 */
-	public Tokenizer( LineReader in )
+	public Tokenizer( BufferedReaderLineReader in )
 	{
 		this.in = new PushbackReader( in );
 	}

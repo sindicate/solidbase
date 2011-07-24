@@ -88,7 +88,7 @@ public class Database
 
 	/**
 	 * Constructor for a named database that manages connections for multiple users.
-	 * 
+	 *
 	 * @param name The name of the database.
 	 * @param driverClassName Driver class name for the database.
 	 * @param url URL for the database.
@@ -98,6 +98,7 @@ public class Database
 	 */
 	public Database( String name, String driverClassName, String url, String defaultUser, String defaultPassword, ProgressListener callBack )
 	{
+		Assert.notNull( name );
 		Assert.notNull( driverClassName );
 		Assert.notNull( url );
 		Assert.notNull( defaultUser );
@@ -122,7 +123,7 @@ public class Database
 
 	/**
 	 * Constructor for a named database that manages connections for multiple users.
-	 * 
+	 *
 	 * @param name The name of the database.
 	 * @param dataSource The data source providing connections to the database.
 	 * @param defaultUser The default user name.
@@ -131,6 +132,7 @@ public class Database
 	 */
 	public Database( String name, DataSource dataSource, String defaultUser, String defaultPassword, ProgressListener callBack )
 	{
+		Assert.notNull( name );
 		Assert.notNull( dataSource );
 
 		this.name = name;
@@ -143,7 +145,7 @@ public class Database
 
 	/**
 	 * Constructor for a named database. You can't use multiple users with this database.
-	 * 
+	 *
 	 * @param name The name of the database.
 	 * @param dataSource The data source providing connections to the database.
 	 * @param callBack The progress listener.
@@ -163,7 +165,7 @@ public class Database
 
 	/**
 	 * Returns the name of this database.
-	 * 
+	 *
 	 * @return The name of this database.
 	 */
 	public String getName()
@@ -183,7 +185,7 @@ public class Database
 
 	/**
 	 * Sets the connection listener that listens to connection events.
-	 * 
+	 *
 	 * @param connectionListener The connection listener.
 	 */
 	public void setConnectionListener( ConnectionListener connectionListener )
@@ -195,7 +197,7 @@ public class Database
 	 * Returns a connection for the current user. Connections are cached per user. If a connection for the current user
 	 * is not found in the cache, a password will be requested by calling
 	 * {@link ProgressListener#requestPassword(String)} of {@link PatchProcessor#progress}.
-	 * 
+	 *
 	 * @return The connection for the current user.
 	 */
 	public Connection getConnection()
@@ -207,7 +209,7 @@ public class Database
 	 * Returns a connection for the default user. Connections are cached per user. If the password for the default user
 	 * has not been specified, a password will be requested by calling {@link ProgressListener#requestPassword(String)} of
 	 * {@link PatchProcessor#progress}.
-	 * 
+	 *
 	 * @return The connection for the default user.
 	 */
 	public Connection getDefaultConnection()
@@ -219,7 +221,7 @@ public class Database
 	 * Returns a connection for the given user. Connections are cached per user. If a connection for the current user
 	 * is not found in the cache, a password will be requested by calling
 	 * {@link ProgressListener#requestPassword(String)} of {@link PatchProcessor#progress}.
-	 * 
+	 *
 	 * @param user The user to get a connection for.
 	 * @return The connection for the given user.
 	 */
@@ -298,7 +300,7 @@ public class Database
 
 	/**
 	 * Return the default user.
-	 * 
+	 *
 	 * @return The name of the default user.
 	 */
 	public String getDefaultUser()

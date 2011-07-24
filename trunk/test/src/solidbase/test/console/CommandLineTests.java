@@ -51,7 +51,7 @@ public class CommandLineTests
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
-				"Opening file 'testpatch1.sql'\n" +
+				"Opening file 'X:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"The database is unmanaged.\n" +
@@ -85,7 +85,7 @@ public class CommandLineTests
 		// TODO Also test dump to file
 		Assert.assertEquals( output, "SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
-				"Opening file 'testpatch1.sql'\n" +
+				"Opening file 'X:/.../testpatch1.sql'\n" +
 		"    Encoding is 'ISO-8859-1'\n" );
 	}
 
@@ -110,7 +110,7 @@ public class CommandLineTests
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
-				"Opening file 'testpatch1.sql'\n" +
+				"Opening file 'X:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"The database is unmanaged.\n" +
@@ -155,7 +155,7 @@ public class CommandLineTests
 		Assert.assertEquals( output,
 				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
-				"Opening file 'testpatch1.sql'\n" +
+				"Opening file 'X:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"The database is unmanaged.\n"
@@ -241,7 +241,7 @@ public class CommandLineTests
 		Assert.assertEquals( output,
 				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
-				"Opening file 'testsql-sections.sql'\n" +
+				"Opening file 'X:/.../testsql-sections.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"Creating table USERS.\n" +
@@ -279,7 +279,7 @@ public class CommandLineTests
 				"Reading property file file:/.../solidbase-default.properties\n" +
 				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
-				"Opening file 'testpatch-skip.sql'\n" +
+				"Opening file 'X:/.../testpatch-skip.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"The database is unmanaged.\n" +

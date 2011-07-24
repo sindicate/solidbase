@@ -18,17 +18,14 @@ package solidbase.maven;
 
 import org.apache.maven.plugin.MojoFailureException;
 
-import solidbase.Version;
-import solidbase.core.Database;
+import solidbase.core.Factory;
 import solidbase.core.FatalException;
-import solidbase.core.PatchProcessor;
-import solidbase.core.Util;
+import solidbase.core.Runner;
 
 
 /**
  * The Maven plugin for SolidBase.
- * 
- * @author Ruud de Jong
+ *
  * @author René de Bloois
  */
 public class UpgradeMojo extends DBMojo
@@ -52,37 +49,24 @@ public class UpgradeMojo extends DBMojo
 	{
 		validate();
 
-		Progress progress = new Progress( getLog() );
-
-		String info = Version.getInfo();
-		getLog().info( info );
-		getLog().info( "" );
-
+		Runner runner = new Runner();
+		runner.setProgressListener( new Progress( getLog() ) );
+		runner.setConnectionAttributes( "default", this.driver, this.url, this.username, this.password == null ? "" : this.password );
+		if( this.connections != null )
+			for( Secondary connection : this.connections )
+				runner.setConnectionAttributes(
+					connection.getName(),
+					connection.getDriver(),
+					connection.getUrl(),
+					connection.getUsername(),
+					connection.getPassword() == null ? "" : connection.getPassword()
+				);
+		runner.setUpgradeFile( Factory.getResource( this.project.getBasedir(), this.upgradefile ) );
+		runner.setUpgradeTarget( this.target );
+		runner.setDowngradeAllowed( this.downgradeallowed );
 		try
 		{
-			PatchProcessor processor = new PatchProcessor( progress, new Database( "default", this.driver, this.url, this.username, this.password == null ? "" : this.password, progress ) );
-
-			if( this.connections != null )
-				for( Secondary secondary : this.connections )
-					processor.addDatabase(
-							new Database( secondary.getName(), secondary.getDriver() == null ? this.driver : secondary.getDriver(),
-									secondary.getUrl() == null ? this.url : secondary.getUrl(),
-											secondary.getUsername(), secondary.getPassword() == null ? "" : secondary.getPassword(), progress ) );
-
-			processor.setPatchFile( Util.openPatchFile( this.project.getBasedir(), this.upgradefile, progress ) );
-			try
-			{
-				processor.init();
-				progress.info( "Connecting to database..." );
-				progress.info( processor.getVersionStatement() );
-				processor.patch( this.target, this.downgradeallowed ); // TODO Print this target
-				progress.info( "" );
-				progress.info( processor.getVersionStatement() );
-			}
-			finally
-			{
-				processor.end();
-			}
+			runner.upgrade();
 		}
 		catch( FatalException e )
 		{

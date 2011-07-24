@@ -39,10 +39,10 @@ public class ThroughConsoleTests
 //		System.out.println( "[[[" + output + "]]]" );
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
-				"Reading property file X:\\...\\solidbase1.properties\n" +
+				"Reading property file X:/.../solidbase1.properties\n" +
 				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
-				"Opening file 'testpatch1.sql'\n" +
+				"Opening file 'X:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"Input password for user 'sa': The database is unmanaged.\n" +
@@ -72,10 +72,10 @@ public class ThroughConsoleTests
 //		System.out.println( "[[[" + output + "]]]" );
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
-				"Reading property file X:\\...\\solidbase2.properties\n" +
+				"Reading property file X:/.../solidbase2.properties\n" +
 				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
-				"Opening file 'testpatch1.sql'\n" +
+				"Opening file 'X:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"Input password for user 'sa': The database is unmanaged.\n" +
@@ -104,10 +104,10 @@ public class ThroughConsoleTests
 //		System.out.println( "[[[" + output + "]]]" );
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
-				"Reading property file X:\\...\\solidbase2.properties\n" +
+				"Reading property file X:/.../solidbase2.properties\n" +
 				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
-				"Opening file 'testpatch-print1.sql'\n" +
+				"Opening file 'X:/.../testpatch-print1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"DEBUG: version=1.0.2, target=null, statements=2\n" +

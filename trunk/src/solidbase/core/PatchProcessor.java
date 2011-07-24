@@ -16,10 +16,8 @@
 
 package solidbase.core;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.LinkedHashSet;
@@ -33,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 
 import solidbase.util.Assert;
 import solidbase.util.LineReader;
+import solidbase.util.Resource;
 import solidbase.util.ShutdownHook;
 import solidbase.util.WorkerThread;
 
@@ -42,7 +41,7 @@ import solidbase.util.WorkerThread;
  * calls the {@link CommandListener}s, updates the DBVERSION and DBVERSIONLOG tables through {@link DBVersion}, calls
  * the {@link Database} to execute statements through JDBC, and shows progress to the user by calling
  * {@link ProgressListener}.
- * 
+ *
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
@@ -99,7 +98,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 
 	/**
 	 * Construct a new instance of the patcher.
-	 * 
+	 *
 	 * @param listener Listens to the progress.
 	 */
 	public PatchProcessor( ProgressListener listener )
@@ -110,7 +109,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 
 	/**
 	 * Construct a new instance of the patcher.
-	 * 
+	 *
 	 * @param listener Listens to the progress.
 	 * @param database The default database.
 	 */
@@ -128,7 +127,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 
 	/**
 	 * Sets the patch file.
-	 * 
+	 *
 	 * @param patchFile The patch file to set.
 	 */
 	public void setPatchFile( PatchFile patchFile )
@@ -164,7 +163,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 
 	/**
 	 * Get the current version of the database.
-	 * 
+	 *
 	 * @return The current version of the database.
 	 */
 	public String getCurrentVersion()
@@ -175,7 +174,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 
 	/**
 	 * Get the current target.
-	 * 
+	 *
 	 * @return The current target.
 	 */
 	public String getCurrentTarget()
@@ -185,7 +184,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 
 	/**
 	 * Get the number of persistent statements executed successfully.
-	 * 
+	 *
 	 * @return The number of persistent statements executed successfully.
 	 */
 	public int getCurrentStatements()
@@ -195,7 +194,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 
 	/**
 	 * Returns all possible targets from the current version. The current version is also considered.
-	 * 
+	 *
 	 * @param tips If true only the tips of the upgrade paths are returned.
 	 * @param prefix Only return targets that start with the given prefix.
 	 * @param downgradeable Also consider downgrade paths.
@@ -210,7 +209,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 
 	/**
 	 * Use the 'setup' change sets to upgrade the DBVERSION and DBVERSIONLOG tables to the newest specification.
-	 * 
+	 *
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
 	public void setupControlTables() throws SQLExecutionException
@@ -236,7 +235,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 
 	/**
 	 * Patch to the given target.
-	 * 
+	 *
 	 * @param target The target to patch to.
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
@@ -248,7 +247,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	/**
 	 * Patches to the given target version. The target version can end with an '*', indicating whatever tip version that
 	 * matches the target prefix. This method protects itself against SIGTERMs (CTRL-C).
-	 * 
+	 *
 	 * @param target The target requested.
 	 * @param downgradeable Indicates that downgrade paths are allowed to reach the given target.
 	 * @throws SQLExecutionException When the execution of a command throws an {@link SQLException}.
@@ -296,7 +295,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	/**
 	 * Patches to the given target version. The target version can end with an '*', indicating whatever tip version that
 	 * matches the target prefix.
-	 * 
+	 *
 	 * @param target The target requested.
 	 * @param downgradeable Indicates that downgrade paths are allowed to reach the given target.
 	 * @throws SQLExecutionException When the execution of a command throws an {@link SQLException}.
@@ -359,7 +358,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 
 	/**
 	 * Upgrade the database from the given version to the given target.
-	 * 
+	 *
 	 * @param version The current version of the database.
 	 * @param target The target to upgrade to.
 	 * @param downgradeable Allow downgrades to reach the target
@@ -383,7 +382,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 
 	/**
 	 * Execute a patch.
-	 * 
+	 *
 	 * @param patch The patch to be executed.
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
@@ -557,7 +556,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 
 	/**
 	 * If history does not contain the given version then start skipping the persistent commands. If <code>not</code> is true then this logic is reversed.
-	 * 
+	 *
 	 * @param not True causes reversed logic.
 	 * @param version The version to look for in the history.
 	 */
@@ -577,7 +576,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 
 	/**
 	 * Write the history to the given output stream.
-	 * 
+	 *
 	 * @param out The output stream to write to.
 	 */
 	public void logToXML( OutputStream out )
@@ -586,27 +585,22 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	}
 
 	/**
-	 * Write the history to the given file name.
-	 * 
-	 * @param filename The file name to write to.
+	 * Write the log to the given resource.
+	 *
+	 * @param output The resource to write the log to.
 	 */
-	public void logToXML( String filename )
+	public void logToXML( Resource output )
 	{
-		if( filename.equals( "-" ) )
-			logToXML( System.out );
-		else
+		OutputStream out = output.getOutputStream();
+		try
+		{
+			logToXML( out );
+		}
+		finally
 		{
 			try
 			{
-				OutputStream out = new FileOutputStream( filename );
-				try
-				{
-					logToXML( out );
-				}
-				finally
-				{
-					out.close();
-				}
+				out.close();
 			}
 			catch( IOException e )
 			{
@@ -617,7 +611,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 
 	/**
 	 * Returns a statement of the current version of the database in a user presentable form.
-	 * 
+	 *
 	 * @return A statement of the current version of the database in a user presentable form.
 	 */
 	public String getVersionStatement()
@@ -645,8 +639,8 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	}
 
 	@Override
-	public URL getURL()
+	public Resource getResource()
 	{
-		return this.patchFile.file.getURL();
+		return this.patchFile.file.getResource();
 	}
 }

@@ -16,11 +16,11 @@
 
 package solidbase.core;
 
-import java.net.URL;
 import java.util.regex.Matcher;
 
 import solidbase.core.Delimiter.Type;
 import solidbase.util.LineReader;
+import solidbase.util.Resource;
 import solidbase.util.StringLineReader;
 
 
@@ -202,12 +202,12 @@ public class SQLSource
 	}
 
 	/**
-	 * Return the {@link URL} of the source.
+	 * Returns the underlying resource.
 	 * 
-	 * @return The {@link URL} of the source.
+	 * @return The underlying resource.
 	 */
-	public URL getURL()
+	public Resource getResource()
 	{
-		return this.reader.getURL();
+		return this.reader.getResource();
 	}
 }

@@ -21,16 +21,16 @@ import java.util.List;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
-import solidbase.Version;
-import solidbase.core.Database;
+
+import solidbase.core.Factory;
 import solidbase.core.FatalException;
-import solidbase.core.SQLProcessor;
-import solidbase.core.Util;
+import solidbase.core.Runner;
+import solidbase.util.Resource;
 
 
 /**
  * The Sql Ant Task.
- * 
+ *
  * @author René M. de Bloois
  */
 public class SQLTask extends DBTask
@@ -47,7 +47,7 @@ public class SQLTask extends DBTask
 
 	/**
 	 * Sets the sqlfile attribute.
-	 * 
+	 *
 	 * @param sqlfile The sqlfile attribute.
 	 */
 	public void setSqlfile( String sqlfile )
@@ -57,7 +57,7 @@ public class SQLTask extends DBTask
 
 	/**
 	 * Creates a nested sqlfile element.
-	 * 
+	 *
 	 * @return The nested sqlfile element.
 	 */
 	public Sqlfile createSqlfile()
@@ -94,44 +94,24 @@ public class SQLTask extends DBTask
 		validate();
 
 		Project project = getProject();
-		Progress progress = new Progress( project, this );
 
-		String info = Version.getInfo();
-		progress.info( info );
-		progress.info( "" );
+		Runner runner = new Runner();
+		runner.setProgressListener( new Progress( project, this ) );
+		runner.setConnectionAttributes( "default", this.driver, this.url, this.username, this.password );
+		for( Connection connection : this.connections )
+			runner.setConnectionAttributes( connection.getName(), connection.getDriver(), connection.getUrl(),
+					connection.getUsername(), connection.getPassword() );
+
+		List< Resource > sqlFiles = new ArrayList< Resource >();
+		if( this.sqlfile != null )
+			sqlFiles.add( Factory.getResource( project.getBaseDir(), this.sqlfile ) );
+		for( Sqlfile file : this.sqlfiles )
+			sqlFiles.add( Factory.getResource( project.getBaseDir(), file.src ) );
+		runner.setSQLFiles( sqlFiles );
 
 		try
 		{
-			SQLProcessor processor = new SQLProcessor( progress, new Database( "default", this.driver, this.url, this.username, this.password, progress ) );
-
-			for( Connection connection : this.connections )
-				processor.addDatabase(
-						new Database( connection.getName(), connection.getDriver() == null ? this.driver : connection.getDriver(),
-								connection.getUrl() == null ? this.url : connection.getUrl(),
-										connection.getUsername(), connection.getPassword(), progress ) );
-
-			if( this.sqlfile != null )
-				this.sqlfiles.add( 0, new Sqlfile( this.sqlfile ) );
-
-			try
-			{
-				boolean first = true;
-				for( Sqlfile file : this.sqlfiles )
-				{
-					processor.setSQLSource( Util.openSQLFile( project.getBaseDir(), file.src, progress ).getSource() );
-					if( first )
-					{
-						progress.info( "Connecting to database..." ); // TODO Let the database say that (for example the default connection)
-						first = false;
-					}
-					processor.process();
-				}
-			}
-			finally
-			{
-				processor.end();
-			}
-			progress.info( "" );
+			runner.executeSQL();
 		}
 		catch( FatalException e )
 		{
@@ -141,7 +121,7 @@ public class SQLTask extends DBTask
 
 	/**
 	 * Object used to configure the nested sqlfile element of the SQLTask.
-	 * 
+	 *
 	 * @author R.M. de Bloois
 	 */
 	static protected class Sqlfile
@@ -161,7 +141,7 @@ public class SQLTask extends DBTask
 
 		/**
 		 * Constructor.
-		 * 
+		 *
 		 * @param src The file path.
 		 */
 		public Sqlfile( String src )
@@ -171,7 +151,7 @@ public class SQLTask extends DBTask
 
 		/**
 		 * Sets the file path.
-		 * 
+		 *
 		 * @param src The file path.
 		 */
 		public void setSrc( String src )

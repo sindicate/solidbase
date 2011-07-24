@@ -24,7 +24,8 @@ import org.testng.annotations.Test;
 import solidbase.core.Database;
 import solidbase.core.PatchFile;
 import solidbase.core.PatchProcessor;
-import solidbase.core.Util;
+import solidbase.core.Factory;
+import solidbase.util.FileResource;
 
 public class Init
 {
@@ -35,7 +36,7 @@ public class Init
 
 		TestProgressListener progress = new TestProgressListener();
 		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-		PatchFile patchFile = Util.openPatchFile( "testpatch1.sql", progress );
+		PatchFile patchFile = Factory.openPatchFile( new FileResource( "testpatch1.sql" ), progress );
 		patcher.setPatchFile( patchFile );
 		patcher.init();
 
@@ -52,7 +53,7 @@ public class Init
 	{
 		TestProgressListener progress = new TestProgressListener();
 		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-		PatchFile patchFile = Util.openPatchFile( "testpatch-version-table-upgrade-2.sql", progress );
+		PatchFile patchFile = Factory.openPatchFile( new FileResource( "testpatch-version-table-upgrade-2.sql" ), progress );
 		patcher.setPatchFile( patchFile );
 		patcher.init();
 
@@ -71,7 +72,7 @@ public class Init
 
 		TestProgressListener progress = new TestProgressListener();
 		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-		PatchFile patchFile = Util.openPatchFile( "testpatch-version-table-upgrade-2.sql", progress );
+		PatchFile patchFile = Factory.openPatchFile( new FileResource( "testpatch-version-table-upgrade-2.sql" ), progress );
 		patcher.setPatchFile( patchFile );
 		patcher.init();
 

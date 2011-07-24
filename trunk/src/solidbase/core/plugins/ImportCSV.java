@@ -16,10 +16,6 @@
 
 package solidbase.core.plugins;
 
-import java.io.BufferedInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -33,11 +29,11 @@ import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.SQLExecutionException;
-import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidbase.util.BOMDetectingLineReader;
 import solidbase.util.CSVReader;
 import solidbase.util.LineReader;
+import solidbase.util.Resource;
 import solidbase.util.StringLineReader;
 import solidbase.util.Tokenizer;
 import solidbase.util.Tokenizer.Token;
@@ -82,19 +78,9 @@ public class ImportCSV implements CommandListener
 		else if( parsed.fileName != null )
 		{
 			// Data is in a file
-			try
-			{
-				URL url = new URL( processor.getURL(), parsed.fileName );
-				lineReader = new BOMDetectingLineReader( new BufferedInputStream( url.openStream() ), parsed.encoding, url );
-			}
-			catch( FileNotFoundException e )
-			{
-				throw new CommandFileException( "java.io.FileNotFoundException: " + e.getMessage(), command.getLineNumber() );
-			}
-			catch( IOException e )
-			{
-				throw new SystemException( e );
-			}
+			Resource resource = processor.getResource().createRelative( parsed.fileName );
+			lineReader = new BOMDetectingLineReader( resource, parsed.encoding );
+			// TODO What about the FileNotFoundException?
 		}
 		else
 			lineReader = processor.getReader(); // Data is in the source file

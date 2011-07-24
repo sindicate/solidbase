@@ -25,7 +25,7 @@ import java.io.StringReader;
  * 
  * @author René M. de Bloois
  */
-public class StringLineReader extends LineReader
+public class StringLineReader extends BufferedReaderLineReader
 {
 	/**
 	 * Creates a new line reader for the given input stream.

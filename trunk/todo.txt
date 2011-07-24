@@ -1,0 +1,2 @@
+Introduce ProgressListener interface
+Remove runtime dependency on Spring
