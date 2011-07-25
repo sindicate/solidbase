@@ -93,8 +93,6 @@ connection.url = jdbc:derby:testant;create=true
 connection.username = app
 }}}
 
-(...)
-
 The folder now looks like:
 
 {{{
@@ -148,6 +146,6 @@ G:\PROJECTS\BUILDS\solidbase\TEMP>java -jar solidbase.jar
 G:\PROJECTS\BUILDS\solidbase\TEMP>
 }}}
 
-This concludes the Getting Started with properties.
+This concludes the Getting Started with a properties file.
 
 Enjoy!
