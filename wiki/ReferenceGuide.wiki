@@ -316,6 +316,9 @@ Each upgrade block starts with the default user and the default connection.
 === Example ===
 {{{
 --* SELECT CONNECTION QUEUES
+
+--* // The primary connection is called 'DEFAULT'
+--* SELECT CONNECTION DEFAULT
 }}}
 === See also ===
 Configuring multiple connections (TODO)

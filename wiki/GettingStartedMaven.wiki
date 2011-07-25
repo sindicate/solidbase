@@ -138,12 +138,12 @@ G:\PROJECTS\BUILDS\solidbase\TEMP>dir
 
  Directory of G:\PROJECTS\BUILDS\solidbase\TEMP
 
-02/27/2011  02:59 PM    <DIR>          .
-02/27/2011  02:59 PM    <DIR>          ..
-02/27/2011  02:59 PM             1,399 pom.xml
-02/27/2011  02:59 PM             1,178 test-upgrade.sql
+07/25/2011  06:46 PM    <DIR>          .
+07/25/2011  06:46 PM    <DIR>          ..
+07/25/2011  06:46 PM             1,399 pom.xml
+07/25/2011  06:46 PM             1,178 test-upgrade.sql
                2 File(s)          2,577 bytes
-               2 Dir(s)   8,036,012,032 bytes free
+               2 Dir(s)   5,307,551,744 bytes free
 
 G:\PROJECTS\BUILDS\solidbase\TEMP>
 }}}
@@ -189,8 +189,8 @@ Downloading: \
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESSFUL
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time: 9 seconds
-[INFO] Finished at: Sun Feb 27 14:59:18 CET 2011
+[INFO] Total time: 7 seconds
+[INFO] Finished at: Mon Jul 25 18:46:52 CEST 2011
 [INFO] Final Memory: 4M/15M
 [INFO] ------------------------------------------------------------------------
 
@@ -220,7 +220,7 @@ G:\PROJECTS\BUILDS\solidbase\TEMP>mvn solidbase:upgrade
 [INFO] BUILD SUCCESSFUL
 [INFO] ------------------------------------------------------------------------
 [INFO] Total time: 2 seconds
-[INFO] Finished at: Sun Feb 27 14:59:21 CET 2011
+[INFO] Finished at: Mon Jul 25 18:46:55 CEST 2011
 [INFO] Final Memory: 3M/15M
 [INFO] ------------------------------------------------------------------------
 
@@ -315,7 +315,7 @@ G:\PROJECTS\BUILDS\solidbase\TEMP>mvn install
 [INFO] BUILD SUCCESSFUL
 [INFO] ------------------------------------------------------------------------
 [INFO] Total time: 3 seconds
-[INFO] Finished at: Sun Feb 27 14:59:28 CET 2011
+[INFO] Finished at: Mon Jul 25 18:47:03 CEST 2011
 [INFO] Final Memory: 8M/20M
 [INFO] ------------------------------------------------------------------------
 

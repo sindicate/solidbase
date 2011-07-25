@@ -2,6 +2,6 @@
 
 Here are a couple of Getting Started pages:
  * [GettingStartedCommandLineWithArguments Getting Started with SolidBase on the command-line];
- * Getting Started with !SolidBase and the solidbase.properties file (coming up);
+ * [GettingStartedCommandLineWithProperties Getting Started with SolidBase and the solidbase.properties file];
  * [GettingStartedAnt Getting Started with the SolidBase Ant task];
  * [GettingStartedMaven Getting Started with the SolidBase Maven plugin].
