@@ -322,6 +322,6 @@ G:\PROJECTS\BUILDS\solidbase\TEMP>mvn install
 G:\PROJECTS\BUILDS\solidbase\TEMP>
 }}}
 
-This concludes the Getting Started with the Ant task.
+This concludes the Getting Started with the Maven task.
 
-Have a nice time playing with !SolidBase!
+Enjoy!

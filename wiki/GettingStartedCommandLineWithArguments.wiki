@@ -361,4 +361,4 @@ G:\PROJECTS\BUILDS\solidbase\TEMP>
 
 This concludes the Getting Started with the command line version of !SolidBase.
 
-Have a nice time playing with !SolidBase!
+Enjoy!
