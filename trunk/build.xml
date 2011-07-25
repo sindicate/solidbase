@@ -103,6 +103,22 @@
 	<taskdef name="fop" classname="org.apache.fop.tools.anttasks.Fop" classpathref="fop.classpath" />
 
 
+    <!-- Check Java version  -->
+	
+    <echo message="Java Version: ${java.version}"/> 
+    <echo message="Java home: ${java.home}"/> 
+    <fail message="Unsupported Java version: ${java.version}. Make sure that the version of the Java compiler is 1.5 or 1.6."> 
+        <condition> 
+            <not> 
+                <or> 
+                    <contains string="${java.version}" substring="1.5" casesensitive="false" /> 
+                    <contains string="${java.version}" substring="1.6" casesensitive="false" /> 
+                </or> 
+            </not> 
+        </condition> 
+    </fail> 
+
+	
 	<!-- Default target -->
 
 	<target name="none">

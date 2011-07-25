@@ -21,6 +21,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import javax.sql.DataSource;
+
 import solidbase.core.SystemException;
 
 /**
@@ -28,7 +30,7 @@ import solidbase.core.SystemException;
  *
  * @author René M. de Bloois
  */
-public class DriverDataSource implements javax.sql.DataSource
+public class DriverDataSource implements DataSource
 {
 	/**
 	 * The class name of the driver to be used to access the database.
