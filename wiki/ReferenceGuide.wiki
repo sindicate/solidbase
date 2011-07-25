@@ -8,6 +8,7 @@
  * [#IF_HISTORY IF HISTORY] (upgrade only)
  * [#IGNORE_SQL_ERROR IGNORE SQL ERROR]
  * [#IMPORT_CSV IMPORT CSV]
+ * [#JDBC_ESCAPE_PROCESSING JDBC ESCAPE PROCESSING]
  * [#PRINT_SELECT PRINT SELECT]
  * [#SECTION SECTION]
  * [#SELECT_CONNECTION SELECT CONNECTION]
@@ -270,6 +271,23 @@ VALUES ( ASEQUENCE.NEXTVAL, TO_DATE( :2, 'YYYY-MM-DD' ), :1, :1 )
 DATA
 "here is a comma, which is ok",2003-01-01,6
 """Life is good"", he said",2004-01-01,6;
+}}}
+
+----------------------------------------
+== JDBC ESCAPE PROCESSING ==
+See [http://download.oracle.com/javase/6/docs/technotes/guides/jdbc/getstart/statement.html#1006519 Getting Started with the JDBC API: SQL Escape Syntax in Statements]
+
+SolidBase disables JDBC escape processing by default. The purpose of JDBC escape processing is to make it easier to keep SQL database vendor independent. If you enable it however, you will not be able to send Java sources to the database because Java contains { and }.
+=== Since ===
+1.6.5
+=== Syntax ===
+{{{
+JDBC ESCAPE PROCESSING ON | OFF;
+}}}
+=== Example ===
+{{{
+JDBC ESCAPE PROCESSING ON;
+INSERT INTO ATABLE ( ADATE, THEUSER ) VALUES ( {d '2011-07-25'}, {fn user()} );
 }}}
 
 ----------------------------------------
