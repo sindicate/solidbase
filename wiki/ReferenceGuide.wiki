@@ -1,27 +1,49 @@
 #summary Reference Guide describing every feature of SolidBase (in progress)
 
 = Contents =
+== File encoding & upgrade file definition ==
+ * [#File_encoding File encoding]
  * [#Upgrade_file_definition Upgrade file definition]
-=== Annotations ===
- * [#ASSERT_EMPTY ASSERT EMPTY]
- * [#ASSERT_EXISTS ASSERT EXISTS]
+== Annotations ==
  * [#IF_HISTORY IF HISTORY] (upgrade only)
  * [#IGNORE_SQL_ERROR IGNORE SQL ERROR]
- * [#IMPORT_CSV IMPORT CSV]
  * [#JDBC_ESCAPE_PROCESSING JDBC ESCAPE PROCESSING]
- * [#PRINT_SELECT PRINT SELECT]
  * [#SECTION SECTION]
  * [#SELECT_CONNECTION SELECT CONNECTION]
  * [#SET_DELIMITER SET DELIMITER]
  * [#SET_USER SET USER]
  * [#SKIP SKIP]
  * [#TRANSIENT TRANSIENT] (upgrade only)
+== Commands ==
+These are commands that are executed by !SolidBase. They are not sent to the database.
+ * [#ASSERT_EMPTY ASSERT EMPTY]
+ * [#ASSERT_EXISTS ASSERT EXISTS]
+ * [#IMPORT_CSV IMPORT CSV]
+ * [#PRINT_SELECT PRINT SELECT]
+
+----------------------------------------
+== File encoding ==
+An upgrade file or SQL file should have the following first line:
+{{{
+--* ENCODING "<encoding>"
+}}}
+=== Example ===
+{{{
+--* ENCODING "UTF-8"
+}}}
+This indicates to SolidBase what the character encoding of the input file is. The available encodings may depend on the JVM vendor but are probably:
+|| US-ASCII || Seven-bit ASCII ||
+|| ISO-8859-1 || ISO Latin Alphabet No. 1, a.k.a. ISO-LATIN-1 ||
+|| UTF-8 || Eight-bit UCS Transformation Format ||
+|| UTF-16BE || Sixteen-bit UCS Transformation Format, big-endian byte order ||
+|| UTF-16LE || Sixteen-bit UCS Transformation Format, little-endian byte order ||
+|| UTF-16 || Sixteen-bit UCS Transformation Format, byte order identified by an optional byte-order mark ||
 
 ----------------------------------------
 == Upgrade file definition ==
 Below I will give some examples with respect to versions and branches. In the examples I use version numbers with 3 digits. The first 2 digits represent a specific release of the database or system where the database is a part of. The 3 digits together represent the consecutive versions within one release.
 
-An upgrade file needs to start with a definition. Here is an initial definition:
+An upgrade file needs to start with a definition (directly below --`*` ENCODING if present). Here is an initial definition:
 {{{
 --* DEFINITION
 --*     SETUP "" --> "1.1"
@@ -38,7 +60,7 @@ Work in progress on the next version:
 --*     UPGRADE OPEN "1.0.1" --> "1.0.2"
 --* /DEFINITION
 }}}
-This example shows that you can work on a specific version for a longer period of time. Changes can be added as development progresses. When the version is complete and you need to finalize it, simply remove OPEN from the definition.
+This example shows that you can work on a specific version for a longer period of time. Changes can be added as development progresses and because !SolidBase registers the number of statements that have been succesfully executed it knows which statements are added. When the version is complete and you need to finalize it, simply remove OPEN from the definition.
 
 You do not HAVE to use this OPEN feature, you can also choose to give every individual change a new version number.
 
@@ -48,9 +70,9 @@ After some time, a release/stable branch is created for release 1.0 which is abo
 --*     SETUP "" --> "1.1"
 --*     UPGRADE "" --> "1.0.1"
 --*     UPGRADE "1.0.1" --> "1.0.2"
---*         UPGRADE "1.0.2" --> "1.0.3" // Start of release branch for release 1.0
+--*         UPGRADE "1.0.2" --> "1.0.3" // Start of maintenance branch for release 1.0
 --*         SWITCH "1.0.3" --> "1.0.2" // Return to the main development branch
---*     UPGRADE "1.0.2" --> "1.1.1" // The main development branch continues with the future release of 1.1
+--*     UPGRADE "1.0.2" --> "1.1.1" // The main development branch continues with the future release 1.1
 --* /DEFINITION
 }}}
 From version 1.0.2 two upgrade paths are defined: one to version 1.0.3, and the other one to 1.1.1. You see a SWITCH from 1.0.3 back to 1.0.2. !SolidBase will try to avoid following a path with a SWITCH in it as long as there are other paths available. In the SWITCH you can do whatever you need to get the database in the correct state for the main development branch.
@@ -67,7 +89,7 @@ After some time, the release branch and main development branch have further pro
 --*     SETUP "" --> "1.1"
 --*     UPGRADE "" --> "1.0.1"
 --*     UPGRADE "1.0.1" --> "1.0.2"
---*         UPGRADE "1.0.2" --> "1.0.3" // Start of release branch for release 1.0
+--*         UPGRADE "1.0.2" --> "1.0.3" // Start of maintenance branch for release 1.0
 --*         UPGRADE "1.0.3" --> "1.0.4"
 --*         SWITCH "1.0.4" --> "1.1.1" // Return to the main development branch
 --*     UPGRADE "1.0.2" --> "1.1.1"
@@ -81,7 +103,7 @@ And even more progress:
 --*     SETUP "" --> "1.1"
 --*     UPGRADE "" --> "1.0.1"
 --*     UPGRADE "1.0.1" --> "1.0.2"
---*         UPGRADE "1.0.2" --> "1.0.3" // Start of release branch for release 1.0
+--*         UPGRADE "1.0.2" --> "1.0.3" // Start of maintenance branch for release 1.0
 --*         UPGRADE "1.0.3" --> "1.0.4"
 --*         UPGRADE "1.0.4" --> "1.0.5"
 --*         SWITCH "1.0.5" --> "1.1.2" // Return to the main development branch
@@ -224,6 +246,14 @@ INTO <tablename>
 [ VALUES ( <valuelist> ) ]
 FILE "<filename>" ENCODING "<encoding>" <current delimiter>
 }}}
+The available encodings may depend on the JVM vendor but are probably:
+|| US-ASCII || Seven-bit ASCII ||
+|| ISO-8859-1 || ISO Latin Alphabet No. 1, a.k.a. ISO-LATIN-1 ||
+|| UTF-8 || Eight-bit UCS Transformation Format ||
+|| UTF-16BE || Sixteen-bit UCS Transformation Format, big-endian byte order ||
+|| UTF-16LE || Sixteen-bit UCS Transformation Format, little-endian byte order ||
+|| UTF-16 || Sixteen-bit UCS Transformation Format, byte order identified by an optional byte-order mark ||
+
 === Examples ===
 These are all syntax 1 examples, but they work with syntax 2 and 3 too.
 {{{
