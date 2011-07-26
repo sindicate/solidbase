@@ -1,4 +1,3 @@
-
 #summary Describes the available Ant tasks.
 
 = Taskdef =
@@ -13,6 +12,8 @@ Here you have a minimal build.xml to make !SolidBase work with Ant:
 	</path>
 
 	<taskdef resource="solidbasetasks" classpathref="solidbase.classpath" />
+
+	... targets come here ...
 
 </project>
 }}}
