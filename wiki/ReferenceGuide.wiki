@@ -1,8 +1,8 @@
 #summary Reference Guide describing every feature of SolidBase (in progress)
 
 = Contents =
-== Using SolidBase ==
-How to use SolidBase to upgrade your database is described in the Getting Started pages: [GettingStarted Getting Started]. When you want to execute an SQL file, there is an example here: [http://code.google.com/p/solidbase/source/browse/trunk/test/test-sqltask.xml].
+== Using !SolidBase ==
+How to use !SolidBase to upgrade your database is described in the Getting Started pages: [GettingStarted Getting Started]. When you want to execute an SQL file, there is an example here: [http://code.google.com/p/solidbase/source/browse/trunk/test/test-sqltask.xml].
 == File encoding & upgrade file definition ==
  * [#File_encoding File encoding]
  * [#Upgrade_file_definition Upgrade file definition]
