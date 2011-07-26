@@ -1,6 +1,8 @@
 #summary Reference Guide describing every feature of SolidBase (in progress)
 
 = Contents =
+== Using SolidBase ==
+How to use SolidBase to upgrade your database is described in the Getting Started pages: [GettingStarted Getting Started]. When you want to execute an SQL file, there is an example here: [http://code.google.com/p/solidbase/source/browse/trunk/test/test-sqltask.xml].
 == File encoding & upgrade file definition ==
  * [#File_encoding File encoding]
  * [#Upgrade_file_definition Upgrade file definition]
@@ -15,7 +17,7 @@
  * [#SKIP SKIP]
  * [#TRANSIENT TRANSIENT] (upgrade only)
 == Commands ==
-These are commands that are executed by !SolidBase. They are not sent to the database.
+These are commands that are interpreted by !SolidBase, not the database.
  * [#ASSERT_EMPTY ASSERT EMPTY]
  * [#ASSERT_EXISTS ASSERT EXISTS]
  * [#IMPORT_CSV IMPORT CSV]
@@ -31,7 +33,7 @@ An upgrade file or SQL file should have the following first line:
 {{{
 --* ENCODING "UTF-8"
 }}}
-This indicates to SolidBase what the character encoding of the input file is. The available encodings may depend on the JVM vendor but are probably:
+This indicates to !SolidBase what the character encoding of the input file is. The available encodings may depend on the JVM vendor but are probably:
 || US-ASCII || Seven-bit ASCII ||
 || ISO-8859-1 || ISO Latin Alphabet No. 1, a.k.a. ISO-LATIN-1 ||
 || UTF-8 || Eight-bit UCS Transformation Format ||
