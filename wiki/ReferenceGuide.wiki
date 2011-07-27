@@ -2,9 +2,11 @@
 
 = Contents =
 == Using !SolidBase ==
-How to use !SolidBase to upgrade your database is described in the Getting Started pages: [GettingStarted Getting Started]. When you want to execute an SQL file, there is an example here: [http://code.google.com/p/solidbase/source/browse/trunk/test/test-sqltask.xml].
+ * [SolidBaseAntTasks SolidBase Ant tasks]
+ * [SolidBaseMavenPlugin SolidBase Maven plugin]
 == File encoding & upgrade file definition ==
  * [#File_encoding File encoding]
+ * [#Differences_between_upgrade_files_and_SQL_files Differences between upgrade files and SQL files]
  * [#Upgrade_file_definition Upgrade file definition]
 == Annotations ==
  * [#IF_HISTORY IF HISTORY] (upgrade only)
@@ -40,6 +42,14 @@ This indicates to !SolidBase what the character encoding of the input file is. T
 || UTF-16BE || Sixteen-bit UCS Transformation Format, big-endian byte order ||
 || UTF-16LE || Sixteen-bit UCS Transformation Format, little-endian byte order ||
 || UTF-16 || Sixteen-bit UCS Transformation Format, byte order identified by an optional byte-order mark ||
+
+----------------------------------------
+== Differences between upgrade files and SQL files ==
+There are a few differences between upgrade files and SQL files:
+|| DEFINITION || Obviously, you do not add a DEFINITION to an SQL file ||
+|| COMMIT || In an SQL file you need to add COMMITs, in an upgrade file COMMIT is automatic ||
+|| IF HISTORY || This annotation does not work in an SQL file ||
+|| TRANSIENT || This annotation does not work in an SQL file ||
 
 ----------------------------------------
 == Upgrade file definition ==
