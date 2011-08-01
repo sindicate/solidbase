@@ -17,6 +17,7 @@
 package solidbase.core;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
@@ -38,7 +39,7 @@ import solidbase.util.Resource;
 
 /**
  * Processes commands, maintains state, triggers the listeners.
- * 
+ *
  * @author René M. de Bloois
  * @since May 2010
  */
@@ -95,6 +96,26 @@ abstract public class CommandProcessor
 	 * Pattern for JDBC ESCAPE PROCESSING
 	 */
 	static protected final Pattern JDBC_ESCAPING = Pattern.compile( "JDBC\\s+ESCAPE\\s+PROCESSING\\s+(ON|OFF)", Pattern.CASE_INSENSITIVE );
+
+	/**
+	 * Pattern for SET VARIABLE.
+	 */
+	static protected final Pattern setVariablePattern = Pattern.compile( "SET\\s+VARIABLE\\s+(\\w+)\\s*=\\s*(SELECT\\s+.*)", Pattern.CASE_INSENSITIVE );
+
+	/**
+	 * Pattern for IF VARIABLE.
+	 */
+	static protected final Pattern ifVariablePattern = Pattern.compile( "IF\\s+VARIABLE\\s+(\\w+)\\s+IS\\s+(NOT\\s+)?NULL", Pattern.CASE_INSENSITIVE );
+
+	/**
+	 * Pattern for ELSE.
+	 */
+	static protected Pattern elsePattern = Pattern.compile( "ELSE", Pattern.CASE_INSENSITIVE );
+
+	/**
+	 * Pattern for /IF.
+	 */
+	static protected Pattern ifEndPattern = Pattern.compile( "/IF", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * A list of command listeners. A listener listens to the statements being executed and is able to intercept specific ones.
@@ -164,8 +185,13 @@ abstract public class CommandProcessor
 	protected int skipCounter;
 
 	/**
+	 * Variables. Null instead of empty.
+	 */
+	protected Map< String, String > variables;
+
+	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param listener Listens to the progress.
 	 */
 	public CommandProcessor( ProgressListener listener )
@@ -179,7 +205,7 @@ abstract public class CommandProcessor
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param listener Listens to the progress.
 	 * @param database The default database.
 	 */
@@ -201,6 +227,7 @@ abstract public class CommandProcessor
 		this.ignoreStack = new Stack< String[] >();
 		this.ignoreSet = new HashSet< String >();
 		this.noSkipCounter = this.skipCounter = 0;
+		this.variables = null;
 		setConnection( getDefaultDatabase() );
 	}
 
@@ -215,12 +242,14 @@ abstract public class CommandProcessor
 
 	/**
 	 * Execute the given command.
-	 * 
+	 *
 	 * @param command The command to be executed.
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
 	protected void executeWithListeners( Command command ) throws SQLExecutionException
 	{
+		substituteVariables( command );
+
 		if( command.isPersistent() )
 		{
 			this.progress.executing( command, this.startMessage );
@@ -251,8 +280,42 @@ abstract public class CommandProcessor
 	}
 
 	/**
+	 * Substitutes place holders in the command with the values from the variables.
+	 *
+	 * @param command The command.
+	 */
+	protected void substituteVariables( Command command )
+	{
+		if( this.variables == null )
+			return;
+		if( !command.getCommand().contains( "&" ) )
+			return;
+
+		// TODO Maybe do a two-step when the command is very large (collect all first, replace only if found)
+		Pattern pattern = Pattern.compile( "&(([A-Za-z\\$_][A-Za-z0-9\\$_]*)|\\{([A-Za-z\\$_][A-Za-z0-9\\$_]*)\\})" );
+		Matcher matcher = pattern.matcher( command.getCommand() );
+		StringBuffer sb = new StringBuffer();
+		while( matcher.find() )
+		{
+			String name = matcher.group( 2 );
+			if( name == null )
+				name = matcher.group( 3 );
+			name = name.toUpperCase();
+			if( this.variables.containsKey( name ) )
+			{
+				String value = this.variables.get( name );
+				if( value == null )
+					throw new CommandFileException( "Variable '" + name + "' is null", command.getLineNumber() );
+				matcher.appendReplacement( sb, value );
+			}
+		}
+		matcher.appendTail( sb );
+		command.setCommand( sb.toString() );
+	}
+
+	/**
 	 * Give the listeners a chance to react to the given command.
-	 * 
+	 *
 	 * @param command The command to be executed.
 	 * @return True if a listener has processed the command, false otherwise.
 	 * @throws SQLException If the database throws an exception.
@@ -293,6 +356,26 @@ abstract public class CommandProcessor
 				selectConnection( matcher.group( 1 ), command );
 				return true;
 			}
+			if( ( matcher = setVariablePattern.matcher( sql ) ).matches() )
+			{
+				setVariableFromSelect( matcher.group( 1 ), matcher.group( 2 ) );
+				return true;
+			}
+			if( ( matcher = ifVariablePattern.matcher( sql ) ).matches() )
+			{
+				ifVariableIsNull( matcher.group( 1 ), matcher.group( 2 ), command );
+				return true;
+			}
+			if( elsePattern.matcher( sql ).matches() )
+			{
+				doElse();
+				return true;
+			}
+			if( ifEndPattern.matcher( sql ).matches() )
+			{
+				endSkip();
+				return true;
+			}
 			if( ( matcher = setUserPattern.matcher( sql ) ).matches() )
 			{
 				setUser( matcher.group( 1 ) );
@@ -324,7 +407,7 @@ abstract public class CommandProcessor
 
 	/**
 	 * Creates a new statement. JDBC escape processing is enabled or disabled according to the current configuration.
-	 * 
+	 *
 	 * @param connection The connection to create a statement from.
 	 * @return The statement.
 	 * @throws SQLException Whenever JDBC throws an SQLException.
@@ -340,7 +423,7 @@ abstract public class CommandProcessor
 
 	/**
 	 * Execute the given command.
-	 * 
+	 *
 	 * @param command The command to be executed.
 	 * @throws SQLException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
@@ -373,7 +456,7 @@ abstract public class CommandProcessor
 
 	/**
 	 * Sets the current database and initializes it.
-	 * 
+	 *
 	 * @param database The database to make current.
 	 */
 	protected void setConnection( Database database )
@@ -385,7 +468,7 @@ abstract public class CommandProcessor
 
 	/**
 	 * Changes the current user on the current database.
-	 * 
+	 *
 	 * @param user The user to make current.
 	 */
 	protected void setUser( String user )
@@ -395,7 +478,7 @@ abstract public class CommandProcessor
 
 	/**
 	 * Adds a comma separated list of SQLStates to be ignored. See {@link SQLException#getSQLState()}.
-	 * 
+	 *
 	 * @param ignores A comma separated list of errors to be ignored.
 	 */
 	protected void pushIgnores( String ignores )
@@ -420,7 +503,7 @@ abstract public class CommandProcessor
 	 * Skip persistent commands depending on the boolean parameter. If the skip parameter is true commands will be
 	 * skipped, otherwise not. As {@link #skip(boolean)} and {@link #endSkip()} can be nested, the same number of
 	 * endSkips need to be called as the number of skips to stop the skipping.
-	 * 
+	 *
 	 * @param skip If true, commands will be skipped, otherwise not.
 	 */
 	protected void skip( boolean skip )
@@ -452,8 +535,18 @@ abstract public class CommandProcessor
 	}
 
 	/**
+	 * Process the ELSE annotation.
+	 */
+	protected void doElse()
+	{
+		boolean skip = this.skipCounter > 0;
+		endSkip();
+		skip( !skip );
+	}
+
+	/**
 	 * Starts a new section.
-	 * 
+	 *
 	 * @param level The level of the section.
 	 * @param message The message to be shown.
 	 * @param command The command that started this.
@@ -471,7 +564,7 @@ abstract public class CommandProcessor
 
 	/**
 	 * Starts a new section.
-	 * 
+	 *
 	 * @param level The level of the section.
 	 * @param message The message to be shown.
 	 */
@@ -493,7 +586,7 @@ abstract public class CommandProcessor
 
 	/**
 	 * Returns the progress listener.
-	 * 
+	 *
 	 * @return The progress listener.
 	 */
 	public ProgressListener getCallBack()
@@ -503,7 +596,7 @@ abstract public class CommandProcessor
 
 	/**
 	 * Sets the progress listener.
-	 * 
+	 *
 	 * @param callBack The progress listener.
 	 */
 	public void setCallBack( ProgressListener callBack )
@@ -524,7 +617,7 @@ abstract public class CommandProcessor
 
 	/**
 	 * Makes current another configured connection.
-	 * 
+	 *
 	 * @param name The name of the connection to select.
 	 * @param command The command that started this.
 	 */
@@ -538,8 +631,52 @@ abstract public class CommandProcessor
 	}
 
 	/**
+	 * Execute the SELECT and set the variable with the result from the SELECT.
+	 *
+	 * @param name Name of the variable.
+	 * @param select The SELECT SQL statement.
+	 * @throws SQLException Whenever the database throws one.
+	 */
+	protected void setVariableFromSelect( String name, String select ) throws SQLException
+	{
+		Connection connection = this.currentDatabase.getConnection();
+		Statement statement = createStatement( connection );
+		Object value = null;
+		try
+		{
+			ResultSet result = statement.executeQuery( select );
+			if( result.next() )
+				value = result.getObject( 1 );
+		}
+		finally
+		{
+			statement.close();
+			if( this.autoCommit )
+				connection.commit();
+		}
+
+		if( this.variables == null )
+			this.variables = new HashMap< String, String >();
+		this.variables.put( name.toUpperCase(), value == null ? null : value.toString() );
+	}
+
+	/**
+	 * Process the IF VARIABLE IS [NOT] NULL annotation.
+	 *
+	 * @param name The name of the variable.
+	 * @param not Is NOT part of the annotation?
+	 * @param command The command itself needed for the line number if an exception is thrown.
+	 */
+	protected void ifVariableIsNull( String name, String not, Command command )
+	{
+		if( this.variables == null || !this.variables.containsKey( name ) )
+			throw new CommandFileException( "Variable '" + name + "' is not defined", command.getLineNumber() );
+		skip( ( this.variables.get( name ) == null ) != ( not == null ) );
+	}
+
+	/**
 	 * Parses delimiters.
-	 * 
+	 *
 	 * @param matcher The matcher.
 	 * @return The parsed delimiters.
 	 */
@@ -563,14 +700,14 @@ abstract public class CommandProcessor
 
 	/**
 	 * Overrides the current delimiters.
-	 * 
+	 *
 	 * @param delimiters The delimiters.
 	 */
 	abstract protected void setDelimiters( Delimiter[] delimiters );
 
 	/**
 	 * Add a database.
-	 * 
+	 *
 	 * @param database The database.
 	 */
 	public void addDatabase( Database database )
@@ -583,7 +720,7 @@ abstract public class CommandProcessor
 
 	/**
 	 * Returns the current database.
-	 * 
+	 *
 	 * @return The current database.
 	 */
 	public Database getCurrentDatabase()
@@ -593,7 +730,7 @@ abstract public class CommandProcessor
 
 	/**
 	 * Returns the default database.
-	 * 
+	 *
 	 * @return The default database.
 	 */
 	public Database getDefaultDatabase()
@@ -603,14 +740,14 @@ abstract public class CommandProcessor
 
 	/**
 	 * Returns the {@link LineReader} that is the source of the commands.
-	 * 
+	 *
 	 * @return the {@link LineReader} that is the source of the commands.
 	 */
 	abstract public LineReader getReader();
 
 	/**
 	 * Returns the underlying resource.
-	 * 
+	 *
 	 * @return The underlying resource.
 	 */
 	abstract public Resource getResource();

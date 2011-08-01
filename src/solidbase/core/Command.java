@@ -20,7 +20,7 @@ import solidbase.util.Assert;
 
 /**
  * Represents a command in an upgrade or SQL file.
- * 
+ *
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:13:28 PM
  */
@@ -43,7 +43,7 @@ public class Command
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param command The text of the command.
 	 * @param isTransient Is the command transient or not?
 	 * @param lineNumber The line number in the upgrade file where the command is encountered.
@@ -60,7 +60,7 @@ public class Command
 
 	/**
 	 * Indicates if the command is transient or not.
-	 * 
+	 *
 	 * @return true if the command is transient, false otherwise.
 	 */
 	public boolean isTransient()
@@ -70,7 +70,7 @@ public class Command
 
 	/**
 	 * Indicates if the command is persistent or not.
-	 * 
+	 *
 	 * @return true if the command is persistent, false otherwise.
 	 */
 	public boolean isPersistent()
@@ -80,7 +80,7 @@ public class Command
 
 	/**
 	 * Returns the text of the command.
-	 * 
+	 *
 	 * @return the text of the command.
 	 */
 	public String getCommand()
@@ -88,19 +88,19 @@ public class Command
 		return this.command;
 	}
 
-//	/**
-//	 * Sets the command text.
-//	 *
-//	 * @param command the command text.
-//	 */
-//	public void setCommand( String command )
-//	{
-//		this.command = command;
-//	}
+	/**
+	 * Sets the command text.
+	 *
+	 * @param command the command text.
+	 */
+	public void setCommand( String command )
+	{
+		this.command = command;
+	}
 
 	/**
 	 * Returns the line number in the upgrade file where the command is encountered.
-	 * 
+	 *
 	 * @return The line number in the upgrade file where the command is encountered.
 	 */
 	public int getLineNumber()

@@ -37,7 +37,7 @@ import solidbase.core.Database;
  * FROM ATABLE
  * GO
  * </pre></blockquote>
- * 
+ *
  * @author René M. de Bloois
  * @since May 2010
  */
@@ -73,6 +73,7 @@ public class PrintSelect implements CommandListener
 		{
 			if( statement != null )
 				statement.close();
+			// TODO This is not right, we should check autocommit
 			connection.commit();
 		}
 

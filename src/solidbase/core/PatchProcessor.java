@@ -64,11 +64,6 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	 */
 	static protected Pattern ifHistoryContainsPattern = Pattern.compile( "IF\\s+HISTORY\\s+(NOT\\s+)?CONTAINS\\s+\"([^\"]*)\"", Pattern.CASE_INSENSITIVE );
 
-	/**
-	 * Pattern for /IF.
-	 */
-	static protected Pattern ifHistoryContainsEnd = Pattern.compile( "/IF", Pattern.CASE_INSENSITIVE );
-
 	// The fields below are all part of the upgrade context. It's reset at the start of each change package.
 
 	/**
@@ -504,11 +499,6 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 			if( ( matcher = ifHistoryContainsPattern.matcher( sql ) ).matches() )
 			{
 				ifHistoryContains( matcher.group( 1 ), matcher.group( 2 ) );
-				return true;
-			}
-			if( ifHistoryContainsEnd.matcher( sql ).matches() )
-			{
-				endSkip();
 				return true;
 			}
 		}
