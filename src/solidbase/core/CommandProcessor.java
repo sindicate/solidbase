@@ -118,6 +118,11 @@ abstract public class CommandProcessor
 	static protected Pattern ifEndPattern = Pattern.compile( "/IF", Pattern.CASE_INSENSITIVE );
 
 	/**
+	 * Pattern for RUN.
+	 */
+	static protected Pattern runPattern = Pattern.compile( "RUN\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
+
+	/**
 	 * A list of command listeners. A listener listens to the statements being executed and is able to intercept specific ones.
 	 */
 	protected List< CommandListener > listeners;
@@ -213,6 +218,20 @@ abstract public class CommandProcessor
 	{
 		this( listener );
 		addDatabase( database );
+	}
+
+	public CommandProcessor( CommandProcessor parent )
+	{
+		this.databases = parent.databases;
+		this.progress = parent.progress;
+		reset();
+		this.currentDatabase = parent.currentDatabase;
+		this.ignoreSet.addAll( parent.ignoreSet );
+		this.ignoreStack.addAll( parent.ignoreStack );
+		this.listeners = PluginManager.getListeners();
+		// TODO Section depth needs to be offset
+		if( parent.variables != null )
+			this.variables = new HashMap( parent.variables );
 	}
 
 	/**
@@ -322,10 +341,10 @@ abstract public class CommandProcessor
 	 */
 	protected boolean executeListeners( Command command ) throws SQLException
 	{
+		String sql = command.getCommand();
+		Matcher matcher;
 		if( command.isTransient() )
 		{
-			String sql = command.getCommand();
-			Matcher matcher;
 			if( ( matcher = sectionPattern.matcher( sql ) ).matches() )
 			{
 				section( matcher.group( 1 ), matcher.group( 2 ), command );
@@ -394,6 +413,14 @@ abstract public class CommandProcessor
 			if( ( matcher = JDBC_ESCAPING.matcher( sql ) ).matches() )
 			{
 				this.jdbcEscaping = matcher.group( 1 ).equalsIgnoreCase( "ON" );
+				return true;
+			}
+		}
+		else
+		{
+			if( ( matcher = runPattern.matcher( sql ) ).matches() )
+			{
+				run( matcher.group( 1 ) );
 				return true;
 			}
 		}
@@ -571,6 +598,16 @@ abstract public class CommandProcessor
 	protected void startSection( int level, String message )
 	{
 		this.progress.startSection( level, message );
+	}
+
+	protected void run( String url )
+	{
+		System.out.println( "Run: " + url );
+		SQLProcessor processor = new SQLProcessor( this );
+		// TODO What if the protocol is different?
+		SQLFile file = Factory.openSQLFile( getResource().createRelative( url ), this.progress );
+		processor.setSQLSource( file.getSource() );
+		processor.process();
 	}
 
 	/**

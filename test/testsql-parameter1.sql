@@ -31,6 +31,19 @@ INSERT INTO &{TABLENAME} VALUES ( 'TEST' );
 COMMIT;
 --* /IF
 
+--* // Is a problem during upgrade. Is it transient or not? It is both, so INCLUDE is better.
+--* // Best during SQL execution
+--* // During an upgrade it is counted as 1 statement?
+--* // CALL "OTHERSQL.SQL"
+RUN "TESTSQL1.SQL";
+--* // EXECUTE "OTHERSQL.SQL"
+
+--* // Best for upgrade
+--* // INCLUDE "OTHERSQL.SQL"
+
+--* // The seems to be like: import but do nothing
+--* // IMPORT "OTHERSQL.SQL"
+
 --* IF VARIABLE TABLENAME IS NULL
 
 CREATE TABLE &TableName ( TEST VARCHAR( 10 ) );
@@ -41,4 +54,3 @@ CREATE TABLE &TableName ( TEST VARCHAR( 10 ) );
 CREATE TABLE &{TableName}TEST ( TEST VARCHAR( 10 ) );
 
 --* /IF
-
