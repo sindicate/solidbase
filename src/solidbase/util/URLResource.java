@@ -21,6 +21,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import solidbase.core.SystemException;
 
@@ -29,6 +31,7 @@ import solidbase.core.SystemException;
  *
  * @author René M. de Bloois
  */
+// TODO Maybe we should use URIResource. That one has no problems with the classpath scheme.
 public class URLResource implements Resource
 {
 	/**
@@ -94,6 +97,16 @@ public class URLResource implements Resource
 		{
 			throw new SystemException( e );
 		}
+	}
+
+	static String getScheme( String path )
+	{
+		// scheme starts with a-zA-Z, and contains a-zA-Z0-9 and $-_@.&+- and !*"'(), and %
+		Pattern pattern = Pattern.compile( "^([a-zA-Z][a-zA-Z0-9$_@.&+\\-!*\"'(),%]*):" );
+		Matcher matcher = pattern.matcher( path );
+		if( matcher.find() )
+			return matcher.group( 1 );
+		return null;
 	}
 
 	@Override
