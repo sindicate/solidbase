@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 
+import solidbase.core.Factory;
 import solidbase.core.FatalException;
 
 /**
@@ -88,12 +89,17 @@ public class ClassPathResource implements Resource
 		throw new UnsupportedOperationException();
 	}
 
-	/**
-	 * Returns a new resource relative to this resource.
-	 */
+	// TODO Need test for this
 	public Resource createRelative( String path )
 	{
-		return new ClassPathResource( new File( new File( this.path ).getParentFile(), path ).getPath() );
+		String scheme = URLResource.getScheme( path );
+		if( scheme == null || scheme.equals( "classpath" ) )
+		{
+			if( scheme != null )
+				path = path.substring( 10 );
+			return new ClassPathResource( new File( new File( this.path ).getParentFile(), path ).getPath() );
+		}
+		return Factory.getResource( path );
 	}
 
 	@Override

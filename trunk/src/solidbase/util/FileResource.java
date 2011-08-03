@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import solidbase.core.Factory;
 import solidbase.core.SystemException;
 
 /**
@@ -112,9 +113,15 @@ public class FileResource implements Resource
 		}
 	}
 
+	// TODO Need test for this
 	public Resource createRelative( String path )
 	{
-		return new FileResource( new File( this.file.getParentFile(), path ) );
+		String scheme = URLResource.getScheme( path );
+		if( scheme == null || scheme.length() == 1 )
+			return new FileResource( new File( this.file.getParentFile(), path ) );
+		if( scheme.equals( "file" ) )
+			return new URLResource( getURL() ).createRelative( path );
+		return Factory.getResource( path );
 	}
 
 	@Override
