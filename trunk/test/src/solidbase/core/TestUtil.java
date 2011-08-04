@@ -24,13 +24,13 @@ import java.sql.SQLException;
 
 import org.testng.Assert;
 
-import solidbase.core.PatchProcessor;
+import solidbase.core.UpgradeProcessor;
 import solidbase.core.SystemException;
 
 
 public class TestUtil
 {
-	static public void shutdownHSQLDB( PatchProcessor patcher ) throws SQLException
+	static public void shutdownHSQLDB( UpgradeProcessor patcher ) throws SQLException
 	{
 		Connection connection = patcher.currentDatabase.getConnection();
 		try
@@ -63,7 +63,7 @@ public class TestUtil
 		Assert.assertEquals( count, expected );
 	}
 
-	static public void verifyVersion( PatchProcessor patcher, String version, String target, int statements, String spec ) throws SQLException
+	static public void verifyVersion( UpgradeProcessor patcher, String version, String target, int statements, String spec ) throws SQLException
 	{
 		String sql = "SELECT * FROM DBVERSION";
 		Connection connection = patcher.dbVersion.database.getDefaultConnection();
@@ -81,19 +81,19 @@ public class TestUtil
 		connection.commit();
 	}
 
-	public static void verifyHistoryIncludes( PatchProcessor patcher, String version )
+	public static void verifyHistoryIncludes( UpgradeProcessor patcher, String version )
 	{
 		Assert.assertTrue( patcher.dbVersion.logContains( version ), "Expecting version " + version + " to be part of the history" );
 	}
 
-	public static void verifyHistoryNotIncludes( PatchProcessor patcher, String version )
+	public static void verifyHistoryNotIncludes( UpgradeProcessor patcher, String version )
 	{
 		Assert.assertFalse( patcher.dbVersion.logContains( version ), "Not expecting version " + version + " to be part of the history" );
 	}
 
-	static public void assertPatchFileClosed( PatchProcessor patcher )
+	static public void assertPatchFileClosed( UpgradeProcessor patcher )
 	{
-		Assert.assertNull( patcher.patchFile.file );
+		Assert.assertNull( patcher.upgradeFile.file );
 	}
 
 	static public void dropDerbyDatabase( String url ) throws SQLException
@@ -145,7 +145,7 @@ public class TestUtil
 		return output.replaceAll( "\\\r", "" );
 	}
 
-	static public void assertQueryResultEquals( PatchProcessor patcher, String query, Object expected ) throws SQLException
+	static public void assertQueryResultEquals( UpgradeProcessor patcher, String query, Object expected ) throws SQLException
 	{
 		Connection connection = patcher.currentDatabase.getConnection();
 		ResultSet result = connection.createStatement().executeQuery( query );

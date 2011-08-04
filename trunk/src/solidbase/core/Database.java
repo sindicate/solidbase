@@ -196,7 +196,7 @@ public class Database
 	/**
 	 * Returns a connection for the current user. Connections are cached per user. If a connection for the current user
 	 * is not found in the cache, a password will be requested by calling
-	 * {@link ProgressListener#requestPassword(String)} of {@link PatchProcessor#progress}.
+	 * {@link ProgressListener#requestPassword(String)} of {@link UpgradeProcessor#progress}.
 	 *
 	 * @return The connection for the current user.
 	 */
@@ -208,7 +208,7 @@ public class Database
 	/**
 	 * Returns a connection for the default user. Connections are cached per user. If the password for the default user
 	 * has not been specified, a password will be requested by calling {@link ProgressListener#requestPassword(String)} of
-	 * {@link PatchProcessor#progress}.
+	 * {@link UpgradeProcessor#progress}.
 	 *
 	 * @return The connection for the default user.
 	 */
@@ -220,7 +220,7 @@ public class Database
 	/**
 	 * Returns a connection for the given user. Connections are cached per user. If a connection for the current user
 	 * is not found in the cache, a password will be requested by calling
-	 * {@link ProgressListener#requestPassword(String)} of {@link PatchProcessor#progress}.
+	 * {@link ProgressListener#requestPassword(String)} of {@link UpgradeProcessor#progress}.
 	 *
 	 * @param user The user to get a connection for.
 	 * @return The connection for the given user.

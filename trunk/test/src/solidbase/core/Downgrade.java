@@ -22,8 +22,8 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import solidbase.core.Database;
-import solidbase.core.PatchFile;
-import solidbase.core.PatchProcessor;
+import solidbase.core.UpgradeFile;
+import solidbase.core.UpgradeProcessor;
 import solidbase.core.Factory;
 import solidbase.util.FileResource;
 
@@ -35,21 +35,21 @@ public class Downgrade
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 
 		TestProgressListener progress = new TestProgressListener();
-		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-		PatchFile patchFile = Factory.openPatchFile( new FileResource( "testpatch-downgrade-1.sql" ), progress );
-		patcher.setPatchFile( patchFile );
+		UpgradeProcessor patcher = new UpgradeProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
+		UpgradeFile upgradeFile = Factory.openUpgradeFile( new FileResource( "testpatch-downgrade-1.sql" ), progress );
+		patcher.setUpgradeFile( upgradeFile );
 		patcher.init();
 
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
 		System.out.println( "Patching to 1.1.0" );
-		patcher.patch( "1.1.0" );
+		patcher.upgrade( "1.1.0" );
 		TestUtil.verifyVersion( patcher, "1.1.0", null, 1, "1.1" );
 		TestUtil.verifyHistoryIncludes( patcher, "1.1.0" );
 		System.out.println( "Patching to 1.0.3" );
 		try
 		{
-			patcher.patch( "1.0.3" );
+			patcher.upgrade( "1.0.3" );
 			assert false;
 		}
 		catch( FatalException e )
@@ -58,7 +58,7 @@ public class Downgrade
 		}
 		TestUtil.verifyVersion( patcher, "1.1.0", null, 1, "1.1" );
 		System.out.println( "Patching to 1.0.3" );
-		patcher.patch( "1.0.3", true );
+		patcher.upgrade( "1.0.3", true );
 		TestUtil.verifyVersion( patcher, "1.0.3", null, 1, "1.1" );
 		TestUtil.verifyHistoryIncludes( patcher, "1.0.2" );
 		TestUtil.verifyHistoryNotIncludes( patcher, "1.1.0" );

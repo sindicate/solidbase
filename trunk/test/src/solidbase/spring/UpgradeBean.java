@@ -30,7 +30,7 @@ import solidbase.Version;
 import solidbase.core.ConnectionAttributes;
 import solidbase.core.Database;
 import solidbase.core.Factory;
-import solidbase.core.PatchProcessor;
+import solidbase.core.UpgradeProcessor;
 import solidbase.core.SystemException;
 import solidbase.util.DriverDataSource;
 import solidbase.util.MemoryResource;
@@ -290,7 +290,7 @@ public class UpgradeBean
 		if( dataSource == null )
 			dataSource = new DriverDataSource( this.driver, this.url, this.username, this.password );
 		Database database = new Database( "default", dataSource, this.username, this.password, progress );
-		PatchProcessor processor = new PatchProcessor( progress, database );
+		UpgradeProcessor processor = new UpgradeProcessor( progress, database );
 
 		for( ConnectionAttributes secondary : this.secondary )
 		{
@@ -313,7 +313,7 @@ public class UpgradeBean
 				resource = new MemoryResource( this.upgradefile.getInputStream() );
 			else
 				resource = new URLResource( this.upgradefile.getURL() );
-			processor.setPatchFile( Factory.openPatchFile( resource, progress ) );
+			processor.setUpgradeFile( Factory.openUpgradeFile( resource, progress ) );
 		}
 		catch( IOException e )
 		{
@@ -325,7 +325,7 @@ public class UpgradeBean
 			processor.init();
 			progress.println( "Connecting to database..." );
 			progress.println( processor.getVersionStatement() );
-			processor.patch( this.target, false );
+			processor.upgrade( this.target, false );
 			progress.println( "" );
 			progress.println( processor.getVersionStatement() );
 		}

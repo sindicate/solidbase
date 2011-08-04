@@ -19,18 +19,18 @@ package solidbase.core;
 
 public class Setup
 {
-	static public PatchProcessor setupPatchProcessor( String fileName, String url )
+	static public UpgradeProcessor setupPatchProcessor( String fileName, String url )
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Database database = new Database( "default", "org.hsqldb.jdbcDriver", url, "sa", null, progress );
-		PatchProcessor processor = new PatchProcessor( progress, database );
-		PatchFile patchFile = Factory.openPatchFile( Factory.getResource( fileName ), progress );
-		processor.setPatchFile( patchFile );
+		UpgradeProcessor processor = new UpgradeProcessor( progress, database );
+		UpgradeFile upgradeFile = Factory.openUpgradeFile( Factory.getResource( fileName ), progress );
+		processor.setUpgradeFile( upgradeFile );
 		processor.init();
 		return processor;
 	}
 
-	static public PatchProcessor setupPatchProcessor( String fileName )
+	static public UpgradeProcessor setupPatchProcessor( String fileName )
 	{
 		return setupPatchProcessor( fileName, "jdbc:hsqldb:mem:testdb" );
 	}

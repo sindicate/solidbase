@@ -26,8 +26,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,14 +40,14 @@ import solidbase.util.Assert;
 
 /**
  * This class represents all the configuration from the commandline or from the properties file.
- * 
+ *
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
 public class Configuration
 {
-	static private final String DBPATCHER_PROPERTIES = "solidbase.properties";
-	static private final String DBPATCHER_DEFAULT_PROPERTIES = "solidbase-default.properties";
+	static private final String SOLIDBASE_PROPERTIES = "solidbase.properties";
+	static private final String SOLIDBASE_DEFAULT_PROPERTIES = "solidbase-default.properties";
 
 	static private final Pattern propertyPattern = Pattern.compile( "^connection\\.([^\\s\\.]+)\\.(driver|url|username|password)$" );
 
@@ -80,7 +80,7 @@ public class Configuration
 	/**
 	 * The upgrade file to be used.
 	 */
-	protected String patchFile;
+	protected String upgradeFile;
 
 	/**
 	 * The SQL file to be executed.
@@ -89,17 +89,17 @@ public class Configuration
 
 	/**
 	 * Returns the path of the properties file. Can be relative or absolute. Needed for testing.
-	 * 
+	 *
 	 * @return the path of the properties file.
 	 */
 	protected File getPropertiesFile()
 	{
-		return new File( DBPATCHER_PROPERTIES );
+		return new File( SOLIDBASE_PROPERTIES );
 	}
 
 	/**
 	 * Create a new configuration object. This constructor is used by the command line version of SolidBase.
-	 * 
+	 *
 	 * @param progress The listener that listens to config events.
 	 * @param pass Are we in pass 1 or pass 2 of booting?
 	 * @param options The options from the command line.
@@ -110,9 +110,9 @@ public class Configuration
 		{
 			// Load the default properties
 
-			URL url = Configuration.class.getResource( DBPATCHER_DEFAULT_PROPERTIES );
+			URL url = Configuration.class.getResource( SOLIDBASE_DEFAULT_PROPERTIES );
 			if( url == null )
-				throw new SystemException( DBPATCHER_DEFAULT_PROPERTIES + " not found in classpath" );
+				throw new SystemException( SOLIDBASE_DEFAULT_PROPERTIES + " not found in classpath" );
 
 			progress.readingConfigFile( url.toString() );
 
@@ -195,13 +195,13 @@ public class Configuration
 				String dbUrl = this.properties.getProperty( "connection.url" );
 				String userName = this.properties.getProperty( "connection.username" );
 				String password = this.properties.getProperty( "connection.password" );
-				String patchFile = this.properties.getProperty( "upgrade.file" );
+				String upgradeFile = this.properties.getProperty( "upgrade.file" );
 				String target = this.properties.getProperty( "upgrade.target" );
 				String sqlFile = this.properties.getProperty( "sql.file" );
 
 				if( driver != null || dbUrl != null || userName != null || password != null )
 					this.defaultDatabase = new Database( "default", driver, dbUrl, userName, password );
-				this.patchFile = patchFile;
+				this.upgradeFile = upgradeFile;
 				this.target = target;
 				this.sqlFile = sqlFile;
 
@@ -240,7 +240,7 @@ public class Configuration
 					if( database.getName().equals( "default" ) )
 						throw new FatalException( "The secondary connection name 'default' is not allowed" );
 					if( StringUtils.isBlank( database.getUserName() ) )
-						throw new FatalException( "Property 'connection." + database.getName() + ".username' must be specified in " + DBPATCHER_PROPERTIES );
+						throw new FatalException( "Property 'connection." + database.getName() + ".username' must be specified in " + SOLIDBASE_PROPERTIES );
 				}
 			}
 		}
@@ -252,7 +252,7 @@ public class Configuration
 
 	/**
 	 * Returns all the driver jar file names.
-	 * 
+	 *
 	 * @return All the driver jar file names.
 	 */
 	public List< String > getDriverJars()
@@ -262,7 +262,7 @@ public class Configuration
 
 	/**
 	 * Returns all the database.
-	 * 
+	 *
 	 * @return All the database.
 	 */
 	public Collection< Database > getSecondaryDatabases()
@@ -272,7 +272,7 @@ public class Configuration
 
 	/**
 	 * Returns the default database.
-	 * 
+	 *
 	 * @return The default database.
 	 */
 	public Database getDefaultDatabase()
@@ -282,7 +282,7 @@ public class Configuration
 
 	/**
 	 * Returns the target to upgrade to.
-	 * 
+	 *
 	 * @return The target to upgrade to.
 	 */
 	public String getTarget()
@@ -292,17 +292,17 @@ public class Configuration
 
 	/**
 	 * Returns the upgrade file to use.
-	 * 
+	 *
 	 * @return The upgrade file to use.
 	 */
-	public String getPatchFile()
+	public String getUpgradeFile()
 	{
-		return this.patchFile;
+		return this.upgradeFile;
 	}
 
 	/**
 	 * Returns the upgrade file to use.
-	 * 
+	 *
 	 * @return The upgrade file to use.
 	 */
 	public String getSqlFile()
@@ -312,7 +312,7 @@ public class Configuration
 
 	/**
 	 * Returns the property with the given name from the properties file.
-	 * 
+	 *
 	 * @param name The name for the property.
 	 * @return The property with the given name from the properties file.
 	 */
@@ -323,7 +323,7 @@ public class Configuration
 
 	/**
 	 * Returns the first configuration error for display.
-	 * 
+	 *
 	 * @return The first configuration error.
 	 */
 	public String getFirstError()
@@ -337,7 +337,7 @@ public class Configuration
 				return "Missing 'connection.url' or -url";
 			if( StringUtils.isBlank( database.userName ) )
 				return "Missing 'connection.username' or -username";
-			if( StringUtils.isBlank( this.patchFile ) && StringUtils.isBlank( this.sqlFile ) )
+			if( StringUtils.isBlank( this.upgradeFile ) && StringUtils.isBlank( this.sqlFile ) )
 				return "Missing 'upgrade.file', -upgradefile, 'sql.file' or -sqlfile";
 			if( !StringUtils.isBlank( this.sqlFile ) && !StringUtils.isBlank( this.target ) )
 				return "'upgrade.target', -target is not allowed in combination with 'sql.file', -sqlfile";
@@ -357,7 +357,7 @@ public class Configuration
 		{
 			if( !StringUtils.isBlank( this.sqlFile ) )
 				return "'sql.file' property or -sqlfile commandline option specified but no database configured";
-			if( !StringUtils.isBlank( this.patchFile ) )
+			if( !StringUtils.isBlank( this.upgradeFile ) )
 				return "'upgrade.file' property or -upgradefile commandline option specified but no database configured";
 			if( !StringUtils.isBlank( this.target ) )
 				return "'upgrade.target' property or -target commandline option specified but no database configured";
@@ -368,11 +368,11 @@ public class Configuration
 
 	/**
 	 * Determines if the configuration is void.
-	 * 
+	 *
 	 * @return True if the configuration is void, false otherwise.
 	 */
 	public boolean isVoid()
 	{
-		return this.defaultDatabase == null && this.patchFile == null && this.target == null;
+		return this.defaultDatabase == null && this.upgradeFile == null && this.target == null;
 	}
 }

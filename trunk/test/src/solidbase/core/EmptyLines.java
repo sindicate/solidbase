@@ -31,11 +31,11 @@ public class EmptyLines
 	public void testEmptyLines() throws IOException
 	{
 		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "testpatch-emptylines.sql" ) );
-		PatchFile patchFile = new PatchFile( ralr );
-		patchFile.scan();
-		Patch patch = patchFile.getPatch( "1.0.1", "1.0.2" );
-		assert patch != null;
-		PatchSource source = patchFile.gotoPatch( patch );
+		UpgradeFile upgradeFile = new UpgradeFile( ralr );
+		upgradeFile.scan();
+		UpgradeSegment segment = upgradeFile.getSegment( "1.0.1", "1.0.2" );
+		assert segment != null;
+		UpgradeSource source = upgradeFile.gotoSegment( segment );
 		Command command = source.readCommand();
 		assert command != null;
 		Assert.assertEquals( command.getCommand(), "INSERT 'This insert contains\n" +
@@ -45,6 +45,6 @@ public class EmptyLines
 				"\n" +
 				"of empty lines'\n" +
 		"\n" );
-		patchFile.close();
+		upgradeFile.close();
 	}
 }

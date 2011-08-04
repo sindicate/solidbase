@@ -61,9 +61,9 @@ public class SQLFile
 	}
 
 	/**
-	 * Gets the encoding of the patch file.
+	 * Gets the encoding of the SQL file.
 	 *
-	 * @return The encoding of the patch file.
+	 * @return The encoding of the SQL file.
 	 */
 	public String getEncoding()
 	{

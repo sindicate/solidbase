@@ -58,6 +58,11 @@ public class SQLProcessor extends CommandProcessor
 		super( listener, database );
 	}
 
+	/**
+	 * Construct a child SQL processor.
+	 *
+	 * @param parent The parent command processor.
+	 */
 	public SQLProcessor( CommandProcessor parent )
 	{
 		super( parent );
