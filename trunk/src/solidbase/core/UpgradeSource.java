@@ -54,9 +54,9 @@ public class UpgradeSource extends SQLSource
 
 			if( command.isTransient() )
 			{
-				if( UpgradeFile.PATCH_END_PATTERN.matcher( command.getCommand() ).matches() )
+				if( UpgradeFile.SEGMENT_END_PATTERN.matcher( command.getCommand() ).matches() )
 					return null;
-				if( UpgradeFile.PATCH_START_PATTERN.matcher( command.getCommand() ).matches() )
+				if( UpgradeFile.SEGMENT_START_PATTERN.matcher( command.getCommand() ).matches() )
 					command = null;
 			}
 		}

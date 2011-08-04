@@ -45,16 +45,16 @@ import solidbase.util.RandomAccessLineReader;
  */
 public class UpgradeFile
 {
-	static private final Pattern PATCH_DEFINITION_MARKER_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN)[ \t]+.*", Pattern.CASE_INSENSITIVE );
-	static private final Pattern PATCH_DEFINITION_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
-	static private final String PATCH_DEFINITION_SYNTAX_ERROR = "Line should match the following syntax: (SETUP|UPGRADE|SWITCH|DOWNGRADE) [OPEN] \"...\" --> \"...\"";
+	static private final Pattern DEFINITION_MARKER_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN)[ \t]+.*", Pattern.CASE_INSENSITIVE );
+	static private final Pattern DEFINITION_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
+	static private final String DEFINITION_SYNTAX_ERROR = "Line should match the following syntax: (SETUP|UPGRADE|SWITCH|DOWNGRADE) [OPEN] \"...\" --> \"...\"";
 
 	static private final Pattern CONTROL_TABLES_PATTERN = Pattern.compile( "VERSION\\s+TABLE\\s+(\\S+)\\s+LOG\\s+TABLE\\s+(\\S+)", Pattern.CASE_INSENSITIVE );
 
-	static private final Pattern PATCH_START_MARKER_PATTERN = Pattern.compile( "--\\*[ \t]*(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN).*", Pattern.CASE_INSENSITIVE );
-	static final Pattern PATCH_START_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
+	static private final Pattern SEGMENT_START_MARKER_PATTERN = Pattern.compile( "--\\*[ \t]*(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN).*", Pattern.CASE_INSENSITIVE );
+	static final Pattern SEGMENT_START_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
 
-	static final Pattern PATCH_END_PATTERN = Pattern.compile( "/(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
+	static final Pattern SEGMENT_END_PATTERN = Pattern.compile( "/(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
 
 //	static private final Pattern INITIALIZATION_TRIGGER = Pattern.compile( "--\\*\\s*INITIALIZATION\\s*", Pattern.CASE_INSENSITIVE );
 //	static private final Pattern INITIALIZATION_END_PATTERN = Pattern.compile( "--\\*\\s*/INITIALIZATION\\s*", Pattern.CASE_INSENSITIVE );
@@ -189,12 +189,12 @@ public class UpgradeFile
 				{
 					// ignore line
 				}
-				else if( PATCH_DEFINITION_MARKER_PATTERN.matcher( line ).matches() )
+				else if( DEFINITION_MARKER_PATTERN.matcher( line ).matches() )
 				{
 					Assert.isTrue( withinDefinition, "Not within the definition" );
 
-					Matcher matcher = PATCH_DEFINITION_PATTERN.matcher( line );
-					Assert.isTrue( matcher.matches(), PATCH_DEFINITION_SYNTAX_ERROR );
+					Matcher matcher = DEFINITION_PATTERN.matcher( line );
+					Assert.isTrue( matcher.matches(), DEFINITION_SYNTAX_ERROR );
 					String action = matcher.group( 1 );
 					boolean open = matcher.group( 2 ) != null;
 					String source = matcher.group( 3 );
@@ -326,11 +326,11 @@ public class UpgradeFile
 				}
 				else
 				 */
-				if( PATCH_START_MARKER_PATTERN.matcher( line ).matches() )
+				if( SEGMENT_START_MARKER_PATTERN.matcher( line ).matches() )
 				{
 					int pos = this.file.getLineNumber() - 1;
 					line = line.substring( 3 ).trim();
-					matcher = PATCH_START_PATTERN.matcher( line );
+					matcher = SEGMENT_START_PATTERN.matcher( line );
 					if( !matcher.matches() )
 						throw new CommandFileException( MARKER_SYNTAX_ERROR, pos );
 					String action = matcher.group( 1 );
@@ -684,7 +684,7 @@ public class UpgradeFile
 		this.file.gotoLine( segment.getLineNumber() );
 		String line = this.file.readLine();
 //		System.out.println( line );
-		Assert.isTrue( PATCH_START_MARKER_PATTERN.matcher( line ).matches() );
+		Assert.isTrue( SEGMENT_START_MARKER_PATTERN.matcher( line ).matches() );
 		UpgradeSource source = new UpgradeSource( this.file );
 		source.setDelimiters( this.defaultDelimiters );
 		return source;
