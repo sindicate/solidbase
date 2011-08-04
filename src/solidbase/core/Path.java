@@ -25,10 +25,10 @@ import solidbase.util.Assert;
 
 /**
  * An upgrade path.
- * 
+ *
  * @author René M. de Bloois
  */
-public class Path implements Iterable< Patch >
+public class Path implements Iterable< UpgradeSegment >
 {
 	/**
 	 * Does the path contain a downgrade?
@@ -41,9 +41,9 @@ public class Path implements Iterable< Patch >
 	protected int switches;
 
 	/**
-	 * A list of patches.
+	 * A list of segments.
 	 */
-	protected List< Patch > patches;
+	protected List< UpgradeSegment > segments;
 
 
 	/**
@@ -51,65 +51,65 @@ public class Path implements Iterable< Patch >
 	 */
 	protected Path()
 	{
-		this.patches = new ArrayList< Patch >();
+		this.segments = new ArrayList< UpgradeSegment >();
 	}
 
 	/**
-	 * Analyzes a patch.
-	 * 
-	 * @param patch The patch to analyze.
+	 * Analyzes an upgrade segment.
+	 *
+	 * @param segment The segment to analyze.
 	 */
-	protected void analyze( Patch patch )
+	protected void analyze( UpgradeSegment segment )
 	{
-		if( patch.isDowngrade() )
+		if( segment.isDowngrade() )
 			this.hasDowngrade = true;
-		else if( patch.isSwitch() )
+		else if( segment.isSwitch() )
 			this.switches++;
 	}
 
 	/**
-	 * Adds a patch.
-	 * 
-	 * @param patch The patch to add.
-	 * @return The path itself after appending the given patch.
+	 * Adds an upgrade segment.
+	 *
+	 * @param segment The segment to add.
+	 * @return The path itself after appending the given segment.
 	 */
-	protected Path append( Patch patch )
+	protected Path append( UpgradeSegment segment )
 	{
-		this.patches.add( patch );
-		analyze( patch );
+		this.segments.add( segment );
+		analyze( segment );
 		return this;
 	}
 
 	/**
-	 * Adds a patch.
-	 * 
-	 * @param patch The patch to add.
-	 * @return The path itself after appending the given patch.
+	 * Adds an upgrade segment.
+	 *
+	 * @param segment The segment to add.
+	 * @return The path itself after appending the given segment.
 	 */
-	protected Path prepend( Patch patch )
+	protected Path prepend( UpgradeSegment segment )
 	{
-		this.patches.add( 0, patch );
-		analyze( patch );
+		this.segments.add( 0, segment );
+		analyze( segment );
 		return this;
 	}
 
 	/**
 	 * Appends a path to the end of this path.
-	 * 
+	 *
 	 * @param path The path to append.
 	 * @return The path itself after appending the given path.
 	 */
 	protected Path append( Path path )
 	{
-		this.patches.addAll( path.patches );
-		for( Patch p : path.patches )
+		this.segments.addAll( path.segments );
+		for( UpgradeSegment p : path.segments )
 			analyze( p );
 		return this;
 	}
 
 	/**
 	 * Is this path better than another?
-	 * 
+	 *
 	 * @param other The other path.
 	 * @return True if this path is better, false otherwise.
 	 */
@@ -135,22 +135,22 @@ public class Path implements Iterable< Patch >
 	}
 
 	/**
-	 * Return the number of patches in this path.
-	 * 
-	 * @return The number of patches in this path.
+	 * Return the number of segments in this path.
+	 *
+	 * @return The number of segments in this path.
 	 */
 	protected int size()
 	{
-		return this.patches.size();
+		return this.segments.size();
 	}
 
 	/**
-	 * Returns an iterator over the patches in this path.
-	 * 
-	 * @return An iterator over the patches in this path.
+	 * Returns an iterator over the segments in this path.
+	 *
+	 * @return An iterator over the segments in this path.
 	 */
-	public Iterator< Patch > iterator()
+	public Iterator< UpgradeSegment > iterator()
 	{
-		return this.patches.iterator();
+		return this.segments.iterator();
 	}
 }

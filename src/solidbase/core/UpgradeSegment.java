@@ -18,71 +18,71 @@ package solidbase.core;
 
 
 /**
- * Represents a single patch in the patch file.
- * 
+ * Represents a single segment in the upgrade file.
+ *
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:15 PM
  */
-public class Patch
+public class UpgradeSegment
 {
 	/**
-	 * The possible types of a patch.
+	 * The possible types of a segment.
 	 */
 	public enum Type
 	{
 		/**
-		 * An init patch is used to create or maintain the DBVERSION and DBVERSIONLOG tables.
+		 * A setup segment is used to create or maintain the DBVERSION and DBVERSIONLOG tables.
 		 */
 		SETUP,
 		/**
-		 * An upgrade patch is used to upgrade the database.
+		 * An upgrade segment is used to upgrade the database.
 		 */
 		UPGRADE,
 		/**
-		 * A switch patch is used to switch between upgrade paths (branches).
+		 * A switch segment is used to switch between upgrade paths (branches).
 		 */
 		SWITCH,
 		/**
-		 * A downgrade patch is used during development to downgrade the database. For example, this makes it possible
+		 * A downgrade segment is used during development to downgrade the database. For example, this makes it possible
 		 * to switch back to a previous stable branch.
 		 */
 		DOWNGRADE
 	}
 
 	/**
-	 * The type of this patch.
+	 * The type of this segment.
 	 */
 	protected Type type;
 
 	/**
-	 * The source version of this patch.
+	 * The source version of this segment.
 	 */
 	protected String source;
 
 	/**
-	 * The target version of this patch.
+	 * The target version of this segment.
 	 */
 	protected String target;
 
 	/**
-	 * Is this patch open (unfinished).
+	 * Is this segment open (unfinished).
 	 */
 	protected boolean open;
 
 	/**
-	 * The line number of this patch.
+	 * The line number of this segment.
 	 */
 	protected int lineNumber;
 
 	/**
-	 * Constructs a new patch.
-	 * 
-	 * @param type The type of the patch.
-	 * @param source The source version of this patch.
-	 * @param target The target version of this patch.
-	 * @param open Is this patch open (unfinished).
+	 * Constructs a new segment.
+	 *
+	 * @param type The type of the segment.
+	 * @param source The source version of this segment.
+	 * @param target The target version of this segment.
+	 * @param open Is this segment open (unfinished).
 	 */
-	protected Patch( Type type, String source, String target, boolean open )
+	protected UpgradeSegment( Type type, String source, String target, boolean open )
 	{
 		this.type = type;
 		this.source = source;
@@ -92,9 +92,9 @@ public class Patch
 	}
 
 	/**
-	 * Is this patch a switch.
-	 * 
-	 * @return True if this patch is a switch, false otherwise.
+	 * Is this segment a switch.
+	 *
+	 * @return True if this segment is a switch, false otherwise.
 	 */
 	protected boolean isSwitch()
 	{
@@ -103,7 +103,7 @@ public class Patch
 
 	/**
 	 * Gets the source version.
-	 * 
+	 *
 	 * @return The source version.
 	 */
 	public String getSource()
@@ -113,7 +113,7 @@ public class Patch
 
 	/**
 	 * Gets the target version.
-	 * 
+	 *
 	 * @return The target version.
 	 */
 	public String getTarget()
@@ -122,8 +122,8 @@ public class Patch
 	}
 
 	/**
-	 * Sets the line number in the file for this patch.
-	 * 
+	 * Sets the line number in the file for this segment.
+	 *
 	 * @param lineNumber The line number.
 	 */
 	protected void setLineNumber( int lineNumber )
@@ -132,9 +132,9 @@ public class Patch
 	}
 
 	/**
-	 * Gets the line number in the file for this patch.
-	 * 
-	 * @return The line number in the file for this patch.
+	 * Gets the line number in the file for this segment.
+	 *
+	 * @return The line number in the file for this segment.
 	 */
 	protected int getLineNumber()
 	{
@@ -142,9 +142,9 @@ public class Patch
 	}
 
 	/**
-	 * Is this patch open.
-	 * 
-	 * @return True if this patch is open (unfinished), false otherwise.
+	 * Is this segment open.
+	 *
+	 * @return True if this segment is open (unfinished), false otherwise.
 	 */
 	protected boolean isOpen()
 	{
@@ -152,9 +152,9 @@ public class Patch
 	}
 
 	/**
-	 * Is this an init patch.
-	 * 
-	 * @return True if this patch is an init patch, false otherwise.
+	 * Is this an init segment.
+	 *
+	 * @return True if this segment is an init segment, false otherwise.
 	 */
 	protected boolean isSetup()
 	{
@@ -162,9 +162,9 @@ public class Patch
 	}
 
 	/**
-	 * Is this a downgrade patch.
-	 * 
-	 * @return True if this patch is a downgrade patch, false otherwise.
+	 * Is this a downgrade segment.
+	 *
+	 * @return True if this segment is a downgrade segment, false otherwise.
 	 */
 	protected boolean isDowngrade()
 	{
@@ -172,9 +172,9 @@ public class Patch
 	}
 
 	/**
-	 * Is this patch is normal upgrade patch?
-	 * 
-	 * @return True if this patch is a normal upgrade patch, false otherwise.
+	 * Is this segment is normal upgrade segment?
+	 *
+	 * @return True if this segment is a normal upgrade segment, false otherwise.
 	 */
 	protected boolean isUpgrade()
 	{
@@ -184,13 +184,13 @@ public class Patch
 	@Override
 	public String toString()
 	{
-		return "patch(source:" + this.source + ", target:" + this.target + ", open:" + this.open + ")";
+		return "UpgradeSegment(source:" + this.source + ", target:" + this.target + ", open:" + this.open + ")";
 	}
 
 	/**
-	 * Returns the type of this patch.
-	 * 
-	 * @return The type of this patch.
+	 * Returns the type of this segment.
+	 *
+	 * @return The type of this segment.
 	 */
 	public Type getType()
 	{

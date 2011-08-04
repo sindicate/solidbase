@@ -214,7 +214,7 @@ public class Runner
 		this.listener.println( Version.getInfo() );
 		this.listener.println( "" );
 
-		PatchProcessor processor = new PatchProcessor( this.listener );
+		UpgradeProcessor processor = new UpgradeProcessor( this.listener );
 
 		ConnectionAttributes def = this.connections.get( "default" );
 		if( def == null )
@@ -232,13 +232,13 @@ public class Runner
 					)
 			);
 
-		processor.setPatchFile( Factory.openPatchFile( this.upgradeFile, this.listener ) );
+		processor.setUpgradeFile( Factory.openUpgradeFile( this.upgradeFile, this.listener ) );
 		try
 		{
 			processor.init();
 			this.listener.println( "Connecting to database..." );
 			this.listener.println( processor.getVersionStatement() );
-			processor.patch( this.upgradeTarget, this.downgradeAllowed ); // TODO Print this target
+			processor.upgrade( this.upgradeTarget, this.downgradeAllowed ); // TODO Print this target
 			this.listener.println( "" );
 			this.listener.println( processor.getVersionStatement() );
 		}
@@ -259,7 +259,7 @@ public class Runner
 		this.listener.println( Version.getInfo() );
 		this.listener.println( "" );
 
-		PatchProcessor processor = new PatchProcessor( this.listener );
+		UpgradeProcessor processor = new UpgradeProcessor( this.listener );
 
 		ConnectionAttributes def = this.connections.get( "default" );
 		if( def == null )
@@ -277,7 +277,7 @@ public class Runner
 					)
 			);
 
-		processor.setPatchFile( Factory.openPatchFile( this.upgradeFile, this.listener ) );
+		processor.setUpgradeFile( Factory.openUpgradeFile( this.upgradeFile, this.listener ) );
 		try
 		{
 			processor.init();

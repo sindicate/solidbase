@@ -94,7 +94,7 @@ public final class Factory
 		// TODO supportsURL() is not right for this purpose.
 		if( resource.supportsURL() )
 		{
-			listener.openingPatchFile( resource );
+			listener.openingUpgradeFile( resource );
 			return new URLRandomAccessLineReader( resource );
 		}
 
@@ -126,12 +126,12 @@ public final class Factory
 	 *
 	 * @param resource The resource containing the upgrade file.
 	 * @param listener The progress listener.
-	 * @return The patch file.
+	 * @return The upgrade file.
 	 */
-	static public PatchFile openPatchFile( Resource resource, ProgressListener listener )
+	static public UpgradeFile openUpgradeFile( Resource resource, ProgressListener listener )
 	{
 		RandomAccessLineReader reader = openRALR( resource, listener );
-		PatchFile result = new PatchFile( reader );
+		UpgradeFile result = new UpgradeFile( reader );
 		try
 		{
 			result.scan();
@@ -142,7 +142,7 @@ public final class Factory
 			reader.close();
 			throw e;
 		}
-		listener.openedPatchFile( result );
+		listener.openedUpgradeFile( result );
 		return result;
 	}
 }

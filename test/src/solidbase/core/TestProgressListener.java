@@ -16,12 +16,6 @@
 
 package solidbase.core;
 
-import solidbase.core.Command;
-import solidbase.core.Patch;
-import solidbase.core.PatchFile;
-import solidbase.core.ProgressListener;
-import solidbase.core.SQLExecutionException;
-import solidbase.core.SQLFile;
 import solidbase.util.Assert;
 import solidbase.util.Resource;
 
@@ -58,7 +52,7 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	protected void openingPatchFile( Resource patchFile )
+	protected void openingUpgradeFile( Resource patchFile )
 	{
 		System.out.println( "OPENINGPATCHFILE: " + patchFile );
 	}
@@ -70,7 +64,7 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	protected void openedPatchFile( PatchFile patchFile )
+	protected void openedUpgradeFile( UpgradeFile upgradeFile )
 	{
 		System.out.println( "OPENEDPATCHFILE." );
 	}
@@ -100,15 +94,15 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	protected void patchFinished()
+	protected void upgradeFinished()
 	{
 		System.out.println( "PATCHFINISHED." );
 	}
 
 	@Override
-	protected void patchStarting( Patch patch )
+	protected void upgradeStarting( UpgradeSegment segment )
 	{
-		System.out.println( "PATCHSTARTING: " + patch.getSource() + " - " + patch.getTarget() );
+		System.out.println( "PATCHSTARTING: " + segment.getSource() + " - " + segment.getTarget() );
 	}
 
 	@Override

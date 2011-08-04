@@ -18,7 +18,7 @@ package solidbase;
 
 import solidbase.config.ConfigListener;
 import solidbase.core.Command;
-import solidbase.core.Patch;
+import solidbase.core.UpgradeSegment;
 import solidbase.core.ProgressListener;
 import solidbase.util.Assert;
 
@@ -73,9 +73,9 @@ public class Progress extends ProgressListener implements ConfigListener
 	}
 
 	@Override
-	protected void patchStarting( Patch patch )
+	protected void upgradeStarting( UpgradeSegment segment )
 	{
-		switch( patch.getType() )
+		switch( segment.getType() )
 		{
 			case SETUP:
 				this.console.print( "Setting up control tables" );
@@ -90,12 +90,12 @@ public class Progress extends ProgressListener implements ConfigListener
 				this.console.print( "Downgrading" );
 				break;
 			default:
-				Assert.fail( "Unknown patch type: " + patch.getType() );
+				Assert.fail( "Unknown segment type: " + segment.getType() );
 		}
-		if( patch.getSource() == null )
-			this.console.print( " to \"" + patch.getTarget() + "\"" );
+		if( segment.getSource() == null )
+			this.console.print( " to \"" + segment.getTarget() + "\"" );
 		else
-			this.console.print( " \"" + patch.getSource() + "\" to \"" + patch.getTarget() + "\"" );
+			this.console.print( " \"" + segment.getSource() + "\" to \"" + segment.getTarget() + "\"" );
 	}
 
 	@Override

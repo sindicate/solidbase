@@ -21,26 +21,26 @@ import solidbase.util.LineReader;
 
 
 /**
- * The source for command from a patch file.
- * 
+ * The source for commands from an upgrade file.
+ *
  * @author René M. de Bloois
  */
-public class PatchSource extends SQLSource
+public class UpgradeSource extends SQLSource
 {
 	/**
-	 * Creates a new instance of a patch source.
-	 * 
+	 * Creates a new instance of an upgrade source.
+	 *
 	 * @param in The reader which is used to read the SQL.
 	 */
-	protected PatchSource( LineReader in )
+	protected UpgradeSource( LineReader in )
 	{
 		super( in );
 	}
 
 	/**
-	 * Reads a statement from the patch file.
-	 * 
-	 * @return A statement from the patch file or null when no more statements are available.
+	 * Reads a statement from the upgrade source.
+	 *
+	 * @return A statement from the upgrade source or null when no more statements are available.
 	 */
 	@Override
 	public Command readCommand()
@@ -54,9 +54,9 @@ public class PatchSource extends SQLSource
 
 			if( command.isTransient() )
 			{
-				if( PatchFile.PATCH_END_PATTERN.matcher( command.getCommand() ).matches() )
+				if( UpgradeFile.PATCH_END_PATTERN.matcher( command.getCommand() ).matches() )
 					return null;
-				if( PatchFile.PATCH_START_PATTERN.matcher( command.getCommand() ).matches() )
+				if( UpgradeFile.PATCH_START_PATTERN.matcher( command.getCommand() ).matches() )
 					command = null;
 			}
 		}

@@ -99,7 +99,7 @@ public class SQLSource
 
 
 	/**
-	 * Close the patch file. This will also close the underlying file.
+	 * Close the source. This will also close the underlying file.
 	 */
 	public void close()
 	{
@@ -123,9 +123,9 @@ public class SQLSource
 
 
 	/**
-	 * Reads a command from the patch file.
+	 * Reads a command from the upgrade segment.
 	 * 
-	 * @return A command from the patch file or null when no more commands are available.
+	 * @return A command from the upgrade segment or null when no more commands are available.
 	 */
 	public Command readCommand()
 	{

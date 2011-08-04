@@ -22,7 +22,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidbase.core.FatalException;
-import solidbase.core.PatchFile;
+import solidbase.core.UpgradeFile;
 import solidbase.util.FileResource;
 import solidbase.util.URLRandomAccessLineReader;
 
@@ -32,15 +32,15 @@ public class DoubleBlock
 	public void testDoubleBlock() throws IOException
 	{
 		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "testpatch-doubleblock.sql" ) );
-		PatchFile patchFile = new PatchFile( ralr );
+		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		try
 		{
-			patchFile.scan();
+			upgradeFile.scan();
 			Assert.fail( "Expected an exception" );
 		}
 		catch( FatalException e )
 		{
-			patchFile.close();
+			upgradeFile.close();
 			Assert.assertTrue( e.getMessage().contains( "Duplicate upgrade block" ) );
 		}
 	}

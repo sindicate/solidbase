@@ -196,13 +196,13 @@ public class Main
 		}
 		else if( opts.dumplog )
 		{
-			runner.setUpgradeFile( Factory.getResource( configuration.getPatchFile() ) );
+			runner.setUpgradeFile( Factory.getResource( configuration.getUpgradeFile() ) );
 			runner.setOutputFile( Factory.getResource( line.getOptionValue( "dumplog" ) ) );
 			runner.logToXML();
 		}
 		else
 		{
-			runner.setUpgradeFile( Factory.getResource( configuration.getPatchFile() ) );
+			runner.setUpgradeFile( Factory.getResource( configuration.getUpgradeFile() ) );
 			runner.setUpgradeTarget( configuration.getTarget() );
 			runner.setDowngradeAllowed( opts.downgradeallowed );
 			runner.upgrade();

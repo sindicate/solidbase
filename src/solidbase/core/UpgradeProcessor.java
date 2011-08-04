@@ -37,7 +37,7 @@ import solidbase.util.WorkerThread;
 
 
 /**
- * This class is the coordinator. It requests an upgrade path from the {@link PatchFile}, and reads commands from it. It
+ * This class is the coordinator. It requests an upgrade path from the {@link UpgradeFile}, and reads commands from it. It
  * calls the {@link CommandListener}s, updates the DBVERSION and DBVERSIONLOG tables through {@link DBVersion}, calls
  * the {@link Database} to execute statements through JDBC, and shows progress to the user by calling
  * {@link ProgressListener}.
@@ -45,7 +45,7 @@ import solidbase.util.WorkerThread;
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
-public class PatchProcessor extends CommandProcessor implements ConnectionListener
+public class UpgradeProcessor extends CommandProcessor implements ConnectionListener
 {
 	// Don't need whitespace at the end of the Patterns
 
@@ -74,12 +74,12 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	/**
 	 * The upgrade file being executed.
 	 */
-	protected PatchFile patchFile;
+	protected UpgradeFile upgradeFile;
 
 	/**
-	 * The current source of a patch.
+	 * The current source of an upgrade.
 	 */
-	protected PatchSource patchSource;
+	protected UpgradeSource upgradeSource;
 
 	/**
 	 * The class that manages the DBVERSION and DBVERSIONLOG table.
@@ -87,28 +87,28 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	protected DBVersion dbVersion;
 
 	/**
-	 * The patch that is currently processed.
+	 * The upgrade segment that is currently processed.
 	 */
-	protected Patch patch;
+	protected UpgradeSegment segment;
 
 	/**
-	 * Construct a new instance of the patcher.
+	 * Constructor.
 	 *
 	 * @param listener Listens to the progress.
 	 */
-	public PatchProcessor( ProgressListener listener )
+	public UpgradeProcessor( ProgressListener listener )
 	{
 		super( listener );
 		this.autoCommit = true;
 	}
 
 	/**
-	 * Construct a new instance of the patcher.
+	 * Constructor.
 	 *
 	 * @param listener Listens to the progress.
 	 * @param database The default database.
 	 */
-	public PatchProcessor( ProgressListener listener, Database database )
+	public UpgradeProcessor( ProgressListener listener, Database database )
 	{
 		super( listener, database );
 	}
@@ -121,22 +121,22 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	}
 
 	/**
-	 * Sets the patch file.
+	 * Sets the upgrade file.
 	 *
-	 * @param patchFile The patch file to set.
+	 * @param file The upgrade file to set.
 	 */
-	public void setPatchFile( PatchFile patchFile )
+	public void setUpgradeFile( UpgradeFile file )
 	{
-		this.patchFile = patchFile;
+		this.upgradeFile = file;
 	}
 
 	/**
-	 * Initialize the patcher.
+	 * Initialize.
 	 */
 	// TODO Remove this init, should be in the constructor
 	public void init()
 	{
-		this.dbVersion = new DBVersion( getDefaultDatabase(), this.progress, this.patchFile.versionTableName, this.patchFile.logTableName );
+		this.dbVersion = new DBVersion( getDefaultDatabase(), this.progress, this.upgradeFile.versionTableName, this.upgradeFile.logTableName );
 	}
 
 	/**
@@ -153,7 +153,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	public void end()
 	{
 		super.end();
-		this.patchFile.close();
+		this.upgradeFile.close();
 	}
 
 	/**
@@ -198,7 +198,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	public LinkedHashSet< String > getTargets( boolean tips, String prefix, boolean downgradeable )
 	{
 		LinkedHashSet< String > result = new LinkedHashSet< String >();
-		this.patchFile.collectTargets( this.dbVersion.getVersion(), this.dbVersion.getTarget(), tips, downgradeable, prefix, result );
+		this.upgradeFile.collectTargets( this.dbVersion.getVersion(), this.dbVersion.getTarget(), tips, downgradeable, prefix, result );
 		return result;
 	}
 
@@ -211,17 +211,17 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	{
 		String spec = this.dbVersion.getSpec();
 
-		List< Patch > patches = this.patchFile.getSetupPath( spec );
-		if( patches == null )
+		List< UpgradeSegment > segments = this.upgradeFile.getSetupPath( spec );
+		if( segments == null )
 			return;
 
-		Assert.notEmpty( patches );
+		Assert.notEmpty( segments );
 
 		// SETUP blocks get special treatment.
-		for( Patch patch : patches )
+		for( UpgradeSegment segment : segments )
 		{
-			process( patch );
-			this.dbVersion.updateSpec( patch.getTarget() );
+			process( segment );
+			this.dbVersion.updateSpec( segment.getTarget() );
 			if( Thread.currentThread().isInterrupted() )
 				throw new ThreadDeath();
 			// TODO How do we get a more dramatic error message here, if something goes wrong?
@@ -229,32 +229,32 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	}
 
 	/**
-	 * Patch to the given target.
+	 * Upgrade to the given target.
 	 *
-	 * @param target The target to patch to.
+	 * @param target The target to upgrade to.
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	public void patch( String target ) throws SQLExecutionException
+	public void upgrade( String target ) throws SQLExecutionException
 	{
-		patch( target, false );
+		upgrade( target, false );
 	}
 
 	/**
-	 * Patches to the given target version. The target version can end with an '*', indicating whatever tip version that
+	 * Perform upgrade to the given target version. The target version can end with an '*', indicating whatever tip version that
 	 * matches the target prefix. This method protects itself against SIGTERMs (CTRL-C).
 	 *
 	 * @param target The target requested.
 	 * @param downgradeable Indicates that downgrade paths are allowed to reach the given target.
 	 * @throws SQLExecutionException When the execution of a command throws an {@link SQLException}.
 	 */
-	public void patch( final String target, final boolean downgradeable ) throws SQLExecutionException
+	public void upgrade( final String target, final boolean downgradeable ) throws SQLExecutionException
 	{
 		WorkerThread worker = new WorkerThread()
 		{
 			@Override
 			public void work()
 			{
-				patchProtected( target, downgradeable );
+				upgradeProtected( target, downgradeable );
 			}
 		};
 
@@ -288,14 +288,14 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	}
 
 	/**
-	 * Patches to the given target version. The target version can end with an '*', indicating whatever tip version that
+	 * Perform upgrade to the given target version. The target version can end with an '*', indicating whatever tip version that
 	 * matches the target prefix.
 	 *
 	 * @param target The target requested.
 	 * @param downgradeable Indicates that downgrade paths are allowed to reach the given target.
 	 * @throws SQLExecutionException When the execution of a command throws an {@link SQLException}.
 	 */
-	protected void patchProtected( String target, boolean downgradeable ) throws SQLExecutionException
+	protected void upgradeProtected( String target, boolean downgradeable ) throws SQLExecutionException
 	{
 		setupControlTables();
 
@@ -345,7 +345,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 			return;
 		}
 
-		patch( version, target, downgradeable );
+		upgrade( version, target, downgradeable );
 
 		this.progress.upgradeComplete();
 		return;
@@ -359,64 +359,50 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	 * @param downgradeable Allow downgrades to reach the target
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	protected void patch( String version, String target, boolean downgradeable ) throws SQLExecutionException
+	protected void upgrade( String version, String target, boolean downgradeable ) throws SQLExecutionException
 	{
 		if( target.equals( version ) )
 			return;
 
-		Path path = this.patchFile.getPatchPath( version, target, downgradeable );
+		Path path = this.upgradeFile.getUpgradePath( version, target, downgradeable );
 		Assert.isTrue( path.size() > 0, "No upgrades found" );
 
-		for( Patch patch : path )
+		for( UpgradeSegment segment : path )
 		{
-			process( patch );
+			process( segment );
 			if( Thread.currentThread().isInterrupted() )
 				throw new ThreadDeath();
 		}
 	}
 
 	/**
-	 * Execute a patch.
+	 * Execute a upgrade segment.
 	 *
-	 * @param patch The patch to be executed.
+	 * @param segment The segment to be executed.
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	protected void process( Patch patch ) throws SQLExecutionException
+	protected void process( UpgradeSegment segment ) throws SQLExecutionException
 	{
-		Assert.notNull( patch );
+		Assert.notNull( segment );
 
-		this.progress.patchStarting( patch );
+		this.progress.upgradeStarting( segment );
 
 		// Determine how many to skip
-		this.patchSource = this.patchFile.gotoPatch( patch );
+		this.upgradeSource = this.upgradeFile.gotoSegment( segment );
 		int skip = this.dbVersion.getStatements();
 		if( this.dbVersion.getTarget() == null )
 			skip = 0;
 
 		reset();
 
-//		if( !patch.isSetup() )
-//		{
-//			Fragment initialization = this.patchFile.initialization;
-//			if( initialization != null )
-//			{
-//				SQLProcessor processor = new SQLProcessor( this.progress );
-//				for( Database database : this.databases.values() )
-//					processor.addDatabase( database );
-//				processor.setSQLSource( new SQLSource( initialization ) );
-//				processor.reset();
-//				processor.execute();
-//			}
-//		}
-
 		int count = 0;
-		this.patch = patch;
+		this.segment = segment;
 		try
 		{
-			Command command = this.patchSource.readCommand();
+			Command command = this.upgradeSource.readCommand();
 			while( command != null )
 			{
-				if( command.isPersistent() && !this.dontCount && !patch.isSetup() )
+				if( command.isPersistent() && !this.dontCount && !segment.isSetup() )
 				{
 					count++;
 					if( count > skip && this.skipCounter == 0 )
@@ -429,13 +415,13 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 						{
 							// TODO Should we also log the exception when it is ignored?
 							// TODO We need a unit test for this
-							this.dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), e );
+							this.dbVersion.logSQLException( segment.getSource(), segment.getTarget(), count, command.getCommand(), e );
 							throw e;
 						}
-						// We have to update the progress even if the logging fails. Otherwise the patch cannot be
+						// We have to update the progress even if the logging fails. Otherwise the segment cannot be
 						// restarted. That's why the progress update is first. But some logging will be lost in that case.
-						this.dbVersion.updateProgress( patch.getTarget(), count );
-						this.dbVersion.log( "S", patch.getSource(), patch.getTarget(), count, command.getCommand(), (String)null );
+						this.dbVersion.updateProgress( segment.getTarget(), count );
+						this.dbVersion.log( "S", segment.getSource(), segment.getTarget(), count, command.getCommand(), (String)null );
 					}
 					else
 						this.progress.skipped( command );
@@ -443,39 +429,39 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 				else
 					executeWithListeners( command );
 
-				if( !patch.isSetup() )
+				if( !segment.isSetup() )
 					if( Thread.currentThread().isInterrupted() )
 						throw new ThreadDeath();
 
-				command = this.patchSource.readCommand();
+				command = this.upgradeSource.readCommand();
 			}
 
-			this.progress.patchFinished();
+			this.progress.upgradeFinished();
 
-			this.dbVersion.setStale(); // TODO With a normal patch, only set stale if not both of the 2 version tables are found
-			if( patch.isSetup() )
+			this.dbVersion.setStale(); // TODO With a normal segment, only set stale if not both of the 2 version tables are found
+			if( segment.isSetup() )
 			{
-				this.dbVersion.updateSpec( patch.getTarget() );
-				Assert.isFalse( patch.isOpen() );
+				this.dbVersion.updateSpec( segment.getTarget() );
+				Assert.isFalse( segment.isOpen() );
 			}
 			else
 			{
-				if( patch.isDowngrade() )
+				if( segment.isDowngrade() )
 				{
-					Set< String > versions = this.patchFile.getReachableVersions( patch.getTarget(), null, false );
-					versions.remove( patch.getTarget() );
+					Set< String > versions = this.upgradeFile.getReachableVersions( segment.getTarget(), null, false );
+					versions.remove( segment.getTarget() );
 					this.dbVersion.downgradeHistory( versions );
 				}
-				if( !patch.isOpen() )
+				if( !segment.isOpen() )
 				{
-					this.dbVersion.updateVersion( patch.getTarget() );
-					this.dbVersion.logComplete( patch.getSource(), patch.getTarget(), count );
+					this.dbVersion.updateVersion( segment.getTarget() );
+					this.dbVersion.logComplete( segment.getSource(), segment.getTarget(), count );
 				}
 			}
 		}
 		finally
 		{
-			this.patch = null;
+			this.segment = null;
 		}
 	}
 
@@ -510,15 +496,15 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	protected void executeJdbc( Command command ) throws SQLException
 	{
 		if( command.getCommand().trim().equalsIgnoreCase( "UPGRADE" ) )
-			upgrade( command );
+			upgradeControlTables( command );
 		else
 			super.executeJdbc( command );
 	}
 
-	private void upgrade( Command command ) throws SQLException
+	private void upgradeControlTables( Command command ) throws SQLException
 	{
-		Assert.isTrue( this.patch.isSetup(), "UPGRADE only allowed in SETUP blocks" );
-		Assert.isTrue( this.patch.getSource().equals( "1.0" ) && this.patch.getTarget().equals( "1.1" ), "UPGRADE only possible from spec 1.0 to 1.1" );
+		Assert.isTrue( this.segment.isSetup(), "UPGRADE only allowed in SETUP blocks" );
+		Assert.isTrue( this.segment.getSource().equals( "1.0" ) && this.segment.getTarget().equals( "1.1" ), "UPGRADE only possible from spec 1.0 to 1.1" );
 
 		int pos = command.getLineNumber();
 		executeJdbc( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'S' WHERE RESULT IS NULL OR RESULT NOT LIKE 'COMPLETED VERSION %'", false, pos ) );
@@ -561,7 +547,7 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	@Override
 	protected void setDelimiters( Delimiter[] delimiters )
 	{
-		this.patchSource.setDelimiters( delimiters );
+		this.upgradeSource.setDelimiters( delimiters );
 	}
 
 	/**
@@ -625,12 +611,12 @@ public class PatchProcessor extends CommandProcessor implements ConnectionListen
 	@Override
 	public LineReader getReader()
 	{
-		return this.patchFile.file;
+		return this.upgradeFile.file;
 	}
 
 	@Override
 	public Resource getResource()
 	{
-		return this.patchFile.file.getResource();
+		return this.upgradeFile.file.getResource();
 	}
 }

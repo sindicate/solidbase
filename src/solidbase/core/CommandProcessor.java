@@ -128,7 +128,7 @@ abstract public class CommandProcessor
 	protected List< CommandListener > listeners;
 
 	/**
-	 * If true ({@link PatchProcessor}), commands get committed automatically, and rolled back when an {@link SQLException} occurs.
+	 * If true ({@link UpgradeProcessor}), commands get committed automatically, and rolled back when an {@link SQLException} occurs.
 	 * If false ({@link SQLProcessor}), commit/rollback should be in the command source.
 	 */
 	protected boolean autoCommit;
@@ -176,16 +176,16 @@ abstract public class CommandProcessor
 	protected Map< String, Database > databases;
 
 	/**
-	 * Together with {@link PatchProcessor#skipCounter} this enables nested conditions. As long as nested conditions
-	 * evaluate to true the {@link PatchProcessor#noSkipCounter} gets incremented. After the first nested condition
-	 * evaluates to false, the {@link PatchProcessor#skipCounter} get incremented.
+	 * Together with {@link UpgradeProcessor#skipCounter} this enables nested conditions. As long as nested conditions
+	 * evaluate to true the {@link UpgradeProcessor#noSkipCounter} gets incremented. After the first nested condition
+	 * evaluates to false, the {@link UpgradeProcessor#skipCounter} get incremented.
 	 */
 	protected int noSkipCounter;
 
 	/**
-	 * Together with {@link PatchProcessor#noSkipCounter} this enables nested conditions. As long as nested conditions
-	 * evaluate to true the {@link PatchProcessor#noSkipCounter} gets incremented. After the first nested condition
-	 * evaluates to false, the {@link PatchProcessor#skipCounter} get incremented.
+	 * Together with {@link UpgradeProcessor#noSkipCounter} this enables nested conditions. As long as nested conditions
+	 * evaluate to true the {@link UpgradeProcessor#noSkipCounter} gets incremented. After the first nested condition
+	 * evaluates to false, the {@link UpgradeProcessor#skipCounter} get incremented.
 	 */
 	protected int skipCounter;
 
@@ -220,6 +220,11 @@ abstract public class CommandProcessor
 		addDatabase( database );
 	}
 
+	/**
+	 * Construct a child command processor.
+	 *
+	 * @param parent The parent command processor.
+	 */
 	public CommandProcessor( CommandProcessor parent )
 	{
 		this.databases = parent.databases;
@@ -231,7 +236,7 @@ abstract public class CommandProcessor
 		this.listeners = PluginManager.getListeners();
 		// TODO Section depth needs to be offset
 		if( parent.variables != null )
-			this.variables = new HashMap( parent.variables );
+			this.variables = new HashMap< String, String >( parent.variables );
 	}
 
 	/**
@@ -600,6 +605,11 @@ abstract public class CommandProcessor
 		this.progress.startSection( level, message );
 	}
 
+	/**
+	 * Runs a different SQL file.
+	 *
+	 * @param url The path of the SQL file.
+	 */
 	protected void run( String url )
 	{
 		System.out.println( "Run: " + url );

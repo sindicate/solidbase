@@ -20,7 +20,7 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
 import solidbase.core.Command;
-import solidbase.core.Patch;
+import solidbase.core.UpgradeSegment;
 import solidbase.core.ProgressListener;
 import solidbase.util.Assert;
 
@@ -115,10 +115,10 @@ public class Progress extends ProgressListener
 	}
 
 	@Override
-	protected void patchStarting( Patch patch )
+	protected void upgradeStarting( UpgradeSegment segment )
 	{
 		flush();
-		switch( patch.getType() )
+		switch( segment.getType() )
 		{
 			case SETUP:
 				this.buffer = new StringBuilder( "Setting up control tables" );
@@ -133,12 +133,12 @@ public class Progress extends ProgressListener
 				this.buffer = new StringBuilder( "Downgrading" );
 				break;
 			default:
-				Assert.fail( "Unknown patch type: " + patch.getType() );
+				Assert.fail( "Unknown segment type: " + segment.getType() );
 		}
-		if( patch.getSource() == null )
-			this.buffer.append( " to \"" + patch.getTarget() + "\"" );
+		if( segment.getSource() == null )
+			this.buffer.append( " to \"" + segment.getTarget() + "\"" );
 		else
-			this.buffer.append( " \"" + patch.getSource() + "\" to \"" + patch.getTarget() + "\"" );
+			this.buffer.append( " \"" + segment.getSource() + "\" to \"" + segment.getTarget() + "\"" );
 		flush();
 	}
 

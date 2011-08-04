@@ -19,7 +19,7 @@ package solidbase.core;
 import java.sql.SQLException;
 import org.testng.annotations.Test;
 
-import solidbase.core.PatchProcessor;
+import solidbase.core.UpgradeProcessor;
 
 public class Import
 {
@@ -27,9 +27,9 @@ public class Import
 	public void testImport() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		PatchProcessor patcher = Setup.setupPatchProcessor( "folder/testpatch-import1.sql" );
+		UpgradeProcessor patcher = Setup.setupPatchProcessor( "folder/testpatch-import1.sql" );
 
-		patcher.patch( "1.0.2" );
+		patcher.upgrade( "1.0.2" );
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 14, null );
 		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP", 10 );
 		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP2", 6 );
@@ -40,7 +40,7 @@ public class Import
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP3 FROM TEMP WHERE TEMP1 = 'y'", " 3 " );
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP3 FROM TEMP2 WHERE LINENUMBER = 101", "René" );
 
-		patcher.patch( "1.0.3" );
+		patcher.upgrade( "1.0.3" );
 		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP5", 3 );
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP1 FROM TEMP4", null );
 
@@ -51,11 +51,11 @@ public class Import
 	public void testImportLineNumber() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-import2.sql" );
+		UpgradeProcessor patcher = Setup.setupPatchProcessor( "testpatch-import2.sql" );
 
 		try
 		{
-			patcher.patch( "3" );
+			patcher.upgrade( "3" );
 			assert false;
 		}
 		catch( CommandFileException e )
@@ -66,7 +66,7 @@ public class Import
 
 		try
 		{
-			patcher.patch( "4" );
+			patcher.upgrade( "4" );
 			assert false;
 		}
 		catch( CommandFileException e )
@@ -77,7 +77,7 @@ public class Import
 
 		try
 		{
-			patcher.patch( "5" );
+			patcher.upgrade( "5" );
 			assert false;
 		}
 		catch( SQLExecutionException e )
