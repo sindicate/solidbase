@@ -324,11 +324,11 @@ See [http://download.oracle.com/javase/6/docs/technotes/guides/jdbc/getstart/sta
 1.6.5
 === Syntax ===
 {{{
-JDBC ESCAPE PROCESSING ON | OFF;
+--* JDBC ESCAPE PROCESSING ON | OFF;
 }}}
 === Example ===
 {{{
-JDBC ESCAPE PROCESSING ON;
+--* JDBC ESCAPE PROCESSING ON;
 INSERT INTO ATABLE ( ADATE, THEUSER ) VALUES ( {d '2011-07-25'}, {fn user()} );
 }}}
 
