@@ -22,6 +22,8 @@ The classpath contains the solidbase.jar and the database driver jar. You can re
 
 = solidbase-upgrade/dbupgrade =
 
+This will start a database upgrade with the given database parameters and the given username:
+
 {{{
 <solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask"
 		user="sa" password=""
@@ -32,18 +34,20 @@ The classpath contains the solidbase.jar and the database driver jar. You can re
 </solidbase-upgrade>
 }}}
 
-This will start a database upgrade with the given database parameters and the given username. The parameters in the task element represent the primary connection. The secondary elements specify extra connections available during the upgrade (See [ReferenceGuide#SELECT_CONNECTION]). In these secondary elements, the driver and url attributes are optional. If not specified they are inherited from the primary connection.
+The parameters in the task element represent the primary connection. The secondary elements specify extra connections available during the upgrade (See [ReferenceGuide#SELECT_CONNECTION]). In these secondary elements, the driver and url attributes are optional. If not specified they are inherited from the primary connection.
 
 The target attribute is optional. If not specified, the default value of '`*`' will be used.
 
 = solidbase-sql/sb-sql =
+
+This will execute the specified single SQL file with the given database parameters and username:
 
 {{{
 <solidbase-sql driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testdb"
 	username="sa" password="" sqlfile="test.sql" />
 }}}
 
-This will execute the given SQL file with the given database parameters and username.
+This will execute the specified SQL files with the given database parameters and username:
 
 {{{
 <sb-sql driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask2"
@@ -55,4 +59,4 @@ This will execute the given SQL file with the given database parameters and user
 </solidbase-sql>
 }}}
 
-This will execute the given SQL files with the given database parameters and username. The parameters in the task element represent the primary connection. The secondary elements specify extra connections available during the upgrade (See [ReferenceGuide#SELECT_CONNECTION]). In these secondary elements, the driver and url attributes are optional. If not specified they are inherited from the primary connection.
+The parameters in the task element represent the primary connection. The secondary elements specify extra connections available during the upgrade (See [ReferenceGuide#SELECT_CONNECTION]). In these secondary elements, the driver and url attributes are optional. If not specified they are inherited from the primary connection.
