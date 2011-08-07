@@ -27,7 +27,7 @@ public class Import
 	public void testImport() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		UpgradeProcessor patcher = Setup.setupPatchProcessor( "folder/testpatch-import1.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "folder/testpatch-import1.sql" );
 
 		patcher.upgrade( "1.0.2" );
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 14, null );
@@ -51,7 +51,7 @@ public class Import
 	public void testImportLineNumber() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		UpgradeProcessor patcher = Setup.setupPatchProcessor( "testpatch-import2.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-import2.sql" );
 
 		try
 		{

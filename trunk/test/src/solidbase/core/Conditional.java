@@ -27,7 +27,7 @@ public class Conditional
 	public void testIfHistoryContains1() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		UpgradeProcessor patcher = Setup.setupPatchProcessor( "testpatch-conditional1.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-conditional1.sql" );
 
 		patcher.upgrade( "1.0.2" );
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null ); // TODO STATEMENTS should be 3.
@@ -38,7 +38,7 @@ public class Conditional
 	@Test(dependsOnMethods="testIfHistoryContains1")
 	public void testIfHistoryContains2() throws SQLException
 	{
-		UpgradeProcessor patcher = Setup.setupPatchProcessor( "testpatch-conditional2.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-conditional2.sql" );
 
 		patcher.upgrade( "1.0.3" );
 		TestUtil.verifyVersion( patcher, "1.0.3", null, 4, "1.1" );

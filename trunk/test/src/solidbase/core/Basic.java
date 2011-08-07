@@ -36,7 +36,7 @@ public class Basic
 	public void testBasic() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( db, "sa", null );
-		UpgradeProcessor patcher = Setup.setupPatchProcessor( "testpatch1.sql", db );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch1.sql", db );
 
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
@@ -49,7 +49,7 @@ public class Basic
 	@Test(dependsOnMethods="testBasic")
 	public void testRepeat() throws SQLException
 	{
-		UpgradeProcessor patcher = Setup.setupPatchProcessor( "testpatch1.sql", db );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch1.sql", db );
 
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null );
 		patcher.upgrade( "1.0.2" );
@@ -61,7 +61,7 @@ public class Basic
 	@Test(dependsOnMethods="testRepeat")
 	public void testMissingGo() throws SQLException
 	{
-		UpgradeProcessor patcher = Setup.setupPatchProcessor( "testpatch2.sql", db );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch2.sql", db );
 
 		try
 		{
@@ -81,7 +81,7 @@ public class Basic
 	@Test(dependsOnMethods="testMissingGo")
 	public void testDumpXML()
 	{
-		UpgradeProcessor patcher = Setup.setupPatchProcessor( "testpatch1.sql", db );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch1.sql", db );
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		patcher.logToXML( out );
@@ -94,7 +94,7 @@ public class Basic
 	@Test(dependsOnMethods="testMissingGo")
 	public void testOverrideControlTables()
 	{
-		UpgradeProcessor patcher = Setup.setupPatchProcessor( "testpatch-overridecontroltables.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-overridecontroltables.sql" );
 
 		assert patcher.getCurrentVersion() == null;
 		patcher.upgrade( "1.0.1" );
@@ -107,7 +107,7 @@ public class Basic
 	public void testOpen() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		UpgradeProcessor patcher = Setup.setupPatchProcessor( "testpatch-open.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-open.sql" );
 
 		patcher.upgrade( "1.0.*" );
 		TestUtil.verifyVersion( patcher, "1.0.2", "1.0.3", 1, null );
@@ -119,7 +119,7 @@ public class Basic
 	public void testUnterminatedCommand1() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		UpgradeProcessor patcher = Setup.setupPatchProcessor( "testpatch-unterminated1.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-unterminated1.sql" );
 
 		try
 		{
@@ -136,7 +136,7 @@ public class Basic
 	public void testUnterminatedCommand2() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		UpgradeProcessor patcher = Setup.setupPatchProcessor( "testpatch-unterminated2.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-unterminated2.sql" );
 
 		try
 		{
@@ -155,7 +155,7 @@ public class Basic
 	public void testSharedPatchBlock() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		UpgradeProcessor patcher = Setup.setupPatchProcessor( "testpatch-sharedpatch1.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-sharedpatch1.sql" );
 
 		patcher.upgrade( "1.0.2" );
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 3, null );
@@ -167,7 +167,7 @@ public class Basic
 	public void testMultipleTargets() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		UpgradeProcessor patcher = Setup.setupPatchProcessor( "testpatch-multipletargets.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-multipletargets.sql" );
 
 		try
 		{
@@ -186,7 +186,7 @@ public class Basic
 	public void testConnectionSetup() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		UpgradeProcessor patcher = Setup.setupPatchProcessor( "testpatch-connectionsetup1.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-connectionsetup1.sql" );
 		patcher.addDatabase( new Database( "queues", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, patcher.getCallBack() ) );
 
 		patcher.upgrade( "1.0.1" );
@@ -199,7 +199,7 @@ public class Basic
 	public void testInitialization() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		UpgradeProcessor patcher = Setup.setupPatchProcessor( "testpatch-initialization.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-initialization.sql" );
 		patcher.addDatabase( new Database( "queues", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, patcher.getCallBack() ) );
 
 		patcher.upgrade( "1.0.1" );
@@ -212,7 +212,7 @@ public class Basic
 	public void testSetUser() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		UpgradeProcessor patcher = Setup.setupPatchProcessor( "testpatch-setuser.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-setuser.sql" );
 
 		patcher.upgrade( null );
 		patcher.end();
@@ -222,7 +222,7 @@ public class Basic
 	public void testJdbcEscaping() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		UpgradeProcessor patcher = Setup.setupPatchProcessor( "testpatch-jdbc-escaping.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-jdbc-escaping.sql" );
 
 		try
 		{

@@ -19,7 +19,7 @@ package solidbase.core;
 
 public class Setup
 {
-	static public UpgradeProcessor setupPatchProcessor( String fileName, String url )
+	static public UpgradeProcessor setupUpgradeProcessor( String fileName, String url )
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Database database = new Database( "default", "org.hsqldb.jdbcDriver", url, "sa", null, progress );
@@ -30,9 +30,9 @@ public class Setup
 		return processor;
 	}
 
-	static public UpgradeProcessor setupPatchProcessor( String fileName )
+	static public UpgradeProcessor setupUpgradeProcessor( String fileName )
 	{
-		return setupPatchProcessor( fileName, "jdbc:hsqldb:mem:testdb" );
+		return setupUpgradeProcessor( fileName, "jdbc:hsqldb:mem:testdb" );
 	}
 
 	static public SQLProcessor setupSQLProcessor( String fileName )
