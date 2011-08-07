@@ -51,7 +51,6 @@ INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '3', 'z' );
 --* SET DELIMITER TRAILING ;
 
 --* SECTION.1 "Adding more USERS"
---* SET MESSAGE "And a message"
 
 --* SECTION.2 "Inserting 3 users"
 

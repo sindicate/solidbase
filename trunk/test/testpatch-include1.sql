@@ -27,5 +27,10 @@ CREATE TABLE DBVERSIONLOG ( TYPE VARCHAR(1) NOT NULL, SOURCE VARCHAR(20), TARGET
 
 
 --* UPGRADE "" --> "1.0.1"
-INCLUDE "testpatch-included1.sql";
+
+--* INCLUDE "testpatch-included1.sql"
+
+--* SECTION "Inserting admin user" 
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', 'secret' );
+
 --* /UPGRADE

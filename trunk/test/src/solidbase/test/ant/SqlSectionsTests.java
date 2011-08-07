@@ -94,7 +94,6 @@ public class SqlSectionsTests extends BuildFileTest
 				"    Inserting 3 users...\n" +
 				"Adding more USERS...\n" +
 				"    Inserting 3 users...\n" +
-				"And a message...\n" +
 				"    Inserting 3 users...\n" +
 				"Execution complete.\n" +
 				"\n"

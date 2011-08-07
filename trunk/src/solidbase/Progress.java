@@ -18,14 +18,14 @@ package solidbase;
 
 import solidbase.config.ConfigListener;
 import solidbase.core.Command;
-import solidbase.core.UpgradeSegment;
 import solidbase.core.ProgressListener;
+import solidbase.core.UpgradeSegment;
 import solidbase.util.Assert;
 
 
 /**
  * Implements the progress listener for the command line version of SolidBase.
- * 
+ *
  * @author René M. de Bloois
  */
 public class Progress extends ProgressListener implements ConfigListener
@@ -44,7 +44,7 @@ public class Progress extends ProgressListener implements ConfigListener
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param console The console to use.
 	 * @param verbose Show extra information?
 	 */
@@ -99,7 +99,7 @@ public class Progress extends ProgressListener implements ConfigListener
 	}
 
 	@Override
-	protected void executing( Command command, String message )
+	protected void executing( Command command )
 	{
 		for( int i = 0; i < this.messages.length; i++ )
 		{
@@ -111,12 +111,6 @@ public class Progress extends ProgressListener implements ConfigListener
 				this.console.print( m );
 				this.messages[ i ] = null;
 			}
-		}
-
-		if( message != null ) // Message can be null, when a message has not been set, but sql is still being executed
-		{
-			this.console.carriageReturn();
-			this.console.print( message );
 		}
 	}
 

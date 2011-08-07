@@ -15,10 +15,10 @@
 
 --* // ========================================================================
 
---*	PATCHES
---*		INIT "1.0" --> "1.1"
---*		PATCH "1.0.2" --> "1.0.3"
---*	/PATCHES
+--*	DEFINITION
+--*		SETUP "1.0" --> "1.1"
+--*		UPGRADE "1.0.2" --> "1.0.3"
+--*	/DEFINITION
 
 
 
@@ -26,7 +26,7 @@
 
 
 
---* INIT "1.0" --> "1.1"
+--* SETUP "1.0" --> "1.1"
 
 ALTER TABLE DBVERSION ADD SPEC VARCHAR(5);
 ALTER TABLE DBVERSIONLOG ADD TYPE VARCHAR(1);
@@ -36,7 +36,7 @@ UPGRADE;
 ALTER TABLE DBVERSION ALTER COLUMN SPEC SET NOT NULL;
 ALTER TABLE DBVERSIONLOG ALTER COLUMN TYPE SET NOT NULL;
 
---* /INIT
+--* /SETUP
 
 
 
@@ -44,7 +44,7 @@ ALTER TABLE DBVERSIONLOG ALTER COLUMN TYPE SET NOT NULL;
 
 
 
---* PATCH "1.0.2" --> "1.0.3"
+--* UPGRADE "1.0.2" --> "1.0.3"
 
 --* IF HISTORY CONTAINS "1.0.3"
 
@@ -85,4 +85,4 @@ CREATE TABLE TEST ( TEST VARCHAR(40) );
 
 --* /IF
 
---* /PATCH
+--* /UPGRADE

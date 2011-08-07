@@ -28,6 +28,11 @@ import solidbase.util.LineReader;
 public class UpgradeSource extends SQLSource
 {
 	/**
+	 * Included SQL source.
+	 */
+	protected SQLSource include;
+
+	/**
 	 * Creates a new instance of an upgrade source.
 	 *
 	 * @param in The reader which is used to read the SQL.
@@ -47,6 +52,14 @@ public class UpgradeSource extends SQLSource
 	{
 		Command command;
 
+		if( this.include != null )
+		{
+			command = this.include.readCommand();
+			if( command != null )
+				return command;
+			this.include = null;
+		}
+
 		do
 		{
 			command = super.readCommand();
@@ -63,5 +76,17 @@ public class UpgradeSource extends SQLSource
 		while( command == null );
 
 		return command;
+	}
+
+	/**
+	 * Include a file for upgrade.
+	 *
+	 * @param source The source of the upgrade commands.
+	 */
+	public void include( SQLSource source )
+	{
+		// TODO Make nesting possible
+		Assert.isNull( this.include );
+		this.include = source;
 	}
 }

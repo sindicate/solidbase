@@ -25,7 +25,7 @@ public class Include
 {
 	static private final String db = "jdbc:hsqldb:mem:testdb2";
 
-	@Test
+	@Test(groups="new")
 	public void testInclude() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( db, "sa", null );

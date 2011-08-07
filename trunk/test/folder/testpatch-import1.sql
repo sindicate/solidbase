@@ -15,11 +15,11 @@
 
 --* // ========================================================================
 
---*	PATCHES
---*		PATCH "" --> "1.0.1"
---*		PATCH "1.0.1" --> "1.0.2"
---*		PATCH "1.0.2" --> "1.0.3"
---*	/PATCHES
+--*	DEFINITION
+--*		UPGRADE "" --> "1.0.1"
+--*		UPGRADE "1.0.1" --> "1.0.2"
+--*		UPGRADE "1.0.2" --> "1.0.3"
+--*	/DEFINITION
 
 
 
@@ -27,7 +27,7 @@
 
 
 
---* PATCH "" --> "1.0.1"
+--* UPGRADE "" --> "1.0.1"
 
 --* SECTION "Creating control tables"
 
@@ -49,7 +49,7 @@ CREATE TABLE DBVERSIONLOG
 	RESULT VARCHAR(4000)
 );
 
---* /PATCH
+--* /UPGRADE
 
 
 
@@ -57,7 +57,7 @@ CREATE TABLE DBVERSIONLOG
 
 
 
---* PATCH "1.0.1" --> "1.0.2"
+--* UPGRADE "1.0.1" --> "1.0.2"
 
 CREATE TABLE TEMP ( TEMP1 VARCHAR(40), TEMP2 VARCHAR(40), TEMP3 VARCHAR(40) );
 
@@ -127,12 +127,12 @@ PRINT SELECT TEMP1 || TEMP2 || TEMP3 FROM TEMP3;
 
 IMPORT CSV SKIP HEADER INTO TEMP2 FILE "data.csv" ENCODING "UTF-8";
 
---* /PATCH
+--* /UPGRADE
 
 
 
 
---* PATCH "1.0.2" --> "1.0.3"
+--* UPGRADE "1.0.2" --> "1.0.3"
 
 CREATE TABLE TEMP4 ( TEMP1 VARCHAR(40), TEMP2 VARCHAR(40), TEMP3 VARCHAR(40) );
 
@@ -147,4 +147,4 @@ IMPORT CSV INTO TEMP5 DATA
 ""
 3;
 
---* /PATCH
+--* /UPGRADE

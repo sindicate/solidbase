@@ -52,17 +52,23 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	/**
 	 * Pattern for TRANSIENT.
 	 */
-	static protected Pattern transientPattern = Pattern.compile( "SESSIONCONFIG|TRANSIENT", Pattern.CASE_INSENSITIVE );
+	static protected Pattern transientPattern = Pattern.compile( "TRANSIENT", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * Pattern for /TRANSIENT.
 	 */
-	static protected Pattern transientPatternEnd = Pattern.compile( "/(SESSIONCONFIG|TRANSIENT)", Pattern.CASE_INSENSITIVE );
+	static protected Pattern transientPatternEnd = Pattern.compile( "/TRANSIENT", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * Pattern for IF HISTORY [NOT] CONTAINS.
 	 */
 	static protected Pattern ifHistoryContainsPattern = Pattern.compile( "IF\\s+HISTORY\\s+(NOT\\s+)?CONTAINS\\s+\"([^\"]*)\"", Pattern.CASE_INSENSITIVE );
+
+	/**
+	 * Pattern for INCLUDE.
+	 */
+	// TODO Newlines should be allowed
+	static protected Pattern includePattern = Pattern.compile( "INCLUDE\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
 
 	// The fields below are all part of the upgrade context. It's reset at the start of each change package.
 
@@ -487,6 +493,11 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 				ifHistoryContains( matcher.group( 1 ), matcher.group( 2 ) );
 				return true;
 			}
+			if( ( matcher = includePattern.matcher( sql ) ).matches() )
+			{
+				include( matcher.group( 1 ) );
+				return true;
+			}
 		}
 
 		return super.executeListeners( command );
@@ -542,6 +553,17 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 		if( not != null )
 			c = !c;
 		skip( !c );
+	}
+
+	/**
+	 * Include a file for upgrade.
+	 *
+	 * @param url The URL of the file.
+	 */
+	protected void include( String url )
+	{
+		SQLFile file = Factory.openSQLFile( getResource().createRelative( url ), this.progress );
+		this.upgradeSource.include( file.getSource() );
 	}
 
 	@Override

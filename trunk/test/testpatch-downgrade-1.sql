@@ -16,7 +16,7 @@
 --* // ========================================================================
 
 --*	DEFINITION
---*		INIT "" --> "1.1"
+--*		SETUP "" --> "1.1"
 --*		UPGRADE "" --> "1.0.1"
 --*		UPGRADE "1.0.1" --> "1.0.2"
 --*			UPGRADE "1.0.2" --> "1.0.3"
@@ -26,7 +26,7 @@
 --*		DOWNGRADE "1.1.1" --> "1.0.2"
 --*	/DEFINITION
 
---* INIT "" --> "1.1"
+--* SETUP "" --> "1.1"
 CREATE TABLE DBVERSION
 ( 
 	VERSION VARCHAR(20), 
@@ -45,7 +45,7 @@ CREATE TABLE DBVERSIONLOG
 	RESULT VARCHAR(4000)
 );
 CREATE INDEX DBVERSIONLOG_INDEX1 ON DBVERSIONLOG ( TYPE, TARGET );
---* /INIT
+--* /SETUP
 
 --* UPGRADE "" --> "1.0.1"
 CREATE TABLE TEST1 ( TEST VARCHAR(20) );

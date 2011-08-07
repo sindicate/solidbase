@@ -18,7 +18,7 @@
 
 
 
---* SET MESSAGE "    Creating table USERS2"
+--* SECTION "Creating table USERS2"
 
 CREATE TABLE USERS2
 (
@@ -27,11 +27,11 @@ CREATE TABLE USERS2
 	USER_PASSWORD VARCHAR NOT NULL
 );
 
---* SET MESSAGE "    Inserting admin user"
+--* SECTION "Inserting admin user"
 
 INSERT INTO USERS2 ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' );
 
---* SET MESSAGE "    Inserting user"
+--* SECTION "Inserting user"
 
 INSERT INTO USERS2 ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' );
 

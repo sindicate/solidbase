@@ -15,10 +15,10 @@
 
 --* // ========================================================================
 
---*	PATCHES
---*		PATCH "" --> "1.0.1"
---*		PATCH "1.0.1" --> "1.0.2"
---*	/PATCHES
+--*	DEFINITION
+--*		UPGRADE "" --> "1.0.1"
+--*		UPGRADE "1.0.1" --> "1.0.2"
+--*	/DEFINITION
 
 
 
@@ -27,10 +27,10 @@
 
 
 --* // ========================================================================
---* PATCH "" --> "1.0.1"
+--* UPGRADE "" --> "1.0.1"
 --* // ========================================================================
 
---* SET MESSAGE "Creating table DBVERSION"
+--* SECTION "Creating table DBVERSION"
 CREATE TABLE DBVERSION
 ( 
 	VERSION VARCHAR(20), 
@@ -40,7 +40,7 @@ CREATE TABLE DBVERSION
 
 --* // The patch tool expects to be able to use the DBVERSION table after the *first* sql statement
 
---* SET MESSAGE "Creating table DBVERSIONLOG"
+--* SECTION "Creating table DBVERSIONLOG"
 CREATE TABLE DBVERSIONLOG
 (
 	ID INTEGER IDENTITY, -- An index might be needed here to let the identity perform
@@ -54,7 +54,7 @@ CREATE TABLE DBVERSIONLOG
 
 --* // The existence of DBVERSIONLOG will automatically be detected at the end of this patch
 
---* /PATCH
+--* /UPGRADE
 
 
 
@@ -63,7 +63,7 @@ CREATE TABLE DBVERSIONLOG
 
 
 --* // ========================================================================
---* PATCH "1.0.1" --> "1.0.2"
+--* UPGRADE "1.0.1" --> "1.0.2"
 --* // ========================================================================
 
 --* // We need at least one sql without a message. This is a test too.
@@ -74,13 +74,13 @@ CREATE TABLE USERS
 	USER_PASSWORD VARCHAR(40) NOT NULL
 );	
 
---* SET MESSAGE "Inserting admin user" 
+--* SECTION "Inserting admin user" 
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' );
 
 IMPORT CSV INTO USERS ( USER_USERNAME, USER_PASSWORD )
 FILE "../folder/users.csv" ENCODING "ISO-8859-1";
 
---* /PATCH
+--* /UPGRADE
 
 --* // ========================================================================
 

@@ -15,12 +15,12 @@
 
 --* // ========================================================================
 
---*	PATCHES
+--*	DEFINITION
 --*		DELIMITER IS ISOLATED GO
---*		PATCH "" --> "1.0.1"
---*		PATCH "1.0.1" --> "1.0.2"
---*		PATCH OPEN "1.0.2" --> "1.0.3"
---*	/PATCHES
+--*		UPGRADE "" --> "1.0.1"
+--*		UPGRADE "1.0.1" --> "1.0.2"
+--*		UPGRADE OPEN "1.0.2" --> "1.0.3"
+--*	/DEFINITION
 
 
 
@@ -29,10 +29,10 @@
 
 
 --* // ========================================================================
---* PATCH "" --> "1.0.1"
+--* UPGRADE "" --> "1.0.1"
 --* // ========================================================================
 
---* SET MESSAGE "Creating table DBVERSION"
+--* SECTION "Creating table DBVERSION"
 CREATE TABLE DBVERSION
 ( 
 	VERSION VARCHAR(20), 
@@ -43,7 +43,7 @@ GO
 
 --* // The patch tool expects to be able to use the DBVERSION table after the *first* sql statement
 
---* SET MESSAGE "Creating table DBVERSIONLOG"
+--* SECTION "Creating table DBVERSIONLOG"
 CREATE TABLE DBVERSIONLOG
 (
 	ID INTEGER IDENTITY, -- An index might be needed here to let the identity perform
@@ -58,7 +58,7 @@ GO
 
 --* // The existence of DBVERSIONLOG will automatically be detected at the end of this patch
 
---* /PATCH
+--* /UPGRADE
 
 
 
@@ -67,12 +67,12 @@ GO
 
 
 --* // ========================================================================
---* PATCH "1.0.1" --> "1.0.2"
+--* UPGRADE "1.0.1" --> "1.0.2"
 --* // ========================================================================
 
 --* SET DELIMITER TRAILING ;
 
---* SET MESSAGE "Creating table USERS"
+--* SECTION "Creating table USERS"
 CREATE TABLE USERS
 (
 	USER_ID INT IDENTITY,
@@ -80,10 +80,10 @@ CREATE TABLE USERS
 	USER_PASSWORD VARCHAR(40) NOT NULL
 );
 
---* SET MESSAGE "Inserting admin user"
+--* SECTION "Inserting admin user"
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' );
 
---* /PATCH
+--* /UPGRADE
 
 --* // ========================================================================
 
@@ -93,10 +93,10 @@ INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrr
 
 
 
---* PATCH "1.0.2" --> "1.0.3"
+--* UPGRADE "1.0.2" --> "1.0.3"
 
---* SET MESSAGE "Inserting user"
+--* SECTION "Inserting user"
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rene', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
 GO
 
---* /PATCH
+--* /UPGRADE

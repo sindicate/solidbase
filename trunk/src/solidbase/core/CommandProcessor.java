@@ -68,11 +68,6 @@ abstract public class CommandProcessor
 	static protected final Pattern selectConnectionPattern = Pattern.compile( "SELECT\\s+CONNECTION\\s+(\\w+)", Pattern.CASE_INSENSITIVE );
 
 	/**
-	 * Pattern for SET MESSAGE.
-	 */
-	static protected final Pattern startMessagePattern = Pattern.compile( "(?:SET\\s+MESSAGE|MESSAGE\\s+START)\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
-
-	/**
 	 * Pattern for DELIMITER.
 	 */
 	static protected final Pattern delimiterPattern = Pattern.compile( "(?:SET\\s+DELIMITER|DELIMITER\\s+IS)(?:\\s+(ISOLATED)|\\s+(TRAILING))?\\s+(\\S+)(?:\\sOR(?:\\s+(ISOLATED)|\\s+(TRAILING))?\\s+(\\S+))?", Pattern.CASE_INSENSITIVE );
@@ -120,6 +115,7 @@ abstract public class CommandProcessor
 	/**
 	 * Pattern for RUN.
 	 */
+	// TODO Newlines should be allowed
 	static protected Pattern runPattern = Pattern.compile( "RUN\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
 
 	/**
@@ -139,11 +135,6 @@ abstract public class CommandProcessor
 	 * Is JDBC escape processing enabled or not?
 	 */
 	protected boolean jdbcEscaping;
-
-	/**
-	 * The message that should be shown when a statement is executed.
-	 */
-	protected String startMessage;
 
 	/**
 	 * Current section nesting.
@@ -245,7 +236,6 @@ abstract public class CommandProcessor
 	protected void reset()
 	{
 		this.jdbcEscaping = false;
-		this.startMessage = null;
 		this.sectionLevel = 0;
 		this.progress.reset();
 		this.ignoreStack = new Stack< String[] >();
@@ -275,10 +265,7 @@ abstract public class CommandProcessor
 		substituteVariables( command );
 
 		if( command.isPersistent() )
-		{
-			this.progress.executing( command, this.startMessage );
-			this.startMessage = null;
-		}
+			this.progress.executing( command );
 
 		try
 		{
@@ -353,11 +340,6 @@ abstract public class CommandProcessor
 			if( ( matcher = sectionPattern.matcher( sql ) ).matches() )
 			{
 				section( matcher.group( 1 ), matcher.group( 2 ), command );
-				return true;
-			}
-			if( ( matcher = startMessagePattern.matcher( sql ) ).matches() )
-			{
-				this.startMessage = matcher.group( 1 );
 				return true;
 			}
 			if( ( matcher = delimiterPattern.matcher( sql ) ).matches() )
@@ -612,7 +594,6 @@ abstract public class CommandProcessor
 	 */
 	protected void run( String url )
 	{
-		System.out.println( "Run: " + url );
 		SQLProcessor processor = new SQLProcessor( this );
 		// TODO What if the protocol is different?
 		SQLFile file = Factory.openSQLFile( getResource().createRelative( url ), this.progress );

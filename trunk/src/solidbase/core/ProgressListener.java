@@ -124,9 +124,8 @@ abstract public class ProgressListener
 	 * About to execute to given command with the given message for the user.
 	 *
 	 * @param command The command that is about to be executed.
-	 * @param message The message that is set.
 	 */
-	protected void executing( Command command, String message )
+	protected void executing( Command command )
 	{
 		// could be implemented in subclass
 	}

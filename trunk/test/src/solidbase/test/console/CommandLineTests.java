@@ -56,11 +56,11 @@ public class CommandLineTests
 				"Connecting to database...\n" +
 				"The database is unmanaged.\n" +
 				"Upgrading to \"1.0.1\"\n" +
-				"Creating table DBVERSION.\n" +
-				"Creating table DBVERSIONLOG.\n" +
+				"    Creating table DBVERSION.\n" +
+				"    Creating table DBVERSIONLOG.\n" +
 				"DEBUG: version=null, target=1.0.1, statements=2\n" +
 				"Upgrading \"1.0.1\" to \"1.0.2\".\n" +
-				"Inserting admin user.\n" +
+				"    Inserting admin user.\n" +
 				"DEBUG: version=1.0.1, target=1.0.2, statements=2\n" +
 				"The database is upgraded.\n" +
 				"\n" +
@@ -115,11 +115,11 @@ public class CommandLineTests
 				"Connecting to database...\n" +
 				"The database is unmanaged.\n" +
 				"Upgrading to \"1.0.1\"\n" +
-				"Creating table DBVERSION.\n" +
-				"Creating table DBVERSIONLOG.\n" +
+				"    Creating table DBVERSION.\n" +
+				"    Creating table DBVERSIONLOG.\n" +
 				"DEBUG: version=null, target=1.0.1, statements=2\n" +
 				"Upgrading \"1.0.1\" to \"1.0.2\".\n" +
-				"Inserting admin user.\n" +
+				"    Inserting admin user.\n" +
 				"DEBUG: version=1.0.1, target=1.0.2, statements=2\n" +
 				"The database is upgraded.\n" +
 				"\n" +
@@ -250,8 +250,7 @@ public class CommandLineTests
 				"    Inserting 3 users...\n" +
 				"    Inserting 3 users.\n" +
 				"Adding more USERS\n" +
-				"    Inserting 3 users\n" +
-				"And a message.\n" +
+				"    Inserting 3 users.\n" +
 				"    Inserting 3 users....\n" +
 				"Execution complete.\n\n"
 		);
