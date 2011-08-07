@@ -136,7 +136,7 @@ public class Progress extends ProgressListener
 	}
 
 	@Override
-	protected void executing( Command command, String message )
+	protected void executing( Command command )
 	{
 		for( int i = 0; i < this.messages.length; i++ )
 		{
@@ -147,12 +147,6 @@ public class Progress extends ProgressListener
 				this.buffer = new StringBuilder().append( SPACES, 0, i * 4 ).append( m ).append( "..." );
 				this.messages[ i ] = null;
 			}
-		}
-
-		if( message != null ) // Message can be null, when a message has not been set, but sql is still being executed
-		{
-			flush();
-			this.buffer = new StringBuilder( message ).append( "..." );
 		}
 
 		flush();

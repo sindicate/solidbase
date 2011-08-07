@@ -47,7 +47,7 @@ public class Sql
 		TestUtil.assertRecordCount( processor.getCurrentDatabase(), "USERS", 13 );
 	}
 
-	@Test(groups="new")
+	@Test
 	public void testParameter1() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );

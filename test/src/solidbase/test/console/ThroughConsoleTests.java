@@ -47,11 +47,11 @@ public class ThroughConsoleTests
 				"Connecting to database...\n" +
 				"Input password for user 'sa': The database is unmanaged.\n" +
 				"Upgrading to \"1.0.1\"\n" +
-				"Creating table DBVERSION.\n" +
-				"Creating table DBVERSIONLOG.\n" +
+				"    Creating table DBVERSION.\n" +
+				"    Creating table DBVERSIONLOG.\n" +
 				"DEBUG: version=null, target=1.0.1, statements=2\n" +
 				"Upgrading \"1.0.1\" to \"1.0.2\".\n" +
-				"Inserting admin user.\n" +
+				"    Inserting admin user.\n" +
 				"DEBUG: version=1.0.1, target=1.0.2, statements=2\n" +
 				"The database is upgraded.\n" +
 				"\n" +
@@ -80,11 +80,11 @@ public class ThroughConsoleTests
 				"Connecting to database...\n" +
 				"Input password for user 'sa': The database is unmanaged.\n" +
 				"Upgrading to \"1.0.1\"\n" +
-				"Creating table DBVERSION.\n" +
-				"Creating table DBVERSIONLOG.\n" +
+				"    Creating table DBVERSION.\n" +
+				"    Creating table DBVERSIONLOG.\n" +
 				"DEBUG: version=null, target=1.0.1, statements=2\n" +
 				"Upgrading \"1.0.1\" to \"1.0.2\".\n" +
-				"Inserting admin user.\n" +
+				"    Inserting admin user.\n" +
 				"DEBUG: version=1.0.1, target=1.0.2, statements=2\n" +
 				"The database is upgraded.\n" +
 				"\n" +

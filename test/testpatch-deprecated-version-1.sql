@@ -15,12 +15,12 @@
 
 --* // ========================================================================
 
---*	PATCHES
---*		PATCH "" --> "1.0.1"
---*	/PATCHES
+--*	DEFINITION
+--*		UPGRADE "" --> "1.0.1"
+--*	/DEFINITION
 
---* PATCH "" --> "1.0.1"
+--* UPGRADE "" --> "1.0.1"
 
 CREATE TABLE TEST1 ( TEST VARCHAR );
 
---* /PATCH
+--* /UPGRADE

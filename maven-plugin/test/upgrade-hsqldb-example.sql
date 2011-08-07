@@ -19,17 +19,17 @@
 
 
 --*	DEFINITION
---*		INIT "" --> "1.1"
+--*		SETUP "" --> "1.1"
 --*		UPGRADE "" --> "1.0.1"
 --*	/DEFINITION
 
 
 
 --* // ========================================================================
---* INIT "" --> "1.1"
+--* SETUP "" --> "1.1"
 --* // ========================================================================
 
---* SET MESSAGE "    Creating table DBVERSION"
+--* SECTION "Creating table DBVERSION"
 
 CREATE TABLE DBVERSION
 (
@@ -39,7 +39,7 @@ CREATE TABLE DBVERSION
 	STATEMENTS INTEGER NOT NULL 
 );
 
---* SET MESSAGE "    Creating table DBVERSIONLOG"
+--* SECTION "Creating table DBVERSIONLOG"
 
 CREATE TABLE DBVERSIONLOG
 (
@@ -54,7 +54,7 @@ CREATE TABLE DBVERSIONLOG
 
 CREATE INDEX DBVERSIONLOG_INDEX1 ON DBVERSIONLOG ( TYPE, TARGET );
 
---* /INIT
+--* /SETUP
 
 
 
@@ -62,7 +62,7 @@ CREATE INDEX DBVERSIONLOG_INDEX1 ON DBVERSIONLOG ( TYPE, TARGET );
 --* UPGRADE "" --> "1.0.1"
 --* // ========================================================================
 
---* SET MESSAGE "    Creating table USERS"
+--* SECTION "Creating table USERS"
 
 CREATE TABLE USERS
 (
@@ -71,11 +71,11 @@ CREATE TABLE USERS
 	USER_PASSWORD VARCHAR NOT NULL
 );
 
---* SET MESSAGE "    Inserting admin user"
+--* SECTION "Inserting admin user"
 
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' );
 
---* SET MESSAGE "    Inserting user"
+--* SECTION "Inserting user"
 
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' );
 

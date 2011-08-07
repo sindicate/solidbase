@@ -20,7 +20,7 @@
 --* DELIMITER IS ;
 
 
---* SET MESSAGE "Creating table USERS"
+--* SECTION "Creating table USERS"
 
 CREATE TABLE USERS
 (
@@ -30,12 +30,12 @@ CREATE TABLE USERS
 );
 
 
---* SET MESSAGE "Inserting admin user"
+--* SECTION "Inserting admin user"
  
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' );	
 
 
---* SET MESSAGE "Inserting 3 users"
+--* SECTION "Inserting 3 users"
  
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '1', 'x' ); INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '2', 'y' ); INSERT INTO USERS ( USER_USERNAME, 
 USER_PASSWORD ) VALUES ( '3', 'z' );	
@@ -49,7 +49,7 @@ This is a skip test;
 --* SET DELIMITER ISOLATED ; 	 
 
 
---* SET MESSAGE "Inserting 3 users"
+--* SECTION "Inserting 3 users"
  
 -- Appearantly, some database allow multiple statements in one go without the BEGIN END (as Oracle does).
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '1', 'x' );
@@ -61,7 +61,7 @@ INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '3', 'z' );
 --* SET DELIMITER TRAILING ;
 
 
---* SET MESSAGE "Inserting 3 users"
+--* SECTION "Inserting 3 users"
 
 --* // These are now also sent in one go
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '1', 'x' ); INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '2', 'y' ); INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '3', 'z' );	
@@ -70,7 +70,7 @@ INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '1', 'x' ); INSERT I
 --* SET DELIMITER TRAILING ; OR ISOLATED GO
 
 
---* SET MESSAGE "Inserting 3 users"
+--* SECTION "Inserting 3 users"
  
 			INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '1', 'x' );
 			INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '2', 'y' );

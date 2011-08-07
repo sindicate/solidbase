@@ -82,9 +82,9 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	protected void executing( Command command, String message )
+	protected void executing( Command command )
 	{
-		System.out.println( "EXECUTING: " + message );
+		System.out.println( "EXECUTING..." );
 	}
 
 	@Override

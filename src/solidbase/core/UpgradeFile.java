@@ -45,16 +45,16 @@ import solidbase.util.RandomAccessLineReader;
  */
 public class UpgradeFile
 {
-	static private final Pattern DEFINITION_MARKER_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN)[ \t]+.*", Pattern.CASE_INSENSITIVE );
-	static private final Pattern DEFINITION_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
+	static private final Pattern DEFINITION_MARKER_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE)[ \t]+.*", Pattern.CASE_INSENSITIVE );
+	static private final Pattern DEFINITION_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
 	static private final String DEFINITION_SYNTAX_ERROR = "Line should match the following syntax: (SETUP|UPGRADE|SWITCH|DOWNGRADE) [OPEN] \"...\" --> \"...\"";
 
 	static private final Pattern CONTROL_TABLES_PATTERN = Pattern.compile( "VERSION\\s+TABLE\\s+(\\S+)\\s+LOG\\s+TABLE\\s+(\\S+)", Pattern.CASE_INSENSITIVE );
 
-	static private final Pattern SEGMENT_START_MARKER_PATTERN = Pattern.compile( "--\\*[ \t]*(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN).*", Pattern.CASE_INSENSITIVE );
-	static final Pattern SEGMENT_START_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
+	static private final Pattern SEGMENT_START_MARKER_PATTERN = Pattern.compile( "--\\*[ \t]*(SETUP|UPGRADE|SWITCH|DOWNGRADE).*", Pattern.CASE_INSENSITIVE );
+	static final Pattern SEGMENT_START_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
 
-	static final Pattern SEGMENT_END_PATTERN = Pattern.compile( "/(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
+	static final Pattern SEGMENT_END_PATTERN = Pattern.compile( "/(SETUP|UPGRADE|SWITCH|DOWNGRADE) *", Pattern.CASE_INSENSITIVE );
 
 //	static private final Pattern INITIALIZATION_TRIGGER = Pattern.compile( "--\\*\\s*INITIALIZATION\\s*", Pattern.CASE_INSENSITIVE );
 //	static private final Pattern INITIALIZATION_END_PATTERN = Pattern.compile( "--\\*\\s*/INITIALIZATION\\s*", Pattern.CASE_INSENSITIVE );
@@ -150,13 +150,13 @@ public class UpgradeFile
 	 */
 	protected Type stringToType( String type )
 	{
-		if( "UPGRADE".equalsIgnoreCase( type ) || "PATCH".equalsIgnoreCase( type ) )
+		if( "UPGRADE".equalsIgnoreCase( type ) )
 			return Type.UPGRADE;
-		if( "SWITCH".equalsIgnoreCase( type ) || "BRANCH".equalsIgnoreCase( type ) || "RETURN".equalsIgnoreCase( type ) )
+		if( "SWITCH".equalsIgnoreCase( type ) )
 			return Type.SWITCH;
 		if( "DOWNGRADE".equalsIgnoreCase( type ) )
 			return Type.DOWNGRADE;
-		if( "SETUP".equalsIgnoreCase( type ) || "INIT".equalsIgnoreCase( type ) )
+		if( "SETUP".equalsIgnoreCase( type ) )
 			return Type.SETUP;
 		Assert.fail( "Unexpected block type '" + type + "'" );
 		return null;
@@ -180,7 +180,7 @@ public class UpgradeFile
 			{
 				Assert.isTrue( line.startsWith( "--*" ), "Line should start with --*" );
 				line = line.substring( 3 ).trim();
-				if( line.equalsIgnoreCase( "DEFINITION" ) || line.equalsIgnoreCase( "PATCHES" ) )
+				if( line.equalsIgnoreCase( "DEFINITION" ) )
 				{
 					Assert.isFalse( withinDefinition, "Already within the definition" );
 					withinDefinition = true;
@@ -219,7 +219,7 @@ public class UpgradeFile
 						this.versions.add( target );
 					}
 				}
-				else if( line.equalsIgnoreCase( "/DEFINITION" ) || line.equalsIgnoreCase( "/PATCHES" ) )
+				else if( line.equalsIgnoreCase( "/DEFINITION" ) )
 				{
 					Assert.isTrue( withinDefinition, "Not within the definition" );
 					definitionComplete = true;
@@ -235,10 +235,10 @@ public class UpgradeFile
 					else if( ( matcher = CommandProcessor.delimiterPattern.matcher( line ) ).matches() )
 						this.defaultDelimiters = CommandProcessor.parseDelimiters( matcher );
 					else
-						throw new SystemException( "Unexpected line within definition: " + line );
+						throw new CommandFileException( "Unexpected line within definition: " + line, this.file.getLineNumber() );
 				}
 				else
-					throw new SystemException( "Unexpected line outside definition: " + line );
+					throw new CommandFileException( "Unexpected line outside definition: " + line, this.file.getLineNumber() );
 			}
 		}
 
