@@ -27,7 +27,7 @@ public class DeprecatedVersion
 	public void testDeprecated1() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		UpgradeProcessor patcher = Setup.setupPatchProcessor( "testpatch1.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch1.sql" );
 
 		patcher.upgrade( "1.0.2" );
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null );
@@ -38,7 +38,7 @@ public class DeprecatedVersion
 	@Test(dependsOnMethods="testDeprecated1")
 	public void testDeprecated2()
 	{
-		UpgradeProcessor patcher = Setup.setupPatchProcessor( "testpatch-deprecated-version-1.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-deprecated-version-1.sql" );
 
 		try
 		{
