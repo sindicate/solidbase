@@ -7,7 +7,7 @@
 	
 	<groupId>solidbase</groupId>
 	<artifactId>solidbase</artifactId>
-	<version>1.6.5</version>
+	<version>1.7.0-beta1</version>
 	<packaging>jar</packaging>
 
 	<name>SolidBase</name>
