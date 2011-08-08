@@ -16,10 +16,14 @@
 
 package solidbase.core.plugins;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,10 +67,33 @@ public class PrintSelect implements CommandListener
 		try
 		{
 			ResultSet result = statement.executeQuery( sql );
-			while( result.next() )
+			ResultSetMetaData metaData = result.getMetaData();
+			int type = metaData.getColumnType( 1 );
+			if( type == Types.CLOB || type == Types.NCLOB || type == Types.LONGVARCHAR || type == Types.LONGNVARCHAR )
 			{
-				Object object = result.getObject( 1 );
-				processor.getCallBack().print( object.toString() );
+				StringBuilder buffer = new StringBuilder();
+				char[] buf = new char[ 4096 ];
+				while( result.next() )
+				{
+					Reader in = result.getCharacterStream( 1 );
+					buffer.setLength( 0 );
+					try
+					{
+						// TODO Can we do this in a streaming way? Maybe add streaming capability indicator to the output.
+						for( int read = in.read( buf ); read >= 0; read = in.read( buf ) )
+							buffer.append( buf, 0, read );
+					}
+					catch( IOException e )
+					{
+						throw new SQLException( e );
+					}
+					processor.getCallBack().print( buffer.toString() );
+				}
+			}
+			else
+			{
+				while( result.next() )
+					processor.getCallBack().print( result.getObject( 1 ).toString() );
 			}
 		}
 		finally
