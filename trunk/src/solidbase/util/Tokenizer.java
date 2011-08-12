@@ -21,7 +21,7 @@ import solidbase.core.CommandFileException;
 
 /**
  * This is a tokenizer for a language like SQL. It maintains the current line number, it is case insensitive, and it ignores whitespace.
- * 
+ *
  * @author René M. de Bloois
  */
 public class Tokenizer
@@ -34,7 +34,7 @@ public class Tokenizer
 
 	/**
 	 * Constructs a new instance of the Tokenizer.
-	 * 
+	 *
 	 * @param in The input.
 	 */
 	public Tokenizer( BufferedReaderLineReader in )
@@ -44,7 +44,7 @@ public class Tokenizer
 
 	/**
 	 * Is the given character a whitespace?
-	 * 
+	 *
 	 * @param ch The character to check.
 	 * @return True if the characters is whitespace, false otherwise.
 	 */
@@ -63,7 +63,7 @@ public class Tokenizer
 
 	/**
 	 * Is the given character a special character?
-	 * 
+	 *
 	 * @param ch The character to check.
 	 * @return True if the characters is a special character, false otherwise.
 	 */
@@ -111,7 +111,7 @@ public class Tokenizer
 
 	/**
 	 * Returns the next token from the input. The preceding whitespace is also contained separately in {@link Token#getWhiteSpace()}.
-	 * 
+	 *
 	 * @return A token from the input. Null if there are no more tokens available.
 	 */
 	public Token get()
@@ -157,6 +157,7 @@ public class Tokenizer
 		if( ch == -1 )
 			return new Token( null, whiteSpace.toString() );
 
+		// TODO What about the $ dollar sign?
 		// Collect all characters until whitespace or special character
 		StringBuilder result = new StringBuilder( 16 );
 		do
@@ -177,7 +178,7 @@ public class Tokenizer
 	/**
 	 * A token that matches one of the expected tokens. Throws a {@link CommandFileException} if a token is encountered
 	 * that does not match the given expected tokens.
-	 * 
+	 *
 	 * @param expected The expected tokens.
 	 * @return One of the expected tokens.
 	 */
@@ -240,7 +241,7 @@ public class Tokenizer
 
 	/**
 	 * Returns a newline token. Throws a {@link CommandFileException} if another token is found.
-	 * 
+	 *
 	 * @return The newline token.
 	 */
 	public Token getNewline()
@@ -265,8 +266,21 @@ public class Tokenizer
 	}
 
 	/**
+	 * Returns the remaining characters from the reader.
+	 *
+	 * @return the remaining characters from the reader.
+	 */
+	public String getRemaining()
+	{
+		StringBuilder result = new StringBuilder();
+		for( int ch = this.in.read(); ch != -1; ch = this.in.read() )
+			result.append( (char)ch );
+		return result.toString();
+	}
+
+	/**
 	 * Push back a token.
-	 * 
+	 *
 	 * @param token The token to push back.
 	 */
 	public void push( Token token )
@@ -277,7 +291,7 @@ public class Tokenizer
 
 	/**
 	 * Returns the current line number.
-	 * 
+	 *
 	 * @return The current line number.
 	 */
 	public int getLineNumber()
@@ -287,7 +301,7 @@ public class Tokenizer
 
 	/**
 	 * Returns the underlying reader. But only if the back buffer is empty, otherwise an IllegalStateException is thrown.
-	 * 
+	 *
 	 * @return The underlying reader.
 	 */
 	public LineReader getReader()
@@ -298,7 +312,7 @@ public class Tokenizer
 
 	/**
 	 * A token. The token is case insensitive, so the {@link #equals(String)} does a case insensitive comparison.
-	 * 
+	 *
 	 * @author René M. de Bloois
 	 */
 	static public class Token
@@ -315,7 +329,7 @@ public class Tokenizer
 
 		/**
 		 * Constructs a new token.
-		 * 
+		 *
 		 * @param value The value of the token.
 		 * @param whiteSpace The whitespace encountered before the token.
 		 */
@@ -327,7 +341,7 @@ public class Tokenizer
 
 		/**
 		 * Returns the value of token.
-		 * 
+		 *
 		 * @return The value of token.
 		 */
 		public String getValue()
@@ -337,7 +351,7 @@ public class Tokenizer
 
 		/**
 		 * Returns the whitespace encountered before the token.
-		 * 
+		 *
 		 * @return The whitespace encountered before the token.
 		 */
 		public String getWhiteSpace()
@@ -347,7 +361,7 @@ public class Tokenizer
 
 		/**
 		 * Is this token a newline?
-		 * 
+		 *
 		 * @return True if this token is a newline, false otherwise.
 		 */
 		public boolean isNewline()
@@ -359,7 +373,7 @@ public class Tokenizer
 
 		/**
 		 * Is this token the end-of-input token?
-		 * 
+		 *
 		 * @return True if this token is the end-of-input token, false otherwise.
 		 */
 		public boolean isEndOfInput()
@@ -369,7 +383,7 @@ public class Tokenizer
 
 		/**
 		 * Does a case insensitive comparison with the given string.
-		 * 
+		 *
 		 * @param s A string to compare the value of this token with.
 		 * @return True if the value of this token and the given string are equal (ignoring case), false otherwise.
 		 */
@@ -382,7 +396,7 @@ public class Tokenizer
 
 		/**
 		 * The length of the value of this token.
-		 * 
+		 *
 		 * @return Length of the value of this token.
 		 */
 		public int length()
