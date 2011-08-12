@@ -18,6 +18,7 @@ package solidbase.core;
 
 import solidbase.util.Assert;
 import solidbase.util.LineReader;
+import solidbase.util.Resource;
 
 
 /**
@@ -88,5 +89,38 @@ public class UpgradeSource extends SQLSource
 		// TODO Make nesting possible
 		Assert.isNull( this.include );
 		this.include = source;
+	}
+
+	@Override
+	public void close()
+	{
+		if( this.include != null )
+			this.include.close();
+		super.close();
+	}
+
+	@Override
+	public void setDelimiters( Delimiter[] delimiters )
+	{
+		if( this.include != null )
+			this.include.setDelimiters( delimiters );
+		else
+			super.setDelimiters( delimiters );
+	}
+
+	@Override
+	public int getLineNumber()
+	{
+		if( this.include != null )
+			return this.include.getLineNumber();
+		return super.getLineNumber();
+	}
+
+	@Override
+	public Resource getResource()
+	{
+		if( this.include != null )
+			return this.include.getResource();
+		return super.getResource();
 	}
 }

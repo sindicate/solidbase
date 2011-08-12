@@ -415,19 +415,21 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 					{
 						try
 						{
-							executeWithListeners( command );
+							SQLExecutionException result = executeWithListeners( command );
+							// We have to update the progress even if the logging fails. Otherwise the segment cannot be
+							// restarted. That's why the progress update is first. But some logging will be lost in that case.
+							this.dbVersion.updateProgress( segment.getTarget(), count );
+							if( result != null )
+								this.dbVersion.logSQLException( segment.getSource(), segment.getTarget(), count, command.getCommand(), result );
+							else
+								this.dbVersion.log( "S", segment.getSource(), segment.getTarget(), count, command.getCommand(), (String)null );
 						}
 						catch( SQLExecutionException e )
 						{
-							// TODO Should we also log the exception when it is ignored?
-							// TODO We need a unit test for this
+							// TODO We need a unit test for this, and the above
 							this.dbVersion.logSQLException( segment.getSource(), segment.getTarget(), count, command.getCommand(), e );
 							throw e;
 						}
-						// We have to update the progress even if the logging fails. Otherwise the segment cannot be
-						// restarted. That's why the progress update is first. But some logging will be lost in that case.
-						this.dbVersion.updateProgress( segment.getTarget(), count );
-						this.dbVersion.log( "S", segment.getSource(), segment.getTarget(), count, command.getCommand(), (String)null );
 					}
 					else
 						this.progress.skipped( command );

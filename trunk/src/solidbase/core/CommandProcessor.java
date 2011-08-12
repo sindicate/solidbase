@@ -258,15 +258,17 @@ abstract public class CommandProcessor
 	 * Execute the given command.
 	 *
 	 * @param command The command to be executed.
+	 * @return Whenever an {@link SQLException} is ignored.
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	protected void executeWithListeners( Command command ) throws SQLExecutionException
+	protected SQLExecutionException executeWithListeners( Command command ) throws SQLExecutionException
 	{
 		substituteVariables( command );
 
 		if( command.isPersistent() )
 			this.progress.executing( command );
 
+		SQLExecutionException result = null;
 		try
 		{
 			if( !executeListeners( command ) )
@@ -277,17 +279,20 @@ abstract public class CommandProcessor
 		}
 		catch( SQLException e )
 		{
+			SQLExecutionException newException = new SQLExecutionException( command.getCommand(), command.getLineNumber(), e );
 			String error = e.getSQLState();
 			if( !this.ignoreSet.contains( error ) )
 			{
-				SQLExecutionException newException = new SQLExecutionException( command.getCommand(), command.getLineNumber(), e );
 				this.progress.exception( newException );
 				throw newException;
 			}
+			result = newException;
 		}
 
 		if( command.isPersistent() )
 			this.progress.executed();
+
+		return result;
 	}
 
 	/**

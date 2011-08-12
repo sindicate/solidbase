@@ -91,7 +91,7 @@ public class SQLProcessor extends CommandProcessor
 		while( command != null )
 		{
 			if( command.isTransient() || this.skipCounter == 0 )
-				executeWithListeners( command );
+				executeWithListeners( command ); // TODO What if exception is ignored, how do we call progress then?
 			else
 				this.progress.skipped( command );
 			command = this.sqlSource.readCommand();
