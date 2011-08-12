@@ -125,7 +125,11 @@ public class ExportCSV implements CommandListener
 							for( int i = 0; i < count; i++ )
 								if( coalesce[ i ] )
 								{
-									coalescedValue = result.getObject( i + 1 );
+									// getObject in Oracle gives a oracle.sql.TIMESTAMP which does not implement toString correctly.
+									if( types[ i ] == Types.TIMESTAMP )
+										coalescedValue = result.getTimestamp( i + 1 );
+									else
+										coalescedValue = result.getObject( i + 1 );
 									if( coalescedValue != null )
 									{
 										coalescedType = types[ i ];
@@ -143,8 +147,17 @@ public class ExportCSV implements CommandListener
 								else
 									out.write( ',' );
 
-								int type = firstCoalesce == i ? coalescedType : types[ i ];
-								Object value = firstCoalesce == i ? coalescedValue : result.getObject( i + 1 );
+								int type = coalescedType;
+								Object value = coalescedValue;
+								if( firstCoalesce != i )
+								{
+									type = types[ i ];
+									// getObject in Oracle gives a oracle.sql.TIMESTAMP which does not implement toString correctly.
+									if( types[ i ] == Types.TIMESTAMP )
+										value = result.getTimestamp( i + 1 );
+									else
+										value = result.getObject( i + 1 );
+								}
 
 								if( value != null )
 									if( type == Types.CLOB || type == Types.NCLOB || type == Types.LONGVARCHAR || type == Types.LONGNVARCHAR )
