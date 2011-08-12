@@ -456,7 +456,7 @@ public class DBVersion
 	 * @param target The target version.
 	 * @param count The statement count.
 	 * @param command The executed statement.
-	 * @param e The sql exception.
+	 * @param e The SQL exception.
 	 */
 	protected void logSQLException( String source, String target, int count, String command, SQLExecutionException e )
 	{
