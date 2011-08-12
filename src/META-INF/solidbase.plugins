@@ -1,3 +1,4 @@
 solidbase.core.plugins.ImportCSV
 solidbase.core.plugins.AssertExistsOrEmptySelect
 solidbase.core.plugins.PrintSelect
+solidbase.core.plugins.ExportCSV
