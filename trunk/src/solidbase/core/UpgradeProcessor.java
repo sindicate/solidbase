@@ -516,6 +516,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 
 	private void upgradeControlTables( Command command ) throws SQLException
 	{
+		// TODO Can we put the segment in the command? Don't like this field.
 		Assert.isTrue( this.segment.isSetup(), "UPGRADE only allowed in SETUP blocks" );
 		Assert.isTrue( this.segment.getSource().equals( "1.0" ) && this.segment.getTarget().equals( "1.1" ), "UPGRADE only possible from spec 1.0 to 1.1" );
 

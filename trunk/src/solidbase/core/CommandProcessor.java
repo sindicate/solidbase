@@ -575,7 +575,7 @@ abstract public class CommandProcessor
 		int l = level != null ? Integer.parseInt( level ) : 1;
 		if( l < 0 || l > 9 )
 			throw new CommandFileException( "Section level must be 0..9", command.getLineNumber() );
-		if( l > this.sectionLevel + 1 )
+		if( l > this.sectionLevel + 1 ) // TODO Why is this?
 			throw new CommandFileException( "Section levels can't be skipped, current section level is " + this.sectionLevel, command.getLineNumber() );
 		this.sectionLevel = l;
 		startSection( l, message );
