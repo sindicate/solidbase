@@ -23,11 +23,6 @@ import java.util.Set;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import solidbase.core.Database;
-import solidbase.core.UpgradeProcessor;
-import solidbase.core.SQLExecutionException;
-import solidbase.core.NonDelimitedStatementException;
-
 public class Basic
 {
 	static private final String db = "jdbc:hsqldb:mem:testdb2";
@@ -187,7 +182,7 @@ public class Basic
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-connectionsetup1.sql" );
-		patcher.addDatabase( new Database( "queues", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, patcher.getCallBack() ) );
+		patcher.databases.addDatabase( new Database( "queues", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, patcher.getCallBack() ) );
 
 		patcher.upgrade( "1.0.1" );
 		TestUtil.verifyVersion( patcher, "1.0.1", null, 1, "1.1" );
@@ -200,7 +195,7 @@ public class Basic
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-initialization.sql" );
-		patcher.addDatabase( new Database( "queues", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, patcher.getCallBack() ) );
+		patcher.databases.addDatabase( new Database( "queues", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, patcher.getCallBack() ) );
 
 		patcher.upgrade( "1.0.1" );
 		TestUtil.verifyVersion( patcher, "1.0.1", null, 1, "1.1" );

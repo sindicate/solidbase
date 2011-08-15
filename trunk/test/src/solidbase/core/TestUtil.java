@@ -24,15 +24,12 @@ import java.sql.SQLException;
 
 import org.testng.Assert;
 
-import solidbase.core.UpgradeProcessor;
-import solidbase.core.SystemException;
-
 
 public class TestUtil
 {
 	static public void shutdownHSQLDB( UpgradeProcessor patcher ) throws SQLException
 	{
-		Connection connection = patcher.currentDatabase.getConnection();
+		Connection connection = patcher.getCurrentDatabase().getConnection();
 		try
 		{
 			connection.createStatement().executeUpdate( "SHUTDOWN" );
@@ -147,7 +144,7 @@ public class TestUtil
 
 	static public void assertQueryResultEquals( UpgradeProcessor patcher, String query, Object expected ) throws SQLException
 	{
-		Connection connection = patcher.currentDatabase.getConnection();
+		Connection connection = patcher.getCurrentDatabase().getConnection();
 		ResultSet result = connection.createStatement().executeQuery( query );
 		assert result.next() : "Expected 1 row";
 		Object value = result.getObject( 1 );

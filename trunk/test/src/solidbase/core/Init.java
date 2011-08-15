@@ -21,12 +21,6 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
-import solidbase.core.Database;
-import solidbase.core.UpgradeFile;
-import solidbase.core.UpgradeProcessor;
-import solidbase.core.Factory;
-import solidbase.util.FileResource;
-
 public class Init
 {
 	@Test
@@ -35,9 +29,7 @@ public class Init
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 
 		TestProgressListener progress = new TestProgressListener();
-		UpgradeProcessor patcher = new UpgradeProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-		UpgradeFile upgradeFile = Factory.openUpgradeFile( new FileResource( "testpatch1.sql" ), progress );
-		patcher.setUpgradeFile( upgradeFile );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch1.sql" );
 		patcher.init();
 
 		Set< String > targets = patcher.getTargets( false, null, false );
@@ -52,9 +44,7 @@ public class Init
 	public void testInit2() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		UpgradeProcessor patcher = new UpgradeProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-		UpgradeFile upgradeFile = Factory.openUpgradeFile( new FileResource( "testpatch-version-table-upgrade-2.sql" ), progress );
-		patcher.setUpgradeFile( upgradeFile );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-version-table-upgrade-2.sql" );
 		patcher.init();
 
 		Set< String > targets = patcher.getTargets( false, null, false );
@@ -71,9 +61,7 @@ public class Init
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 
 		TestProgressListener progress = new TestProgressListener();
-		UpgradeProcessor patcher = new UpgradeProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-		UpgradeFile upgradeFile = Factory.openUpgradeFile( new FileResource( "testpatch-version-table-upgrade-2.sql" ), progress );
-		patcher.setUpgradeFile( upgradeFile );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-version-table-upgrade-2.sql" );
 		patcher.init();
 
 		Set< String > targets = patcher.getTargets( false, null, false );

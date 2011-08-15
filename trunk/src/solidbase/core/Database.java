@@ -309,6 +309,15 @@ public class Database
 	}
 
 	/**
+	 * The current user becomes the default user.
+	 */
+	public void resetUser()
+	{
+		if( this.defaultUser != null )
+			this.currentUser = this.defaultUser;
+	}
+
+	/**
 	 * Close all open connections that are maintained by this instance of {@link Database}.
 	 */
 	protected void closeConnections()

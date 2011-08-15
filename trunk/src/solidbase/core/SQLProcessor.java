@@ -33,9 +33,9 @@ import solidbase.util.Resource;
 public class SQLProcessor extends CommandProcessor
 {
 	/**
-	 * The command reader.
+	 * The SQL execution context.
 	 */
-	protected SQLSource sqlSource;
+	protected SQLContext sqlContext;
 
 	/**
 	 * Construct a new instance of the sql executer.
@@ -48,34 +48,14 @@ public class SQLProcessor extends CommandProcessor
 	}
 
 	/**
-	 * Construct a new instance of the sql executer.
+	 * Sets the SQL execution context.
 	 *
-	 * @param listener Listens to the progress.
-	 * @param database The default database.
+	 * @param context The SQL execution context.
 	 */
-	public SQLProcessor( ProgressListener listener, Database database )
+	public void setContext( SQLContext context )
 	{
-		super( listener, database );
-	}
-
-	/**
-	 * Construct a child SQL processor.
-	 *
-	 * @param parent The parent command processor.
-	 */
-	public SQLProcessor( CommandProcessor parent )
-	{
-		super( parent );
-	}
-
-	/**
-	 * Sets the source for the SQL.
-	 *
-	 * @param source the source for the SQL.
-	 */
-	public void setSQLSource( SQLSource source )
-	{
-		this.sqlSource = source;
+		this.context = context;
+		this.sqlContext = context;
 	}
 
 	/**
@@ -85,16 +65,17 @@ public class SQLProcessor extends CommandProcessor
 	 */
 	public void process() throws SQLExecutionException
 	{
-		reset(); // TODO This is not unit-tested yet.
+		this.context.setCurrentDatabase( getDefaultDatabase() );
+		this.context.getCurrentDatabase().resetUser();
 
-		Command command = this.sqlSource.readCommand();
+		Command command = this.sqlContext.getSource().readCommand();
 		while( command != null )
 		{
-			if( command.isTransient() || this.skipCounter == 0 )
-				executeWithListeners( command ); // TODO What if exception is ignored, how do we call progress then?
-			else
+			if( this.context.skipping() && command.isPersistent() )
 				this.progress.skipped( command );
-			command = this.sqlSource.readCommand();
+			else
+				executeWithListeners( command ); // TODO What if exception is ignored, how do we call progress then?
+			command = this.sqlContext.getSource().readCommand();
 		}
 	}
 
@@ -107,26 +88,27 @@ public class SQLProcessor extends CommandProcessor
 	@Override
 	public void end()
 	{
-		super.end();
-		this.sqlSource.close();
-		this.progress.sqlExecutionComplete();
+		for( Database database : this.context.getDatabases() )
+			database.closeConnections();
+		this.sqlContext.getSource().close();
+		this.progress.sqlExecutionComplete(); // TODO Why is this different from UpgradeProcessor.end()?
 	}
 
 	@Override
 	protected void setDelimiters( Delimiter[] delimiters )
 	{
-		this.sqlSource.setDelimiters( delimiters );
+		this.sqlContext.getSource().setDelimiters( delimiters );
 	}
 
 	@Override
 	public LineReader getReader()
 	{
-		return this.sqlSource.reader;
+		return this.sqlContext.getSource().reader;
 	}
 
 	@Override
 	public Resource getResource()
 	{
-		return this.sqlSource.getResource();
+		return this.sqlContext.getSource().getResource();
 	}
 }

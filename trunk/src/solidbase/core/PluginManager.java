@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * Reads plugins from the classpath. First it collects all of the following files: META-INF/solidbase.plugins.
  * Each (non-empty) line in these files represents a plugin class. A plugin should extend {@link CommandListener}.
- * 
+ *
  * @author René M. de Bloois
  * @since May 2010
  */
@@ -104,11 +104,20 @@ public class PluginManager
 
 	/**
 	 * Returns a list of all the plugins.
-	 * 
+	 *
 	 * @return a list of all the plugins.
 	 */
 	static public List< CommandListener > getListeners()
 	{
 		return listeners;
+	}
+
+	/**
+	 * Send all listeners the signal to terminate
+	 */
+	static public void terminateListeners()
+	{
+		for( CommandListener listener : listeners )
+			listener.terminate();
 	}
 }
