@@ -169,9 +169,9 @@ public class Runner
 		if( def == null )
 			throw new IllegalArgumentException( "Missing 'default' connection." );
 
+		DatabaseContext databases = new DatabaseContext();
 		for( ConnectionAttributes connection : this.connections.values() )
-			processor.addDatabase(
-					new Database(
+			databases.addDatabase( new Database(
 							connection.getName(),
 							connection.getDriver() == null ? def.driver : connection.getDriver(),
 							connection.getUrl() == null ? def.url : connection.getUrl(),
@@ -186,7 +186,9 @@ public class Runner
 			boolean first = true;
 			for( Resource resource : this.sqlFiles )
 			{
-				processor.setSQLSource( Factory.openSQLFile( resource, this.listener ).getSource() );
+				SQLContext context = new SQLContext( Factory.openSQLFile( resource, this.listener ).getSource() );
+				context.setDatabases( databases );
+				processor.setContext( context );
 				if( first )
 				{
 					this.listener.println( "Connecting to database..." ); // TODO Let the database say that (for example the default connection)
@@ -198,6 +200,7 @@ public class Runner
 		finally
 		{
 			processor.end();
+			PluginManager.terminateListeners();
 		}
 
 		this.listener.println( "" );
@@ -220,8 +223,9 @@ public class Runner
 		if( def == null )
 			throw new IllegalArgumentException( "Missing 'default' connection." );
 
+		DatabaseContext databases = new DatabaseContext();
 		for( ConnectionAttributes connection : this.connections.values() )
-			processor.addDatabase(
+			databases.addDatabase(
 					new Database(
 							connection.getName(),
 							connection.getDriver() == null ? def.driver : connection.getDriver(),
@@ -233,6 +237,7 @@ public class Runner
 			);
 
 		processor.setUpgradeFile( Factory.openUpgradeFile( this.upgradeFile, this.listener ) );
+		processor.setDatabases( databases );
 		try
 		{
 			processor.init();
@@ -245,6 +250,7 @@ public class Runner
 		finally
 		{
 			processor.end();
+			PluginManager.terminateListeners();
 		}
 	}
 
@@ -265,8 +271,9 @@ public class Runner
 		if( def == null )
 			throw new IllegalArgumentException( "Missing 'default' connection." );
 
+		DatabaseContext databases = new DatabaseContext();
 		for( ConnectionAttributes connection : this.connections.values() )
-			processor.addDatabase(
+			databases.addDatabase(
 					new Database(
 							connection.getName(),
 							connection.getDriver() == null ? def.driver : connection.getDriver(),
@@ -278,6 +285,7 @@ public class Runner
 			);
 
 		processor.setUpgradeFile( Factory.openUpgradeFile( this.upgradeFile, this.listener ) );
+		processor.setDatabases( databases );
 		try
 		{
 			processor.init();

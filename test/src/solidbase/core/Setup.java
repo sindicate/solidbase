@@ -19,15 +19,22 @@ package solidbase.core;
 
 public class Setup
 {
-	static public UpgradeProcessor setupUpgradeProcessor( String fileName, String url )
+	static public UpgradeProcessor setupUpgradeProcessor( String fileName, String driver, String url, String username )
 	{
 		TestProgressListener progress = new TestProgressListener();
-		Database database = new Database( "default", "org.hsqldb.jdbcDriver", url, "sa", null, progress );
-		UpgradeProcessor processor = new UpgradeProcessor( progress, database );
+		Database database = new Database( "default", driver, url, username, null, progress );
+		UpgradeProcessor processor = new UpgradeProcessor( progress );
+		DatabaseContext databases = new DatabaseContext( database );
+		processor.setDatabases( databases );
 		UpgradeFile upgradeFile = Factory.openUpgradeFile( Factory.getResource( fileName ), progress );
 		processor.setUpgradeFile( upgradeFile );
 		processor.init();
 		return processor;
+	}
+
+	static public UpgradeProcessor setupUpgradeProcessor( String fileName, String url )
+	{
+		return setupUpgradeProcessor( fileName, "org.hsqldb.jdbcDriver", url, "sa" );
 	}
 
 	static public UpgradeProcessor setupUpgradeProcessor( String fileName )
@@ -35,13 +42,21 @@ public class Setup
 		return setupUpgradeProcessor( fileName, "jdbc:hsqldb:mem:testdb" );
 	}
 
+	static public UpgradeProcessor setupDerbyUpgradeProcessor( String fileName )
+	{
+		return setupUpgradeProcessor( fileName, "org.apache.derby.jdbc.EmbeddedDriver", "jdbc:derby:memory:test;create=true", "app" );
+	}
+
 	static public SQLProcessor setupSQLProcessor( String fileName )
 	{
 		TestProgressListener progress = new TestProgressListener();
 		Database database = new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress );
-		SQLProcessor processor = new SQLProcessor( progress, database );
+		SQLProcessor processor = new SQLProcessor( progress );
 		SQLFile sqlFile = Factory.openSQLFile( Factory.getResource( fileName ), progress );
-		processor.setSQLSource( sqlFile.getSource() );
+		DatabaseContext databases = new DatabaseContext( database );
+		SQLContext context = new SQLContext( sqlFile.getSource() );
+		context.setDatabases( databases );
+		processor.setContext( context );
 		return processor;
 	}
 }

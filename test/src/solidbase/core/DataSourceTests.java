@@ -34,7 +34,9 @@ public class DataSourceTests
 		TestProgressListener progress = new TestProgressListener();
 		DriverDataSource dataSource = new DriverDataSource( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb2", "sa", null );
 		Database database = new Database( "default", dataSource, progress );
-		UpgradeProcessor processor = new UpgradeProcessor( progress, database );
+		DatabaseContext databases = new DatabaseContext( database );
+		UpgradeProcessor processor = new UpgradeProcessor( progress );
+		processor.setDatabases( databases );
 		UpgradeFile upgradeFile = Factory.openUpgradeFile( new FileResource( "testpatch1.sql" ), progress );
 		processor.setUpgradeFile( upgradeFile );
 		processor.init();
@@ -55,7 +57,9 @@ public class DataSourceTests
 		TestProgressListener progress = new TestProgressListener();
 		DriverDataSource dataSource = new DriverDataSource( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb2", "sa", null );
 		Database database = new Database( "default", dataSource, "sa", null, progress );
-		UpgradeProcessor processor = new UpgradeProcessor( progress, database );
+		DatabaseContext databases = new DatabaseContext( database );
+		UpgradeProcessor processor = new UpgradeProcessor( progress );
+		processor.setDatabases( databases );
 		UpgradeFile upgradeFile = Factory.openUpgradeFile( new FileResource( "testpatch1.sql" ), progress );
 		processor.setUpgradeFile( upgradeFile );
 		processor.init();

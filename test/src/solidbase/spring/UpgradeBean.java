@@ -29,9 +29,10 @@ import org.springframework.util.Assert;
 import solidbase.Version;
 import solidbase.core.ConnectionAttributes;
 import solidbase.core.Database;
+import solidbase.core.DatabaseContext;
 import solidbase.core.Factory;
-import solidbase.core.UpgradeProcessor;
 import solidbase.core.SystemException;
+import solidbase.core.UpgradeProcessor;
 import solidbase.util.DriverDataSource;
 import solidbase.util.MemoryResource;
 import solidbase.util.URLResource;
@@ -286,11 +287,13 @@ public class UpgradeBean
 		progress.println( info );
 		progress.println( "" );
 
+		DatabaseContext databases = new DatabaseContext();
+
 		DataSource dataSource = this.datasource;
 		if( dataSource == null )
 			dataSource = new DriverDataSource( this.driver, this.url, this.username, this.password );
 		Database database = new Database( "default", dataSource, this.username, this.password, progress );
-		UpgradeProcessor processor = new UpgradeProcessor( progress, database );
+		databases.addDatabase( database );
 
 		for( ConnectionAttributes secondary : this.secondary )
 		{
@@ -300,8 +303,11 @@ public class UpgradeBean
 					secondaryDataSource = new DriverDataSource( secondary.getDriver(), secondary.getUrl(), secondary.getUsername(), secondary.getPassword() );
 				else
 					secondaryDataSource = dataSource;
-			processor.addDatabase( new Database( secondary.getName(), secondaryDataSource, secondary.getUsername(), secondary.getPassword(), progress ) );
+			databases.addDatabase( new Database( secondary.getName(), secondaryDataSource, secondary.getUsername(), secondary.getPassword(), progress ) );
 		}
+
+		UpgradeProcessor processor = new UpgradeProcessor( progress );
+		processor.setDatabases( databases );
 
 		try
 		{

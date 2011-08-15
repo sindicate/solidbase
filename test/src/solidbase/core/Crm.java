@@ -21,12 +21,6 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
-import solidbase.core.Database;
-import solidbase.core.UpgradeFile;
-import solidbase.core.UpgradeProcessor;
-import solidbase.core.Factory;
-import solidbase.util.FileResource;
-
 public class Crm
 {
 	@Test
@@ -34,10 +28,7 @@ public class Crm
 	{
 		TestUtil.dropDerbyDatabase( "jdbc:derby:memory:test" );
 
-		TestProgressListener progress = new TestProgressListener();
-		UpgradeProcessor patcher = new UpgradeProcessor( progress, new Database( "default", "org.apache.derby.jdbc.EmbeddedDriver", "jdbc:derby:memory:test;create=true", "app", null, progress ) );
-		UpgradeFile upgradeFile = Factory.openUpgradeFile( new FileResource( "testpatch-crm.sql" ), progress );
-		patcher.setUpgradeFile( upgradeFile );
+		UpgradeProcessor patcher = Setup.setupDerbyUpgradeProcessor( "testpatch-crm.sql" );
 		patcher.init();
 
 		Set< String > targets = patcher.getTargets( false, null, false );

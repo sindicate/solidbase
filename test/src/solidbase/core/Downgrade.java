@@ -21,12 +21,6 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
-import solidbase.core.Database;
-import solidbase.core.UpgradeFile;
-import solidbase.core.UpgradeProcessor;
-import solidbase.core.Factory;
-import solidbase.util.FileResource;
-
 public class Downgrade
 {
 	@Test
@@ -35,9 +29,7 @@ public class Downgrade
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 
 		TestProgressListener progress = new TestProgressListener();
-		UpgradeProcessor patcher = new UpgradeProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
-		UpgradeFile upgradeFile = Factory.openUpgradeFile( new FileResource( "testpatch-downgrade-1.sql" ), progress );
-		patcher.setUpgradeFile( upgradeFile );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-downgrade-1.sql" );
 		patcher.init();
 
 		Set< String > targets = patcher.getTargets( false, null, false );

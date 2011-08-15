@@ -73,19 +73,14 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	// The fields below are all part of the upgrade context. It's reset at the start of each change package.
 
 	/**
-	 * Indicates that the statements are transient and should not be counted.
+	 * All configured databases. This is used when the upgrade file selects a different database by name.
 	 */
-	protected boolean dontCount;
+	protected DatabaseContext databases;
 
 	/**
 	 * The upgrade file being executed.
 	 */
 	protected UpgradeFile upgradeFile;
-
-	/**
-	 * The current source of an upgrade.
-	 */
-	protected UpgradeSource upgradeSource;
 
 	/**
 	 * The class that manages the DBVERSION and DBVERSIONLOG table.
@@ -96,6 +91,11 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	 * The upgrade segment that is currently processed.
 	 */
 	protected UpgradeSegment segment;
+
+	/**
+	 * The upgrade execution context.
+	 */
+	protected UpgradeContext upgradeContext;
 
 	/**
 	 * Constructor.
@@ -109,21 +109,24 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	}
 
 	/**
-	 * Constructor.
+	 * Sets all configured databases.
 	 *
-	 * @param listener Listens to the progress.
-	 * @param database The default database.
+	 * @param databases All configured databases.
 	 */
-	public UpgradeProcessor( ProgressListener listener, Database database )
+	public void setDatabases( DatabaseContext databases )
 	{
-		super( listener, database );
+		this.databases = databases;
 	}
 
-	@Override
-	public void addDatabase( Database database )
+	/**
+	 * Sets the upgrade execution context.
+	 *
+	 * @param context The upgrade execution context.
+	 */
+	public void setContext( UpgradeContext context )
 	{
-		super.addDatabase( database );
-		database.setConnectionListener( this );
+		this.context = context;
+		this.upgradeContext = context;
 	}
 
 	/**
@@ -146,19 +149,21 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	}
 
 	/**
-	 * Resets the upgrade context. This is called before the execution of each changeset.
+	 * Returns the default database.
+	 *
+	 * @return The default database.
 	 */
 	@Override
-	protected void reset()
+	public Database getDefaultDatabase()
 	{
-		super.reset();
-		this.dontCount = false;
+		return this.databases.getDatabase( "default" );
 	}
 
 	@Override
 	public void end()
 	{
-		super.end();
+		for( Database database : this.databases.getDatabases() )
+			database.closeConnections();
 		this.upgradeFile.close();
 	}
 
@@ -382,6 +387,24 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	}
 
 	/**
+	 * Reads a command from the upgrade source or SQL source (in case of includes SQL file).
+	 *
+	 * @return The command read.
+	 */
+	protected Command readCommand()
+	{
+		while( true )
+		{
+			if( this.upgradeContext.getUpgradeSource() != null )
+				return this.upgradeContext.getUpgradeSource().readCommand();
+			Command command = this.upgradeContext.getSqlSource().readCommand();
+			if( command != null )
+				return command;
+			this.upgradeContext = (UpgradeContext)this.upgradeContext.getParent();
+		}
+	}
+
+	/**
 	 * Execute a upgrade segment.
 	 *
 	 * @param segment The segment to be executed.
@@ -391,27 +414,32 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	{
 		Assert.notNull( segment );
 
+		this.progress.reset();
 		this.progress.upgradeStarting( segment );
 
+		UpgradeContext context = new UpgradeContext( this.upgradeFile.gotoSegment( segment ) );
+		context.setDatabases( this.databases );
+		setContext( context );
+		this.context.setCurrentDatabase( getDefaultDatabase() );
+		this.context.getCurrentDatabase().resetUser();
+
 		// Determine how many to skip
-		this.upgradeSource = this.upgradeFile.gotoSegment( segment );
 		int skip = this.dbVersion.getStatements();
 		if( this.dbVersion.getTarget() == null )
 			skip = 0;
 
-		reset();
 
 		int count = 0;
 		this.segment = segment;
 		try
 		{
-			Command command = this.upgradeSource.readCommand();
+			Command command = readCommand();
 			while( command != null )
 			{
-				if( command.isPersistent() && !this.dontCount && !segment.isSetup() )
+				if( command.isPersistent() && !this.upgradeContext.isDontCount() && !segment.isSetup() )
 				{
 					count++;
-					if( count > skip && this.skipCounter == 0 )
+					if( count > skip && !this.context.skipping() )
 					{
 						try
 						{
@@ -441,7 +469,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 					if( Thread.currentThread().isInterrupted() )
 						throw new ThreadDeath();
 
-				command = this.upgradeSource.readCommand();
+				command = readCommand();
 			}
 
 			this.progress.upgradeFinished();
@@ -531,8 +559,8 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	 */
 	protected void enableDontCount()
 	{
-		Assert.isFalse( this.dontCount, "Counting already enabled" );
-		this.dontCount = true;
+		Assert.isFalse( this.upgradeContext.isDontCount(), "Counting already enabled" );
+		this.upgradeContext.setDontCount( true );
 	}
 
 	/**
@@ -540,8 +568,8 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	 */
 	protected void disableDontCount()
 	{
-		Assert.isTrue( this.dontCount, "Counting already disabled" );
-		this.dontCount = false;
+		Assert.isTrue( this.upgradeContext.isDontCount(), "Counting already disabled" );
+		this.upgradeContext.setDontCount( false );
 	}
 
 	/**
@@ -555,7 +583,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 		boolean c = this.dbVersion.logContains( version );
 		if( not != null )
 			c = !c;
-		skip( !c );
+		this.context.skip( !c );
 	}
 
 	/**
@@ -566,13 +594,16 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	protected void include( String url )
 	{
 		SQLFile file = Factory.openSQLFile( getResource().createRelative( url ), this.progress );
-		this.upgradeSource.include( file.getSource() );
+		setContext( new UpgradeContext( this.upgradeContext, file.getSource() ) );
 	}
 
 	@Override
 	protected void setDelimiters( Delimiter[] delimiters )
 	{
-		this.upgradeSource.setDelimiters( delimiters );
+		if( this.upgradeContext.getUpgradeSource() != null )
+			this.upgradeContext.getUpgradeSource().setDelimiters( delimiters );
+		else
+			this.upgradeContext.getSqlSource().setDelimiters( delimiters );
 	}
 
 	/**

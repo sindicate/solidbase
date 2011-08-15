@@ -20,13 +20,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -119,71 +112,20 @@ abstract public class CommandProcessor
 	static protected Pattern runPattern = Pattern.compile( "RUN\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
 
 	/**
-	 * A list of command listeners. A listener listens to the statements being executed and is able to intercept specific ones.
-	 */
-	protected List< CommandListener > listeners;
-
-	/**
 	 * If true ({@link UpgradeProcessor}), commands get committed automatically, and rolled back when an {@link SQLException} occurs.
 	 * If false ({@link SQLProcessor}), commit/rollback should be in the command source.
 	 */
 	protected boolean autoCommit;
 
-	// The fields below are all part of the execution context. It's reset at the start of each command set.
-
 	/**
-	 * Is JDBC escape processing enabled or not?
+	 * Current execution context.
 	 */
-	protected boolean jdbcEscaping;
-
-	/**
-	 * Current section nesting.
-	 */
-	protected int sectionLevel;
-
-	/**
-	 * Errors that should be ignored. @{link #ignoreSet} is kept in sync with this stack.
-	 */
-	protected Stack< String[] > ignoreStack;
-
-	/**
-	 * Errors that should be ignored. This set is kept in sync with the {@link #ignoreStack}.
-	 */
-	protected Set< String > ignoreSet;
+	protected CommandContext context;
 
 	/**
 	 * The progress listener.
 	 */
 	protected ProgressListener progress;
-
-	/**
-	 * The current database.
-	 */
-	protected Database currentDatabase;
-
-	/**
-	 * All configured databases. This is used when the upgrade file selects a different database by name.
-	 */
-	protected Map< String, Database > databases;
-
-	/**
-	 * Together with {@link UpgradeProcessor#skipCounter} this enables nested conditions. As long as nested conditions
-	 * evaluate to true the {@link UpgradeProcessor#noSkipCounter} gets incremented. After the first nested condition
-	 * evaluates to false, the {@link UpgradeProcessor#skipCounter} get incremented.
-	 */
-	protected int noSkipCounter;
-
-	/**
-	 * Together with {@link UpgradeProcessor#noSkipCounter} this enables nested conditions. As long as nested conditions
-	 * evaluate to true the {@link UpgradeProcessor#noSkipCounter} gets incremented. After the first nested condition
-	 * evaluates to false, the {@link UpgradeProcessor#skipCounter} get incremented.
-	 */
-	protected int skipCounter;
-
-	/**
-	 * Variables. Null instead of empty.
-	 */
-	protected Map< String, String > variables;
 
 	/**
 	 * Constructor.
@@ -193,65 +135,6 @@ abstract public class CommandProcessor
 	public CommandProcessor( ProgressListener listener )
 	{
 		this.progress = listener;
-		this.databases = new HashMap< String, Database >();
-		this.listeners = PluginManager.getListeners();
-
-		reset();
-	}
-
-	/**
-	 * Constructor.
-	 *
-	 * @param listener Listens to the progress.
-	 * @param database The default database.
-	 */
-	public CommandProcessor( ProgressListener listener, Database database )
-	{
-		this( listener );
-		addDatabase( database );
-	}
-
-	/**
-	 * Construct a child command processor.
-	 *
-	 * @param parent The parent command processor.
-	 */
-	public CommandProcessor( CommandProcessor parent )
-	{
-		this.databases = parent.databases;
-		this.progress = parent.progress;
-		reset();
-		this.currentDatabase = parent.currentDatabase;
-		this.ignoreSet.addAll( parent.ignoreSet );
-		this.ignoreStack.addAll( parent.ignoreStack );
-		this.listeners = PluginManager.getListeners();
-		// TODO Section depth needs to be offset
-		if( parent.variables != null )
-			this.variables = new HashMap< String, String >( parent.variables );
-	}
-
-	/**
-	 * Resets the execution context.
-	 */
-	protected void reset()
-	{
-		this.jdbcEscaping = false;
-		this.sectionLevel = 0;
-		this.progress.reset();
-		this.ignoreStack = new Stack< String[] >();
-		this.ignoreSet = new HashSet< String >();
-		this.noSkipCounter = this.skipCounter = 0;
-		this.variables = null;
-		setConnection( getDefaultDatabase() );
-	}
-
-	/**
-	 * Gives listeners a chance to cleanup.
-	 */
-	protected void terminateCommandListeners()
-	{
-		for( CommandListener listener : this.listeners )
-			listener.terminate();
 	}
 
 	/**
@@ -281,7 +164,7 @@ abstract public class CommandProcessor
 		{
 			SQLExecutionException newException = new SQLExecutionException( command.getCommand(), command.getLineNumber(), e );
 			String error = e.getSQLState();
-			if( !this.ignoreSet.contains( error ) )
+			if( !this.context.ignoreSQLError( error ) )
 			{
 				this.progress.exception( newException );
 				throw newException;
@@ -302,7 +185,7 @@ abstract public class CommandProcessor
 	 */
 	protected void substituteVariables( Command command )
 	{
-		if( this.variables == null )
+		if( !this.context.hasVariables() )
 			return;
 		if( !command.getCommand().contains( "&" ) )
 			return;
@@ -317,9 +200,9 @@ abstract public class CommandProcessor
 			if( name == null )
 				name = matcher.group( 3 );
 			name = name.toUpperCase();
-			if( this.variables.containsKey( name ) )
+			if( this.context.hasVariable( name ) )
 			{
-				String value = this.variables.get( name );
+				String value = this.context.getVariableValue( name );
 				if( value == null )
 					throw new CommandFileException( "Variable '" + name + "' is null", command.getLineNumber() );
 				matcher.appendReplacement( sb, value );
@@ -354,12 +237,12 @@ abstract public class CommandProcessor
 			}
 			if( ( matcher = ignoreSqlErrorPattern.matcher( sql ) ).matches() )
 			{
-				pushIgnores( matcher.group( 1 ) );
+				this.context.pushIgnores( matcher.group( 1 ) );
 				return true;
 			}
 			if( ignoreEnd.matcher( sql ).matches() )
 			{
-				popIgnores();
+				this.context.popIgnores();
 				return true;
 			}
 			if( ( matcher = selectConnectionPattern.matcher( sql ) ).matches() )
@@ -379,12 +262,12 @@ abstract public class CommandProcessor
 			}
 			if( elsePattern.matcher( sql ).matches() )
 			{
-				doElse();
+				this.context.doElse();
 				return true;
 			}
 			if( ifEndPattern.matcher( sql ).matches() )
 			{
-				endSkip();
+				this.context.endSkip();
 				return true;
 			}
 			if( ( matcher = setUserPattern.matcher( sql ) ).matches() )
@@ -394,17 +277,17 @@ abstract public class CommandProcessor
 			}
 			if( skipPattern.matcher( sql ).matches() )
 			{
-				skip( true );
+				this.context.skip( true );
 				return true;
 			}
 			if( skipEnd.matcher( sql ).matches() )
 			{
-				endSkip();
+				this.context.endSkip();
 				return true;
 			}
 			if( ( matcher = JDBC_ESCAPING.matcher( sql ) ).matches() )
 			{
-				this.jdbcEscaping = matcher.group( 1 ).equalsIgnoreCase( "ON" );
+				this.context.setJdbcEscaping( matcher.group( 1 ).equalsIgnoreCase( "ON" ) );
 				return true;
 			}
 		}
@@ -417,7 +300,7 @@ abstract public class CommandProcessor
 			}
 		}
 
-		for( CommandListener listener : this.listeners )
+		for( CommandListener listener : PluginManager.listeners )
 			if( listener.execute( this, command ) )
 				return true;
 
@@ -436,7 +319,7 @@ abstract public class CommandProcessor
 	{
 		Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
 		Statement statement = connection.createStatement();
-		statement.setEscapeProcessing( this.jdbcEscaping );
+		statement.setEscapeProcessing( this.context.getJdbcEscaping() );
 		return statement;
 	}
 
@@ -454,7 +337,7 @@ abstract public class CommandProcessor
 		if( sql.length() == 0 )
 			return;
 
-		Connection connection = this.currentDatabase.getConnection();
+		Connection connection = this.context.getCurrentDatabase().getConnection();
 		Statement statement = createStatement( connection );
 		boolean commit = false;
 		try
@@ -480,7 +363,7 @@ abstract public class CommandProcessor
 	 */
 	protected void setConnection( Database database )
 	{
-		this.currentDatabase = database;
+		this.context.setCurrentDatabase( database );
 		if( database != null )
 			database.init(); // Reset the current user TODO Create a test for this.
 	}
@@ -492,75 +375,7 @@ abstract public class CommandProcessor
 	 */
 	protected void setUser( String user )
 	{
-		this.currentDatabase.setCurrentUser( user );
-	}
-
-	/**
-	 * Adds a comma separated list of SQLStates to be ignored. See {@link SQLException#getSQLState()}.
-	 *
-	 * @param ignores A comma separated list of errors to be ignored.
-	 */
-	protected void pushIgnores( String ignores )
-	{
-		String[] ss = ignores.split( "," );
-		for( int i = 0; i < ss.length; i++ )
-			ss[ i ] = ss[ i ].trim();
-		this.ignoreStack.push( ss );
-		refreshIgnores();
-	}
-
-	/**
-	 * Remove the last added list of ignores.
-	 */
-	protected void popIgnores()
-	{
-		this.ignoreStack.pop();
-		refreshIgnores();
-	}
-
-	/**
-	 * Skip persistent commands depending on the boolean parameter. If the skip parameter is true commands will be
-	 * skipped, otherwise not. As {@link #skip(boolean)} and {@link #endSkip()} can be nested, the same number of
-	 * endSkips need to be called as the number of skips to stop the skipping.
-	 *
-	 * @param skip If true, commands will be skipped, otherwise not.
-	 */
-	protected void skip( boolean skip )
-	{
-		if( this.skipCounter == 0 )
-		{
-			if( skip )
-				this.skipCounter++;
-			else
-				this.noSkipCounter++;
-		}
-		else
-			this.skipCounter++;
-	}
-
-	/**
-	 * Stop skipping commands. As {@link #skip(boolean)} and {@link #endSkip()} can be nested, only when the same number
-	 * of endSkips are called as the number of skips, the skipping will stop.
-	 */
-	protected void endSkip()
-	{
-		if( this.skipCounter > 0 )
-			this.skipCounter--;
-		else
-		{
-			Assert.isTrue( this.noSkipCounter > 0 );
-			this.noSkipCounter--;
-		}
-	}
-
-	/**
-	 * Process the ELSE annotation.
-	 */
-	protected void doElse()
-	{
-		boolean skip = this.skipCounter > 0;
-		endSkip();
-		skip( !skip );
+		this.context.getCurrentDatabase().setCurrentUser( user );
 	}
 
 	/**
@@ -575,9 +390,9 @@ abstract public class CommandProcessor
 		int l = level != null ? Integer.parseInt( level ) : 1;
 		if( l < 0 || l > 9 )
 			throw new CommandFileException( "Section level must be 0..9", command.getLineNumber() );
-		if( l > this.sectionLevel + 1 ) // TODO Why is this?
-			throw new CommandFileException( "Section levels can't be skipped, current section level is " + this.sectionLevel, command.getLineNumber() );
-		this.sectionLevel = l;
+		if( l > this.context.getSectionLevel() + 1 ) // TODO Why is this?
+			throw new CommandFileException( "Section levels can't be skipped, current section level is " + this.context.getSectionLevel(), command.getLineNumber() );
+		this.context.setSectionLevel( l );
 		startSection( l, message );
 	}
 
@@ -599,22 +414,10 @@ abstract public class CommandProcessor
 	 */
 	protected void run( String url )
 	{
-		SQLProcessor processor = new SQLProcessor( this );
-		// TODO What if the protocol is different?
 		SQLFile file = Factory.openSQLFile( getResource().createRelative( url ), this.progress );
-		processor.setSQLSource( file.getSource() );
+		SQLProcessor processor = new SQLProcessor( this.progress );
+		processor.setContext( new SQLContext( this.context, file.getSource() ) );
 		processor.process();
-	}
-
-	/**
-	 * Synchronize the set of ignores with the queue's contents.
-	 */
-	protected void refreshIgnores()
-	{
-		HashSet< String > ignores = new HashSet< String >();
-		for( String[] ss : this.ignoreStack )
-			ignores.addAll( Arrays.asList( ss ) );
-		this.ignoreSet = ignores;
 	}
 
 	/**
@@ -640,13 +443,7 @@ abstract public class CommandProcessor
 	/**
 	 * Closes open files and closes connections.
 	 */
-	// TODO No signal to the listeners here?
-	public void end()
-	{
-		terminateCommandListeners();
-		for( Database database : this.databases.values() )
-			database.closeConnections();
-	}
+	abstract public void end();
 
 	/**
 	 * Makes current another configured connection.
@@ -657,7 +454,7 @@ abstract public class CommandProcessor
 	protected void selectConnection( String name, Command command )
 	{
 		name = name.toLowerCase();
-		Database database = this.databases.get( name );
+		Database database = this.context.getDatabase( name );
 		if( database == null )
 			throw new CommandFileException( "Database '" + name + "' not configured", command.getLineNumber() );
 		setConnection( database );
@@ -672,14 +469,14 @@ abstract public class CommandProcessor
 	 */
 	protected void setVariableFromSelect( String name, String select ) throws SQLException
 	{
-		Connection connection = this.currentDatabase.getConnection();
+		Connection connection = this.context.getCurrentDatabase().getConnection();
 		Statement statement = createStatement( connection );
 		Object value = null;
 		try
 		{
 			ResultSet result = statement.executeQuery( select );
 			if( result.next() )
-				value = result.getObject( 1 );
+				value = result.getObject( 1 ); // TODO What about the Oracle TIMESTAMP problem?
 		}
 		finally
 		{
@@ -688,9 +485,7 @@ abstract public class CommandProcessor
 				connection.commit();
 		}
 
-		if( this.variables == null )
-			this.variables = new HashMap< String, String >();
-		this.variables.put( name.toUpperCase(), value == null ? null : value.toString() );
+		this.context.setVariable( name.toUpperCase(), value );
 	}
 
 	/**
@@ -702,9 +497,9 @@ abstract public class CommandProcessor
 	 */
 	protected void ifVariableIsNull( String name, String not, Command command )
 	{
-		if( this.variables == null || !this.variables.containsKey( name ) )
+		if( !this.context.hasVariable( name ) )
 			throw new CommandFileException( "Variable '" + name + "' is not defined", command.getLineNumber() );
-		skip( ( this.variables.get( name ) == null ) != ( not == null ) );
+		this.context.skip( ( this.context.getVariableValue( name ) == null ) != ( not == null ) );
 	}
 
 	/**
@@ -739,26 +534,13 @@ abstract public class CommandProcessor
 	abstract protected void setDelimiters( Delimiter[] delimiters );
 
 	/**
-	 * Add a database.
-	 *
-	 * @param database The database.
-	 */
-	public void addDatabase( Database database )
-	{
-		this.databases.put( database.getName(), database );
-
-		if( database.getName().equals( "default" ) )
-			setConnection( database ); // Also resets the current user for the connection
-	}
-
-	/**
 	 * Returns the current database.
 	 *
 	 * @return The current database.
 	 */
 	public Database getCurrentDatabase()
 	{
-		return this.currentDatabase;
+		return this.context.getCurrentDatabase();
 	}
 
 	/**
@@ -768,7 +550,7 @@ abstract public class CommandProcessor
 	 */
 	public Database getDefaultDatabase()
 	{
-		return this.databases.get( "default" );
+		return this.context.getDatabase( "default" );
 	}
 
 	/**

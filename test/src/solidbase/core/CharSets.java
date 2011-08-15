@@ -48,14 +48,14 @@ public class CharSets
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 
 		TestProgressListener progress = new TestProgressListener();
-		UpgradeProcessor patcher = new UpgradeProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "patch-utf-8-1.sql" );
 		UpgradeFile upgradeFile = Factory.openUpgradeFile( new FileResource( "patch-utf-8-1.sql" ), progress );
 		patcher.setUpgradeFile( upgradeFile );
 		patcher.init();
 
 		Assert.assertEquals( patcher.upgradeFile.file.getEncoding(), "UTF-8" );
 		patcher.upgrade( "1.0.2" );
-		Connection connection = patcher.currentDatabase.getConnection();
+		Connection connection = patcher.getCurrentDatabase().getConnection();
 		Statement stat = connection.createStatement();
 		ResultSet result = stat.executeQuery( "SELECT * FROM USERS" );
 		assert result.next();
