@@ -25,9 +25,7 @@ package solidbase.core;
  */
 public class UpgradeContext extends CommandContext
 {
-	// FIXME Combine
-	private UpgradeSource upgradeSource;
-	private SQLSource sqlSource;
+	private SQLSource source;
 
 	/**
 	 * Indicates that the statements are transient and should not be counted.
@@ -39,9 +37,9 @@ public class UpgradeContext extends CommandContext
 	 *
 	 * @param source The source for the upgrade commands.
 	 */
-	public UpgradeContext( UpgradeSource source )
+	public UpgradeContext( SQLSource source )
 	{
-		this.upgradeSource = source;
+		this.source = source;
 	}
 
 	/**
@@ -55,7 +53,7 @@ public class UpgradeContext extends CommandContext
 		super( parent );
 		this.dontCount = parent.dontCount;
 
-		this.sqlSource = source;
+		this.source = source;
 	}
 
 	/**
@@ -79,22 +77,12 @@ public class UpgradeContext extends CommandContext
 	}
 
 	/**
-	 * Returns the source for the upgrade commands.
-	 *
-	 * @return the source for the upgrade commands.
-	 */
-	public UpgradeSource getUpgradeSource()
-	{
-		return this.upgradeSource;
-	}
-
-	/**
 	 * Returns the source for the SQL commands.
 	 *
 	 * @return the source for the SQL commands.
 	 */
-	public SQLSource getSqlSource()
+	public SQLSource getSource()
 	{
-		return this.sqlSource;
+		return this.source;
 	}
 }

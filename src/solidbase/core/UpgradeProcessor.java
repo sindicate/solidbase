@@ -387,7 +387,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	}
 
 	/**
-	 * Reads a command from the upgrade source or SQL source (in case of includes SQL file).
+	 * Reads a command from the upgrade source.
 	 *
 	 * @return The command read.
 	 */
@@ -395,12 +395,13 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	{
 		while( true )
 		{
-			if( this.upgradeContext.getUpgradeSource() != null )
-				return this.upgradeContext.getUpgradeSource().readCommand();
-			Command command = this.upgradeContext.getSqlSource().readCommand();
+			Command command = this.upgradeContext.getSource().readCommand();
 			if( command != null )
 				return command;
-			this.upgradeContext = (UpgradeContext)this.upgradeContext.getParent();
+			UpgradeContext parent = (UpgradeContext)this.upgradeContext.getParent();
+			if( parent == null )
+				return null;
+			this.upgradeContext = parent;
 		}
 	}
 
@@ -600,10 +601,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	@Override
 	protected void setDelimiters( Delimiter[] delimiters )
 	{
-		if( this.upgradeContext.getUpgradeSource() != null )
-			this.upgradeContext.getUpgradeSource().setDelimiters( delimiters );
-		else
-			this.upgradeContext.getSqlSource().setDelimiters( delimiters );
+		this.upgradeContext.getSource().setDelimiters( delimiters );
 	}
 
 	/**
