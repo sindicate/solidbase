@@ -95,6 +95,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	/**
 	 * The upgrade execution context.
 	 */
+	// TODO This is redundant and risky. Also in SQLProcessor.
 	protected UpgradeContext upgradeContext;
 
 	/**
@@ -401,7 +402,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 			UpgradeContext parent = (UpgradeContext)this.upgradeContext.getParent();
 			if( parent == null )
 				return null;
-			this.upgradeContext = parent;
+			setContext( parent );
 		}
 	}
 
