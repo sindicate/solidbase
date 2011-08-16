@@ -88,7 +88,8 @@ abstract public class CommandProcessor
 	/**
 	 * Pattern for SET VARIABLE.
 	 */
-	static protected final Pattern setVariablePattern = Pattern.compile( "SET\\s+VARIABLE\\s+(\\w+)\\s*=\\s*(SELECT\\s+.*)", Pattern.CASE_INSENSITIVE );
+	// FIXME This should work with whatever SQL statement. How?
+	static protected final Pattern setVariablePattern = Pattern.compile( "SET\\s+VARIABLE\\s+(\\w+)\\s*=\\s*((SELECT|VALUES)\\s+.*)", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * Pattern for IF VARIABLE.
@@ -110,6 +111,11 @@ abstract public class CommandProcessor
 	 */
 	// TODO Newlines should be allowed
 	static protected Pattern runPattern = Pattern.compile( "RUN\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
+
+	/**
+	 * Pattern for &{xxx} or &xxx placeholder.
+	 */
+	static protected Pattern placeHolderPattern = Pattern.compile( "&(([A-Za-z\\$_][A-Za-z0-9\\$_]*)|\\{([A-Za-z\\$_][A-Za-z0-9\\$_]*)\\})" );
 
 	/**
 	 * If true ({@link UpgradeProcessor}), commands get committed automatically, and rolled back when an {@link SQLException} occurs.
@@ -191,8 +197,7 @@ abstract public class CommandProcessor
 			return;
 
 		// TODO Maybe do a two-step when the command is very large (collect all first, replace only if found)
-		Pattern pattern = Pattern.compile( "&(([A-Za-z\\$_][A-Za-z0-9\\$_]*)|\\{([A-Za-z\\$_][A-Za-z0-9\\$_]*)\\})" );
-		Matcher matcher = pattern.matcher( command.getCommand() );
+		Matcher matcher = placeHolderPattern.matcher( command.getCommand() );
 		StringBuffer sb = new StringBuffer();
 		while( matcher.find() )
 		{
