@@ -17,10 +17,12 @@
 package solidbase.core.plugins;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -52,6 +54,7 @@ import solidbase.util.Tokenizer.Token;
 public class ExportCSV implements CommandListener
 {
 	static private final Pattern triggerPattern = Pattern.compile( "EXPORT\\s+CSV\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final char[] HEX = "0123456789ABCDEF".toCharArray();
 
 
 	//@Override
@@ -64,6 +67,8 @@ public class ExportCSV implements CommandListener
 			return false;
 
 		Parsed parsed = parse( command );
+		// Pattern: ", CR, NL or parsed.separator
+		Pattern needQuotesPattern = Pattern.compile( "\"|\r|\n|" + Pattern.quote( Character.toString( parsed.separator ) ) );
 
 		Resource resource = processor.getResource().createRelative( parsed.fileName );
 		Writer out;
@@ -110,8 +115,8 @@ public class ExportCSV implements CommandListener
 							if( first )
 								first = false;
 							else
-								out.write( ',' );
-							out.write( name );
+								out.write( parsed.separator );
+							writeCSVValue( name, needQuotesPattern, out );
 						}
 					}
 
@@ -120,7 +125,6 @@ public class ExportCSV implements CommandListener
 					while( result.next() )
 					{
 						Object coalescedValue = null;
-						int coalescedType = 0;
 						if( parsed.coalesce != null )
 							for( int i = 0; i < count; i++ )
 								if( coalesce[ i ] )
@@ -131,10 +135,7 @@ public class ExportCSV implements CommandListener
 									else
 										coalescedValue = result.getObject( i + 1 );
 									if( coalescedValue != null )
-									{
-										coalescedType = types[ i ];
 										break;
-									}
 								}
 
 						first = true;
@@ -145,13 +146,11 @@ public class ExportCSV implements CommandListener
 								if( first )
 									first = false;
 								else
-									out.write( ',' );
+									out.write( parsed.separator );
 
-								int type = coalescedType;
 								Object value = coalescedValue;
 								if( firstCoalesce != i )
 								{
-									type = types[ i ];
 									// getObject in Oracle gives a oracle.sql.TIMESTAMP which does not implement toString correctly.
 									if( types[ i ] == Types.TIMESTAMP )
 										value = result.getTimestamp( i + 1 );
@@ -160,7 +159,7 @@ public class ExportCSV implements CommandListener
 								}
 
 								if( value != null )
-									if( type == Types.CLOB || type == Types.NCLOB || type == Types.LONGVARCHAR || type == Types.LONGNVARCHAR )
+									if( value instanceof Clob )
 									{
 										Reader in = ( (Clob)value ).getCharacterStream();
 										out.write( '"' );
@@ -170,18 +169,32 @@ public class ExportCSV implements CommandListener
 										out.write( '"' );
 										in.close();
 									}
+									else if( value instanceof Blob )
+									{
+										InputStream in = ( (Blob)value ).getBinaryStream();
+										byte[] buf = new byte[ 4096 ];
+										for( int read = in.read( buf ); read >= 0; read = in.read( buf ) )
+										{
+											for( int j = 0; j < read; j++ )
+											{
+												int b = buf[ j ];
+												out.write( HEX[ ( b >> 4 ) & 15 ] );
+												out.write( HEX[ b & 15 ] );
+											}
+										}
+										in.close();
+									}
+									else if( value instanceof byte[] )
+									{
+										for( int b : (byte[])value )
+										{
+											out.write( HEX[ ( b >> 4 ) & 15 ] );
+											out.write( HEX[ b & 15 ] );
+										}
+									}
 									else
 									{
-										String s = value.toString();
-										boolean needQuotes = Pattern.compile( "[,\"\r\n]" ).matcher( s ).find();
-										if( needQuotes )
-										{
-											s = s.replace( "\"", "\"\"" );
-											out.write( '"' );
-										}
-										out.write( s );
-										if( needQuotes )
-											out.write( '"' );
+										writeCSVValue( value.toString(), needQuotesPattern, out );
 									}
 							}
 						}
@@ -210,6 +223,27 @@ public class ExportCSV implements CommandListener
 	}
 
 
+	private void writeCSVValue( String value, Pattern needQuotesPattern, Writer out ) throws IOException
+	{
+		boolean needQuotes = needQuotesPattern.matcher( value ).find();
+		if( needQuotes )
+		{
+			out.write( '"' );
+			int len = value.length();
+			for( int i = 0; i < len; i++ )
+			{
+				char c = value.charAt( i );
+				if( c == '"' )
+					out.write( c );
+				out.write( c );
+			}
+			out.write( '"' );
+		}
+		else
+			out.write( value );
+	}
+
+
 	/**
 	 * Parses the given command.
 	 *
@@ -225,7 +259,23 @@ public class ExportCSV implements CommandListener
 		tokenizer.get( "EXPORT" );
 		tokenizer.get( "CSV" );
 
-		Token t = tokenizer.get( "COALESCE", "FILE" );
+		Token t = tokenizer.get( "SEPARATED", "COALESCE", "FILE" );
+		if( t.equals( "SEPARATED" ) )
+		{
+			tokenizer.get( "BY" );
+			t = tokenizer.get();
+			if( t.equals( "TAB" ) )
+				result.separator = '\t';
+			else
+			{
+				if( t.length() != 1 )
+					throw new CommandFileException( "Expecting [TAB] or one character, not [" + t + "]", tokenizer.getLineNumber() );
+				result.separator = t.getValue().charAt( 0 );
+			}
+
+			t = tokenizer.get( "COALESCE", "FILE" );
+		}
+
 		if( t.equals( "COALESCE" ) )
 		{
 			result.coalesce = new HashSet< String >();
@@ -274,8 +324,8 @@ public class ExportCSV implements CommandListener
 		/** Skip the header line. */
 		protected boolean skipHeader = false;
 
-//		/** The separator. */
-//		protected char separator = ',';
+		/** The separator. */
+		protected char separator = ',';
 
 		/** The file path to export to */
 		protected String fileName;
