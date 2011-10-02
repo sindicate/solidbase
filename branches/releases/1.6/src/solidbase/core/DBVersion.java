@@ -278,6 +278,16 @@ public class DBVersion
 
 			try
 			{
+				// TODO Make a unit test for this
+				connection.rollback(); // PostgreSQL: if the SELECT above threw an SQLException, the transaction is in an "aborted" state until rollback
+			}
+			catch( SQLException e )
+			{
+				throw new SystemException( e );
+			}
+
+			try
+			{
 				PreparedStatement statement = connection.prepareStatement( "SELECT * FROM " + this.logTableName );
 				try
 				{
