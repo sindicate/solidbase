@@ -275,17 +275,24 @@ public class DBVersion
 
 				Assert.isFalse( this.versionRecordExists, "DBVERSION table has disappeared" );
 			}
-
+		}
+		finally
+		{
+			// PostgreSQL: if the SELECT above threw an SQLException, the transaction is in an 'aborted' state until it ends,
+			// which means that we need to commit here too.
+			// TODO Make a unit test for this
 			try
 			{
-				// TODO Make a unit test for this
-				connection.rollback(); // PostgreSQL: if the SELECT above threw an SQLException, the transaction is in an "aborted" state until rollback
+				connection.commit();
 			}
 			catch( SQLException e )
 			{
 				throw new SystemException( e );
 			}
+		}
 
+		try
+		{
 			try
 			{
 				PreparedStatement statement = connection.prepareStatement( "SELECT * FROM " + this.logTableName );
