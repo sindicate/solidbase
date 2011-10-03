@@ -16,30 +16,30 @@
 
 package solidbase.core;
 
+import java.io.File;
 import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidbase.core.FatalException;
-import solidbase.core.UpgradeFile;
-import solidbase.util.FileResource;
-import solidbase.util.URLRandomAccessLineReader;
+import solidbase.core.PatchFile;
+import solidbase.util.RandomAccessLineReader;
 
 public class MissingBlock
 {
 	@Test
 	public void testBasic() throws IOException
 	{
-		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "testpatch-missingblock.sql" ) );
-		UpgradeFile upgradeFile = new UpgradeFile( ralr );
+		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch-missingblock.sql" ) );
+		PatchFile patchFile = new PatchFile( ralr );
 		try
 		{
-			upgradeFile.scan();
+			patchFile.scan();
 			Assert.fail( "Expected an exception" );
 		}
 		catch( FatalException e )
 		{
-			upgradeFile.close();
+			patchFile.close();
 			Assert.assertTrue( e.getMessage().contains( "not found" ) );
 		}
 	}
@@ -47,16 +47,16 @@ public class MissingBlock
 	@Test
 	public void testMissingInitBlock() throws IOException
 	{
-		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "testpatch-missinginitblock.sql" ) );
-		UpgradeFile upgradeFile = new UpgradeFile( ralr );
+		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch-missinginitblock.sql" ) );
+		PatchFile patchFile = new PatchFile( ralr );
 		try
 		{
-			upgradeFile.scan();
+			patchFile.scan();
 			Assert.fail( "Expected an exception" );
 		}
 		catch( FatalException e )
 		{
-			upgradeFile.close();
+			patchFile.close();
 			Assert.assertTrue( e.getMessage().contains( "not found" ) );
 			Assert.assertFalse( e.getMessage().contains( "null" ) );
 		}

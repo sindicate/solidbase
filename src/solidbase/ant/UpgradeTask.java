@@ -18,15 +18,16 @@ package solidbase.ant;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
-
-import solidbase.core.Factory;
+import solidbase.Version;
+import solidbase.core.Database;
 import solidbase.core.FatalException;
-import solidbase.core.Runner;
+import solidbase.core.PatchProcessor;
+import solidbase.core.Util;
 
 
 /**
  * The Upgrade Ant Task.
- *
+ * 
  * @author René M. de Bloois
  */
 public class UpgradeTask extends DBTask
@@ -48,7 +49,7 @@ public class UpgradeTask extends DBTask
 
 	/**
 	 * Sets the user name to configure.
-	 *
+	 * 
 	 * @param username The user name to configure.
 	 */
 	@Deprecated
@@ -59,7 +60,7 @@ public class UpgradeTask extends DBTask
 
 	/**
 	 * Returns the configured upgrade file.
-	 *
+	 * 
 	 * @return the configured upgrade file.
 	 */
 	public String getUpgradefile()
@@ -69,7 +70,7 @@ public class UpgradeTask extends DBTask
 
 	/**
 	 * Sets the upgrade file to configure.
-	 *
+	 * 
 	 * @param upgradefile The upgrade file to configure.
 	 */
 	public void setUpgradefile( String upgradefile )
@@ -79,7 +80,7 @@ public class UpgradeTask extends DBTask
 
 	/**
 	 * Returns the configured target.
-	 *
+	 * 
 	 * @return The configured target.
 	 */
 	public String getTarget()
@@ -89,7 +90,7 @@ public class UpgradeTask extends DBTask
 
 	/**
 	 * Sets the target to configure.
-	 *
+	 * 
 	 * @param target The target to configure.
 	 */
 	public void setTarget( String target )
@@ -99,7 +100,7 @@ public class UpgradeTask extends DBTask
 
 	/**
 	 * Returns if downgrades are allowed or not.
-	 *
+	 * 
 	 * @return True if downgrades are allowed, false otherwise.
 	 */
 	public boolean isDowngradeallowed()
@@ -109,7 +110,7 @@ public class UpgradeTask extends DBTask
 
 	/**
 	 * Sets if downgrades are allowed or not.
-	 *
+	 * 
 	 * @param downgradeallowed Are downgrades allowed?
 	 */
 	public void setDowngradeallowed( boolean downgradeallowed )
@@ -169,21 +170,36 @@ public class UpgradeTask extends DBTask
 //		out.println( "Dit is een test" );
 
 		Project project = getProject();
+		Progress progress = new Progress( project, this );
 
-		Runner runner = new Runner();
-		runner.setProgressListener( new Progress( project, this ) );
-		runner.setConnectionAttributes( "default", this.driver, this.url, this.username, this.password );
-		for( Connection connection : this.connections )
-			runner.setConnectionAttributes( connection.getName(), connection.getDriver(), connection.getUrl(),
-					connection.getUsername(), connection.getPassword() );
-
-		runner.setUpgradeFile( Factory.getResource( project.getBaseDir(), this.upgradefile ) );
-		runner.setUpgradeTarget( this.upgradeTarget );
-		runner.setDowngradeAllowed( this.downgradeallowed );
+		String info = Version.getInfo();
+		progress.info( info );
+		progress.info( "" );
 
 		try
 		{
-			runner.upgrade();
+			PatchProcessor processor = new PatchProcessor( progress, new Database( "default", this.driver, this.url, this.username, this.password, progress ) );
+
+			for( Connection connection : this.connections )
+				processor.addDatabase(
+						new Database( connection.getName(), connection.getDriver() == null ? this.driver : connection.getDriver(),
+								connection.getUrl() == null ? this.url : connection.getUrl(),
+										connection.getUsername(), connection.getPassword(), progress ) );
+
+			processor.setPatchFile( Util.openPatchFile( project.getBaseDir(), this.upgradefile, progress ) );
+			try
+			{
+				processor.init();
+				progress.info( "Connecting to database..." );
+				progress.info( processor.getVersionStatement() );
+				processor.patch( this.upgradeTarget, this.downgradeallowed ); // TODO Print this target
+				progress.info( "" );
+				progress.info( processor.getVersionStatement() );
+			}
+			finally
+			{
+				processor.end();
+			}
 		}
 		catch( FatalException e )
 		{

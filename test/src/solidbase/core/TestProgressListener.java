@@ -16,8 +16,16 @@
 
 package solidbase.core;
 
+import java.io.File;
+import java.net.URL;
+
+import solidbase.core.Command;
+import solidbase.core.Patch;
+import solidbase.core.PatchFile;
+import solidbase.core.ProgressListener;
+import solidbase.core.SQLExecutionException;
+import solidbase.core.SQLFile;
 import solidbase.util.Assert;
-import solidbase.util.Resource;
 
 public class TestProgressListener extends ProgressListener
 {
@@ -52,19 +60,31 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	protected void openingUpgradeFile( Resource patchFile )
+	protected void openingPatchFile( File patchFile )
 	{
 		System.out.println( "OPENINGPATCHFILE: " + patchFile );
 	}
 
 	@Override
-	protected void openingSQLFile( Resource sqlFile )
+	protected void openingPatchFile( URL patchFile )
+	{
+		System.out.println( "OPENINGPATCHFILE: " + patchFile );
+	}
+
+	@Override
+	protected void openingSQLFile( File sqlFile )
 	{
 		System.out.println( "OPENINGSQLFILE: " + sqlFile );
 	}
 
 	@Override
-	protected void openedUpgradeFile( UpgradeFile upgradeFile )
+	public void openingSQLFile( URL sqlFile )
+	{
+		System.out.println( "OPENINGSQLFILE: " + sqlFile );
+	}
+
+	@Override
+	protected void openedPatchFile( PatchFile patchFile )
 	{
 		System.out.println( "OPENEDPATCHFILE." );
 	}
@@ -82,9 +102,9 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	protected void executing( Command command )
+	protected void executing( Command command, String message )
 	{
-		System.out.println( "EXECUTING..." );
+		System.out.println( "EXECUTING: " + message );
 	}
 
 	@Override
@@ -94,15 +114,15 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	protected void upgradeFinished()
+	protected void patchFinished()
 	{
 		System.out.println( "PATCHFINISHED." );
 	}
 
 	@Override
-	protected void upgradeStarting( UpgradeSegment segment )
+	protected void patchStarting( Patch patch )
 	{
-		System.out.println( "PATCHSTARTING: " + segment.getSource() + " - " + segment.getTarget() );
+		System.out.println( "PATCHSTARTING: " + patch.getSource() + " - " + patch.getTarget() );
 	}
 
 	@Override

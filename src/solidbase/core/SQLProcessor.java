@@ -16,30 +16,30 @@
 
 package solidbase.core;
 
+import java.net.URL;
 import java.sql.SQLException;
 
 import solidbase.util.LineReader;
-import solidbase.util.Resource;
 
 
 /**
  * This class is the coordinator. It reads commands from the {@link SQLFile}. It calls the {@link CommandListener}s,
  * calls the {@link Database} to execute statements through JDBC, and shows progress to the user by calling
  * {@link ProgressListener}.
- *
+ * 
  * @author René M. de Bloois
  * @since May 2010
  */
 public class SQLProcessor extends CommandProcessor
 {
 	/**
-	 * The SQL execution context.
+	 * The command reader.
 	 */
-	protected SQLContext sqlContext;
+	protected SQLSource sqlSource;
 
 	/**
 	 * Construct a new instance of the sql executer.
-	 *
+	 * 
 	 * @param listener Listens to the progress.
 	 */
 	public SQLProcessor( ProgressListener listener )
@@ -48,34 +48,43 @@ public class SQLProcessor extends CommandProcessor
 	}
 
 	/**
-	 * Sets the SQL execution context.
-	 *
-	 * @param context The SQL execution context.
+	 * Construct a new instance of the sql executer.
+	 * 
+	 * @param listener Listens to the progress.
+	 * @param database The default database.
 	 */
-	public void setContext( SQLContext context )
+	public SQLProcessor( ProgressListener listener, Database database )
 	{
-		this.context = context;
-		this.sqlContext = context;
+		super( listener, database );
+	}
+
+	/**
+	 * Sets the source for the SQL.
+	 * 
+	 * @param source the source for the SQL.
+	 */
+	public void setSQLSource( SQLSource source )
+	{
+		this.sqlSource = source;
 	}
 
 	/**
 	 * Execute the SQL file.
-	 *
+	 * 
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
 	public void process() throws SQLExecutionException
 	{
-		this.context.setCurrentDatabase( getDefaultDatabase() );
-		this.context.getCurrentDatabase().resetUser();
+		reset(); // TODO This is not unit-tested yet.
 
-		Command command = this.sqlContext.getSource().readCommand();
+		Command command = this.sqlSource.readCommand();
 		while( command != null )
 		{
-			if( this.context.skipping() && command.isPersistent() )
-				this.progress.skipped( command );
+			if( command.isTransient() || this.skipCounter == 0 )
+				executeWithListeners( command );
 			else
-				executeWithListeners( command ); // TODO What if exception is ignored, how do we call progress then?
-			command = this.sqlContext.getSource().readCommand();
+				this.progress.skipped( command );
+			command = this.sqlSource.readCommand();
 		}
 	}
 
@@ -88,27 +97,26 @@ public class SQLProcessor extends CommandProcessor
 	@Override
 	public void end()
 	{
-		for( Database database : this.context.getDatabases() )
-			database.closeConnections();
-		this.sqlContext.getSource().close();
-		this.progress.sqlExecutionComplete(); // TODO Why is this different from UpgradeProcessor.end()?
+		super.end();
+		this.sqlSource.close();
+		this.progress.sqlExecutionComplete();
 	}
 
 	@Override
 	protected void setDelimiters( Delimiter[] delimiters )
 	{
-		this.sqlContext.getSource().setDelimiters( delimiters );
+		this.sqlSource.setDelimiters( delimiters );
 	}
 
 	@Override
 	public LineReader getReader()
 	{
-		return this.sqlContext.getSource().reader;
+		return this.sqlSource.reader;
 	}
 
 	@Override
-	public Resource getResource()
+	public URL getURL()
 	{
-		return this.sqlContext.getSource().getResource();
+		return this.sqlSource.getURL();
 	}
 }

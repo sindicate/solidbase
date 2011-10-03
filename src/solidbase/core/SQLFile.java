@@ -16,15 +16,16 @@
 
 package solidbase.core;
 
+import java.io.BufferedInputStream;
+import java.net.URL;
 import java.util.regex.Pattern;
 
 import solidbase.util.BOMDetectingLineReader;
-import solidbase.util.Resource;
 
 
 /**
  * This class manages an SQL file's contents. It detects the encoding and reads commands from it.
- *
+ * 
  * @author René M. de Bloois
  * @since Apr 2010
  */
@@ -40,12 +41,13 @@ public class SQLFile
 
 	/**
 	 * Creates an new instance of an SQL file.
-	 *
-	 * @param resource The resource containing this SQL file.
+	 * 
+	 * @param in The input stream for the file.
+	 * @param url The url of the file.
 	 */
-	protected SQLFile( Resource resource )
+	protected SQLFile( BufferedInputStream in, URL url )
 	{
-		this.reader = new BOMDetectingLineReader( resource, ENCODING_PATTERN );
+		this.reader = new BOMDetectingLineReader( in, ENCODING_PATTERN, url );
 	}
 
 	/**
@@ -61,9 +63,9 @@ public class SQLFile
 	}
 
 	/**
-	 * Gets the encoding of the SQL file.
-	 *
-	 * @return The encoding of the SQL file.
+	 * Gets the encoding of the patch file.
+	 * 
+	 * @return The encoding of the patch file.
 	 */
 	public String getEncoding()
 	{
@@ -72,7 +74,7 @@ public class SQLFile
 
 	/**
 	 * Returns a source for the SQL.
-	 *
+	 * 
 	 * @return A source for the SQL.
 	 */
 	public SQLSource getSource()

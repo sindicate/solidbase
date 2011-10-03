@@ -20,6 +20,8 @@ import java.sql.SQLException;
 
 import org.testng.annotations.Test;
 
+import solidbase.core.SQLProcessor;
+
 public class Sql
 {
 	@Test
@@ -45,15 +47,5 @@ public class Sql
 		processor.end();
 
 		TestUtil.assertRecordCount( processor.getCurrentDatabase(), "USERS", 13 );
-	}
-
-	@Test
-	public void testParameter1() throws SQLException
-	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		SQLProcessor processor = Setup.setupSQLProcessor( "testsql-parameter1.sql" );
-
-		processor.process();
-		processor.end();
 	}
 }

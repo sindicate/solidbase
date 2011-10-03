@@ -16,8 +16,10 @@
 
 package solidbase.core;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.LinkedHashSet;
@@ -31,33 +33,32 @@ import org.apache.commons.lang.StringUtils;
 
 import solidbase.util.Assert;
 import solidbase.util.LineReader;
-import solidbase.util.Resource;
 import solidbase.util.ShutdownHook;
 import solidbase.util.WorkerThread;
 
 
 /**
- * This class is the coordinator. It requests an upgrade path from the {@link UpgradeFile}, and reads commands from it. It
+ * This class is the coordinator. It requests an upgrade path from the {@link PatchFile}, and reads commands from it. It
  * calls the {@link CommandListener}s, updates the DBVERSION and DBVERSIONLOG tables through {@link DBVersion}, calls
  * the {@link Database} to execute statements through JDBC, and shows progress to the user by calling
  * {@link ProgressListener}.
- *
+ * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
-public class UpgradeProcessor extends CommandProcessor implements ConnectionListener
+public class PatchProcessor extends CommandProcessor implements ConnectionListener
 {
 	// Don't need whitespace at the end of the Patterns
 
 	/**
 	 * Pattern for TRANSIENT.
 	 */
-	static protected Pattern transientPattern = Pattern.compile( "TRANSIENT", Pattern.CASE_INSENSITIVE );
+	static protected Pattern transientPattern = Pattern.compile( "SESSIONCONFIG|TRANSIENT", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * Pattern for /TRANSIENT.
 	 */
-	static protected Pattern transientPatternEnd = Pattern.compile( "/TRANSIENT", Pattern.CASE_INSENSITIVE );
+	static protected Pattern transientPatternEnd = Pattern.compile( "/(SESSIONCONFIG|TRANSIENT)", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * Pattern for IF HISTORY [NOT] CONTAINS.
@@ -65,22 +66,26 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	static protected Pattern ifHistoryContainsPattern = Pattern.compile( "IF\\s+HISTORY\\s+(NOT\\s+)?CONTAINS\\s+\"([^\"]*)\"", Pattern.CASE_INSENSITIVE );
 
 	/**
-	 * Pattern for INCLUDE.
+	 * Pattern for /IF.
 	 */
-	// TODO Newlines should be allowed
-	static protected Pattern includePattern = Pattern.compile( "INCLUDE\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
+	static protected Pattern ifHistoryContainsEnd = Pattern.compile( "/IF", Pattern.CASE_INSENSITIVE );
 
 	// The fields below are all part of the upgrade context. It's reset at the start of each change package.
 
 	/**
-	 * All configured databases. This is used when the upgrade file selects a different database by name.
+	 * Indicates that the statements are transient and should not be counted.
 	 */
-	protected DatabaseContext databases;
+	protected boolean dontCount;
 
 	/**
 	 * The upgrade file being executed.
 	 */
-	protected UpgradeFile upgradeFile;
+	protected PatchFile patchFile;
+
+	/**
+	 * The current source of a patch.
+	 */
+	protected PatchSource patchSource;
 
 	/**
 	 * The class that manages the DBVERSION and DBVERSIONLOG table.
@@ -88,89 +93,78 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	protected DBVersion dbVersion;
 
 	/**
-	 * The upgrade segment that is currently processed.
+	 * The patch that is currently processed.
 	 */
-	protected UpgradeSegment segment;
+	protected Patch patch;
 
 	/**
-	 * The upgrade execution context.
-	 */
-	// TODO This is redundant and risky. Also in SQLProcessor.
-	protected UpgradeContext upgradeContext;
-
-	/**
-	 * Constructor.
-	 *
+	 * Construct a new instance of the patcher.
+	 * 
 	 * @param listener Listens to the progress.
 	 */
-	public UpgradeProcessor( ProgressListener listener )
+	public PatchProcessor( ProgressListener listener )
 	{
 		super( listener );
 		this.autoCommit = true;
 	}
 
 	/**
-	 * Sets all configured databases.
-	 *
-	 * @param databases All configured databases.
+	 * Construct a new instance of the patcher.
+	 * 
+	 * @param listener Listens to the progress.
+	 * @param database The default database.
 	 */
-	public void setDatabases( DatabaseContext databases )
+	public PatchProcessor( ProgressListener listener, Database database )
 	{
-		this.databases = databases;
+		super( listener, database );
+	}
+
+	@Override
+	public void addDatabase( Database database )
+	{
+		super.addDatabase( database );
+		database.setConnectionListener( this );
 	}
 
 	/**
-	 * Sets the upgrade execution context.
-	 *
-	 * @param context The upgrade execution context.
+	 * Sets the patch file.
+	 * 
+	 * @param patchFile The patch file to set.
 	 */
-	public void setContext( UpgradeContext context )
+	public void setPatchFile( PatchFile patchFile )
 	{
-		this.context = context;
-		this.upgradeContext = context;
+		this.patchFile = patchFile;
 	}
 
 	/**
-	 * Sets the upgrade file.
-	 *
-	 * @param file The upgrade file to set.
-	 */
-	public void setUpgradeFile( UpgradeFile file )
-	{
-		this.upgradeFile = file;
-	}
-
-	/**
-	 * Initialize.
+	 * Initialize the patcher.
 	 */
 	// TODO Remove this init, should be in the constructor
 	public void init()
 	{
-		this.dbVersion = new DBVersion( getDefaultDatabase(), this.progress, this.upgradeFile.versionTableName, this.upgradeFile.logTableName );
+		this.dbVersion = new DBVersion( getDefaultDatabase(), this.progress, this.patchFile.versionTableName, this.patchFile.logTableName );
 	}
 
 	/**
-	 * Returns the default database.
-	 *
-	 * @return The default database.
+	 * Resets the upgrade context. This is called before the execution of each changeset.
 	 */
 	@Override
-	public Database getDefaultDatabase()
+	protected void reset()
 	{
-		return this.databases.getDatabase( "default" );
+		super.reset();
+		this.dontCount = false;
 	}
 
 	@Override
 	public void end()
 	{
-		for( Database database : this.databases.getDatabases() )
-			database.closeConnections();
-		this.upgradeFile.close();
+		super.end();
+		this.patchFile.close();
 	}
 
 	/**
 	 * Get the current version of the database.
-	 *
+	 * 
 	 * @return The current version of the database.
 	 */
 	public String getCurrentVersion()
@@ -181,7 +175,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 
 	/**
 	 * Get the current target.
-	 *
+	 * 
 	 * @return The current target.
 	 */
 	public String getCurrentTarget()
@@ -191,7 +185,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 
 	/**
 	 * Get the number of persistent statements executed successfully.
-	 *
+	 * 
 	 * @return The number of persistent statements executed successfully.
 	 */
 	public int getCurrentStatements()
@@ -201,7 +195,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 
 	/**
 	 * Returns all possible targets from the current version. The current version is also considered.
-	 *
+	 * 
 	 * @param tips If true only the tips of the upgrade paths are returned.
 	 * @param prefix Only return targets that start with the given prefix.
 	 * @param downgradeable Also consider downgrade paths.
@@ -210,30 +204,30 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	public LinkedHashSet< String > getTargets( boolean tips, String prefix, boolean downgradeable )
 	{
 		LinkedHashSet< String > result = new LinkedHashSet< String >();
-		this.upgradeFile.collectTargets( this.dbVersion.getVersion(), this.dbVersion.getTarget(), tips, downgradeable, prefix, result );
+		this.patchFile.collectTargets( this.dbVersion.getVersion(), this.dbVersion.getTarget(), tips, downgradeable, prefix, result );
 		return result;
 	}
 
 	/**
 	 * Use the 'setup' change sets to upgrade the DBVERSION and DBVERSIONLOG tables to the newest specification.
-	 *
+	 * 
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
 	public void setupControlTables() throws SQLExecutionException
 	{
 		String spec = this.dbVersion.getSpec();
 
-		List< UpgradeSegment > segments = this.upgradeFile.getSetupPath( spec );
-		if( segments == null )
+		List< Patch > patches = this.patchFile.getSetupPath( spec );
+		if( patches == null )
 			return;
 
-		Assert.notEmpty( segments );
+		Assert.notEmpty( patches );
 
 		// SETUP blocks get special treatment.
-		for( UpgradeSegment segment : segments )
+		for( Patch patch : patches )
 		{
-			process( segment );
-			this.dbVersion.updateSpec( segment.getTarget() );
+			process( patch );
+			this.dbVersion.updateSpec( patch.getTarget() );
 			if( Thread.currentThread().isInterrupted() )
 				throw new ThreadDeath();
 			// TODO How do we get a more dramatic error message here, if something goes wrong?
@@ -241,32 +235,32 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	}
 
 	/**
-	 * Upgrade to the given target.
-	 *
-	 * @param target The target to upgrade to.
+	 * Patch to the given target.
+	 * 
+	 * @param target The target to patch to.
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	public void upgrade( String target ) throws SQLExecutionException
+	public void patch( String target ) throws SQLExecutionException
 	{
-		upgrade( target, false );
+		patch( target, false );
 	}
 
 	/**
-	 * Perform upgrade to the given target version. The target version can end with an '*', indicating whatever tip version that
+	 * Patches to the given target version. The target version can end with an '*', indicating whatever tip version that
 	 * matches the target prefix. This method protects itself against SIGTERMs (CTRL-C).
-	 *
+	 * 
 	 * @param target The target requested.
 	 * @param downgradeable Indicates that downgrade paths are allowed to reach the given target.
 	 * @throws SQLExecutionException When the execution of a command throws an {@link SQLException}.
 	 */
-	public void upgrade( final String target, final boolean downgradeable ) throws SQLExecutionException
+	public void patch( final String target, final boolean downgradeable ) throws SQLExecutionException
 	{
 		WorkerThread worker = new WorkerThread()
 		{
 			@Override
 			public void work()
 			{
-				upgradeProtected( target, downgradeable );
+				patchProtected( target, downgradeable );
 			}
 		};
 
@@ -300,14 +294,14 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	}
 
 	/**
-	 * Perform upgrade to the given target version. The target version can end with an '*', indicating whatever tip version that
+	 * Patches to the given target version. The target version can end with an '*', indicating whatever tip version that
 	 * matches the target prefix.
-	 *
+	 * 
 	 * @param target The target requested.
 	 * @param downgradeable Indicates that downgrade paths are allowed to reach the given target.
 	 * @throws SQLExecutionException When the execution of a command throws an {@link SQLException}.
 	 */
-	protected void upgradeProtected( String target, boolean downgradeable ) throws SQLExecutionException
+	protected void patchProtected( String target, boolean downgradeable ) throws SQLExecutionException
 	{
 		setupControlTables();
 
@@ -357,7 +351,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 			return;
 		}
 
-		upgrade( version, target, downgradeable );
+		patch( version, target, downgradeable );
 
 		this.progress.upgradeComplete();
 		return;
@@ -365,101 +359,89 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 
 	/**
 	 * Upgrade the database from the given version to the given target.
-	 *
+	 * 
 	 * @param version The current version of the database.
 	 * @param target The target to upgrade to.
 	 * @param downgradeable Allow downgrades to reach the target
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	protected void upgrade( String version, String target, boolean downgradeable ) throws SQLExecutionException
+	protected void patch( String version, String target, boolean downgradeable ) throws SQLExecutionException
 	{
 		if( target.equals( version ) )
 			return;
 
-		Path path = this.upgradeFile.getUpgradePath( version, target, downgradeable );
+		Path path = this.patchFile.getPatchPath( version, target, downgradeable );
 		Assert.isTrue( path.size() > 0, "No upgrades found" );
 
-		for( UpgradeSegment segment : path )
+		for( Patch patch : path )
 		{
-			process( segment );
+			process( patch );
 			if( Thread.currentThread().isInterrupted() )
 				throw new ThreadDeath();
 		}
 	}
 
 	/**
-	 * Reads a command from the upgrade source.
-	 *
-	 * @return The command read.
-	 */
-	protected Command readCommand()
-	{
-		while( true )
-		{
-			Command command = this.upgradeContext.getSource().readCommand();
-			if( command != null )
-				return command;
-			UpgradeContext parent = (UpgradeContext)this.upgradeContext.getParent();
-			if( parent == null )
-				return null;
-			setContext( parent );
-		}
-	}
-
-	/**
-	 * Execute a upgrade segment.
-	 *
-	 * @param segment The segment to be executed.
+	 * Execute a patch.
+	 * 
+	 * @param patch The patch to be executed.
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	protected void process( UpgradeSegment segment ) throws SQLExecutionException
+	protected void process( Patch patch ) throws SQLExecutionException
 	{
-		Assert.notNull( segment );
+		Assert.notNull( patch );
 
-		this.progress.reset();
-		this.progress.upgradeStarting( segment );
-
-		UpgradeContext context = new UpgradeContext( this.upgradeFile.gotoSegment( segment ) );
-		context.setDatabases( this.databases );
-		setContext( context );
-		this.context.setCurrentDatabase( getDefaultDatabase() );
-		this.context.getCurrentDatabase().resetUser();
+		this.progress.patchStarting( patch );
 
 		// Determine how many to skip
+		this.patchSource = this.patchFile.gotoPatch( patch );
 		int skip = this.dbVersion.getStatements();
 		if( this.dbVersion.getTarget() == null )
 			skip = 0;
 
+		reset();
+
+//		if( !patch.isSetup() )
+//		{
+//			Fragment initialization = this.patchFile.initialization;
+//			if( initialization != null )
+//			{
+//				SQLProcessor processor = new SQLProcessor( this.progress );
+//				for( Database database : this.databases.values() )
+//					processor.addDatabase( database );
+//				processor.setSQLSource( new SQLSource( initialization ) );
+//				processor.reset();
+//				processor.execute();
+//			}
+//		}
 
 		int count = 0;
-		this.segment = segment;
+		this.patch = patch;
 		try
 		{
-			Command command = readCommand();
+			Command command = this.patchSource.readCommand();
 			while( command != null )
 			{
-				if( command.isPersistent() && !this.upgradeContext.isDontCount() && !segment.isSetup() )
+				if( command.isPersistent() && !this.dontCount && !patch.isSetup() )
 				{
 					count++;
-					if( count > skip && !this.context.skipping() )
+					if( count > skip && this.skipCounter == 0 )
 					{
 						try
 						{
-							SQLExecutionException result = executeWithListeners( command );
-							// We have to update the progress even if the logging fails. Otherwise the segment cannot be
-							// restarted. That's why the progress update is first. But some logging will be lost in that case.
-							this.dbVersion.updateProgress( segment.getTarget(), count );
-							if( result != null )
-								this.dbVersion.logSQLException( segment.getSource(), segment.getTarget(), count, command.getCommand(), result );
-							else
-								this.dbVersion.log( "S", segment.getSource(), segment.getTarget(), count, command.getCommand(), (String)null );
+							executeWithListeners( command );
 						}
 						catch( SQLExecutionException e )
 						{
-							// TODO We need a unit test for this, and the above
-							this.dbVersion.logSQLException( segment.getSource(), segment.getTarget(), count, command.getCommand(), e );
+							// TODO Should we also log the exception when it is ignored?
+							// TODO We need a unit test for this
+							this.dbVersion.logSQLException( patch.getSource(), patch.getTarget(), count, command.getCommand(), e );
 							throw e;
 						}
+						// We have to update the progress even if the logging fails. Otherwise the patch cannot be
+						// restarted. That's why the progress update is first. But some logging will be lost in that case.
+						this.dbVersion.updateProgress( patch.getTarget(), count );
+						this.dbVersion.log( "S", patch.getSource(), patch.getTarget(), count, command.getCommand(), (String)null );
 					}
 					else
 						this.progress.skipped( command );
@@ -467,39 +449,39 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 				else
 					executeWithListeners( command );
 
-				if( !segment.isSetup() )
+				if( !patch.isSetup() )
 					if( Thread.currentThread().isInterrupted() )
 						throw new ThreadDeath();
 
-				command = readCommand();
+				command = this.patchSource.readCommand();
 			}
 
-			this.progress.upgradeFinished();
+			this.progress.patchFinished();
 
-			this.dbVersion.setStale(); // TODO With a normal segment, only set stale if not both of the 2 version tables are found
-			if( segment.isSetup() )
+			this.dbVersion.setStale(); // TODO With a normal patch, only set stale if not both of the 2 version tables are found
+			if( patch.isSetup() )
 			{
-				this.dbVersion.updateSpec( segment.getTarget() );
-				Assert.isFalse( segment.isOpen() );
+				this.dbVersion.updateSpec( patch.getTarget() );
+				Assert.isFalse( patch.isOpen() );
 			}
 			else
 			{
-				if( segment.isDowngrade() )
+				if( patch.isDowngrade() )
 				{
-					Set< String > versions = this.upgradeFile.getReachableVersions( segment.getTarget(), null, false );
-					versions.remove( segment.getTarget() );
+					Set< String > versions = this.patchFile.getReachableVersions( patch.getTarget(), null, false );
+					versions.remove( patch.getTarget() );
 					this.dbVersion.downgradeHistory( versions );
 				}
-				if( !segment.isOpen() )
+				if( !patch.isOpen() )
 				{
-					this.dbVersion.updateVersion( segment.getTarget() );
-					this.dbVersion.logComplete( segment.getSource(), segment.getTarget(), count );
+					this.dbVersion.updateVersion( patch.getTarget() );
+					this.dbVersion.logComplete( patch.getSource(), patch.getTarget(), count );
 				}
 			}
 		}
 		finally
 		{
-			this.segment = null;
+			this.patch = null;
 		}
 	}
 
@@ -525,9 +507,9 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 				ifHistoryContains( matcher.group( 1 ), matcher.group( 2 ) );
 				return true;
 			}
-			if( ( matcher = includePattern.matcher( sql ) ).matches() )
+			if( ifHistoryContainsEnd.matcher( sql ).matches() )
 			{
-				include( matcher.group( 1 ) );
+				endSkip();
 				return true;
 			}
 		}
@@ -539,16 +521,15 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	protected void executeJdbc( Command command ) throws SQLException
 	{
 		if( command.getCommand().trim().equalsIgnoreCase( "UPGRADE" ) )
-			upgradeControlTables( command );
+			upgrade( command );
 		else
 			super.executeJdbc( command );
 	}
 
-	private void upgradeControlTables( Command command ) throws SQLException
+	private void upgrade( Command command ) throws SQLException
 	{
-		// TODO Can we put the segment in the command? Don't like this field.
-		Assert.isTrue( this.segment.isSetup(), "UPGRADE only allowed in SETUP blocks" );
-		Assert.isTrue( this.segment.getSource().equals( "1.0" ) && this.segment.getTarget().equals( "1.1" ), "UPGRADE only possible from spec 1.0 to 1.1" );
+		Assert.isTrue( this.patch.isSetup(), "UPGRADE only allowed in SETUP blocks" );
+		Assert.isTrue( this.patch.getSource().equals( "1.0" ) && this.patch.getTarget().equals( "1.1" ), "UPGRADE only possible from spec 1.0 to 1.1" );
 
 		int pos = command.getLineNumber();
 		executeJdbc( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'S' WHERE RESULT IS NULL OR RESULT NOT LIKE 'COMPLETED VERSION %'", false, pos ) );
@@ -561,8 +542,8 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	 */
 	protected void enableDontCount()
 	{
-		Assert.isFalse( this.upgradeContext.isDontCount(), "Counting already enabled" );
-		this.upgradeContext.setDontCount( true );
+		Assert.isFalse( this.dontCount, "Counting already enabled" );
+		this.dontCount = true;
 	}
 
 	/**
@@ -570,13 +551,13 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	 */
 	protected void disableDontCount()
 	{
-		Assert.isTrue( this.upgradeContext.isDontCount(), "Counting already disabled" );
-		this.upgradeContext.setDontCount( false );
+		Assert.isTrue( this.dontCount, "Counting already disabled" );
+		this.dontCount = false;
 	}
 
 	/**
 	 * If history does not contain the given version then start skipping the persistent commands. If <code>not</code> is true then this logic is reversed.
-	 *
+	 * 
 	 * @param not True causes reversed logic.
 	 * @param version The version to look for in the history.
 	 */
@@ -585,29 +566,18 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 		boolean c = this.dbVersion.logContains( version );
 		if( not != null )
 			c = !c;
-		this.context.skip( !c );
-	}
-
-	/**
-	 * Include a file for upgrade.
-	 *
-	 * @param url The URL of the file.
-	 */
-	protected void include( String url )
-	{
-		SQLFile file = Factory.openSQLFile( getResource().createRelative( url ), this.progress );
-		setContext( new UpgradeContext( this.upgradeContext, file.getSource() ) );
+		skip( !c );
 	}
 
 	@Override
 	protected void setDelimiters( Delimiter[] delimiters )
 	{
-		this.upgradeContext.getSource().setDelimiters( delimiters );
+		this.patchSource.setDelimiters( delimiters );
 	}
 
 	/**
 	 * Write the history to the given output stream.
-	 *
+	 * 
 	 * @param out The output stream to write to.
 	 */
 	public void logToXML( OutputStream out )
@@ -616,22 +586,27 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	}
 
 	/**
-	 * Write the log to the given resource.
-	 *
-	 * @param output The resource to write the log to.
+	 * Write the history to the given file name.
+	 * 
+	 * @param filename The file name to write to.
 	 */
-	public void logToXML( Resource output )
+	public void logToXML( String filename )
 	{
-		OutputStream out = output.getOutputStream();
-		try
-		{
-			logToXML( out );
-		}
-		finally
+		if( filename.equals( "-" ) )
+			logToXML( System.out );
+		else
 		{
 			try
 			{
-				out.close();
+				OutputStream out = new FileOutputStream( filename );
+				try
+				{
+					logToXML( out );
+				}
+				finally
+				{
+					out.close();
+				}
 			}
 			catch( IOException e )
 			{
@@ -642,7 +617,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 
 	/**
 	 * Returns a statement of the current version of the database in a user presentable form.
-	 *
+	 * 
 	 * @return A statement of the current version of the database in a user presentable form.
 	 */
 	public String getVersionStatement()
@@ -666,12 +641,12 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	@Override
 	public LineReader getReader()
 	{
-		return this.upgradeFile.file;
+		return this.patchFile.file;
 	}
 
 	@Override
-	public Resource getResource()
+	public URL getURL()
 	{
-		return this.upgradeFile.file.getResource();
+		return this.patchFile.file.getURL();
 	}
 }

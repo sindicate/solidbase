@@ -16,6 +16,10 @@
 
 package solidbase.core.plugins;
 
+import java.io.BufferedInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -29,11 +33,11 @@ import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.SQLExecutionException;
+import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidbase.util.BOMDetectingLineReader;
 import solidbase.util.CSVReader;
 import solidbase.util.LineReader;
-import solidbase.util.Resource;
 import solidbase.util.StringLineReader;
 import solidbase.util.Tokenizer;
 import solidbase.util.Tokenizer.Token;
@@ -48,7 +52,7 @@ import solidbase.util.Tokenizer.Token;
  * "xxxx2","yyyy2","zzzz2"
  * GO
  * </pre></blockquote>
- *
+ * 
  * @author René M. de Bloois
  * @since Dec 2, 2009
  */
@@ -78,9 +82,19 @@ public class ImportCSV implements CommandListener
 		else if( parsed.fileName != null )
 		{
 			// Data is in a file
-			Resource resource = processor.getResource().createRelative( parsed.fileName );
-			lineReader = new BOMDetectingLineReader( resource, parsed.encoding );
-			// TODO What about the FileNotFoundException?
+			try
+			{
+				URL url = new URL( processor.getURL(), parsed.fileName );
+				lineReader = new BOMDetectingLineReader( new BufferedInputStream( url.openStream() ), parsed.encoding, url );
+			}
+			catch( FileNotFoundException e )
+			{
+				throw new CommandFileException( "java.io.FileNotFoundException: " + e.getMessage(), command.getLineNumber() );
+			}
+			catch( IOException e )
+			{
+				throw new SystemException( e );
+			}
 		}
 		else
 			lineReader = processor.getReader(); // Data is in the source file
@@ -110,7 +124,6 @@ public class ImportCSV implements CommandListener
 		}
 		finally
 		{
-			// TODO Only commit if upgrading
 			if( commit )
 				connection.commit();
 			else
@@ -123,11 +136,11 @@ public class ImportCSV implements CommandListener
 
 	/**
 	 * Import data using a JDBC prepared statement, like this:
-	 *
+	 * 
 	 * <blockquote><pre>
 	 * INSERT INTO TABLE1 VALUES ( ?, ? );
 	 * </pre></blockquote>
-	 *
+	 * 
 	 * @param command The import command.
 	 * @param connection The connection with the database.
 	 * @param reader The CSV reader.
@@ -260,7 +273,7 @@ public class ImportCSV implements CommandListener
 
 	/**
 	 * Replaces arguments within the given value with ? and maintains a map.
-	 *
+	 * 
 	 * @param value Value to be translated.
 	 * @param parameterMap A map of ? index to index of the CSV fields.
 	 * @return The translated value.
@@ -282,7 +295,7 @@ public class ImportCSV implements CommandListener
 
 	/**
 	 * Replaces empty strings with null.
-	 *
+	 * 
 	 * @param line The line to preprocess.
 	 */
 	static protected void preprocess( String[] line )
@@ -295,7 +308,7 @@ public class ImportCSV implements CommandListener
 
 	/**
 	 * Parses the given command.
-	 *
+	 * 
 	 * @param command The command to be parsed.
 	 * @return A structure representing the parsed command.
 	 */
@@ -424,14 +437,14 @@ public class ImportCSV implements CommandListener
 		t = tokenizer.get();
 		String file = t.getValue();
 		if( !file.startsWith( "\"" ) )
-			throw new CommandFileException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLineNumber() );
+			throw new CommandFileException( "Expecting filename enclosed with double quotes, not [" + t + "]", tokenizer.getLineNumber() );
 		file = file.substring( 1, file.length() - 1 );
 
 		t = tokenizer.get( "ENCODING" );
 		t = tokenizer.get();
 		String encoding = t.getValue();
 		if( !encoding.startsWith( "\"" ) )
-			throw new CommandFileException( "Expecting encoding enclosed in double quotes, not [" + t + "]", tokenizer.getLineNumber() );
+			throw new CommandFileException( "Expecting encoding enclosed with double quotes, not [" + t + "]", tokenizer.getLineNumber() );
 		encoding = encoding.substring( 1, encoding.length() - 1 );
 
 		tokenizer.get( (String)null );
@@ -444,7 +457,7 @@ public class ImportCSV implements CommandListener
 
 	/**
 	 * Parse till the specified characters are found.
-	 *
+	 * 
 	 * @param tokenizer The tokenizer.
 	 * @param result The result is stored in this StringBuilder.
 	 * @param chars The end characters.
@@ -496,7 +509,7 @@ public class ImportCSV implements CommandListener
 
 	/**
 	 * A parsed command.
-	 *
+	 * 
 	 * @author René M. de Bloois
 	 */
 	static protected class Parsed

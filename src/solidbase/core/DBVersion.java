@@ -122,7 +122,7 @@ public class DBVersion
 	/**
 	 * An instance of this class needs to now in which database the version tables can be found. The default
 	 * connection of this database determines the schema where those tables reside.
-	 *
+	 * 
 	 * @param database The database that contains the version tables, with its default connection determining the schema.
 	 * @param callBack To receive debug messages.
 	 * @param versionTableName Name of the version control table.
@@ -190,7 +190,7 @@ public class DBVersion
 
 	/**
 	 * Returns the specification version of the version tables.
-	 *
+	 * 
 	 * @return The specification version of the version tables.
 	 */
 	protected String getSpec()
@@ -202,7 +202,7 @@ public class DBVersion
 
 	/**
 	 * Sets the specification version of the version tables.
-	 *
+	 * 
 	 * @param spec The specification version of the version tables.
 	 */
 	protected void setSpec( String spec )
@@ -221,13 +221,14 @@ public class DBVersion
 	 */
 	protected void init()
 	{
+		Assert.notNull( this.database.getDefaultUser(), "Default user is not set" );
 		Assert.isTrue( this.stale );
 
 		this.version = null;
 		this.target = null;
 		this.statements = 0;
 
-		Connection connection = this.database.getDefaultConnection();
+		Connection connection = this.database.getConnection();
 		try
 		{
 			try
@@ -274,7 +275,24 @@ public class DBVersion
 
 				Assert.isFalse( this.versionRecordExists, "DBVERSION table has disappeared" );
 			}
+		}
+		finally
+		{
+			// PostgreSQL: if the SELECT above threw an SQLException, the transaction is in an 'aborted' state until it ends,
+			// which means that we need to commit here too.
+			// TODO Make a unit test for this
+			try
+			{
+				connection.commit();
+			}
+			catch( SQLException e )
+			{
+				throw new SystemException( e );
+			}
+		}
 
+		try
+		{
 			try
 			{
 				PreparedStatement statement = connection.prepareStatement( "SELECT * FROM " + this.logTableName );
@@ -364,7 +382,7 @@ public class DBVersion
 
 	/**
 	 * Sets the current spec.
-	 *
+	 * 
 	 * @param spec The spec.
 	 */
 	protected void updateSpec( String spec )
@@ -397,7 +415,7 @@ public class DBVersion
 
 	/**
 	 * Adds a log record to the version log table.
-	 *
+	 * 
 	 * @param type The type of the log entry.
 	 * @param source The source version.
 	 * @param target The target version.
@@ -456,7 +474,7 @@ public class DBVersion
 	 * @param target The target version.
 	 * @param count The statement count.
 	 * @param command The executed statement.
-	 * @param e The SQL exception.
+	 * @param e The sql exception.
 	 */
 	protected void logSQLException( String source, String target, int count, String command, SQLExecutionException e )
 	{
@@ -467,7 +485,7 @@ public class DBVersion
 
 	/**
 	 * Log a complete block.
-	 *
+	 * 
 	 * @param source The source version.
 	 * @param target The target version.
 	 * @param count The statement count.
@@ -491,7 +509,7 @@ public class DBVersion
 
 		try
 		{
-			Connection connection = this.database.getDefaultConnection();
+			Connection connection = this.database.getConnection();
 			Statement stat = connection.createStatement();
 			try
 			{
@@ -549,7 +567,7 @@ public class DBVersion
 
 	/**
 	 * Checks if a specific version is in the history of this database.
-	 *
+	 * 
 	 * @param version The version to be checked.
 	 * @return True if the version is part of this database's history, false otherwise.
 	 */
@@ -563,7 +581,7 @@ public class DBVersion
 		else
 			sql = "SELECT 1 FROM " + this.logTableName + " WHERE RESULT = 'COMPLETED VERSION " + version + "'";
 
-		Connection connection = this.database.getDefaultConnection();
+		Connection connection = this.database.getConnection();
 		try
 		{
 			PreparedStatement stat = connection.prepareStatement( sql );
@@ -586,7 +604,7 @@ public class DBVersion
 
 	/**
 	 * Execute the given sql with the given parameters. It asserts that exactly one record is updated.
-	 *
+	 * 
 	 * @param sql The sql to be executed.
 	 * @param parameters The parameters for the sql.
 	 */
@@ -594,7 +612,7 @@ public class DBVersion
 	{
 		try
 		{
-			Connection connection = this.database.getDefaultConnection();
+			Connection connection = this.database.getConnection();
 			PreparedStatement statement = connection.prepareStatement( sql );
 			int i = 1;
 			for( Object parameter : parameters )
@@ -625,7 +643,7 @@ public class DBVersion
 
 	/**
 	 * Mark the given versions as 'DOWNGRADED' in the DBVERSIONLOG table.
-	 *
+	 * 
 	 * @param versions The versions to be downgraded.
 	 */
 	// TODO Make this faster with an IN.
@@ -634,7 +652,7 @@ public class DBVersion
 		Assert.notEmpty( versions );
 		try
 		{
-			Connection connection = this.database.getDefaultConnection();
+			Connection connection = this.database.getConnection();
 			PreparedStatement statement = connection.prepareStatement( "UPDATE " + this.logTableName + " SET RESULT = 'DOWNGRADED' WHERE TYPE = 'B' AND TARGET = ? AND RESULT = 'COMPLETE'" );
 			boolean commit = false;
 			try
@@ -664,7 +682,7 @@ public class DBVersion
 
 	/**
 	 * Returns a statement of the current version of the database in a user presentable form.
-	 *
+	 * 
 	 * @return A statement of the current version of the database in a user presentable form.
 	 */
 	protected String getVersionStatement()
@@ -676,11 +694,11 @@ public class DBVersion
 		if( version == null )
 		{
 			if( target != null )
-				return "The database has no version, incompletely upgraded to version \"" + target + "\" (" + statements + " statements successful).";
+				return "The database has no version, incompletely patched to version \"" + target + "\" (" + statements + " statements successful).";
 			return "The database is unmanaged.";
 		}
 		if( target != null )
-			return "Current database version is \"" + version + "\", incompletely upgraded to version \"" + target + "\" (" + statements + " statements successful).";
+			return "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful).";
 		return "Current database version is \"" + version + "\".";
 	}
 }

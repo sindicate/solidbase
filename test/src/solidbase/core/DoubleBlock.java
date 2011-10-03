@@ -16,31 +16,30 @@
 
 package solidbase.core;
 
+import java.io.File;
 import java.io.IOException;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidbase.core.FatalException;
-import solidbase.core.UpgradeFile;
-import solidbase.util.FileResource;
-import solidbase.util.URLRandomAccessLineReader;
+import solidbase.core.PatchFile;
+import solidbase.util.RandomAccessLineReader;
 
 public class DoubleBlock
 {
 	@Test
 	public void testDoubleBlock() throws IOException
 	{
-		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "testpatch-doubleblock.sql" ) );
-		UpgradeFile upgradeFile = new UpgradeFile( ralr );
+		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch-doubleblock.sql" ) );
+		PatchFile patchFile = new PatchFile( ralr );
 		try
 		{
-			upgradeFile.scan();
+			patchFile.scan();
 			Assert.fail( "Expected an exception" );
 		}
 		catch( FatalException e )
 		{
-			upgradeFile.close();
+			patchFile.close();
 			Assert.assertTrue( e.getMessage().contains( "Duplicate upgrade block" ) );
 		}
 	}

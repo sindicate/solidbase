@@ -53,7 +53,7 @@ public class PushbackReader
 	{
 		this.reader = reader;
 		this.buffer = new StringBuilder();
-		this.lineNumber = reader.getLineNumber();
+		this.lineNumber = reader.currentLineNumber;
 	}
 
 	/**

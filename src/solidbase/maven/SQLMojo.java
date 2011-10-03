@@ -17,15 +17,16 @@
 package solidbase.maven;
 
 import org.apache.maven.plugin.MojoFailureException;
-
-import solidbase.core.Factory;
+import solidbase.Version;
+import solidbase.core.Database;
 import solidbase.core.FatalException;
-import solidbase.core.Runner;
+import solidbase.core.SQLProcessor;
+import solidbase.core.Util;
 
 
 /**
  * The Maven plugin for SolidBase.
- *
+ * 
  * @author René de Bloois
  */
 public class SQLMojo extends DBMojo
@@ -39,22 +40,34 @@ public class SQLMojo extends DBMojo
 	{
 		validate();
 
-		Runner runner = new Runner();
-		runner.setProgressListener( new Progress( getLog() ) );
-		runner.setConnectionAttributes( "default", this.driver, this.url, this.username, this.password == null ? "" : this.password );
-		if( this.connections != null )
-			for( Secondary connection : this.connections )
-				runner.setConnectionAttributes(
-					connection.getName(),
-					connection.getDriver(),
-					connection.getUrl(),
-					connection.getUsername(),
-					connection.getPassword() == null ? "" : connection.getPassword()
-				);
-		runner.setSQLFile( Factory.getResource( this.project.getBasedir(), this.sqlfile ) );
+		Progress progress = new Progress( getLog() );
+
+		String info = Version.getInfo();
+		getLog().info( info );
+		getLog().info( "" );
+
 		try
 		{
-			runner.executeSQL();
+			SQLProcessor processor = new SQLProcessor( progress, new Database( "default", this.driver, this.url, this.username, this.password == null ? "" : this.password, progress ) );
+
+			if( this.connections != null )
+				for( Secondary secondary : this.connections )
+					processor.addDatabase(
+							new Database( secondary.getName(), secondary.getDriver() == null ? this.driver : secondary.getDriver(),
+									secondary.getUrl() == null ? this.url : secondary.getUrl(),
+											secondary.getUsername(), secondary.getPassword() == null ? "" : secondary.getPassword(), progress ) );
+
+			processor.setSQLSource( Util.openSQLFile( this.project.getBasedir(), this.sqlfile, progress ).getSource() );
+			try
+			{
+				progress.info( "Connecting to database..." );
+				processor.process();
+			}
+			finally
+			{
+				processor.end();
+			}
+			progress.info( "" );
 		}
 		catch( FatalException e )
 		{

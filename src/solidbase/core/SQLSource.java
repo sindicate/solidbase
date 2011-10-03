@@ -16,11 +16,11 @@
 
 package solidbase.core;
 
+import java.net.URL;
 import java.util.regex.Matcher;
 
 import solidbase.core.Delimiter.Type;
 import solidbase.util.LineReader;
-import solidbase.util.Resource;
 import solidbase.util.StringLineReader;
 
 
@@ -99,7 +99,7 @@ public class SQLSource
 
 
 	/**
-	 * Close the source. This will also close the underlying file.
+	 * Close the patch file. This will also close the underlying file.
 	 */
 	public void close()
 	{
@@ -123,9 +123,9 @@ public class SQLSource
 
 
 	/**
-	 * Reads a command from the upgrade segment.
+	 * Reads a command from the patch file.
 	 * 
-	 * @return A command from the upgrade segment or null when no more commands are available.
+	 * @return A command from the patch file or null when no more commands are available.
 	 */
 	public Command readCommand()
 	{
@@ -202,12 +202,12 @@ public class SQLSource
 	}
 
 	/**
-	 * Returns the underlying resource.
+	 * Return the {@link URL} of the source.
 	 * 
-	 * @return The underlying resource.
+	 * @return The {@link URL} of the source.
 	 */
-	public Resource getResource()
+	public URL getURL()
 	{
-		return this.reader.getResource();
+		return this.reader.getURL();
 	}
 }

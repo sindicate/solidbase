@@ -16,11 +16,12 @@
 
 package solidbase.core;
 
-import solidbase.util.Resource;
+import java.io.File;
+import java.net.URL;
 
 /**
  * Listener adapter.
- *
+ * 
  * @author R.M. de Bloois
  * @since Apr 14, 2006
  */
@@ -40,7 +41,7 @@ abstract public class ProgressListener
 
 	/**
 	 * Prints a line completely by itself. Generates a carriage return before printing if needed.
-	 *
+	 * 
 	 * @param message The message to be printed.
 	 */
 	abstract public void println( String message );
@@ -55,21 +56,43 @@ abstract public class ProgressListener
 
 	/**
 	 * An upgrade file is about to be opened.
-	 *
-	 * @param file The upgrade file that is about to be opened.
+	 * 
+	 * @param patchFile The upgrade file that is about to be opened.
 	 */
-	protected void openingUpgradeFile( Resource file )
+	protected void openingPatchFile( File patchFile )
 	{
 		cr();
-		println( "Opening file '" + file + "'" );
+		println( "Opening file '" + patchFile + "'" );
+	}
+
+	/**
+	 * An upgrade file is about to be opened.
+	 * 
+	 * @param patchFile The upgrade file that is about to be opened.
+	 */
+	protected void openingPatchFile( URL patchFile )
+	{
+		cr();
+		println( "Opening file '" + patchFile + "'" );
 	}
 
 	/**
 	 * An sql file is about to be opened.
-	 *
+	 * 
 	 * @param sqlFile The sql file that is about to be opened.
 	 */
-	protected void openingSQLFile( Resource sqlFile )
+	protected void openingSQLFile( File sqlFile )
+	{
+		cr();
+		println( "Opening file '" + sqlFile + "'" );
+	}
+
+	/**
+	 * An sql file is about to be opened.
+	 * 
+	 * @param sqlFile The sql file that is about to be opened.
+	 */
+	protected void openingSQLFile( URL sqlFile )
 	{
 		cr();
 		println( "Opening file '" + sqlFile + "'" );
@@ -77,18 +100,18 @@ abstract public class ProgressListener
 
 	/**
 	 * An upgrade file is opened.
-	 *
-	 * @param file The upgrade file that is opened.
+	 * 
+	 * @param patchFile The upgrade file that is opened.
 	 */
-	protected void openedUpgradeFile( UpgradeFile file )
+	protected void openedPatchFile( PatchFile patchFile )
 	{
 		cr();
-		println( "    Encoding is '" + file.getEncoding() + "'" );
+		println( "    Encoding is '" + patchFile.getEncoding() + "'" );
 	}
 
 	/**
 	 * An sql file is opened.
-	 *
+	 * 
 	 * @param sqlFile The sql file that is opened.
 	 */
 	protected void openedSQLFile( SQLFile sqlFile )
@@ -99,17 +122,17 @@ abstract public class ProgressListener
 
 	/**
 	 * The given change set is about to be processed.
-	 *
-	 * @param segment The segment that is about to be started.
+	 * 
+	 * @param patch The change set that is about to be started.
 	 */
-	protected void upgradeStarting( UpgradeSegment segment )
+	protected void patchStarting( Patch patch )
 	{
 		// could be implemented in subclass
 	}
 
 	/**
 	 * A section is started.
-	 *
+	 * 
 	 * @param level Section level.
 	 * @param message Message.
 	 */
@@ -122,17 +145,18 @@ abstract public class ProgressListener
 
 	/**
 	 * About to execute to given command with the given message for the user.
-	 *
+	 * 
 	 * @param command The command that is about to be executed.
+	 * @param message The message that is set.
 	 */
-	protected void executing( Command command )
+	protected void executing( Command command, String message )
 	{
 		// could be implemented in subclass
 	}
 
 	/**
 	 * An exception occurred during execution of the given command.
-	 *
+	 * 
 	 * @param exception The exception that occurred.
 	 */
 	// TODO Should this be FatalException?
@@ -152,7 +176,7 @@ abstract public class ProgressListener
 	/**
 	 * A change set is completed.
 	 */
-	protected void upgradeFinished()
+	protected void patchFinished()
 	{
 		cr();
 	}
@@ -186,7 +210,7 @@ abstract public class ProgressListener
 
 	/**
 	 * Request a password for the given user name.
-	 *
+	 * 
 	 * @param user The user name for which a password needs to be requested.
 	 * @return The password that is requested.
 	 */
@@ -197,7 +221,7 @@ abstract public class ProgressListener
 
 	/**
 	 * A command is skipped because it has been processed earlier in an upgrade that did not complete.
-	 *
+	 * 
 	 * @param command The command that is skipped.
 	 */
 	protected void skipped( Command command )
@@ -207,7 +231,7 @@ abstract public class ProgressListener
 
 	/**
 	 * A debug message is given.
-	 *
+	 * 
 	 * @param message The debug message.
 	 */
 	protected void debug( String message )
@@ -217,7 +241,7 @@ abstract public class ProgressListener
 
 	/**
 	 * An info message is produced.
-	 *
+	 * 
 	 * @param message The info message.
 	 */
 	public void print( String message )

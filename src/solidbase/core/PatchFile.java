@@ -32,29 +32,29 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
-import solidbase.core.UpgradeSegment.Type;
+import solidbase.core.Patch.Type;
 import solidbase.util.Assert;
 import solidbase.util.RandomAccessLineReader;
 
 
 /**
- * This class manages the upgrade file contents and the paths between versions.
- *
+ * This class manages the patch file contents and the paths between versions.
+ * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
-public class UpgradeFile
+public class PatchFile
 {
-	static private final Pattern DEFINITION_MARKER_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE)[ \t]+.*", Pattern.CASE_INSENSITIVE );
-	static private final Pattern DEFINITION_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
-	static private final String DEFINITION_SYNTAX_ERROR = "Line should match the following syntax: (SETUP|UPGRADE|SWITCH|DOWNGRADE) [OPEN] \"...\" --> \"...\"";
+	static private final Pattern PATCH_DEFINITION_MARKER_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN)[ \t]+.*", Pattern.CASE_INSENSITIVE );
+	static private final Pattern PATCH_DEFINITION_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
+	static private final String PATCH_DEFINITION_SYNTAX_ERROR = "Line should match the following syntax: (SETUP|UPGRADE|SWITCH|DOWNGRADE) [OPEN] \"...\" --> \"...\"";
 
 	static private final Pattern CONTROL_TABLES_PATTERN = Pattern.compile( "VERSION\\s+TABLE\\s+(\\S+)\\s+LOG\\s+TABLE\\s+(\\S+)", Pattern.CASE_INSENSITIVE );
 
-	static private final Pattern SEGMENT_START_MARKER_PATTERN = Pattern.compile( "--\\*[ \t]*(SETUP|UPGRADE|SWITCH|DOWNGRADE).*", Pattern.CASE_INSENSITIVE );
-	static final Pattern SEGMENT_START_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
+	static private final Pattern PATCH_START_MARKER_PATTERN = Pattern.compile( "--\\*[ \t]*(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN).*", Pattern.CASE_INSENSITIVE );
+	static final Pattern PATCH_START_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
 
-	static final Pattern SEGMENT_END_PATTERN = Pattern.compile( "/(SETUP|UPGRADE|SWITCH|DOWNGRADE) *", Pattern.CASE_INSENSITIVE );
+	static final Pattern PATCH_END_PATTERN = Pattern.compile( "/(SETUP|UPGRADE|SWITCH|DOWNGRADE|INIT|PATCH|BRANCH|RETURN) *", Pattern.CASE_INSENSITIVE );
 
 //	static private final Pattern INITIALIZATION_TRIGGER = Pattern.compile( "--\\*\\s*INITIALIZATION\\s*", Pattern.CASE_INSENSITIVE );
 //	static private final Pattern INITIALIZATION_END_PATTERN = Pattern.compile( "--\\*\\s*/INITIALIZATION\\s*", Pattern.CASE_INSENSITIVE );
@@ -77,9 +77,9 @@ public class UpgradeFile
 	protected Delimiter[] defaultDelimiters = SQLSource.DEFAULT_DELIMITERS;
 
 	/**
-	 * All normal segments in a map indexed by source version.
+	 * All normal patches in a map indexed by source version.
 	 */
-	protected Map< String, Collection< UpgradeSegment > > segments = new HashMap< String, Collection< UpgradeSegment > >();
+	protected Map< String, Collection< Patch > > patches = new HashMap< String, Collection< Patch > >();
 
 	/**
 	 * Contains all known versions from the upgrade file.
@@ -87,9 +87,9 @@ public class UpgradeFile
 	protected Set< String > versions = new HashSet< String >();
 
 	/**
-	 * All setup segments in a map indexed by source version.
+	 * All setup patches in a map indexed by source version.
 	 */
-	protected Map< String, UpgradeSegment > setups = new HashMap< String, UpgradeSegment >();
+	protected Map< String, Patch > setups = new HashMap< String, Patch >();
 
 //	/**
 //	 * Initialization fragment.
@@ -113,11 +113,11 @@ public class UpgradeFile
 
 
 	/**
-	 * Constructor.
-	 *
+	 * Creates an new instance of a patch file.
+	 * 
 	 * @param file The reader which is used to read the contents of the file.
 	 */
-	protected UpgradeFile( RandomAccessLineReader file )
+	protected PatchFile( RandomAccessLineReader file )
 	{
 		this.file = file;
 
@@ -143,20 +143,20 @@ public class UpgradeFile
 
 
 	/**
-	 * Translates a segment type string to a type enum.
-	 *
-	 * @param type A segment type string.
+	 * Translates a patch type string to a type enum.
+	 * 
+	 * @param type A patch type string.
 	 * @return The corresponding type enum.
 	 */
 	protected Type stringToType( String type )
 	{
-		if( "UPGRADE".equalsIgnoreCase( type ) )
+		if( "UPGRADE".equalsIgnoreCase( type ) || "PATCH".equalsIgnoreCase( type ) )
 			return Type.UPGRADE;
-		if( "SWITCH".equalsIgnoreCase( type ) )
+		if( "SWITCH".equalsIgnoreCase( type ) || "BRANCH".equalsIgnoreCase( type ) || "RETURN".equalsIgnoreCase( type ) )
 			return Type.SWITCH;
 		if( "DOWNGRADE".equalsIgnoreCase( type ) )
 			return Type.DOWNGRADE;
-		if( "SETUP".equalsIgnoreCase( type ) )
+		if( "SETUP".equalsIgnoreCase( type ) || "INIT".equalsIgnoreCase( type ) )
 			return Type.SETUP;
 		Assert.fail( "Unexpected block type '" + type + "'" );
 		return null;
@@ -164,7 +164,7 @@ public class UpgradeFile
 
 
 	/**
-	 * Scans for segments in the file.
+	 * Scans for patches in the file.
 	 */
 	protected void scan()
 	{
@@ -180,7 +180,7 @@ public class UpgradeFile
 			{
 				Assert.isTrue( line.startsWith( "--*" ), "Line should start with --*" );
 				line = line.substring( 3 ).trim();
-				if( line.equalsIgnoreCase( "DEFINITION" ) )
+				if( line.equalsIgnoreCase( "DEFINITION" ) || line.equalsIgnoreCase( "PATCHES" ) )
 				{
 					Assert.isFalse( withinDefinition, "Already within the definition" );
 					withinDefinition = true;
@@ -189,12 +189,12 @@ public class UpgradeFile
 				{
 					// ignore line
 				}
-				else if( DEFINITION_MARKER_PATTERN.matcher( line ).matches() )
+				else if( PATCH_DEFINITION_MARKER_PATTERN.matcher( line ).matches() )
 				{
 					Assert.isTrue( withinDefinition, "Not within the definition" );
 
-					Matcher matcher = DEFINITION_PATTERN.matcher( line );
-					Assert.isTrue( matcher.matches(), DEFINITION_SYNTAX_ERROR );
+					Matcher matcher = PATCH_DEFINITION_PATTERN.matcher( line );
+					Assert.isTrue( matcher.matches(), PATCH_DEFINITION_SYNTAX_ERROR );
 					String action = matcher.group( 1 );
 					boolean open = matcher.group( 2 ) != null;
 					String source = matcher.group( 3 );
@@ -202,24 +202,24 @@ public class UpgradeFile
 						source = null;
 					String target = matcher.group( 4 );
 					Type type = stringToType( action );
-					UpgradeSegment segment = new UpgradeSegment( type, source, target, open );
+					Patch patch = new Patch( type, source, target, open );
 					if( type == Type.SETUP )
 					{
 						if( this.setups.containsKey( source ) )
 							throw new CommandFileException( "Duplicate definition of init block for source version " + source, this.file.getLineNumber() - 1 );
-						this.setups.put( source, segment );
+						this.setups.put( source, patch );
 					}
 					else
 					{
-						Collection< UpgradeSegment > segments = this.segments.get( source );
-						if( segments == null )
-							this.segments.put( source, segments = new LinkedList< UpgradeSegment >() );
-						segments.add( segment );
+						Collection< Patch > patches = this.patches.get( source );
+						if( patches == null )
+							this.patches.put( source, patches = new LinkedList< Patch >() );
+						patches.add( patch );
 						this.versions.add( source );
 						this.versions.add( target );
 					}
 				}
-				else if( line.equalsIgnoreCase( "/DEFINITION" ) )
+				else if( line.equalsIgnoreCase( "/DEFINITION" ) || line.equalsIgnoreCase( "/PATCHES" ) )
 				{
 					Assert.isTrue( withinDefinition, "Not within the definition" );
 					definitionComplete = true;
@@ -235,10 +235,10 @@ public class UpgradeFile
 					else if( ( matcher = CommandProcessor.delimiterPattern.matcher( line ) ).matches() )
 						this.defaultDelimiters = CommandProcessor.parseDelimiters( matcher );
 					else
-						throw new CommandFileException( "Unexpected line within definition: " + line, this.file.getLineNumber() );
+						throw new SystemException( "Unexpected line within definition: " + line );
 				}
 				else
-					throw new CommandFileException( "Unexpected line outside definition: " + line, this.file.getLineNumber() );
+					throw new SystemException( "Unexpected line outside definition: " + line );
 			}
 		}
 
@@ -326,35 +326,35 @@ public class UpgradeFile
 				}
 				else
 				 */
-				if( SEGMENT_START_MARKER_PATTERN.matcher( line ).matches() )
+				if( PATCH_START_MARKER_PATTERN.matcher( line ).matches() )
 				{
 					int pos = this.file.getLineNumber() - 1;
 					line = line.substring( 3 ).trim();
-					matcher = SEGMENT_START_PATTERN.matcher( line );
+					matcher = PATCH_START_PATTERN.matcher( line );
 					if( !matcher.matches() )
 						throw new CommandFileException( MARKER_SYNTAX_ERROR, pos );
 					String action = matcher.group( 1 );
 					String source = matcher.group( 2 );
 					String target = matcher.group( 3 );
 					Type type = stringToType( action );
-					UpgradeSegment segment;
+					Patch patch;
 					if( type == Type.SETUP )
 					{
-						segment = getSetupSegment( source.length() == 0 ? null : source, target );
-						if( segment == null )
+						patch = getSetupPatch( source.length() == 0 ? null : source, target );
+						if( patch == null )
 							throw new CommandFileException( "Undefined setup block found: \"" + source + "\" --> \"" + target + "\"", pos );
 					}
 					else
 					{
-						segment = getSegment( source.length() == 0 ? null : source, target );
-						if( segment == null )
+						patch = getPatch( source.length() == 0 ? null : source, target );
+						if( patch == null )
 							throw new CommandFileException( "Undefined upgrade block found: \"" + source + "\" --> \"" + target + "\"", pos );
-						if( segment.getType() != type )
+						if( patch.getType() != type )
 							throw new CommandFileException( "Upgrade block type '" + action + "' is different from its definition", pos );
 					}
-					if( segment.getLineNumber() >= 0 )
+					if( patch.getLineNumber() >= 0 )
 						throw new CommandFileException( "Duplicate upgrade block \"" + source + "\" --> \"" + target + "\" found", pos );
-					segment.setLineNumber( pos );
+					patch.setLineNumber( pos );
 				}
 			}
 
@@ -362,22 +362,22 @@ public class UpgradeFile
 		}
 
 		// Check that all defined upgrade blocks are found
-		for( Collection< UpgradeSegment > segments : this.segments.values() )
-			for( UpgradeSegment segment : segments )
-				if( segment.getLineNumber() < 0 )
-					throw new FatalException( "Upgrade block \"" + StringUtils.defaultString( segment.getSource() ) + "\" --> \"" + segment.getTarget() + "\" not found" );
+		for( Collection< Patch > patches : this.patches.values() )
+			for( Patch patch : patches )
+				if( patch.getLineNumber() < 0 )
+					throw new FatalException( "Upgrade block \"" + StringUtils.defaultString( patch.getSource() ) + "\" --> \"" + patch.getTarget() + "\" not found" );
 
 		// Check that all defined setup blocks are found
-		for( UpgradeSegment segment : this.setups.values() )
-			if( segment.getLineNumber() < 0 )
-				throw new FatalException( "Setup block \"" + StringUtils.defaultString( segment.getSource() ) + "\" --> \"" + segment.getTarget() + "\" not found" );
+		for( Patch patch : this.setups.values() )
+			if( patch.getLineNumber() < 0 )
+				throw new FatalException( "Setup block \"" + StringUtils.defaultString( patch.getSource() ) + "\" --> \"" + patch.getTarget() + "\" not found" );
 	}
 
 
 	/**
-	 * Gets the encoding of the upgrade file.
-	 *
-	 * @return The encoding of the upgrade file.
+	 * Gets the encoding of the patch file.
+	 * 
+	 * @return The encoding of the patch file.
 	 */
 	public String getEncoding()
 	{
@@ -399,24 +399,24 @@ public class UpgradeFile
 
 
 	/**
-	 * Returns the upgrade segment belonging to the specified source and target. Also checks for duplicates.
-	 *
+	 * Returns the patch belonging to the specified source and target. Also checks for duplicates.
+	 * 
 	 * @param source The source version.
 	 * @param target The target version.
-	 * @return The corresponding upgrade segment.
+	 * @return The corresponding patch.
 	 */
-	protected UpgradeSegment getSegment( String source, String target )
+	protected Patch getPatch( String source, String target )
 	{
-		UpgradeSegment result = null;
+		Patch result = null;
 
-		Collection< UpgradeSegment > segments = this.segments.get( source );
-		if( segments != null )
-			for( UpgradeSegment segment : segments )
-				if( segment.getTarget().equals( target ) )
+		Collection< Patch > patches = this.patches.get( source );
+		if( patches != null )
+			for( Patch patch : patches )
+				if( patch.getTarget().equals( target ) )
 				{
 					if( result != null )
-						throw new CommandFileException( "Duplicate upgrade block found", segment.getLineNumber() );
-					result = segment;
+						throw new CommandFileException( "Duplicate upgrade block found", patch.getLineNumber() );
+					result = patch;
 				}
 
 		return result;
@@ -424,41 +424,41 @@ public class UpgradeFile
 
 
 	/**
-	 * Returns the setup segment belonging to the specified source and target. Also checks for duplicates.
-	 *
+	 * Returns the patch belonging to the specified source and target. Also checks for duplicates.
+	 * 
 	 * @param source The source version.
 	 * @param target The target version.
-	 * @return The corresponding segment.
+	 * @return The corresponding patch.
 	 */
-	protected UpgradeSegment getSetupSegment( String source, String target )
+	protected Patch getSetupPatch( String source, String target )
 	{
-		UpgradeSegment segment = this.setups.get( source );
-		if( segment.getTarget().equals( target ) )
-			return segment;
+		Patch patch = this.setups.get( source );
+		if( patch.getTarget().equals( target ) )
+			return patch;
 		return null;
 	}
 
 
 	/**
 	 * Determine the best path between a source version and a target version.
-	 *
+	 * 
 	 * @param source The source version.
 	 * @param target The target version.
 	 * @param downgradesAllowed Allow downgrades in the resulting path.
 	 * @return The best path between a source version and a target version. This path can be empty when the source and
 	 *         target are equal. The result will be null if there is no path.
 	 */
-	protected Path getUpgradePath( String source, String target, boolean downgradesAllowed )
+	protected Path getPatchPath( String source, String target, boolean downgradesAllowed )
 	{
 		Set< String > done = new HashSet< String >();
 		done.add( source );
-		return getUpgradePath0( source, target, downgradesAllowed, done );
+		return getPatchPath0( source, target, downgradesAllowed, done );
 	}
 
 
 	/**
 	 * Determine the best path between a source version and a target version.
-	 *
+	 * 
 	 * @param source The source version.
 	 * @param target The target version.
 	 * @param downgradesAllowed Allow downgrades in the resulting path.
@@ -466,7 +466,7 @@ public class UpgradeFile
 	 * @return The best path between a source version and a target version. This path can be empty when the source and
 	 *         target are equal. The result will be null if there is no path.
 	 */
-	protected Path getUpgradePath0( String source, String target, boolean downgradesAllowed, Set< String > targetsProcessed )
+	protected Path getPatchPath0( String source, String target, boolean downgradesAllowed, Set< String > targetsProcessed )
 	{
 		Path result = new Path();
 
@@ -474,47 +474,47 @@ public class UpgradeFile
 		if( ObjectUtils.equals( source, target ) )
 			return result;
 
-		// Start with all the segments that have the given source
-		Collection< UpgradeSegment > segments = this.segments.get( source );
+		// Start with all the patches that have the given source
+		Collection< Patch > patches = this.patches.get( source );
 
-		// As long as only one segment found loop instead of recursion
-		while( segments != null && segments.size() == 1 )
+		// As long as only one patch found loop instead of recursion
+		while( patches != null && patches.size() == 1 )
 		{
-			UpgradeSegment segment = segments.iterator().next();
+			Patch patch = patches.iterator().next();
 
-			if( targetsProcessed.contains( segment.getTarget() ) ) // Target already processed -> no path found
+			if( targetsProcessed.contains( patch.getTarget() ) ) // Target already processed -> no path found
 				return null;
 
-			targetsProcessed.add( segment.getTarget() ); // Register target
+			targetsProcessed.add( patch.getTarget() ); // Register target
 
-			result.append( segment ); // Append to result
-			if( target.equals( segment.getTarget() ) ) // Target is requested target -> return result
+			result.append( patch ); // Append to result
+			if( target.equals( patch.getTarget() ) ) // Target is requested target -> return result
 				return result;
 
-			segments = this.segments.get( segment.getTarget() );
+			patches = this.patches.get( patch.getTarget() );
 		}
 
-		// No segments -> no path found
-		if( segments == null )
+		// No patches -> no path found
+		if( patches == null )
 			return null;
 
-		// More then one segment found, select the best one
+		// More then one patch found, select the best one
 		Path selected = null;
-		for( UpgradeSegment segment : segments )
+		for( Patch patch : patches )
 		{
-			if( targetsProcessed.contains( segment.getTarget() ) ) // Target already processed -> ignore
+			if( targetsProcessed.contains( patch.getTarget() ) ) // Target already processed -> ignore
 				continue;
 
 			// Build new set for recursive call
 			Set< String > processed = new HashSet< String >();
 			processed.addAll( targetsProcessed );
-			processed.add( segment.getTarget() );
+			processed.add( patch.getTarget() );
 
 			// Call recursive and select if better
-			Path path = getUpgradePath0( segment.getTarget(), target, downgradesAllowed, processed );
+			Path path = getPatchPath0( patch.getTarget(), target, downgradesAllowed, processed );
 			if( path != null )
 			{
-				path.prepend( segment );
+				path.prepend( patch );
 				if( selected == null )
 					selected = path;
 				else if( path.betterThan( selected ) )
@@ -522,7 +522,7 @@ public class UpgradeFile
 			}
 		}
 
-		// No segments found -> no path found
+		// No patches found -> no path found
 		if( selected == null )
 			return null;
 
@@ -532,23 +532,23 @@ public class UpgradeFile
 
 
 	/**
-	 * Returns a setup path for the specified source. As setup is always done to the latest version, no target is needed.
-	 *
+	 * Returns an setup patch path for the specified source. As setup is always done to the latest version, no target is needed.
+	 * 
 	 * @param source The source version.
-	 * @return A list of setup segments that correspond to the given source.
+	 * @return A list of setup patches that correspond to the given source.
 	 */
-	protected List< UpgradeSegment > getSetupPath( String source )
+	protected List< Patch > getSetupPath( String source )
 	{
-		List< UpgradeSegment > result = new ArrayList< UpgradeSegment >();
+		List< Patch > result = new ArrayList< Patch >();
 
 		// Branches not possible
 
-		// Start with all the segments that start with the given source
-		UpgradeSegment segment = this.setups.get( source );
-		while( segment != null )
+		// Start with all the patches that start with the given source
+		Patch patch = this.setups.get( source );
+		while( patch != null )
 		{
-			result.add( segment );
-			segment = this.setups.get( segment.getTarget() );
+			result.add( patch );
+			patch = this.setups.get( patch.getTarget() );
 		}
 
 		if( result.size() > 0 )
@@ -559,7 +559,7 @@ public class UpgradeFile
 
 	/**
 	 * Determines all possible target versions from the specified source version. The current version is also considered.
-	 *
+	 * 
 	 * @param version Current version.
 	 * @param targeting Indicates that we are already targeting a specific version.
 	 * @param tips Only return tip versions.
@@ -588,11 +588,11 @@ public class UpgradeFile
 			for( Iterator< String > iterator = result.iterator(); iterator.hasNext(); )
 			{
 				String v = iterator.next();
-				Collection< UpgradeSegment > segments = this.segments.get( v );
-				if( segments != null )
-					for( UpgradeSegment segment : segments )
-						if( segment.isUpgrade() )
-							if( prefix == null || segment.getTarget().startsWith( prefix ) )
+				Collection< Patch > patches = this.patches.get( v );
+				if( patches != null )
+					for( Patch patch : patches )
+						if( patch.isUpgrade() )
+							if( prefix == null || patch.getTarget().startsWith( prefix ) )
 							{
 								iterator.remove();
 								break;
@@ -603,7 +603,7 @@ public class UpgradeFile
 
 	/**
 	 * Gets all versions that are reachable from the given source version.
-	 *
+	 * 
 	 * @param source The source version.
 	 * @param targeting Indicates that we are already targeting a specific version.
 	 * @param downgradesAllowed Allow downgrades.
@@ -619,7 +619,7 @@ public class UpgradeFile
 
 	/**
 	 * Retrieves all versions that are reachable from the given source version. The current version is also considered.
-	 *
+	 * 
 	 * @param source The source version.
 	 * @param targeting Already targeting a specific version.
 	 * @param downgradesAllowed Allow downgrades.
@@ -633,38 +633,38 @@ public class UpgradeFile
 		if( targeting == null )
 			result.add( source ); // The source is reachable
 
-		Collection< UpgradeSegment > segments = this.segments.get( source ); // Get all segments with the given source
-		if( segments == null )
+		Collection< Patch > patches = this.patches.get( source ); // Get all patches with the given source
+		if( patches == null )
 			return;
 
-		// Queue contains segments that await processing
-		LinkedList< UpgradeSegment > queue = new LinkedList< UpgradeSegment >();
+		// Queue contains patches that await processing
+		LinkedList< Patch > queue = new LinkedList< Patch >();
 
-		// Fill queue with segments
+		// Fill queue with patches
 		if( targeting != null )
 		{
-			for( UpgradeSegment segment : segments )
-				if( targeting.equals( segment.getTarget() ) )
-					queue.add( segment ); // Add segment to the end of the list
+			for( Patch patch : patches )
+				if( targeting.equals( patch.getTarget() ) )
+					queue.add( patch ); // Add patch to the end of the list
 			if( queue.isEmpty() )
 				throw new FatalException( "The database is incompletely upgraded to version " + targeting + ", but that version is not reachable from version " + StringUtils.defaultString( source, "<no version>" ) );
 		}
 		else
-			queue.addAll( segments );
+			queue.addAll( patches );
 
 		// Process the queue
 		while( !queue.isEmpty() )
 		{
-			UpgradeSegment segment = queue.removeFirst(); // pop() is not available in java 5
-			if( !result.contains( segment.getTarget() ) ) // Already there?
-				if( downgradesAllowed || !segment.isDowngrade() ) // Downgrades allowed?
+			Patch patch = queue.removeFirst(); // pop() is not available in java 5
+			if( !result.contains( patch.getTarget() ) ) // Already there?
+				if( downgradesAllowed || !patch.isDowngrade() ) // Downgrades allowed?
 				{
-					result.add( segment.getTarget() );
-					if( !segment.isOpen() ) // Stop when segment is open.
+					result.add( patch.getTarget() );
+					if( !patch.isOpen() ) // Stop when patch is open.
 					{
-						segments = this.segments.get( segment.getTarget() ); // Add the next to the queue
-						if( segments != null )
-							queue.addAll( segments ); // Add segments to the end of the list
+						patches = this.patches.get( patch.getTarget() ); // Add the next to the queue
+						if( patches != null )
+							queue.addAll( patches ); // Add patches to the end of the list
 					}
 				}
 		}
@@ -672,20 +672,20 @@ public class UpgradeFile
 
 
 	/**
-	 * Jump to the position in the upgrade file where the given segment starts.
-	 *
-	 * @param segment The upgrade segment to jump to.
-	 * @return The source for the given segment.
+	 * Jump to the position in the patch file where the given patch starts.
+	 * 
+	 * @param patch The patch to jump to.
+	 * @return The source for the given patch.
 	 */
-	protected UpgradeSource gotoSegment( UpgradeSegment segment )
+	protected PatchSource gotoPatch( Patch patch )
 	{
-		Assert.isTrue( segment.getLineNumber() >= 0, "Upgrade or setup block not found" );
+		Assert.isTrue( patch.getLineNumber() >= 0, "Upgrade or setup block not found" );
 
-		this.file.gotoLine( segment.getLineNumber() );
+		this.file.gotoLine( patch.getLineNumber() );
 		String line = this.file.readLine();
 //		System.out.println( line );
-		Assert.isTrue( SEGMENT_START_MARKER_PATTERN.matcher( line ).matches() );
-		UpgradeSource source = new UpgradeSource( this.file );
+		Assert.isTrue( PATCH_START_MARKER_PATTERN.matcher( line ).matches() );
+		PatchSource source = new PatchSource( this.file );
 		source.setDelimiters( this.defaultDelimiters );
 		return source;
 	}

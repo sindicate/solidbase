@@ -15,13 +15,13 @@
 
 --* // ========================================================================
 
---*	DEFINITION
---*		SETUP "" --> "1.1"
+--*	PATCHES
+--*		INIT "" --> "1.1"
 --*		UPGRADE "" --> "1.0.1"
 --*		UPGRADE "1.0.1" --> "1.0.2"
---*		UPGRADE "1.0.1" --> "1.1.0"
+--*		PATCH "1.0.1" --> "1.1.0"
 --*		DOWNGRADE "1.1.0" --> "1.0.1"
---*	/DEFINITION
+--*	/PATCHES
 
 
 
@@ -30,10 +30,10 @@
 
 
 --* // ========================================================================
---* SETUP "" --> "1.1"
+--* INIT "" --> "1.1"
 --* // ========================================================================
 
---* SECTION "Creating table DBVERSION"
+--* SET MESSAGE "    Creating table DBVERSION"
 
 CREATE TABLE DBVERSION
 ( 
@@ -45,7 +45,7 @@ CREATE TABLE DBVERSION
 
 --* // The patch tool expects to be able to use the DBVERSION table after the *first* sql statement
 
---* SECTION "Creating table DBVERSIONLOG"
+--* SET MESSAGE "    Creating table DBVERSIONLOG"
 
 CREATE TABLE DBVERSIONLOG
 (
@@ -62,7 +62,7 @@ CREATE INDEX DBVERSIONLOG_INDEX1 ON DBVERSIONLOG ( TYPE, TARGET );
 
 --* // The existence of DBVERSIONLOG will automatically be detected at the end of this patch
 
---* /SETUP
+--* /PATCH
 
 
 
@@ -82,7 +82,7 @@ CREATE INDEX DBVERSIONLOG_INDEX1 ON DBVERSIONLOG ( TYPE, TARGET );
 
 
 --* // ========================================================================
---* UPGRADE "1.0.1" --> "1.1.0"
+--* PATCH "1.0.1" --> "1.1.0"
 --* // ========================================================================
 
 --* SELECT CONNECTION USER
@@ -96,7 +96,7 @@ CREATE TABLE USERS
 	USER_PASSWORD VARCHAR(40) NOT NULL
 );
 
---* SECTION "Inserting admin users"
+--* SET MESSAGE "    Inserting admin users"
 
 --*// Need to do three statements to test if the dots come on one line
 
@@ -104,7 +104,7 @@ INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrr
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' );
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' );
 
---* /UPGRADE
+--* /PATCH
 
 --* // ========================================================================
 

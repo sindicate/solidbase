@@ -15,10 +15,10 @@
 
 --* // ========================================================================
 
---*	DEFINITION
---*		UPGRADE "" --> "1.0.1"
---*		UPGRADE "1.0.1" --> "1.0.2"
---*	/DEFINITION
+--*	PATCHES
+--*		PATCH "" --> "1.0.1"
+--*		PATCH "1.0.1" --> "1.0.2"
+--*	/PATCHES
 
 
 
@@ -27,10 +27,10 @@
 
 
 --* // ========================================================================
---* UPGRADE "" --> "1.0.1"
+--* PATCH "" --> "1.0.1"
 --* // ========================================================================
 
---* SECTION "Creating table DBVERSION"
+--* SET MESSAGE "Creating table DBVERSION"
 CREATE TABLE DBVERSION
 ( 
 	VERSION VARCHAR(20), 
@@ -40,7 +40,7 @@ CREATE TABLE DBVERSION
 
 --* // The patch tool expects to be able to use the DBVERSION table after the *first* sql statement
 
---* SECTION "Creating table DBVERSIONLOG"
+--* SET MESSAGE "Creating table DBVERSIONLOG"
 CREATE TABLE DBVERSIONLOG
 (
 	ID INTEGER IDENTITY, -- An index might be needed here to let the identity perform
@@ -54,7 +54,7 @@ CREATE TABLE DBVERSIONLOG
 
 --* // The existence of DBVERSIONLOG will automatically be detected at the end of this patch
 
---* /UPGRADE
+--* /PATCH
 
 
 
@@ -63,10 +63,10 @@ CREATE TABLE DBVERSIONLOG
 
 
 --* // ========================================================================
---* UPGRADE "1.0.1" --> "1.0.2"
+--* PATCH "1.0.1" --> "1.0.2"
 --* // ========================================================================
 
---* SECTION "Creating table DBVERSION again"
+--* SET MESSAGE "Creating table DBVERSION again"
 
 --* IF HISTORY CONTAINS "1.0.3"
 
@@ -103,4 +103,4 @@ CREATE TABLE DBVERSION
 
 --* // No actual executed statement here. This is to test that DBVERSION.STATEMENTS becomes 3.
 
---* /UPGRADE
+--* /PATCH
