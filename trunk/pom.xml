@@ -71,7 +71,7 @@
 				<configuration>
 					<includes><include>**/*.java</include></includes>
 					<!-- verbose>3</verbose -->
-					<argLine>-Xmx256M -javaagent:${settings.localRepository}/mockit/jmockit/0.998/jmockit-0.998.jar</argLine>
+					<argLine>-Xmx256M -javaagent:${settings.localRepository}/mockit/jmockit/0.999.10/jmockit-0.999.10.jar</argLine>
 					<!-- useSystemClassLoader>true</useSystemClassLoader -->
 					<!-- forkMode>always</forkMode -->
 					<!-- baseDir>test</baseDir -->
@@ -127,7 +127,7 @@
 		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
-			<version>5.13.1</version>
+			<version>6.3</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

@@ -162,7 +162,7 @@
 
 	<target name="test" depends="compiletest,test-maven-plugin" description="Run the tests">
 		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="3">
-			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.996.jar" />
+			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.999.10.jar" />
 			<jvmarg value="-Xmx256m" />
 			<classfileset dir="${build.home}/testclasses" />
 			<!-- <reporter classname="solidbase.test.TestListener"/> -->
@@ -172,7 +172,7 @@
 
 	<target name="testclass" depends="compiletest" description="Run a test class">
 		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="3">
-			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.996.jar" />
+			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.999.10.jar" />
 			<jvmarg value="-Xmx256m" />
 			<classfileset dir="${build.home}/testclasses" includes="**/${testclass}.class" />
 			<!-- <reporter classname="solidbase.test.TestListener"/> -->
@@ -182,7 +182,7 @@
 
 	<target name="testnew" depends="compiletest" description="Run new tests">
 		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="3" groups="new">
-			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.996.jar" />
+			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.999.10.jar" />
 			<jvmarg value="-Xmx256m" />
 			<classfileset dir="${build.home}/testclasses" />
 		</testng>

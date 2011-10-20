@@ -69,7 +69,7 @@
             <compilation-unit>
                 <package-root>test/src</package-root>
                 <unit-tests/>
-                <classpath mode="compile">out/production/Solidbase;test/lib/ant-launcher.jar;test/lib/ant-testutil.jar;test/lib/commons-io-1.3.2.jar;test/lib/derby-10.6.1.0.jar;test/lib/hsqldb.jar;test/lib/jmockit-0.996.jar;test/lib/junit-4.7.jar;test/lib/testng-5.8-jdk15.jar;lib/apache-ant-1.7.1.jar;lib/classworlds-1.1-source.jar;lib/commons-cli-1.2.jar;lib/commons-collections-3.2.jar;lib/commons-lang-2.3.jar;lib/groovy-all-1.5.7.jar;lib/json-simple-1.1.jar;lib/maven-plugin-api-2.0.8.jar;lib/maven-project-2.0.8.jar</classpath>
+                <classpath mode="compile">out/production/Solidbase;test/lib/ant-launcher.jar;test/lib/ant-testutil.jar;test/lib/commons-io-1.3.2.jar;test/lib/derby-10.6.1.0.jar;test/lib/hsqldb.jar;test/lib/jmockit-0.996.jar;test/lib/junit-4.7.jar;test/lib/testng-6.3.jar;lib/apache-ant-1.7.1.jar;lib/classworlds-1.1-source.jar;lib/commons-cli-1.2.jar;lib/commons-collections-3.2.jar;lib/commons-lang-2.3.jar;lib/groovy-all-1.5.7.jar;lib/json-simple-1.1.jar;lib/maven-plugin-api-2.0.8.jar;lib/maven-project-2.0.8.jar</classpath>
                 <source-level>1.5</source-level>
             </compilation-unit>
         </java-data>

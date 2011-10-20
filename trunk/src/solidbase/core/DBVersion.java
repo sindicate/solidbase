@@ -268,7 +268,7 @@ public class DBVersion
 			catch( SQLException e )
 			{
 				String sqlState = e.getSQLState();
-				// Oracle: 42000, MySQL: 42S02, Derby: 42X05, HSQLDB, S0002
+				// Oracle: 42000, MySQL: 42S02, Derby: 42X05, HSQLDB: S0002
 				if( !( sqlState.startsWith( "42" ) || sqlState.startsWith( "S0" ) ) )
 					throw new SystemException( e );
 
@@ -291,7 +291,7 @@ public class DBVersion
 			catch( SQLException e )
 			{
 				String sqlState = e.getSQLState();
-				// Oracle: 42000, MySQL: 42S02, Derby: 42X05, HSQLDB, S0002
+				// Oracle: 42000, MySQL: 42S02, Derby: 42X05, HSQLDB: S0002
 				if( !( sqlState.startsWith( "42" ) || sqlState.startsWith( "S0" ) ) )
 					throw new SystemException( e );
 				Assert.isFalse( this.logTableExists, "DBVERSIONLOG table has disappeared" );
