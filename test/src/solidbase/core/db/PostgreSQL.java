@@ -1,5 +1,5 @@
 /*--
- * Copyright 2006 René M. de Bloois
+ * Copyright 2011 René M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,40 @@
  * limitations under the License.
  */
 
-package solidbase.core;
+package solidbase.core.db;
 
 import java.sql.SQLException;
 import java.util.Set;
 
+import mockit.Mockit;
+
 import org.testng.annotations.Test;
 
-public class Include
+import solidbase.core.Setup;
+import solidbase.core.TestUtil;
+import solidbase.core.UpgradeProcessor;
+import solidbase.test.mocks.PostgreSQLDriverManager;
+
+public class PostgreSQL
 {
 	static private final String db = "jdbc:hsqldb:mem:testdb2";
 
 	@Test
-	public void testInclude() throws SQLException
+	public void testTransactionAborted() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( db, "sa", null );
-		UpgradeProcessor processor = Setup.setupUpgradeProcessor( "testpatch-include1.sql", db );
 
-		Set< String > targets = processor.getTargets( false, null, false );
+		// This mock DriverManager (and mock Connection, PreparedStatement) simulate PostgreSQL
+		// PostgreSQL aborts a transaction when an SQLException is raised, so you can't continue with it
+		Mockit.setUpMocks( PostgreSQLDriverManager.class );
+
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch1.sql", db );
+
+		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
-		processor.upgrade( "1.0.1" );
-		//TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null );
+		patcher.upgrade( "1.0.2" );
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null );
 
-		processor.end();
+		patcher.end();
 	}
 }

@@ -2,7 +2,7 @@
 <launchConfiguration type="org.testng.eclipse.launchconfig">
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.testng.remote.RemoteTestNG"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="solidbase"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-javaagent:${workspace_loc:solidbase}/test/lib/jmockit-0.996.jar"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-javaagent:${workspace_loc:solidbase}/test/lib/jmockit-0.999.10.jar"/>
 <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${workspace_loc:solidbase/test}"/>
 <mapAttribute key="org.testng.eclipse.ALL_CLASS_METHODS">
 <mapEntry key="solidbase.test.console.ThroughConsoleTests" value=""/>
