@@ -1,3 +1,8 @@
+Changes from 1.6.5 to 1.6.6
+---------------------------
+
+FIX  PostgreSQL behaves differently from all the other databases I know: if an SQL statement fails, you can't continue with the transaction. I added an extra commit to make it possible to use SolidBase with PostgreSQL.
+
 Changes from 1.6.4 to 1.6.5
 ---------------------------
 
