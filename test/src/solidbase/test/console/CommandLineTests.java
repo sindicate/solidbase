@@ -27,10 +27,12 @@ import solidbase.test.mocks.MockConsole;
 
 public class CommandLineTests
 {
+	static private final String db = "jdbc:hsqldb:mem:testCommandLine";
+
 	@Test
 	static public void testCommandLine() throws Exception
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( db, "sa", null );
 
 		MockConsole console = new MockConsole();
 		Main.console = console;
@@ -38,7 +40,7 @@ public class CommandLineTests
 		// TODO Rename patchfile to test the -patchfile option
 		Main.main0( "-verbose",
 				"-driver", "org.hsqldb.jdbcDriver",
-				"-url", "jdbc:hsqldb:mem:testdb",
+				"-url", db,
 				"-username", "sa",
 				"-password", "",
 				"-target", "1.0.*",
@@ -75,7 +77,7 @@ public class CommandLineTests
 		Main.console = console;
 
 		Main.main0( "-driver", "org.hsqldb.jdbcDriver",
-				"-url", "jdbc:hsqldb:mem:testdb",
+				"-url", db,
 				"-username", "sa",
 				"-password", "",
 				"-upgradefile", "testpatch1.sql",
@@ -92,14 +94,14 @@ public class CommandLineTests
 	@Test
 	static public void testCommandLineNoTarget() throws Exception
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( db, "sa", null );
 
 		MockConsole console = new MockConsole();
 		Main.console = console;
 
 		Main.main0( "-verbose",
 				"-driver", "org.hsqldb.jdbcDriver",
-				"-url", "jdbc:hsqldb:mem:testdb",
+				"-url", db,
 				"-username", "sa",
 				"-password", "",
 				"-upgradefile", "testpatch1.sql" );
@@ -130,7 +132,7 @@ public class CommandLineTests
 	@Test
 	static public void testCommandLineNotPossible() throws Exception
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( db, "sa", null );
 
 		MockConsole console = new MockConsole();
 		Main.console = console;
@@ -138,7 +140,7 @@ public class CommandLineTests
 		try
 		{
 			Main.main0( "-driver", "org.hsqldb.jdbcDriver",
-					"-url", "jdbc:hsqldb:mem:testdb",
+					"-url", db,
 					"-username", "sa",
 					"-password", "",
 					"-target", "100.0.*",
@@ -225,13 +227,13 @@ public class CommandLineTests
 	@Test
 	static public void testCommandLineSQLFile() throws Exception
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( db, "sa", null );
 
 		MockConsole console = new MockConsole();
 		Main.console = console;
 
 		Main.main0( "-driver", "org.hsqldb.jdbcDriver",
-				"-url", "jdbc:hsqldb:mem:testdb",
+				"-url", db,
 				"-username", "sa",
 				"-password", "",
 				"-sqlfile", "testsql-sections.sql" );
@@ -259,14 +261,14 @@ public class CommandLineTests
 	@Test
 	static public void testSkip() throws Exception
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( db, "sa", null );
 
 		MockConsole console = new MockConsole();
 		Main.console = console;
 
 		Main.main0( "-verbose",
 				"-driver", "org.hsqldb.jdbcDriver",
-				"-url", "jdbc:hsqldb:mem:testdb",
+				"-url", db,
 				"-username", "sa",
 				"-password", "",
 				"-target", "1.0.*",

@@ -23,13 +23,15 @@ import org.testng.annotations.Test;
 
 public class Init
 {
+	static private final String db = "jdbc:hsqldb:mem:testInit";
+
 	@Test
 	public void testInit1() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( db, "sa", null );
 
 		TestProgressListener progress = new TestProgressListener();
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch1.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch1.sql", db );
 		patcher.init();
 
 		Set< String > targets = patcher.getTargets( false, null, false );
@@ -44,7 +46,7 @@ public class Init
 	public void testInit2() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-version-table-upgrade-2.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-version-table-upgrade-2.sql", db );
 		patcher.init();
 
 		Set< String > targets = patcher.getTargets( false, null, false );
@@ -58,10 +60,10 @@ public class Init
 	@Test
 	public void testInit3() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( db, "sa", null );
 
 		TestProgressListener progress = new TestProgressListener();
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-version-table-upgrade-2.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-version-table-upgrade-2.sql", db );
 		patcher.init();
 
 		Set< String > targets = patcher.getTargets( false, null, false );

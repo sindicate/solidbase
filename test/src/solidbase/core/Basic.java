@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 
 public class Basic
 {
-	static private final String db = "jdbc:hsqldb:mem:testdb2";
+	static private final String db = "jdbc:hsqldb:mem:testBasic";
 
 	@Test
 	public void testBasic() throws SQLException
