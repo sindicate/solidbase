@@ -15,14 +15,14 @@ Major/minor release
 		Use 1.6.0-RC1 when doing a first major release
 			We don't do snapshots. Snapshot are automatic releases, we don't do automatic.
 	Update the changelog
+	Make sure you are using java 1.6.0_25 or newer to build.
 	Check 'svn update && ant clean build test'
 	If release a candidate, test it at your current project
 	Commit
 	Tag the revision that you want to deploy
 	update the solidbase-repository
-	'ant maven:deploy'
-		Use the revision from the trunk or branch
-		Update to the revision on the trunk or branch, otherwise you won't get a correct revXXX
+	'ant clean maven:deploy'
+		First, update to the revision on the trunk or branch, otherwise you won't get a correct revXXX
 		This deploys to the local solidbase-repository which is a checked out folder from subversion.
 	Create a branch when you know that you are going to do major enhancements on the trunk
 		Otherwise wait till you start doing new developments on the trunk
@@ -32,3 +32,5 @@ Major/minor release
 		Comment "Released 1.6.0-RC1"
 	Check the Gettingstarteds
 	Check the content on the site
+		Add the jar to the downloads
+		Add a news item
