@@ -105,6 +105,7 @@
 
     <!-- Check Java version  -->
 	
+	<!--
     <echo message="Java Version: ${java.version}"/> 
     <echo message="Java home: ${java.home}"/> 
     <fail message="Unsupported Java version: ${java.version}. Make sure that the version of the Java compiler is 1.5 or 1.6."> 
@@ -116,7 +117,8 @@
                 </or> 
             </not> 
         </condition> 
-    </fail> 
+    </fail>
+    --> 
 
 	
 	<!-- Default target -->

@@ -98,6 +98,7 @@ public class ExportCSV implements CommandListener
 					boolean[] coalesce = new boolean[ count ];
 					int firstCoalesce = -1;
 
+					// FIXME This must not be the default
 					boolean first = true;
 					for( int i = 0; i < count; i++ )
 					{
@@ -125,12 +126,14 @@ public class ExportCSV implements CommandListener
 					while( result.next() )
 					{
 						Object coalescedValue = null;
+						int coalescedType = Types.NULL;
 						if( parsed.coalesce != null )
 							for( int i = 0; i < count; i++ )
 								if( coalesce[ i ] )
 								{
 									// getObject in Oracle gives a oracle.sql.TIMESTAMP which does not implement toString correctly.
-									if( types[ i ] == Types.TIMESTAMP )
+									coalescedType = types[ i ];
+									if( coalescedType == Types.TIMESTAMP )
 										coalescedValue = result.getTimestamp( i + 1 );
 									else
 										coalescedValue = result.getObject( i + 1 );
@@ -149,10 +152,12 @@ public class ExportCSV implements CommandListener
 									out.write( parsed.separator );
 
 								Object value = coalescedValue;
+								int valueType = coalescedType;
 								if( firstCoalesce != i )
 								{
 									// getObject in Oracle gives a oracle.sql.TIMESTAMP which does not implement toString correctly.
-									if( types[ i ] == Types.TIMESTAMP )
+									valueType = types[ i ];
+									if( valueType == Types.TIMESTAMP )
 										value = result.getTimestamp( i + 1 );
 									else
 										value = result.getObject( i + 1 );
