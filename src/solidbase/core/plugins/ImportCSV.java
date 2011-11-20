@@ -214,6 +214,7 @@ public class ImportCSV implements CommandListener
 					}
 					catch( ArrayIndexOutOfBoundsException e )
 					{
+						// TODO Design a better error message for this
 						throw new CommandFileException( e.getClass().getName() + ": " + e.getMessage(), lineNumber );
 					}
 				}

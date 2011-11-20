@@ -115,6 +115,7 @@ public class SQLTask extends DBTask
 		}
 		catch( FatalException e )
 		{
+			// TODO When debugging, we should give the whole exception, not only the message
 			throw new BuildException( e.getMessage() );
 		}
 	}
