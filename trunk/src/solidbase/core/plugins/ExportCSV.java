@@ -18,10 +18,8 @@ package solidbase.core.plugins;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
@@ -39,6 +37,7 @@ import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.SystemException;
+import solidbase.util.CSVWriter;
 import solidbase.util.Resource;
 import solidbase.util.StringLineReader;
 import solidbase.util.Tokenizer;
@@ -54,7 +53,6 @@ import solidbase.util.Tokenizer.Token;
 public class ExportCSV implements CommandListener
 {
 	static private final Pattern triggerPattern = Pattern.compile( "EXPORT\\s+CSV\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
-	static private final char[] HEX = "0123456789ABCDEF".toCharArray();
 
 
 	//@Override
@@ -67,14 +65,13 @@ public class ExportCSV implements CommandListener
 			return false;
 
 		Parsed parsed = parse( command );
-		// Pattern: ", CR, NL or parsed.separator
-		Pattern needQuotesPattern = Pattern.compile( "\"|\r|\n|" + Pattern.quote( Character.toString( parsed.separator ) ) );
 
 		Resource resource = processor.getResource().createRelative( parsed.fileName );
-		Writer out;
+
+		CSVWriter out;
 		try
 		{
-			out = new OutputStreamWriter( resource.getOutputStream(), parsed.encoding );
+			out = new CSVWriter( resource, parsed.encoding, parsed.separator );
 		}
 		catch( UnsupportedEncodingException e )
 		{
@@ -99,7 +96,6 @@ public class ExportCSV implements CommandListener
 					int firstCoalesce = -1;
 
 					// FIXME This must not be the default
-					boolean first = true;
 					for( int i = 0; i < count; i++ )
 					{
 						String name = metaData.getColumnName( i + 1 );
@@ -112,16 +108,10 @@ public class ExportCSV implements CommandListener
 								firstCoalesce = i;
 						}
 						if( !coalesce[ i ] || firstCoalesce == i )
-						{
-							if( first )
-								first = false;
-							else
-								out.write( parsed.separator );
-							writeCSVValue( name, needQuotesPattern, out );
-						}
+							out.writeValue( name );
 					}
 
-					out.write( '\n' );
+					out.nextRecord();
 
 					while( result.next() )
 					{
@@ -141,16 +131,10 @@ public class ExportCSV implements CommandListener
 										break;
 								}
 
-						first = true;
 						for( int i = 0; i < count; i++ )
 						{
 							if( !coalesce[ i ] || firstCoalesce == i )
 							{
-								if( first )
-									first = false;
-								else
-									out.write( parsed.separator );
-
 								Object value = coalescedValue;
 								int valueType = coalescedType;
 								if( firstCoalesce != i )
@@ -167,44 +151,23 @@ public class ExportCSV implements CommandListener
 									if( value instanceof Clob )
 									{
 										Reader in = ( (Clob)value ).getCharacterStream();
-										out.write( '"' );
-										char[] buf = new char[ 4096 ];
-										for( int read = in.read( buf ); read >= 0; read = in.read( buf ) )
-											out.write( new String( buf, 0, read ).replace( "\"", "\"\"" ) );
-										out.write( '"' );
+										out.writeValue( in );
 										in.close();
 									}
 									else if( value instanceof Blob )
 									{
 										InputStream in = ( (Blob)value ).getBinaryStream();
-										byte[] buf = new byte[ 4096 ];
-										for( int read = in.read( buf ); read >= 0; read = in.read( buf ) )
-										{
-											for( int j = 0; j < read; j++ )
-											{
-												int b = buf[ j ];
-												out.write( HEX[ ( b >> 4 ) & 15 ] );
-												out.write( HEX[ b & 15 ] );
-											}
-										}
+										out.writeValue( in );
 										in.close();
 									}
 									else if( value instanceof byte[] )
-									{
-										for( int b : (byte[])value )
-										{
-											out.write( HEX[ ( b >> 4 ) & 15 ] );
-											out.write( HEX[ b & 15 ] );
-										}
-									}
+										out.writeValue( (byte[])value );
 									else
-									{
-										writeCSVValue( value.toString(), needQuotesPattern, out );
-									}
+										out.writeValue( value.toString() );
 							}
 						}
 
-						out.write( '\n' );
+						out.nextRecord();
 					}
 				}
 				finally
@@ -225,27 +188,6 @@ public class ExportCSV implements CommandListener
 		}
 
 		return true;
-	}
-
-
-	private void writeCSVValue( String value, Pattern needQuotesPattern, Writer out ) throws IOException
-	{
-		boolean needQuotes = needQuotesPattern.matcher( value ).find();
-		if( needQuotes )
-		{
-			out.write( '"' );
-			int len = value.length();
-			for( int i = 0; i < len; i++ )
-			{
-				char c = value.charAt( i );
-				if( c == '"' )
-					out.write( c );
-				out.write( c );
-			}
-			out.write( '"' );
-		}
-		else
-			out.write( value );
 	}
 
 
