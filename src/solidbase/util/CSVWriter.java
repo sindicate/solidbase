@@ -30,6 +30,8 @@ public class CSVWriter
 	public void writeValue( String value )
 	{
 		writeValue0();
+		if( value == null )
+			return;
 		try
 		{
 			boolean needQuotes = this.needQuotesPattern.matcher( value ).find();
@@ -97,6 +99,8 @@ public class CSVWriter
 	public void writeValue( byte[] value )
 	{
 		writeValue0();
+		if( value == null )
+			return;
 		try
 		{
 			for( int b : value )

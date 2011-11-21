@@ -147,23 +147,24 @@ public class ExportCSV implements CommandListener
 										value = result.getObject( i + 1 );
 								}
 
-								if( value != null )
-									if( value instanceof Clob )
-									{
-										Reader in = ( (Clob)value ).getCharacterStream();
-										out.writeValue( in );
-										in.close();
-									}
-									else if( value instanceof Blob )
-									{
-										InputStream in = ( (Blob)value ).getBinaryStream();
-										out.writeValue( in );
-										in.close();
-									}
-									else if( value instanceof byte[] )
-										out.writeValue( (byte[])value );
-									else
-										out.writeValue( value.toString() );
+								if( value == null )
+									out.writeValue( (String)null );
+								else if( value instanceof Clob )
+								{
+									Reader in = ( (Clob)value ).getCharacterStream();
+									out.writeValue( in );
+									in.close();
+								}
+								else if( value instanceof Blob )
+								{
+									InputStream in = ( (Blob)value ).getBinaryStream();
+									out.writeValue( in );
+									in.close();
+								}
+								else if( value instanceof byte[] )
+									out.writeValue( (byte[])value );
+								else
+									out.writeValue( value.toString() );
 							}
 						}
 
