@@ -29,6 +29,7 @@ import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.SQLExecutionException;
+import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidbase.util.BOMDetectingLineReader;
 import solidbase.util.CSVReader;
@@ -198,6 +199,7 @@ public class ImportCSV implements CommandListener
 				preprocess( line );
 
 				int pos = 1;
+				int index = 0;
 				for( int par : parameterMap )
 				{
 					try
@@ -207,15 +209,14 @@ public class ImportCSV implements CommandListener
 							if( par == 1 )
 								statement.setInt( pos++, lineNumber );
 							else
-								statement.setString( pos++, line[ par - 2 ] );
+								statement.setString( pos++, line[ index = par - 2 ] );
 						}
 						else
-							statement.setString( pos++, line[ par - 1 ] );
+							statement.setString( pos++, line[ index = par - 1 ] );
 					}
 					catch( ArrayIndexOutOfBoundsException e )
 					{
-						// TODO Design a better error message for this
-						throw new CommandFileException( e.getClass().getName() + ": " + e.getMessage(), lineNumber );
+						throw new CommandFileException( "Value with index " + ( index + 1 ) + " does not exist, record has only " + line.length + " values", lineNumber );
 					}
 				}
 
@@ -227,8 +228,36 @@ public class ImportCSV implements CommandListener
 					}
 					catch( SQLException e )
 					{
+						StringBuilder b = new StringBuilder( sql.toString() );
+						b.append( " VALUES (" );
+						boolean first = true;
+						for( int par : parameterMap )
+						{
+							if( first )
+								first = false;
+							else
+								b.append( ',' );
+							try
+							{
+								if( prependLineNumber )
+								{
+									if( par == 1 )
+										b.append( lineNumber );
+									else
+										b.append( line[ par - 2 ] );
+								}
+								else
+									b.append( line[ par - 1 ] );
+							}
+							catch( ArrayIndexOutOfBoundsException ee )
+							{
+								throw new SystemException( ee );
+							}
+						}
+						b.append( ')' );
+
 						// When NOBATCH is on, you can see the actual insert statement and line number in the file where the SQLException occurred.
-						throw new SQLExecutionException( sql.toString(), lineNumber, e );
+						throw new SQLExecutionException( b.toString(), lineNumber, e );
 					}
 				}
 				else
