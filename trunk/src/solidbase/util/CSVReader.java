@@ -25,7 +25,7 @@ import solidbase.util.CSVTokenizer.Token;
 
 /**
  * Reads CSV data from the given {@link Tokenizer}.
- * 
+ *
  * @author René M. de Bloois
  */
 public class CSVReader
@@ -43,7 +43,7 @@ public class CSVReader
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param reader The source of the CSV data.
 	 * @param separator The separator that separates the values.
 	 * @param ignoreWhiteSpace Ignore white space, except white space enclosed in double quotes.
@@ -56,7 +56,7 @@ public class CSVReader
 
 	/**
 	 * Gets a line of values from the CSV data.
-	 * 
+	 *
 	 * @return A line of values from the CSV data.
 	 */
 	public String[] getLine()
@@ -69,7 +69,7 @@ public class CSVReader
 			Token token = tokenizer.get();
 
 			// We expect a value here. So if we get a separator/newline/EOI then we need to add an empty value
-			if( token.equals( this.separator ) )
+			if( token.isSeparator() )
 			{
 				values.add( "" );
 			}
@@ -85,7 +85,7 @@ public class CSVReader
 				token = tokenizer.get();
 				if( token.isNewline() || token.isEndOfInput() )
 					break;
-				if( !token.equals( this.separator ) )
+				if( !token.isSeparator() )
 					throw new CommandFileException( "Expecting <separator>, <newline> or <end-of-input>, not '" + token.getValue() + "'", tokenizer.getLineNumber() );
 			}
 		}
@@ -97,7 +97,7 @@ public class CSVReader
 
 	/**
 	 * Returns the current line number. The line number is the number of the line of data about to be read.
-	 * 
+	 *
 	 * @return The current line number.
 	 */
 	public int getLineNumber()

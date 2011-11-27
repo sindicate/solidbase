@@ -21,7 +21,7 @@ import solidbase.core.CommandFileException;
 
 /**
  * This is a tokenizer for CSV. It maintains the current line number, and it ignores whitespace.
- * 
+ *
  * @author René M. de Bloois
  */
 public class CSVTokenizer
@@ -54,7 +54,7 @@ public class CSVTokenizer
 
 	/**
 	 * Constructs a new instance of the Tokenizer.
-	 * 
+	 *
 	 * @param in The input.
 	 * @param separator The CSV separator.
 	 * @param ignoreWhiteSpace Ignore white space, except white space enclosed in double quotes.
@@ -68,7 +68,7 @@ public class CSVTokenizer
 
 	/**
 	 * Is the given character a whitespace?
-	 * 
+	 *
 	 * @param ch The character to check.
 	 * @return True if the characters is whitespace, false otherwise.
 	 */
@@ -86,7 +86,7 @@ public class CSVTokenizer
 
 	/**
 	 * Returns the next token from the input.
-	 * 
+	 *
 	 * @return A token from the input. Null if there are no more tokens available.
 	 */
 	public Token get()
@@ -125,11 +125,14 @@ public class CSVTokenizer
 			return new Token( result.toString() );
 		}
 
-		if( ch == this.separator || ch == '\n' )
-			return new Token( String.valueOf( (char)ch ) );
+		if( ch == this.separator )
+			return Token.SEPARATOR;
+
+		if( ch == '\n' )
+			return Token.NEWLINE;
 
 		if( ch == -1 )
-			return new Token( null );
+			return Token.EOI;
 
 		// Collect all characters until separator or newline or EOI
 		StringBuilder whiteSpace = this.whiteSpace;
@@ -170,7 +173,7 @@ public class CSVTokenizer
 
 	/**
 	 * Returns the current line number.
-	 * 
+	 *
 	 * @return The current line number.
 	 */
 	public int getLineNumber()
@@ -180,7 +183,7 @@ public class CSVTokenizer
 
 	/**
 	 * Returns the underlying reader. But only if the back buffer is empty, otherwise an IllegalStateException is thrown.
-	 * 
+	 *
 	 * @return The underlying reader.
 	 */
 	public LineReader getReader()
@@ -190,94 +193,101 @@ public class CSVTokenizer
 
 
 	/**
-	 * A token. The token is case insensitive, so the {@link #equals(String)} does a case insensitive comparison.
-	 * 
+	 * A CSV token.
+	 *
 	 * @author René M. de Bloois
 	 */
 	static public class Token
 	{
+		/** A newline token */
+		static final protected Token NEWLINE = new Token( 1 );
+
+		/** A end-of-input token */
+		static final protected Token EOI = new Token( 2 );
+
+		/** A separator token */
+		static final protected Token SEPARATOR = new Token( 3 );
+
+		/**
+		 * The type of the token.
+		 */
+		private int type;
+
 		/**
 		 * The value of the token.
 		 */
-		protected String value;
+		private String value;
 
 		/**
 		 * Constructs a new token.
-		 * 
+		 *
+		 * @param type The type of the token.
+		 */
+		private Token( int type )
+		{
+			this.type = type;
+		}
+
+		/**
+		 * Constructs a new token.
+		 *
 		 * @param value The value of the token.
 		 */
-		public Token( String value )
+		protected Token( String value )
 		{
-			// Empty string is also expected because of "" tokens
 			this.value = value;
 		}
 
 		/**
 		 * Returns the value of token.
-		 * 
+		 *
 		 * @return The value of token.
 		 */
 		public String getValue()
 		{
+			if( this.type != 0 )
+				throw new IllegalStateException( "This token is not a CSV value" );
 			return this.value;
 		}
 
 		/**
 		 * Is this token a newline?
-		 * 
+		 *
+		 * @return True if this token is a newline, false otherwise.
+		 */
+		public boolean isValue()
+		{
+			return this.type == 0;
+		}
+
+		/**
+		 * Is this token a newline?
+		 *
 		 * @return True if this token is a newline, false otherwise.
 		 */
 		public boolean isNewline()
 		{
-			if( this.value == null )
-				return false;
-			if( this.value.length() != 1 )
-				return false;
-			return this.value.charAt( 0 ) == '\n';
+			return this.type == 1;
 		}
 
 		/**
 		 * Is this token the end-of-input token?
-		 * 
+		 *
 		 * @return True if this token is the end-of-input token, false otherwise.
 		 */
 		public boolean isEndOfInput()
 		{
-			return this.value == null;
+			return this.type == 2;
 		}
 
 		/**
-		 * Does a comparison with the given string.
+		 * Is this token the end-of-input token?
 		 *
-		 * @param s A string to compare the value of this token with.
-		 * @return True if the value of this token and the given string are equal, false otherwise.
+		 * @return True if this token is the end-of-input token, false otherwise.
 		 */
-		public boolean equals( String s )
+		public boolean isSeparator()
 		{
-			if( this.value == null )
-				return false;
-			return this.value.equals( s );
-		}
-
-		/**
-		 * Does a comparison with the given character.
-		 *
-		 * @param c A character to compare the value of this token with.
-		 * @return True if the value of this token and the given character are equal, false otherwise.
-		 */
-		public boolean equals( char c )
-		{
-			if( this.value == null )
-				return false;
-			if( this.value.length() != 1 )
-				return false;
-			return this.value.charAt( 0 ) == c;
-		}
-
-		@Override
-		public String toString()
-		{
-			return this.value;
+			return this.type == 3;
 		}
 	}
 }
