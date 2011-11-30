@@ -29,31 +29,31 @@ public class Messages
 //		System.out.println( "[[[" + output + "]]]" );
 		Assert.assertEquals( output,
 				"Reading property file file:/.../solidbase-default.properties\n" +
-				"SolidBase v1.5.x (http://solidbase.org)\n" +
-				"\n" +
-				"Opening file 'folder/testpatch-import1.sql'\n" +
-				"    Encoding is 'ISO-8859-1'\n" +
-				"Connecting to database...\n" +
-				"The database is unmanaged.\n" +
-				"Upgrading to \"1.0.1\"\n" +
-				"    Creating control tables..\n" +
-				"DEBUG: version=null, target=1.0.1, statements=2\n" +
-				"Upgrading \"1.0.1\" to \"1.0.2\".\n" +
-				"Starting import.....\n" + // Message before listener execution
-				"    Generating SQLException.\n" + // There should be a dot here
-				"    Importing with linenumber..\n" +
-				"104\n" +
-				"105\n" +
-				"106.\n" +
-				"        Importing with column list\n" +
-				"            And deeper..\n" +
-				"23Y\n" +
-				"47Y.\n" +
-				"        Importing from external file.\n" +
-				"DEBUG: version=1.0.1, target=1.0.2, statements=14\n" +
-				"The database is upgraded.\n" +
-				"\n" +
-				"Current database version is \"1.0.2\".\n"
-		);
+						"SolidBase v1.5.x (http://solidbase.org)\n" +
+						"\n" +
+						"Opening file 'folder/testpatch-import1.sql'\n" +
+						"    Encoding is 'ISO-8859-1'\n" +
+						"Connecting to database...\n" +
+						"The database is unmanaged.\n" +
+						"Upgrading to \"1.0.1\"\n" +
+						"    Creating control tables..\n" +
+						"DEBUG: version=null, target=1.0.1, statements=2\n" +
+						"Upgrading \"1.0.1\" to \"1.0.2\".\n" +
+						"Starting import.....\n" + // Message before listener execution
+						"    Generating SQLException.\n" + // There should be a dot here
+						"    Importing with linenumber..\n" +
+						"106\n" +
+						"107\n" +
+						"108.\n" +
+						"        Importing with column list\n" +
+						"            And deeper..\n" +
+						"23Y\n" +
+						"47Y.\n" +
+						"        Importing from external file.\n" +
+						"DEBUG: version=1.0.1, target=1.0.2, statements=14\n" +
+						"The database is upgraded.\n" +
+						"\n" +
+						"Current database version is \"1.0.2\".\n"
+				);
 	}
 }
