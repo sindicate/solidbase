@@ -69,9 +69,11 @@ IMPORT CSV INTO TEMP DATA
 IMPORT CSV INTO TEMP DATA
 "1","2","3";
 
+--* // Newline enclosed in double quotes was recognized as the end of the record
 IMPORT CSV INTO TEMP;
 "1","2","3"
-"1","2","3"
+"1","
+","3"
 "1","2","3"
 
 IMPORT CSV SEPARATED BY TAB INTO TEMP
