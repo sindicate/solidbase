@@ -58,9 +58,9 @@ public class Messages
 				"Starting import.....\n" + // Message before listener execution
 				"    Generating SQLException.\n" + // There should be a dot here
 				"    Importing with linenumber..\n" +
-				"104\n" +
-				"105\n" +
-				"106.\n" +
+						"106\n" +
+						"107\n" +
+						"108.\n" +
 				"        Importing with column list\n" +
 				"            And deeper..\n" +
 				"23Y\n" +
