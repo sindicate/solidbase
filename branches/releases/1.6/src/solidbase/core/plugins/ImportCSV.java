@@ -52,7 +52,7 @@ import solidbase.util.Tokenizer.Token;
  * "xxxx2","yyyy2","zzzz2"
  * GO
  * </pre></blockquote>
- * 
+ *
  * @author René M. de Bloois
  * @since Dec 2, 2009
  */
@@ -136,11 +136,11 @@ public class ImportCSV implements CommandListener
 
 	/**
 	 * Import data using a JDBC prepared statement, like this:
-	 * 
+	 *
 	 * <blockquote><pre>
 	 * INSERT INTO TABLE1 VALUES ( ?, ? );
 	 * </pre></blockquote>
-	 * 
+	 *
 	 * @param command The import command.
 	 * @param connection The connection with the database.
 	 * @param reader The CSV reader.
@@ -211,6 +211,7 @@ public class ImportCSV implements CommandListener
 				preprocess( line );
 
 				int pos = 1;
+				int index = 0;
 				for( int par : parameterMap )
 				{
 					try
@@ -220,14 +221,14 @@ public class ImportCSV implements CommandListener
 							if( par == 1 )
 								statement.setInt( pos++, lineNumber );
 							else
-								statement.setString( pos++, line[ par - 2 ] );
+								statement.setString( pos++, line[ index = par - 2 ] );
 						}
 						else
-							statement.setString( pos++, line[ par - 1 ] );
+							statement.setString( pos++, line[ index = par - 1 ] );
 					}
 					catch( ArrayIndexOutOfBoundsException e )
 					{
-						throw new CommandFileException( e.getClass().getName() + ": " + e.getMessage(), lineNumber );
+						throw new CommandFileException( "Value with index " + ( index + 1 ) + " does not exist, record has only " + line.length + " values", lineNumber );
 					}
 				}
 
@@ -239,8 +240,36 @@ public class ImportCSV implements CommandListener
 					}
 					catch( SQLException e )
 					{
+						StringBuilder b = new StringBuilder( sql.toString() );
+						b.append( " VALUES (" );
+						boolean first = true;
+						for( int par : parameterMap )
+						{
+							if( first )
+								first = false;
+							else
+								b.append( ',' );
+							try
+							{
+								if( prependLineNumber )
+								{
+									if( par == 1 )
+										b.append( lineNumber );
+									else
+										b.append( line[ par - 2 ] );
+								}
+								else
+									b.append( line[ par - 1 ] );
+							}
+							catch( ArrayIndexOutOfBoundsException ee )
+							{
+								throw new SystemException( ee );
+							}
+						}
+						b.append( ')' );
+
 						// When NOBATCH is on, you can see the actual insert statement and line number in the file where the SQLException occurred.
-						throw new SQLExecutionException( sql.toString(), lineNumber, e );
+						throw new SQLExecutionException( b.toString(), lineNumber, e );
 					}
 				}
 				else
@@ -273,7 +302,7 @@ public class ImportCSV implements CommandListener
 
 	/**
 	 * Replaces arguments within the given value with ? and maintains a map.
-	 * 
+	 *
 	 * @param value Value to be translated.
 	 * @param parameterMap A map of ? index to index of the CSV fields.
 	 * @return The translated value.
@@ -295,7 +324,7 @@ public class ImportCSV implements CommandListener
 
 	/**
 	 * Replaces empty strings with null.
-	 * 
+	 *
 	 * @param line The line to preprocess.
 	 */
 	static protected void preprocess( String[] line )
@@ -308,7 +337,7 @@ public class ImportCSV implements CommandListener
 
 	/**
 	 * Parses the given command.
-	 * 
+	 *
 	 * @param command The command to be parsed.
 	 * @return A structure representing the parsed command.
 	 */
@@ -457,7 +486,7 @@ public class ImportCSV implements CommandListener
 
 	/**
 	 * Parse till the specified characters are found.
-	 * 
+	 *
 	 * @param tokenizer The tokenizer.
 	 * @param result The result is stored in this StringBuilder.
 	 * @param chars The end characters.
@@ -509,7 +538,7 @@ public class ImportCSV implements CommandListener
 
 	/**
 	 * A parsed command.
-	 * 
+	 *
 	 * @author René M. de Bloois
 	 */
 	static protected class Parsed
