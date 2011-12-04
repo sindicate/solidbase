@@ -19,8 +19,10 @@ package solidbase.core;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -105,39 +107,57 @@ public class Util
 	 * @param fileName The name and path of the SQL file.
 	 * @param listener The progress listener.
 	 * @return The SQL file.
+	 * @throws FileNotFoundException When the file is not found.
 	 */
 	// TODO This should be done like openRALR
 	static public SQLFile openSQLFile( File baseDir, String fileName, ProgressListener listener )
 	{
 		Assert.notNull( fileName );
 
+		if( baseDir == null )
+		{
+			// TODO Should we remove this "/"?
+			URL url = Util.class.getResource( "/" + fileName ); // In the classpath
+			if( url != null )
+			{
+				listener.openingSQLFile( url );
+				InputStream in;
+				try
+				{
+					in = url.openStream();
+				}
+				catch( IOException e )
+				{
+					throw new SystemException( e );
+				}
+				SQLFile result = new SQLFile( new BufferedInputStream( in ), url );
+				listener.openedSQLFile( result );
+				return result;
+			}
+		}
+
+		File file = new File( baseDir, fileName ); // In the current folder
+		listener.openingSQLFile( file );
+		InputStream in;
 		try
 		{
-			if( baseDir == null )
-			{
-				// TODO Should we remove this "/"?
-				URL url = Util.class.getResource( "/" + fileName ); // In the classpath
-				if( url != null )
-				{
-					listener.openingSQLFile( url );
-					InputStream in = url.openStream();
-					SQLFile result = new SQLFile( new BufferedInputStream( in ), url );
-					listener.openedSQLFile( result );
-					return result;
-				}
-			}
-
-			File file = new File( baseDir, fileName ); // In the current folder
-			listener.openingSQLFile( file );
-			InputStream in = new FileInputStream( file );
-			SQLFile result = new SQLFile( new BufferedInputStream( in ), file.toURI().toURL() );
-			listener.openedSQLFile( result );
-			return result;
+			in = new FileInputStream( file );
 		}
-		catch( IOException e )
+		catch( FileNotFoundException e )
+		{
+			throw new FatalException( e.toString() );
+		}
+		SQLFile result;
+		try
+		{
+			result = new SQLFile( new BufferedInputStream( in ), file.toURI().toURL() );
+		}
+		catch( MalformedURLException e )
 		{
 			throw new SystemException( e );
 		}
+		listener.openedSQLFile( result );
+		return result;
 	}
 
 	/**
@@ -146,6 +166,7 @@ public class Util
 	 * @param fileName The name and path of the SQL file.
 	 * @param listener The progress listener.
 	 * @return The SQL file.
+	 * @throws FileNotFoundException When the file is not found.
 	 */
 	static public SQLFile openSQLFile( String fileName, ProgressListener listener )
 	{

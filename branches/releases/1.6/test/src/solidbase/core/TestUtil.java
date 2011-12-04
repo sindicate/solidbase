@@ -16,6 +16,8 @@
 
 package solidbase.core;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -156,5 +158,19 @@ public class TestUtil
 			assert value == null : "Expected null, got [" + value + "]";
 		else
 			assert expected.equals( value ) : "Expected [" + expected + "], got [" + value + "]";
+	}
+
+	static public String capture( Runnable runnable )
+	{
+		ByteArrayOutputStream buf = new ByteArrayOutputStream();
+		PrintStream print = new PrintStream( buf );
+		PrintStream origOut = System.out;
+		PrintStream origErr = System.err;
+		System.setOut( print );
+		System.setErr( print );
+		runnable.run();
+		System.setOut( origOut );
+		System.setErr( origErr );
+		return buf.toString();
 	}
 }

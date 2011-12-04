@@ -98,7 +98,9 @@ public class SQLProcessor extends CommandProcessor
 	public void end()
 	{
 		super.end();
-		this.sqlSource.close();
+		// TODO Maybe the source should just be an argument to process(), and the caller is responsible for closing the source.
+		if( this.sqlSource != null )
+			this.sqlSource.close();
 		this.progress.sqlExecutionComplete();
 	}
 
