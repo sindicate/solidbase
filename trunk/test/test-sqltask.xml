@@ -42,4 +42,12 @@
 	</target>
 
 
+	<target name="ant-test-filenotfound">
+		<taskdef resource="solidbasetasks" classpathref="test.classpath" />
+		<sb-sql driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask2" username="sa" password="">
+			<sqlfile src="doesnotexist.sql" />
+        </sb-sql>
+	</target>
+
+
 </project>

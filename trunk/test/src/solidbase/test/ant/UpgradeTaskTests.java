@@ -105,7 +105,7 @@ public class UpgradeTaskTests extends BuildFileTest
 				"The database is upgraded.\n" +
 				"\n" +
 				"Current database version is \"1.0.2\".\n"
-		);
+				);
 	}
 
 	@Test
@@ -130,7 +130,32 @@ public class UpgradeTaskTests extends BuildFileTest
 				"The database is upgraded.\n" +
 				"\n" +
 				"Current database version is \"1.0.2\".\n"
-		);
+				);
+	}
+
+	@Test
+	public void testUpgradeFileDoesNotExist()
+	{
+		String log = TestUtil.captureAnt( new Runnable()
+		{
+			public void run()
+			{
+				new AntMain().startAnt( new String[] { "-f", "test-upgradetask.xml", "ant-test-filenotfound" }, null, null );
+			}
+		} );
+		log = TestUtil.generalizeOutput( log );
+		Assert.assertEquals( log, "Buildfile: test-upgradetask.xml\n" +
+				"\n" +
+				"ant-test-filenotfound:\n" +
+				"[solidbase-upgrade] SolidBase v1.5.x (http://solidbase.org)\n" +
+				"[solidbase-upgrade] \n" +
+				"[solidbase-upgrade] Opening file 'X:/.../doesnotexist.sql'\n" +
+				"\n" +
+				"BUILD FAILED\n" +
+				"X:/.../test-upgradetask.xml:51: java.io.FileNotFoundException: X:/.../doesnotexist.sql (The system cannot find the file specified)\n" +
+				"\n" +
+				"Total time: 0 seconds\n"
+				);
 	}
 
 	protected class MyAntTestListener implements BuildListener

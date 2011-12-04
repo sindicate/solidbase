@@ -89,16 +89,9 @@ public class FileResource implements Resource
 		}
 	}
 
-	public InputStream getInputStream()
+	public InputStream getInputStream() throws FileNotFoundException
 	{
-		try
-		{
-			return new FileInputStream( this.file );
-		}
-		catch( FileNotFoundException e )
-		{
-			throw new SystemException( e );
-		}
+		return new FileInputStream( this.file );
 	}
 
 	public OutputStream getOutputStream()

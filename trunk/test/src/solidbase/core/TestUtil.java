@@ -16,12 +16,17 @@
 
 package solidbase.core;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import mockit.Deencapsulation;
+
+import org.apache.tools.ant.Main;
 import org.testng.Assert;
 
 
@@ -153,5 +158,49 @@ public class TestUtil
 			assert value == null : "Expected null, got [" + value + "]";
 		else
 			assert expected.equals( value ) : "Expected [" + expected + "], got [" + value + "]";
+	}
+
+	static public String capture( Runnable runnable )
+	{
+		ByteArrayOutputStream buf = new ByteArrayOutputStream();
+		PrintStream print = new PrintStream( buf );
+		PrintStream origOut = System.out;
+		PrintStream origErr = System.err;
+		System.setOut( print );
+		System.setErr( print );
+		try
+		{
+			runnable.run();
+			print.close();
+		}
+		finally
+		{
+			System.setOut( origOut );
+			System.setErr( origErr );
+		}
+		return buf.toString();
+	}
+
+	static public String captureAnt( Runnable runnable )
+	{
+		ByteArrayOutputStream buf = new ByteArrayOutputStream();
+		PrintStream print = new PrintStream( buf );
+		PrintStream origOut = System.out;
+		PrintStream origErr = System.err;
+		System.setOut( print );
+		System.setErr( print );
+		Deencapsulation.setField( Main.class, "out", print );
+		Deencapsulation.setField( Main.class, "err", print );
+		try
+		{
+			runnable.run();
+			print.close();
+		}
+		finally
+		{
+			System.setOut( origOut );
+			System.setErr( origErr );
+		}
+		return buf.toString();
 	}
 }
