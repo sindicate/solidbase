@@ -17,11 +17,13 @@
 package solidbase.util;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
+import solidbase.core.FatalException;
 import solidbase.core.SystemException;
 
 
@@ -110,7 +112,16 @@ public class URLRandomAccessLineReader extends BufferedReaderLineReader implemen
 	protected void reOpen()
 	{
 		close();
-		InputStream is = this.resource.getInputStream();
+		InputStream is;
+		try
+		{
+			is = this.resource.getInputStream();
+		}
+		catch( FileNotFoundException e )
+		{
+			// TODO Should we throw a FatalException in the util package?
+			throw new FatalException( e.toString() );
+		}
 		try
 		{
 			if( this.bom != null )

@@ -17,6 +17,7 @@
 package solidbase.core;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 
 import solidbase.util.ClassPathResource;
@@ -100,7 +101,14 @@ public final class Factory
 
 		// TODO What about the message? "Opening internal resource..."
 		MemoryResource resource2 = new MemoryResource();
-		resource2.append( resource.getInputStream() );
+		try
+		{
+			resource2.append( resource.getInputStream() );
+		}
+		catch( FileNotFoundException e )
+		{
+			throw new FatalException( e.toString() );
+		}
 		return new URLRandomAccessLineReader( resource2 );
 	}
 

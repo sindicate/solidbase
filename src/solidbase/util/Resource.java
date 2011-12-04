@@ -16,6 +16,7 @@
 
 package solidbase.util;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
@@ -46,8 +47,9 @@ public interface Resource
 	 * Returns the input stream for this resource. Some resources allow only a single input stream to be retrieved.
 	 *
 	 * @return The input stream for this resource.
+	 * @throws FileNotFoundException
 	 */
-	InputStream getInputStream();
+	InputStream getInputStream() throws FileNotFoundException;
 
 	/**
 	 * Returns the output stream for this resource. Some resources allow only a single output stream to be retrieved.

@@ -17,6 +17,7 @@
 package solidbase.test.ant;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 
 import org.apache.tools.ant.BuildEvent;
@@ -95,7 +96,33 @@ public class SqlTaskTests extends BuildFileTest
 				"Inserting 3 users...\n" +
 				"Execution complete.\n" +
 				"\n"
-		);
+				);
+	}
+
+	@Test
+	public void testSqlFileDoesNotExist() throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException
+	{
+		String log = TestUtil.captureAnt( new Runnable()
+		{
+			public void run()
+			{
+				new AntMain().startAnt( new String[] { "-f", "test-sqltask.xml", "ant-test-filenotfound" }, null, null );
+			}
+		} );
+		log = TestUtil.generalizeOutput( log );
+		Assert.assertEquals( log, "Buildfile: test-sqltask.xml\n" +
+				"\n" +
+				"ant-test-filenotfound:\n" +
+				"   [sb-sql] SolidBase v1.5.x (http://solidbase.org)\n" +
+				"   [sb-sql] \n" +
+				"   [sb-sql] Opening file 'X:/.../doesnotexist.sql'\n" +
+				"   [sb-sql] Execution complete.\n" +
+				"\n" +
+				"BUILD FAILED\n" +
+				"X:/.../test-sqltask.xml:47: java.io.FileNotFoundException: X:/.../doesnotexist.sql (The system cannot find the file specified)\n" +
+				"\n" +
+				"Total time: 0 seconds\n"
+				);
 	}
 
 	protected class MyAntTestListener implements BuildListener

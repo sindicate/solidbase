@@ -17,6 +17,7 @@
 package solidbase.util;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
@@ -71,13 +72,13 @@ public class ClassPathResource implements Resource
 
 	/**
 	 * Returns an InputStream for this resource.
+	 * @throws FileNotFoundException
 	 */
-	public InputStream getInputStream()
+	public InputStream getInputStream() throws FileNotFoundException
 	{
 		InputStream result = ClassPathResource.class.getClassLoader().getResourceAsStream( this.path );
 		if( result == null )
-			// TODO Are we sure we want to throw this FatalException?
-			throw new FatalException( "File " + toString() + " not found in classpath" );
+			throw new FileNotFoundException( "File " + toString() + " not found in classpath" );
 		return result;
 	}
 

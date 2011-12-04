@@ -18,11 +18,13 @@ package solidbase.util;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import solidbase.core.FatalException;
 import solidbase.core.SystemException;
 
 
@@ -79,7 +81,16 @@ public class BOMDetectingLineReader extends BufferedReaderLineReader
 	{
 		this.resource = resource;
 
-		BufferedInputStream in = new BufferedInputStream( resource.getInputStream() );
+		BufferedInputStream in;
+		try
+		{
+			in = new BufferedInputStream( resource.getInputStream() );
+		}
+		catch( FileNotFoundException e )
+		{
+			// TODO Should we throw a FatalException in the util package?
+			throw new FatalException( e.toString() );
+		}
 		detectBOM( in );
 
 		try
@@ -138,7 +149,16 @@ public class BOMDetectingLineReader extends BufferedReaderLineReader
 	{
 		this.resource = resource;
 
-		BufferedInputStream in = new BufferedInputStream( resource.getInputStream() );
+		BufferedInputStream in;
+		try
+		{
+			in = new BufferedInputStream( resource.getInputStream() );
+		}
+		catch( FileNotFoundException e )
+		{
+			// TODO Should we throw a FatalException in the util package?
+			throw new FatalException( e.toString() );
+		}
 		detectBOM( in );
 
 		try

@@ -44,4 +44,12 @@
 	</target>
 
 
+	<target name="ant-test-filenotfound">
+		<taskdef resource="solidbasetasks" classpathref="test.classpath" />
+		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask"
+				user="sa" password=""
+				upgradefile="doesnotexist.sql" />
+	</target>
+
+
 </project>

@@ -52,6 +52,7 @@ public class SQLProcessor extends CommandProcessor
 	 *
 	 * @param context The SQL execution context.
 	 */
+	// TODO Maybe the context should just be an argument to process(), and the caller is responsible for closing the source.
 	public void setContext( SQLContext context )
 	{
 		this.context = context;
@@ -88,9 +89,13 @@ public class SQLProcessor extends CommandProcessor
 	@Override
 	public void end()
 	{
-		for( Database database : this.context.getDatabases() )
-			database.closeConnections();
-		this.sqlContext.getSource().close();
+		// TODO Don't like this
+		if( this.context != null )
+		{
+			for( Database database : this.context.getDatabases() )
+				database.closeConnections();
+			this.sqlContext.getSource().close();
+		}
 		this.progress.sqlExecutionComplete(); // TODO Why is this different from UpgradeProcessor.end()?
 	}
 
