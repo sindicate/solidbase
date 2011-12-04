@@ -99,10 +99,10 @@ public class SqlTaskTests extends BuildFileTest
 				);
 	}
 
-	@Test(groups="new")
+	@Test
 	public void testSqlFileDoesNotExist() throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException
 	{
-		String log = TestUtil.capture( new Runnable()
+		String log = TestUtil.captureAnt( new Runnable()
 		{
 			public void run()
 			{

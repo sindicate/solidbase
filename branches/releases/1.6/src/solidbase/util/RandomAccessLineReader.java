@@ -18,12 +18,14 @@ package solidbase.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
+import solidbase.core.FatalException;
 import solidbase.core.SystemException;
 
 
@@ -125,7 +127,15 @@ public class RandomAccessLineReader extends LineReader
 
 		try
 		{
-			InputStream is = this.url.openStream();
+			InputStream is;
+			try
+			{
+				is = this.url.openStream();
+			}
+			catch( FileNotFoundException e )
+			{
+				throw new FatalException( e.toString() );
+			}
 			if( this.bom != null )
 				Assert.isTrue( is.skip( this.bom.length ) == this.bom.length ); // Skip some bytes
 			this.reader = new BufferedReader( new InputStreamReader( is, this.encoding ) );
