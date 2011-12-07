@@ -100,8 +100,8 @@ public class PrintSelect implements CommandListener
 		{
 			if( statement != null )
 				statement.close();
-			// TODO This is not right, we should check autocommit
-			connection.commit();
+			if( processor.autoCommit() )
+				connection.commit();
 		}
 
 		return true;

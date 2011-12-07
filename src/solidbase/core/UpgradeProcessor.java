@@ -106,7 +106,6 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	public UpgradeProcessor( ProgressListener listener )
 	{
 		super( listener );
-		this.autoCommit = true;
 	}
 
 	/**
@@ -673,5 +672,11 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	public Resource getResource()
 	{
 		return this.upgradeFile.file.getResource();
+	}
+
+	@Override
+	public boolean autoCommit()
+	{
+		return true;
 	}
 }

@@ -111,11 +111,11 @@ public class ImportCSV implements CommandListener
 		}
 		finally
 		{
-			// TODO Only commit if upgrading
-			if( commit )
-				connection.commit();
-			else
-				connection.rollback();
+			if( processor.autoCommit() )
+				if( commit )
+					connection.commit();
+				else
+					connection.rollback();
 		}
 
 		return true;

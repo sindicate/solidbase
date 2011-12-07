@@ -118,12 +118,6 @@ abstract public class CommandProcessor
 	static protected Pattern placeHolderPattern = Pattern.compile( "&(([A-Za-z\\$_][A-Za-z0-9\\$_]*)|\\{([A-Za-z\\$_][A-Za-z0-9\\$_]*)\\})" );
 
 	/**
-	 * If true ({@link UpgradeProcessor}), commands get committed automatically, and rolled back when an {@link SQLException} occurs.
-	 * If false ({@link SQLProcessor}), commit/rollback should be in the command source.
-	 */
-	protected boolean autoCommit;
-
-	/**
 	 * Current execution context.
 	 */
 	protected CommandContext context;
@@ -353,7 +347,8 @@ abstract public class CommandProcessor
 		finally
 		{
 			statement.close();
-			if( this.autoCommit )
+			// TODO This construct is now copied too much, we should centralize. I think we need to a managed connection of sorts.
+			if( autoCommit() )
 				if( commit )
 					connection.commit();
 				else
@@ -486,7 +481,7 @@ abstract public class CommandProcessor
 		finally
 		{
 			statement.close();
-			if( this.autoCommit )
+			if( autoCommit() )
 				connection.commit();
 		}
 
@@ -571,4 +566,10 @@ abstract public class CommandProcessor
 	 * @return The underlying resource.
 	 */
 	abstract public Resource getResource();
+
+	/**
+	 * If true ({@link UpgradeProcessor}), commands get committed automatically, and rolled back when an {@link SQLException} occurs.
+	 * If false ({@link SQLProcessor}), commit/rollback should be in the command source.
+	 */
+	abstract public boolean autoCommit();
 }

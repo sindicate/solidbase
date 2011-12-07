@@ -32,7 +32,7 @@ import solidbase.util.Assert;
 /**
  * This plugin asserts that a given query statement returns results or no results. It generates an error with the given message
  * if the assertion fails. This plugin can be used to check the state of the database.
- * 
+ *
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:13:28 PM
  */
@@ -66,7 +66,8 @@ public class AssertExistsOrEmptySelect implements CommandListener
 			{
 				// TODO The core engine should be able to check if a plugin leaves statements open.
 				statement.close(); // Need to close the statement because the connection stays open.
-				connection.commit();
+				if( processor.autoCommit() )
+					connection.commit();
 			}
 
 			return true;
