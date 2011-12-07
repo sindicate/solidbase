@@ -116,4 +116,10 @@ public class SQLProcessor extends CommandProcessor
 	{
 		return this.sqlContext.getSource().getResource();
 	}
+
+	@Override
+	public boolean autoCommit()
+	{
+		return false;
+	}
 }

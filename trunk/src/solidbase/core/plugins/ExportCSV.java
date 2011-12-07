@@ -174,8 +174,8 @@ public class ExportCSV implements CommandListener
 				finally
 				{
 					statement.close();
-					// TODO This is not right, we should check autocommit
-					connection.commit();
+					if( processor.autoCommit() )
+						connection.commit();
 				}
 			}
 			finally
