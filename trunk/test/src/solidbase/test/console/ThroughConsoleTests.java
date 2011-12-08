@@ -53,9 +53,9 @@ public class ThroughConsoleTests
 				"Upgrading \"1.0.1\" to \"1.0.2\".\n" +
 				"    Inserting admin user.\n" +
 				"DEBUG: version=1.0.1, target=1.0.2, statements=2\n" +
-				"The database is upgraded.\n" +
 				"\n" +
-				"Current database version is \"1.0.2\".\n"
+				"Current database version is \"1.0.2\".\n" +
+				"Upgrade complete.\n"
 		);
 	}
 
@@ -86,9 +86,9 @@ public class ThroughConsoleTests
 				"Upgrading \"1.0.1\" to \"1.0.2\".\n" +
 				"    Inserting admin user.\n" +
 				"DEBUG: version=1.0.1, target=1.0.2, statements=2\n" +
-				"The database is upgraded.\n" +
 				"\n" +
-				"Current database version is \"1.0.2\".\n"
+				"Current database version is \"1.0.2\".\n" +
+				"Upgrade complete.\n"
 		);
 	}
 
@@ -115,9 +115,9 @@ public class ThroughConsoleTests
 				"Upgrading \"1.0.2\" to \"1.0.3\"\n" +
 				"1.\n" + // Concat not working with HSQLDB 2.0.0
 				"DEBUG: version=1.0.2, target=1.0.3, statements=1\n" +
-				"The database is upgraded.\n" +
 				"\n" +
-				"Current database version is \"1.0.3\".\n"
+				"Current database version is \"1.0.3\".\n" +
+				"Upgrade complete.\n"
 		);
 	}
 }

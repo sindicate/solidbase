@@ -357,9 +357,6 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 		}
 
 		upgrade( version, target, downgradeable );
-
-		this.progress.upgradeComplete();
-		return;
 	}
 
 	/**

@@ -116,7 +116,7 @@ public class SqlTaskTests extends BuildFileTest
 				"   [sb-sql] SolidBase v1.5.x (http://solidbase.org)\n" +
 				"   [sb-sql] \n" +
 				"   [sb-sql] Opening file 'X:/.../doesnotexist.sql'\n" +
-				"   [sb-sql] Execution complete.\n" +
+				"   [sb-sql] Execution aborted.\n" +
 				"\n" +
 				"BUILD FAILED\n" +
 				"X:/.../test-sqltask.xml:47: java.io.FileNotFoundException: X:/.../doesnotexist.sql (The system cannot find the file specified)\n" +
