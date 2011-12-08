@@ -64,9 +64,9 @@ public class CommandLineTests
 				"Upgrading \"1.0.1\" to \"1.0.2\".\n" +
 				"    Inserting admin user.\n" +
 				"DEBUG: version=1.0.1, target=1.0.2, statements=2\n" +
-				"The database is upgraded.\n" +
 				"\n" +
-				"Current database version is \"1.0.2\".\n"
+				"Current database version is \"1.0.2\".\n" +
+				"Upgrade complete.\n"
 		);
 	}
 
@@ -123,9 +123,9 @@ public class CommandLineTests
 				"Upgrading \"1.0.1\" to \"1.0.2\".\n" +
 				"    Inserting admin user.\n" +
 				"DEBUG: version=1.0.1, target=1.0.2, statements=2\n" +
-				"The database is upgraded.\n" +
 				"\n" +
-				"Current database version is \"1.0.2\".\n"
+				"Current database version is \"1.0.2\".\n" +
+				"Upgrade complete.\n"
 		);
 	}
 
@@ -146,7 +146,7 @@ public class CommandLineTests
 					"-target", "100.0.*",
 					"-upgradefile", "testpatch1.sql" );
 
-			Assert.fail( "Expected a SystemException" );
+			Assert.fail( "Expected a FatalException" );
 		}
 		catch( FatalException e )
 		{
@@ -160,7 +160,8 @@ public class CommandLineTests
 				"Opening file 'X:/.../testpatch1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
-				"The database is unmanaged.\n"
+				"The database is unmanaged.\n" +
+				"Upgrade aborted.\n"
 		);
 	}
 
@@ -290,9 +291,9 @@ public class CommandLineTests
 				"    Section 3.\n" +
 				"    Section 5.\n" +
 				"DEBUG: version=null, target=1.0.1, statements=4\n" +
-				"The database is upgraded.\n" +
 				"\n" +
-				"Current database version is \"1.0.1\".\n"
+				"Current database version is \"1.0.1\".\n" +
+				"Upgrade complete.\n"
 		);
 	}
 }

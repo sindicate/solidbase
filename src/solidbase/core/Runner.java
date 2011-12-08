@@ -181,6 +181,7 @@ public class Runner
 					)
 			);
 
+		boolean complete = false;
 		try
 		{
 			boolean first = true;
@@ -196,9 +197,15 @@ public class Runner
 				}
 				processor.process();
 			}
+			complete = true;
 		}
 		finally
 		{
+			if( complete )
+				this.listener.sqlExecutionComplete();
+			else
+				this.listener.sqlExecutionAborted();
+
 			processor.end();
 			PluginManager.terminateListeners();
 		}
@@ -238,6 +245,7 @@ public class Runner
 
 		processor.setUpgradeFile( Factory.openUpgradeFile( this.upgradeFile, this.listener ) );
 		processor.setDatabases( databases );
+		boolean complete = false;
 		try
 		{
 			processor.init();
@@ -246,9 +254,16 @@ public class Runner
 			processor.upgrade( this.upgradeTarget, this.downgradeAllowed ); // TODO Print this target
 			this.listener.println( "" );
 			this.listener.println( processor.getVersionStatement() );
+
+			complete = true;
 		}
 		finally
 		{
+			if( complete )
+				this.listener.upgradeComplete();
+			else
+				this.listener.upgradeAborted();
+
 			processor.end();
 			PluginManager.terminateListeners();
 		}

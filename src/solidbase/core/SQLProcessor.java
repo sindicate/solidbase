@@ -96,7 +96,6 @@ public class SQLProcessor extends CommandProcessor
 				database.closeConnections();
 			this.sqlContext.getSource().close();
 		}
-		this.progress.sqlExecutionComplete(); // TODO Why is this different from UpgradeProcessor.end()?
 	}
 
 	@Override

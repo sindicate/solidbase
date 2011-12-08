@@ -163,7 +163,16 @@ abstract public class ProgressListener
 	protected void upgradeComplete()
 	{
 		cr();
-		println( "The database is upgraded." );
+		println( "Upgrade complete." );
+	}
+
+	/**
+	 * The upgrade is aborted.
+	 */
+	protected void upgradeAborted()
+	{
+		cr();
+		println( "Upgrade aborted." );
 	}
 
 	/**
@@ -182,6 +191,15 @@ abstract public class ProgressListener
 	{
 		cr();
 		println( "Execution complete." );
+	}
+
+	/**
+	 * The sql execution is aborted.
+	 */
+	protected void sqlExecutionAborted()
+	{
+		cr();
+		println( "Execution aborted." );
 	}
 
 	/**

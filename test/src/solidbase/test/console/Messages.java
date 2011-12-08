@@ -67,9 +67,9 @@ public class Messages
 				"47Y.\n" +
 				"        Importing from external file.\n" +
 				"DEBUG: version=1.0.1, target=1.0.2, statements=14\n" +
-				"The database is upgraded.\n" +
 				"\n" +
-				"Current database version is \"1.0.2\".\n"
+				"Current database version is \"1.0.2\".\n" +
+				"Upgrade complete.\n"
 		);
 	}
 }
