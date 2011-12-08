@@ -25,7 +25,7 @@ Then we go on to the large enterprise systems where exception handling is even h
 
 _Inspired by: http://www.oracle.com/technetwork/articles/entarch/effective-exceptions-092345.html _
 
-Barry Ruzek introduces the idea of Faults and Contingencies. However, I will add the User Error category, which is equal to a Fault in some respect but different in it's reporting.
+In the article above Barry Ruzek introduces the idea of Faults and Contingencies. In my experience however, there is one piece missing: the User Error category, which is completely different and equally important as Faults and Contingencies.
 
  * *Contingency:* An expected condition demanding an alternative response from a method that can be expressed in terms of the method's intended purpose. The caller of the method expects these kinds of conditions and has a strategy for coping with them.
  * *User Error*: A user mistake that prevents a method from achieving its intended purpose.
