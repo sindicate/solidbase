@@ -16,7 +16,6 @@
 
 package solidbase.core.plugins;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.regex.Matcher;
@@ -53,8 +52,7 @@ public class AssertExistsOrEmptySelect implements CommandListener
 			String message = matcher.group( 2 );
 			String select  = matcher.group( 3 ).trim();
 			Assert.isTrue( select.substring( 0, 7 ).equalsIgnoreCase( "SELECT " ), "Check should be a SELECT" );
-			Connection connection = processor.getCurrentDatabase().getConnection();
-			Statement statement = processor.createStatement( connection );
+			Statement statement = processor.createStatement();
 			try
 			{
 				boolean result = statement.executeQuery( select ).next();
@@ -65,9 +63,7 @@ public class AssertExistsOrEmptySelect implements CommandListener
 			finally
 			{
 				// TODO The core engine should be able to check if a plugin leaves statements open.
-				statement.close(); // Need to close the statement because the connection stays open.
-				if( processor.autoCommit() )
-					connection.commit();
+				processor.closeStatement( statement, true );
 			}
 
 			return true;

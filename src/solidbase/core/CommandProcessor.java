@@ -17,6 +17,7 @@
 package solidbase.core;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -307,19 +308,48 @@ abstract public class CommandProcessor
 	}
 
 	/**
-	 * Creates a new statement. JDBC escape processing is enabled or disabled according to the current configuration.
+	 * Creates a new statement from the current connection. JDBC escape processing is enabled or disabled according to the current configuration.
 	 *
-	 * @param connection The connection to create a statement from.
 	 * @return The statement.
 	 * @throws SQLException Whenever JDBC throws an SQLException.
 	 */
 	// TODO Maybe we should wrap the connection and override the createStatement there.
-	public Statement createStatement( Connection connection ) throws SQLException
+	public Statement createStatement() throws SQLException
 	{
+		Connection connection = getCurrentDatabase().getConnection();
 		Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
 		Statement statement = connection.createStatement();
 		statement.setEscapeProcessing( this.context.getJdbcEscaping() );
 		return statement;
+	}
+
+	public PreparedStatement prepareStatement( String sql ) throws SQLException
+	{
+		Connection connection = getCurrentDatabase().getConnection();
+		Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
+		PreparedStatement statement = connection.prepareStatement( sql );
+		statement.setEscapeProcessing( this.context.getJdbcEscaping() );
+		return statement;
+	}
+
+	public void closeStatement( Statement statement, boolean commitOrRollback )
+	{
+		try
+		{
+			if( autoCommit() )
+			{
+				Connection connection = statement.getConnection();
+				if( commitOrRollback )
+					connection.commit();
+				else
+					connection.rollback();
+			}
+			statement.close();
+		}
+		catch( SQLException e )
+		{
+			throw new SystemException( e );
+		}
 	}
 
 	/**
@@ -336,8 +366,7 @@ abstract public class CommandProcessor
 		if( sql.length() == 0 )
 			return;
 
-		Connection connection = this.context.getCurrentDatabase().getConnection();
-		Statement statement = createStatement( connection );
+		Statement statement = createStatement();
 		boolean commit = false;
 		try
 		{
@@ -346,13 +375,7 @@ abstract public class CommandProcessor
 		}
 		finally
 		{
-			statement.close();
-			// TODO This construct is now copied too much, we should centralize. I think we need to a managed connection of sorts.
-			if( autoCommit() )
-				if( commit )
-					connection.commit();
-				else
-					connection.rollback();
+			closeStatement( statement, commit );
 		}
 	}
 
@@ -469,8 +492,7 @@ abstract public class CommandProcessor
 	 */
 	protected void setVariableFromSelect( String name, String select ) throws SQLException
 	{
-		Connection connection = this.context.getCurrentDatabase().getConnection();
-		Statement statement = createStatement( connection );
+		Statement statement = createStatement();
 		Object value = null;
 		try
 		{
@@ -480,9 +502,7 @@ abstract public class CommandProcessor
 		}
 		finally
 		{
-			statement.close();
-			if( autoCommit() )
-				connection.commit();
+			closeStatement( statement, true );
 		}
 
 		this.context.setVariable( name.toUpperCase(), value );

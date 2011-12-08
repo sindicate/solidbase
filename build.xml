@@ -105,20 +105,15 @@
 
     <!-- Check Java version  -->
 	
-	<!--
-    <echo message="Java Version: ${java.version}"/> 
-    <echo message="Java home: ${java.home}"/> 
-    <fail message="Unsupported Java version: ${java.version}. Make sure that the version of the Java compiler is 1.5 or 1.6."> 
-        <condition> 
-            <not> 
-                <or> 
-                    <contains string="${java.version}" substring="1.5" casesensitive="false" /> 
-                    <contains string="${java.version}" substring="1.6" casesensitive="false" /> 
-                </or> 
-            </not> 
-        </condition> 
-    </fail>
-    --> 
+	<echo message="Java Version: ${java.version}"/> 
+	<echo message="Java home: ${java.home}"/> 
+	<fail message="Unsupported Java version: ${java.version}. Let the JAVA_HOME environment variable point to a JDK 1.6."> 
+		<condition> 
+			<not> 
+				<contains string="${java.version}" substring="1.6" casesensitive="false" /> 
+			</not> 
+		</condition> 
+	</fail>
 
 	
 	<!-- Default target -->
@@ -163,7 +158,7 @@
 
 
 	<target name="test" depends="compiletest,test-maven-plugin" description="Run the tests">
-		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="3">
+		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="2">
 			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.999.10.jar" />
 			<jvmarg value="-Xmx256m" />
 			<classfileset dir="${build.home}/testclasses" />
@@ -173,7 +168,7 @@
 
 
 	<target name="testclass" depends="compiletest" description="Run a test class">
-		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="3">
+		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="2">
 			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.999.10.jar" />
 			<jvmarg value="-Xmx256m" />
 			<classfileset dir="${build.home}/testclasses" includes="**/${testclass}.class" />
@@ -183,7 +178,7 @@
 
 
 	<target name="testnew" depends="compiletest" description="Run new tests">
-		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="3" groups="new">
+		<testng workingDir="test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="2" groups="new">
 			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.999.10.jar" />
 			<jvmarg value="-Xmx256m" />
 			<classfileset dir="${build.home}/testclasses" />

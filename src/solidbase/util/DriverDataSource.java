@@ -86,16 +86,7 @@ public class DriverDataSource implements DataSource
 	 */
 	public Connection getConnection() throws SQLException
 	{
-		try
-		{
-			Connection connection = DriverManager.getConnection( this.url, this.username, this.password );
-			connection.setAutoCommit( false );
-			return connection;
-		}
-		catch( SQLException e )
-		{
-			throw new SystemException( e );
-		}
+		return DriverManager.getConnection( this.url, this.username, this.password );
 	}
 
 	/**
@@ -106,16 +97,7 @@ public class DriverDataSource implements DataSource
 	 */
 	public Connection getConnection( String username, String password ) throws SQLException
 	{
-		try
-		{
-			Connection connection = DriverManager.getConnection( this.url, username, password );
-			connection.setAutoCommit( false );
-			return connection;
-		}
-		catch( SQLException e )
-		{
-			throw new SystemException( e );
-		}
+		return DriverManager.getConnection( this.url, username, password );
 	}
 
 	public PrintWriter getLogWriter() throws SQLException
