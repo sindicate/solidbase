@@ -17,17 +17,18 @@
 package solidbase.core;
 
 import java.sql.SQLException;
-import org.testng.annotations.Test;
 
-import solidbase.core.UpgradeProcessor;
+import org.testng.annotations.Test;
 
 public class Import
 {
+	static private final String db = "jdbc:hsqldb:mem:testImport";
+
 	@Test
 	public void testImport() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "folder/testpatch-import1.sql" );
+		TestUtil.dropHSQLDBSchema( db, "sa", null );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "folder/testpatch-import1.sql", db );
 
 		patcher.upgrade( "1.0.2" );
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 14, null );
@@ -43,6 +44,25 @@ public class Import
 		patcher.upgrade( "1.0.3" );
 		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP5", 3 );
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP1 FROM TEMP4", null );
+
+		patcher.end();
+	}
+
+	@Test(dependsOnMethods="testImport")
+	public void testImportNotExist() throws SQLException
+	{
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "folder/testpatch-import1.sql", db );
+
+		try
+		{
+			patcher.upgrade( "1.0.4" );
+			assert false : "Expected a FatalException";
+		}
+		catch( FatalException e )
+		{
+			String message = e.getMessage().replace( '\\', '/' );
+			assert message.contains( "java.io.FileNotFoundException: folder/notexist.csv" );
+		}
 
 		patcher.end();
 	}
