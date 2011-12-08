@@ -16,7 +16,6 @@
 
 package solidbase.core.plugins;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -99,25 +98,7 @@ public class ImportCSV implements CommandListener
 		if( line == null )
 			return true;
 
-		// Get connection and initialize commit flag
-		Connection connection = processor.getCurrentDatabase().getConnection();
-		Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
-		boolean commit = false;
-		try
-		{
-			importNormal( command, connection, reader, parsed, line, lineNumber );
-
-			commit = true;
-		}
-		finally
-		{
-			if( processor.autoCommit() )
-				if( commit )
-					connection.commit();
-				else
-					connection.rollback();
-		}
-
+		importNormal( command, processor, reader, parsed, line, lineNumber );
 		return true;
 	}
 
@@ -130,15 +111,15 @@ public class ImportCSV implements CommandListener
 	 * </pre></blockquote>
 	 *
 	 * @param command The import command.
-	 * @param connection The connection with the database.
+	 * @param processor The command processor.
 	 * @param reader The CSV reader.
 	 * @param parsed The parsed command.
 	 * @param line The first line of data read.
 	 * @param lineNumber The current line number.
 	 * @throws SQLException Whenever SQL execution throws it.
 	 */
-	// TODO Cope with variable number of values in the CSV list
-	protected void importNormal( @SuppressWarnings( "unused" ) Command command, Connection connection, CSVReader reader, Parsed parsed, String[] line, int lineNumber ) throws SQLException
+	// TODO Cope with a variable number of values in the CSV list
+	protected void importNormal( @SuppressWarnings( "unused" ) Command command, CommandProcessor processor, CSVReader reader, Parsed parsed, String[] line, int lineNumber ) throws SQLException
 	{
 		boolean prependLineNumber = parsed.prependLineNumber;
 
@@ -187,10 +168,11 @@ public class ImportCSV implements CommandListener
 			sql.append( ')' );
 		}
 
-		PreparedStatement statement = connection.prepareStatement( sql.toString() );
-		int batchSize = 0;
+		PreparedStatement statement = processor.prepareStatement( sql.toString() );
+		boolean commit = false;
 		try
 		{
+			int batchSize = 0;
 			while( true )
 			{
 				if( Thread.currentThread().isInterrupted() )
@@ -277,13 +259,15 @@ public class ImportCSV implements CommandListener
 				{
 					if( batchSize > 0 )
 						statement.executeBatch();
+
+					commit = true;
 					return;
 				}
 			}
 		}
 		finally
 		{
-			statement.close();
+			processor.closeStatement( statement, commit );
 		}
 	}
 

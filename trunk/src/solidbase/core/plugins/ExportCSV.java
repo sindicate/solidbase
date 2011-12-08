@@ -22,7 +22,6 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.sql.Blob;
 import java.sql.Clob;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -82,8 +81,7 @@ public class ExportCSV implements CommandListener
 		{
 			try
 			{
-				Connection connection = processor.getCurrentDatabase().getConnection();
-				Statement statement = processor.createStatement( connection );
+				Statement statement = processor.createStatement();
 				try
 				{
 					ResultSet result = statement.executeQuery( parsed.query );
@@ -173,9 +171,7 @@ public class ExportCSV implements CommandListener
 				}
 				finally
 				{
-					statement.close();
-					if( processor.autoCommit() )
-						connection.commit();
+					processor.closeStatement( statement, true );
 				}
 			}
 			finally

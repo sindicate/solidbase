@@ -18,7 +18,6 @@ package solidbase.core.plugins;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -30,7 +29,6 @@ import java.util.regex.Pattern;
 import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
-import solidbase.core.Database;
 
 
 /**
@@ -61,9 +59,7 @@ public class PrintSelect implements CommandListener
 
 		String sql = matcher.group( 1 );
 
-		Database database = processor.getCurrentDatabase();
-		Connection connection = database.getConnection();
-		Statement statement = processor.createStatement( connection );
+		Statement statement = processor.createStatement();
 		try
 		{
 			ResultSet result = statement.executeQuery( sql );
@@ -98,10 +94,7 @@ public class PrintSelect implements CommandListener
 		}
 		finally
 		{
-			if( statement != null )
-				statement.close();
-			if( processor.autoCommit() )
-				connection.commit();
+			processor.closeStatement( statement, true );
 		}
 
 		return true;
