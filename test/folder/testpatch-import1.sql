@@ -19,6 +19,7 @@
 --*		UPGRADE "" --> "1.0.1"
 --*		UPGRADE "1.0.1" --> "1.0.2"
 --*		UPGRADE "1.0.2" --> "1.0.3"
+--*		UPGRADE "1.0.3" --> "1.0.4"
 --*	/DEFINITION
 
 
@@ -148,5 +149,14 @@ IMPORT CSV INTO TEMP5 DATA
 1
 ""
 3;
+
+--* /UPGRADE
+
+
+
+
+--* UPGRADE "1.0.3" --> "1.0.4"
+
+IMPORT CSV SKIP HEADER INTO TEMP2 FILE "notexist.csv" ENCODING "UTF-8";
 
 --* /UPGRADE
