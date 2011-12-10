@@ -16,6 +16,7 @@
 
 package solidbase.core.plugins;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -116,30 +117,29 @@ public class ExportCSV implements CommandListener
 					out.nextRecord();
 
 					OutputStream binStream = null;
+					int binIndex = 0;
 
 					while( result.next() )
 					{
 						Object coalescedValue = null;
-						int coalescedType = Types.NULL;
 						if( parsed.coalesce != null )
 							for( int i = 0; i < count; i++ )
 								if( coalesce[ i ] )
 								{
-									coalescedType = types[ i ];
 									coalescedValue = getValue( result, types, i );
 									if( coalescedValue != null )
 										break;
 								}
 
-						int binIndex = 0;
 						for( int i = 0; i < count; i++ )
 						{
 							if( !coalesce[ i ] || firstCoalesce == i )
 							{
 								Object value = coalescedValue;
-//								int valueType = coalescedType;
 								if( firstCoalesce != i )
 									value = getValue( result, types, i );
+
+								InputStream bin = null;
 
 								if( value == null )
 									out.writeValue( (String)null );
@@ -150,27 +150,33 @@ public class ExportCSV implements CommandListener
 									in.close();
 								}
 								else if( value instanceof Blob )
+									bin = ( (Blob)value ).getBinaryStream();
+								else if( value instanceof byte[] )
+									bin = new ByteArrayInputStream( (byte[])value );
+								else
+									out.writeValue( value.toString() );
+
+								if( bin != null )
 								{
 									if( binResource != null )
 									{
 										if( binStream == null )
 											binStream = binResource.getOutputStream();
 										int startIndex = binIndex;
-										InputStream in = ( (Blob)value ).getBinaryStream();
 										byte[] buf = new byte[ 4096 ];
-										for( int read = in.read( buf ); read >= 0; read = in.read( buf ) )
+										for( int read = bin.read( buf ); read >= 0; read = bin.read( buf ) )
 										{
 											binStream.write( buf, 0, read );
 											binIndex += read;
 										}
-										out.writeValue( "/" + startIndex + ":" + binIndex );
-										in.close();
+										out.writeValue( "<" + ( binIndex - startIndex ) + ">" );
 									}
+									else
+										out.writeValue( bin );
+									bin.close();
+
+									bin = null;
 								}
-								else if( value instanceof byte[] )
-									out.writeValue( (byte[])value );
-								else
-									out.writeValue( value.toString() );
 							}
 						}
 
@@ -194,6 +200,7 @@ public class ExportCSV implements CommandListener
 
 		return true;
 	}
+
 
 	// ResultSet.getObject returns objects that are not always of the correct types
 	// For example oracle.sql.TIMESTAMP or org.hsqldb.types.BlobDataID are not instances of java.sql.Timestamp or java.sql.Blob
