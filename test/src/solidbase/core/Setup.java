@@ -19,6 +19,8 @@ package solidbase.core;
 
 public class Setup
 {
+	static public final String defaultdb = "jdbc:hsqldb:mem:testdb";
+
 	static public UpgradeProcessor setupUpgradeProcessor( String fileName, String driver, String url, String username )
 	{
 		TestProgressListener progress = new TestProgressListener();
@@ -39,7 +41,7 @@ public class Setup
 
 	static public UpgradeProcessor setupUpgradeProcessor( String fileName )
 	{
-		return setupUpgradeProcessor( fileName, "jdbc:hsqldb:mem:testdb" );
+		return setupUpgradeProcessor( fileName, defaultdb );
 	}
 
 	static public UpgradeProcessor setupDerbyUpgradeProcessor( String fileName )
@@ -50,7 +52,7 @@ public class Setup
 	static public SQLProcessor setupSQLProcessor( String fileName )
 	{
 		TestProgressListener progress = new TestProgressListener();
-		Database database = new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress );
+		Database database = new Database( "default", "org.hsqldb.jdbcDriver", defaultdb, "sa", null, progress );
 		SQLProcessor processor = new SQLProcessor( progress );
 		SQLFile sqlFile = Factory.openSQLFile( Factory.getResource( fileName ), progress );
 		DatabaseContext databases = new DatabaseContext( database );

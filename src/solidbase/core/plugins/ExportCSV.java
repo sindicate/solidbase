@@ -18,6 +18,7 @@ package solidbase.core.plugins;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.sql.Blob;
@@ -66,6 +67,9 @@ public class ExportCSV implements CommandListener
 		Parsed parsed = parse( command );
 
 		Resource resource = processor.getResource().createRelative( parsed.fileName );
+		Resource binResource = null;
+		if( parsed.binFileName != null )
+			binResource = processor.getResource().createRelative( parsed.binFileName );
 
 		CSVWriter out;
 		try
@@ -111,6 +115,8 @@ public class ExportCSV implements CommandListener
 
 					out.nextRecord();
 
+					OutputStream binStream = null;
+
 					while( result.next() )
 					{
 						Object coalescedValue = null;
@@ -119,31 +125,21 @@ public class ExportCSV implements CommandListener
 							for( int i = 0; i < count; i++ )
 								if( coalesce[ i ] )
 								{
-									// getObject in Oracle gives a oracle.sql.TIMESTAMP which does not implement toString correctly.
 									coalescedType = types[ i ];
-									if( coalescedType == Types.TIMESTAMP )
-										coalescedValue = result.getTimestamp( i + 1 );
-									else
-										coalescedValue = result.getObject( i + 1 );
+									coalescedValue = getValue( result, types, i );
 									if( coalescedValue != null )
 										break;
 								}
 
+						int binIndex = 0;
 						for( int i = 0; i < count; i++ )
 						{
 							if( !coalesce[ i ] || firstCoalesce == i )
 							{
 								Object value = coalescedValue;
-								int valueType = coalescedType;
+//								int valueType = coalescedType;
 								if( firstCoalesce != i )
-								{
-									// getObject in Oracle gives a oracle.sql.TIMESTAMP which does not implement toString correctly.
-									valueType = types[ i ];
-									if( valueType == Types.TIMESTAMP )
-										value = result.getTimestamp( i + 1 );
-									else
-										value = result.getObject( i + 1 );
-								}
+									value = getValue( result, types, i );
 
 								if( value == null )
 									out.writeValue( (String)null );
@@ -155,9 +151,21 @@ public class ExportCSV implements CommandListener
 								}
 								else if( value instanceof Blob )
 								{
-									InputStream in = ( (Blob)value ).getBinaryStream();
-									out.writeValue( in );
-									in.close();
+									if( binResource != null )
+									{
+										if( binStream == null )
+											binStream = binResource.getOutputStream();
+										int startIndex = binIndex;
+										InputStream in = ( (Blob)value ).getBinaryStream();
+										byte[] buf = new byte[ 4096 ];
+										for( int read = in.read( buf ); read >= 0; read = in.read( buf ) )
+										{
+											binStream.write( buf, 0, read );
+											binIndex += read;
+										}
+										out.writeValue( "/" + startIndex + ":" + binIndex );
+										in.close();
+									}
 								}
 								else if( value instanceof byte[] )
 									out.writeValue( (byte[])value );
@@ -185,6 +193,22 @@ public class ExportCSV implements CommandListener
 		}
 
 		return true;
+	}
+
+	// ResultSet.getObject returns objects that are not always of the correct types
+	// For example oracle.sql.TIMESTAMP or org.hsqldb.types.BlobDataID are not instances of java.sql.Timestamp or java.sql.Blob
+	public Object getValue( ResultSet result, int[] types, int index ) throws SQLException
+	{
+		int type = types[ index ];
+		index++;
+		switch( type )
+		{
+			case Types.TIMESTAMP:
+				return result.getTimestamp( index );
+			case Types.BLOB:
+				return result.getBlob( index );
+		}
+		return result.getObject( index );
 	}
 
 
@@ -248,9 +272,25 @@ public class ExportCSV implements CommandListener
 			throw new CommandFileException( "Expecting encoding enclosed in double quotes, not [" + t + "]", tokenizer.getLineNumber() );
 		encoding = encoding.substring( 1, encoding.length() - 1 );
 
+		t = tokenizer.get();
+		String binfile = null;
+		if( t.equals( "BINARY" ) )
+		{
+			tokenizer.get( "FILE" );
+			t = tokenizer.get();
+			binfile = t.getValue();
+			if( !binfile.startsWith( "\"" ) )
+				throw new CommandFileException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLineNumber() );
+			binfile = binfile.substring( 1, binfile.length() - 1 );
+		}
+		else
+			tokenizer.push( t );
+
+
 		String query = tokenizer.getRemaining();
 
 		result.fileName = file;
+		result.binFileName = binfile;
 		result.encoding = encoding;
 		result.query = query;
 
@@ -273,6 +313,8 @@ public class ExportCSV implements CommandListener
 
 		/** The file path to export to */
 		protected String fileName;
+
+		public String binFileName;
 
 		/** The encoding of the file */
 		protected String encoding;
