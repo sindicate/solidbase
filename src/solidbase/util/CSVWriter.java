@@ -13,23 +13,36 @@ import solidbase.core.SystemException;
 public class CSVWriter
 {
 	static private final char[] HEX = "0123456789ABCDEF".toCharArray();
+	static private final String HEX_ENCODING = "^HEX:"; // TODO Final decision
 
 	private Writer out;
 	private char separator;
 	private Pattern needQuotesPattern;
+	private boolean extendedFormat;
 	private boolean valueWritten;
 
-	public CSVWriter( Resource resource, String encoding, char separator ) throws UnsupportedEncodingException
+	public CSVWriter( Resource resource, String encoding, char separator, boolean extendedFormat ) throws UnsupportedEncodingException
 	{
+		Assert.isFalse( separator == '"', "Double quote (\") not allowed as value separator" );
+		if( extendedFormat )
+			Assert.isFalse( separator == '^', "Caret (^) not allowed as value separator when extended format is enabled" );
+
 		this.out = new OutputStreamWriter( resource.getOutputStream(), encoding );
 		this.separator = separator;
+		this.extendedFormat = extendedFormat;
+
 		// Pattern: ", CR, NL or parsed.separator
 		this.needQuotesPattern = Pattern.compile( "\"|\r|\n|" + Pattern.quote( Character.toString( separator ) ) );
 	}
 
 	public void writeValue( String value )
 	{
-		writeValue0();
+		writeSeparatorIfNeeded();
+		internalWriteValue( value );
+	}
+
+	private void internalWriteValue( String value )
+	{
 		if( value == null )
 			return;
 		try
@@ -59,7 +72,7 @@ public class CSVWriter
 
 	public void writeValue( Reader reader )
 	{
-		writeValue0();
+		writeSeparatorIfNeeded();
 		try
 		{
 			this.out.write( '"' );
@@ -76,9 +89,12 @@ public class CSVWriter
 
 	public void writeValue( InputStream in )
 	{
-		writeValue0();
+		writeSeparatorIfNeeded();
 		try
 		{
+			if( this.extendedFormat )
+				this.out.write( HEX_ENCODING );
+
 			byte[] buf = new byte[ 4096 ];
 			for( int read = in.read( buf ); read >= 0; read = in.read( buf ) )
 			{
@@ -98,11 +114,14 @@ public class CSVWriter
 
 	public void writeValue( byte[] value )
 	{
-		writeValue0();
+		writeSeparatorIfNeeded();
 		if( value == null )
 			return;
 		try
 		{
+			if( this.extendedFormat )
+				this.out.write( HEX_ENCODING );
+
 			for( int b : value )
 			{
 				this.out.write( HEX[ ( b >> 4 ) & 15 ] );
@@ -115,7 +134,7 @@ public class CSVWriter
 		}
 	}
 
-	public void nextValue()
+	private void nextValue()
 	{
 		try
 		{
@@ -127,7 +146,7 @@ public class CSVWriter
 		}
 	}
 
-	private void writeValue0()
+	private void writeSeparatorIfNeeded()
 	{
 		if( this.valueWritten )
 			nextValue();
@@ -145,6 +164,23 @@ public class CSVWriter
 		{
 			throw new SystemException( e );
 		}
+	}
+
+	public void writeExtendedValue( String value )
+	{
+		Assert.notNull( value );
+		Assert.isTrue( this.extendedFormat );
+
+		writeSeparatorIfNeeded();
+		try
+		{
+			this.out.write( '^' );
+		}
+		catch( IOException e )
+		{
+			throw new SystemException( e );
+		}
+		internalWriteValue( value );
 	}
 
 	public void close()

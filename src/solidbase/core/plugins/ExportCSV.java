@@ -75,7 +75,8 @@ public class ExportCSV implements CommandListener
 		CSVWriter out;
 		try
 		{
-			out = new CSVWriter( resource, parsed.encoding, parsed.separator );
+			boolean extendedFormat = parsed.binFileName != null;
+			out = new CSVWriter( resource, parsed.encoding, parsed.separator, extendedFormat );
 		}
 		catch( UnsupportedEncodingException e )
 		{
@@ -169,7 +170,7 @@ public class ExportCSV implements CommandListener
 											binStream.write( buf, 0, read );
 											binIndex += read;
 										}
-										out.writeValue( "<" + ( binIndex - startIndex ) + ">" );
+										out.writeExtendedValue( "BIN:" + startIndex + "," + ( binIndex - startIndex ) );
 									}
 									else
 										out.writeValue( bin );
