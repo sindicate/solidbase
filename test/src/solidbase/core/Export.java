@@ -15,11 +15,12 @@ public class Export
 		UpgradeProcessor processor = Setup.setupUpgradeProcessor( "testpatch-export1.sql" );
 		processor.upgrade( "1" );
 
-		PreparedStatement statement = processor.prepareStatement( "INSERT INTO TEMP1 VALUES ( ?, ? )" );
+		PreparedStatement statement = processor.prepareStatement( "INSERT INTO TEMP1 VALUES ( ?, ?, ? )" );
 
 		byte[] blob = "Dit is een blob".getBytes();
 		statement.setInt( 1, 1 );
 		statement.setBinaryStream( 2, new ByteArrayInputStream( blob ) );
+		statement.setString( 3, "^ Starts with a caret" );
 		statement.execute();
 
 		blob = new byte[ 16384 ];
@@ -30,6 +31,7 @@ public class Export
 				blob[ i ] = 'X';
 		statement.setInt( 1, 2 );
 		statement.setBinaryStream( 2, new ByteArrayInputStream( blob ) );
+		statement.setString( 3, "Does not start with a ^ caret" );
 		statement.execute();
 
 		processor.closeStatement( statement, true );
