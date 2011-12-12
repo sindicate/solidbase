@@ -30,8 +30,20 @@ CREATE TABLE TEMP1 ( ID INTEGER, PICTURE BLOB );
 --* /UPGRADE
 
 --* UPGRADE "1" --> "2"
+
 EXPORT CSV
-FILE "export.csv" ENCODING "UTF-8"
-BINARY FILE "export.bin"
+FILE "export1.csv" ENCODING "UTF-8"
+BINARY FILE "export1.bin"
 SELECT * FROM TEMP1;
+
+EXPORT CSV
+FILE "export2.csv" ENCODING "UTF-8"
+BINARY FILE "folder/export2-blob-?1.txt"
+SELECT * FROM TEMP1;
+
 --* /UPGRADE
+
+These cannot be part of a filename (in Windows)
+\/:*?"<>|
+In Linux a double quote can be part of the filename
+
