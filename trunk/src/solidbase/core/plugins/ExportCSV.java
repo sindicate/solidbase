@@ -17,6 +17,7 @@
 package solidbase.core.plugins;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -40,6 +41,7 @@ import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.SystemException;
 import solidbase.util.CSVWriter;
+import solidbase.util.FileResource;
 import solidbase.util.Resource;
 import solidbase.util.StringLineReader;
 import solidbase.util.Tokenizer;
@@ -68,7 +70,8 @@ public class ExportCSV implements CommandListener
 
 		Parsed parsed = parse( command );
 
-		Resource resource = processor.getResource().createRelative( parsed.fileName );
+		Resource resource = new FileResource( new File( parsed.fileName ) ); // Relative to current folder
+
 		FileNameGenerator generator = null;
 		Resource binResource = null;
 		if( parsed.binFileName != null )
@@ -172,7 +175,7 @@ public class ExportCSV implements CommandListener
 										if( generator.isGeneric() )
 										{
 											fileName = generator.generateFileName( result );
-											binResource = processor.getResource().createRelative( fileName );
+											binResource = new FileResource( new File( fileName ) ); // Relative to current folder
 											binStream = binResource.getOutputStream();
 											relFileName = binResource.getPathFrom( resource );
 										}

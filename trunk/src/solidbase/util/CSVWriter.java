@@ -31,8 +31,8 @@ public class CSVWriter
 		this.separator = separator;
 		this.extendedFormat = extendedFormat;
 
-		// Pattern: ", CR, NL or parsed.separator
-		this.needQuotesPattern = Pattern.compile( "\"|\r|\n|" + Pattern.quote( Character.toString( separator ) ) );
+		// Pattern: ", CR, NL or parsed.separator, or ^ when extended format is enabled
+		this.needQuotesPattern = Pattern.compile( "\"|\r|\n|" + Pattern.quote( Character.toString( separator ) ) + ( extendedFormat ? "|^\\^" : "" ) );
 	}
 
 	public void writeValue( String value )
