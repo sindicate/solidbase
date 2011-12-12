@@ -31,6 +31,7 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import solidbase.core.Command;
@@ -68,9 +69,14 @@ public class ExportCSV implements CommandListener
 		Parsed parsed = parse( command );
 
 		Resource resource = processor.getResource().createRelative( parsed.fileName );
+		FileNameGenerator generator = null;
 		Resource binResource = null;
 		if( parsed.binFileName != null )
-			binResource = processor.getResource().createRelative( parsed.binFileName );
+		{
+			generator = new FileNameGenerator( parsed.binFileName );
+			if( !generator.isGeneric() )
+				binResource = processor.getResource().createRelative( parsed.binFileName );
+		}
 
 		CSVWriter out;
 		try
@@ -159,10 +165,20 @@ public class ExportCSV implements CommandListener
 
 								if( bin != null )
 								{
-									if( binResource != null )
+									if( generator != null )
 									{
-										if( binStream == null )
+										String fileName = null;
+										if( generator.isGeneric() )
+										{
+											fileName = generator.generateFileName( result );
+											binResource = processor.getResource().createRelative( fileName );
 											binStream = binResource.getOutputStream();
+										}
+										else
+										{
+											if( binStream == null )
+												binStream = binResource.getOutputStream();
+										}
 										int startIndex = binIndex;
 										byte[] buf = new byte[ 4096 ];
 										for( int read = bin.read( buf ); read >= 0; read = bin.read( buf ) )
@@ -170,12 +186,15 @@ public class ExportCSV implements CommandListener
 											binStream.write( buf, 0, read );
 											binIndex += read;
 										}
-										out.writeExtendedValue( "BIN:" + startIndex + "," + ( binIndex - startIndex ) );
+										if( generator.isGeneric() )
+											out.writeExtendedValue( "BIN(FILE=\"" + fileName + "\")" ); // TODO Escape filename (Linux filenames are allowed to have double quotes)
+										else
+											out.writeExtendedValue( "BIN(INDEX=" + startIndex + ",LENGTH=" + ( binIndex - startIndex ) + ")" );
 									}
 									else
 										out.writeValue( bin );
-									bin.close();
 
+									bin.close();
 									bin = null;
 								}
 							}
@@ -332,6 +351,46 @@ public class ExportCSV implements CommandListener
 
 		/** Which columns need to be coalesced */
 		protected Set< String > coalesce;
+	}
+
+
+	static protected class FileNameGenerator
+	{
+		protected final Pattern pattern = Pattern.compile( "\\?(\\d+)" );
+		protected String fileName;
+		protected boolean generic;
+
+		protected FileNameGenerator( String fileName )
+		{
+			this.fileName = fileName;
+			this.generic = this.pattern.matcher( fileName ).find();
+		}
+
+		protected boolean isGeneric()
+		{
+			return this.generic;
+		}
+
+		protected String generateFileName( ResultSet resultSet )
+		{
+
+			Matcher matcher = this.pattern.matcher( this.fileName );
+			StringBuffer result = new StringBuffer();
+			while( matcher.find() )
+			{
+				int index = Integer.parseInt( matcher.group( 1 ) );
+				try
+				{
+					matcher.appendReplacement( result, resultSet.getString( index ) );
+				}
+				catch( SQLException e )
+				{
+					throw new SystemException( e );
+				}
+			}
+			matcher.appendTail( result );
+			return result.toString();
+		}
 	}
 
 
