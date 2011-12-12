@@ -111,4 +111,9 @@ public class MemoryResource implements Resource
 			throw new SystemException( e );
 		}
 	}
+
+	public String getPathFrom( Resource other )
+	{
+		throw new UnsupportedOperationException();
+	}
 }

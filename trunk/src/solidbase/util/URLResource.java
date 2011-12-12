@@ -114,4 +114,9 @@ public class URLResource implements Resource
 	{
 		return this.url.toString();
 	}
+
+	public String getPathFrom( Resource other )
+	{
+		throw new UnsupportedOperationException();
+	}
 }

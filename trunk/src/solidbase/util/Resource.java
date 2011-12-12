@@ -65,4 +65,6 @@ public interface Resource
 	 * @return The new resource.
 	 */
 	Resource createRelative( String path );
+
+	String getPathFrom( Resource other );
 }

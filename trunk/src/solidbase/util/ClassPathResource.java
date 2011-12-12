@@ -108,4 +108,9 @@ public class ClassPathResource implements Resource
 	{
 		return this.path;
 	}
+
+	public String getPathFrom( Resource other )
+	{
+		throw new UnsupportedOperationException();
+	}
 }
