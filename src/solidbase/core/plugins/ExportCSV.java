@@ -168,11 +168,13 @@ public class ExportCSV implements CommandListener
 									if( generator != null )
 									{
 										String fileName = null;
+										String relFileName = null;
 										if( generator.isGeneric() )
 										{
 											fileName = generator.generateFileName( result );
 											binResource = processor.getResource().createRelative( fileName );
 											binStream = binResource.getOutputStream();
+											relFileName = binResource.getPathFrom( resource );
 										}
 										else
 										{
@@ -187,7 +189,7 @@ public class ExportCSV implements CommandListener
 											binIndex += read;
 										}
 										if( generator.isGeneric() )
-											out.writeExtendedValue( "BIN(FILE=\"" + fileName + "\")" ); // TODO Escape filename (Linux filenames are allowed to have double quotes)
+											out.writeExtendedValue( "BIN(FILE=\"" + relFileName + "\")" ); // TODO Escape filename (Linux filenames are allowed to have double quotes)
 										else
 											out.writeExtendedValue( "BIN(INDEX=" + startIndex + ",LENGTH=" + ( binIndex - startIndex ) + ")" );
 									}

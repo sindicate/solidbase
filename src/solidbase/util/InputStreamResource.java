@@ -72,4 +72,9 @@ public class InputStreamResource implements Resource
 	{
 		throw new UnsupportedOperationException();
 	}
+
+	public String getPathFrom( Resource other )
+	{
+		throw new UnsupportedOperationException();
+	}
 }

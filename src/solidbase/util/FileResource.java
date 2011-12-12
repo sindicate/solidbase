@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
@@ -96,6 +97,9 @@ public class FileResource implements Resource
 
 	public OutputStream getOutputStream()
 	{
+		File parent = this.file.getParentFile();
+		if( parent != null )
+			parent.mkdirs();
 		try
 		{
 			return new FileOutputStream( this.file );
@@ -115,6 +119,50 @@ public class FileResource implements Resource
 		if( scheme.equals( "file" ) )
 			return new URLResource( getURL() ).createRelative( path );
 		return Factory.getResource( path );
+	}
+
+	// TODO Need test for this
+	public String getPathFrom( Resource base )
+	{
+		Assert.isTrue( base instanceof FileResource );
+
+		String myPath;
+		String basePath;
+		try
+		{
+			myPath = this.file.getCanonicalPath();
+			basePath = ((FileResource)base).file.getCanonicalPath();
+		}
+		catch( IOException e )
+		{
+			throw new SystemException( e );
+		}
+
+		// getCanonicalPath returns the os dependent path separator
+		String[] myElems = myPath.split( "[\\\\/]" );
+		String[] baseElems = basePath.split( "[\\\\/]" );
+
+		int common = 0;
+		while( common < myElems.length && common < baseElems.length && myElems[ common ].equals( baseElems[ common ] ) )
+			common++;
+		Assert.isTrue( common > 0 );
+
+		StringBuffer result = new StringBuffer();
+
+		if( baseElems.length > common )
+			for( int j = 0; j < baseElems.length - common - 1; j++ )
+				result.append( "../" );
+
+		Assert.isTrue( common < myElems.length );
+		result.append( myElems[ common ] );
+
+		for( int j = common + 1; j < myElems.length; j++ )
+		{
+			result.append( '/' );
+			result.append( myElems[ j ] );
+		}
+
+		return result.toString();
 	}
 
 	@Override
