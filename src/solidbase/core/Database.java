@@ -271,7 +271,7 @@ public class Database
 			}
 			catch( SQLException e )
 			{
-				throw new SystemException( e );
+				throw new FatalException( e );
 			}
 
 			// Cache connection
