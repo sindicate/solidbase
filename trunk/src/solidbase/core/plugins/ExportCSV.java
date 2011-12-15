@@ -30,7 +30,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,6 +47,7 @@ import solidbase.core.SystemException;
 import solidbase.util.CSVWriter;
 import solidbase.util.DeferringWriter;
 import solidbase.util.FileResource;
+import solidbase.util.JdbcSupport;
 import solidbase.util.Resource;
 import solidbase.util.StringLineReader;
 import solidbase.util.Tokenizer;
@@ -138,7 +138,7 @@ public class ExportCSV implements CommandListener
 								for( int i = 0; i < count; i++ )
 									if( coalesce[ i ] )
 									{
-										coalescedValue = getValue( result, types, i );
+										coalescedValue = JdbcSupport.getValue( result, types, i );
 										if( coalescedValue != null )
 											break;
 									}
@@ -149,7 +149,7 @@ public class ExportCSV implements CommandListener
 								{
 									Object value = coalescedValue;
 									if( firstCoalesce != i )
-										value = getValue( result, types, i );
+										value = JdbcSupport.getValue( result, types, i );
 
 									// TODO Write null as ^NULL in extended format?
 									if( value == null )
@@ -322,23 +322,6 @@ public class ExportCSV implements CommandListener
 	}
 
 
-	// ResultSet.getObject returns objects that are not always of the correct types
-	// For example oracle.sql.TIMESTAMP or org.hsqldb.types.BlobDataID are not instances of java.sql.Timestamp or java.sql.Blob
-	public Object getValue( ResultSet result, int[] types, int index ) throws SQLException
-	{
-		int type = types[ index ];
-		index++;
-		switch( type )
-		{
-			case Types.TIMESTAMP:
-				return result.getTimestamp( index );
-			case Types.BLOB:
-				return result.getBlob( index );
-		}
-		return result.getObject( index );
-	}
-
-
 	/**
 	 * Parses the given command.
 	 *
@@ -460,6 +443,13 @@ public class ExportCSV implements CommandListener
 	}
 
 
+	//@Override
+	public void terminate()
+	{
+		// Nothing to clean up
+	}
+
+
 	/**
 	 * A parsed command.
 	 *
@@ -546,12 +536,5 @@ public class ExportCSV implements CommandListener
 			matcher.appendTail( result );
 			return result.toString();
 		}
-	}
-
-
-	//@Override
-	public void terminate()
-	{
-		// Nothing to clean up
 	}
 }

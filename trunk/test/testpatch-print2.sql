@@ -26,28 +26,13 @@ RUN "setup-1.1.sql";
 --* /SETUP
 
 --* UPGRADE "" --> "1"
-CREATE TABLE TEMP1 ( ID INTEGER, PICTURE BLOB, TEXT VARCHAR(100), TEXT2 CLOB );
+CREATE TABLE TEMP1 ( ID INTEGER, TEXT CLOB );
 --* /UPGRADE
+
+Between these two upgrade segments, records are inserted by the unit test.
 
 --* UPGRADE "1" --> "2"
 
-EXPORT CSV
-	WITH HEADER
-	FILE "export1.csv" ENCODING "UTF-8"
-	COLUMN PICTURE TO BINARY FILE "export1.bin"
-	COLUMN TEXT2 TO TEXT FILE "export1.txt"
-SELECT * FROM TEMP1;
-
-EXPORT CSV
-	FILE "export2.csv" ENCODING "UTF-8"
-	COLUMN PICTURE TO BINARY FILE "folder/export2-blob-?1.txt"
-	COLUMN TEXT2 TO TEXT FILE "folder/export2-text-?1.txt" THRESHOLD 100
-SELECT ID, PICTURE, TEXT, TEXT2
-FROM TEMP1;
+PRINT SELECT TEXT FROM TEMP1;
 
 --* /UPGRADE
-
-These cannot be part of a filename (in Windows)
-\/:*?"<>|
-In Linux a double quote can be part of the filename
-
