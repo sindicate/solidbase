@@ -446,7 +446,7 @@ abstract public class CommandProcessor
 			this.skipCounter--;
 		else
 		{
-			Assert.isTrue( this.noSkipCounter > 0 );
+			Assert.isTrue( this.noSkipCounter > 0, "One /SKIP or /IF too many" );
 			this.noSkipCounter--;
 		}
 	}
