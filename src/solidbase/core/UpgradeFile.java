@@ -34,6 +34,7 @@ import org.apache.commons.lang.StringUtils;
 
 import solidbase.core.UpgradeSegment.Type;
 import solidbase.util.Assert;
+import solidbase.util.FileLocation;
 import solidbase.util.RandomAccessLineReader;
 
 
@@ -174,7 +175,7 @@ public class UpgradeFile
 		{
 			String line = this.file.readLine();
 			if( line == null )
-				throw new CommandFileException( "Unexpected EOF found", this.file.getLineNumber() );
+				throw new CommandFileException( "Unexpected EOF found", this.file.getLocation() );
 
 			if( line.trim().length() > 0 )
 			{
@@ -206,7 +207,7 @@ public class UpgradeFile
 					if( type == Type.SETUP )
 					{
 						if( this.setups.containsKey( source ) )
-							throw new CommandFileException( "Duplicate definition of init block for source version " + source, this.file.getLineNumber() - 1 );
+							throw new CommandFileException( "Duplicate definition of init block for source version " + source, this.file.getLocation().previousLine() );
 						this.setups.put( source, segment );
 					}
 					else
@@ -235,10 +236,10 @@ public class UpgradeFile
 					else if( ( matcher = CommandProcessor.delimiterPattern.matcher( line ) ).matches() )
 						this.defaultDelimiters = CommandProcessor.parseDelimiters( matcher );
 					else
-						throw new CommandFileException( "Unexpected line within definition: " + line, this.file.getLineNumber() );
+						throw new CommandFileException( "Unexpected line within definition: " + line, this.file.getLocation() );
 				}
 				else
-					throw new CommandFileException( "Unexpected line outside definition: " + line, this.file.getLineNumber() );
+					throw new CommandFileException( "Unexpected line outside definition: " + line, this.file.getLocation() );
 			}
 		}
 
@@ -328,11 +329,11 @@ public class UpgradeFile
 				 */
 				if( SEGMENT_START_MARKER_PATTERN.matcher( line ).matches() )
 				{
-					int pos = this.file.getLineNumber() - 1;
+					FileLocation location = this.file.getLocation().previousLine();
 					line = line.substring( 3 ).trim();
 					matcher = SEGMENT_START_PATTERN.matcher( line );
 					if( !matcher.matches() )
-						throw new CommandFileException( MARKER_SYNTAX_ERROR, pos );
+						throw new CommandFileException( MARKER_SYNTAX_ERROR, location );
 					String action = matcher.group( 1 );
 					String source = matcher.group( 2 );
 					String target = matcher.group( 3 );
@@ -342,19 +343,19 @@ public class UpgradeFile
 					{
 						segment = getSetupSegment( source.length() == 0 ? null : source, target );
 						if( segment == null )
-							throw new CommandFileException( "Undefined setup block found: \"" + source + "\" --> \"" + target + "\"", pos );
+							throw new CommandFileException( "Undefined setup block found: \"" + source + "\" --> \"" + target + "\"", location );
 					}
 					else
 					{
 						segment = getSegment( source.length() == 0 ? null : source, target );
 						if( segment == null )
-							throw new CommandFileException( "Undefined upgrade block found: \"" + source + "\" --> \"" + target + "\"", pos );
+							throw new CommandFileException( "Undefined upgrade block found: \"" + source + "\" --> \"" + target + "\"", location );
 						if( segment.getType() != type )
-							throw new CommandFileException( "Upgrade block type '" + action + "' is different from its definition", pos );
+							throw new CommandFileException( "Upgrade block type '" + action + "' is different from its definition", location );
 					}
-					if( segment.getLineNumber() >= 0 )
-						throw new CommandFileException( "Duplicate upgrade block \"" + source + "\" --> \"" + target + "\" found", pos );
-					segment.setLineNumber( pos );
+					if( segment.getLocation() != null )
+						throw new CommandFileException( "Duplicate upgrade block \"" + source + "\" --> \"" + target + "\" found", location );
+					segment.setLocation( location );
 				}
 			}
 
@@ -364,12 +365,12 @@ public class UpgradeFile
 		// Check that all defined upgrade blocks are found
 		for( Collection< UpgradeSegment > segments : this.segments.values() )
 			for( UpgradeSegment segment : segments )
-				if( segment.getLineNumber() < 0 )
+				if( segment.getLocation() == null )
 					throw new FatalException( "Upgrade block \"" + StringUtils.defaultString( segment.getSource() ) + "\" --> \"" + segment.getTarget() + "\" not found" );
 
 		// Check that all defined setup blocks are found
 		for( UpgradeSegment segment : this.setups.values() )
-			if( segment.getLineNumber() < 0 )
+			if( segment.getLocation() == null )
 				throw new FatalException( "Setup block \"" + StringUtils.defaultString( segment.getSource() ) + "\" --> \"" + segment.getTarget() + "\" not found" );
 	}
 
@@ -415,7 +416,7 @@ public class UpgradeFile
 				if( segment.getTarget().equals( target ) )
 				{
 					if( result != null )
-						throw new CommandFileException( "Duplicate upgrade block found", segment.getLineNumber() );
+						throw new CommandFileException( "Duplicate upgrade block found", segment.getLocation() );
 					result = segment;
 				}
 
@@ -679,7 +680,7 @@ public class UpgradeFile
 	 */
 	protected UpgradeSource gotoSegment( UpgradeSegment segment )
 	{
-		Assert.isTrue( segment.getLineNumber() >= 0, "Upgrade or setup block not found" );
+		Assert.isTrue( segment.getLocation() != null, "Upgrade or setup block not found" );
 
 		this.file.gotoLine( segment.getLineNumber() );
 		String line = this.file.readLine();

@@ -30,6 +30,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import solidbase.util.Assert;
+import solidbase.util.FileLocation;
 import solidbase.util.LineReader;
 import solidbase.util.Resource;
 import solidbase.util.ShutdownHook;
@@ -546,10 +547,10 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 		Assert.isTrue( this.segment.isSetup(), "UPGRADE only allowed in SETUP blocks" );
 		Assert.isTrue( this.segment.getSource().equals( "1.0" ) && this.segment.getTarget().equals( "1.1" ), "UPGRADE only possible from spec 1.0 to 1.1" );
 
-		int pos = command.getLineNumber();
-		executeJdbc( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'S' WHERE RESULT IS NULL OR RESULT NOT LIKE 'COMPLETED VERSION %'", false, pos ) );
-		executeJdbc( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'B', RESULT = 'COMPLETE' WHERE RESULT LIKE 'COMPLETED VERSION %'", false, pos ) );
-		executeJdbc( new Command( "UPDATE DBVERSION SET SPEC = '1.1'", false, pos ) ); // We need this because the column is made NOT NULL in the upgrade setup block
+		FileLocation location = command.getLocation();
+		executeJdbc( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'S' WHERE RESULT IS NULL OR RESULT NOT LIKE 'COMPLETED VERSION %'", false, location ) );
+		executeJdbc( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'B', RESULT = 'COMPLETE' WHERE RESULT LIKE 'COMPLETED VERSION %'", false, location ) );
+		executeJdbc( new Command( "UPDATE DBVERSION SET SPEC = '1.1'", false, location ) ); // We need this because the column is made NOT NULL in the upgrade setup block
 	}
 
 	/**

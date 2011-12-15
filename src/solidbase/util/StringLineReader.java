@@ -22,14 +22,14 @@ import java.io.StringReader;
 
 /**
  * A line reader that reads from a string.
- * 
+ *
  * @author René M. de Bloois
  */
 public class StringLineReader extends BufferedReaderLineReader
 {
 	/**
-	 * Creates a new line reader for the given input stream.
-	 * 
+	 * Creates a new line reader for the given string.
+	 *
 	 * @param text The text to read from.
 	 */
 	public StringLineReader( String text )
@@ -39,14 +39,15 @@ public class StringLineReader extends BufferedReaderLineReader
 	}
 
 	/**
-	 * Creates a new line reader for the given input stream.
-	 * 
+	 * Creates a new line reader for the given string.
+	 *
 	 * @param text The text to read from.
-	 * @param lineNumber The line number of the text fragment in the file.
+	 * @param location The file location where the text has been found.
 	 */
-	public StringLineReader( String text, int lineNumber )
+	public StringLineReader( String text, FileLocation location )
 	{
+		this.resource = location.getResource();
 		this.reader = new BufferedReader( new StringReader( text ) );
-		this.currentLineNumber = lineNumber;
+		this.currentLineNumber = location.getLineNumber();
 	}
 }

@@ -86,7 +86,7 @@ public class CSVReader
 				if( token.isNewline() || token.isEndOfInput() )
 					break;
 				if( !token.isSeparator() )
-					throw new CommandFileException( "Expecting <separator>, <newline> or <end-of-input>, not '" + token.getValue() + "'", tokenizer.getLineNumber() );
+					throw new CommandFileException( "Expecting <separator>, <newline> or <end-of-input>, not '" + token.getValue() + "'", tokenizer.getLocation() );
 			}
 		}
 
@@ -103,5 +103,10 @@ public class CSVReader
 	public int getLineNumber()
 	{
 		return this.tokenizer.getLineNumber();
+	}
+
+	public FileLocation getLocation()
+	{
+		return this.tokenizer.getLocation();
 	}
 }

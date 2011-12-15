@@ -109,7 +109,7 @@ public class CSVTokenizer
 			{
 				ch = this.in.read();
 				if( ch == -1 )
-					throw new CommandFileException( "Missing \"", this.in.getLineNumber() );
+					throw new CommandFileException( "Missing \"", this.in.getLocation() );
 				if( ch == '"' )
 				{
 					ch = this.in.read();
@@ -140,7 +140,7 @@ public class CSVTokenizer
 		do
 		{
 			if( ch == '"' )
-				throw new CommandFileException( "Unexpected \"", this.in.getLineNumber() );
+				throw new CommandFileException( "Unexpected \"", this.in.getLocation() );
 			if( ignoreWhiteSpace )
 			{
 				if( isWhitespace( ch ) )
@@ -179,6 +179,16 @@ public class CSVTokenizer
 	public int getLineNumber()
 	{
 		return this.in.getLineNumber();
+	}
+
+	/**
+	 * Returns the current file location.
+	 *
+	 * @return The current file location.
+	 */
+	public FileLocation getLocation()
+	{
+		return this.in.getLocation();
 	}
 
 	/**
