@@ -18,17 +18,20 @@ package solidbase.core.plugins;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.sql.Blob;
+import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import solidbase.core.Command;
+import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
+import solidbase.util.JdbcSupport;
 
 
 /**
@@ -64,20 +67,22 @@ public class PrintSelect implements CommandListener
 		{
 			ResultSet result = statement.executeQuery( sql );
 			ResultSetMetaData metaData = result.getMetaData();
-			int type = metaData.getColumnType( 1 );
-			if( type == Types.CLOB || type == Types.NCLOB || type == Types.LONGVARCHAR || type == Types.LONGNVARCHAR )
+			int[] types = new int[] { metaData.getColumnType( 1 ) };
+			while( result.next() )
 			{
-				StringBuilder buffer = new StringBuilder();
-				char[] buf = new char[ 4096 ];
-				while( result.next() )
+				Object value = JdbcSupport.getValue( result, types, 0 );
+				if( value instanceof Blob || value instanceof byte[] )
+					throw new CommandFileException( "Binary columns like BLOB, RAW, BINARY VARYING cannot be printed", command.getLocation() );
+				if( value instanceof Clob )
 				{
-					Reader in = result.getCharacterStream( 1 );
-					buffer.setLength( 0 );
+					StringBuilder buffer = new StringBuilder();
+					Reader in = ( (Clob)value ).getCharacterStream();
+					char[] buf = new char[ 4096 ];
 					try
 					{
-						// TODO Can we do this in a streaming way? Maybe add streaming capability indicator to the output.
 						for( int read = in.read( buf ); read >= 0; read = in.read( buf ) )
 							buffer.append( buf, 0, read );
+						in.close();
 					}
 					catch( IOException e )
 					{
@@ -85,11 +90,11 @@ public class PrintSelect implements CommandListener
 					}
 					processor.getCallBack().print( buffer.toString() );
 				}
-			}
-			else
-			{
-				while( result.next() )
-					processor.getCallBack().print( result.getObject( 1 ).toString() );
+				else
+				{
+					processor.getCallBack().print( value.toString() );
+				}
+
 			}
 		}
 		finally
