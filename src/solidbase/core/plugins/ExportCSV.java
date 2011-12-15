@@ -46,6 +46,7 @@ import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.SystemException;
 import solidbase.util.CSVWriter;
+import solidbase.util.DeferringWriter;
 import solidbase.util.FileResource;
 import solidbase.util.Resource;
 import solidbase.util.StringLineReader;
@@ -105,26 +106,28 @@ public class ExportCSV implements CommandListener
 					FileSpec[] fileSpecs = new FileSpec[ count ];
 					int firstCoalesce = -1;
 
-					// FIXME This must not be the default
 					for( int i = 0; i < count; i++ )
 					{
 						String name = metaData.getColumnName( i + 1 ).toUpperCase();
 						types[ i ] = metaData.getColumnType( i + 1 );
 						names[ i ] = name;
-						FileSpec spec = parsed.columns.get( name );
-						if( spec != null )
-							spec.generator = new FileNameGenerator( spec.fileName );
-						fileSpecs[ i ] = spec;
+						if( parsed.columns != null )
+							fileSpecs[ i ] = parsed.columns.get( name );
 						if( parsed.coalesce != null && parsed.coalesce.contains( name ) )
 						{
 							coalesce[ i ] = true;
 							if( firstCoalesce < 0 )
 								firstCoalesce = i;
 						}
-						if( !coalesce[ i ] || firstCoalesce == i )
-							csvWriter.writeValue( name );
 					}
-					csvWriter.nextRecord();
+
+					if( parsed.withHeader )
+					{
+						for( int i = 0; i < count; i++ )
+							if( !coalesce[ i ] || firstCoalesce == i )
+								csvWriter.writeValue( names[ i ] );
+						csvWriter.nextRecord();
+					}
 
 					try
 					{
@@ -214,7 +217,7 @@ public class ExportCSV implements CommandListener
 											{
 												String fileName = spec.generator.generateFileName( result );
 												Resource fileResource = new FileResource( fileName );
-												spec.writer = new OutputStreamWriter( fileResource.getOutputStream(), parsed.encoding );
+												spec.writer = new DeferringWriter( spec.threshold, fileResource, parsed.encoding );
 												relFileName = fileResource.getPathFrom( csvResource );
 											}
 											else
@@ -249,8 +252,12 @@ public class ExportCSV implements CommandListener
 											}
 											if( spec.generator.isDynamic() )
 											{
-												spec.writer.close();
-												csvWriter.writeExtendedValue( "TXT(FILE=\"" + relFileName + "\",ENCODING=\"" + parsed.encoding + "\")" ); // TODO Escape filename (Linux filenames are allowed to have double quotes)
+												DeferringWriter writer = (DeferringWriter)spec.writer;
+												if( writer.isInMemory() )
+													csvWriter.writeValue( writer.getData() );
+												else
+													csvWriter.writeExtendedValue( "TXT(FILE=\"" + relFileName + "\",ENCODING=\"" + parsed.encoding + "\")" ); // TODO Escape filename (Linux filenames are allowed to have double quotes)
+												writer.close();
 											}
 											else
 												csvWriter.writeExtendedValue( "TXT(INDEX=" + startIndex + ",LENGTH=" + ( spec.index - startIndex ) + ")" );
@@ -347,7 +354,15 @@ public class ExportCSV implements CommandListener
 		tokenizer.get( "EXPORT" );
 		tokenizer.get( "CSV" );
 
-		Token t = tokenizer.get( "SEPARATED", "COALESCE", "FILE" );
+		Token t = tokenizer.get( "WITH", "SEPARATED", "COALESCE", "FILE" );
+		if( t.equals( "WITH" ) )
+		{
+			tokenizer.get( "HEADER" );
+			result.withHeader = true;
+
+			t = tokenizer.get( "SEPARATED", "COALESCE", "FILE" );
+		}
+
 		if( t.equals( "SEPARATED" ) )
 		{
 			tokenizer.get( "BY" );
@@ -418,10 +433,19 @@ public class ExportCSV implements CommandListener
 					throw new CommandFileException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLineNumber() );
 				fileName = fileName.substring( 1, fileName.length() - 1 );
 
-				for( Token column : columns )
-					result.columns.put( column.getValue().toUpperCase(), new FileSpec( binary, fileName ) );
-
 				t = tokenizer.get();
+				int threshold = 0;
+				if( t.equals( "THRESHOLD" ) )
+				{
+					t = tokenizer.get();
+					threshold = Integer.parseInt( t.getValue() );
+
+					t = tokenizer.get();
+				}
+
+				FileSpec fileSpec = new FileSpec( binary, fileName, threshold );
+				for( Token column : columns )
+					result.columns.put( column.getValue().toUpperCase(), fileSpec );
 			}
 		}
 		tokenizer.push( t );
@@ -443,8 +467,7 @@ public class ExportCSV implements CommandListener
 	 */
 	static protected class Parsed
 	{
-		/** Skip the header line. */
-		protected boolean skipHeader = false;
+		protected boolean withHeader;
 
 		/** The separator. */
 		protected char separator = ',';
@@ -469,15 +492,19 @@ public class ExportCSV implements CommandListener
 	{
 		protected boolean binary;
 		protected String fileName;
+		protected int threshold;
+
 		protected FileNameGenerator generator;
 		protected OutputStream out;
 		protected Writer writer;
 		protected int index;
 
-		protected FileSpec( boolean binary, String fileName )
+		protected FileSpec( boolean binary, String fileName, int threshold )
 		{
 			this.binary = binary;
 			this.fileName = fileName;
+			this.threshold = threshold;
+			this.generator = new FileNameGenerator( fileName );
 		}
 	}
 
