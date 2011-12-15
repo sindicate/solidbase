@@ -57,7 +57,7 @@ public class AssertExistsOrEmptySelect implements CommandListener
 			{
 				boolean result = statement.executeQuery( select ).next();
 				if( mode.equalsIgnoreCase( "EXISTS" ) ? !result : result )
-					throw new CommandFileException( message, command.getLineNumber() );
+					throw new CommandFileException( message, command.getLocation() );
 				// Resultset is closed when the statement is closed
 			}
 			finally

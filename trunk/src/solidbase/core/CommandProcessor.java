@@ -159,11 +159,11 @@ abstract public class CommandProcessor
 				if( command.isPersistent() )
 					executeJdbc( command );
 				else
-					throw new CommandFileException( "Unknown command " + command.getCommand(), command.getLineNumber() );
+					throw new CommandFileException( "Unknown command " + command.getCommand(), command.getLocation() );
 		}
 		catch( SQLException e )
 		{
-			SQLExecutionException newException = new SQLExecutionException( command.getCommand(), command.getLineNumber(), e );
+			SQLExecutionException newException = new SQLExecutionException( command.getCommand(), command.getLocation(), e );
 			String error = e.getSQLState();
 			if( !this.context.ignoreSQLError( error ) )
 			{
@@ -204,7 +204,7 @@ abstract public class CommandProcessor
 			{
 				String value = this.context.getVariableValue( name );
 				if( value == null )
-					throw new CommandFileException( "Variable '" + name + "' is null", command.getLineNumber() );
+					throw new CommandFileException( "Variable '" + name + "' is null", command.getLocation() );
 				matcher.appendReplacement( sb, value );
 			}
 		}
@@ -262,12 +262,12 @@ abstract public class CommandProcessor
 			}
 			if( elsePattern.matcher( sql ).matches() )
 			{
-				this.context.doElse();
+				this.context.doElse( command.getLocation() );
 				return true;
 			}
 			if( ifEndPattern.matcher( sql ).matches() )
 			{
-				this.context.endSkip();
+				this.context.endIf( command.getLocation() );
 				return true;
 			}
 			if( ( matcher = setUserPattern.matcher( sql ) ).matches() )
@@ -282,7 +282,7 @@ abstract public class CommandProcessor
 			}
 			if( skipEnd.matcher( sql ).matches() )
 			{
-				this.context.endSkip();
+				this.context.endSkip( command.getLocation() );
 				return true;
 			}
 			if( ( matcher = JDBC_ESCAPING.matcher( sql ) ).matches() )
@@ -412,9 +412,9 @@ abstract public class CommandProcessor
 	{
 		int l = level != null ? Integer.parseInt( level ) : 1;
 		if( l < 0 || l > 9 )
-			throw new CommandFileException( "Section level must be 0..9", command.getLineNumber() );
+			throw new CommandFileException( "Section level must be 0..9", command.getLocation() );
 		if( l > this.context.getSectionLevel() + 1 ) // TODO Why is this?
-			throw new CommandFileException( "Section levels can't be skipped, current section level is " + this.context.getSectionLevel(), command.getLineNumber() );
+			throw new CommandFileException( "Section levels can't be skipped, current section level is " + this.context.getSectionLevel(), command.getLocation() );
 		this.context.setSectionLevel( l );
 		startSection( l, message );
 	}
@@ -479,7 +479,7 @@ abstract public class CommandProcessor
 		name = name.toLowerCase();
 		Database database = this.context.getDatabase( name );
 		if( database == null )
-			throw new CommandFileException( "Database '" + name + "' not configured", command.getLineNumber() );
+			throw new CommandFileException( "Database '" + name + "' not configured", command.getLocation() );
 		setConnection( database );
 	}
 
@@ -518,7 +518,7 @@ abstract public class CommandProcessor
 	protected void ifVariableIsNull( String name, String not, Command command )
 	{
 		if( !this.context.hasVariable( name ) )
-			throw new CommandFileException( "Variable '" + name + "' is not defined", command.getLineNumber() );
+			throw new CommandFileException( "Variable '" + name + "' is not defined", command.getLocation() );
 		this.context.skip( ( this.context.getVariableValue( name ) == null ) != ( not == null ) );
 	}
 

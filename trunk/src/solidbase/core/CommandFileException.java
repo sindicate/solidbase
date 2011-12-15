@@ -16,45 +16,47 @@
 
 package solidbase.core;
 
+import solidbase.util.FileLocation;
+
 /**
  * Represents a problem in the file (upgrade file or SQL file). A stack trace is not required. The failure and
  * line number are enough to identify corrective actions.
- * 
+ *
  * @author René M. de Bloois
  */
 // TODO Look for another name for this exception, like LocalizedFatalException and include the file's url
 public class CommandFileException extends FatalException
 {
 	/**
-	 * The line number in the command file where the problem is located.
+	 * The file location where the problem is located.
 	 */
-	private int lineNumber;
+	private FileLocation location;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param message The failure message.
-	 * @param lineNumber The line number in the file where the problem is located.
+	 * @param location The file location where the problem is located.
 	 */
-	public CommandFileException( String message, int lineNumber )
+	public CommandFileException( String message, FileLocation location )
 	{
 		super( message );
-		this.lineNumber = lineNumber;
+		this.location = location;
 	}
 
 	@Override
 	public String getMessage()
 	{
-		return super.getMessage() + ", at line " + this.lineNumber;
+		return super.getMessage() + ", at " + this.location;
 	}
 
 	/**
-	 * Returns the line number in the file where the problem is located.
-	 * 
-	 * @return The line number in the file where the problem is located.
+	 * Returns the file location where the problem is located.
+	 *
+	 * @return The file location where the problem is located.
 	 */
-	public int getLineNumber()
+	public FileLocation getLocation()
 	{
-		return this.lineNumber;
+		return this.location;
 	}
 }

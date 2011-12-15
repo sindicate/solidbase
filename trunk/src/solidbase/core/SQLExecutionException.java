@@ -19,12 +19,13 @@ package solidbase.core;
 import java.sql.SQLException;
 
 import solidbase.util.Assert;
+import solidbase.util.FileLocation;
 
 
 /**
  * An {@link SQLException} has occurred during execution of a {@link Command}. As a subclass of {@link FatalException}
  * the message of this exception will be presented to the user, not the stack trace.
- * 
+ *
  * @author René M. de Bloois
  */
 public class SQLExecutionException extends FatalException
@@ -35,18 +36,18 @@ public class SQLExecutionException extends FatalException
 	private String command;
 
 	/**
-	 * The line number where the exception occurred.
+	 * The file location where the exception occurred.
 	 */
-	private int lineNumber;
+	private FileLocation location;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param command The command that caused the {@link SQLException}.
-	 * @param lineNumber The line number where the exception occurred.
+	 * @param location The file location where the exception occurred.
 	 * @param sqlException The {@link SQLException}.
 	 */
-	public SQLExecutionException( String command, int lineNumber, SQLException sqlException )
+	public SQLExecutionException( String command, FileLocation location, SQLException sqlException )
 	{
 		super( sqlException );
 
@@ -54,12 +55,12 @@ public class SQLExecutionException extends FatalException
 		Assert.notNull( sqlException );
 
 		this.command = command;
-		this.lineNumber = lineNumber;
+		this.location = location;
 	}
 
 	/**
 	 * Loops through all the exceptions contained in the {@link SQLException} and combines all messages and SQLStates into one String.
-	 * 
+	 *
 	 * @return all messages and SQLStates from the {@link SQLException} combined into one string.
 	 * @see SQLException#getNextException()
 	 */
@@ -88,6 +89,6 @@ public class SQLExecutionException extends FatalException
 		if( command.length() > 1000 )
 			command = command.substring( 0, 1000 ) + "...";
 
-		return getSQLErrorMessages() + "\nWhile executing line " + this.lineNumber + ": " + command;
+		return getSQLErrorMessages() + "\nWhile executing " + this.location + ": " + command;
 	}
 }

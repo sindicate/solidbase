@@ -16,17 +16,19 @@
 
 package solidbase.core;
 
+import solidbase.util.FileLocation;
+
 /**
  * An SQL fragment.
- * 
+ *
  * @author René de Bloois
  */
 public class Fragment
 {
 	/**
-	 * The line number of this fragment.
+	 * The file location of this fragment.
 	 */
-	protected int lineNumber;
+	protected FileLocation location;
 
 	/**
 	 * The text of the fragment.
@@ -35,29 +37,29 @@ public class Fragment
 
 	/**
 	 * Constructor.
-	 * 
-	 * @param lineNumber The line number of the fragment in the original file.
+	 *
+	 * @param location The location of the fragment in the original file.
 	 * @param text The text of the fragment.
 	 */
-	public Fragment( int lineNumber, String text )
+	public Fragment( FileLocation location, String text )
 	{
-		this.lineNumber = lineNumber;
+		this.location = location;
 		this.text = text;
 	}
 
 	/**
-	 * Returns the line number of the fragment.
-	 * 
-	 * @return The line number of the fragment.
+	 * Returns the file location of the fragment.
+	 *
+	 * @return The file location of the fragment.
 	 */
-	public int getLineNumber()
+	public FileLocation getLocation()
 	{
-		return this.lineNumber;
+		return this.location;
 	}
 
 	/**
 	 * Returns the text of the fragment.
-	 * 
+	 *
 	 * @return The text of the fragment.
 	 */
 	public String getText()

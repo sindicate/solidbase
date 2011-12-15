@@ -19,6 +19,7 @@ package solidbase.core;
 import java.util.regex.Matcher;
 
 import solidbase.core.Delimiter.Type;
+import solidbase.util.FileLocation;
 import solidbase.util.LineReader;
 import solidbase.util.Resource;
 import solidbase.util.StringLineReader;
@@ -26,7 +27,7 @@ import solidbase.util.StringLineReader;
 
 /**
  * Source for SQL statements.
- * 
+ *
  * @author René M. de Bloois
  * @since June 2010
  */
@@ -55,7 +56,7 @@ public class SQLSource
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param in The reader which is used to read the SQL.
 	 */
 	protected SQLSource( LineReader in )
@@ -66,7 +67,7 @@ public class SQLSource
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param sql The SQL to read.
 	 */
 	protected SQLSource( String sql )
@@ -77,24 +78,24 @@ public class SQLSource
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param sql The SQL to read.
-	 * @param lineNumber The line number of the SQL within the original file.
+	 * @param location The location of the SQL within the original file.
 	 */
-	protected SQLSource( String sql, int lineNumber )
+	protected SQLSource( String sql, FileLocation location )
 	{
-		this( new StringLineReader( sql, lineNumber ) );
+		this( new StringLineReader( sql, location ) );
 	}
 
 
 	/**
 	 * Constructor.
-	 * 
-	 * @param fragment The fragment of SQL from a file, includes a line number.
+	 *
+	 * @param fragment The fragment of SQL from a file.
 	 */
 	protected SQLSource( Fragment fragment )
 	{
-		this( new StringLineReader( fragment.getText(), fragment.getLineNumber() ) );
+		this( new StringLineReader( fragment.getText(), fragment.getLocation() ) );
 	}
 
 
@@ -113,7 +114,7 @@ public class SQLSource
 
 	/**
 	 * Overrides the default delimiter.
-	 * 
+	 *
 	 * @param delimiters The delimiters.
 	 */
 	public void setDelimiters( Delimiter[] delimiters )
@@ -124,7 +125,7 @@ public class SQLSource
 
 	/**
 	 * Reads a command from the upgrade segment.
-	 * 
+	 *
 	 * @return A command from the upgrade segment or null when no more commands are available.
 	 */
 	public Command readCommand()
@@ -146,21 +147,21 @@ public class SQLSource
 				if( line == null )
 				{
 					if( result.length() > 0 )
-						throw new NonDelimitedStatementException( this.reader.getLineNumber() - 1 );
+						throw new NonDelimitedStatementException( this.reader.getLocation().previousLine() );
 					return null;
 				}
 
 				if( line.startsWith( "--*" ) ) // Only if read from file
 				{
 					if( result.length() > 0 )
-						throw new NonDelimitedStatementException( this.reader.getLineNumber() - 1 );
+						throw new NonDelimitedStatementException( this.reader.getLocation().previousLine() );
 
 					line = line.substring( 3 ).trim();
 					if( !line.startsWith( "//" )) // skip comment
 					{
 						if( pos == 0 )
 							pos = this.reader.getLineNumber() - 1;
-						return new Command( line, true, pos );
+						return new Command( line, true, this.reader.getLocation().lineNumber( pos ) );
 					}
 					continue;
 				}
@@ -180,7 +181,7 @@ public class SQLSource
 						result.append( matcher.group( 1 ) );
 					if( matcher.groupCount() > 1 )
 						this.buffer = matcher.group( 2 );
-					return new Command( result.toString(), false, pos );
+					return new Command( result.toString(), false, this.reader.getLocation().lineNumber( pos ) );
 				}
 			}
 
@@ -192,18 +193,8 @@ public class SQLSource
 	}
 
 	/**
-	 * Returns the current line number. The current line number is the line that is about to be read.
-	 * 
-	 * @return The current line number.
-	 */
-	public int getLineNumber()
-	{
-		return this.reader.getLineNumber();
-	}
-
-	/**
 	 * Returns the underlying resource.
-	 * 
+	 *
 	 * @return The underlying resource.
 	 */
 	public Resource getResource()

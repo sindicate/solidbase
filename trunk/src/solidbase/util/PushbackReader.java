@@ -23,7 +23,7 @@ import java.io.IOException;
  * My own PushbackReader. This one has an unlimited buffer and maintains the current line number. It also gives access
  * to the underlying reader. Furthermore, it wraps {@link IOException}s in a {@link RuntimeException} because we are
  * never interested in it.
- * 
+ *
  * @author René M. de Bloois
  */
 public class PushbackReader
@@ -46,7 +46,7 @@ public class PushbackReader
 
 	/**
 	 * Constructs a new instance of the PushbackReader.
-	 * 
+	 *
 	 * @param reader A reader.
 	 */
 	public PushbackReader( LineReader reader )
@@ -58,7 +58,7 @@ public class PushbackReader
 
 	/**
 	 * Returns the current line number.
-	 * 
+	 *
 	 * @return The current line number.
 	 */
 	public int getLineNumber()
@@ -66,9 +66,14 @@ public class PushbackReader
 		return this.lineNumber;
 	}
 
+	public FileLocation getLocation()
+	{
+		return new FileLocation( this.reader.getResource(), this.lineNumber );
+	}
+
 	/**
 	 * Returns the underlying reader. But only if the back buffer is empty, otherwise an IllegalStateException is thrown.
-	 * 
+	 *
 	 * @return The underlying reader.
 	 */
 	public LineReader getReader()
@@ -82,7 +87,7 @@ public class PushbackReader
 	 * Read one character. If the buffer contains characters, the character is taken from there. If the buffer is empty,
 	 * the character is taken from the underlying reader. Carriage returns are filtered out. \r and \r\n are
 	 * automatically translated to a single \n. The current line number is incremented for each newline encountered.
-	 * 
+	 *
 	 * @return The character read or -1 if no more characters are available.
 	 */
 	public int read()
@@ -114,7 +119,7 @@ public class PushbackReader
 
 	/**
 	 * Push a character back into the reader. The current line number is decremented when a newline character is pushed back.
-	 * 
+	 *
 	 * @param ch The character to push back. -1 is ignored.
 	 */
 	public void push( int ch )
@@ -131,7 +136,7 @@ public class PushbackReader
 
 	/**
 	 * Push a complete {@link StringBuilder} back into the reader. The current line number is decremented for each newline encountered.
-	 * 
+	 *
 	 * @param builder The {@link StringBuilder} to push back.
 	 */
 	public void push( StringBuilder builder )
@@ -143,7 +148,7 @@ public class PushbackReader
 
 	/**
 	 * Push a complete {@link String} back into the reader. The current line number is decremented for each newline encountered.
-	 * 
+	 *
 	 * @param string The {@link String} to push back.
 	 */
 	public void push( String string )

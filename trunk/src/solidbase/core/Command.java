@@ -17,6 +17,7 @@
 package solidbase.core;
 
 import solidbase.util.Assert;
+import solidbase.util.FileLocation;
 
 /**
  * Represents a command in an upgrade or SQL file.
@@ -37,9 +38,9 @@ public class Command
 	private boolean isTransient;
 
 	/**
-	 * The line number in the file where the command is encountered.
+	 * The file location where the command is encountered.
 	 */
-	private int lineNumber;
+	private FileLocation location;
 
 	/**
 	 * Constructor.
@@ -48,14 +49,13 @@ public class Command
 	 * @param isTransient Is the command transient or not?
 	 * @param lineNumber The line number in the upgrade file where the command is encountered.
 	 */
-	public Command( String command, boolean isTransient, int lineNumber )
+	public Command( String command, boolean isTransient, FileLocation location )
 	{
-		Assert.isTrue( lineNumber > 0 );
 		Assert.notNull( command );
 
 		this.command = command;
 		this.isTransient = isTransient;
-		this.lineNumber = lineNumber;
+		this.location = location;
 	}
 
 	/**
@@ -99,13 +99,13 @@ public class Command
 	}
 
 	/**
-	 * Returns the line number in the upgrade file where the command is encountered.
+	 * Returns the file location where the command is encountered.
 	 *
-	 * @return The line number in the upgrade file where the command is encountered.
+	 * @return The file location where the command is encountered.
 	 */
-	public int getLineNumber()
+	public FileLocation getLocation()
 	{
-		return this.lineNumber;
+		return this.location;
 	}
 
 	@Override

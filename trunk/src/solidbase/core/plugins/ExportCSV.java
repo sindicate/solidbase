@@ -87,7 +87,7 @@ public class ExportCSV implements CommandListener
 		catch( UnsupportedEncodingException e )
 		{
 			// toString() instead of getMessage(), the getMessage only returns the encoding string
-			throw new CommandFileException( e.toString(), command.getLineNumber() );
+			throw new CommandFileException( e.toString(), command.getLocation() );
 		}
 		try
 		{
@@ -202,7 +202,7 @@ public class ExportCSV implements CommandListener
 												spec.index += ( (byte[])value ).length;
 											}
 											else
-												throw new CommandFileException( names[ i ] + " is not a binary column. Only binary columns like BLOB, RAW, BINARY VARYING can be written to a binary file", command.getLineNumber() );
+												throw new CommandFileException( names[ i ] + " is not a binary column. Only binary columns like BLOB, RAW, BINARY VARYING can be written to a binary file", command.getLocation() );
 											if( spec.generator.isDynamic() )
 											{
 												spec.out.close();
@@ -230,7 +230,7 @@ public class ExportCSV implements CommandListener
 												}
 											}
 											if( value instanceof Blob || value instanceof byte[] )
-												throw new CommandFileException( names[ i ] + " is a binary column. Binary columns like BLOB, RAW, BINARY VARYING cannot be written to a text file", command.getLineNumber() );
+												throw new CommandFileException( names[ i ] + " is a binary column. Binary columns like BLOB, RAW, BINARY VARYING cannot be written to a text file", command.getLocation() );
 											if( value instanceof Clob )
 											{
 												Reader in = ( (Clob)value ).getCharacterStream();
@@ -349,7 +349,7 @@ public class ExportCSV implements CommandListener
 	{
 		Parsed result = new Parsed();
 
-		Tokenizer tokenizer = new Tokenizer( new StringLineReader( command.getCommand(), command.getLineNumber() ) );
+		Tokenizer tokenizer = new Tokenizer( new StringLineReader( command.getCommand(), command.getLocation() ) );
 
 		tokenizer.get( "EXPORT" );
 		tokenizer.get( "CSV" );
@@ -372,7 +372,7 @@ public class ExportCSV implements CommandListener
 			else
 			{
 				if( t.length() != 1 )
-					throw new CommandFileException( "Expecting [TAB] or one character, not [" + t + "]", tokenizer.getLineNumber() );
+					throw new CommandFileException( "Expecting [TAB] or one character, not [" + t + "]", tokenizer.getLocation() );
 				result.separator = t.getValue().charAt( 0 );
 			}
 
@@ -397,14 +397,14 @@ public class ExportCSV implements CommandListener
 		t = tokenizer.get();
 		String file = t.getValue();
 		if( !file.startsWith( "\"" ) )
-			throw new CommandFileException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLineNumber() );
+			throw new CommandFileException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 		file = file.substring( 1, file.length() - 1 );
 
 		t = tokenizer.get( "ENCODING" );
 		t = tokenizer.get();
 		String encoding = t.getValue();
 		if( !encoding.startsWith( "\"" ) )
-			throw new CommandFileException( "Expecting encoding enclosed in double quotes, not [" + t + "]", tokenizer.getLineNumber() );
+			throw new CommandFileException( "Expecting encoding enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 		encoding = encoding.substring( 1, encoding.length() - 1 );
 
 		t = tokenizer.get();
@@ -430,7 +430,7 @@ public class ExportCSV implements CommandListener
 				t = tokenizer.get();
 				String fileName = t.getValue();
 				if( !fileName.startsWith( "\"" ) )
-					throw new CommandFileException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLineNumber() );
+					throw new CommandFileException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 				fileName = fileName.substring( 1, fileName.length() - 1 );
 
 				t = tokenizer.get();

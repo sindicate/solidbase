@@ -136,7 +136,7 @@ public class Tokenizer
 
 				ch = this.in.read();
 				if( ch == -1 )
-					throw new CommandFileException( "Unexpected end of statement", this.in.getLineNumber() );
+					throw new CommandFileException( "Unexpected end of statement", getLocation() );
 				if( ch == quote )
 				{
 					result.append( (char)ch );
@@ -236,7 +236,7 @@ public class Tokenizer
 		if( token.isNewline() )
 			lineNumber--;
 
-		throw new CommandFileException( error.toString(), lineNumber );
+		throw new CommandFileException( error.toString(), getLocation().lineNumber( lineNumber ) );
 	}
 
 	/**
@@ -257,9 +257,9 @@ public class Tokenizer
 
 		// Check newline
 		if( ch == -1 )
-			throw new CommandFileException( "Unexpected end of statement", this.in.getLineNumber() );
+			throw new CommandFileException( "Unexpected end of statement", getLocation() );
 		if( ch != '\n' )
-			throw new CommandFileException( "Expecting end of line, not [" + (char)ch + "]", this.in.getLineNumber() );
+			throw new CommandFileException( "Expecting end of line, not [" + (char)ch + "]", getLocation() );
 
 		// Return the result
 		return new Token( String.valueOf( (char)ch ), whiteSpace.toString() );
@@ -307,6 +307,11 @@ public class Tokenizer
 	public LineReader getReader()
 	{
 		return this.in.getReader();
+	}
+
+	public FileLocation getLocation()
+	{
+		return this.in.getLocation();
 	}
 
 

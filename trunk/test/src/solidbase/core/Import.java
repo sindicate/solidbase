@@ -81,7 +81,7 @@ public class Import
 		catch( CommandFileException e )
 		{
 			assert e.getMessage().contains( "<separator>, <newline>" );
-			assert e.getMessage().contains( "at line 53" );
+			assert e.getMessage().contains( "at line 53" ) : "Wrong error message: " + e.getMessage();
 		}
 
 		try

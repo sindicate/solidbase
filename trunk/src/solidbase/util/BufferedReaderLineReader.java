@@ -18,12 +18,13 @@ package solidbase.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+
 import solidbase.core.SystemException;
 
 
 /**
  * Wraps a {@link BufferedReader} and adds a line counting functionality.
- * 
+ *
  * @author René M. de Bloois
  */
 public class BufferedReaderLineReader implements LineReader
@@ -139,5 +140,10 @@ public class BufferedReaderLineReader implements LineReader
 	public byte[] getBOM()
 	{
 		return null;
+	}
+
+	public FileLocation getLocation()
+	{
+		return new FileLocation( this.resource, getLineNumber() );
 	}
 }

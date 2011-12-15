@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import solidbase.util.Assert;
+import solidbase.util.FileLocation;
 
 
 
@@ -150,24 +150,37 @@ abstract public class CommandContext
 	/**
 	 * Process the ELSE annotation.
 	 */
-	protected void doElse()
+	protected void doElse( FileLocation location )
 	{
+		if( this.noSkipCounter <= 0 && this.skipCounter <= 0 )
+			throw new CommandFileException( "ELSE without IF encountered", location );
 		boolean skip = this.skipCounter > 0;
-		endSkip();
+		endSkip( location );
 		skip( !skip );
+	}
+
+	/**
+	 * Process the /IF annotation.
+	 */
+	protected void endIf( FileLocation location )
+	{
+		if( this.noSkipCounter <= 0 && this.skipCounter <= 0 )
+			throw new CommandFileException( "/IF without IF encountered", location );
+		endSkip( location );
 	}
 
 	/**
 	 * Stop skipping commands. As {@link #skip(boolean)} and {@link #endSkip()} can be nested, only when the same number
 	 * of endSkips are called as the number of skips, the skipping will stop.
 	 */
-	protected void endSkip()
+	protected void endSkip( FileLocation location )
 	{
 		if( this.skipCounter > 0 )
 			this.skipCounter--;
 		else
 		{
-			Assert.isTrue( this.noSkipCounter > 0 );
+			if( this.noSkipCounter <= 0 )
+				throw new CommandFileException( "/SKIP without SKIP encountered", location );
 			this.noSkipCounter--;
 		}
 	}

@@ -16,6 +16,7 @@
 
 package solidbase.util;
 
+
 /**
  * A reader that reads lines or characters and maintains the current line number.
  *
@@ -55,6 +56,8 @@ public interface LineReader
 	 * @return The underlying resource.
 	 */
 	Resource getResource();
+
+	FileLocation getLocation();
 
 	/**
 	 * Returns the character encoding of the source where the bytes are read from.

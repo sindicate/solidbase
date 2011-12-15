@@ -16,6 +16,8 @@
 
 package solidbase.core;
 
+import solidbase.util.FileLocation;
+
 
 /**
  * Represents a single segment in the upgrade file.
@@ -70,9 +72,9 @@ public class UpgradeSegment
 	protected boolean open;
 
 	/**
-	 * The line number of this segment.
+	 * The file location of this segment.
 	 */
-	protected int lineNumber;
+	protected FileLocation location;
 
 	/**
 	 * Constructs a new segment.
@@ -88,7 +90,6 @@ public class UpgradeSegment
 		this.source = source;
 		this.target = target;
 		this.open = open;
-		this.lineNumber = -1;
 	}
 
 	/**
@@ -122,13 +123,13 @@ public class UpgradeSegment
 	}
 
 	/**
-	 * Sets the line number in the file for this segment.
+	 * Sets the file location for this segment.
 	 *
-	 * @param lineNumber The line number.
+	 * @param location The file location for this segment.
 	 */
-	protected void setLineNumber( int lineNumber )
+	protected void setLocation( FileLocation location )
 	{
-		this.lineNumber = lineNumber;
+		this.location = location;
 	}
 
 	/**
@@ -138,7 +139,17 @@ public class UpgradeSegment
 	 */
 	protected int getLineNumber()
 	{
-		return this.lineNumber;
+		return this.location.getLineNumber();
+	}
+
+	/**
+	 * Gets the line number in the file for this segment.
+	 *
+	 * @return The line number in the file for this segment.
+	 */
+	protected FileLocation getLocation()
+	{
+		return this.location;
 	}
 
 	/**

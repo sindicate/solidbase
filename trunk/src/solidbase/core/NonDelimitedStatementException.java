@@ -16,21 +16,23 @@
 
 package solidbase.core;
 
+import solidbase.util.FileLocation;
+
 
 /**
  * Exception that is thrown when a statement is not delimited with the current delimiter.
- * 
+ *
  * @author René M. de Bloois
  */
 public class NonDelimitedStatementException extends CommandFileException
 {
 	/**
 	 * Constructor.
-	 * 
-	 * @param lineNumber The line number in the file where the problem is located.
+	 *
+	 * @param location The file location where the problem is located.
 	 */
-	public NonDelimitedStatementException( int lineNumber )
+	public NonDelimitedStatementException( FileLocation location )
 	{
-		super( "Non-delimited statement found", lineNumber );
+		super( "Non-delimited statement found", location );
 	}
 }
