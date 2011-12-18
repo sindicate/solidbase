@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
 
 public class Export
 {
-	@Test(groups="new")
+	@Test
 	public void testExport() throws SQLException, UnsupportedEncodingException
 	{
 		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
