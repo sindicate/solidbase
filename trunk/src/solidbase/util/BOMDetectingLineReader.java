@@ -175,6 +175,11 @@ public class BOMDetectingLineReader extends BufferedReaderLineReader
 		}
 	}
 
+	public BOMDetectingLineReader( Resource resource )
+	{
+		this( resource, (String)null );
+	}
+
 	/**
 	 * Detect the encoding from the BOM.
 	 *

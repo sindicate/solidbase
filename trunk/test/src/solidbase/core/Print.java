@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 
 public class Print
 {
-	@Test( groups = "new" )
+	@Test
 	public void testPrint() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
