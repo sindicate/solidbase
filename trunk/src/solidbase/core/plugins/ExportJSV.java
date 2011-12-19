@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -44,9 +43,11 @@ import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.SystemException;
-import solidbase.util.CSVWriter;
 import solidbase.util.DeferringWriter;
 import solidbase.util.FileResource;
+import solidbase.util.JSONArray;
+import solidbase.util.JSONObject;
+import solidbase.util.JSONWriter;
 import solidbase.util.JdbcSupport;
 import solidbase.util.Resource;
 import solidbase.util.StringLineReader;
@@ -60,9 +61,9 @@ import solidbase.util.Tokenizer.Token;
  * @author René M. de Bloois
  * @since Aug 12, 2011
  */
-public class ExportCSV implements CommandListener
+public class ExportJSV implements CommandListener
 {
-	static private final Pattern triggerPattern = Pattern.compile( "EXPORT\\s+CSV\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern triggerPattern = Pattern.compile( "EXPORT\\s+JSV\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 
 	//@Override
@@ -76,19 +77,9 @@ public class ExportCSV implements CommandListener
 
 		Parsed parsed = parse( command );
 
-		Resource csvResource = new FileResource( new File( parsed.fileName ) ); // Relative to current folder
+		Resource jsvResource = new FileResource( new File( parsed.fileName ) ); // Relative to current folder
 
-		CSVWriter csvWriter;
-		try
-		{
-			boolean extendedFormat = parsed.columns != null;
-			csvWriter = new CSVWriter( csvResource, parsed.encoding, parsed.separator, extendedFormat );
-		}
-		catch( UnsupportedEncodingException e )
-		{
-			// toString() instead of getMessage(), the getMessage only returns the encoding string
-			throw new CommandFileException( e.toString(), command.getLocation() );
-		}
+		JSONWriter jsonWriter = new JSONWriter( jsvResource );
 		try
 		{
 			try
@@ -121,13 +112,29 @@ public class ExportCSV implements CommandListener
 						}
 					}
 
-					if( parsed.withHeader )
-					{
-						for( int i = 0; i < count; i++ )
-							if( !coalesce[ i ] || firstCoalesce == i )
-								csvWriter.writeValue( names[ i ] );
-						csvWriter.nextRecord();
-					}
+					JSONObject properties = new JSONObject();
+					properties.set( "version", "1.0" );
+					properties.set( "createdBy", "SolidBase 2.0.0" );
+					properties.set( "contentType", "text/json-values" );
+
+					JSONArray fields = new JSONArray();
+					properties.set( "fields", fields );
+					for( int i = 0; i < count; i++ )
+						if( !coalesce[ i ] || firstCoalesce == i )
+						{
+							JSONObject field = new JSONObject();
+							field.set( "name", names[ i ] );
+							field.set( "type", JdbcSupport.getTypeName( types[ i ] ) );
+							FileSpec spec = fileSpecs[ i ];
+							if( spec != null && !spec.generator.isDynamic() )
+							{
+								Resource fileResource = new FileResource( spec.generator.fileName );
+								field.set( "file", fileResource.getPathFrom( jsvResource ) );
+							}
+							fields.add( field );
+						}
+
+					jsonWriter.writeProperties( properties );
 
 					try
 					{
@@ -143,6 +150,8 @@ public class ExportCSV implements CommandListener
 											break;
 									}
 
+							JSONArray array = new JSONArray();
+
 							for( int i = 0; i < count; i++ )
 							{
 								if( !coalesce[ i ] || firstCoalesce == i )
@@ -150,13 +159,6 @@ public class ExportCSV implements CommandListener
 									Object value = coalescedValue;
 									if( firstCoalesce != i )
 										value = JdbcSupport.getValue( result, types, i );
-
-									// TODO Write null as ^NULL in extended format?
-									if( value == null )
-									{
-										csvWriter.writeValue( (String)null );
-										continue;
-									}
 
 									// TODO 2 columns can't be written to the same dynamic filename
 
@@ -172,7 +174,7 @@ public class ExportCSV implements CommandListener
 												String fileName = spec.generator.generateFileName( result );
 												Resource fileResource = new FileResource( fileName );
 												spec.out = fileResource.getOutputStream();
-												relFileName = fileResource.getPathFrom( csvResource );
+												relFileName = fileResource.getPathFrom( jsvResource );
 											}
 											else
 											{
@@ -206,10 +208,17 @@ public class ExportCSV implements CommandListener
 											if( spec.generator.isDynamic() )
 											{
 												spec.out.close();
-												csvWriter.writeExtendedValue( "BIN(FILE=\"" + relFileName + "\")" ); // TODO Escape filename (Linux filenames are allowed to have double quotes)
+												JSONObject ref = new JSONObject();
+												ref.set( "file", relFileName );
+												array.add( ref );
 											}
 											else
-												csvWriter.writeExtendedValue( "BIN(INDEX=" + startIndex + ",LENGTH=" + ( spec.index - startIndex ) + ")" );
+											{
+												JSONObject ref = new JSONObject();
+												ref.set( "index", startIndex );
+												ref.set( "length", spec.index - startIndex );
+												array.add( ref );
+											}
 										}
 										else
 										{
@@ -217,8 +226,8 @@ public class ExportCSV implements CommandListener
 											{
 												String fileName = spec.generator.generateFileName( result );
 												Resource fileResource = new FileResource( fileName );
-												spec.writer = new DeferringWriter( spec.threshold, fileResource, parsed.encoding );
-												relFileName = fileResource.getPathFrom( csvResource );
+												spec.writer = new DeferringWriter( spec.threshold, fileResource, jsonWriter.getEncoding() );
+												relFileName = fileResource.getPathFrom( jsvResource );
 											}
 											else
 											{
@@ -226,7 +235,7 @@ public class ExportCSV implements CommandListener
 												{
 													String fileName = spec.generator.generateFileName( result );
 													Resource fileResource = new FileResource( fileName );
-													spec.writer = new OutputStreamWriter( fileResource.getOutputStream(), parsed.encoding );
+													spec.writer = new OutputStreamWriter( fileResource.getOutputStream(), jsonWriter.getEncoding() );
 												}
 											}
 											if( value instanceof Blob || value instanceof byte[] )
@@ -254,40 +263,35 @@ public class ExportCSV implements CommandListener
 											{
 												DeferringWriter writer = (DeferringWriter)spec.writer;
 												if( writer.isInMemory() )
-													csvWriter.writeValue( writer.getData() );
+													array.add( writer.getData() );
 												else
-													csvWriter.writeExtendedValue( "TXT(FILE=\"" + relFileName + "\",ENCODING=\"" + parsed.encoding + "\")" ); // TODO Escape filename (Linux filenames are allowed to have double quotes)
+												{
+													JSONObject ref = new JSONObject();
+													ref.set( "file", relFileName );
+													array.add( ref );
+												}
 												writer.close();
 											}
 											else
-												csvWriter.writeExtendedValue( "TXT(INDEX=" + startIndex + ",LENGTH=" + ( spec.index - startIndex ) + ")" );
+											{
+												JSONObject ref = new JSONObject();
+												ref.set( "index", startIndex );
+												ref.set( "length", spec.index - startIndex );
+												array.add( ref );
+											}
 										}
 									}
 									else
 									{
 										if( value instanceof Clob )
-										{
-											Reader in = ( (Clob)value ).getCharacterStream();
-											csvWriter.writeValue( in );
-											in.close();
-										}
-										else if( value instanceof Blob )
-										{
-											InputStream in = ( (Blob)value ).getBinaryStream();
-											csvWriter.writeValue( in );
-											in.close();
-										}
-										else if( value instanceof byte[] )
-										{
-											csvWriter.writeValue( (byte[])value );
-										}
+											array.add( ( (Clob)value ).getCharacterStream() );
 										else
-											csvWriter.writeValue( value.toString() );
+											array.add( value );
 									}
 								}
 							}
 
-							csvWriter.nextRecord();
+							jsonWriter.writeValues( array );
 						}
 					}
 					finally
@@ -310,7 +314,7 @@ public class ExportCSV implements CommandListener
 			}
 			finally
 			{
-				csvWriter.close();
+				jsonWriter.close();
 			}
 		}
 		catch( IOException e )
@@ -335,33 +339,9 @@ public class ExportCSV implements CommandListener
 		Tokenizer tokenizer = new Tokenizer( new StringLineReader( command.getCommand(), command.getLocation() ) );
 
 		tokenizer.get( "EXPORT" );
-		tokenizer.get( "CSV" );
+		tokenizer.get( "JSV" );
 
-		Token t = tokenizer.get( "WITH", "SEPARATED", "COALESCE", "FILE" );
-		if( t.equals( "WITH" ) )
-		{
-			tokenizer.get( "HEADER" );
-			result.withHeader = true;
-
-			t = tokenizer.get( "SEPARATED", "COALESCE", "FILE" );
-		}
-
-		if( t.equals( "SEPARATED" ) )
-		{
-			tokenizer.get( "BY" );
-			t = tokenizer.get();
-			if( t.equals( "TAB" ) )
-				result.separator = '\t';
-			else
-			{
-				if( t.length() != 1 )
-					throw new CommandFileException( "Expecting [TAB] or one character, not [" + t + "]", tokenizer.getLocation() );
-				result.separator = t.getValue().charAt( 0 );
-			}
-
-			t = tokenizer.get( "COALESCE", "FILE" );
-		}
-
+		Token t = tokenizer.get( "COALESCE", "FILE" );
 		if( t.equals( "COALESCE" ) )
 		{
 			result.coalesce = new HashSet< String >();
@@ -382,13 +362,6 @@ public class ExportCSV implements CommandListener
 		if( !file.startsWith( "\"" ) )
 			throw new CommandFileException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 		file = file.substring( 1, file.length() - 1 );
-
-		t = tokenizer.get( "ENCODING" );
-		t = tokenizer.get();
-		String encoding = t.getValue();
-		if( !encoding.startsWith( "\"" ) )
-			throw new CommandFileException( "Expecting encoding enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-		encoding = encoding.substring( 1, encoding.length() - 1 );
 
 		t = tokenizer.get();
 		if( t.equals( "COLUMN" ) )
@@ -436,7 +409,6 @@ public class ExportCSV implements CommandListener
 		String query = tokenizer.getRemaining();
 
 		result.fileName = file;
-		result.encoding = encoding;
 		result.query = query;
 
 		return result;
@@ -457,16 +429,8 @@ public class ExportCSV implements CommandListener
 	 */
 	static protected class Parsed
 	{
-		protected boolean withHeader;
-
-		/** The separator. */
-		protected char separator = ',';
-
 		/** The file path to export to */
 		protected String fileName;
-
-		/** The encoding of the file */
-		protected String encoding;
 
 		/** The query */
 		protected String query;

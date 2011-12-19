@@ -45,6 +45,19 @@ EXPORT CSV
 SELECT ID, PICTURE, TEXT, TEXT2
 FROM TEMP1;
 
+EXPORT JSV
+	FILE "export3.jsv"
+	COLUMN PICTURE TO BINARY FILE "export3.bin"
+	COLUMN TEXT2 TO TEXT FILE "export3.txt"
+SELECT * FROM TEMP1;
+
+EXPORT JSV
+	FILE "export4.jsv"
+	COLUMN PICTURE TO BINARY FILE "folder/export4-blob-?1.txt"
+	COLUMN TEXT2 TO TEXT FILE "folder/export4-text-?1.txt" THRESHOLD 100
+SELECT ID, PICTURE, TEXT, TEXT2
+FROM TEMP1;
+
 --* /UPGRADE
 
 These cannot be part of a filename (in Windows)

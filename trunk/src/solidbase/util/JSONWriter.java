@@ -26,12 +26,17 @@ public class JSONWriter
 	{
 		try
 		{
-			this.out = new OutputStreamWriter( resource.getOutputStream(), "UTF-8" );
+			this.out = new OutputStreamWriter( resource.getOutputStream(), getEncoding() );
 		}
 		catch( UnsupportedEncodingException e )
 		{
 			throw new SystemException( e );
 		}
+	}
+
+	public String getEncoding()
+	{
+		return "UTF-8";
 	}
 
 	public void write( Object object )
@@ -56,6 +61,8 @@ public class JSONWriter
 				writeNotString( ( (BigDecimal)object ).toString() );
 			else if( object instanceof Boolean )
 				writeNotString( ( (Boolean)object ).toString() );
+			else if( object instanceof Integer )
+				writeNotString( ( (Integer)object ).toString() );
 			else
 				throw new SystemException( "Unexpected object type: " + object.getClass().getName() );
 		}
@@ -119,6 +126,8 @@ public class JSONWriter
 			return ( (BigDecimal)object ).toString().length();
 		if( object instanceof Boolean )
 			return ( (Boolean)object ).booleanValue() ? 4 : 5;
+		if( object instanceof Integer )
+			return ( (Integer)object ).toString().length();
 		throw new SystemException( "Unexpected object type: " + object.getClass().getName() );
 	}
 
@@ -186,6 +195,28 @@ public class JSONWriter
 		out.write( '}' );
 	}
 
+	public void writeProperties( JSONObject properties )
+	{
+		Writer out = this.out;
+
+		try
+		{
+			for( Entry< String, Object > entry : properties )
+			{
+				writeString( entry.getKey() );
+				out.write( ": " );
+				writeFormatted( entry.getValue(), 80 );
+				out.write( '\n' );
+			}
+
+			out.write( '\n' );
+		}
+		catch( IOException e )
+		{
+			throw new SystemException( e );
+		}
+	}
+
 	private void writeArray( JSONArray array ) throws IOException
 	{
 		boolean breakup = this.format && this.bits.get( this.index++ );
@@ -203,6 +234,37 @@ public class JSONWriter
 		}
 		else if( this.format )
 			out.write( ' ' );
+
+		writeValuesInternal( array, breakup );
+
+		this.indent --;
+		if( breakup )
+		{
+			out.write( '\n' );
+			out.write( this.tabs, 0, this.indent );
+		}
+		else if( this.format )
+			out.write( ' ' );
+		out.write( ']' );
+	}
+
+	public void writeValues( JSONArray array )
+	{
+		this.format = false;
+		try
+		{
+			writeValuesInternal( array, false );
+			this.out.write( '\n' );
+		}
+		catch( IOException e )
+		{
+			throw new SystemException( e );
+		}
+	}
+
+	private void writeValuesInternal( JSONArray array, boolean breakup ) throws IOException
+	{
+		Writer out = this.out;
 
 		boolean first = true;
 		for( Object object : array )
@@ -222,16 +284,6 @@ public class JSONWriter
 			}
 			writeInternal( object );
 		}
-
-		this.indent --;
-		if( breakup )
-		{
-			out.write( '\n' );
-			out.write( this.tabs, 0, this.indent );
-		}
-		else if( this.format )
-			out.write( ' ' );
-		out.write( ']' );
 	}
 
 	public void close()
