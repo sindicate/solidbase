@@ -1,68 +1,48 @@
 package solidbase.util;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.util.regex.Pattern;
+import java.math.BigDecimal;
+import java.util.Map.Entry;
 
 import solidbase.core.SystemException;
 
 public class JSONWriter
 {
-	static private final char[] HEX = "0123456789ABCDEF".toCharArray();
-	static private final String HEX_ENCODING = "^HEX:"; // TODO Final decision
-
 	private Writer out;
-	private char separator;
-	private Pattern needQuotesPattern;
-	private boolean extendedFormat;
-	private boolean valueWritten;
 
-	public JSONWriter( Resource resource, String encoding, char separator, boolean extendedFormat ) throws UnsupportedEncodingException
+	public JSONWriter( Resource resource )
 	{
-		Assert.isFalse( separator == '"', "Double quote (\") not allowed as value separator" );
-		if( extendedFormat )
-			Assert.isFalse( separator == '^', "Caret (^) not allowed as value separator when extended format is enabled" );
-
-		this.out = new OutputStreamWriter( resource.getOutputStream(), encoding );
-		this.separator = separator;
-		this.extendedFormat = extendedFormat;
-
-		// Pattern: ", CR, NL or parsed.separator, or ^ when extended format is enabled
-		this.needQuotesPattern = Pattern.compile( "\"|\r|\n|" + Pattern.quote( Character.toString( separator ) ) + ( extendedFormat ? "|^\\^" : "" ) );
-	}
-
-	public void writeValue( String value )
-	{
-		writeSeparatorIfNeeded();
-		internalWriteValue( value );
-	}
-
-	private void internalWriteValue( String value )
-	{
-		if( value == null )
-			return;
 		try
 		{
-			boolean needQuotes = this.needQuotesPattern.matcher( value ).find();
-			if( needQuotes )
-			{
-				this.out.write( '"' );
-				int len = value.length();
-				for( int i = 0; i < len; i++ )
-				{
-					char c = value.charAt( i );
-					if( c == '"' )
-						this.out.write( c );
-					this.out.write( c );
-				}
-				this.out.write( '"' );
-			}
+			this.out = new OutputStreamWriter( resource.getOutputStream(), "UTF-8" );
+		}
+		catch( UnsupportedEncodingException e )
+		{
+			throw new SystemException( e );
+		}
+	}
+
+	public void write( Object object )
+	{
+		try
+		{
+			if( object == null )
+				writeNotString( "null" );
+			else if( object instanceof JSONObject )
+				writeObject( (JSONObject)object );
+			else if( object instanceof JSONArray )
+				writeArray( (JSONArray)object );
+			else if( object instanceof String )
+				writeString( (String)object );
+			else if( object instanceof BigDecimal )
+				writeNotString( ( (BigDecimal)object ).toString() );
+			else if( object instanceof Boolean )
+				writeNotString( ( (Boolean)object ).toString() );
 			else
-				this.out.write( value );
+				throw new SystemException( "Unexpected object type: " + object.getClass().getName() );
 		}
 		catch( IOException e )
 		{
@@ -70,117 +50,56 @@ public class JSONWriter
 		}
 	}
 
-	public void writeValue( Reader reader )
+	private void writeString( String string ) throws IOException
 	{
-		writeSeparatorIfNeeded();
-		try
-		{
-			this.out.write( '"' );
-			char[] buf = new char[ 4096 ];
-			for( int read = reader.read( buf ); read >= 0; read = reader.read( buf ) )
-				this.out.write( new String( buf, 0, read ).replace( "\"", "\"\"" ) );
-			this.out.write( '"' );
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
+		this.out.write( '"' );
+		this.out.write( string );
+		this.out.write( '"' );
 	}
 
-	public void writeValue( InputStream in )
+	private void writeNotString( String number ) throws IOException
 	{
-		writeSeparatorIfNeeded();
-		try
-		{
-			if( this.extendedFormat )
-				this.out.write( HEX_ENCODING );
-
-			byte[] buf = new byte[ 4096 ];
-			for( int read = in.read( buf ); read >= 0; read = in.read( buf ) )
-			{
-				for( int j = 0; j < read; j++ )
-				{
-					int b = buf[ j ];
-					this.out.write( HEX[ ( b >> 4 ) & 15 ] );
-					this.out.write( HEX[ b & 15 ] );
-				}
-			}
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
+		this.out.write( number );
 	}
 
-	public void writeValue( byte[] value )
+	private void writeObject( JSONObject object ) throws IOException
 	{
-		writeSeparatorIfNeeded();
-		if( value == null )
-			return;
-		try
-		{
-			if( this.extendedFormat )
-				this.out.write( HEX_ENCODING );
+		Writer out = this.out;
 
-			for( int b : value )
-			{
-				this.out.write( HEX[ ( b >> 4 ) & 15 ] );
-				this.out.write( HEX[ b & 15 ] );
-			}
-		}
-		catch( IOException e )
+		out.write( '{' );
+
+		boolean first = true;
+		for( Entry< String, Object > entry : object )
 		{
-			throw new SystemException( e );
+			if( first )
+				first = false;
+			else
+				out.write( ',' );
+			writeString( entry.getKey() );
+			out.write( ':' );
+			write( entry.getValue() );
 		}
+
+		out.write( '}' );
 	}
 
-	private void nextValue()
+	private void writeArray( JSONArray array ) throws IOException
 	{
-		try
-		{
-			this.out.write( this.separator );
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
-	}
+		Writer out = this.out;
 
-	private void writeSeparatorIfNeeded()
-	{
-		if( this.valueWritten )
-			nextValue();
-		this.valueWritten = true;
-	}
+		out.write( '[' );
 
-	public void nextRecord()
-	{
-		this.valueWritten = false;
-		try
+		boolean first = true;
+		for( Object object : array )
 		{
-			this.out.write( '\n' );
+			if( first )
+				first = false;
+			else
+				out.write( ',' );
+			write( object );
 		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
-	}
 
-	public void writeExtendedValue( String value )
-	{
-		Assert.notNull( value );
-		Assert.isTrue( this.extendedFormat );
-
-		writeSeparatorIfNeeded();
-		try
-		{
-			this.out.write( '^' );
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
-		internalWriteValue( value );
+		out.write( ']' );
 	}
 
 	public void close()

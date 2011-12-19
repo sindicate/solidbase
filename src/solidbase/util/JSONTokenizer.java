@@ -16,6 +16,8 @@
 
 package solidbase.util;
 
+import java.math.BigDecimal;
+
 import solidbase.core.CommandFileException;
 
 
@@ -35,11 +37,6 @@ public class JSONTokenizer
 	 * Buffer for the result.
 	 */
 	protected StringBuilder result = new StringBuilder( 256 );
-
-	/**
-	 * Buffer for pending whitespace.
-	 */
-	protected StringBuilder whiteSpace = new StringBuilder( 16 );
 
 
 	/**
@@ -118,7 +115,7 @@ public class JSONTokenizer
 		}
 
 		// A number
-		if( ch == '-' )
+		if( ch == '+' || ch == '-' )
 		{
 			result.append( (char)ch );
 			ch = this.in.read();
@@ -149,7 +146,7 @@ public class JSONTokenizer
 			{
 				result.append( (char)ch );
 				ch = this.in.read();
-				if( ch == '-' )
+				if( ch == '+' || ch == '-' )
 				{
 					result.append( (char)ch );
 					ch = this.in.read();
@@ -163,7 +160,27 @@ public class JSONTokenizer
 				}
 			}
 			this.in.push( ch );
-			return new Token( Token.NUMBER, result.toString() );
+			return new Token( Token.NUMBER, new BigDecimal( result.toString() ) );
+		}
+
+		if( ch >= 'a' && ch <= 'z' )
+		{
+			while( ch >= 'a' && ch <= 'z' )
+			{
+				result.append( (char)ch );
+				ch = this.in.read();
+			}
+			this.in.push( ch );
+
+			String keyword = result.toString();
+			if( keyword.equals( "false" ) )
+				return Token.FALSE;
+			if( keyword.equals( "null" ) )
+				return Token.NULL;
+			if( keyword.equals( "true" ) )
+				return Token.TRUE;
+
+			throw new CommandFileException( "Unexpected keyword " + keyword, this.in.getLocation() );
 		}
 
 		throw new CommandFileException( "Unexpected character '" + (char)ch + "'", this.in.getLocation() );
@@ -220,6 +237,10 @@ public class JSONTokenizer
 		static final protected Token NAME_SEPARATOR = new Token( ':' );
 		static final protected Token VALUE_SEPARATOR = new Token( ',' );
 
+		static final protected Token FALSE = new Token( 'b', Boolean.FALSE );
+		static final protected Token NULL = new Token( 'n' );
+		static final protected Token TRUE = new Token( 'b', Boolean.TRUE );
+
 		/**
 		 * The type of the token.
 		 */
@@ -228,7 +249,7 @@ public class JSONTokenizer
 		/**
 		 * The value of the token.
 		 */
-		private String value;
+		private Object value;
 
 		/**
 		 * Constructs a new token.
@@ -250,7 +271,7 @@ public class JSONTokenizer
 			this.value = value;
 		}
 
-		protected Token( char type, String value )
+		protected Token( char type, Object value )
 		{
 			this.type = type;
 			this.value = value;
@@ -261,8 +282,10 @@ public class JSONTokenizer
 		 *
 		 * @return The value of token.
 		 */
-		public String getValue()
+		public Object getValue()
 		{
+			if( this.type == 'n' )
+				return null;
 			if( this.value == null )
 				throw new IllegalStateException( "Value is null" );
 			return this.value;
@@ -315,15 +338,28 @@ public class JSONTokenizer
 		{
 			return this.type == NUMBER;
 		}
+		public boolean isBoolean()
+		{
+			return this.type == 'b';
+		}
+		public boolean isNull()
+		{
+			return this.type == 'n';
+		}
 
 		@Override
 		public String toString()
 		{
 			if( this.value != null )
-				return this.value;
+				return this.value.toString();
 			if( this.type == -1 )
 				return "End-of-input";
 			return String.valueOf( this.type );
 		}
+	}
+
+	public void close()
+	{
+		this.in.close();
 	}
 }

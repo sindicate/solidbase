@@ -1,9 +1,20 @@
 package solidbase.util;
 
-public class JSONArray
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+public class JSONArray implements Iterable< Object >
 {
+	protected List< Object > values = new ArrayList< Object >();
+
 	public void add( Object value )
 	{
-		// TODO Auto-generated method stub
+		this.values.add( value );
+	}
+
+	public Iterator< Object > iterator()
+	{
+		return this.values.iterator();
 	}
 }
