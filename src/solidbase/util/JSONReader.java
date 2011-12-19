@@ -57,6 +57,7 @@ public class JSONReader
 	{
 		Token token = this.tokenizer.get();
 //		System.out.println( "Token: " + token );
+		// TODO Use switch(), need an enum for this
 		if( token.isBeginObject() )
 			return readObject();
 		if( token.isBeginArray() )
