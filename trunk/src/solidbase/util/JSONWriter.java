@@ -142,40 +142,43 @@ public class JSONWriter
 			char ch = chars[ i ];
 			switch( ch )
 			{
-				case '"': out.write( "\\n" ); break;
+				case '"': out.write( "\\\"" ); break;
 				case '\\': out.write( "\\\\" ); break;
 				case '\b': out.write( "\\b" ); break;
 				case '\f': out.write( "\\f" ); break;
 				case '\n': out.write( "\\n" ); break;
 				case '\r': out.write( "\\r" ); break;
 				case '\t': out.write( "\\t" ); break;
-				case 0: out.write( "\\u0000" ); break;
-				case 1: out.write( "\\u0001" ); break;
-				case 2: out.write( "\\u0002" ); break;
-				case 3: out.write( "\\u0003" ); break;
-				case 4: out.write( "\\u0004" ); break;
-				case 5: out.write( "\\u0005" ); break;
-				case 6: out.write( "\\u0006" ); break;
-				case 7: out.write( "\\u0007" ); break;
-				case 11: out.write( "\\u000B" ); break;
-				case 14: out.write( "\\u000E" ); break;
-				case 15: out.write( "\\u000F" ); break;
-				case 16: out.write( "\\u0010" ); break;
-				case 17: out.write( "\\u0011" ); break;
-				case 18: out.write( "\\u0012" ); break;
-				case 19: out.write( "\\u0013" ); break;
-				case 20: out.write( "\\u0014" ); break;
-				case 21: out.write( "\\u0015" ); break;
-				case 22: out.write( "\\u0016" ); break;
-				case 23: out.write( "\\u0017" ); break;
-				case 24: out.write( "\\u0018" ); break;
-				case 25: out.write( "\\u0019" ); break;
-				case 26: out.write( "\\u001A" ); break;
-				case 27: out.write( "\\u001B" ); break;
-				case 28: out.write( "\\u001C" ); break;
-				case 29: out.write( "\\u001D" ); break;
-				case 30: out.write( "\\u001E" ); break;
-				case 31: out.write( "\\u001F" ); break;
+				case 0x00: out.write( "\\u0000" ); break;
+				case 0x01: out.write( "\\u0001" ); break;
+				case 0x02: out.write( "\\u0002" ); break;
+				case 0x03: out.write( "\\u0003" ); break;
+				case 0x04: out.write( "\\u0004" ); break;
+				case 0x05: out.write( "\\u0005" ); break;
+				case 0x06: out.write( "\\u0006" ); break;
+				case 0x07: out.write( "\\u0007" ); break;
+				case 0x0B: out.write( "\\u000B" ); break;
+				case 0x0E: out.write( "\\u000E" ); break;
+				case 0x0F: out.write( "\\u000F" ); break;
+				case 0x10: out.write( "\\u0010" ); break;
+				case 0x11: out.write( "\\u0011" ); break;
+				case 0x12: out.write( "\\u0012" ); break;
+				case 0x13: out.write( "\\u0013" ); break;
+				case 0x14: out.write( "\\u0014" ); break;
+				case 0x15: out.write( "\\u0015" ); break;
+				case 0x16: out.write( "\\u0016" ); break;
+				case 0x17: out.write( "\\u0017" ); break;
+				case 0x18: out.write( "\\u0018" ); break;
+				case 0x19: out.write( "\\u0019" ); break;
+				case 0x1A: out.write( "\\u001A" ); break;
+				case 0x1B: out.write( "\\u001B" ); break;
+				case 0x1C: out.write( "\\u001C" ); break;
+				case 0x1D: out.write( "\\u001D" ); break;
+				case 0x1E: out.write( "\\u001E" ); break;
+				case 0x1F: out.write( "\\u001F" ); break;
+				// According to ECMA-262 the characters below are not allowed too
+				case 0x2028: out.write( "\\u2028" ); break; // Line separator
+				case 0x2029: out.write( "\\u2029" ); break; // Paragraph separator
 				default:
 					out.write( ch );
 			}

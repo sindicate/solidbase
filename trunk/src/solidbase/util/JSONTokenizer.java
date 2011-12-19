@@ -50,25 +50,6 @@ public class JSONTokenizer
 	}
 
 	/**
-	 * Is the given character a whitespace?
-	 *
-	 * @param ch The character to check.
-	 * @return True if the characters is whitespace, false otherwise.
-	 */
-	protected boolean isWhitespace( int ch )
-	{
-		switch( ch )
-		{
-			case ' ':
-			case '\t':
-			case '\n':
-			case '\r':
-				return true;
-		}
-		return false;
-	}
-
-	/**
 	 * Returns the next token from the input.
 	 *
 	 * @return A token from the input. Null if there are no more tokens available.
@@ -78,112 +59,142 @@ public class JSONTokenizer
 		StringBuilder result = this.result;
 		result.setLength( 0 );
 
-		int ch = this.in.read();
-
-		// Ignore whitespace
-		while( isWhitespace( ch ) && ch != ',' )
-			ch = this.in.read();
-
-		if( ch == ',' )
-			return Token.VALUE_SEPARATOR;
-		if( ch == ':' )
-			return Token.NAME_SEPARATOR;
-		if( ch == '[' )
-			return Token.BEGIN_ARRAY;
-		if( ch == ']' )
-			return Token.END_ARRAY;
-		if( ch == '{' )
-			return Token.BEGIN_OBJECT;
-		if( ch == '}' )
-			return Token.END_OBJECT;
-		if( ch == -1 )
-			return Token.EOI;
-
-		// Read a string enclosed by "
-		if( ch == '"' )
+		while( true )
 		{
-			while( true )
+			int ch = this.in.read();
+			if( ch == -1 )
+				return Token.EOI;
+			switch( ch )
 			{
-				ch = this.in.read();
-				if( ch == -1 )
-					throw new CommandFileException( "Missing \"", this.in.getLocation() );
-				if( ch == '"' )
-					break;
-				result.append( (char)ch );
-			}
-			return new Token( Token.STRING, result.toString() );
-		}
-
-		// A number
-		if( ch == '+' || ch == '-' )
-		{
-			result.append( (char)ch );
-			ch = this.in.read();
-			if( !( ch >= '0' && ch <= '9' ) )
-				throw new CommandFileException( "Invalid number", this.in.getLocation() );
-		}
-
-		if( ch >= '0' && ch <= '9' )
-		{
-			while( ch >= '0' && ch <= '9' )
-			{
-				result.append( (char)ch );
-				ch = this.in.read();
-			}
-			if( ch == '.' )
-			{
-				result.append( (char)ch );
-				ch = this.in.read();
-				if( !( ch >= '0' && ch <= '9' ) )
-					throw new CommandFileException( "Invalid number", this.in.getLocation() );
-				while( ch >= '0' && ch <= '9' )
-				{
+				// Whitespace
+				case ' ':
+				case '\t':
+				case '\n':
+				case '\r':
+					continue;
+				case ',':
+					return Token.VALUE_SEPARATOR;
+				case ':':
+					return Token.NAME_SEPARATOR;
+				case '[':
+					return Token.BEGIN_ARRAY;
+				case ']':
+					return Token.END_ARRAY;
+				case '{':
+					return Token.BEGIN_OBJECT;
+				case '}':
+					return Token.END_OBJECT;
+				case '"':
+					while( true )
+					{
+						ch = this.in.read();
+						if( ch == -1 )
+							throw new CommandFileException( "Missing \"", this.in.getLocation() );
+						if( ch == '"' )
+							break;
+						if( ch == '\\' )
+						{
+							ch = this.in.read();
+							if( ch == -1 )
+								throw new CommandFileException( "Incomplete escape sequence", this.in.getLocation() );
+							switch( ch )
+							{
+								case 'b': ch = '\b'; break;
+								case 'f': ch = '\f'; break;
+								case 'n': ch = '\n'; break;
+								case 'r': ch = '\r'; break;
+								case 't': ch = '\t'; break;
+								case '\"': break;
+								case '\\': break;
+								case 'u':
+									char[] codePoint = new char[ 4 ];
+									for( int i = 0; i < 4; i++ )
+									{
+										ch = this.in.read();
+										codePoint[ i ] = (char)ch;
+										if( !( ch >= '0' && ch <= '9' ) )
+											throw new CommandFileException( "Illegal escape sequence: \\u" + String.valueOf( codePoint, 0, i + 1 ), this.in.getLocation() );
+									}
+									ch = Integer.valueOf( String.valueOf( codePoint ), 16 );
+									break;
+								default:
+									throw new CommandFileException( "Illegal escape sequence: \\" + ( ch >= 0 ? (char)ch : "" ), this.in.getLocation() );
+							}
+						}
+						result.append( (char)ch );
+					}
+					return new Token( Token.STRING, result.toString() );
+				case '+':
+				case '-':
 					result.append( (char)ch );
 					ch = this.in.read();
-				}
+					if( !( ch >= '0' && ch <= '9' ) )
+						throw new CommandFileException( "Invalid number", this.in.getLocation() );
+					//$FALL-THROUGH$
+				case '0': case '1': case '2': case '3': case '4':
+				case '5': case '6': case '7': case '8': case '9':
+					while( ch >= '0' && ch <= '9' )
+					{
+						result.append( (char)ch );
+						ch = this.in.read();
+					}
+					if( ch == '.' )
+					{
+						result.append( (char)ch );
+						ch = this.in.read();
+						if( !( ch >= '0' && ch <= '9' ) )
+							throw new CommandFileException( "Invalid number", this.in.getLocation() );
+						while( ch >= '0' && ch <= '9' )
+						{
+							result.append( (char)ch );
+							ch = this.in.read();
+						}
+					}
+					if( ch == 'E' || ch == 'e' )
+					{
+						result.append( (char)ch );
+						ch = this.in.read();
+						if( ch == '+' || ch == '-' )
+						{
+							result.append( (char)ch );
+							ch = this.in.read();
+						}
+						if( !( ch >= '0' && ch <= '9' ) )
+							throw new CommandFileException( "Invalid number", this.in.getLocation() );
+						while( ch >= '0' && ch <= '9' )
+						{
+							result.append( (char)ch );
+							ch = this.in.read();
+						}
+					}
+					this.in.push( ch );
+					return new Token( Token.NUMBER, new BigDecimal( result.toString() ) );
+				case 'a': case 'b': case 'c': case 'd': case 'e':
+				case 'f': case 'g': case 'h': case 'i': case 'j':
+				case 'k': case 'l': case 'm': case 'n': case 'o':
+				case 'p': case 'q': case 'r': case 's': case 't':
+				case 'u': case 'v': case 'w': case 'x': case 'y':
+				case 'z':
+					while( ch >= 'a' && ch <= 'z' )
+					{
+						result.append( (char)ch );
+						ch = this.in.read();
+					}
+					this.in.push( ch );
+
+					String keyword = result.toString();
+					if( keyword.equals( "false" ) )
+						return Token.FALSE;
+					if( keyword.equals( "null" ) )
+						return Token.NULL;
+					if( keyword.equals( "true" ) )
+						return Token.TRUE;
+
+					throw new CommandFileException( "Unexpected keyword " + keyword, this.in.getLocation() );
+				default:
+					throw new CommandFileException( "Unexpected character '" + (char)ch + "'", this.in.getLocation() );
 			}
-			if( ch == 'E' || ch == 'e' )
-			{
-				result.append( (char)ch );
-				ch = this.in.read();
-				if( ch == '+' || ch == '-' )
-				{
-					result.append( (char)ch );
-					ch = this.in.read();
-				}
-				if( !( ch >= '0' && ch <= '9' ) )
-					throw new CommandFileException( "Invalid number", this.in.getLocation() );
-				while( ch >= '0' && ch <= '9' )
-				{
-					result.append( (char)ch );
-					ch = this.in.read();
-				}
-			}
-			this.in.push( ch );
-			return new Token( Token.NUMBER, new BigDecimal( result.toString() ) );
 		}
-
-		if( ch >= 'a' && ch <= 'z' )
-		{
-			while( ch >= 'a' && ch <= 'z' )
-			{
-				result.append( (char)ch );
-				ch = this.in.read();
-			}
-			this.in.push( ch );
-
-			String keyword = result.toString();
-			if( keyword.equals( "false" ) )
-				return Token.FALSE;
-			if( keyword.equals( "null" ) )
-				return Token.NULL;
-			if( keyword.equals( "true" ) )
-				return Token.TRUE;
-
-			throw new CommandFileException( "Unexpected keyword " + keyword, this.in.getLocation() );
-		}
-
-		throw new CommandFileException( "Unexpected character '" + (char)ch + "'", this.in.getLocation() );
 	}
 
 	/**
@@ -310,38 +321,47 @@ public class JSONTokenizer
 		{
 			return this.type == '[';
 		}
+
 		public boolean isEndArray()
 		{
 			return this.type == ']';
 		}
+
 		public boolean isBeginObject()
 		{
 			return this.type == '{';
 		}
+
 		public boolean isEndObject()
 		{
 			return this.type == '}';
 		}
+
 		public boolean isNameSeparator()
 		{
 			return this.type == ':';
 		}
+
 		public boolean isValueSeparator()
 		{
 			return this.type == ',';
 		}
+
 		public boolean isString()
 		{
 			return this.type == STRING;
 		}
+
 		public boolean isNumber()
 		{
 			return this.type == NUMBER;
 		}
+
 		public boolean isBoolean()
 		{
 			return this.type == 'b';
 		}
+
 		public boolean isNull()
 		{
 			return this.type == 'n';
