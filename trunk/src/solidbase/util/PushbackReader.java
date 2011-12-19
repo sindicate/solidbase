@@ -157,4 +157,9 @@ public class PushbackReader
 		while( len > 0 )
 			push( string.charAt( --len ) ); // Use push to decrement the line number when a \n is found
 	}
+
+	public void close()
+	{
+		this.reader.close();
+	}
 }

@@ -56,14 +56,18 @@ public class JSONReader
 	public Object read()
 	{
 		Token token = this.tokenizer.get();
-		System.out.println( "Token: " + token );
-//		if( token.isEndOfInput() )
-//			return null;
+//		System.out.println( "Token: " + token );
 		if( token.isBeginObject() )
 			return readObject();
 		if( token.isBeginArray() )
 			return readArray();
-		if( token.isString() || token.isNumber() )
+		if( token.isString() )
+			return token.getValue();
+		if( token.isNumber() )
+			return token.getValue();
+		if( token.isBoolean() )
+			return token.getValue();
+		if( token.isNull() )
 			return token.getValue();
 
 		throw new CommandFileException( "Expecting {, [, \", or a number, not '" + token + "'", this.tokenizer.getLocation() );
@@ -77,13 +81,13 @@ public class JSONReader
 		do
 		{
 			token = this.tokenizer.get();
-			System.out.println( "Token: " + token );
+//			System.out.println( "Token: " + token );
 			if( !token.isString() )
 				throw new CommandFileException( "Expecting a name enclosed with \", not '" + token + "'", this.tokenizer.getLocation() );
-			String name = token.getValue();
+			String name = (String)token.getValue();
 
 			token = this.tokenizer.get();
-			System.out.println( "Token: " + token );
+//			System.out.println( "Token: " + token );
 			if( !token.isNameSeparator() )
 				throw new CommandFileException( "Expecting :, not '" + token + "'", this.tokenizer.getLocation() );
 
@@ -91,14 +95,14 @@ public class JSONReader
 			result.set( name, value );
 
 			token = this.tokenizer.get();
-			System.out.println( "Token: " + token );
+//			System.out.println( "Token: " + token );
 		}
 		while( token.isValueSeparator() );
 
 		if( !token.isEndObject() )
 			throw new CommandFileException( "Expecting , or }, not '" + token + "'", this.tokenizer.getLocation() );
 
-		return null;
+		return result;
 	}
 
 	public JSONArray readArray()
@@ -112,14 +116,14 @@ public class JSONReader
 			result.add( value );
 
 			token = this.tokenizer.get();
-			System.out.println( "Token: " + token );
+//			System.out.println( "Token: " + token );
 		}
 		while( token.isValueSeparator() );
 
 		if( !token.isEndArray() )
 			throw new CommandFileException( "Expecting , or ], not '" + token + "'", this.tokenizer.getLocation() );
 
-		return null;
+		return result;
 	}
 
 	/**
@@ -135,5 +139,10 @@ public class JSONReader
 	public FileLocation getLocation()
 	{
 		return this.tokenizer.getLocation();
+	}
+
+	public void close()
+	{
+		this.tokenizer.close();
 	}
 }
