@@ -5,6 +5,7 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.math.BigDecimal;
+import java.util.BitSet;
 import java.util.Map.Entry;
 
 import solidbase.core.SystemException;
@@ -12,6 +13,14 @@ import solidbase.core.SystemException;
 public class JSONWriter
 {
 	private Writer out;
+
+	// Needed for formatted output
+	private boolean format;
+	private int maxLength;
+	private int index;
+	private BitSet bits;
+	private int indent;
+	private String tabs = "\t\t\t\t\t\t\t\t\t\t";
 
 	public JSONWriter( Resource resource )
 	{
@@ -26,6 +35,12 @@ public class JSONWriter
 	}
 
 	public void write( Object object )
+	{
+		this.format = false;
+		writeInternal( object );
+	}
+
+	private void writeInternal( Object object )
 	{
 		try
 		{
@@ -50,6 +65,63 @@ public class JSONWriter
 		}
 	}
 
+	public void writeFormatted( Object object, int maxLength )
+	{
+		this.maxLength = maxLength;
+		this.index = 0;
+		this.bits = new BitSet();
+
+		if( object instanceof JSONObject )
+			prepareObject( (JSONObject)object );
+		else if( object instanceof JSONArray )
+			prepareArray( (JSONArray)object );
+
+		this.format = true;
+		this.index = 0;
+		this.indent = 0;
+
+		writeInternal( object );
+	}
+
+	private int prepareObject( JSONObject object )
+	{
+		int index = this.index++;
+		int len = 2; // { + space
+		for( Entry< String, Object > entry : object )
+			len += entry.getKey().length() + getLength( entry.getValue() ) + 6; // "" + : + space + , + space (or space + })
+		if( len > 80 )
+			this.bits.set( index );
+		return len;
+	}
+
+	private int prepareArray( JSONArray object )
+	{
+		int index = this.index++;
+		int len = 2; // [ + space
+		for( Object value : object )
+			len += getLength( value ) + 2; // , + space or space + ]
+		if( len > 80 )
+			this.bits.set( index );
+		return len;
+	}
+
+	private int getLength( Object object )
+	{
+		if( object == null )
+			return 4;
+		if( object instanceof JSONObject )
+			return prepareObject( (JSONObject)object );
+		if( object instanceof JSONArray )
+			return prepareArray( (JSONArray)object );
+		if( object instanceof String )
+			return ( (String)object ).length();
+		if( object instanceof BigDecimal )
+			return ( (BigDecimal)object ).toString().length();
+		if( object instanceof Boolean )
+			return ( (Boolean)object ).booleanValue() ? 4 : 5;
+		throw new SystemException( "Unexpected object type: " + object.getClass().getName() );
+	}
+
 	private void writeString( String string ) throws IOException
 	{
 		this.out.write( '"' );
@@ -64,9 +136,21 @@ public class JSONWriter
 
 	private void writeObject( JSONObject object ) throws IOException
 	{
+		boolean breakup = this.format && this.bits.get( this.index++ );
+
 		Writer out = this.out;
 
 		out.write( '{' );
+		this.indent ++;
+		if( breakup )
+		{
+			out.write( '\n' );
+			while( this.tabs.length() < this.indent )
+				this.tabs += this.tabs;
+			out.write( this.tabs, 0, this.indent );
+		}
+		else if( this.format )
+			out.write( ' ' );
 
 		boolean first = true;
 		for( Entry< String, Object > entry : object )
@@ -74,20 +158,51 @@ public class JSONWriter
 			if( first )
 				first = false;
 			else
+			{
 				out.write( ',' );
+				if( breakup )
+				{
+					out.write( '\n' );
+					out.write( this.tabs, 0, this.indent );
+				}
+				else if( this.format )
+					out.write( ' ' );
+			}
 			writeString( entry.getKey() );
 			out.write( ':' );
-			write( entry.getValue() );
+			if( this.format )
+				out.write( ' ' );
+			writeInternal( entry.getValue() );
 		}
 
+		this.indent --;
+		if( breakup )
+		{
+			out.write( '\n' );
+			out.write( this.tabs, 0, this.indent );
+		}
+		else if( this.format )
+			out.write( ' ' );
 		out.write( '}' );
 	}
 
 	private void writeArray( JSONArray array ) throws IOException
 	{
+		boolean breakup = this.format && this.bits.get( this.index++ );
+
 		Writer out = this.out;
 
 		out.write( '[' );
+		this.indent ++;
+		if( breakup )
+		{
+			out.write( '\n' );
+			while( this.tabs.length() < this.indent )
+				this.tabs += this.tabs;
+			out.write( this.tabs, 0, this.indent );
+		}
+		else if( this.format )
+			out.write( ' ' );
 
 		boolean first = true;
 		for( Object object : array )
@@ -95,10 +210,27 @@ public class JSONWriter
 			if( first )
 				first = false;
 			else
+			{
 				out.write( ',' );
-			write( object );
+				if( breakup )
+				{
+					out.write( '\n' );
+					out.write( this.tabs, 0, this.indent );
+				}
+				else if( this.format )
+					out.write( ' ' );
+			}
+			writeInternal( object );
 		}
 
+		this.indent --;
+		if( breakup )
+		{
+			out.write( '\n' );
+			out.write( this.tabs, 0, this.indent );
+		}
+		else if( this.format )
+			out.write( ' ' );
 		out.write( ']' );
 	}
 

@@ -22,7 +22,7 @@ public class JSON
 
 		resource = new FileResource( "json/output1.json" );
 		JSONWriter writer = new JSONWriter( resource );
-		writer.write( object );
+		writer.writeFormatted( object, 80 );
 		writer.close();
 	}
 
@@ -36,7 +36,7 @@ public class JSON
 
 		resource = new FileResource( "json/output2.json" );
 		JSONWriter writer = new JSONWriter( resource );
-		writer.write( object );
+		writer.writeFormatted( object, 80 );
 		writer.close();
 	}
 }

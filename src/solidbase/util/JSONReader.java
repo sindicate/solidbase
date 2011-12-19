@@ -21,7 +21,7 @@ import solidbase.util.JSONTokenizer.Token;
 
 
 /**
- * Reads JSON data from the given {@link Tokenizer}.
+ * Reads JSON data from the given {@link LineReader}.
  *
  * @author René M. de Bloois
  */
