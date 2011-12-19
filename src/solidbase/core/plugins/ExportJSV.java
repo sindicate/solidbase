@@ -114,7 +114,7 @@ public class ExportJSV implements CommandListener
 
 					JSONObject properties = new JSONObject();
 					properties.set( "version", "1.0" );
-					properties.set( "createdBy", "SolidBase 2.0.0" );
+					properties.set( "createdBy", new JSONObject( "product", "SolidBase", "version", "2.0.0" ) );
 					properties.set( "contentType", "text/json-values" );
 
 					JSONArray fields = new JSONArray();
@@ -160,6 +160,12 @@ public class ExportJSV implements CommandListener
 									if( firstCoalesce != i )
 										value = JdbcSupport.getValue( result, types, i );
 
+									if( value == null )
+									{
+										array.add( null );
+										continue;
+									}
+
 									// TODO 2 columns can't be written to the same dynamic filename
 
 									FileSpec spec = fileSpecs[ i ];
@@ -204,7 +210,7 @@ public class ExportJSV implements CommandListener
 												spec.index += ( (byte[])value ).length;
 											}
 											else
-												throw new CommandFileException( names[ i ] + " is not a binary column. Only binary columns like BLOB, RAW, BINARY VARYING can be written to a binary file", command.getLocation() );
+												throw new CommandFileException( names[ i ] + " (" + value.getClass().getName() + ") is not a binary column. Only binary columns like BLOB, RAW, BINARY VARYING can be written to a binary file", command.getLocation() );
 											if( spec.generator.isDynamic() )
 											{
 												spec.out.close();

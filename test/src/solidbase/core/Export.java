@@ -18,11 +18,13 @@ public class Export
 
 		PreparedStatement statement = processor.prepareStatement( "INSERT INTO TEMP1 ( ID, PICTURE, TEXT, TEXT2 ) VALUES ( ?, ?, ?, ? )" );
 
-		byte[] blob = "Dit is een blob".getBytes();
+		byte[] blob = new byte[ 32 ];
+		for( int i = 0; i < blob.length; i++ )
+			blob[ i ] = (byte)i;
 		statement.setInt( 1, 1 );
 		statement.setBinaryStream( 2, new ByteArrayInputStream( blob ) );
 		statement.setString( 3, "^ Starts with a caret" );
-		statement.setString( 4, "Dit is een CLOB" );
+		statement.setString( 4, new String( blob, "ISO-8859-1" ) );
 		statement.execute();
 
 		blob = new byte[ 256 ];

@@ -2,6 +2,7 @@ package solidbase.util;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.math.BigDecimal;
@@ -63,6 +64,8 @@ public class JSONWriter
 				writeNotString( ( (Boolean)object ).toString() );
 			else if( object instanceof Integer )
 				writeNotString( ( (Integer)object ).toString() );
+			else if( object instanceof Reader )
+				writeReader( (Reader)object );
 			else
 				throw new SystemException( "Unexpected object type: " + object.getClass().getName() );
 		}
@@ -131,10 +134,69 @@ public class JSONWriter
 		throw new SystemException( "Unexpected object type: " + object.getClass().getName() );
 	}
 
+	private void writeChars( char[] chars, int len ) throws IOException
+	{
+		Writer out = this.out;
+		for( int i = 0; i < len; i++ )
+		{
+			char ch = chars[ i ];
+			switch( ch )
+			{
+				case '"': out.write( "\\n" ); break;
+				case '\\': out.write( "\\\\" ); break;
+				case '\b': out.write( "\\b" ); break;
+				case '\f': out.write( "\\f" ); break;
+				case '\n': out.write( "\\n" ); break;
+				case '\r': out.write( "\\r" ); break;
+				case '\t': out.write( "\\t" ); break;
+				case 0: out.write( "\\u0000" ); break;
+				case 1: out.write( "\\u0001" ); break;
+				case 2: out.write( "\\u0002" ); break;
+				case 3: out.write( "\\u0003" ); break;
+				case 4: out.write( "\\u0004" ); break;
+				case 5: out.write( "\\u0005" ); break;
+				case 6: out.write( "\\u0006" ); break;
+				case 7: out.write( "\\u0007" ); break;
+				case 11: out.write( "\\u000B" ); break;
+				case 14: out.write( "\\u000E" ); break;
+				case 15: out.write( "\\u000F" ); break;
+				case 16: out.write( "\\u0010" ); break;
+				case 17: out.write( "\\u0011" ); break;
+				case 18: out.write( "\\u0012" ); break;
+				case 19: out.write( "\\u0013" ); break;
+				case 20: out.write( "\\u0014" ); break;
+				case 21: out.write( "\\u0015" ); break;
+				case 22: out.write( "\\u0016" ); break;
+				case 23: out.write( "\\u0017" ); break;
+				case 24: out.write( "\\u0018" ); break;
+				case 25: out.write( "\\u0019" ); break;
+				case 26: out.write( "\\u001A" ); break;
+				case 27: out.write( "\\u001B" ); break;
+				case 28: out.write( "\\u001C" ); break;
+				case 29: out.write( "\\u001D" ); break;
+				case 30: out.write( "\\u001E" ); break;
+				case 31: out.write( "\\u001F" ); break;
+				default:
+					out.write( ch );
+			}
+		}
+	}
+
 	private void writeString( String string ) throws IOException
 	{
 		this.out.write( '"' );
-		this.out.write( string );
+		writeChars( string.toCharArray(), string.length() );
+		this.out.write( '"' );
+	}
+
+	private void writeReader( Reader reader ) throws IOException
+	{
+		Writer out = this.out;
+		this.out.write( '"' );
+		char[] buf = new char[ 4096 ];
+		for( int read = reader.read( buf ); read >= 0; read = reader.read( buf ) )
+			writeChars( buf, read );
+		reader.close();
 		this.out.write( '"' );
 	}
 
