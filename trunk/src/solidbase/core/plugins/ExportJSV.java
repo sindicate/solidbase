@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -124,7 +125,7 @@ public class ExportJSV implements CommandListener
 						{
 							JSONObject field = new JSONObject();
 							field.set( "name", names[ i ] );
-							field.set( "type", JdbcSupport.getTypeName( types[ i ] ) );
+							field.set( "type", JdbcSupport.toTypeName( types[ i ] ) );
 							FileSpec spec = fileSpecs[ i ];
 							if( spec != null && !spec.generator.isDynamic() )
 							{
@@ -297,6 +298,12 @@ public class ExportJSV implements CommandListener
 								}
 							}
 
+							for( ListIterator< Object > i = array.iterator(); i.hasNext(); )
+							{
+								Object value = i.next();
+								if( value instanceof java.sql.Date || value instanceof java.sql.Time || value instanceof java.sql.Timestamp || value instanceof java.sql.RowId )
+									i.set( value.toString() );
+							}
 							jsonWriter.writeValues( array );
 						}
 					}

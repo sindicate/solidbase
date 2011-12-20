@@ -67,6 +67,16 @@ public class Import
 		patcher.end();
 	}
 
+	@Test(groups="new",dependsOnMethods="testImportNotExist")
+	public void testImportJSV() throws SQLException
+	{
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "folder/testpatch-import1.sql", db );
+
+		patcher.upgrade( "1.0.5" );
+
+		patcher.end();
+	}
+
 	@Test
 	public void testImportLineNumber() throws SQLException
 	{

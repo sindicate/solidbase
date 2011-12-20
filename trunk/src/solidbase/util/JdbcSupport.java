@@ -12,6 +12,7 @@ import solidbase.core.SystemException;
 public class JdbcSupport
 {
 	static private Map< Integer, String > typeNames;
+	static private Map< String, Integer > typeNames2;
 
 	// ResultSet.getObject returns objects that are not always of the correct types
 	// For example oracle.sql.TIMESTAMP or org.hsqldb.types.BlobDataID are not instances of java.sql.Timestamp or java.sql.Blob
@@ -30,31 +31,46 @@ public class JdbcSupport
 				return result.getBlob( index );
 			case Types.CLOB:
 				return result.getClob( index );
-//			case Types.NCLOB:
-//				return result.getNClob( index );
 		}
 		return result.getObject( index );
 	}
 
-	static public String getTypeName( int type )
+	static private void initTypeNames()
+	{
+		typeNames = new HashMap< Integer, String >();
+		typeNames2 = new HashMap< String, Integer >();
+		for( Field field : Types.class.getFields() )
+			try
+			{
+				Object object = field.get( null );
+				if( object instanceof Integer )
+				{
+					typeNames.put( (Integer)object, field.getName() );
+					typeNames2.put( field.getName(), (Integer)object );
+				}
+			}
+			catch( IllegalAccessException e )
+			{
+				throw new SystemException( e );
+			}
+	}
+
+	static public String toTypeName( int type )
 	{
 		if( typeNames == null )
-		{
-			typeNames = new HashMap< Integer, String >();
-			for( Field field : Types.class.getFields() )
-				try
-				{
-					Object object = field.get( null );
-					if( object instanceof Integer )
-						typeNames.put( (Integer)object, field.getName() );
-				}
-				catch( IllegalAccessException e )
-				{
-					throw new SystemException( e );
-				}
-		}
+			initTypeNames();
 
 		String result = typeNames.get( type );
+		Assert.notNull( result, "Unknown JDBC type " + type );
+		return result;
+	}
+
+	static public int fromTypeName( String type )
+	{
+		if( typeNames == null )
+			initTypeNames();
+
+		Integer result = typeNames2.get( type );
 		Assert.notNull( result, "Unknown JDBC type " + type );
 		return result;
 	}

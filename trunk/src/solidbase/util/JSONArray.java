@@ -1,8 +1,8 @@
 package solidbase.util;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 public class JSONArray implements Iterable< Object >
 {
@@ -13,8 +13,18 @@ public class JSONArray implements Iterable< Object >
 		this.values.add( value );
 	}
 
-	public Iterator< Object > iterator()
+	public ListIterator< Object > iterator()
 	{
-		return this.values.iterator();
+		return this.values.listIterator();
+	}
+
+	public int size()
+	{
+		return this.values.size();
+	}
+
+	public Object get( int index )
+	{
+		return this.values.get( index );
 	}
 }

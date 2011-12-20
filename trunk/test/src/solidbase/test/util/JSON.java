@@ -11,7 +11,7 @@ import solidbase.util.Resource;
 
 public class JSON
 {
-	@Test(groups="new")
+	@Test
 	public void testJSON1()
 	{
 		Resource resource = new FileResource( "json/test1.json" );
@@ -26,7 +26,7 @@ public class JSON
 		writer.close();
 	}
 
-	@Test(groups="new")
+	@Test
 	public void testJSON2()
 	{
 		Resource resource = new FileResource( "json/test2.json" );

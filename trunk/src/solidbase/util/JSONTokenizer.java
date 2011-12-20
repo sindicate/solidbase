@@ -49,12 +49,17 @@ public class JSONTokenizer
 		this.in = new PushbackReader( in );
 	}
 
+	public Token get()
+	{
+		return get( false );
+	}
+
 	/**
 	 * Returns the next token from the input.
 	 *
 	 * @return A token from the input. Null if there are no more tokens available.
 	 */
-	public Token get()
+	public Token get( boolean newLines )
 	{
 		StringBuilder result = this.result;
 		result.setLength( 0 );
@@ -64,6 +69,16 @@ public class JSONTokenizer
 			int ch = this.in.read();
 			if( ch == -1 )
 				return Token.EOI;
+			if( newLines && ( ch == '\n' || ch == '\r' ) )
+			{
+				if( ch == '\r' )
+				{
+					ch = this.in.read();
+					if( ch != '\n' )
+						this.in.push( ch );
+				}
+				return Token.NEWLINE;
+			}
 			switch( ch )
 			{
 				// Whitespace
@@ -240,6 +255,7 @@ public class JSONTokenizer
 
 		/** A end-of-input token */
 		static final protected Token EOI = new Token( (char)0 );
+		static final protected Token NEWLINE = new Token( '\n' );
 
 		static final protected Token BEGIN_ARRAY = new Token( '[' );
 		static final protected Token END_ARRAY = new Token( ']' );
@@ -312,6 +328,11 @@ public class JSONTokenizer
 			return this.type == 0;
 		}
 
+		public boolean isNewLine()
+		{
+			return this.type == '\n';
+		}
+
 		/**
 		 * Is this token the end-of-input token?
 		 *
@@ -372,7 +393,7 @@ public class JSONTokenizer
 		{
 			if( this.value != null )
 				return this.value.toString();
-			if( this.type == -1 )
+			if( this.type == 0 )
 				return "End-of-input";
 			return String.valueOf( this.type );
 		}
