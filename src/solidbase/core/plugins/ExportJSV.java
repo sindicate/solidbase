@@ -68,6 +68,8 @@ public class ExportJSV implements CommandListener
 
 
 	//@Override
+	// TODO Add "DATE AS TIMESTAMP" option
+	// TODO Escape dynamic file names, because illegal characters may be generated
 	public boolean execute( CommandProcessor processor, Command command ) throws SQLException
 	{
 		if( command.isTransient() )
