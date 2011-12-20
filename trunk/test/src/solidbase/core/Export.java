@@ -45,4 +45,20 @@ public class Export
 
 		processor.end();
 	}
+
+	@Test(groups="new")
+	public void testExportOracle() throws SQLException, UnsupportedEncodingException
+	{
+		TestProgressListener progress = new TestProgressListener();
+		Database database = new Database( "default", "oracle.jdbc.OracleDriver", "jdbc:oracle:thin:@192.168.0.109:1521:XE", "XXXX", "XXXX", progress );
+		SQLProcessor processor = new SQLProcessor( progress );
+		SQLFile sqlFile = Factory.openSQLFile( Factory.getResource( "testsql-export-oracle.sql" ), progress );
+		DatabaseContext databases = new DatabaseContext( database );
+		SQLContext context = new SQLContext( sqlFile.getSource() );
+		context.setDatabases( databases );
+		processor.setContext( context );
+
+		processor.process();
+		processor.end();
+	}
 }
