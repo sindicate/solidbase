@@ -70,8 +70,10 @@ public class JSONReader
 			return token.getValue();
 		if( token.isNull() )
 			return token.getValue();
+		if( token.isEndOfInput() )
+			throw new JSONEndOfInputException();
 
-		throw new CommandFileException( "Expecting {, [, \", or a number, not '" + token + "'", this.tokenizer.getLocation() );
+		throw new CommandFileException( "Expecting {, [, \", a number, true, false or null, not '" + token + "'", this.tokenizer.getLocation() );
 	}
 
 	public JSONObject readObject()
@@ -123,6 +125,61 @@ public class JSONReader
 
 		if( !token.isEndArray() )
 			throw new CommandFileException( "Expecting , or ], not '" + token + "'", this.tokenizer.getLocation() );
+
+		return result;
+	}
+
+	public JSONObject readProperties()
+	{
+		JSONObject result = new JSONObject();
+
+		Token token = this.tokenizer.get( true );
+		while( token.isString() )
+		{
+			String name = (String)token.getValue();
+			token = this.tokenizer.get();
+			if( !token.isNameSeparator() )
+				throw new CommandFileException( "Expecting :, not '" + token + "'", this.tokenizer.getLocation() );
+			result.set( name, read() );
+
+			token = this.tokenizer.get( true );
+			if( !token.isNewLine() )
+				throw new CommandFileException( "Expecting newline, not '" + token + "'", this.tokenizer.getLocation() );
+
+			token = this.tokenizer.get( true );
+		}
+
+		if( !token.isNewLine() )
+			throw new CommandFileException( "Expecting empty line or string, not '" + token + "'", this.tokenizer.getLocation() );
+
+		return result;
+	}
+
+	public JSONArray readValues()
+	{
+		JSONArray result = new JSONArray();
+
+		try
+		{
+			Object value = read();
+			result.add( value );
+		}
+		catch( JSONEndOfInputException e )
+		{
+			return null;
+		}
+
+		Token token = this.tokenizer.get( true );
+		while( token.isValueSeparator() )
+		{
+			Object value = read();
+			result.add( value );
+
+			token = this.tokenizer.get( true );
+		}
+
+		if( !( token.isNewLine() || token.isEndOfInput() ) )
+			throw new CommandFileException( "Expecting newline or end-of-input, not '" + token + "'", this.tokenizer.getLocation() );
 
 		return result;
 	}
