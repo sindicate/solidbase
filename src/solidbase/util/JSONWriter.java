@@ -40,6 +40,11 @@ public class JSONWriter
 		return "UTF-8";
 	}
 
+	public Writer getWriter()
+	{
+		return this.out;
+	}
+
 	public void write( Object object )
 	{
 		this.format = false;
