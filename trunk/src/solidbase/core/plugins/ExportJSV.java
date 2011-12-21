@@ -118,7 +118,7 @@ public class ExportJSV implements CommandListener
 					JSONObject properties = new JSONObject();
 					properties.set( "version", "1.0" );
 					properties.set( "createdBy", new JSONObject( "product", "SolidBase", "version", "2.0.0" ) );
-					properties.set( "contentType", "text/json-values" );
+					properties.set( "contentType", "text/json" ); // TODO What is the content-type?
 
 					JSONArray fields = new JSONArray();
 					properties.set( "fields", fields );
@@ -137,7 +137,8 @@ public class ExportJSV implements CommandListener
 							fields.add( field );
 						}
 
-					jsonWriter.writeProperties( properties );
+					jsonWriter.writeFormatted( properties, 80 );
+					jsonWriter.getWriter().write( '\n' );
 
 					try
 					{
@@ -306,7 +307,8 @@ public class ExportJSV implements CommandListener
 								if( value instanceof java.sql.Date || value instanceof java.sql.Time || value instanceof java.sql.Timestamp || value instanceof java.sql.RowId )
 									i.set( value.toString() );
 							}
-							jsonWriter.writeValues( array );
+							jsonWriter.write( array );
+							jsonWriter.getWriter().write( '\n' );
 						}
 					}
 					finally

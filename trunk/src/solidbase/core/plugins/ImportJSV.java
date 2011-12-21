@@ -34,6 +34,7 @@ import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidbase.util.BOMDetectingLineReader;
 import solidbase.util.JSONArray;
+import solidbase.util.JSONEndOfInputException;
 import solidbase.util.JSONObject;
 import solidbase.util.JSONReader;
 import solidbase.util.JdbcSupport;
@@ -114,7 +115,7 @@ public class ImportJSV implements CommandListener
 	protected void importNormal( @SuppressWarnings( "unused" ) Command command, CommandProcessor processor, JSONReader reader, Parsed parsed ) throws SQLException
 	{
 		int lineNumber = reader.getLineNumber();
-		JSONObject properties = reader.readProperties();
+		JSONObject properties = (JSONObject)reader.read();
 
 		JSONArray fields = properties.getArray( "fields" );
 		int len = fields.size();
@@ -183,8 +184,12 @@ public class ImportJSV implements CommandListener
 					throw new ThreadDeath();
 
 				lineNumber = reader.getLineNumber();
-				JSONArray values = reader.readValues();
-				if( values == null )
+				JSONArray values;
+				try
+				{
+					values = (JSONArray)reader.read();
+				}
+				catch( JSONEndOfInputException e )
 				{
 					if( batchSize > 0 )
 						statement.executeBatch();

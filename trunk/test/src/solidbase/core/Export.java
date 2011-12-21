@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
 
 public class Export
 {
-	@Test
+	@Test(groups="new")
 	public void testExport() throws SQLException, UnsupportedEncodingException
 	{
 		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
@@ -46,7 +46,7 @@ public class Export
 		processor.end();
 	}
 
-	@Test(groups="new")
+	@Test(enabled=false)
 	public void testExportOracle() throws SQLException, UnsupportedEncodingException
 	{
 		TestProgressListener progress = new TestProgressListener();
