@@ -77,6 +77,7 @@ public class ImportCSV implements CommandListener
 		Parsed parsed = parse( command );
 
 		LineReader lineReader;
+		boolean needClose = false;
 		if( parsed.reader != null )
 			lineReader = parsed.reader; // Data is in the command
 		else if( parsed.fileName != null )
@@ -95,42 +96,51 @@ public class ImportCSV implements CommandListener
 			{
 				throw new SystemException( e );
 			}
+			needClose = true;
 		}
 		else
 			lineReader = processor.getReader(); // Data is in the source file
 
-		// Initialize csv reader & read first line (and skip header if needed)
-		CSVReader reader = new CSVReader( lineReader, parsed.separator, parsed.ignoreWhiteSpace );
-		if( parsed.skipHeader )
+		try
 		{
+			// Initialize csv reader & read first line (and skip header if needed)
+			CSVReader reader = new CSVReader( lineReader, parsed.separator, parsed.ignoreWhiteSpace );
+			if( parsed.skipHeader )
+			{
+				String[] line = reader.getLine();
+				if( line == null )
+					return true;
+			}
+			int lineNumber = reader.getLineNumber();
 			String[] line = reader.getLine();
 			if( line == null )
 				return true;
-		}
-		int lineNumber = reader.getLineNumber();
-		String[] line = reader.getLine();
-		if( line == null )
+
+			// Get connection and initialize commit flag
+			Connection connection = processor.getCurrentDatabase().getConnection();
+			Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
+			boolean commit = false;
+			try
+			{
+				importNormal( command, connection, reader, parsed, line, lineNumber );
+
+				commit = true;
+			}
+			finally
+			{
+				if( commit )
+					connection.commit();
+				else
+					connection.rollback();
+			}
+
 			return true;
-
-		// Get connection and initialize commit flag
-		Connection connection = processor.getCurrentDatabase().getConnection();
-		Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
-		boolean commit = false;
-		try
-		{
-			importNormal( command, connection, reader, parsed, line, lineNumber );
-
-			commit = true;
 		}
 		finally
 		{
-			if( commit )
-				connection.commit();
-			else
-				connection.rollback();
+			if( needClose )
+				lineReader.close();
 		}
-
-		return true;
 	}
 
 
