@@ -34,9 +34,9 @@ import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidbase.util.BOMDetectingLineReader;
 import solidbase.util.JSONArray;
-import solidbase.util.JSONEndOfInputException;
 import solidbase.util.JSONObject;
 import solidbase.util.JSONReader;
+import solidbase.util.JSONStreamReader.EVENT;
 import solidbase.util.JdbcSupport;
 import solidbase.util.LineReader;
 import solidbase.util.Resource;
@@ -114,8 +114,21 @@ public class ImportJSV implements CommandListener
 	// TODO Cope with a variable number of values in the CSV list
 	protected void importNormal( @SuppressWarnings( "unused" ) Command command, CommandProcessor processor, JSONReader reader, Parsed parsed ) throws SQLException
 	{
-		int lineNumber = reader.getLineNumber();
-		JSONObject properties = (JSONObject)reader.read();
+		EVENT event = reader.next( EVENT.BEGIN_OBJECT );
+
+		JSONObject properties = new JSONObject();
+		event = reader.next();
+		String name = reader.getName();
+		while( !name.equals( "rows" ) )
+		{
+			Object value = reader.read();
+			properties.set( name, value );
+
+			reader.next();
+			name = reader.getName();
+		}
+
+		reader.next( EVENT.BEGIN_ARRAY );
 
 		JSONArray fields = properties.getArray( "fields" );
 		int len = fields.size();
@@ -183,20 +196,11 @@ public class ImportJSV implements CommandListener
 				if( Thread.currentThread().isInterrupted() )
 					throw new ThreadDeath();
 
-				lineNumber = reader.getLineNumber();
-				JSONArray values;
-				try
-				{
-					values = (JSONArray)reader.read();
-				}
-				catch( JSONEndOfInputException e )
-				{
-					if( batchSize > 0 )
-						statement.executeBatch();
-
-					commit = true;
-					return;
-				}
+				event = reader.next();
+				int lineNumber = reader.getLineNumber();
+				if( event != EVENT.BEGIN_ARRAY )
+					break;
+				JSONArray values = reader.readArray();
 
 				int i = 0;
 				for( ListIterator< Object > it = values.iterator(); it.hasNext(); )
@@ -287,6 +291,13 @@ public class ImportJSV implements CommandListener
 					}
 				}
 			}
+
+			if( batchSize > 0 )
+				statement.executeBatch();
+
+			// TODO Read the rest of the file
+			commit = true;
+			return;
 		}
 		finally
 		{
