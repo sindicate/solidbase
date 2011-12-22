@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<bean id="solidbase" class="solidbase.spring.UpgradeBean" init-method="upgrade">
+		<property name="driver" value="org.hsqldb.jdbcDriver" />
+		<property name="url" value="jdbc:hsqldb:mem:testdb2" />
+		<property name="username" value="sa" />
+		<property name="password" value="" />
+		<property name="upgradefile" value="classpath:testpatch-classpath.sql" />
+		<property name="target" value="1.0.2" />
+		<property name="secondary">
+			<list>
+				<bean class="solidbase.core.ConnectionAttributes" p:name="queues" p:username="sa" p:password=""/>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="solidbase2" class="solidbase.spring.UpgradeBean" init-method="upgrade">
+		<property name="datasource">
+			<bean class="org.springframework.jdbc.datasource.SimpleDriverDataSource"
+				p:driverClass="org.hsqldb.jdbcDriver" p:url="jdbc:hsqldb:mem:testdb" p:username="sa" p:password="" />
+		</property>
+		<property name="upgradefile">
+			<bean class="org.springframework.core.io.InputStreamResource">
+				<constructor-arg>
+					<bean class="java.io.FileInputStream">
+						<constructor-arg value="testpatch1.sql" />
+					</bean>
+				</constructor-arg>
+			</bean>
+		</property>
+		<property name="secondary">
+			<list>
+				<bean class="solidbase.core.ConnectionAttributes" p:name="queues">
+					<property name="datasource">
+						<bean class="org.springframework.jdbc.datasource.SimpleDriverDataSource"
+							p:driverClass="org.hsqldb.jdbcDriver" p:url="jdbc:hsqldb:mem:testdb" p:username="sa" p:password="" />
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+</beans>

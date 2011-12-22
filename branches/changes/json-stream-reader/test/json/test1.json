@@ -1,0 +1,17 @@
+  {   
+      "Im\u0061ge": {   
+          "Width":  800,   
+          "Height": 600,   
+          "Title":  "View from 15th\n Floor",   
+          "Thumbnail": {   
+              "Url":    "http://www.example.com/image/481989943",   
+              "Height": 125E3,   
+              "Width":  "100"   ,
+              "boolean1" : true,
+              "boolean2" : false,
+              "null" : null
+          },   
+          "IDs": [116, 943, 234, 38793]   
+        }   
+   }   
+   

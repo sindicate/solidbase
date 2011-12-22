@@ -1,0 +1,1 @@
+set JAVA_HOME=G:\JAVA\jdk1.6.0_25
