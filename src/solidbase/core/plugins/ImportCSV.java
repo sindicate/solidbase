@@ -73,6 +73,7 @@ public class ImportCSV implements CommandListener
 		Parsed parsed = parse( command );
 
 		LineReader lineReader;
+		boolean needClose = false;
 		if( parsed.reader != null )
 			lineReader = parsed.reader; // Data is in the command
 		else if( parsed.fileName != null )
@@ -80,26 +81,35 @@ public class ImportCSV implements CommandListener
 			// Data is in a file
 			Resource resource = processor.getResource().createRelative( parsed.fileName );
 			lineReader = new BOMDetectingLineReader( resource, parsed.encoding );
+			needClose = true;
 			// TODO What about the FileNotFoundException?
 		}
 		else
 			lineReader = processor.getReader(); // Data is in the source file
 
-		// Initialize csv reader & read first line (and skip header if needed)
-		CSVReader reader = new CSVReader( lineReader, parsed.separator, parsed.ignoreWhiteSpace );
-		if( parsed.skipHeader )
+		try
 		{
+			// Initialize csv reader & read first line (and skip header if needed)
+			CSVReader reader = new CSVReader( lineReader, parsed.separator, parsed.ignoreWhiteSpace );
+			if( parsed.skipHeader )
+			{
+				String[] line = reader.getLine();
+				if( line == null )
+					return true;
+			}
+			int lineNumber = reader.getLineNumber();
 			String[] line = reader.getLine();
 			if( line == null )
 				return true;
-		}
-		int lineNumber = reader.getLineNumber();
-		String[] line = reader.getLine();
-		if( line == null )
-			return true;
 
-		importNormal( command, processor, reader, parsed, line, lineNumber );
-		return true;
+			importNormal( command, processor, reader, parsed, line, lineNumber );
+			return true;
+		}
+		finally
+		{
+			if( needClose )
+				lineReader.close();
+		}
 	}
 
 
