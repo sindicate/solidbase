@@ -79,6 +79,7 @@ public class ImportJSV implements CommandListener
 		Parsed parsed = parse( command );
 
 		LineReader lineReader;
+		boolean needClose = false;
 		if( parsed.reader != null )
 			lineReader = parsed.reader; // Data is in the command
 		else if( parsed.fileName != null )
@@ -86,15 +87,24 @@ public class ImportJSV implements CommandListener
 			// Data is in a file
 			Resource resource = processor.getResource().createRelative( parsed.fileName );
 			lineReader = new BOMDetectingLineReader( resource, "UTF-8" );
+			needClose = true;
 			// TODO What about the FileNotFoundException?
 		}
 		else
 			lineReader = processor.getReader(); // Data is in the source file
 
-		// Initialize csv reader & read first line (and skip header if needed)
-		JSONReader reader = new JSONReader( lineReader );
-		importNormal( command, processor, reader, parsed );
-		return true;
+		try
+		{
+			// Initialize csv reader & read first line (and skip header if needed)
+			JSONReader reader = new JSONReader( lineReader );
+			importNormal( command, processor, reader, parsed );
+			return true;
+		}
+		finally
+		{
+			if( needClose )
+				lineReader.close();
+		}
 	}
 
 
