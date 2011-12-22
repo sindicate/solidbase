@@ -36,7 +36,7 @@ import solidbase.util.BOMDetectingLineReader;
 import solidbase.util.JSONArray;
 import solidbase.util.JSONObject;
 import solidbase.util.JSONReader;
-import solidbase.util.JSONStreamReader.EVENT;
+import solidbase.util.JSONParser.EVENT;
 import solidbase.util.JdbcSupport;
 import solidbase.util.LineReader;
 import solidbase.util.Resource;

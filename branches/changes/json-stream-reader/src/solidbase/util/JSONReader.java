@@ -24,7 +24,7 @@ import solidbase.core.CommandFileException;
  *
  * @author René M. de Bloois
  */
-public class JSONReader extends JSONStreamReader
+public class JSONReader extends JSONParser
 {
 	/**
 	 * Constructor.
@@ -63,23 +63,33 @@ public class JSONReader extends JSONStreamReader
 			result.set( getName(), read() );
 			event = next();
 		}
+		// event can only be an END_OBJECT here
 		return result;
 	}
 
 	public JSONArray readArray()
 	{
 		JSONArray result = new JSONArray();
-		EVENT event = next();
-		while( event == EVENT.BEGIN_ARRAY || event == EVENT.BEGIN_OBJECT || event == EVENT.VALUE )
+		while( true )
 		{
-			if( event == EVENT.BEGIN_ARRAY )
-				result.add( readArray() );
-			else if( event == EVENT.BEGIN_OBJECT )
-				result.add( readObject() );
-			else
-				result.add( getValue() );
-			event = next();
+			EVENT event = next();
+			// TODO I do not really like this, a simple while in the readObject() but a complex while/switch in the readArray, need another event?
+			switch( event )
+			{
+				case BEGIN_ARRAY:
+					result.add( readArray() );
+					continue;
+				case BEGIN_OBJECT:
+					result.add( readObject() );
+					continue;
+				case VALUE:
+					result.add( getValue() );
+					continue;
+				default:
+			}
+			break;
 		}
+		// event can only be an END_ARRAY here
 		return result;
 	}
 }
