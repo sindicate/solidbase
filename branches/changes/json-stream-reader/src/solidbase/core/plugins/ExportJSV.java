@@ -70,7 +70,7 @@ public class ExportJSV implements CommandListener
 	//@Override
 	// TODO Add "DATE AS TIMESTAMP" option
 	// TODO Escape dynamic file names, because illegal characters may be generated
-	public boolean execute( CommandProcessor processor, Command command ) throws SQLException
+	public boolean execute( CommandProcessor processor, final Command command ) throws SQLException
 	{
 		if( command.isTransient() )
 			return false;
@@ -78,11 +78,11 @@ public class ExportJSV implements CommandListener
 		if( !triggerPattern.matcher( command.getCommand() ).matches() )
 			return false;
 
-		Parsed parsed = parse( command );
+		final Parsed parsed = parse( command );
 
-		Resource jsvResource = new FileResource( new File( parsed.fileName ) ); // Relative to current folder
+		final Resource jsvResource = new FileResource( new File( parsed.fileName ) ); // Relative to current folder
 
-		JSONWriter jsonWriter = new JSONWriter( jsvResource );
+		final JSONWriter jsonWriter = new JSONWriter( jsvResource );
 		try
 		{
 			try
@@ -90,15 +90,15 @@ public class ExportJSV implements CommandListener
 				Statement statement = processor.createStatement();
 				try
 				{
-					ResultSet result = statement.executeQuery( parsed.query );
+					final ResultSet result = statement.executeQuery( parsed.query );
 
 					ResultSetMetaData metaData = result.getMetaData();
-					int count = metaData.getColumnCount();
-					int[] types = new int[ count ];
-					String[] names = new String[ count ];
-					boolean[] coalesce = new boolean[ count ];
-					FileSpec[] fileSpecs = new FileSpec[ count ];
-					int firstCoalesce = -1;
+					final int count = metaData.getColumnCount();
+					final int[] types = new int[ count ];
+					final String[] names = new String[ count ];
+					final boolean[] coalesce = new boolean[ count ];
+					final FileSpec[] fileSpecs = new FileSpec[ count ];
+					int firstCoalesce_ = -1;
 
 					for( int i = 0; i < count; i++ )
 					{
@@ -110,10 +110,11 @@ public class ExportJSV implements CommandListener
 						if( parsed.coalesce != null && parsed.coalesce.contains( name ) )
 						{
 							coalesce[ i ] = true;
-							if( firstCoalesce < 0 )
-								firstCoalesce = i;
+							if( firstCoalesce_ < 0 )
+								firstCoalesce_ = i;
 						}
 					}
+					final int firstCoalesce = firstCoalesce_;
 
 					JSONObject properties = new JSONObject();
 					properties.set( "version", "1.0" );
@@ -137,192 +138,227 @@ public class ExportJSV implements CommandListener
 							fields.add( field );
 						}
 
-					jsonWriter.writeFormatted( properties, 80 );
-					jsonWriter.getWriter().write( '\n' );
+					properties.set( "rows", new JSONWriter.CustomWriter()
+					{
+						public void writeTo( JSONWriter out )
+						{
+							try
+							{
+								out.getWriter().write( "[\n" );
+								try
+								{
+									boolean first = true;
+									while( result.next() )
+									{
+										Object coalescedValue = null;
+										if( parsed.coalesce != null )
+											for( int i = 0; i < count; i++ )
+												if( coalesce[ i ] )
+												{
+													coalescedValue = JdbcSupport.getValue( result, types, i );
+													if( coalescedValue != null )
+														break;
+												}
+
+										JSONArray array = new JSONArray();
+
+										for( int i = 0; i < count; i++ )
+										{
+											if( !coalesce[ i ] || firstCoalesce == i )
+											{
+												Object value = coalescedValue;
+												if( firstCoalesce != i )
+													value = JdbcSupport.getValue( result, types, i );
+
+												if( value == null )
+												{
+													array.add( null );
+													continue;
+												}
+
+												// TODO 2 columns can't be written to the same dynamic filename
+
+												FileSpec spec = fileSpecs[ i ];
+												if( spec != null ) // The column is redirected to its own file
+												{
+													String relFileName = null;
+													int startIndex;
+													if( spec.binary )
+													{
+														if( spec.generator.isDynamic() )
+														{
+															String fileName = spec.generator.generateFileName( result );
+															Resource fileResource = new FileResource( fileName );
+															spec.out = fileResource.getOutputStream();
+															relFileName = fileResource.getPathFrom( jsvResource );
+														}
+														else
+														{
+															if( spec.out == null )
+															{
+																String fileName = spec.generator.generateFileName( result );
+																Resource fileResource = new FileResource( fileName );
+																spec.out = fileResource.getOutputStream();
+															}
+														}
+														if( value instanceof Blob )
+														{
+															InputStream in = ( (Blob)value ).getBinaryStream();
+															startIndex = spec.index;
+															byte[] buf = new byte[ 4096 ];
+															for( int read = in.read( buf ); read >= 0; read = in.read( buf ) )
+															{
+																spec.out.write( buf, 0, read );
+																spec.index += read;
+															}
+															in.close();
+														}
+														else if( value instanceof byte[] )
+														{
+															startIndex = spec.index;
+															spec.out.write( (byte[])value );
+															spec.index += ( (byte[])value ).length;
+														}
+														else
+															throw new CommandFileException( names[ i ] + " (" + value.getClass().getName() + ") is not a binary column. Only binary columns like BLOB, RAW, BINARY VARYING can be written to a binary file", command.getLocation() );
+														if( spec.generator.isDynamic() )
+														{
+															spec.out.close();
+															JSONObject ref = new JSONObject();
+															ref.set( "file", relFileName );
+															array.add( ref );
+														}
+														else
+														{
+															JSONObject ref = new JSONObject();
+															ref.set( "index", startIndex );
+															ref.set( "length", spec.index - startIndex );
+															array.add( ref );
+														}
+													}
+													else
+													{
+														if( spec.generator.isDynamic() )
+														{
+															String fileName = spec.generator.generateFileName( result );
+															Resource fileResource = new FileResource( fileName );
+															spec.writer = new DeferringWriter( spec.threshold, fileResource, jsonWriter.getEncoding() );
+															relFileName = fileResource.getPathFrom( jsvResource );
+														}
+														else
+														{
+															if( spec.writer == null )
+															{
+																String fileName = spec.generator.generateFileName( result );
+																Resource fileResource = new FileResource( fileName );
+																spec.writer = new OutputStreamWriter( fileResource.getOutputStream(), jsonWriter.getEncoding() );
+															}
+														}
+														if( value instanceof Blob || value instanceof byte[] )
+															throw new CommandFileException( names[ i ] + " is a binary column. Binary columns like BLOB, RAW, BINARY VARYING cannot be written to a text file", command.getLocation() );
+														if( value instanceof Clob )
+														{
+															Reader in = ( (Clob)value ).getCharacterStream();
+															startIndex = spec.index;
+															char[] buf = new char[ 4096 ];
+															for( int read = in.read( buf ); read >= 0; read = in.read( buf ) )
+															{
+																spec.writer.write( buf, 0, read );
+																spec.index += read;
+															}
+															in.close();
+														}
+														else
+														{
+															String val = value.toString();
+															startIndex = spec.index;
+															spec.writer.write( val );
+															spec.index += val.length();
+														}
+														if( spec.generator.isDynamic() )
+														{
+															DeferringWriter writer = (DeferringWriter)spec.writer;
+															if( writer.isInMemory() )
+																array.add( writer.getData() );
+															else
+															{
+																JSONObject ref = new JSONObject();
+																ref.set( "file", relFileName );
+																array.add( ref );
+															}
+															writer.close();
+														}
+														else
+														{
+															JSONObject ref = new JSONObject();
+															ref.set( "index", startIndex );
+															ref.set( "length", spec.index - startIndex );
+															array.add( ref );
+														}
+													}
+												}
+												else
+												{
+													if( value instanceof Clob )
+														array.add( ( (Clob)value ).getCharacterStream() );
+													else
+														array.add( value );
+												}
+											}
+										}
+
+										for( ListIterator< Object > i = array.iterator(); i.hasNext(); )
+										{
+											Object value = i.next();
+											if( value instanceof java.sql.Date || value instanceof java.sql.Time || value instanceof java.sql.Timestamp || value instanceof java.sql.RowId )
+												i.set( value.toString() );
+										}
+										if( first ) first = false; else
+											jsonWriter.getWriter().write( ",\n" );
+										jsonWriter.write( array );
+									}
+								}
+								finally
+								{
+									// Close files that have been left open
+									for( FileSpec fileSpec : fileSpecs )
+										if( fileSpec != null )
+										{
+											if( fileSpec.out != null )
+												fileSpec.out.close();
+											if( fileSpec.writer != null )
+												fileSpec.writer.close();
+										}
+								}
+
+								jsonWriter.getWriter().write( "\n\t]" );
+							}
+							catch( SQLException e )
+							{
+								throw new TunnelException( e );
+							}
+							catch( IOException e )
+							{
+								throw new SystemException( e );
+							}
+						}
+
+						public int length()
+						{
+							return 1000;
+						}
+					} );
 
 					try
 					{
-						while( result.next() )
-						{
-							Object coalescedValue = null;
-							if( parsed.coalesce != null )
-								for( int i = 0; i < count; i++ )
-									if( coalesce[ i ] )
-									{
-										coalescedValue = JdbcSupport.getValue( result, types, i );
-										if( coalescedValue != null )
-											break;
-									}
-
-							JSONArray array = new JSONArray();
-
-							for( int i = 0; i < count; i++ )
-							{
-								if( !coalesce[ i ] || firstCoalesce == i )
-								{
-									Object value = coalescedValue;
-									if( firstCoalesce != i )
-										value = JdbcSupport.getValue( result, types, i );
-
-									if( value == null )
-									{
-										array.add( null );
-										continue;
-									}
-
-									// TODO 2 columns can't be written to the same dynamic filename
-
-									FileSpec spec = fileSpecs[ i ];
-									if( spec != null ) // The column is redirected to its own file
-									{
-										String relFileName = null;
-										int startIndex;
-										if( spec.binary )
-										{
-											if( spec.generator.isDynamic() )
-											{
-												String fileName = spec.generator.generateFileName( result );
-												Resource fileResource = new FileResource( fileName );
-												spec.out = fileResource.getOutputStream();
-												relFileName = fileResource.getPathFrom( jsvResource );
-											}
-											else
-											{
-												if( spec.out == null )
-												{
-													String fileName = spec.generator.generateFileName( result );
-													Resource fileResource = new FileResource( fileName );
-													spec.out = fileResource.getOutputStream();
-												}
-											}
-											if( value instanceof Blob )
-											{
-												InputStream in = ( (Blob)value ).getBinaryStream();
-												startIndex = spec.index;
-												byte[] buf = new byte[ 4096 ];
-												for( int read = in.read( buf ); read >= 0; read = in.read( buf ) )
-												{
-													spec.out.write( buf, 0, read );
-													spec.index += read;
-												}
-												in.close();
-											}
-											else if( value instanceof byte[] )
-											{
-												startIndex = spec.index;
-												spec.out.write( (byte[])value );
-												spec.index += ( (byte[])value ).length;
-											}
-											else
-												throw new CommandFileException( names[ i ] + " (" + value.getClass().getName() + ") is not a binary column. Only binary columns like BLOB, RAW, BINARY VARYING can be written to a binary file", command.getLocation() );
-											if( spec.generator.isDynamic() )
-											{
-												spec.out.close();
-												JSONObject ref = new JSONObject();
-												ref.set( "file", relFileName );
-												array.add( ref );
-											}
-											else
-											{
-												JSONObject ref = new JSONObject();
-												ref.set( "index", startIndex );
-												ref.set( "length", spec.index - startIndex );
-												array.add( ref );
-											}
-										}
-										else
-										{
-											if( spec.generator.isDynamic() )
-											{
-												String fileName = spec.generator.generateFileName( result );
-												Resource fileResource = new FileResource( fileName );
-												spec.writer = new DeferringWriter( spec.threshold, fileResource, jsonWriter.getEncoding() );
-												relFileName = fileResource.getPathFrom( jsvResource );
-											}
-											else
-											{
-												if( spec.writer == null )
-												{
-													String fileName = spec.generator.generateFileName( result );
-													Resource fileResource = new FileResource( fileName );
-													spec.writer = new OutputStreamWriter( fileResource.getOutputStream(), jsonWriter.getEncoding() );
-												}
-											}
-											if( value instanceof Blob || value instanceof byte[] )
-												throw new CommandFileException( names[ i ] + " is a binary column. Binary columns like BLOB, RAW, BINARY VARYING cannot be written to a text file", command.getLocation() );
-											if( value instanceof Clob )
-											{
-												Reader in = ( (Clob)value ).getCharacterStream();
-												startIndex = spec.index;
-												char[] buf = new char[ 4096 ];
-												for( int read = in.read( buf ); read >= 0; read = in.read( buf ) )
-												{
-													spec.writer.write( buf, 0, read );
-													spec.index += read;
-												}
-												in.close();
-											}
-											else
-											{
-												String val = value.toString();
-												startIndex = spec.index;
-												spec.writer.write( val );
-												spec.index += val.length();
-											}
-											if( spec.generator.isDynamic() )
-											{
-												DeferringWriter writer = (DeferringWriter)spec.writer;
-												if( writer.isInMemory() )
-													array.add( writer.getData() );
-												else
-												{
-													JSONObject ref = new JSONObject();
-													ref.set( "file", relFileName );
-													array.add( ref );
-												}
-												writer.close();
-											}
-											else
-											{
-												JSONObject ref = new JSONObject();
-												ref.set( "index", startIndex );
-												ref.set( "length", spec.index - startIndex );
-												array.add( ref );
-											}
-										}
-									}
-									else
-									{
-										if( value instanceof Clob )
-											array.add( ( (Clob)value ).getCharacterStream() );
-										else
-											array.add( value );
-									}
-								}
-							}
-
-							for( ListIterator< Object > i = array.iterator(); i.hasNext(); )
-							{
-								Object value = i.next();
-								if( value instanceof java.sql.Date || value instanceof java.sql.Time || value instanceof java.sql.Timestamp || value instanceof java.sql.RowId )
-									i.set( value.toString() );
-							}
-							jsonWriter.write( array );
-							jsonWriter.getWriter().write( '\n' );
-						}
+						jsonWriter.writeFormatted( properties, 80 );
 					}
-					finally
+					catch( TunnelException e )
 					{
-						// Close files that have been left open
-						for( FileSpec fileSpec : fileSpecs )
-							if( fileSpec != null )
-							{
-								if( fileSpec.out != null )
-									fileSpec.out.close();
-								if( fileSpec.writer != null )
-									fileSpec.writer.close();
-							}
+						throw (SQLException)e.getCause();
 					}
+
+					jsonWriter.getWriter().write( '\n' );
 				}
 				finally
 				{
@@ -514,6 +550,15 @@ public class ExportJSV implements CommandListener
 			}
 			matcher.appendTail( result );
 			return result.toString();
+		}
+	}
+
+
+	static private class TunnelException extends RuntimeException
+	{
+		public TunnelException( Throwable cause )
+		{
+			super( cause );
 		}
 	}
 }
