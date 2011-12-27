@@ -35,8 +35,8 @@ import solidbase.util.Assert;
 import solidbase.util.BOMDetectingLineReader;
 import solidbase.util.JSONArray;
 import solidbase.util.JSONObject;
-import solidbase.util.JSONReader;
 import solidbase.util.JSONParser.EVENT;
+import solidbase.util.JSONReader;
 import solidbase.util.JdbcSupport;
 import solidbase.util.LineReader;
 import solidbase.util.Resource;
@@ -119,7 +119,7 @@ public class ImportJSV implements CommandListener
 		JSONObject properties = new JSONObject();
 		event = reader.next();
 		String name = reader.getName();
-		while( !name.equals( "rows" ) )
+		while( !name.equals( "data" ) )
 		{
 			Object value = reader.read();
 			properties.set( name, value );

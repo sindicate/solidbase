@@ -118,8 +118,9 @@ public class ExportJSV implements CommandListener
 
 					JSONObject properties = new JSONObject();
 					properties.set( "version", "1.0" );
+					properties.set( "description", "SolidBase data file" );
 					properties.set( "createdBy", new JSONObject( "product", "SolidBase", "version", "2.0.0" ) );
-					properties.set( "contentType", "text/json" ); // TODO What is the content-type?
+					properties.set( "contentType", "application/json" );
 
 					JSONArray fields = new JSONArray();
 					properties.set( "fields", fields );
@@ -138,7 +139,7 @@ public class ExportJSV implements CommandListener
 							fields.add( field );
 						}
 
-					properties.set( "rows", new JSONWriter.CustomWriter()
+					properties.set( "data", new JSONWriter.CustomWriter()
 					{
 						public void writeTo( JSONWriter out )
 						{
