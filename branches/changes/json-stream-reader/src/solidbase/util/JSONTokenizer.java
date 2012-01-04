@@ -234,6 +234,7 @@ public class JSONTokenizer
 	 *
 	 * @author René M. de Bloois
 	 */
+	// TODO Maybe we should remove this token class, and introduce the even mechanism like in JSONParser.
 	static public class Token
 	{
 		static public enum TYPE { BEGIN_ARRAY, END_ARRAY, BEGIN_OBJECT, END_OBJECT, NAME_SEPARATOR, VALUE_SEPARATOR, STRING, NUMBER, BOOLEAN, NULL, EOF }

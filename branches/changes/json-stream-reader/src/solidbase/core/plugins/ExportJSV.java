@@ -70,6 +70,7 @@ public class ExportJSV implements CommandListener
 	//@Override
 	// TODO Add "DATE AS TIMESTAMP" option
 	// TODO Escape dynamic file names, because illegal characters may be generated
+	// TODO Export multiple tables to a single file. If no PK than sort on all columns. Schema name for import or not?
 	public boolean execute( CommandProcessor processor, final Command command ) throws SQLException
 	{
 		if( command.isTransient() )
