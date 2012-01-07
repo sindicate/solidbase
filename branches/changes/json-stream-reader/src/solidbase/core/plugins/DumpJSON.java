@@ -29,6 +29,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -116,6 +117,8 @@ public class DumpJSON implements CommandListener
 						int col = i + 1;
 						String name = metaData.getColumnName( col ).toUpperCase();
 						types[ i ] = metaData.getColumnType( col );
+						if( types[ i ] == Types.DATE && parsed.dateAsTimestamp )
+							types[ i ] = Types.TIMESTAMP;
 						names[ i ] = name;
 						if( parsed.columns != null )
 							fileSpecs[ i ] = parsed.columns.get( name );
@@ -125,8 +128,8 @@ public class DumpJSON implements CommandListener
 							if( firstCoalesce < 0 )
 								firstCoalesce = i;
 						}
-						tableNames[ i ] = StringUtils.upperCase( StringUtils.defaultString( metaData.getTableName( col ), null ) );
-						schemaNames[ i ] = StringUtils.upperCase( StringUtils.defaultString( metaData.getSchemaName( col ), null ) );
+						tableNames[ i ] = StringUtils.upperCase( StringUtils.defaultIfEmpty( metaData.getTableName( col ), null ) );
+						schemaNames[ i ] = StringUtils.upperCase( StringUtils.defaultIfEmpty( metaData.getSchemaName( col ), null ) );
 //						if( tableNameUnique && ( !coalesce[ i ] || firstCoalesce == i ) )
 //						{
 //							String t = StringUtils.upperCase( StringUtils.defaultString( metaData.getTableName( col ), null ) );
@@ -158,6 +161,11 @@ public class DumpJSON implements CommandListener
 //					properties.set( "contentType", "application/json" );
 //					properties.set( "schemaName", schemaName );
 //					properties.set( "tableName", tableName );
+
+//					if( parsed.schemaName != null )
+//						properties.set( "schemaName", StringUtils.defaultIfEmpty( parsed.schemaName, null ) );
+//					if( parsed.tableName != null )
+//						properties.set( "tableName", parsed.tableName );
 
 					JSONArray fields = new JSONArray();
 					properties.set( "fields", fields );
@@ -399,7 +407,24 @@ public class DumpJSON implements CommandListener
 		tokenizer.get( "DUMP" );
 		tokenizer.get( "JSON" );
 
-		Token t = tokenizer.get( "COALESCE", "FILE" );
+		tokenizer.get( "FILE" );
+		Token t = tokenizer.get();
+		String file = t.getValue();
+		if( !file.startsWith( "\"" ) )
+			throw new CommandFileException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+		file = file.substring( 1, file.length() - 1 );
+
+		t = tokenizer.get();
+		if( t.equals( "DATE" ) )
+		{
+			tokenizer.get( "AS" );
+			tokenizer.get( "TIMESTAMP" );
+
+			result.dateAsTimestamp = true;
+
+			t = tokenizer.get();
+		}
+
 		if( t.equals( "COALESCE" ) )
 		{
 			result.coalesce = new HashSet< String >();
@@ -412,16 +437,33 @@ public class DumpJSON implements CommandListener
 			while( t.equals( "," ) );
 			tokenizer.push( t );
 
-			tokenizer.get( "FILE" );
+			tokenizer.get();
 		}
 
-		t = tokenizer.get();
-		String file = t.getValue();
-		if( !file.startsWith( "\"" ) )
-			throw new CommandFileException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-		file = file.substring( 1, file.length() - 1 );
+//		if( t.equals( "SCHEMA" ) )
+//		{
+//			tokenizer.get( "NAME" );
+//			t = tokenizer.get();
+//			String name = t.getValue();
+//			if( !name.startsWith( "\"" ) )
+//				throw new CommandFileException( "Expecting schema name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+//			result.schemaName = name.substring( 1, name.length() - 1 );
+//
+//			t = tokenizer.get();
+//		}
 
-		t = tokenizer.get();
+//		if( t.equals( "TABLE" ) )
+//		{
+//			tokenizer.get( "NAME" );
+//			t = tokenizer.get();
+//			String name = t.getValue();
+//			if( !name.startsWith( "\"" ) )
+//				throw new CommandFileException( "Expecting table name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+//			result.tableName = name.substring( 1, name.length() - 1 );
+//
+//			t = tokenizer.get();
+//		}
+
 		if( t.equals( "COLUMN" ) )
 		{
 			result.columns = new HashMap< String, FileSpec >();
@@ -490,8 +532,13 @@ public class DumpJSON implements CommandListener
 		/** The file path to export to */
 		protected String fileName;
 
+//		protected String tableName;
+//		protected String schemaName;
+
 		/** The query */
 		protected String query;
+
+		protected boolean dateAsTimestamp;
 
 		/** Which columns need to be coalesced */
 		protected Set< String > coalesce;
