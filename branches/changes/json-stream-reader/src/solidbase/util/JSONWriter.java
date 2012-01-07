@@ -106,7 +106,7 @@ public class JSONWriter
 		int len = 2; // { + space
 		for( Entry< String, Object > entry : object )
 			len += entry.getKey().length() + getLength( entry.getValue() ) + 6; // "" + : + space + , + space (or space + })
-		if( len > 80 )
+		if( len > this.maxLength )
 			this.bits.set( index );
 		return len;
 	}
@@ -117,7 +117,7 @@ public class JSONWriter
 		int len = 2; // [ + space
 		for( Object value : object )
 			len += getLength( value ) + 2; // , + space or space + ]
-		if( len > 80 )
+		if( len > this.maxLength )
 			this.bits.set( index );
 		return len;
 	}

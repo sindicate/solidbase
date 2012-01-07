@@ -34,8 +34,8 @@ import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidbase.util.BOMDetectingLineReader;
 import solidbase.util.JSONArray;
+import solidbase.util.JSONEndOfInputException;
 import solidbase.util.JSONObject;
-import solidbase.util.JSONParser.EVENT;
 import solidbase.util.JSONReader;
 import solidbase.util.JdbcSupport;
 import solidbase.util.LineReader;
@@ -59,9 +59,9 @@ import solidbase.util.Tokenizer.Token;
  * @since Dec 2, 2009
  */
 // TODO Make this more strict, like assert that the number of values stays the same in the CSV data
-public class ImportJSV implements CommandListener
+public class LoadJSON implements CommandListener
 {
-	static private final Pattern triggerPattern = Pattern.compile( "IMPORT\\s+JSV\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern triggerPattern = Pattern.compile( "LOAD\\s+JSON\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 	static private final Pattern parameterPattern = Pattern.compile( ":(\\d+)" );
 
@@ -114,21 +114,8 @@ public class ImportJSV implements CommandListener
 	// TODO Cope with a variable number of values in the CSV list
 	protected void importNormal( @SuppressWarnings( "unused" ) Command command, CommandProcessor processor, JSONReader reader, Parsed parsed ) throws SQLException
 	{
-		EVENT event = reader.next( EVENT.BEGIN_OBJECT );
-
-		JSONObject properties = new JSONObject();
-		event = reader.next();
-		String name = reader.getName();
-		while( !name.equals( "data" ) )
-		{
-			Object value = reader.read();
-			properties.set( name, value );
-
-			reader.next();
-			name = reader.getName();
-		}
-
-		reader.next( EVENT.BEGIN_ARRAY );
+		int lineNumber = reader.getLineNumber();
+		JSONObject properties = (JSONObject)reader.read();
 
 		JSONArray fields = properties.getArray( "fields" );
 		int len = fields.size();
@@ -196,11 +183,20 @@ public class ImportJSV implements CommandListener
 				if( Thread.currentThread().isInterrupted() )
 					throw new ThreadDeath();
 
-				event = reader.next();
-				int lineNumber = reader.getLineNumber();
-				if( event != EVENT.BEGIN_ARRAY )
-					break;
-				JSONArray values = reader.readArray();
+				lineNumber = reader.getLineNumber();
+				JSONArray values;
+				try
+				{
+					values = (JSONArray)reader.read();
+				}
+				catch( JSONEndOfInputException e )
+				{
+					if( batchSize > 0 )
+						statement.executeBatch();
+
+					commit = true;
+					return;
+				}
 
 				int i = 0;
 				for( ListIterator< Object > it = values.iterator(); it.hasNext(); )
@@ -291,13 +287,6 @@ public class ImportJSV implements CommandListener
 					}
 				}
 			}
-
-			if( batchSize > 0 )
-				statement.executeBatch();
-
-			// TODO Read the rest of the file
-			commit = true;
-			return;
 		}
 		finally
 		{
@@ -342,8 +331,8 @@ public class ImportJSV implements CommandListener
 
 		Tokenizer tokenizer = new Tokenizer( new StringLineReader( command.getCommand(), command.getLocation() ) );
 
-		tokenizer.get( "IMPORT" );
-		tokenizer.get( "JSV" );
+		tokenizer.get( "LOAD" );
+		tokenizer.get( "JSON" );
 
 		Token t = tokenizer.get( "PREPEND", "NOBATCH", "USING", "INTO" );
 
