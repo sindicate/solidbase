@@ -34,6 +34,8 @@ public class JSONParser
 	static protected enum STATE { BEFOREVALUE, BEFORENAME, AFTERVALUE };
 	static protected enum STRUCT { NONE, OBJECT, ARRAY };
 
+	private LineReader reader;
+
 	/**
 	 * The source of tokens.
 	 */
@@ -56,6 +58,7 @@ public class JSONParser
 	 */
 	public JSONParser( LineReader reader )
 	{
+		this.reader = reader;
 		this.tokenizer = new JSONTokenizer( reader );
 	}
 
@@ -167,6 +170,11 @@ public class JSONParser
 	public FileLocation getLocation()
 	{
 		return this.tokenizer.getLocation();
+	}
+
+	public Resource getResource()
+	{
+		return this.reader.getResource();
 	}
 
 	/**
