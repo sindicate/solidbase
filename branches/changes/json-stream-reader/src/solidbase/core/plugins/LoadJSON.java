@@ -34,7 +34,7 @@ import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidbase.util.BOMDetectingLineReader;
 import solidbase.util.JSONArray;
-import solidbase.util.JSONEndOfInputException;
+import solidbase.util.JSONEOFException;
 import solidbase.util.JSONObject;
 import solidbase.util.JSONReader;
 import solidbase.util.JdbcSupport;
@@ -129,7 +129,7 @@ public class LoadJSON implements CommandListener
 		boolean prependLineNumber = parsed.prependLineNumber;
 
 		StringBuilder sql = new StringBuilder( "INSERT INTO " );
-		sql.append( parsed.tableName );
+		sql.append( parsed.tableName ); // TODO Where else do we need the quotes?
 		if( parsed.columns != null )
 		{
 			sql.append( " (" );
@@ -189,7 +189,7 @@ public class LoadJSON implements CommandListener
 				{
 					values = (JSONArray)reader.read();
 				}
-				catch( JSONEndOfInputException e )
+				catch( JSONEOFException e )
 				{
 					if( batchSize > 0 )
 						statement.executeBatch();
@@ -229,7 +229,7 @@ public class LoadJSON implements CommandListener
 						}
 						else
 							statement.setObject( pos++, values.get( index = par - 1 ) );
-					}
+						}
 					catch( ArrayIndexOutOfBoundsException e )
 					{
 						throw new CommandFileException( "Value with index " + ( index + 1 ) + " does not exist, record has only " + values.size() + " values", reader.getLocation().lineNumber( lineNumber ) );

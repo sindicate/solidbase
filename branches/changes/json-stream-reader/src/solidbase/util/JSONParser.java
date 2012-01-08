@@ -30,7 +30,7 @@ import solidbase.util.JSONTokenizer.Token.TYPE;
  */
 public class JSONParser
 {
-	static public enum EVENT { BEGIN_OBJECT, END_OBJECT, BEGIN_ARRAY, END_ARRAY, NAME, VALUE };
+	static public enum EVENT { BEGIN_OBJECT, END_OBJECT, BEGIN_ARRAY, END_ARRAY, NAME, VALUE, EOF };
 	static protected enum STATE { BEFOREVALUE, BEFORENAME, AFTERVALUE };
 	static protected enum STRUCT { NONE, OBJECT, ARRAY };
 
@@ -101,7 +101,7 @@ public class JSONParser
 									throw new CommandFileException( "Expecting , or ], not '" + token + "'", tokenizer.getLocation() );
 							}
 						case NONE:
-							throw new JSONEndOfInputException();
+							// Multiple top level objects are allowed, fall through to BEFOREVALUE
 					}
 
 				case BEFOREVALUE:
@@ -124,6 +124,10 @@ public class JSONParser
 							this.currentStruct = STRUCT.ARRAY;
 							this.state = STATE.BEFOREVALUE;
 							return EVENT.BEGIN_ARRAY;
+						case EOF:
+							if( this.currentStruct == STRUCT.NONE )
+								return EVENT.EOF;
+							// fall through
 						default:
 							// TODO We have 2 kinds of EOF (are we in a STRUCT or not?)
 							throw new CommandFileException( "Expecting {, [, \", a number, true, false or null, not '" + token + "'", tokenizer.getLocation() );

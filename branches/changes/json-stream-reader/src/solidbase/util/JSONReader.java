@@ -43,6 +43,7 @@ public class JSONReader extends JSONParser
 	 */
 	public Object read()
 	{
+		// TODO Add switch()
 		EVENT event = next();
 		if( event == EVENT.VALUE )
 			return getValue();
@@ -50,6 +51,8 @@ public class JSONReader extends JSONParser
 			return readObject();
 		if( event == EVENT.BEGIN_ARRAY )
 			return readArray();
+		if( event == EVENT.EOF )
+			throw new JSONEOFException();
 
 		throw new CommandFileException( "Expecting {, [, \", a number, true, false or null, not '" + event + "'", getLocation() );
 	}
