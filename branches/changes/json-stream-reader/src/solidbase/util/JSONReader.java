@@ -26,6 +26,8 @@ import solidbase.core.CommandFileException;
  */
 public class JSONReader extends JSONParser
 {
+	private boolean endOfFile;
+
 	/**
 	 * Constructor.
 	 *
@@ -52,9 +54,17 @@ public class JSONReader extends JSONParser
 		if( event == EVENT.BEGIN_ARRAY )
 			return readArray();
 		if( event == EVENT.EOF )
-			throw new JSONEOFException();
+		{
+			this.endOfFile = true;
+			return null;
+		}
 
 		throw new CommandFileException( "Expecting {, [, \", a number, true, false or null, not '" + event + "'", getLocation() );
+	}
+
+	public boolean isEOF()
+	{
+		return this.endOfFile;
 	}
 
 	public JSONObject readObject()

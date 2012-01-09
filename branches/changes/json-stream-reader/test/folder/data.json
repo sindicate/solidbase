@@ -1,8 +1,9 @@
 {
 	"version": "1.0",
-	"format": "array-stream",
+	"format": "record-stream",
+	"description": "SolidBase JSON Data Dump File",
 	"createdBy": { "product": "SolidBase", "version": "2.0.0" },
-	"contentType": "text/json-values",
+	"createdDate": "2012-01-08 19:40:54",
 	"fields": [
 		{ "name": "ID", "type": "NUMERIC" },
 		{ "name": "ISOCODE", "type": "NUMERIC" },

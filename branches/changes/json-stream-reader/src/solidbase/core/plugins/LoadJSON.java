@@ -17,7 +17,6 @@
 package solidbase.core.plugins;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -36,8 +35,8 @@ import solidbase.core.SQLExecutionException;
 import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidbase.util.BOMDetectingLineReader;
+import solidbase.util.CloseQueue;
 import solidbase.util.JSONArray;
-import solidbase.util.JSONEOFException;
 import solidbase.util.JSONObject;
 import solidbase.util.JSONReader;
 import solidbase.util.JdbcSupport;
@@ -81,46 +80,12 @@ public class LoadJSON implements CommandListener
 
 		Parsed parsed = parse( command );
 
-		LineReader lineReader;
-//		if( parsed.reader != null )
-//			lineReader = parsed.reader; // Data is in the command
-//		else
-//		if( parsed.fileName != null )
-//		{
-			// Data is in a file
-			Resource resource = processor.getResource().createRelative( parsed.fileName );
-			lineReader = new BOMDetectingLineReader( resource, "UTF-8" );
-			// TODO What about the FileNotFoundException?
-//		}
-//		else
-//			lineReader = processor.getReader(); // Data is in the source file
+		Resource resource = processor.getResource().createRelative( parsed.fileName );
+		LineReader lineReader = new BOMDetectingLineReader( resource, "UTF-8" );
+		// TODO What about the FileNotFoundException?
 
-		// Initialize csv reader & read first line (and skip header if needed)
 		JSONReader reader = new JSONReader( lineReader );
-		importNormal( command, processor, reader, parsed );
-		return true;
-	}
-
-
-	/**
-	 * Import data using a JDBC prepared statement, like this:
-	 *
-	 * <blockquote><pre>
-	 * INSERT INTO TABLE1 VALUES ( ?, ? );
-	 * </pre></blockquote>
-	 *
-	 * @param command The import command.
-	 * @param processor The command processor.
-	 * @param reader The CSV reader.
-	 * @param parsed The parsed command.
-	 * @throws SQLException Whenever SQL execution throws it.
-	 */
-	// TODO Cope with a variable number of values in the CSV list
-	protected void importNormal( @SuppressWarnings( "unused" ) Command command, CommandProcessor processor, JSONReader reader, Parsed parsed ) throws SQLException
-	{
-		int lineNumber = reader.getLineNumber();
 		JSONObject properties = (JSONObject)reader.read();
-
 		JSONArray fields = properties.getArray( "fields" );
 		int len = fields.size();
 		int[] types = new int[ len ];
@@ -178,7 +143,7 @@ public class LoadJSON implements CommandListener
 		}
 
 		PreparedStatement statement = processor.prepareStatement( sql.toString() );
-		List< InputStream > files = new ArrayList< InputStream >(); // TODO Create a support class for this
+		CloseQueue closer = new CloseQueue();
 		boolean commit = false;
 		try
 		{
@@ -188,20 +153,16 @@ public class LoadJSON implements CommandListener
 				if( Thread.currentThread().isInterrupted() )
 					throw new ThreadDeath();
 
-				JSONArray values;
-				try
+				JSONArray values = (JSONArray)reader.read();
+				if( values == null )
 				{
-					values = (JSONArray)reader.read();
-				}
-				catch( JSONEOFException e )
-				{
+					Assert.isTrue( reader.isEOF() );
 					if( batchSize > 0 )
 						statement.executeBatch();
-
 					commit = true;
-					return;
+					return true;
 				}
-				lineNumber = reader.getLineNumber();
+				int lineNumber = reader.getLineNumber();
 
 				int i = 0;
 				for( ListIterator< Object > it = values.iterator(); it.hasNext(); )
@@ -243,22 +204,18 @@ public class LoadJSON implements CommandListener
 								{
 									try
 									{
-										Resource resource = reader.getResource();
 										resource = resource.createRelative( filename );
-										InputStream in = resource.getInputStream(); // Some databases read the stream directly, others (Oracle) read it later.
-										files.add( in );
+										InputStream in = resource.getInputStream(); // Some databases read the stream directly (Oracle), others read it later (HSQLDB).
+										closer.add( in );
 										statement.setBinaryStream( pos++, in );
 										// TODO Do we need to decrease the batch size when files are being kept open?
 										// TODO What if the contents of the blob is sufficiently small, shouldn't we just call setBytes()?
+										// TODO We could detect that the database has read the stream already, and close the file
 									}
 									catch( FileNotFoundException e )
 									{
 										throw new CommandFileException( e.getMessage(), reader.getLocation() );
 									}
-//									catch( IOException e )
-//									{
-//										throw new SystemException( e );
-//									}
 								}
 								else
 									Assert.fail( "Unexpected type for external file: " + JdbcSupport.toTypeName( type ) );
@@ -278,18 +235,7 @@ public class LoadJSON implements CommandListener
 					try
 					{
 						statement.executeUpdate();
-						for( InputStream file : files )
-						{
-							try
-							{
-								file.close();
-							}
-							catch( IOException e )
-							{
-								throw new SystemException( e );
-							}
-						}
-						files.clear();
+						closer.closeAll();
 					}
 					catch( SQLException e )
 					{
@@ -333,18 +279,7 @@ public class LoadJSON implements CommandListener
 					{
 						statement.executeBatch();
 						batchSize = 0;
-						for( InputStream file : files )
-						{
-							try
-							{
-								file.close();
-							}
-							catch( IOException e )
-							{
-								throw new SystemException( e );
-							}
-						}
-						files.clear();
+						closer.closeAll();
 					}
 				}
 			}
@@ -352,17 +287,7 @@ public class LoadJSON implements CommandListener
 		finally
 		{
 			processor.closeStatement( statement, commit );
-			for( InputStream file : files )
-			{
-				try
-				{
-					file.close();
-				}
-				catch( IOException e )
-				{
-					throw new SystemException( e );
-				}
-			}
+			closer.closeAll();
 		}
 	}
 
@@ -428,7 +353,6 @@ public class LoadJSON implements CommandListener
 		result.tableName = tokenizer.get().toString();
 
 		t = tokenizer.get( "(", "VALUES", "FILE" );
-//		t = tokenizer.get( "(", "VALUES", "DATA", "FILE", null );
 
 		if( t.equals( "(" ) )
 		{
@@ -447,7 +371,6 @@ public class LoadJSON implements CommandListener
 			}
 
 			t = tokenizer.get( "VALUES", "FILE" );
-//			t = tokenizer.get( "VALUES", "DATA", "FILE", null );
 		}
 
 		if( t.equals( "VALUES" ) )
@@ -457,7 +380,6 @@ public class LoadJSON implements CommandListener
 			{
 				StringBuilder value = new StringBuilder();
 				parseTill( tokenizer, value, false, ',', ')' );
-				//System.out.println( "Value: " + value.toString() );
 				values.add( value.toString() );
 
 				t = tokenizer.get( ",", ")" );
@@ -469,23 +391,12 @@ public class LoadJSON implements CommandListener
 					throw new CommandFileException( "Number of specified columns does not match number of given values", tokenizer.getLocation() );
 
 			t = tokenizer.get( "FILE" );
-//			t = tokenizer.get( "DATA", "FILE", null );
 		}
 
 		if( columns.size() > 0 )
 			result.columns = columns.toArray( new String[ columns.size() ] );
 		if( values.size() > 0 )
 			result.values = values.toArray( new String[ values.size() ] );
-
-//		if( t.isEndOfInput() )
-//			return result;
-
-//		if( t.equals( "DATA" ) )
-//		{
-//			tokenizer.getNewline();
-//			result.reader = tokenizer.getReader();
-//			return result;
-//		}
 
 		// File
 		t = tokenizer.get();
