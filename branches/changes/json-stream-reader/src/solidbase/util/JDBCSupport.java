@@ -9,7 +9,7 @@ import java.util.Map;
 
 import solidbase.core.SystemException;
 
-public class JdbcSupport
+public class JDBCSupport
 {
 	static private Map< Integer, String > typeNames;
 	static private Map< String, Integer > typeNames2;

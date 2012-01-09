@@ -54,7 +54,7 @@ import solidbase.util.FileResource;
 import solidbase.util.JSONArray;
 import solidbase.util.JSONObject;
 import solidbase.util.JSONWriter;
-import solidbase.util.JdbcSupport;
+import solidbase.util.JDBCSupport;
 import solidbase.util.Resource;
 import solidbase.util.StringLineReader;
 import solidbase.util.Tokenizer;
@@ -176,7 +176,7 @@ public class DumpJSON implements CommandListener
 							field.set( "schemaName", schemaNames[ i ] );
 							field.set( "tableName", tableNames[ i ] );
 							field.set( "name", names[ i ] );
-							field.set( "type", JdbcSupport.toTypeName( types[ i ] ) );
+							field.set( "type", JDBCSupport.toTypeName( types[ i ] ) );
 							FileSpec spec = fileSpecs[ i ];
 							if( spec != null && !spec.generator.isDynamic() )
 							{
@@ -198,7 +198,7 @@ public class DumpJSON implements CommandListener
 								for( int i = 0; i < count; i++ )
 									if( coalesce[ i ] )
 									{
-										coalescedValue = JdbcSupport.getValue( result, types, i );
+										coalescedValue = JDBCSupport.getValue( result, types, i );
 										if( coalescedValue != null )
 											break;
 									}
@@ -211,7 +211,7 @@ public class DumpJSON implements CommandListener
 								{
 									Object value = coalescedValue;
 									if( firstCoalesce != i )
-										value = JdbcSupport.getValue( result, types, i );
+										value = JDBCSupport.getValue( result, types, i );
 
 									if( value == null )
 									{

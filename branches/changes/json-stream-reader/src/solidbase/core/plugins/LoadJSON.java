@@ -36,10 +36,10 @@ import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidbase.util.BOMDetectingLineReader;
 import solidbase.util.CloseQueue;
+import solidbase.util.JDBCSupport;
 import solidbase.util.JSONArray;
 import solidbase.util.JSONObject;
 import solidbase.util.JSONReader;
-import solidbase.util.JdbcSupport;
 import solidbase.util.LineReader;
 import solidbase.util.Resource;
 import solidbase.util.StringLineReader;
@@ -92,7 +92,7 @@ public class LoadJSON implements CommandListener
 		for( int i = 0; i < len; i++ )
 		{
 			JSONObject field = (JSONObject)fields.get( i );
-			types[ i ] = JdbcSupport.fromTypeName( field.getString( "type" ) );
+			types[ i ] = JDBCSupport.fromTypeName( field.getString( "type" ) );
 		}
 
 		boolean prependLineNumber = parsed.prependLineNumber;
@@ -184,49 +184,52 @@ public class LoadJSON implements CommandListener
 				int index = 0;
 				for( int par : parameterMap )
 				{
-					try
+					if( par == 1 && prependLineNumber )
+						statement.setInt( pos++, lineNumber );
+					else
 					{
-						if( par == 1 && prependLineNumber )
+						index = par - ( prependLineNumber ? 2 : 1 );
+						Object value;
+						try
 						{
-							statement.setInt( pos++, lineNumber );
+							value = values.get( index );
+						}
+						catch( ArrayIndexOutOfBoundsException e )
+						{
+							throw new CommandFileException( "Value with index " + ( index + 1 ) + " does not exist, record has only " + values.size() + " values", reader.getLocation() );
+						}
+						if( value instanceof JSONObject )
+						{
+							JSONObject object = (JSONObject)value;
+							String filename = object.getString( "file" );
+							if( filename == null )
+								throw new CommandFileException( "Expected a 'file' attribute", reader.getLocation() );
+							int type = types[ index ];
+							if( type == Types.BLOB || type == Types.VARBINARY )
+							{
+								try
+								{
+									resource = resource.createRelative( filename );
+									InputStream in = resource.getInputStream(); // Some databases read the stream directly (Oracle), others read it later (HSQLDB).
+									closer.add( in );
+									statement.setBinaryStream( pos++, in );
+									// TODO Do we need to decrease the batch size when files are being kept open?
+									// TODO What if the contents of the blob is sufficiently small, shouldn't we just call setBytes()?
+									// TODO We could detect that the database has read the stream already, and close the file
+								}
+								catch( FileNotFoundException e )
+								{
+									throw new CommandFileException( e.getMessage(), reader.getLocation() );
+								}
+							}
+							else
+								Assert.fail( "Unexpected field type for external file: " + JDBCSupport.toTypeName( type ) );
 						}
 						else
 						{
-							index = par - ( prependLineNumber ? 2 : 1 );
-							Object value = values.get( index );
-							if( value instanceof JSONObject )
-							{
-								JSONObject object = (JSONObject)value;
-								String filename = object.getString( "file" );
-								Assert.notNull( filename );
-								int type = types[ index ];
-								if( type == Types.BLOB || type == Types.VARBINARY )
-								{
-									try
-									{
-										resource = resource.createRelative( filename );
-										InputStream in = resource.getInputStream(); // Some databases read the stream directly (Oracle), others read it later (HSQLDB).
-										closer.add( in );
-										statement.setBinaryStream( pos++, in );
-										// TODO Do we need to decrease the batch size when files are being kept open?
-										// TODO What if the contents of the blob is sufficiently small, shouldn't we just call setBytes()?
-										// TODO We could detect that the database has read the stream already, and close the file
-									}
-									catch( FileNotFoundException e )
-									{
-										throw new CommandFileException( e.getMessage(), reader.getLocation() );
-									}
-								}
-								else
-									Assert.fail( "Unexpected type for external file: " + JdbcSupport.toTypeName( type ) );
-							}
-							else
-								statement.setObject( pos++, values.get( index ) );
+							// TODO What if it is a CLOB and the string value is too long?
+							statement.setObject( pos++, values.get( index ) );
 						}
-					}
-					catch( ArrayIndexOutOfBoundsException e )
-					{
-						throw new CommandFileException( "Value with index " + ( index + 1 ) + " does not exist, record has only " + values.size() + " values", reader.getLocation().lineNumber( lineNumber ) );
 					}
 				}
 
@@ -239,36 +242,9 @@ public class LoadJSON implements CommandListener
 					}
 					catch( SQLException e )
 					{
-						StringBuilder b = new StringBuilder( sql.toString() );
-						b.append( " VALUES (" );
-						boolean first = true;
-						for( int par : parameterMap )
-						{
-							if( first )
-								first = false;
-							else
-								b.append( ',' );
-							try
-							{
-								if( prependLineNumber )
-								{
-									if( par == 1 )
-										b.append( lineNumber );
-									else
-										b.append( values.get( par - 2 ) );
-								}
-								else
-									b.append( values.get( par - 1 ) );
-							}
-							catch( ArrayIndexOutOfBoundsException ee )
-							{
-								throw new SystemException( ee );
-							}
-						}
-						b.append( ')' );
-
 						// When NOBATCH is on, you can see the actual insert statement and line number in the file where the SQLException occurred.
-						throw new SQLExecutionException( b.toString(), reader.getLocation().lineNumber( lineNumber ), e );
+						String message = buildErrorMessage( sql, parameterMap, values, prependLineNumber, lineNumber );
+						throw new SQLExecutionException( message, reader.getLocation().lineNumber( lineNumber ), e );
 					}
 				}
 				else
@@ -311,6 +287,39 @@ public class LoadJSON implements CommandListener
 		}
 		matcher.appendTail( result );
 		return result.toString();
+	}
+
+
+	static protected String buildErrorMessage( StringBuilder sql, List< Integer > parameterMap, JSONArray values, boolean prependLineNumber, int lineNumber )
+	{
+		StringBuilder b = new StringBuilder( sql.toString() );
+		b.append( " VALUES (" );
+		boolean first = true;
+		for( int par : parameterMap )
+		{
+			if( first )
+				first = false;
+			else
+				b.append( ',' );
+			try
+			{
+				if( prependLineNumber )
+				{
+					if( par == 1 )
+						b.append( lineNumber );
+					else
+						b.append( values.get( par - 2 ) );
+				}
+				else
+					b.append( values.get( par - 1 ) );
+			}
+			catch( ArrayIndexOutOfBoundsException ee ) // TODO Why is this caught?
+			{
+				throw new SystemException( ee );
+			}
+		}
+		b.append( ')' );
+		return b.toString();
 	}
 
 
