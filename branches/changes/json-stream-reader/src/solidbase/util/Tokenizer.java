@@ -386,6 +386,18 @@ public class Tokenizer
 			return this.value == null;
 		}
 
+		public boolean isString()
+		{
+			if( this.value == null )
+				return false;
+			return this.value.startsWith( "\"" ) && this.value.endsWith( "\"" );
+		}
+
+		public String stripQuotes()
+		{
+			return this.value.substring( 1, this.value.length() - 1 );
+		}
+
 		/**
 		 * Does a case insensitive comparison with the given string.
 		 *
