@@ -303,16 +303,17 @@ public class LoadJSON implements CommandListener
 											throw new CommandFileException( e.getMessage(), reader.getLocation() );
 										}
 									}
-									int ii = lobIndex.intValue();
-									try
-									{
-										in.skipTo( ii );
-									}
-									catch( IOException e )
-									{
-										throw new SystemException( e );
-									}
-									Reader lis = new LimitedReader( in, lobLength.intValue() );
+//									int ii = lobIndex.intValue();
+//									try
+//									{
+//										in.skipTo( ii );
+//									}
+//									catch( IOException e )
+//									{
+//										throw new SystemException( e );
+//									}
+//									System.out.println( "test" );
+									Reader lis = new LimitedReader( in, lobIndex.intValue(), lobLength.intValue() );
 									statement.setCharacterStream( pos++, lis ); // TODO Maybe use the limited setBinaryStream instead
 								}
 								else
