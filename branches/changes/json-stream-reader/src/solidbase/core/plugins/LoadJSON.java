@@ -17,10 +17,8 @@
 package solidbase.core.plugins;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
@@ -41,16 +39,14 @@ import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidbase.util.BOMDetectingLineReader;
 import solidbase.util.CloseQueue;
-import solidbase.util.IndexedInputStream;
-import solidbase.util.IndexedReader;
 import solidbase.util.JDBCSupport;
 import solidbase.util.JSONArray;
 import solidbase.util.JSONObject;
 import solidbase.util.JSONReader;
-import solidbase.util.LimitedInputStream;
-import solidbase.util.LimitedReader;
 import solidbase.util.LineReader;
 import solidbase.util.Resource;
+import solidbase.util.SegmentedInputStream;
+import solidbase.util.SegmentedReader;
 import solidbase.util.StringLineReader;
 import solidbase.util.Tokenizer;
 import solidbase.util.Tokenizer.Token;
@@ -99,8 +95,8 @@ public class LoadJSON implements CommandListener
 		int len = fields.size();
 		int[] types = new int[ len ];
 		String[] fileNames = new String[ len ];
-		IndexedInputStream[] streams = new IndexedInputStream[ len ];
-		IndexedReader[] textStreams = new IndexedReader[ len ];
+		SegmentedInputStream[] streams = new SegmentedInputStream[ len ];
+		SegmentedReader[] textStreams = new SegmentedReader[ len ];
 		for( int i = 0; i < len; i++ )
 		{
 			JSONObject field = (JSONObject)fields.get( i );
@@ -223,9 +219,9 @@ public class LoadJSON implements CommandListener
 								{
 									try
 									{
-										resource = resource.createRelative( filename );
-										InputStream in = resource.getInputStream(); // Some databases read the stream directly (Oracle), others read it later (HSQLDB).
+										InputStream in = resource.createRelative( filename ).getInputStream();
 										closer.add( in );
+										// Some databases read the stream directly (Oracle), others read it later (HSQLDB).
 										statement.setBinaryStream( pos++, in );
 										// TODO Do we need to decrease the batch size when files are being kept open?
 										// TODO What if the contents of the blob is sufficiently small, shouldn't we just call setBytes()?
@@ -252,13 +248,13 @@ public class LoadJSON implements CommandListener
 
 								if( type == Types.BLOB )
 								{
-									IndexedInputStream in = streams[ index ];
+									SegmentedInputStream in = streams[ index ];
 									if( in == null )
 									{
 										Resource r = resource.createRelative( fileNames[ index ] );
 										try
 										{
-											in = new IndexedInputStream( r.getInputStream() );
+											in = new SegmentedInputStream( r.getInputStream() );
 											biggerCloser.add( in );
 											streams[ index ] = in;
 										}
@@ -267,21 +263,11 @@ public class LoadJSON implements CommandListener
 											throw new CommandFileException( e.getMessage(), reader.getLocation() );
 										}
 									}
-									int ii = lobIndex.intValue();
-									try
-									{
-										in.skipTo( ii );
-									}
-									catch( IOException e )
-									{
-										throw new SystemException( e );
-									}
-									InputStream lis = new LimitedInputStream( in, lobLength.intValue() );
-									statement.setBinaryStream( pos++, lis ); // TODO Maybe use the limited setBinaryStream instead
+									statement.setBinaryStream( pos++, in.getSegmentInputStream( lobIndex.longValue(), lobLength.longValue() ) ); // TODO Maybe use the limited setBinaryStream instead
 								}
 								else if( type == Types.CLOB )
 								{
-									IndexedReader in = textStreams[ index ];
+									SegmentedReader in = textStreams[ index ];
 									if( in == null )
 									{
 										Resource r = resource.createRelative( fileNames[ index ] );
@@ -289,7 +275,7 @@ public class LoadJSON implements CommandListener
 										{
 											try
 											{
-												in = new IndexedReader( new InputStreamReader( r.getInputStream(), "UTF-8" ) );
+												in = new SegmentedReader( new InputStreamReader( r.getInputStream(), "UTF-8" ) );
 											}
 											catch( UnsupportedEncodingException e )
 											{
@@ -303,18 +289,7 @@ public class LoadJSON implements CommandListener
 											throw new CommandFileException( e.getMessage(), reader.getLocation() );
 										}
 									}
-//									int ii = lobIndex.intValue();
-//									try
-//									{
-//										in.skipTo( ii );
-//									}
-//									catch( IOException e )
-//									{
-//										throw new SystemException( e );
-//									}
-//									System.out.println( "test" );
-									Reader lis = new LimitedReader( in, lobIndex.intValue(), lobLength.intValue() );
-									statement.setCharacterStream( pos++, lis ); // TODO Maybe use the limited setBinaryStream instead
+									statement.setCharacterStream( pos++, in.getSegmentReader( lobIndex.longValue(), lobLength.longValue() ) );
 								}
 								else
 									Assert.fail( "Unexpected field type for external file: " + JDBCSupport.toTypeName( type ) );
