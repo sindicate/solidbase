@@ -17,7 +17,12 @@
 package solidbase.core.plugins;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -36,10 +41,14 @@ import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidbase.util.BOMDetectingLineReader;
 import solidbase.util.CloseQueue;
+import solidbase.util.IndexedInputStream;
+import solidbase.util.IndexedReader;
 import solidbase.util.JDBCSupport;
 import solidbase.util.JSONArray;
 import solidbase.util.JSONObject;
 import solidbase.util.JSONReader;
+import solidbase.util.LimitedInputStream;
+import solidbase.util.LimitedReader;
 import solidbase.util.LineReader;
 import solidbase.util.Resource;
 import solidbase.util.StringLineReader;
@@ -89,10 +98,14 @@ public class LoadJSON implements CommandListener
 		JSONArray fields = properties.getArray( "fields" );
 		int len = fields.size();
 		int[] types = new int[ len ];
+		String[] fileNames = new String[ len ];
+		IndexedInputStream[] streams = new IndexedInputStream[ len ];
+		IndexedReader[] textStreams = new IndexedReader[ len ];
 		for( int i = 0; i < len; i++ )
 		{
 			JSONObject field = (JSONObject)fields.get( i );
 			types[ i ] = JDBCSupport.fromTypeName( field.getString( "type" ) );
+			fileNames[ i ] = field.findString( "file" );
 		}
 
 		boolean prependLineNumber = parsed.prependLineNumber;
@@ -143,6 +156,7 @@ public class LoadJSON implements CommandListener
 		}
 
 		PreparedStatement statement = processor.prepareStatement( sql.toString() );
+		CloseQueue biggerCloser = new CloseQueue();
 		CloseQueue closer = new CloseQueue();
 		boolean commit = false;
 		try
@@ -201,29 +215,109 @@ public class LoadJSON implements CommandListener
 						if( value instanceof JSONObject )
 						{
 							JSONObject object = (JSONObject)value;
-							String filename = object.getString( "file" );
-							if( filename == null )
-								throw new CommandFileException( "Expected a 'file' attribute", reader.getLocation() );
+							String filename = object.findString( "file" );
 							int type = types[ index ];
-							if( type == Types.BLOB || type == Types.VARBINARY )
+							if( filename != null )
 							{
-								try
+								if( type == Types.BLOB )
 								{
-									resource = resource.createRelative( filename );
-									InputStream in = resource.getInputStream(); // Some databases read the stream directly (Oracle), others read it later (HSQLDB).
-									closer.add( in );
-									statement.setBinaryStream( pos++, in );
-									// TODO Do we need to decrease the batch size when files are being kept open?
-									// TODO What if the contents of the blob is sufficiently small, shouldn't we just call setBytes()?
-									// TODO We could detect that the database has read the stream already, and close the file
+									try
+									{
+										resource = resource.createRelative( filename );
+										InputStream in = resource.getInputStream(); // Some databases read the stream directly (Oracle), others read it later (HSQLDB).
+										closer.add( in );
+										statement.setBinaryStream( pos++, in );
+										// TODO Do we need to decrease the batch size when files are being kept open?
+										// TODO What if the contents of the blob is sufficiently small, shouldn't we just call setBytes()?
+										// TODO We could detect that the database has read the stream already, and close the file
+									}
+									catch( FileNotFoundException e )
+									{
+										throw new CommandFileException( e.getMessage(), reader.getLocation() );
+									}
 								}
-								catch( FileNotFoundException e )
-								{
-									throw new CommandFileException( e.getMessage(), reader.getLocation() );
-								}
+								else
+									Assert.fail( "Unexpected field type for external file: " + JDBCSupport.toTypeName( type ) );
 							}
 							else
-								Assert.fail( "Unexpected field type for external file: " + JDBCSupport.toTypeName( type ) );
+							{
+								BigDecimal lobIndex = object.getNumber( "index" ); // TODO Use findNumber
+								if( lobIndex == null )
+									throw new CommandFileException( "Expected a 'file' or 'index' attribute", reader.getLocation() );
+								BigDecimal lobLength = object.getNumber( "length" );
+								if( lobLength == null )
+									throw new CommandFileException( "Expected a 'length' attribute", reader.getLocation() );
+								if( fileNames[ index ] == null )
+									throw new CommandFileException( "No file configured", reader.getLocation() );
+
+								if( type == Types.BLOB )
+								{
+									IndexedInputStream in = streams[ index ];
+									if( in == null )
+									{
+										Resource r = resource.createRelative( fileNames[ index ] );
+										try
+										{
+											in = new IndexedInputStream( r.getInputStream() );
+											biggerCloser.add( in );
+											streams[ index ] = in;
+										}
+										catch( FileNotFoundException e )
+										{
+											throw new CommandFileException( e.getMessage(), reader.getLocation() );
+										}
+									}
+									int ii = lobIndex.intValue();
+									try
+									{
+										in.skipTo( ii );
+									}
+									catch( IOException e )
+									{
+										throw new SystemException( e );
+									}
+									InputStream lis = new LimitedInputStream( in, lobLength.intValue() );
+									statement.setBinaryStream( pos++, lis ); // TODO Maybe use the limited setBinaryStream instead
+								}
+								else if( type == Types.CLOB )
+								{
+									IndexedReader in = textStreams[ index ];
+									if( in == null )
+									{
+										Resource r = resource.createRelative( fileNames[ index ] );
+										try
+										{
+											try
+											{
+												in = new IndexedReader( new InputStreamReader( r.getInputStream(), "UTF-8" ) );
+											}
+											catch( UnsupportedEncodingException e )
+											{
+												throw new SystemException( e );
+											}
+											biggerCloser.add( in );
+											textStreams[ index ] = in;
+										}
+										catch( FileNotFoundException e )
+										{
+											throw new CommandFileException( e.getMessage(), reader.getLocation() );
+										}
+									}
+									int ii = lobIndex.intValue();
+									try
+									{
+										in.skipTo( ii );
+									}
+									catch( IOException e )
+									{
+										throw new SystemException( e );
+									}
+									Reader lis = new LimitedReader( in, lobLength.intValue() );
+									statement.setCharacterStream( pos++, lis ); // TODO Maybe use the limited setBinaryStream instead
+								}
+								else
+									Assert.fail( "Unexpected field type for external file: " + JDBCSupport.toTypeName( type ) );
+							}
 						}
 						else
 						{
@@ -263,6 +357,7 @@ public class LoadJSON implements CommandListener
 		finally
 		{
 			processor.closeStatement( statement, commit );
+			biggerCloser.closeAll();
 			closer.closeAll();
 		}
 	}
