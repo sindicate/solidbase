@@ -1,5 +1,7 @@
 package solidbase.test.util;
 
+import java.io.FileNotFoundException;
+
 import org.testng.annotations.Test;
 
 import solidbase.io.BOMDetectingLineReader;
@@ -12,7 +14,7 @@ import solidbase.util.JSONWriter;
 public class JSON
 {
 	@Test
-	public void testJSON1()
+	public void testJSON1() throws FileNotFoundException
 	{
 		Resource resource = new FileResource( "json/test1.json" );
 		LineReader reader = new BOMDetectingLineReader( resource );
@@ -27,7 +29,7 @@ public class JSON
 	}
 
 	@Test
-	public void testJSON2()
+	public void testJSON2() throws FileNotFoundException
 	{
 		Resource resource = new FileResource( "json/test2.json" );
 		LineReader reader = new BOMDetectingLineReader( resource );

@@ -167,21 +167,13 @@ public class BOMDetectingLineReader extends ReaderLineReader
 	 *
 	 * @param resource The resource to be read.
 	 * @param encoding The encoding of the file. If not null, it will override the BOM.
+	 * @throws FileNotFoundException
 	 */
-	public BOMDetectingLineReader( Resource resource, String encoding )
+	public BOMDetectingLineReader( Resource resource, String encoding ) throws FileNotFoundException
 	{
 		this.resource = resource;
 
-		BufferedInputStream in;
-		try
-		{
-			in = new BufferedInputStream( resource.getInputStream() );
-		}
-		catch( FileNotFoundException e )
-		{
-			// TODO Should we throw a FatalException in the util package?
-			throw new FatalException( e.toString() );
-		}
+		BufferedInputStream in = new BufferedInputStream( resource.getInputStream() );
 		detectBOM( in );
 
 		try
@@ -198,7 +190,7 @@ public class BOMDetectingLineReader extends ReaderLineReader
 		}
 	}
 
-	public BOMDetectingLineReader( Resource resource )
+	public BOMDetectingLineReader( Resource resource ) throws FileNotFoundException
 	{
 		this( resource, (String)null );
 	}

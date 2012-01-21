@@ -16,18 +16,12 @@
 
 package solidbase.core;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
 
-import solidbase.io.ClassPathResource;
-import solidbase.io.FileResource;
 import solidbase.io.MemoryResource;
 import solidbase.io.RandomAccessLineReader;
 import solidbase.io.Resource;
-import solidbase.io.SystemInOutResource;
 import solidbase.io.URLRandomAccessLineReader;
-import solidbase.io.URLResource;
 
 
 /**
@@ -43,44 +37,6 @@ public final class Factory
 	private Factory()
 	{
 		super();
-	}
-
-	/**
-	 * Creates a resource for the given path. If the path starts with classpath:, a {@link ClassPathResource} will be
-	 * returned. If the path is a URL, a {@link URLResource} will be returned. Otherwise a {@link FileResource} is
-	 * returned.
-	 *
-	 * @param path The path for the resource.
-	 * @return The resource.
-	 */
-	static public Resource getResource( String path )
-	{
-		return getResource( null, path );
-	}
-
-	/**
-	 * Creates a resource for the given path. If the path starts with classpath:, a {@link ClassPathResource} will be
-	 * returned. If the path is a URL, a {@link URLResource} will be returned. Otherwise a {@link FileResource} is
-	 * returned. The parent argument is only used when returning a {@link FileResource}.
-	 *
-	 * @param parent The parent folder of the resource.
-	 * @param path The path for the resource.
-	 * @return The resource.
-	 */
-	static public Resource getResource( File parent, String path )
-	{
-		if( path.equals( "-" ) )
-			return new SystemInOutResource();
-		if( path.startsWith( "classpath:" ) )
-			return new ClassPathResource( path );
-		try
-		{
-			return new URLResource( path );
-		}
-		catch( MalformedURLException e )
-		{
-			return new FileResource( parent, path );
-		}
 	}
 
 	/**

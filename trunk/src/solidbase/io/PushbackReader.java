@@ -43,6 +43,7 @@ public class PushbackReader
 	 */
 	protected int lineNumber;
 
+	protected StringBuilder markBuffer;
 
 	/**
 	 * Constructs a new instance of the PushbackReader.
@@ -92,29 +93,31 @@ public class PushbackReader
 	 */
 	public int read()
 	{
+		int result;
+
 		if( this.buffer.length() > 0 )
 		{
 			int p = this.buffer.length() - 1;
-			int ch = this.buffer.charAt( p );
+			result = this.buffer.charAt( p );
 			this.buffer.delete( p, p + 1 ); // No cost involved, deleting from the end only decrements a count
-			if( ch == '\n' ) // There are no \r in the backbuffer
-				this.lineNumber++;
-			return ch;
 		}
-
-		int ch = this.reader.read();
-		if( ch == '\r' ) // Filter out carriage returns
+		else
 		{
-			ch = this.reader.read();
-			if( ch != '\n' )
-				push( ch );
-			this.lineNumber++;
-			return '\n';
+			result = this.reader.read(); // No \r returned by the LineReader
 		}
-		else if( ch == '\n' )
+
+		if( result == '\n' )
 			this.lineNumber++;
 
-		return ch;
+		if( this.markBuffer != null )
+		{
+			if( this.markBuffer.length() == this.markBuffer.capacity() ) // TODO May need unit test for this
+				this.markBuffer = null; // Reached limit
+			else
+				this.markBuffer.append( (char)result );
+		}
+
+		return result;
 	}
 
 	/**
@@ -156,6 +159,17 @@ public class PushbackReader
 		int len = string.length();
 		while( len > 0 )
 			push( string.charAt( --len ) ); // Use push to decrement the line number when a \n is found
+	}
+
+	public void mark( int maxLength )
+	{
+		this.markBuffer = new StringBuilder( maxLength );
+	}
+
+	public void reset()
+	{
+		push( this.markBuffer );
+		this.markBuffer = null;
 	}
 
 	public void close()

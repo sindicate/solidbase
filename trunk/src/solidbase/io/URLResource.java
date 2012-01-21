@@ -119,4 +119,14 @@ public class URLResource implements Resource
 	{
 		throw new UnsupportedOperationException();
 	}
+
+	public boolean exists()
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public long getLastModified()
+	{
+		return 0;
+	}
 }

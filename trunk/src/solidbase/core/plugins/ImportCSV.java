@@ -16,6 +16,7 @@
 
 package solidbase.core.plugins;
 
+import java.io.FileNotFoundException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import solidbase.core.Command;
 import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
+import solidbase.core.FatalException;
 import solidbase.core.SQLExecutionException;
 import solidbase.core.SystemException;
 import solidbase.io.BOMDetectingLineReader;
@@ -80,7 +82,14 @@ public class ImportCSV implements CommandListener
 		{
 			// Data is in a file
 			Resource resource = processor.getResource().createRelative( parsed.fileName );
-			lineReader = new BOMDetectingLineReader( resource, parsed.encoding );
+			try
+			{
+				lineReader = new BOMDetectingLineReader( resource, parsed.encoding );
+			}
+			catch( FileNotFoundException e )
+			{
+				throw new FatalException( e.toString() );
+			}
 			needClose = true;
 			// TODO What about the FileNotFoundException?
 		}

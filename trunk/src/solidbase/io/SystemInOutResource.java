@@ -75,4 +75,14 @@ public class SystemInOutResource implements Resource
 	{
 		throw new UnsupportedOperationException();
 	}
+
+	public boolean exists()
+	{
+		return true;
+	}
+
+	public long getLastModified()
+	{
+		return 0;
+	}
 }

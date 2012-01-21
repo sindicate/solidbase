@@ -18,9 +18,9 @@ package solidbase.maven;
 
 import org.apache.maven.plugin.MojoFailureException;
 
-import solidbase.core.Factory;
 import solidbase.core.FatalException;
 import solidbase.core.Runner;
+import solidbase.io.ResourceFactory;
 
 
 /**
@@ -51,7 +51,7 @@ public class SQLMojo extends DBMojo
 					connection.getUsername(),
 					connection.getPassword() == null ? "" : connection.getPassword()
 				);
-		runner.setSQLFile( Factory.getResource( this.project.getBasedir(), this.sqlfile ) );
+		runner.setSQLFile( ResourceFactory.getResource( this.project.getBasedir(), this.sqlfile ) );
 		try
 		{
 			runner.executeSQL();

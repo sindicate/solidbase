@@ -77,4 +77,14 @@ public class InputStreamResource implements Resource
 	{
 		throw new UnsupportedOperationException();
 	}
+
+	public boolean exists()
+	{
+		return true;
+	}
+
+	public long getLastModified()
+	{
+		throw new UnsupportedOperationException();
+	}
 }

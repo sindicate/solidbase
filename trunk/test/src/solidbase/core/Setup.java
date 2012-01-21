@@ -16,6 +16,8 @@
 
 package solidbase.core;
 
+import solidbase.io.ResourceFactory;
+
 
 public class Setup
 {
@@ -28,7 +30,7 @@ public class Setup
 		UpgradeProcessor processor = new UpgradeProcessor( progress );
 		DatabaseContext databases = new DatabaseContext( database );
 		processor.setDatabases( databases );
-		UpgradeFile upgradeFile = Factory.openUpgradeFile( Factory.getResource( fileName ), progress );
+		UpgradeFile upgradeFile = Factory.openUpgradeFile( ResourceFactory.getResource( fileName ), progress );
 		processor.setUpgradeFile( upgradeFile );
 		processor.init();
 		return processor;
@@ -54,7 +56,7 @@ public class Setup
 		TestProgressListener progress = new TestProgressListener();
 		Database database = new Database( "default", "org.hsqldb.jdbcDriver", defaultdb, "sa", null, progress );
 		SQLProcessor processor = new SQLProcessor( progress );
-		SQLFile sqlFile = Factory.openSQLFile( Factory.getResource( fileName ), progress );
+		SQLFile sqlFile = Factory.openSQLFile( ResourceFactory.getResource( fileName ), progress );
 		DatabaseContext databases = new DatabaseContext( database );
 		SQLContext context = new SQLContext( sqlFile.getSource() );
 		context.setDatabases( databases );
