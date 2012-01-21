@@ -33,11 +33,11 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import solidbase.config.Configuration;
-import solidbase.core.Factory;
 import solidbase.core.FatalException;
 import solidbase.core.Runner;
 import solidbase.core.SQLExecutionException;
 import solidbase.core.SystemException;
+import solidbase.io.ResourceFactory;
 import solidbase.util.Assert;
 
 
@@ -191,18 +191,18 @@ public class Main
 
 		if( configuration.getSqlFile() != null )
 		{
-			runner.setSQLFile( Factory.getResource( configuration.getSqlFile() ) );
+			runner.setSQLFile( ResourceFactory.getResource( configuration.getSqlFile() ) );
 			runner.executeSQL();
 		}
 		else if( opts.dumplog )
 		{
-			runner.setUpgradeFile( Factory.getResource( configuration.getUpgradeFile() ) );
-			runner.setOutputFile( Factory.getResource( line.getOptionValue( "dumplog" ) ) );
+			runner.setUpgradeFile( ResourceFactory.getResource( configuration.getUpgradeFile() ) );
+			runner.setOutputFile( ResourceFactory.getResource( line.getOptionValue( "dumplog" ) ) );
 			runner.logToXML();
 		}
 		else
 		{
-			runner.setUpgradeFile( Factory.getResource( configuration.getUpgradeFile() ) );
+			runner.setUpgradeFile( ResourceFactory.getResource( configuration.getUpgradeFile() ) );
 			runner.setUpgradeTarget( configuration.getTarget() );
 			runner.setDowngradeAllowed( opts.downgradeallowed );
 			runner.upgrade();

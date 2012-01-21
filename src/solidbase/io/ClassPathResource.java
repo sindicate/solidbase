@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 
-import solidbase.core.Factory;
 import solidbase.core.FatalException;
 
 /**
@@ -100,7 +99,7 @@ public class ClassPathResource implements Resource
 				path = path.substring( 10 );
 			return new ClassPathResource( new File( new File( this.path ).getParentFile(), path ).getPath() );
 		}
-		return Factory.getResource( path );
+		return ResourceFactory.getResource( path );
 	}
 
 	@Override
@@ -112,5 +111,15 @@ public class ClassPathResource implements Resource
 	public String getPathFrom( Resource other )
 	{
 		throw new UnsupportedOperationException();
+	}
+
+	public boolean exists()
+	{
+		return ClassPathResource.class.getClassLoader().getResource( this.path ) != null;
+	}
+
+	public long getLastModified()
+	{
+		return 0;
 	}
 }

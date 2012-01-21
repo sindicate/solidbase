@@ -67,4 +67,8 @@ public interface Resource
 	Resource createRelative( String path );
 
 	String getPathFrom( Resource other );
+
+	boolean exists();
+
+	long getLastModified();
 }

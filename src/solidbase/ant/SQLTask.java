@@ -22,10 +22,10 @@ import java.util.List;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 
-import solidbase.core.Factory;
 import solidbase.core.FatalException;
 import solidbase.core.Runner;
 import solidbase.io.Resource;
+import solidbase.io.ResourceFactory;
 
 
 /**
@@ -104,9 +104,9 @@ public class SQLTask extends DBTask
 
 		List< Resource > sqlFiles = new ArrayList< Resource >();
 		if( this.sqlfile != null )
-			sqlFiles.add( Factory.getResource( project.getBaseDir(), this.sqlfile ) );
+			sqlFiles.add( ResourceFactory.getResource( project.getBaseDir(), this.sqlfile ) );
 		for( Sqlfile file : this.sqlfiles )
-			sqlFiles.add( Factory.getResource( project.getBaseDir(), file.src ) );
+			sqlFiles.add( ResourceFactory.getResource( project.getBaseDir(), file.src ) );
 		runner.setSQLFiles( sqlFiles );
 
 		try

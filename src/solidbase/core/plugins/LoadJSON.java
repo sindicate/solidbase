@@ -34,6 +34,7 @@ import solidbase.core.Command;
 import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
+import solidbase.core.FatalException;
 import solidbase.core.SQLExecutionException;
 import solidbase.core.SystemException;
 import solidbase.io.BOMDetectingLineReader;
@@ -86,8 +87,15 @@ public class LoadJSON implements CommandListener
 		Parsed parsed = parse( command );
 
 		Resource resource = processor.getResource().createRelative( parsed.fileName );
-		LineReader lineReader = new BOMDetectingLineReader( resource, "UTF-8" );
-		// TODO What about the FileNotFoundException?
+		LineReader lineReader;
+		try
+		{
+			lineReader = new BOMDetectingLineReader( resource, "UTF-8" );
+		}
+		catch( FileNotFoundException e )
+		{
+			throw new FatalException( e.toString() );
+		}
 		// TODO Close the lineReader
 
 		JSONReader reader = new JSONReader( lineReader );
