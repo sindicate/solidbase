@@ -17,7 +17,6 @@
 package solidbase.util;
 
 import solidbase.core.CommandFileException;
-import solidbase.util.JSONTokenizer.Token;
 
 
 /**
@@ -25,18 +24,9 @@ import solidbase.util.JSONTokenizer.Token;
  *
  * @author René M. de Bloois
  */
-public class JSONReader
+public class JSONReader extends JSONParser
 {
-	/**
-	 * The source of tokens.
-	 */
-	protected JSONTokenizer tokenizer;
-
-	/**
-	 * The separator that separates the values.
-	 */
-	protected char separator;
-
+	private boolean endOfFile;
 
 	/**
 	 * Constructor.
@@ -45,7 +35,7 @@ public class JSONReader
 	 */
 	public JSONReader( LineReader reader )
 	{
-		this.tokenizer = new JSONTokenizer( reader );
+		super( reader );
 	}
 
 	/**
@@ -55,152 +45,64 @@ public class JSONReader
 	 */
 	public Object read()
 	{
-		Token token = this.tokenizer.get();
-//		System.out.println( "Token: " + token );
-		// TODO Use switch(), need an enum for this
-		if( token.isBeginObject() )
+		// TODO Add switch()
+		EVENT event = next();
+		if( event == EVENT.VALUE )
+			return getValue();
+		if( event == EVENT.BEGIN_OBJECT )
 			return readObject();
-		if( token.isBeginArray() )
+		if( event == EVENT.BEGIN_ARRAY )
 			return readArray();
-		if( token.isString() )
-			return token.getValue();
-		if( token.isNumber() )
-			return token.getValue();
-		if( token.isBoolean() )
-			return token.getValue();
-		if( token.isNull() )
-			return token.getValue();
-		if( token.isEndOfInput() )
-			throw new JSONEndOfInputException();
+		if( event == EVENT.EOF )
+		{
+			this.endOfFile = true;
+			return null;
+		}
 
-		throw new CommandFileException( "Expecting {, [, \", a number, true, false or null, not '" + token + "'", this.tokenizer.getLocation() );
+		throw new CommandFileException( "Expecting {, [, \", a number, true, false or null, not '" + event + "'", getLocation() );
+	}
+
+	public boolean isEOF()
+	{
+		return this.endOfFile;
 	}
 
 	public JSONObject readObject()
 	{
 		JSONObject result = new JSONObject();
-
-		Token token;
-		do
+		EVENT event = next();
+		while( event == EVENT.NAME )
 		{
-			token = this.tokenizer.get();
-//			System.out.println( "Token: " + token );
-			if( !token.isString() )
-				throw new CommandFileException( "Expecting a name enclosed with \", not '" + token + "'", this.tokenizer.getLocation() );
-			String name = (String)token.getValue();
-
-			token = this.tokenizer.get();
-//			System.out.println( "Token: " + token );
-			if( !token.isNameSeparator() )
-				throw new CommandFileException( "Expecting :, not '" + token + "'", this.tokenizer.getLocation() );
-
-			Object value = read();
-			result.set( name, value );
-
-			token = this.tokenizer.get();
-//			System.out.println( "Token: " + token );
+			result.set( getName(), read() );
+			event = next();
 		}
-		while( token.isValueSeparator() );
-
-		if( !token.isEndObject() )
-			throw new CommandFileException( "Expecting , or }, not '" + token + "'", this.tokenizer.getLocation() );
-
+		// event can only be an END_OBJECT here
 		return result;
 	}
 
 	public JSONArray readArray()
 	{
 		JSONArray result = new JSONArray();
-
-		Token token;
-		do
+		while( true )
 		{
-			Object value = read();
-			result.add( value );
-
-			token = this.tokenizer.get();
-//			System.out.println( "Token: " + token );
+			EVENT event = next();
+			// TODO I do not really like this, a simple while in the readObject() but a complex while/switch in the readArray, need another event?
+			switch( event )
+			{
+				case BEGIN_ARRAY:
+					result.add( readArray() );
+					continue;
+				case BEGIN_OBJECT:
+					result.add( readObject() );
+					continue;
+				case VALUE:
+					result.add( getValue() );
+					continue;
+				default:
+			}
+			break;
 		}
-		while( token.isValueSeparator() );
-
-		if( !token.isEndArray() )
-			throw new CommandFileException( "Expecting , or ], not '" + token + "'", this.tokenizer.getLocation() );
-
+		// event can only be an END_ARRAY here
 		return result;
-	}
-
-	public JSONObject readProperties()
-	{
-		JSONObject result = new JSONObject();
-
-		Token token = this.tokenizer.get( true );
-		while( token.isString() )
-		{
-			String name = (String)token.getValue();
-			token = this.tokenizer.get();
-			if( !token.isNameSeparator() )
-				throw new CommandFileException( "Expecting :, not '" + token + "'", this.tokenizer.getLocation() );
-			result.set( name, read() );
-
-			token = this.tokenizer.get( true );
-			if( !token.isNewLine() )
-				throw new CommandFileException( "Expecting newline, not '" + token + "'", this.tokenizer.getLocation() );
-
-			token = this.tokenizer.get( true );
-		}
-
-		if( !token.isNewLine() )
-			throw new CommandFileException( "Expecting empty line or string, not '" + token + "'", this.tokenizer.getLocation() );
-
-		return result;
-	}
-
-	public JSONArray readValues()
-	{
-		JSONArray result = new JSONArray();
-
-		try
-		{
-			Object value = read();
-			result.add( value );
-		}
-		catch( JSONEndOfInputException e )
-		{
-			return null;
-		}
-
-		Token token = this.tokenizer.get( true );
-		while( token.isValueSeparator() )
-		{
-			Object value = read();
-			result.add( value );
-
-			token = this.tokenizer.get( true );
-		}
-
-		if( !( token.isNewLine() || token.isEndOfInput() ) )
-			throw new CommandFileException( "Expecting newline or end-of-input, not '" + token + "'", this.tokenizer.getLocation() );
-
-		return result;
-	}
-
-	/**
-	 * Returns the current line number. The line number is the number of the line of data about to be read.
-	 *
-	 * @return The current line number.
-	 */
-	public int getLineNumber()
-	{
-		return this.tokenizer.getLineNumber();
-	}
-
-	public FileLocation getLocation()
-	{
-		return this.tokenizer.getLocation();
-	}
-
-	public void close()
-	{
-		this.tokenizer.close();
 	}
 }

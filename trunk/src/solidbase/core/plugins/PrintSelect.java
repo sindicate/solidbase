@@ -31,7 +31,7 @@ import solidbase.core.Command;
 import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
-import solidbase.util.JdbcSupport;
+import solidbase.util.JDBCSupport;
 
 
 /**
@@ -70,7 +70,7 @@ public class PrintSelect implements CommandListener
 			int[] types = new int[] { metaData.getColumnType( 1 ) };
 			while( result.next() )
 			{
-				Object value = JdbcSupport.getValue( result, types, 0 );
+				Object value = JDBCSupport.getValue( result, types, 0 );
 				if( value instanceof Blob || value instanceof byte[] )
 					throw new CommandFileException( "Binary columns like BLOB, RAW, BINARY VARYING cannot be printed", command.getLocation() );
 				if( value instanceof Clob )

@@ -10,7 +10,6 @@
 	<classpathentry kind="lib" path="test/lib/hsqldb-2.2.6.jar"/>
 	<classpathentry kind="lib" path="test/lib/jmockit-0.999.10.jar"/>
 	<classpathentry kind="lib" path="lib/groovy-all-1.5.7.jar"/>
-	<classpathentry kind="lib" path="lib/json-simple-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/apache-ant-1.7.1.jar"/>
 	<classpathentry kind="lib" path="test/lib/ant-testutil.jar"/>
 	<classpathentry kind="lib" path="test/lib/junit-4.7.jar"/>

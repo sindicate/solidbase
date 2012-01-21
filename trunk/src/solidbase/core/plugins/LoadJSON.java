@@ -16,6 +16,11 @@
 
 package solidbase.core.plugins;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -33,13 +38,15 @@ import solidbase.core.SQLExecutionException;
 import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidbase.util.BOMDetectingLineReader;
+import solidbase.util.CloseQueue;
+import solidbase.util.JDBCSupport;
 import solidbase.util.JSONArray;
-import solidbase.util.JSONEndOfInputException;
 import solidbase.util.JSONObject;
 import solidbase.util.JSONReader;
-import solidbase.util.JdbcSupport;
 import solidbase.util.LineReader;
 import solidbase.util.Resource;
+import solidbase.util.SegmentedInputStream;
+import solidbase.util.SegmentedReader;
 import solidbase.util.StringLineReader;
 import solidbase.util.Tokenizer;
 import solidbase.util.Tokenizer.Token;
@@ -59,9 +66,9 @@ import solidbase.util.Tokenizer.Token;
  * @since Dec 2, 2009
  */
 // TODO Make this more strict, like assert that the number of values stays the same in the CSV data
-public class ImportJSV implements CommandListener
+public class LoadJSON implements CommandListener
 {
-	static private final Pattern triggerPattern = Pattern.compile( "IMPORT\\s+JSV\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern triggerPattern = Pattern.compile( "LOAD\\s+JSON\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 	static private final Pattern parameterPattern = Pattern.compile( ":(\\d+)" );
 
@@ -78,68 +85,30 @@ public class ImportJSV implements CommandListener
 
 		Parsed parsed = parse( command );
 
-		LineReader lineReader;
-		boolean needClose = false;
-		if( parsed.reader != null )
-			lineReader = parsed.reader; // Data is in the command
-		else if( parsed.fileName != null )
-		{
-			// Data is in a file
-			Resource resource = processor.getResource().createRelative( parsed.fileName );
-			lineReader = new BOMDetectingLineReader( resource, "UTF-8" );
-			needClose = true;
-			// TODO What about the FileNotFoundException?
-		}
-		else
-			lineReader = processor.getReader(); // Data is in the source file
+		Resource resource = processor.getResource().createRelative( parsed.fileName );
+		LineReader lineReader = new BOMDetectingLineReader( resource, "UTF-8" );
+		// TODO What about the FileNotFoundException?
+		// TODO Close the lineReader
 
-		try
-		{
-			// Initialize csv reader & read first line (and skip header if needed)
-			JSONReader reader = new JSONReader( lineReader );
-			importNormal( command, processor, reader, parsed );
-			return true;
-		}
-		finally
-		{
-			if( needClose )
-				lineReader.close();
-		}
-	}
-
-
-	/**
-	 * Import data using a JDBC prepared statement, like this:
-	 *
-	 * <blockquote><pre>
-	 * INSERT INTO TABLE1 VALUES ( ?, ? );
-	 * </pre></blockquote>
-	 *
-	 * @param command The import command.
-	 * @param processor The command processor.
-	 * @param reader The CSV reader.
-	 * @param parsed The parsed command.
-	 * @throws SQLException Whenever SQL execution throws it.
-	 */
-	// TODO Cope with a variable number of values in the CSV list
-	protected void importNormal( @SuppressWarnings( "unused" ) Command command, CommandProcessor processor, JSONReader reader, Parsed parsed ) throws SQLException
-	{
-		int lineNumber = reader.getLineNumber();
+		JSONReader reader = new JSONReader( lineReader );
 		JSONObject properties = (JSONObject)reader.read();
-
 		JSONArray fields = properties.getArray( "fields" );
 		int len = fields.size();
 		int[] types = new int[ len ];
+		String[] fileNames = new String[ len ];
+		SegmentedInputStream[] streams = new SegmentedInputStream[ len ];
+		SegmentedReader[] textStreams = new SegmentedReader[ len ];
 		for( int i = 0; i < len; i++ )
 		{
 			JSONObject field = (JSONObject)fields.get( i );
-			types[ i ] = JdbcSupport.fromTypeName( field.getString( "type" ) );
+			types[ i ] = JDBCSupport.fromTypeName( field.getString( "type" ) );
+			fileNames[ i ] = field.findString( "file" );
 		}
 
 		boolean prependLineNumber = parsed.prependLineNumber;
 
 		StringBuilder sql = new StringBuilder( "INSERT INTO " );
-		sql.append( parsed.tableName );
+		sql.append( parsed.tableName ); // TODO Where else do we need the quotes?
 		if( parsed.columns != null )
 		{
 			sql.append( " (" );
@@ -184,6 +153,8 @@ public class ImportJSV implements CommandListener
 		}
 
 		PreparedStatement statement = processor.prepareStatement( sql.toString() );
+		CloseQueue biggerCloser = new CloseQueue();
+		CloseQueue closer = new CloseQueue();
 		boolean commit = false;
 		try
 		{
@@ -193,20 +164,16 @@ public class ImportJSV implements CommandListener
 				if( Thread.currentThread().isInterrupted() )
 					throw new ThreadDeath();
 
-				lineNumber = reader.getLineNumber();
-				JSONArray values;
-				try
+				JSONArray values = (JSONArray)reader.read();
+				if( values == null )
 				{
-					values = (JSONArray)reader.read();
-				}
-				catch( JSONEndOfInputException e )
-				{
+					Assert.isTrue( reader.isEOF() );
 					if( batchSize > 0 )
 						statement.executeBatch();
-
 					commit = true;
-					return;
+					return true;
 				}
+				int lineNumber = reader.getLineNumber();
 
 				int i = 0;
 				for( ListIterator< Object > it = values.iterator(); it.hasNext(); )
@@ -228,21 +195,112 @@ public class ImportJSV implements CommandListener
 				int index = 0;
 				for( int par : parameterMap )
 				{
-					try
+					if( par == 1 && prependLineNumber )
+						statement.setInt( pos++, lineNumber );
+					else
 					{
-						if( prependLineNumber )
+						index = par - ( prependLineNumber ? 2 : 1 );
+						Object value;
+						try
 						{
-							if( par == 1 )
-								statement.setInt( pos++, lineNumber );
+							value = values.get( index );
+						}
+						catch( ArrayIndexOutOfBoundsException e )
+						{
+							throw new CommandFileException( "Value with index " + ( index + 1 ) + " does not exist, record has only " + values.size() + " values", reader.getLocation() );
+						}
+						if( value instanceof JSONObject )
+						{
+							JSONObject object = (JSONObject)value;
+							String filename = object.findString( "file" );
+							int type = types[ index ];
+							if( filename != null )
+							{
+								if( type == Types.BLOB )
+								{
+									try
+									{
+										InputStream in = resource.createRelative( filename ).getInputStream();
+										closer.add( in );
+										// Some databases read the stream directly (Oracle), others read it later (HSQLDB).
+										statement.setBinaryStream( pos++, in );
+										// TODO Do we need to decrease the batch size when files are being kept open?
+										// TODO What if the contents of the blob is sufficiently small, shouldn't we just call setBytes()?
+										// TODO We could detect that the database has read the stream already, and close the file
+									}
+									catch( FileNotFoundException e )
+									{
+										throw new CommandFileException( e.getMessage(), reader.getLocation() );
+									}
+								}
+								else
+									Assert.fail( "Unexpected field type for external file: " + JDBCSupport.toTypeName( type ) );
+							}
 							else
-								statement.setObject( pos++, values.get( index = par - 2 ) );
+							{
+								BigDecimal lobIndex = object.getNumber( "index" ); // TODO Use findNumber
+								if( lobIndex == null )
+									throw new CommandFileException( "Expected a 'file' or 'index' attribute", reader.getLocation() );
+								BigDecimal lobLength = object.getNumber( "length" );
+								if( lobLength == null )
+									throw new CommandFileException( "Expected a 'length' attribute", reader.getLocation() );
+								if( fileNames[ index ] == null )
+									throw new CommandFileException( "No file configured", reader.getLocation() );
+
+								if( type == Types.BLOB )
+								{
+									SegmentedInputStream in = streams[ index ];
+									if( in == null )
+									{
+										Resource r = resource.createRelative( fileNames[ index ] );
+										try
+										{
+											in = new SegmentedInputStream( r.getInputStream() );
+											biggerCloser.add( in );
+											streams[ index ] = in;
+										}
+										catch( FileNotFoundException e )
+										{
+											throw new CommandFileException( e.getMessage(), reader.getLocation() );
+										}
+									}
+									statement.setBinaryStream( pos++, in.getSegmentInputStream( lobIndex.longValue(), lobLength.longValue() ) ); // TODO Maybe use the limited setBinaryStream instead
+								}
+								else if( type == Types.CLOB )
+								{
+									SegmentedReader in = textStreams[ index ];
+									if( in == null )
+									{
+										Resource r = resource.createRelative( fileNames[ index ] );
+										try
+										{
+											try
+											{
+												in = new SegmentedReader( new InputStreamReader( r.getInputStream(), "UTF-8" ) );
+											}
+											catch( UnsupportedEncodingException e )
+											{
+												throw new SystemException( e );
+											}
+											biggerCloser.add( in );
+											textStreams[ index ] = in;
+										}
+										catch( FileNotFoundException e )
+										{
+											throw new CommandFileException( e.getMessage(), reader.getLocation() );
+										}
+									}
+									statement.setCharacterStream( pos++, in.getSegmentReader( lobIndex.longValue(), lobLength.longValue() ) );
+								}
+								else
+									Assert.fail( "Unexpected field type for external file: " + JDBCSupport.toTypeName( type ) );
+							}
 						}
 						else
-							statement.setObject( pos++, values.get( index = par - 1 ) );
-					}
-					catch( ArrayIndexOutOfBoundsException e )
-					{
-						throw new CommandFileException( "Value with index " + ( index + 1 ) + " does not exist, record has only " + values.size() + " values", reader.getLocation().lineNumber( lineNumber ) );
+						{
+							// TODO What if it is a CLOB and the string value is too long?
+							statement.setObject( pos++, values.get( index ) );
+						}
 					}
 				}
 
@@ -251,39 +309,13 @@ public class ImportJSV implements CommandListener
 					try
 					{
 						statement.executeUpdate();
+						closer.closeAll();
 					}
 					catch( SQLException e )
 					{
-						StringBuilder b = new StringBuilder( sql.toString() );
-						b.append( " VALUES (" );
-						boolean first = true;
-						for( int par : parameterMap )
-						{
-							if( first )
-								first = false;
-							else
-								b.append( ',' );
-							try
-							{
-								if( prependLineNumber )
-								{
-									if( par == 1 )
-										b.append( lineNumber );
-									else
-										b.append( values.get( par - 2 ) );
-								}
-								else
-									b.append( values.get( par - 1 ) );
-							}
-							catch( ArrayIndexOutOfBoundsException ee )
-							{
-								throw new SystemException( ee );
-							}
-						}
-						b.append( ')' );
-
 						// When NOBATCH is on, you can see the actual insert statement and line number in the file where the SQLException occurred.
-						throw new SQLExecutionException( b.toString(), reader.getLocation().lineNumber( lineNumber ), e );
+						String message = buildErrorMessage( sql, parameterMap, values, prependLineNumber, lineNumber );
+						throw new SQLExecutionException( message, reader.getLocation().lineNumber( lineNumber ), e );
 					}
 				}
 				else
@@ -294,6 +326,7 @@ public class ImportJSV implements CommandListener
 					{
 						statement.executeBatch();
 						batchSize = 0;
+						closer.closeAll();
 					}
 				}
 			}
@@ -301,6 +334,8 @@ public class ImportJSV implements CommandListener
 		finally
 		{
 			processor.closeStatement( statement, commit );
+			biggerCloser.closeAll();
+			closer.closeAll();
 		}
 	}
 
@@ -327,6 +362,39 @@ public class ImportJSV implements CommandListener
 	}
 
 
+	static protected String buildErrorMessage( StringBuilder sql, List< Integer > parameterMap, JSONArray values, boolean prependLineNumber, int lineNumber )
+	{
+		StringBuilder b = new StringBuilder( sql.toString() );
+		b.append( " VALUES (" );
+		boolean first = true;
+		for( int par : parameterMap )
+		{
+			if( first )
+				first = false;
+			else
+				b.append( ',' );
+			try
+			{
+				if( prependLineNumber )
+				{
+					if( par == 1 )
+						b.append( lineNumber );
+					else
+						b.append( values.get( par - 2 ) );
+				}
+				else
+					b.append( values.get( par - 1 ) );
+			}
+			catch( ArrayIndexOutOfBoundsException ee ) // TODO Why is this caught?
+			{
+				throw new SystemException( ee );
+			}
+		}
+		b.append( ')' );
+		return b.toString();
+	}
+
+
 	/**
 	 * Parses the given command.
 	 *
@@ -341,8 +409,8 @@ public class ImportJSV implements CommandListener
 
 		Tokenizer tokenizer = new Tokenizer( new StringLineReader( command.getCommand(), command.getLocation() ) );
 
-		tokenizer.get( "IMPORT" );
-		tokenizer.get( "JSV" );
+		tokenizer.get( "LOAD" );
+		tokenizer.get( "JSON" );
 
 		Token t = tokenizer.get( "PREPEND", "NOBATCH", "USING", "INTO" );
 
@@ -365,7 +433,7 @@ public class ImportJSV implements CommandListener
 			throw new CommandFileException( "Expecting [INTO], not [" + t + "]", tokenizer.getLocation() );
 		result.tableName = tokenizer.get().toString();
 
-		t = tokenizer.get( "(", "VALUES", "DATA", "FILE", null );
+		t = tokenizer.get( "(", "VALUES", "FILE" );
 
 		if( t.equals( "(" ) )
 		{
@@ -383,7 +451,7 @@ public class ImportJSV implements CommandListener
 				t = tokenizer.get( ",", ")" );
 			}
 
-			t = tokenizer.get( "VALUES", "DATA", "FILE", null );
+			t = tokenizer.get( "VALUES", "FILE" );
 		}
 
 		if( t.equals( "VALUES" ) )
@@ -393,7 +461,6 @@ public class ImportJSV implements CommandListener
 			{
 				StringBuilder value = new StringBuilder();
 				parseTill( tokenizer, value, false, ',', ')' );
-				//System.out.println( "Value: " + value.toString() );
 				values.add( value.toString() );
 
 				t = tokenizer.get( ",", ")" );
@@ -404,23 +471,13 @@ public class ImportJSV implements CommandListener
 				if( columns.size() != values.size() )
 					throw new CommandFileException( "Number of specified columns does not match number of given values", tokenizer.getLocation() );
 
-			t = tokenizer.get( "DATA", "FILE", null );
+			t = tokenizer.get( "FILE" );
 		}
 
 		if( columns.size() > 0 )
 			result.columns = columns.toArray( new String[ columns.size() ] );
 		if( values.size() > 0 )
 			result.values = values.toArray( new String[ values.size() ] );
-
-		if( t.isEndOfInput() )
-			return result;
-
-		if( t.equals( "DATA" ) )
-		{
-			tokenizer.getNewline();
-			result.reader = tokenizer.getReader();
-			return result;
-		}
 
 		// File
 		t = tokenizer.get();
@@ -510,8 +567,8 @@ public class ImportJSV implements CommandListener
 		/** The values to insert. Use :1, :2, etc to replace with the values from the CSV list. */
 		protected String[] values;
 
-		/** The underlying reader from the {@link Tokenizer}. */
-		protected LineReader reader;
+//		/** The underlying reader from the {@link Tokenizer}. */
+//		protected LineReader reader;
 
 		/** The file path to import from */
 		protected String fileName;

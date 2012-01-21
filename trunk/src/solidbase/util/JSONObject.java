@@ -1,5 +1,6 @@
 package solidbase.util;
 
+import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -26,14 +27,30 @@ public class JSONObject implements Iterable< Map.Entry< String, Object > >
 		this.values.put( name, value );
 	}
 
-	public String getString( String name )
+	public BigDecimal getNumber( String name )
 	{
 		Object result = this.values.get( name );
 		if( result == null )
 			throw new SystemException( "Missing attribute '" + name + "'" );
-		if( result instanceof String )
+		if( result instanceof BigDecimal )
+			return (BigDecimal)result;
+		throw new SystemException( "Attribute '" + name + "' is not a BigDecimal" );
+	}
+
+	public String findString( String name )
+	{
+		Object result = this.values.get( name );
+		if( result == null || result instanceof String )
 			return (String)result;
 		throw new SystemException( "Attribute '" + name + "' is not a String" );
+	}
+
+	public String getString( String name )
+	{
+		Object result = findString( name );
+		if( result == null )
+			throw new SystemException( "Missing attribute '" + name + "'" );
+		return (String)result;
 	}
 
 	public JSONArray getArray( String name )
