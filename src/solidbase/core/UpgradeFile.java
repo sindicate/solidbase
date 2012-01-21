@@ -33,9 +33,9 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import solidbase.core.UpgradeSegment.Type;
+import solidbase.io.FileLocation;
+import solidbase.io.RandomAccessLineReader;
 import solidbase.util.Assert;
-import solidbase.util.FileLocation;
-import solidbase.util.RandomAccessLineReader;
 
 
 /**

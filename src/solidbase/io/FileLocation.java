@@ -1,4 +1,6 @@
-package solidbase.util;
+package solidbase.io;
+
+import solidbase.util.Assert;
 
 
 // TODO Rename to LineNumber, ResourceLocation, FileLocation, ...

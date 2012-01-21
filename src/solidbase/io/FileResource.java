@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.util;
+package solidbase.io;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,6 +28,7 @@ import java.net.URL;
 
 import solidbase.core.Factory;
 import solidbase.core.SystemException;
+import solidbase.util.Assert;
 
 /**
  * A file resource.

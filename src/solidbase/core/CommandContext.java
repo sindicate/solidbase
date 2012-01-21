@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import solidbase.util.FileLocation;
+import solidbase.io.FileLocation;
 
 
 

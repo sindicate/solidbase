@@ -18,8 +18,8 @@ package solidbase.core;
 
 import java.sql.SQLException;
 
+import solidbase.io.FileLocation;
 import solidbase.util.Assert;
-import solidbase.util.FileLocation;
 
 
 /**

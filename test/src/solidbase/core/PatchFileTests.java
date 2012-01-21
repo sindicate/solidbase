@@ -28,8 +28,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidbase.core.UpgradeSegment.Type;
-import solidbase.util.FileResource;
-import solidbase.util.URLRandomAccessLineReader;
+import solidbase.io.FileResource;
+import solidbase.io.URLRandomAccessLineReader;
 
 
 /**

@@ -25,9 +25,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import solidbase.core.Delimiter.Type;
+import solidbase.io.LineReader;
+import solidbase.io.Resource;
 import solidbase.util.Assert;
-import solidbase.util.LineReader;
-import solidbase.util.Resource;
 
 
 

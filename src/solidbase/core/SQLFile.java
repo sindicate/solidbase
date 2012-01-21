@@ -18,8 +18,8 @@ package solidbase.core;
 
 import java.util.regex.Pattern;
 
-import solidbase.util.BOMDetectingLineReader;
-import solidbase.util.Resource;
+import solidbase.io.BOMDetectingLineReader;
+import solidbase.io.Resource;
 
 
 /**

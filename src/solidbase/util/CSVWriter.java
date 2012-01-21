@@ -9,6 +9,7 @@ import java.io.Writer;
 import java.util.regex.Pattern;
 
 import solidbase.core.SystemException;
+import solidbase.io.Resource;
 
 public class CSVWriter
 {

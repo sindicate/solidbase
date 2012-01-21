@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.util;
+package solidbase.io;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -25,6 +25,7 @@ import java.io.UnsupportedEncodingException;
 
 import solidbase.core.FatalException;
 import solidbase.core.SystemException;
+import solidbase.util.Assert;
 
 
 /**

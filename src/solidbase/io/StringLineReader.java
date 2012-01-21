@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.util;
+package solidbase.io;
 
 import java.io.BufferedReader;
 import java.io.StringReader;

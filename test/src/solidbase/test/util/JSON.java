@@ -2,12 +2,12 @@ package solidbase.test.util;
 
 import org.testng.annotations.Test;
 
-import solidbase.util.BOMDetectingLineReader;
-import solidbase.util.FileResource;
+import solidbase.io.BOMDetectingLineReader;
+import solidbase.io.FileResource;
+import solidbase.io.LineReader;
+import solidbase.io.Resource;
 import solidbase.util.JSONReader;
 import solidbase.util.JSONWriter;
-import solidbase.util.LineReader;
-import solidbase.util.Resource;
 
 public class JSON
 {

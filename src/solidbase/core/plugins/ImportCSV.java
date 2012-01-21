@@ -29,12 +29,12 @@ import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.SQLExecutionException;
 import solidbase.core.SystemException;
+import solidbase.io.BOMDetectingLineReader;
+import solidbase.io.LineReader;
+import solidbase.io.Resource;
+import solidbase.io.StringLineReader;
 import solidbase.util.Assert;
-import solidbase.util.BOMDetectingLineReader;
 import solidbase.util.CSVReader;
-import solidbase.util.LineReader;
-import solidbase.util.Resource;
-import solidbase.util.StringLineReader;
 import solidbase.util.Tokenizer;
 import solidbase.util.Tokenizer.Token;
 

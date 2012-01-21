@@ -16,8 +16,8 @@
 
 package solidbase.core;
 
+import solidbase.io.LineReader;
 import solidbase.util.Assert;
-import solidbase.util.LineReader;
 
 
 /**

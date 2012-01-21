@@ -25,9 +25,9 @@ import java.sql.Statement;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import solidbase.util.FileResource;
-import solidbase.util.RandomAccessLineReader;
-import solidbase.util.URLRandomAccessLineReader;
+import solidbase.io.FileResource;
+import solidbase.io.RandomAccessLineReader;
+import solidbase.io.URLRandomAccessLineReader;
 
 
 public class CharSets
