@@ -19,6 +19,7 @@ package solidbase.util;
 import java.math.BigDecimal;
 
 import solidbase.core.CommandFileException;
+import solidbase.util.JSONTokenizer.Token.TYPE;
 
 
 /**
@@ -49,17 +50,12 @@ public class JSONTokenizer
 		this.in = new PushbackReader( in );
 	}
 
-	public Token get()
-	{
-		return get( false );
-	}
-
 	/**
 	 * Returns the next token from the input.
 	 *
 	 * @return A token from the input. Null if there are no more tokens available.
 	 */
-	public Token get( boolean newLines )
+	public Token get()
 	{
 		StringBuilder result = this.result;
 		result.setLength( 0 );
@@ -68,17 +64,7 @@ public class JSONTokenizer
 		{
 			int ch = this.in.read();
 			if( ch == -1 )
-				return Token.EOI;
-			if( newLines && ( ch == '\n' || ch == '\r' ) )
-			{
-				if( ch == '\r' )
-				{
-					ch = this.in.read();
-					if( ch != '\n' )
-						this.in.push( ch );
-				}
-				return Token.NEWLINE;
-			}
+				return Token.EOF;
 			switch( ch )
 			{
 				// Whitespace
@@ -138,7 +124,7 @@ public class JSONTokenizer
 						}
 						result.append( (char)ch );
 					}
-					return new Token( Token.STRING, result.toString() );
+					return new Token( TYPE.STRING, result.toString() );
 				case '+':
 				case '-':
 					result.append( (char)ch );
@@ -183,7 +169,7 @@ public class JSONTokenizer
 						}
 					}
 					this.in.push( ch );
-					return new Token( Token.NUMBER, new BigDecimal( result.toString() ) );
+					return new Token( TYPE.NUMBER, new BigDecimal( result.toString() ) );
 				case 'a': case 'b': case 'c': case 'd': case 'e':
 				case 'f': case 'g': case 'h': case 'i': case 'j':
 				case 'k': case 'l': case 'm': case 'n': case 'o':
@@ -248,30 +234,28 @@ public class JSONTokenizer
 	 *
 	 * @author René M. de Bloois
 	 */
+	// TODO Maybe we should remove this token class, and introduce the even mechanism like in JSONParser.
 	static public class Token
 	{
-		static final protected char STRING = '"';
-		static final protected char NUMBER = '0';
+		static public enum TYPE { BEGIN_ARRAY, END_ARRAY, BEGIN_OBJECT, END_OBJECT, NAME_SEPARATOR, VALUE_SEPARATOR, STRING, NUMBER, BOOLEAN, NULL, EOF }
 
-		/** A end-of-input token */
-		static final protected Token EOI = new Token( (char)0 );
-		static final protected Token NEWLINE = new Token( '\n' );
+		static final protected Token BEGIN_ARRAY = new Token( TYPE.BEGIN_ARRAY );
+		static final protected Token END_ARRAY = new Token( TYPE.END_ARRAY );
+		static final protected Token BEGIN_OBJECT = new Token( TYPE.BEGIN_OBJECT );
+		static final protected Token END_OBJECT = new Token( TYPE.END_OBJECT );
+		static final protected Token NAME_SEPARATOR = new Token( TYPE.NAME_SEPARATOR );
+		static final protected Token VALUE_SEPARATOR = new Token( TYPE.VALUE_SEPARATOR );
 
-		static final protected Token BEGIN_ARRAY = new Token( '[' );
-		static final protected Token END_ARRAY = new Token( ']' );
-		static final protected Token BEGIN_OBJECT = new Token( '{' );
-		static final protected Token END_OBJECT = new Token( '}' );
-		static final protected Token NAME_SEPARATOR = new Token( ':' );
-		static final protected Token VALUE_SEPARATOR = new Token( ',' );
+		static final protected Token FALSE = new Token( TYPE.BOOLEAN, Boolean.FALSE );
+		static final protected Token NULL = new Token( TYPE.NULL );
+		static final protected Token TRUE = new Token( TYPE.BOOLEAN, Boolean.TRUE );
 
-		static final protected Token FALSE = new Token( 'b', Boolean.FALSE );
-		static final protected Token NULL = new Token( 'n' );
-		static final protected Token TRUE = new Token( 'b', Boolean.TRUE );
+		static final protected Token EOF = new Token( TYPE.EOF );
 
 		/**
 		 * The type of the token.
 		 */
-		private char type;
+		private TYPE type;
 
 		/**
 		 * The value of the token.
@@ -283,25 +267,20 @@ public class JSONTokenizer
 		 *
 		 * @param type The type of the token.
 		 */
-		private Token( char type )
+		private Token( TYPE type )
 		{
 			this.type = type;
 		}
 
-		/**
-		 * Constructs a new token.
-		 *
-		 * @param value The value of the token.
-		 */
-		protected Token( String value )
-		{
-			this.value = value;
-		}
-
-		protected Token( char type, Object value )
+		protected Token( TYPE type, Object value )
 		{
 			this.type = type;
 			this.value = value;
+		}
+
+		public TYPE getType()
+		{
+			return this.type;
 		}
 
 		/**
@@ -311,81 +290,11 @@ public class JSONTokenizer
 		 */
 		public Object getValue()
 		{
-			if( this.type == 'n' )
+			if( this.type == TYPE.NULL )
 				return null;
 			if( this.value == null )
 				throw new IllegalStateException( "Value is null" );
 			return this.value;
-		}
-
-		/**
-		 * Is this token the end-of-input token?
-		 *
-		 * @return True if this token is the end-of-input token, false otherwise.
-		 */
-		public boolean isEndOfInput()
-		{
-			return this.type == 0;
-		}
-
-		public boolean isNewLine()
-		{
-			return this.type == '\n';
-		}
-
-		/**
-		 * Is this token the end-of-input token?
-		 *
-		 * @return True if this token is the end-of-input token, false otherwise.
-		 */
-		public boolean isBeginArray()
-		{
-			return this.type == '[';
-		}
-
-		public boolean isEndArray()
-		{
-			return this.type == ']';
-		}
-
-		public boolean isBeginObject()
-		{
-			return this.type == '{';
-		}
-
-		public boolean isEndObject()
-		{
-			return this.type == '}';
-		}
-
-		public boolean isNameSeparator()
-		{
-			return this.type == ':';
-		}
-
-		public boolean isValueSeparator()
-		{
-			return this.type == ',';
-		}
-
-		public boolean isString()
-		{
-			return this.type == STRING;
-		}
-
-		public boolean isNumber()
-		{
-			return this.type == NUMBER;
-		}
-
-		public boolean isBoolean()
-		{
-			return this.type == 'b';
-		}
-
-		public boolean isNull()
-		{
-			return this.type == 'n';
 		}
 
 		@Override
@@ -393,9 +302,9 @@ public class JSONTokenizer
 		{
 			if( this.value != null )
 				return this.value.toString();
-			if( this.type == 0 )
-				return "End-of-input";
-			return String.valueOf( this.type );
+			if( this.type == TYPE.EOF )
+				return "EOF";
+			return this.type.toString(); // TODO Is this correct?
 		}
 	}
 

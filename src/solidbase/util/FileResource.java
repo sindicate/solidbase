@@ -113,6 +113,7 @@ public class FileResource implements Resource
 	// TODO Need test for this
 	public Resource createRelative( String path )
 	{
+//		System.out.println( "Create relative [" + this.file + "] [" + path + "]" );
 		String scheme = URLResource.getScheme( path );
 		if( scheme == null || scheme.length() == 1 )
 			return new FileResource( new File( this.file.getParentFile(), path ) );

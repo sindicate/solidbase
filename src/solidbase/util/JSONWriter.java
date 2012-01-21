@@ -57,20 +57,22 @@ public class JSONWriter
 		{
 			if( object == null )
 				writeNotString( "null" );
-			else if( object instanceof JSONObject )
-				writeObject( (JSONObject)object );
-			else if( object instanceof JSONArray )
-				writeArray( (JSONArray)object );
 			else if( object instanceof String )
 				writeString( (String)object );
 			else if( object instanceof BigDecimal )
 				writeNotString( ( (BigDecimal)object ).toString() );
-			else if( object instanceof Boolean )
-				writeNotString( ( (Boolean)object ).toString() );
 			else if( object instanceof Integer )
 				writeNotString( ( (Integer)object ).toString() );
+			else if( object instanceof JSONObject )
+				writeObject( (JSONObject)object );
+			else if( object instanceof JSONArray )
+				writeArray( (JSONArray)object );
+			else if( object instanceof Boolean )
+				writeNotString( ( (Boolean)object ).toString() );
 			else if( object instanceof Reader )
 				writeReader( (Reader)object );
+			else if( object instanceof CustomWriter )
+				( (CustomWriter)object ).writeTo( this );
 			else
 				throw new SystemException( "Unexpected object type: " + object.getClass().getName() );
 		}
@@ -104,7 +106,7 @@ public class JSONWriter
 		int len = 2; // { + space
 		for( Entry< String, Object > entry : object )
 			len += entry.getKey().length() + getLength( entry.getValue() ) + 6; // "" + : + space + , + space (or space + })
-		if( len > 80 )
+		if( len > this.maxLength )
 			this.bits.set( index );
 		return len;
 	}
@@ -115,7 +117,7 @@ public class JSONWriter
 		int len = 2; // [ + space
 		for( Object value : object )
 			len += getLength( value ) + 2; // , + space or space + ]
-		if( len > 80 )
+		if( len > this.maxLength )
 			this.bits.set( index );
 		return len;
 	}
@@ -136,6 +138,8 @@ public class JSONWriter
 			return ( (Boolean)object ).booleanValue() ? 4 : 5;
 		if( object instanceof Integer )
 			return ( (Integer)object ).toString().length();
+		if( object instanceof CustomWriter )
+			return ( (CustomWriter)object ).length();
 		throw new SystemException( "Unexpected object type: " + object.getClass().getName() );
 	}
 
@@ -366,5 +370,11 @@ public class JSONWriter
 		{
 			throw new SystemException( e );
 		}
+	}
+
+	static public interface CustomWriter
+	{
+		void writeTo( JSONWriter out );
+		int length();
 	}
 }

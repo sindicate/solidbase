@@ -29,7 +29,10 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -39,17 +42,21 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+
 import solidbase.core.Command;
 import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
+import solidbase.core.FatalException;
 import solidbase.core.SystemException;
+import solidbase.util.Assert;
 import solidbase.util.DeferringWriter;
 import solidbase.util.FileResource;
+import solidbase.util.JDBCSupport;
 import solidbase.util.JSONArray;
 import solidbase.util.JSONObject;
 import solidbase.util.JSONWriter;
-import solidbase.util.JdbcSupport;
 import solidbase.util.Resource;
 import solidbase.util.StringLineReader;
 import solidbase.util.Tokenizer;
@@ -62,14 +69,14 @@ import solidbase.util.Tokenizer.Token;
  * @author René M. de Bloois
  * @since Aug 12, 2011
  */
-public class ExportJSV implements CommandListener
+public class DumpJSON implements CommandListener
 {
-	static private final Pattern triggerPattern = Pattern.compile( "EXPORT\\s+JSV\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern triggerPattern = Pattern.compile( "DUMP\\s+JSON\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 
 	//@Override
-	// TODO Add "DATE AS TIMESTAMP" option
 	// TODO Escape dynamic file names, because illegal characters may be generated
+	// TODO Export multiple tables to a single file. If no PK than sort on all columns. Schema name for import or not?
 	public boolean execute( CommandProcessor processor, Command command ) throws SQLException
 	{
 		if( command.isTransient() )
@@ -93,41 +100,81 @@ public class ExportJSV implements CommandListener
 					ResultSet result = statement.executeQuery( parsed.query );
 
 					ResultSetMetaData metaData = result.getMetaData();
+
+					// Define locals
 					int count = metaData.getColumnCount();
 					int[] types = new int[ count ];
 					String[] names = new String[ count ];
-					boolean[] coalesce = new boolean[ count ];
+					boolean[] skip = new boolean[ count ];
 					FileSpec[] fileSpecs = new FileSpec[ count ];
-					int firstCoalesce = -1;
+					String schemaNames[] = new String[ count ];
+					String tableNames[] = new String[ count ];
 
+					// Analyze metadata
 					for( int i = 0; i < count; i++ )
 					{
-						String name = metaData.getColumnName( i + 1 ).toUpperCase();
-						types[ i ] = metaData.getColumnType( i + 1 );
+						int col = i + 1;
+						String name = metaData.getColumnName( col ).toUpperCase();
+						types[ i ] = metaData.getColumnType( col );
+						if( types[ i ] == Types.DATE && parsed.dateAsTimestamp )
+							types[ i ] = Types.TIMESTAMP;
 						names[ i ] = name;
 						if( parsed.columns != null )
 							fileSpecs[ i ] = parsed.columns.get( name );
-						if( parsed.coalesce != null && parsed.coalesce.contains( name ) )
-						{
-							coalesce[ i ] = true;
-							if( firstCoalesce < 0 )
-								firstCoalesce = i;
-						}
+						if( parsed.coalesce != null && parsed.coalesce.notFirst( name ) )
+							skip[ i ] = true;
+						tableNames[ i ] = StringUtils.upperCase( StringUtils.defaultIfEmpty( metaData.getTableName( col ), null ) );
+						schemaNames[ i ] = StringUtils.upperCase( StringUtils.defaultIfEmpty( metaData.getSchemaName( col ), null ) );
+//						if( tableNameUnique && ( !coalesce[ i ] || firstCoalesce == i ) )
+//						{
+//							String t = StringUtils.upperCase( StringUtils.defaultString( metaData.getTableName( col ), null ) );
+//							String s = StringUtils.upperCase( StringUtils.defaultString( metaData.getSchemaName( col ), null ) );
+//							if( t != null )
+//							{
+//								if( tableName == null )
+//								{
+//									tableName = t;
+//									schemaName = s;
+//								}
+//								else if( !t.equals( tableName ) || !StringUtils.equals( s, schemaName ) )
+//								{
+//									tableNameUnique = false; // Stop looking
+//									tableName = schemaName = null;
+//								}
+//							}
+//						}
 					}
+
+					if( parsed.coalesce != null )
+						parsed.coalesce.bind( names );
 
 					JSONObject properties = new JSONObject();
 					properties.set( "version", "1.0" );
+					properties.set( "format", "record-stream" );
+					properties.set( "description", "SolidBase JSON Data Dump File" );
 					properties.set( "createdBy", new JSONObject( "product", "SolidBase", "version", "2.0.0" ) );
-					properties.set( "contentType", "text/json" ); // TODO What is the content-type?
+					SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
+//					DateFormat format = DateFormat.getDateTimeInstance( DateFormat.MEDIUM, DateFormat.MEDIUM );
+					properties.set( "createdDate", format.format( new Date() ) );
+//					properties.set( "contentType", "application/json" );
+//					properties.set( "schemaName", schemaName );
+//					properties.set( "tableName", tableName );
+
+//					if( parsed.schemaName != null )
+//						properties.set( "schemaName", StringUtils.defaultIfEmpty( parsed.schemaName, null ) );
+//					if( parsed.tableName != null )
+//						properties.set( "tableName", parsed.tableName );
 
 					JSONArray fields = new JSONArray();
 					properties.set( "fields", fields );
 					for( int i = 0; i < count; i++ )
-						if( !coalesce[ i ] || firstCoalesce == i )
+						if( !skip[ i ] )
 						{
 							JSONObject field = new JSONObject();
+							field.set( "schemaName", schemaNames[ i ] );
+							field.set( "tableName", tableNames[ i ] );
 							field.set( "name", names[ i ] );
-							field.set( "type", JdbcSupport.toTypeName( types[ i ] ) );
+							field.set( "type", JDBCSupport.toTypeName( types[ i ] ) );
 							FileSpec spec = fileSpecs[ i ];
 							if( spec != null && !spec.generator.isDynamic() )
 							{
@@ -137,33 +184,26 @@ public class ExportJSV implements CommandListener
 							fields.add( field );
 						}
 
-					jsonWriter.writeFormatted( properties, 80 );
+					jsonWriter.writeFormatted( properties, 120 );
 					jsonWriter.getWriter().write( '\n' );
 
 					try
 					{
 						while( result.next() )
 						{
-							Object coalescedValue = null;
+							Object[] values = new Object[ count ];
+							for( int i = 0; i < values.length; i++ )
+								values[ i ] = JDBCSupport.getValue( result, types, i );
+
 							if( parsed.coalesce != null )
-								for( int i = 0; i < count; i++ )
-									if( coalesce[ i ] )
-									{
-										coalescedValue = JdbcSupport.getValue( result, types, i );
-										if( coalescedValue != null )
-											break;
-									}
+								parsed.coalesce.coalesce( values );
 
 							JSONArray array = new JSONArray();
-
 							for( int i = 0; i < count; i++ )
 							{
-								if( !coalesce[ i ] || firstCoalesce == i )
+								if( !skip[ i ] )
 								{
-									Object value = coalescedValue;
-									if( firstCoalesce != i )
-										value = JdbcSupport.getValue( result, types, i );
-
+									Object value = values[ i ];
 									if( value == null )
 									{
 										array.add( null );
@@ -184,6 +224,7 @@ public class ExportJSV implements CommandListener
 												String fileName = spec.generator.generateFileName( result );
 												Resource fileResource = new FileResource( fileName );
 												spec.out = fileResource.getOutputStream();
+												spec.index = 0;
 												relFileName = fileResource.getPathFrom( jsvResource );
 											}
 											else
@@ -220,6 +261,7 @@ public class ExportJSV implements CommandListener
 												spec.out.close();
 												JSONObject ref = new JSONObject();
 												ref.set( "file", relFileName );
+												ref.set( "size", spec.index - startIndex );
 												array.add( ref );
 											}
 											else
@@ -237,6 +279,7 @@ public class ExportJSV implements CommandListener
 												String fileName = spec.generator.generateFileName( result );
 												Resource fileResource = new FileResource( fileName );
 												spec.writer = new DeferringWriter( spec.threshold, fileResource, jsonWriter.getEncoding() );
+												spec.index = 0;
 												relFileName = fileResource.getPathFrom( jsvResource );
 											}
 											else
@@ -278,6 +321,7 @@ public class ExportJSV implements CommandListener
 												{
 													JSONObject ref = new JSONObject();
 													ref.set( "file", relFileName );
+													ref.set( "size", spec.index - startIndex );
 													array.add( ref );
 												}
 												writer.close();
@@ -355,32 +399,75 @@ public class ExportJSV implements CommandListener
 
 		Tokenizer tokenizer = new Tokenizer( new StringLineReader( command.getCommand(), command.getLocation() ) );
 
-		tokenizer.get( "EXPORT" );
-		tokenizer.get( "JSV" );
+		tokenizer.get( "DUMP" );
+		tokenizer.get( "JSON" );
 
-		Token t = tokenizer.get( "COALESCE", "FILE" );
-		if( t.equals( "COALESCE" ) )
+		tokenizer.get( "FILE" );
+		Token t = tokenizer.get();
+		if( !t.isString() )
+			throw new CommandFileException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+		String file = t.stripQuotes();
+
+		t = tokenizer.get();
+		if( t.equals( "DATE" ) )
 		{
-			result.coalesce = new HashSet< String >();
+			tokenizer.get( "AS" );
+			tokenizer.get( "TIMESTAMP" );
+
+			result.dateAsTimestamp = true;
+
+			t = tokenizer.get();
+		}
+
+		while( t.equals( "COALESCE" ) )
+		{
+			if( result.coalesce == null )
+				result.coalesce = new Coalescer();
+
+			t = tokenizer.get();
+			if( !t.isString() )
+				throw new CommandFileException( "Expecting column name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+			result.coalesce.first( t.stripQuotes() );
+
+			t = tokenizer.get( "," );
 			do
 			{
 				t = tokenizer.get();
-				result.coalesce.add( t.getValue().toUpperCase() );
+				if( !t.isString() )
+					throw new CommandFileException( "Expecting column name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+				result.coalesce.next( t.stripQuotes() );
+
 				t = tokenizer.get();
 			}
 			while( t.equals( "," ) );
-			tokenizer.push( t );
 
-			tokenizer.get( "FILE" );
+			result.coalesce.end();
 		}
 
-		t = tokenizer.get();
-		String file = t.getValue();
-		if( !file.startsWith( "\"" ) )
-			throw new CommandFileException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-		file = file.substring( 1, file.length() - 1 );
+//		if( t.equals( "SCHEMA" ) )
+//		{
+//			tokenizer.get( "NAME" );
+//			t = tokenizer.get();
+//			String name = t.getValue();
+//			if( !name.startsWith( "\"" ) )
+//				throw new CommandFileException( "Expecting schema name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+//			result.schemaName = name.substring( 1, name.length() - 1 );
+//
+//			t = tokenizer.get();
+//		}
 
-		t = tokenizer.get();
+//		if( t.equals( "TABLE" ) )
+//		{
+//			tokenizer.get( "NAME" );
+//			t = tokenizer.get();
+//			String name = t.getValue();
+//			if( !name.startsWith( "\"" ) )
+//				throw new CommandFileException( "Expecting table name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+//			result.tableName = name.substring( 1, name.length() - 1 );
+//
+//			t = tokenizer.get();
+//		}
+
 		if( t.equals( "COLUMN" ) )
 		{
 			result.columns = new HashMap< String, FileSpec >();
@@ -449,11 +536,16 @@ public class ExportJSV implements CommandListener
 		/** The file path to export to */
 		protected String fileName;
 
+//		protected String tableName;
+//		protected String schemaName;
+
 		/** The query */
 		protected String query;
 
+		protected boolean dateAsTimestamp;
+
 		/** Which columns need to be coalesced */
-		protected Set< String > coalesce;
+		protected Coalescer coalesce;
 
 		protected Map< String, FileSpec > columns;
 	}
@@ -514,6 +606,96 @@ public class ExportJSV implements CommandListener
 			}
 			matcher.appendTail( result );
 			return result.toString();
+		}
+	}
+
+
+	// TODO Use this with EXPORT CSV too
+	static protected class Coalescer
+	{
+//		protected Set< String > first = new HashSet();
+		protected Set< String > next = new HashSet();
+		protected List< List< String > > names = new ArrayList< List<String> >();
+		protected List< List< Integer > > indexes = new ArrayList< List<Integer> >();
+		protected List< String > temp;
+		protected List< Integer > temp2;
+
+		public void first( String name )
+		{
+//			this.first.add( name );
+
+			Assert.isNull( this.temp );
+			this.temp = new ArrayList< String >();
+			this.temp.add( name );
+			this.temp2 = new ArrayList< Integer >();
+			this.temp2.add( null );
+		}
+
+		public void next( String name )
+		{
+			this.next.add( name );
+
+			Assert.notNull( this.temp );
+			this.temp.add( name );
+			this.temp2.add( null );
+		}
+
+		public void end()
+		{
+			this.names.add( this.temp );
+			this.indexes.add( this.temp2 );
+			this.temp = null;
+			this.temp2 = null;
+		}
+
+		public boolean notFirst( String name )
+		{
+			return this.next.contains( name );
+		}
+
+		public void bind( String[] names )
+		{
+			for( int i = 0; i < this.names.size(); i++ )
+			{
+				List< String > nams = this.names.get( i );
+				List< Integer > indexes = this.indexes.get( i );
+				for( int j = 0; j < nams.size(); j++ )
+				{
+					String name = nams.get( j );
+					int found = -1;
+					for( int k = 0; k < names.length; k++ )
+					{
+						if( name.equals( names[ k ] ) )
+						{
+							found = k;
+							break;
+						}
+					}
+					if( found < 0 )
+						throw new FatalException( "Coalesce column " + name + " not in result set" );
+					indexes.set( j, found );
+				}
+			}
+		}
+
+		public void coalesce( Object[] values )
+		{
+			for( int i = 0; i < this.indexes.size(); i++ )
+			{
+				List< Integer > indexes = this.indexes.get( i );
+				int firstIndex = indexes.get( 0 );
+				if( values[ firstIndex ] == null )
+				{
+					Object found = null;
+					for( int j = 1; j < indexes.size(); j++ )
+					{
+						found = values[ indexes.get( j ) ];
+						if( found != null )
+							break;
+					}
+					values[ firstIndex ] = found;
+				}
+			}
 		}
 	}
 }

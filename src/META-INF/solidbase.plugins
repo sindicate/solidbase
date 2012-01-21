@@ -1,6 +1,6 @@
 solidbase.core.plugins.AssertExistsOrEmptySelect
+solidbase.core.plugins.DumpJSON
 solidbase.core.plugins.ExportCSV
-solidbase.core.plugins.ExportJSV
 solidbase.core.plugins.ImportCSV
-solidbase.core.plugins.ImportJSV
+solidbase.core.plugins.LoadJSON
 solidbase.core.plugins.PrintSelect

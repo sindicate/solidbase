@@ -328,7 +328,7 @@ abstract public class CommandProcessor
 		Connection connection = getCurrentDatabase().getConnection();
 		Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
 		PreparedStatement statement = connection.prepareStatement( sql );
-		statement.setEscapeProcessing( this.context.getJdbcEscaping() ); // It is said that this may already be too late
+//		statement.setEscapeProcessing( this.context.getJdbcEscaping() ); // This does not work in Oracle: gives invalid character error
 		return statement;
 	}
 
