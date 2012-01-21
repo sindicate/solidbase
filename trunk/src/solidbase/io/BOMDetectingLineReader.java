@@ -34,7 +34,7 @@ import solidbase.util.Assert;
  *
  * @author René M. de Bloois
  */
-public class BOMDetectingLineReader extends BufferedReaderLineReader
+public class BOMDetectingLineReader extends ReaderLineReader
 {
 	/**
 	 * Constant for the ISO-8859-1 character set.
@@ -92,51 +92,73 @@ public class BOMDetectingLineReader extends BufferedReaderLineReader
 			// TODO Should we throw a FatalException in the util package?
 			throw new FatalException( e.toString() );
 		}
-		detectBOM( in );
 
-		try
+		try // When an exception occurs below we need to close the input stream
 		{
-			this.reader = new BufferedReader( new InputStreamReader( in, this.encoding ) );
-			this.currentLineNumber = 1;
+			detectBOM( in );
 
-			// BOM is skipped, reader created, line number = 1
-
-			if( encodingDetection != null )
+			try
 			{
-				this.reader.mark( 1000 );
-				String firstLine = this.reader.readLine();
-				this.reader.reset();
+				BufferedReader reader = new BufferedReader( new InputStreamReader( in, this.encoding ) );
+				init( reader );
+				this.currentLineNumber = 1;
 
-				if( firstLine != null )
+				// BOM is skipped, reader created, line number = 1
+
+				if( encodingDetection != null )
 				{
-					// Remove zeroes
-					StringBuilder s = new StringBuilder();
-					for( char c : firstLine.toCharArray() )
-						if( c != 0 )
-							s.append( c );
+					reader.mark( 1000 );
+					String firstLine = reader.readLine();
+	//				reader.reset();
 
-					Matcher matcher = encodingDetection.matcher( s.toString() );
-					if( matcher.matches() )
+					if( firstLine != null )
 					{
-						if( !this.encoding.equalsIgnoreCase( matcher.group( 1 ) ) )
-						{
-							this.encoding = matcher.group( 1 );
-							in.reset();
-							if( this.bom != null )
-								Assert.isTrue( in.skip( this.bom.length ) == this.bom.length );
-							this.reader = new BufferedReader( new InputStreamReader( in, this.encoding ) );
-						}
-						this.reader.readLine();
-						this.currentLineNumber = 2;
+						// Remove zeroes
+						firstLine.replace( "\0000", "" );
+	//					StringBuilder s = new StringBuilder();
+	//					for( char c : firstLine.toCharArray() )
+	//						if( c != 0 )
+	//							s.append( c );
 
-						// BOM is skipped, reader created, line number = 2
+						Matcher matcher = encodingDetection.matcher( firstLine.toString() );
+						if( matcher.matches() )
+						{
+							if( !this.encoding.equalsIgnoreCase( matcher.group( 1 ) ) )
+							{
+								this.encoding = matcher.group( 1 );
+								in.reset();
+								if( this.bom != null )
+									Assert.isTrue( in.skip( this.bom.length ) == this.bom.length );
+								init( new BufferedReader( new InputStreamReader( in, this.encoding ) ) );
+							}
+	//						this.reader.readLine();
+							this.currentLineNumber = 2;
+
+							// BOM is skipped, reader created, line number = 2
+						}
+						else
+						{
+							reader.reset();
+						}
 					}
 				}
 			}
+			catch( IOException e )
+			{
+				throw new SystemException( e );
+			}
 		}
-		catch( IOException e )
+		catch( RuntimeException e )
 		{
-			throw new SystemException( e );
+			try
+			{
+				in.close();
+			}
+			catch( IOException ee )
+			{
+				throw new SystemException( ee );
+			}
+			throw e;
 		}
 	}
 
@@ -167,7 +189,7 @@ public class BOMDetectingLineReader extends BufferedReaderLineReader
 			if( encoding != null )
 				this.encoding = encoding;
 
-			this.reader = new BufferedReader( new InputStreamReader( in, this.encoding ) );
+			init( new BufferedReader( new InputStreamReader( in, this.encoding ) ) );
 			this.currentLineNumber = 1;
 		}
 		catch( IOException e )
@@ -188,9 +210,10 @@ public class BOMDetectingLineReader extends BufferedReaderLineReader
 	 */
 	protected void detectBOM( BufferedInputStream in )
 	{
+		this.bom = null;
 		try
 		{
-			in.mark( 1000 );
+			in.mark( 4 );
 			byte[] bytes = new byte[] { 2, 2, 2, 2 };
 			in.read( bytes ); // No need to know how many bytes have been read
 			in.reset();

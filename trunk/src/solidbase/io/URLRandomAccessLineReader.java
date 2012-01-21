@@ -16,10 +16,9 @@
 
 package solidbase.io;
 
-import java.io.BufferedReader;
+import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
@@ -33,7 +32,7 @@ import solidbase.util.Assert;
  *
  * @author René M. de Bloois
  */
-public class URLRandomAccessLineReader extends BufferedReaderLineReader implements RandomAccessLineReader
+public class URLRandomAccessLineReader extends ReaderLineReader implements RandomAccessLineReader
 {
 	/**
 	 * Constant for the ISO-8859-1 character set.
@@ -71,40 +70,15 @@ public class URLRandomAccessLineReader extends BufferedReaderLineReader implemen
 	protected byte[] bom;
 
 	/**
-	 * Creates a new line reader from the given URL.
+	 * Creates a new line reader from the given resource.
 	 *
 	 * @param resource The resource to read from.
 	 */
 	// TODO Why is URL still in the name?
 	public URLRandomAccessLineReader( Resource resource )
 	{
-		try
-		{
-			this.resource = resource;
-			reOpen();
-
-			this.reader.mark( 1000 ); // 1000 is smaller then the default buffer size of 8192, which is ok
-			String line = this.reader.readLine();
-			//System.out.println( "First line [" + line + "]" );
-			this.reader.reset();
-			if( line == null )
-				return;
-
-			detectEncoding( line );
-
-			if( this.bom != null )
-				reOpen();
-		}
-		catch( IOException e )
-		{
-			close();
-			throw new SystemException( e );
-		}
-		catch( RuntimeException e )
-		{
-			close();
-			throw e;
-		}
+		this.resource = resource;
+		reOpen();
 	}
 
 	/**
@@ -113,22 +87,85 @@ public class URLRandomAccessLineReader extends BufferedReaderLineReader implemen
 	protected void reOpen()
 	{
 		close();
-		InputStream is;
+
+		BufferedInputStream is;
 		try
 		{
-			is = this.resource.getInputStream();
+			is = new BufferedInputStream( this.resource.getInputStream() );
 		}
 		catch( FileNotFoundException e )
 		{
 			// TODO Should we throw a FatalException in the util package?
 			throw new FatalException( e.toString() );
 		}
+
+		try // When an exception occurs below we need to close the input stream
+		{
+			detectBOM( is );
+
+			try
+			{
+				init( new InputStreamReader( is, this.encoding ) );
+			}
+			catch( UnsupportedEncodingException e )
+			{
+				throw new SystemException( e );
+			}
+		}
+		catch( RuntimeException e )
+		{
+			try
+			{
+				is.close();
+			}
+			catch( IOException ee )
+			{
+				throw new SystemException( ee );
+			}
+			throw e;
+		}
+	}
+
+	/**
+	 * Detect the encoding from the BOM.
+	 *
+	 * @param in The input stream.
+	 */
+	// TODO This is double with the one in BOMDetectingLineReader
+	protected void detectBOM( BufferedInputStream in )
+	{
+		this.bom = null;
 		try
 		{
+			in.mark( 4 );
+			byte[] bytes = new byte[] { 2, 2, 2, 2 };
+			in.read( bytes ); // No need to know how many bytes have been read
+			in.reset();
+
+			// BOMS:
+			// 00 00 FE FF  UTF-32, big-endian
+			// FF FE 00 00 	UTF-32, little-endian
+			// FE FF 	    UTF-16, big-endian
+			// FF FE 	    UTF-16, little-endian
+			// EF BB BF 	UTF-8
+			if( bytes[ 0 ] == -17 && bytes[ 1 ] == -69 && bytes[ 2 ] == -65 )
+			{
+				this.encoding = CHARSET_UTF8;
+				this.bom = new byte[] { -17, -69, -65 };
+			}
+			else if( bytes[ 0 ] == -2 && bytes[ 1 ] == -1 )
+			{
+				this.encoding = CHARSET_UTF16BE;
+				this.bom = new byte[] { -2, -1 };
+			}
+			else if( bytes[ 0 ] == -1 && bytes[ 1 ] == -2 )
+			{
+				this.encoding = CHARSET_UTF16LE;
+				this.bom = new byte[] { -1, -2 };
+			}
+
 			if( this.bom != null )
-				Assert.isTrue( is.skip( this.bom.length ) == this.bom.length ); // Skip some bytes
-			this.reader = new BufferedReader( new InputStreamReader( is, this.encoding ) );
-			this.currentLineNumber = 1;
+				Assert.isTrue( in.skip( this.bom.length ) == this.bom.length );
 		}
 		catch( IOException e )
 		{
@@ -136,50 +173,6 @@ public class URLRandomAccessLineReader extends BufferedReaderLineReader implemen
 		}
 	}
 
-	/**
-	 * Detects the encoding of the stream by looking at the first 2, 3 or 4 bytes.
-	 *
-	 * @param firstLine The first line read from the stream.
-	 */
-	protected void detectEncoding( String firstLine )
-	{
-		// BOMS:
-		// 00 00 FE FF  UTF-32, big-endian
-		// FF FE 00 00 	UTF-32, little-endian
-		// FE FF 	    UTF-16, big-endian
-		// FF FE 	    UTF-16, little-endian
-		// EF BB BF 	UTF-8
-
-		try
-		{
-			byte[] bytes = firstLine.getBytes( CHARSET_DEFAULT );
-			if( bytes.length >= 2 )
-			{
-				if( bytes.length >= 3 && bytes[ 0 ] == -17 && bytes[ 1 ] == -69 && bytes[ 2 ] == -65 )
-				{
-					this.encoding = CHARSET_UTF8;
-					this.bom = new byte[] { -17, -69, -65 };
-					return;
-				}
-				if( bytes[ 0 ] == -2 && bytes[ 1 ] == -1 )
-				{
-					this.encoding = CHARSET_UTF16BE;
-					this.bom = new byte[] { -2, -1 };
-					return;
-				}
-				if( bytes[ 0 ] == -1 && bytes[ 1 ] == -2 )
-				{
-					this.encoding = CHARSET_UTF16LE;
-					this.bom = new byte[] { -1, -2 };
-					return;
-				}
-			}
-		}
-		catch( UnsupportedEncodingException e )
-		{
-			throw new SystemException( e );
-		}
-	}
 
 	/**
 	 * Reopen the stream to change the character decoding.

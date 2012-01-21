@@ -16,44 +16,71 @@
 
 package solidbase.io;
 
-import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
 
 import solidbase.core.SystemException;
 
 
 /**
- * Wraps a {@link BufferedReader} and adds a line counting functionality.
+ * Wraps a {@link Reader} and adds a line counting functionality.
  *
  * @author René M. de Bloois
  */
-public class BufferedReaderLineReader implements LineReader
+public class ReaderLineReader implements LineReader
 {
 	/**
 	 * The reader used to read from the string.
 	 */
-	protected BufferedReader reader;
+	protected Reader reader;
 
 	/**
 	 * The current line the reader is positioned on.
 	 */
-	protected int currentLineNumber;
+	protected int currentLineNumber = 1;
 
 	/**
-	 * A line in the buffer, needed when characters are read with {@link #read()}.
+	 * Buffer to contain a character that has been read by mistake.
 	 */
-	protected String buffer;
+	protected int buffer = -1;
 
 	/**
-	 * The current position in the {@link #buffer}.
+	 * Buffer to contain the line that is being read.
 	 */
-	protected int pos;
+	protected StringBuilder line;
 
 	/**
 	 * The underlying resource.
 	 */
 	protected Resource resource;
 
+
+	/**
+	 * Constructor.
+	 */
+	protected ReaderLineReader()
+	{
+		// Used by sub classes
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * @param reader The reader to read from.
+	 */
+	public ReaderLineReader( Reader reader )
+	{
+		this.reader = reader;
+	}
+
+	public void init( Reader reader )
+	{
+		this.reader = reader;
+		this.currentLineNumber = 1;
+		this.buffer = -1;
+		if( this.line != null )
+			this.line.setLength( 0 );
+	}
 
 	/**
 	 * Close the reader and the underlying reader.
@@ -76,18 +103,25 @@ public class BufferedReaderLineReader implements LineReader
 
 	public String readLine()
 	{
-		if( this.buffer != null )
-			throw new IllegalStateException( "There is a line in the buffer" );
-		try
+		if( this.line == null )
+			this.line = new StringBuilder();
+
+		while( true )
 		{
-			String result = this.reader.readLine();
-			if( result != null )
-				this.currentLineNumber++;
-			return result;
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
+			int ch = read();
+			switch( ch )
+			{
+				case -1:
+					if( this.line.length() == 0 )
+						return null;
+					//$FALL-THROUGH$
+				case '\n':
+					String result = this.line.toString();
+					this.line.setLength( 0 );
+					return result;
+				default:
+					this.line.append( (char)ch );
+			}
 		}
 	}
 
@@ -100,31 +134,35 @@ public class BufferedReaderLineReader implements LineReader
 
 	public int read()
 	{
-		if( this.buffer == null )
+		try
 		{
-			try
+			int result;
+			if( this.buffer >= 0 )
 			{
-				this.buffer = this.reader.readLine();
+				result = this.buffer;
+				this.buffer = -1;
 			}
-			catch( IOException e )
-			{
-				throw new SystemException( e );
-			}
-			if( this.buffer == null )
-				return -1;
-			this.pos = 0;
-		}
+			else
+				result = this.reader.read();
 
-		if( this.pos < this.buffer.length() )
+			switch( result )
+			{
+				case '\r':
+					result = this.reader.read();
+					if( result != '\n' )
+						this.buffer = result;
+					//$FALL-THROUGH$
+				case '\n':
+					this.currentLineNumber++;
+					return '\n';
+				default:
+					return result;
+			}
+		}
+		catch( IOException e )
 		{
-			int result = this.buffer.charAt( this.pos );
-			this.pos++;
-			return result;
+			throw new SystemException( e );
 		}
-
-		this.buffer = null;
-		this.currentLineNumber++;
-		return '\n';
 	}
 
 	public Resource getResource()

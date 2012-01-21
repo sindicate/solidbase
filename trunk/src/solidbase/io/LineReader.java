@@ -30,24 +30,29 @@ public interface LineReader
 	void close();
 
 	/**
-	 * Reads a line. The line number count is incremented.
+	 * Reads the next line. The current line number is incremented.
 	 *
-	 * @return The line that is read or null of there are no more lines.
+	 * @return The next line or null of there are no more lines to be read.
 	 */
 	String readLine();
 
 	/**
-	 * Returns the current line number. The current line number is the line that is about to be read.
+	 * Returns the current line number. The current line number is the line that is about to be read with {@link #readLine()} or is being read with {@link #read()}.
 	 *
 	 * @return The current line number.
 	 */
 	int getLineNumber();
 
 	/**
-	 * Reads a character. Must always be repeated until a \n is encountered, otherwise {@link #readLine()} will fail. An \r (carriage return) is never returned.
+	 * Reads a character. Carriage return characters (\r) are filtered out in the following way:
+	 * <ul>
+	 * <li>\r\n becomes \n</li>
+	 * <li>\r without \n becomes \n</li>
+	 * </ul>
 	 *
 	 * @return A character. An \r is never returned.
 	 */
+	// TODO Decide if this javadoc is appropriate for this interface or should it be moved to the implementation?
 	int read();
 
 	/**
@@ -57,6 +62,12 @@ public interface LineReader
 	 */
 	Resource getResource();
 
+	/**
+	 * Returns the current location.
+	 *
+	 * @return The current location.
+	 * @see FileLocation
+	 */
 	FileLocation getLocation();
 
 	/**
