@@ -16,7 +16,7 @@
 
 package solidbase.core;
 
-import solidbase.util.FileLocation;
+import solidbase.io.FileLocation;
 
 
 /**

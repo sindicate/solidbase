@@ -33,9 +33,9 @@ import solidbase.core.DatabaseContext;
 import solidbase.core.Factory;
 import solidbase.core.SystemException;
 import solidbase.core.UpgradeProcessor;
+import solidbase.io.MemoryResource;
+import solidbase.io.URLResource;
 import solidbase.util.DriverDataSource;
-import solidbase.util.MemoryResource;
-import solidbase.util.URLResource;
 
 /**
  * An upgrade Spring bean.
@@ -311,7 +311,7 @@ public class UpgradeBean
 
 		try
 		{
-			solidbase.util.Resource resource;
+			solidbase.io.Resource resource;
 			if( this.upgradefile instanceof ByteArrayResource )
 				resource = new MemoryResource( ( (ByteArrayResource)this.upgradefile ).getByteArray() );
 			else if( this.upgradefile.isOpen() )

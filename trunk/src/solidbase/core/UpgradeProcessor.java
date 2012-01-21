@@ -29,10 +29,10 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
+import solidbase.io.FileLocation;
+import solidbase.io.LineReader;
+import solidbase.io.Resource;
 import solidbase.util.Assert;
-import solidbase.util.FileLocation;
-import solidbase.util.LineReader;
-import solidbase.util.Resource;
 import solidbase.util.ShutdownHook;
 import solidbase.util.WorkerThread;
 

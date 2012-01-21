@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import solidbase.core.CommandFileException;
+import solidbase.io.FileLocation;
+import solidbase.io.LineReader;
 import solidbase.util.CSVTokenizer.Token;
 
 

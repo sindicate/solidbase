@@ -1,7 +1,9 @@
-package solidbase.util;
+package solidbase.io;
 
 import java.io.IOException;
 import java.io.InputStream;
+
+import solidbase.util.Assert;
 
 public class SegmentedInputStream extends InputStream
 {

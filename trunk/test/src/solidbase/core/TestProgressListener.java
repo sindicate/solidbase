@@ -16,8 +16,8 @@
 
 package solidbase.core;
 
+import solidbase.io.Resource;
 import solidbase.util.Assert;
-import solidbase.util.Resource;
 
 public class TestProgressListener extends ProgressListener
 {

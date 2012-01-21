@@ -44,12 +44,12 @@ import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.SystemException;
+import solidbase.io.DeferringWriter;
+import solidbase.io.FileResource;
+import solidbase.io.Resource;
+import solidbase.io.StringLineReader;
 import solidbase.util.CSVWriter;
-import solidbase.util.DeferringWriter;
-import solidbase.util.FileResource;
 import solidbase.util.JDBCSupport;
-import solidbase.util.Resource;
-import solidbase.util.StringLineReader;
 import solidbase.util.Tokenizer;
 import solidbase.util.Tokenizer.Token;
 

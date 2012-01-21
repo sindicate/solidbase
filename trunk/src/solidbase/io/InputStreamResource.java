@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.util;
+package solidbase.io;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -25,35 +25,37 @@ import java.net.URL;
  *
  * @author René M. de Bloois
  */
-public class SystemInOutResource implements Resource
+public class InputStreamResource implements Resource
 {
 	/**
-	 * The {@link System#in}. Registered at the time of creation of this resource.
+	 * The input stream.
 	 */
-	protected InputStream in = System.in;
+	protected InputStream inputStream;
 
 	/**
-	 * The {@link System#out}. Registered at the time of creation of this resource.
+	 * Constructor.
+	 *
+	 * @param inputStream The input stream.
 	 */
-	protected OutputStream out = System.out;
-
+	public InputStreamResource( InputStream inputStream )
+	{
+		if( inputStream == null )
+			throw new IllegalArgumentException( "inputStream should not be null" );
+		this.inputStream = inputStream;
+	}
 
 	public InputStream getInputStream()
 	{
-		if( this.in == null )
+		if( this.inputStream == null )
 			throw new IllegalStateException( "inputStream has been accessed earlier" );
-		InputStream result = new NonClosingInputStream( this.in );
-		this.in = null;
+		InputStream result = this.inputStream;
+		this.inputStream = null;
 		return result;
 	}
 
 	public OutputStream getOutputStream()
 	{
-		if( this.out == null )
-			throw new IllegalStateException( "outputStream has been accessed earlier" );
-		OutputStream result = new NonClosingOutputStream( this.out );
-		this.out = null;
-		return result;
+		throw new UnsupportedOperationException();
 	}
 
 	public boolean supportsURL()

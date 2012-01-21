@@ -1,4 +1,4 @@
-package solidbase.util;
+package solidbase.io;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;

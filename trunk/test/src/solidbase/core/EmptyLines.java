@@ -21,8 +21,8 @@ import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import solidbase.util.FileResource;
-import solidbase.util.URLRandomAccessLineReader;
+import solidbase.io.FileResource;
+import solidbase.io.URLRandomAccessLineReader;
 
 
 public class EmptyLines

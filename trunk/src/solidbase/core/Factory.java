@@ -20,14 +20,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 
-import solidbase.util.ClassPathResource;
-import solidbase.util.FileResource;
-import solidbase.util.MemoryResource;
-import solidbase.util.RandomAccessLineReader;
-import solidbase.util.Resource;
-import solidbase.util.SystemInOutResource;
-import solidbase.util.URLRandomAccessLineReader;
-import solidbase.util.URLResource;
+import solidbase.io.ClassPathResource;
+import solidbase.io.FileResource;
+import solidbase.io.MemoryResource;
+import solidbase.io.RandomAccessLineReader;
+import solidbase.io.Resource;
+import solidbase.io.SystemInOutResource;
+import solidbase.io.URLRandomAccessLineReader;
+import solidbase.io.URLResource;
 
 
 /**

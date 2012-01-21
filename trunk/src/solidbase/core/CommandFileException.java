@@ -16,7 +16,7 @@
 
 package solidbase.core;
 
-import solidbase.util.FileLocation;
+import solidbase.io.FileLocation;
 
 /**
  * Represents a problem in the file (upgrade file or SQL file). A stack trace is not required. The failure and
