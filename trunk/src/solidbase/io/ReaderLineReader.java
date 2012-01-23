@@ -19,8 +19,6 @@ package solidbase.io;
 import java.io.IOException;
 import java.io.Reader;
 
-import solidbase.core.SystemException;
-
 
 /**
  * Wraps a {@link Reader} and adds a line counting functionality.
@@ -95,7 +93,7 @@ public class ReaderLineReader implements LineReader
 			}
 			catch( IOException e )
 			{
-				throw new SystemException( e );
+				throw new FatalIOException( e );
 			}
 			this.reader = null;
 		}
@@ -161,7 +159,7 @@ public class ReaderLineReader implements LineReader
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 	}
 

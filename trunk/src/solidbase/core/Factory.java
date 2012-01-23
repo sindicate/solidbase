@@ -48,24 +48,24 @@ public final class Factory
 	 */
 	static public RandomAccessLineReader openRALR( Resource resource, ProgressListener listener )
 	{
-		// TODO supportsURL() is not right for this purpose.
-		if( resource.supportsURL() )
-		{
-			listener.openingUpgradeFile( resource );
-			return new URLRandomAccessLineReader( resource );
-		}
-
-		// TODO What about the message? "Opening internal resource..."
-		MemoryResource resource2 = new MemoryResource();
 		try
 		{
-			resource2.append( resource.getInputStream() );
+			// TODO supportsURL() is not right for this purpose.
+			if( resource.supportsURL() )
+			{
+				listener.openingUpgradeFile( resource );
+				return new URLRandomAccessLineReader( resource );
+			}
+
+			// TODO What about the message? "Opening internal resource..."
+			MemoryResource memResource = new MemoryResource();
+			memResource.append( resource.getInputStream() );
+			return new URLRandomAccessLineReader( memResource );
 		}
 		catch( FileNotFoundException e )
 		{
-			throw new FatalException( e.toString() );
+			throw new FatalException( e.toString() ); // TODO e or e.toString()
 		}
-		return new URLRandomAccessLineReader( resource2 );
 	}
 
 	/**

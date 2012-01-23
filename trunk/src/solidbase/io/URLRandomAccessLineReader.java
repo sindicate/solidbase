@@ -22,10 +22,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
-import solidbase.core.FatalException;
-import solidbase.core.SystemException;
-import solidbase.util.Assert;
-
 
 /**
  * A line reader that automatically detects character encoding through the BOM and is able to reposition itself on a line.
@@ -73,12 +69,13 @@ public class URLRandomAccessLineReader extends ReaderLineReader implements Rando
 	 * Creates a new line reader from the given resource.
 	 *
 	 * @param resource The resource to read from.
+	 * @throws FileNotFoundException
 	 */
 	// TODO Why is URL still in the name?
-	public URLRandomAccessLineReader( Resource resource )
+	public URLRandomAccessLineReader( Resource resource ) throws FileNotFoundException
 	{
 		this.resource = resource;
-		reOpen();
+		open();
 	}
 
 	/**
@@ -87,17 +84,24 @@ public class URLRandomAccessLineReader extends ReaderLineReader implements Rando
 	protected void reOpen()
 	{
 		close();
-
-		BufferedInputStream is;
 		try
 		{
-			is = new BufferedInputStream( this.resource.getInputStream() );
+			open();
 		}
 		catch( FileNotFoundException e )
 		{
-			// TODO Should we throw a FatalException in the util package?
-			throw new FatalException( e.toString() );
+			throw new FatalIOException( e );
 		}
+	}
+
+	/**
+	 * Reopens itself to reset the position or change the character encoding.
+	 *
+	 * @throws FileNotFoundException
+	 */
+	protected void open() throws FileNotFoundException
+	{
+		BufferedInputStream is = new BufferedInputStream( this.resource.getInputStream() );
 
 		try // When an exception occurs below we need to close the input stream
 		{
@@ -109,7 +113,7 @@ public class URLRandomAccessLineReader extends ReaderLineReader implements Rando
 			}
 			catch( UnsupportedEncodingException e )
 			{
-				throw new SystemException( e );
+				throw new FatalIOException( e );
 			}
 		}
 		catch( RuntimeException e )
@@ -120,7 +124,7 @@ public class URLRandomAccessLineReader extends ReaderLineReader implements Rando
 			}
 			catch( IOException ee )
 			{
-				throw new SystemException( ee );
+				throw new FatalIOException( e );
 			}
 			throw e;
 		}
@@ -165,11 +169,12 @@ public class URLRandomAccessLineReader extends ReaderLineReader implements Rando
 			}
 
 			if( this.bom != null )
-				Assert.isTrue( in.skip( this.bom.length ) == this.bom.length );
+				if( in.skip( this.bom.length ) != this.bom.length )
+					throw new IllegalStateException( "bom read problem" );
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 	}
 

@@ -16,6 +16,7 @@
 
 package solidbase.core;
 
+import java.io.FileNotFoundException;
 import java.util.regex.Pattern;
 
 import solidbase.io.BOMDetectingLineReader;
@@ -45,7 +46,14 @@ public class SQLFile
 	 */
 	protected SQLFile( Resource resource )
 	{
-		this.reader = new BOMDetectingLineReader( resource, ENCODING_PATTERN );
+		try
+		{
+			this.reader = new BOMDetectingLineReader( resource, ENCODING_PATTERN );
+		}
+		catch( FileNotFoundException e )
+		{
+			throw new FatalException( e.toString() ); // TODO e or e.toString()?
+		}
 	}
 
 	/**
