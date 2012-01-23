@@ -3,7 +3,6 @@ package solidbase.io;
 import java.io.IOException;
 import java.io.InputStream;
 
-import solidbase.util.Assert;
 
 public class SegmentedInputStream extends InputStream
 {
@@ -22,7 +21,8 @@ public class SegmentedInputStream extends InputStream
 		if( this.index >= this.segmentEnd )
 			return -1;
 		int result = this.parent.read();
-		Assert.isTrue( result >= 0 );
+		if( result == -1 )
+			throw new FatalIOException( "Segment not complete" );
 		this.index ++;
 		return result;
 	}
@@ -38,7 +38,8 @@ public class SegmentedInputStream extends InputStream
 			read = this.parent.read( b, off, len );
 		else
 			read = this.parent.read( b, off, (int)( this.segmentEnd - this.index ) );
-		Assert.isTrue( read >= 0 );
+		if( read == -1 )
+			throw new FatalIOException( "Segment not complete" );
 		this.index += read;
 		return read;
 	}
@@ -52,7 +53,8 @@ public class SegmentedInputStream extends InputStream
 	public void gotoSegment( long start, long length ) throws IOException
 	{
 //		System.out.println( "Goto segment " + start );
-		Assert.isTrue( this.index <= start );
+		if( this.index > start )
+			throw new FatalIOException( "Past segment" );
 		this.parent.skip( start - this.index );
 		this.index = start;
 		this.segmentEnd = start + length;

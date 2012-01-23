@@ -26,8 +26,6 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import solidbase.core.SystemException;
-import solidbase.util.Assert;
 
 /**
  * A file resource.
@@ -48,7 +46,8 @@ public class FileResource implements Resource
 	 */
 	public FileResource( File file )
 	{
-		Assert.isFalse( file.isDirectory(), "File can't be a directory" );
+		if( file.isDirectory() )
+			throw new FatalIOException( "File can't be a directory" );
 		this.file = file;
 	}
 
@@ -86,7 +85,7 @@ public class FileResource implements Resource
 		}
 		catch( MalformedURLException e )
 		{
-			throw new SystemException( e ); // Not expected
+			throw new FatalIOException( e ); // Not expected
 		}
 	}
 
@@ -106,7 +105,7 @@ public class FileResource implements Resource
 		}
 		catch( FileNotFoundException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 	}
 
@@ -125,7 +124,8 @@ public class FileResource implements Resource
 	// TODO Need test for this
 	public String getPathFrom( Resource base )
 	{
-		Assert.isTrue( base instanceof FileResource );
+		if( !( base instanceof FileResource ) )
+			throw new IllegalArgumentException( "base should be a FileResource" );
 
 		String myPath;
 		String basePath;
@@ -136,7 +136,7 @@ public class FileResource implements Resource
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 
 		// getCanonicalPath returns the os dependent path separator
@@ -146,7 +146,8 @@ public class FileResource implements Resource
 		int common = 0;
 		while( common < myElems.length && common < baseElems.length && myElems[ common ].equals( baseElems[ common ] ) )
 			common++;
-		Assert.isTrue( common > 0 );
+		if( common == 0 )
+			throw new FatalIOException( "Internal error" );
 
 		StringBuffer result = new StringBuffer();
 
@@ -154,7 +155,8 @@ public class FileResource implements Resource
 			for( int j = 0; j < baseElems.length - common - 1; j++ )
 				result.append( "../" );
 
-		Assert.isTrue( common < myElems.length );
+		if( common >= myElems.length )
+			throw new FatalIOException( "Internal error" );
 		result.append( myElems[ common ] );
 
 		for( int j = common + 1; j < myElems.length; j++ )

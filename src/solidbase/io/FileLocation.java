@@ -1,7 +1,5 @@
 package solidbase.io;
 
-import solidbase.util.Assert;
-
 
 // TODO Rename to LineNumber, ResourceLocation, FileLocation, ...
 public class FileLocation
@@ -27,7 +25,8 @@ public class FileLocation
 
 	public FileLocation previousLine()
 	{
-		Assert.isTrue( this.pos > 0 );
+		if( this.pos <= 0 )
+			throw new FatalIOException( "There is no previous line" );
 		return new FileLocation( this.resource, this.pos - 1 );
 	}
 

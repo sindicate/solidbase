@@ -24,7 +24,6 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import solidbase.core.SystemException;
 
 /**
  * A resource identified by a URL.
@@ -78,7 +77,7 @@ public class URLResource implements Resource
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 	}
 
@@ -95,7 +94,7 @@ public class URLResource implements Resource
 		}
 		catch( MalformedURLException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 	}
 

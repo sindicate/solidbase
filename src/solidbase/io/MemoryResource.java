@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import solidbase.core.SystemException;
 
 /**
  * A memory resource.
@@ -108,7 +107,7 @@ public class MemoryResource implements Resource
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 	}
 

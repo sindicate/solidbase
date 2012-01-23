@@ -24,10 +24,6 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import solidbase.core.FatalException;
-import solidbase.core.SystemException;
-import solidbase.util.Assert;
-
 
 /**
  * A line reader that automatically detects character encoding through the BOM and the first line.
@@ -77,75 +73,39 @@ public class BOMDetectingLineReader extends ReaderLineReader
 	 *
 	 * @param resource The resource to be read.
 	 * @param encodingDetection A regular expression to detect the encoding on the first line.
+	 * @throws FileNotFoundException
 	 */
-	public BOMDetectingLineReader( Resource resource, Pattern encodingDetection )
+	public BOMDetectingLineReader( Resource resource, Pattern encodingDetection ) throws FileNotFoundException
 	{
 		this.resource = resource;
 
-		BufferedInputStream in;
-		try
-		{
-			in = new BufferedInputStream( resource.getInputStream() );
-		}
-		catch( FileNotFoundException e )
-		{
-			// TODO Should we throw a FatalException in the util package?
-			throw new FatalException( e.toString() );
-		}
-
+		BufferedInputStream in = new BufferedInputStream( resource.getInputStream() );
 		try // When an exception occurs below we need to close the input stream
 		{
 			detectBOM( in );
-
 			try
 			{
-				BufferedReader reader = new BufferedReader( new InputStreamReader( in, this.encoding ) );
-				init( reader );
-				this.currentLineNumber = 1;
-
-				// BOM is skipped, reader created, line number = 1
-
 				if( encodingDetection != null )
 				{
-					reader.mark( 1000 );
-					String firstLine = reader.readLine();
-	//				reader.reset();
+					BufferedReader reader = new BufferedReader( new InputStreamReader( in, this.encoding ) );
+					in.mark( 1000 );
+					String firstLine = reader.readLine(); // TODO This is a risk. Should read with max. Are there more like this?
+					in.reset();
 
 					if( firstLine != null )
 					{
-						// Remove zeroes
-						firstLine.replace( "\0000", "" );
-	//					StringBuilder s = new StringBuilder();
-	//					for( char c : firstLine.toCharArray() )
-	//						if( c != 0 )
-	//							s.append( c );
-
+						firstLine.replace( "\0000", "" ); // Remove zeroes
 						Matcher matcher = encodingDetection.matcher( firstLine.toString() );
 						if( matcher.matches() )
-						{
-							if( !this.encoding.equalsIgnoreCase( matcher.group( 1 ) ) )
-							{
-								this.encoding = matcher.group( 1 );
-								in.reset();
-								if( this.bom != null )
-									Assert.isTrue( in.skip( this.bom.length ) == this.bom.length );
-								init( new BufferedReader( new InputStreamReader( in, this.encoding ) ) );
-							}
-	//						this.reader.readLine();
-							this.currentLineNumber = 2;
-
-							// BOM is skipped, reader created, line number = 2
-						}
-						else
-						{
-							reader.reset();
-						}
+							this.encoding = matcher.group( 1 );
 					}
 				}
+
+				init( new BufferedReader( new InputStreamReader( in, this.encoding ) ) );
 			}
 			catch( IOException e )
 			{
-				throw new SystemException( e );
+				throw new FatalIOException( e );
 			}
 		}
 		catch( RuntimeException e )
@@ -156,7 +116,7 @@ public class BOMDetectingLineReader extends ReaderLineReader
 			}
 			catch( IOException ee )
 			{
-				throw new SystemException( ee );
+				throw new FatalIOException( e );
 			}
 			throw e;
 		}
@@ -174,19 +134,31 @@ public class BOMDetectingLineReader extends ReaderLineReader
 		this.resource = resource;
 
 		BufferedInputStream in = new BufferedInputStream( resource.getInputStream() );
-		detectBOM( in );
-
-		try
+		try // When an exception occurs below we need to close the input stream
 		{
-			if( encoding != null )
-				this.encoding = encoding;
-
-			init( new BufferedReader( new InputStreamReader( in, this.encoding ) ) );
-			this.currentLineNumber = 1;
+			detectBOM( in );
+			try
+			{
+				if( encoding != null )
+					this.encoding = encoding;
+				init( new BufferedReader( new InputStreamReader( in, this.encoding ) ) );
+			}
+			catch( IOException e )
+			{
+				throw new FatalIOException( e );
+			}
 		}
-		catch( IOException e )
+		catch( RuntimeException e )
 		{
-			throw new SystemException( e );
+			try
+			{
+				in.close();
+			}
+			catch( IOException ee )
+			{
+				throw new FatalIOException( e );
+			}
+			throw e;
 		}
 	}
 
@@ -233,11 +205,12 @@ public class BOMDetectingLineReader extends ReaderLineReader
 			}
 
 			if( this.bom != null )
-				Assert.isTrue( in.skip( this.bom.length ) == this.bom.length );
+				if( in.skip( this.bom.length ) != this.bom.length )
+					throw new IllegalStateException( "bom read problem" );
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 	}
 

@@ -40,8 +40,9 @@ public interface Resource
 	 * {@link #supportsURL()} to determine if this call is supported or not.
 	 *
 	 * @return The URL of the resource.
+	 * @throws FileNotFoundException
 	 */
-	URL getURL();
+	URL getURL() throws FileNotFoundException;
 
 	/**
 	 * Returns the input stream for this resource. Some resources allow only a single input stream to be retrieved.

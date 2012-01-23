@@ -3,7 +3,6 @@ package solidbase.io;
 import java.io.IOException;
 import java.io.Reader;
 
-import solidbase.util.Assert;
 
 public class SegmentedReader extends Reader
 {
@@ -28,7 +27,8 @@ public class SegmentedReader extends Reader
 			read = this.parent.read( cbuf, off, len );
 		else
 			read = this.parent.read( cbuf, off, (int)( this.segmentEnd - this.index ) );
-		Assert.isTrue( read >= 0 );
+		if( read == -1 )
+			throw new FatalIOException( "Segment not complete" );
 		this.index += read;
 		return read;
 	}
@@ -42,7 +42,8 @@ public class SegmentedReader extends Reader
 	public void gotoSegment( long start, long length ) throws IOException
 	{
 //		System.out.println( "Goto segment " + start );
-		Assert.isTrue( this.index <= start );
+		if( this.index > start )
+			throw new FatalIOException( "Past segment" );
 		this.parent.skip( start - this.index );
 		this.index = start;
 		this.segmentEnd = start + length;
