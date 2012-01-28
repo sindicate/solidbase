@@ -6,6 +6,8 @@ public class StringUtils
 {
 	static public String randomize( Random random, String s )
 	{
+		if( s == null )
+			return null;
 		char[] chars = s.toCharArray();
 		for( int j = 0; j < chars.length; j++ )
 		{
@@ -19,4 +21,4 @@ public class StringUtils
 		}
 		return new String( chars );
 	}
-}
+		}
