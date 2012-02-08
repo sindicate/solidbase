@@ -71,6 +71,7 @@ public class PrintSelect implements CommandListener
 			while( result.next() )
 			{
 				Object value = JDBCSupport.getValue( result, types, 0 );
+				// TODO Print binary columns as hex characters
 				if( value instanceof Blob || value instanceof byte[] )
 					throw new CommandFileException( "Binary columns like BLOB, RAW, BINARY VARYING cannot be printed", command.getLocation() );
 				if( value instanceof Clob )
@@ -86,7 +87,7 @@ public class PrintSelect implements CommandListener
 					}
 					catch( IOException e )
 					{
-						throw new SQLException( e );
+						throw (SQLException)new SQLException( e.toString() ).initCause( e ); // Java 1.5 has no SQLException constructor with cause parameter.
 					}
 					processor.getCallBack().print( buffer.toString() );
 				}
