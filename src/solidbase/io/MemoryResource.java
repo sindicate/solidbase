@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -102,8 +101,13 @@ public class MemoryResource implements Resource
 		int count;
 		try
 		{
+			// TODO Also handle the case where count == 0
 			while( ( count = input.read( buffer ) ) > 0 )
-				this.buffer.add( Arrays.copyOf( buffer, count ) );
+			{
+				byte[] b = new byte[ count ];
+				System.arraycopy( buffer, 0, b, 0, count );
+				this.buffer.add( b );
+			}
 		}
 		catch( IOException e )
 		{
