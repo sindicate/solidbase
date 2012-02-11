@@ -30,9 +30,10 @@ import solidbase.util.Assert;
 /**
  * Represents the console. In java 6, the {@link System#console()} is used. In older versions of java,
  * {@link System#out}, {@link System#in} and {@link System#err} are used. Used by the command line version of SolidBase.
- * 
+ *
  * @author René M. de Bloois
  */
+// TODO Test this on Java 5
 public class Console
 {
 	/**
@@ -88,7 +89,7 @@ public class Console
 
 	/**
 	 * Prints the string without prefixing the current date/time.
-	 * 
+	 *
 	 * @param string The string to print.
 	 */
 	protected void printBare( String string )
@@ -105,7 +106,7 @@ public class Console
 
 	/**
 	 * Prints the string without prefixing the current date/time, add a newline to the end.
-	 * 
+	 *
 	 * @param string The string to print.
 	 */
 	protected void printlnBare( String string )
@@ -131,7 +132,7 @@ public class Console
 	/**
 	 * Prints a string prefixed with the current date/time. Prefixing only happens if {@link #prefixWithDate} is true,
 	 * and the current column {@link #col} == 0.
-	 * 
+	 *
 	 * @param string The string to print.
 	 */
 	protected void print( String string )
@@ -147,7 +148,7 @@ public class Console
 	/**
 	 * Prints a string prefixed with the current date/time and with a newline added to the end. Prefixing only happens
 	 * if {@link #prefixWithDate} is true, and the current column {@link #col} == 0.
-	 * 
+	 *
 	 * @param string The string to print.
 	 */
 	protected void println( String string )
@@ -180,7 +181,7 @@ public class Console
 
 	/**
 	 * Input a string.
-	 * 
+	 *
 	 * @return The string that is input.
 	 */
 	protected String input()
@@ -190,7 +191,7 @@ public class Console
 
 	/**
 	 * Input a string. If password is true, only * are shown.
-	 * 
+	 *
 	 * @param password Input a password?
 	 * @return The string that is input.
 	 */
@@ -229,7 +230,7 @@ public class Console
 
 	/**
 	 * Prints a stacktrace to the error output stream.
-	 * 
+	 *
 	 * @param t The throwable of which the stacktrace needs to be printed.
 	 */
 	protected void printStacktrace( Throwable t )

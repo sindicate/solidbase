@@ -291,13 +291,10 @@ abstract public class CommandProcessor
 				return true;
 			}
 		}
-		else
+		else if( ( matcher = runPattern.matcher( sql ) ).matches() )
 		{
-			if( ( matcher = runPattern.matcher( sql ) ).matches() )
-			{
-				run( matcher.group( 1 ) );
-				return true;
-			}
+			run( matcher.group( 1 ) );
+			return true;
 		}
 
 		for( CommandListener listener : PluginManager.listeners )
@@ -323,15 +320,34 @@ abstract public class CommandProcessor
 		return statement;
 	}
 
+	/**
+	 * Prepares a new statement from the current connection.
+
+	 * @param sql The SQL for the statement.
+	 * @return The prepared statement.
+	 * @throws SQLException Whenever JDBC throws an SQLException.
+	 */
 	public PreparedStatement prepareStatement( String sql ) throws SQLException
 	{
 		Connection connection = getCurrentDatabase().getConnection();
 		Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
 		PreparedStatement statement = connection.prepareStatement( sql );
-//		statement.setEscapeProcessing( this.context.getJdbcEscaping() ); // This does not work in Oracle: gives invalid character error
+
+		// This does not work in Oracle: gives invalid character error
+		// Apparently it doesn't even work, because (in which JDBC drivers?) the SQL is already processed before this call.
+//		statement.setEscapeProcessing( this.context.getJdbcEscaping() );
+
 		return statement;
 	}
 
+	/**
+	 * Closes the given statement and commits or rollbacks if the command processor is in auto commit mode.
+	 * 
+	 * @param statement The statement to close.
+	 * @param commitOrRollback If the command processor is in auto commit mode, this boolean indicates if commit or
+	 *        rollback should be called on the statement's connection. If the command processor is not in auto commit
+	 *        mode, this boolean is ignored.
+	 */
 	public void closeStatement( Statement statement, boolean commitOrRollback )
 	{
 		try
@@ -344,7 +360,7 @@ abstract public class CommandProcessor
 				else
 					connection.rollback();
 			}
-			statement.close();
+			statement.close(); // TODO Shouldn't the statement be closed before commit or rollback?
 		}
 		catch( SQLException e )
 		{
@@ -519,7 +535,7 @@ abstract public class CommandProcessor
 	{
 		if( !this.context.hasVariable( name ) )
 			throw new CommandFileException( "Variable '" + name + "' is not defined", command.getLocation() );
-		this.context.skip( ( this.context.getVariableValue( name ) == null ) != ( not == null ) );
+		this.context.skip( this.context.getVariableValue( name ) == null != ( not == null ) );
 	}
 
 	/**
@@ -590,6 +606,8 @@ abstract public class CommandProcessor
 	/**
 	 * If true ({@link UpgradeProcessor}), commands get committed automatically, and rolled back when an {@link SQLException} occurs.
 	 * If false ({@link SQLProcessor}), commit/rollback should be in the command source.
+	 * 
+	 * @return True if commands get committed or rollbacked automatically, false otherwise.
 	 */
 	abstract public boolean autoCommit();
 }

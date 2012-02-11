@@ -30,6 +30,8 @@ import solidbase.util.Assert;
  */
 public class SQLExecutionException extends FatalException
 {
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * The command that caused the {@link SQLException}.
 	 */

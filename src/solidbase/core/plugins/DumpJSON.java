@@ -200,7 +200,6 @@ public class DumpJSON implements CommandListener
 
 							JSONArray array = new JSONArray();
 							for( int i = 0; i < count; i++ )
-							{
 								if( !skip[ i ] )
 								{
 									Object value = values[ i ];
@@ -227,14 +226,11 @@ public class DumpJSON implements CommandListener
 												spec.index = 0;
 												relFileName = fileResource.getPathFrom( jsvResource );
 											}
-											else
+											else if( spec.out == null )
 											{
-												if( spec.out == null )
-												{
-													String fileName = spec.generator.generateFileName( result );
-													Resource fileResource = new FileResource( fileName );
-													spec.out = fileResource.getOutputStream();
-												}
+												String fileName = spec.generator.generateFileName( result );
+												Resource fileResource = new FileResource( fileName );
+												spec.out = fileResource.getOutputStream();
 											}
 											if( value instanceof Blob )
 											{
@@ -282,14 +278,11 @@ public class DumpJSON implements CommandListener
 												spec.index = 0;
 												relFileName = fileResource.getPathFrom( jsvResource );
 											}
-											else
+											else if( spec.writer == null )
 											{
-												if( spec.writer == null )
-												{
-													String fileName = spec.generator.generateFileName( result );
-													Resource fileResource = new FileResource( fileName );
-													spec.writer = new OutputStreamWriter( fileResource.getOutputStream(), jsonWriter.getEncoding() );
-												}
+												String fileName = spec.generator.generateFileName( result );
+												Resource fileResource = new FileResource( fileName );
+												spec.writer = new OutputStreamWriter( fileResource.getOutputStream(), jsonWriter.getEncoding() );
 											}
 											if( value instanceof Blob || value instanceof byte[] )
 												throw new CommandFileException( names[ i ] + " is a binary column. Binary columns like BLOB, RAW, BINARY VARYING cannot be written to a text file", command.getLocation() );
@@ -335,15 +328,11 @@ public class DumpJSON implements CommandListener
 											}
 										}
 									}
+									else if( value instanceof Clob )
+										array.add( ( (Clob)value ).getCharacterStream() );
 									else
-									{
-										if( value instanceof Clob )
-											array.add( ( (Clob)value ).getCharacterStream() );
-										else
-											array.add( value );
-									}
+										array.add( value );
 								}
-							}
 
 							for( ListIterator< Object > i = array.iterator(); i.hasNext(); )
 							{
@@ -614,7 +603,7 @@ public class DumpJSON implements CommandListener
 	static protected class Coalescer
 	{
 //		protected Set< String > first = new HashSet();
-		protected Set< String > next = new HashSet();
+		protected Set< String > next = new HashSet< String >();
 		protected List< List< String > > names = new ArrayList< List<String> >();
 		protected List< List< Integer > > indexes = new ArrayList< List<Integer> >();
 		protected List< String > temp;
@@ -664,13 +653,11 @@ public class DumpJSON implements CommandListener
 					String name = nams.get( j );
 					int found = -1;
 					for( int k = 0; k < names.length; k++ )
-					{
 						if( name.equals( names[ k ] ) )
 						{
 							found = k;
 							break;
 						}
-					}
 					if( found < 0 )
 						throw new FatalException( "Coalesce column " + name + " not in result set" );
 					indexes.set( j, found );

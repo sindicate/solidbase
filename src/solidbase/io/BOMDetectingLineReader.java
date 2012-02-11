@@ -69,11 +69,9 @@ public class BOMDetectingLineReader extends ReaderLineReader
 
 
 	/**
-	 * Creates a new linereader for the given resource.
-	 *
-	 * @param resource The resource to be read.
+	 * @param resource The resource to read from.
 	 * @param encodingDetection A regular expression to detect the encoding on the first line.
-	 * @throws FileNotFoundException
+	 * @throws FileNotFoundException When a file is not found.
 	 */
 	public BOMDetectingLineReader( Resource resource, Pattern encodingDetection ) throws FileNotFoundException
 	{
@@ -123,11 +121,9 @@ public class BOMDetectingLineReader extends ReaderLineReader
 	}
 
 	/**
-	 * Creates a new linereader for the given resource.
-	 *
-	 * @param resource The resource to be read.
+	 * @param resource The resource to read from.
 	 * @param encoding The encoding of the file. If not null, it will override the BOM.
-	 * @throws FileNotFoundException
+	 * @throws FileNotFoundException When a file is not found.
 	 */
 	public BOMDetectingLineReader( Resource resource, String encoding ) throws FileNotFoundException
 	{
@@ -162,6 +158,10 @@ public class BOMDetectingLineReader extends ReaderLineReader
 		}
 	}
 
+	/**
+	 * @param resource The resource to read from.
+	 * @throws FileNotFoundException When a file is not found.
+	 */
 	public BOMDetectingLineReader( Resource resource ) throws FileNotFoundException
 	{
 		this( resource, (String)null );
