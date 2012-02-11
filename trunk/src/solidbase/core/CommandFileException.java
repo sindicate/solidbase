@@ -27,6 +27,8 @@ import solidbase.io.FileLocation;
 // TODO Look for another name for this exception, like LocalizedFatalException and include the file's url
 public class CommandFileException extends FatalException
 {
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * The file location where the problem is located.
 	 */

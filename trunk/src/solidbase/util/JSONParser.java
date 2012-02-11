@@ -108,7 +108,7 @@ public class JSONParser
 							}
 						case NONE:
 							// Multiple top level objects are allowed, fall through to BEFOREVALUE
-					}
+					} //$FALL-THROUGH$
 
 				case BEFOREVALUE:
 					switch( token.getType() )
@@ -133,7 +133,7 @@ public class JSONParser
 						case EOF:
 							if( this.currentStruct == STRUCT.NONE )
 								return EVENT.EOF;
-							// fall through
+							//$FALL-THROUGH$
 						default:
 							// TODO We have 2 kinds of EOF (are we in a STRUCT or not?)
 							throw new CommandFileException( "Expecting {, [, \", a number, true, false or null, not '" + token + "'", tokenizer.getLocation() );

@@ -58,7 +58,8 @@ public class ClassPathResource implements Resource
 
 	/**
 	 * Returns the URL for this resource.
-	 * @throws FileNotFoundException
+	 * 
+	 * @throws FileNotFoundException When a file is not found.
 	 */
 	public URL getURL() throws FileNotFoundException
 	{
@@ -70,7 +71,8 @@ public class ClassPathResource implements Resource
 
 	/**
 	 * Returns an InputStream for this resource.
-	 * @throws FileNotFoundException
+	 * 
+	 * @throws FileNotFoundException When a file is not found.
 	 */
 	public InputStream getInputStream() throws FileNotFoundException
 	{

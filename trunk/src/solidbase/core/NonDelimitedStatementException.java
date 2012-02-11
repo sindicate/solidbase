@@ -26,6 +26,8 @@ import solidbase.io.FileLocation;
  */
 public class NonDelimitedStatementException extends CommandFileException
 {
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Constructor.
 	 *

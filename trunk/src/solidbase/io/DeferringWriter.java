@@ -4,7 +4,15 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.nio.charset.Charset;
 
+import solidbase.core.SystemException;
+
+/**
+ * A writer that does not write to the given resource until a certain threshold is reached.
+ * 
+ * @author René de Bloois
+ */
 public class DeferringWriter extends Writer
 {
 	protected int threshold;
@@ -16,6 +24,9 @@ public class DeferringWriter extends Writer
 
 	public DeferringWriter( int threshold, Resource resource, String encoding ) throws UnsupportedEncodingException
 	{
+		if( !Charset.isSupported( encoding ) )
+			throw new UnsupportedEncodingException( encoding );
+
 		this.threshold = threshold;
 		this.resource = resource;
 		this.encoding = encoding;
@@ -24,9 +35,16 @@ public class DeferringWriter extends Writer
 			this.buffer = new StringBuilder();
 	}
 
-	protected void initWriter() throws UnsupportedEncodingException
+	protected void initWriter()
 	{
-		this.writer = new OutputStreamWriter( this.resource.getOutputStream(), this.encoding );
+		try
+		{
+			this.writer = new OutputStreamWriter( this.resource.getOutputStream(), this.encoding );
+		}
+		catch( UnsupportedEncodingException e )
+		{
+			throw new SystemException( e ); // This can't happen
+		}
 	}
 
 	@Override
