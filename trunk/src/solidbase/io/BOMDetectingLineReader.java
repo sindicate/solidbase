@@ -92,8 +92,8 @@ public class BOMDetectingLineReader extends ReaderLineReader
 
 					if( firstLine != null )
 					{
-						firstLine.replace( "\0000", "" ); // Remove zeroes
-						Matcher matcher = encodingDetection.matcher( firstLine.toString() );
+						firstLine = firstLine.replace( "\0000", "" ); // Remove zeroes
+						Matcher matcher = encodingDetection.matcher( firstLine );
 						if( matcher.matches() )
 							this.encoding = matcher.group( 1 );
 					}
@@ -172,7 +172,7 @@ public class BOMDetectingLineReader extends ReaderLineReader
 	 *
 	 * @param in The input stream.
 	 */
-	protected void detectBOM( BufferedInputStream in )
+	private void detectBOM( BufferedInputStream in )
 	{
 		this.bom = null;
 		try

@@ -14,6 +14,8 @@ import solidbase.io.Resource;
 
 public class JSONWriter
 {
+	static private final String ENCODING = "UTF-8";
+
 	private Writer out;
 
 	// Needed for formatted output
@@ -28,7 +30,7 @@ public class JSONWriter
 	{
 		try
 		{
-			this.out = new OutputStreamWriter( resource.getOutputStream(), getEncoding() );
+			this.out = new OutputStreamWriter( resource.getOutputStream(), ENCODING );
 		}
 		catch( UnsupportedEncodingException e )
 		{
@@ -38,7 +40,7 @@ public class JSONWriter
 
 	public String getEncoding()
 	{
-		return "UTF-8";
+		return ENCODING;
 	}
 
 	public Writer getWriter()
@@ -204,7 +206,6 @@ public class JSONWriter
 
 	private void writeReader( Reader reader ) throws IOException
 	{
-		Writer out = this.out;
 		this.out.write( '"' );
 		char[] buf = new char[ 4096 ];
 		for( int read = reader.read( buf ); read >= 0; read = reader.read( buf ) )
@@ -373,7 +374,7 @@ public class JSONWriter
 		}
 	}
 
-	static public interface CustomWriter
+	public interface CustomWriter
 	{
 		void writeTo( JSONWriter out );
 		int length();

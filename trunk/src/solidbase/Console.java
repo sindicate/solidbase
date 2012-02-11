@@ -204,7 +204,7 @@ public class Console
 		if( this.java6console != null )
 		{
 			if( password )
-				input = new String( this.java6console.readPassword() );
+				input = String.valueOf( this.java6console.readPassword() );
 			else
 				input = this.java6console.readLine();
 		}

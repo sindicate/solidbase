@@ -17,10 +17,10 @@
 package solidbase.util;
 
 import solidbase.core.CommandFileException;
-import solidbase.io.ReaderLineReader;
 import solidbase.io.FileLocation;
 import solidbase.io.LineReader;
 import solidbase.io.PushbackReader;
+import solidbase.io.ReaderLineReader;
 
 
 /**
@@ -202,7 +202,7 @@ public class Tokenizer
 		else
 		{
 			for( String exp : expected )
-				if( token.equals( exp ) )
+				if( token.eq( exp ) )
 					return token;
 		}
 
@@ -320,7 +320,7 @@ public class Tokenizer
 
 
 	/**
-	 * A token. The token is case insensitive, so the {@link #equals(String)} does a case insensitive comparison.
+	 * A token. The token is case insensitive, so the {@link #eq(String)} does a case insensitive comparison.
 	 *
 	 * @author René M. de Bloois
 	 */
@@ -344,7 +344,7 @@ public class Tokenizer
 		 */
 		public Token( String value, String whiteSpace )
 		{
-			this.value = value;
+			this.value = value != null ? value.toUpperCase() : null;
 			this.whiteSpace = whiteSpace;
 		}
 
@@ -403,12 +403,12 @@ public class Tokenizer
 		}
 
 		/**
-		 * Does a case insensitive comparison with the given string.
+		 * Does a case sensitive comparison with the given string. Tokens are always upper case.
 		 *
 		 * @param s A string to compare the value of this token with.
-		 * @return True if the value of this token and the given string are equal (ignoring case), false otherwise.
+		 * @return True if the value of this token and the given string are equal, false otherwise.
 		 */
-		public boolean equals( String s )
+		public boolean eq( String s ) // TODO Compare with null?
 		{
 			if( this.value == null )
 				return false;

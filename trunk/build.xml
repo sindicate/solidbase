@@ -18,18 +18,18 @@
 
 <project basedir="." name="solidbase" default="dist" xmlns:maven="antlib:org.apache.maven.artifact.ant">
 
-	
+
 	<!-- Maven Ant Task -->
-	
+
 	<path id="maven.classpath">
 		<fileset dir="tools/maven" includes="*.jar" />
 	</path>
 
 	<typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven.classpath" />
-	
+
 	<!-- <maven:dependencies><pom file="pom.xml" /></maven:dependencies> -->
-	
-	
+
+
 	<!-- Properties -->
 
 	<property file="build.properties" />
@@ -41,7 +41,7 @@
 		<isset property="testclass" />
 	</condition>
 	-->
-	
+
 	<!-- Product folders -->
 	<property name="build.home" location="../BUILDS/solidbase" />
 	<property name="temp.home" value="../TEMP/solidbase" />
@@ -94,6 +94,10 @@
 		<fileset dir="tools/maven/boot" includes="*.jar" />
 	</path>
 
+	<path id="sonar.classpath">
+		<fileset dir="tools/sonar" includes="*.jar" />
+	</path>
+
 
 	<!-- Custom Ant Task Definitions -->
 
@@ -101,21 +105,21 @@
 	<taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpathref="groovy.classpath" />
 	<taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpathref="jarjar.classpath" />
 	<taskdef name="fop" classname="org.apache.fop.tools.anttasks.Fop" classpathref="fop.classpath" />
+	<taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml" classpathref="sonar.classpath" />
 
+	<!-- Check Java version  -->
 
-    <!-- Check Java version  -->
-	
-	<echo message="Java Version: ${java.version}"/> 
-	<echo message="Java home: ${java.home}"/> 
-	<fail message="Unsupported Java version: ${java.version}. Let the JAVA_HOME environment variable point to a JDK 1.6."> 
-		<condition> 
-			<not> 
-				<contains string="${java.version}" substring="1.6" casesensitive="false" /> 
-			</not> 
-		</condition> 
+	<echo message="Java Version: ${java.version}"/>
+	<echo message="Java home: ${java.home}"/>
+	<fail message="Unsupported Java version: ${java.version}. Let the JAVA_HOME environment variable point to a JDK 1.6.">
+		<condition>
+			<not>
+				<contains string="${java.version}" substring="1.6" casesensitive="false" />
+			</not>
+		</condition>
 	</fail>
 
-	
+
 	<!-- Default target -->
 
 	<target name="none">
@@ -294,31 +298,43 @@
 		<xslt style="tools/docbook/fo/docbook.xsl" in="doc/manual.xml" out="${build.home}/manual.fo" classpathref="xalan.classpath" />
 		<fop format="application/pdf" fofile="${build.home}/manual.fo" outfile="${dist.home}/manual.pdf" />
 	</target>
-	
-	
+
+
 	<target name="test-ant-task" depends="compile">
-        <taskdef resource="solidbasetasks" classpathref="compiletest.classpath" />
+		<taskdef resource="solidbasetasks" classpathref="compiletest.classpath" />
 		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testJson" user="sa" password="" patchfile="test/testpatch-multiconnections.sql" target="1.0.*">
-       		<secondary name="queues" url="jdbc:hsqldb:mem:queues" username="sa" password="geheim" />
-       		<secondary name="user" username="sa" password="" />
-        </solidbase-upgrade>
+			<secondary name="queues" url="jdbc:hsqldb:mem:queues" username="sa" password="geheim" />
+			<secondary name="user" username="sa" password="" />
+		</solidbase-upgrade>
 	</target>
 
+
+	<target name="sonar" depends="test,build">
+		<property name="sonar.sources" value="src" />
+
+		<!-- list of optional Sonar properties -->
+		<property name="sonar.projectName" value="this value overrides the name defined in Ant root node" />
+		<property name="sonar.binaries" value="list of directories which contain for example the Java bytecode" />
+		<property name="sonar.tests" value="list of test source directories separated by a comma" />
+		<property name="sonar.libraries" value="list of paths to libraries separated by a comma (These libraries are for example used by the Sonar Findbugs plugin)" />
+	 
+	    <sonar:sonar key="solidbase:solidbase" version="2.0.0-beta" xmlns:sonar="antlib:org.sonar.ant" />
+	</target>
 
 	<target name="maven:deploy" depends="build" description="Deploys to the remote repo">
 		<maven:deploy file="${dist.home}/solidbase.jar">
 			<pom file="deploy-pom.xml" />
 		</maven:deploy>
 	</target>
-	
-	
+
+
 	<target name="maven:install" depends="build" description="Deploys to the local repo">
 		<maven:install file="${dist.home}/solidbase.jar">
 			<pom file="deploy-pom.xml" />
 		</maven:install>
 	</target>
-	
-	
+
+
 	<!--
 	<target name="maven:release">
 		<replaceregexp file="pom.xml" match="&lt;version&gt;(\w|\.|-)*&lt;/version&gt;" replace="&lt;version&gt;${release.number}&lt;/version&gt;" />
@@ -326,16 +342,16 @@
 		
 	</target>
 	-->
-	
-	
+
+
 	<!-- This will delete all files but not the folders. Use this when you want to integrate a new version of the docbook xsl tool -->
 	<target name="delete-docbook-tool">
 		<delete>
 			<fileset dir="tools/docbook" includes="**/*" />
 		</delete>
 	</target>
-	
-	
+
+
 	<!-- Example maven macro
 	<macrodef name="maven">
 		<attribute name="options" default="" />
@@ -364,7 +380,7 @@
 	<maven basedir="${basedir}" options="${maven.opts}" goal="install" resultproperty="maven.build.result" />
 	-->
 
-	
+
 	<target name="test-maven-plugin" depends="build">
 		
 		<!-- Deploy -->
@@ -392,14 +408,14 @@
 	</target>
 	
 
-    <target name="docbook2wiki" depends="compile">
-        <groovy src="scripts/docbook2wiki.groovy" classpath="${build.home}/classes" />
-    </target>
+	<target name="docbook2wiki" depends="compile">
+		<groovy src="scripts/docbook2wiki.groovy" classpath="${build.home}/classes" />
+	</target>
 
 
-    <target name="gettingstarted" depends="clean,build">
-        <groovy src="scripts/GenerateGettingStarted.groovy" />
-    </target>
+	<target name="gettingstarted" depends="clean,build">
+		<groovy src="scripts/GenerateGettingStarted.groovy" />
+	</target>
 
 
 </project>
