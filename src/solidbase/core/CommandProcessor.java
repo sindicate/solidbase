@@ -42,6 +42,11 @@ abstract public class CommandProcessor
 	// Don't need whitespace at the end of the Patterns
 
 	/**
+	 * Pattern for ENCODING.
+	 */
+	static protected final Pattern encodingPattern = Pattern.compile( "ENCODING\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
+
+	/**
 	 * Pattern for IGNORE SQL ERROR.
 	 */
 	static protected final Pattern ignoreSqlErrorPattern = Pattern.compile( "IGNORE\\s+SQL\\s+ERROR\\s+(\\w+(\\s*,\\s*\\w+)*)", Pattern.CASE_INSENSITIVE );
@@ -288,6 +293,11 @@ abstract public class CommandProcessor
 			if( ( matcher = JDBC_ESCAPING.matcher( sql ) ).matches() )
 			{
 				this.context.setJdbcEscaping( matcher.group( 1 ).equalsIgnoreCase( "ON" ) );
+				return true;
+			}
+			if( encodingPattern.matcher( sql ).matches() )
+			{
+				// Ignore, already picked up by the BOMDetectingLineReader
 				return true;
 			}
 		}

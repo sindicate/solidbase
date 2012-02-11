@@ -398,7 +398,7 @@ public class DumpJSON implements CommandListener
 		String file = t.stripQuotes();
 
 		t = tokenizer.get();
-		if( t.equals( "DATE" ) )
+		if( t.eq( "DATE" ) )
 		{
 			tokenizer.get( "AS" );
 			tokenizer.get( "TIMESTAMP" );
@@ -408,7 +408,7 @@ public class DumpJSON implements CommandListener
 			t = tokenizer.get();
 		}
 
-		while( t.equals( "COALESCE" ) )
+		while( t.eq( "COALESCE" ) )
 		{
 			if( result.coalesce == null )
 				result.coalesce = new Coalescer();
@@ -428,7 +428,7 @@ public class DumpJSON implements CommandListener
 
 				t = tokenizer.get();
 			}
-			while( t.equals( "," ) );
+			while( t.eq( "," ) );
 
 			result.coalesce.end();
 		}
@@ -457,15 +457,15 @@ public class DumpJSON implements CommandListener
 //			t = tokenizer.get();
 //		}
 
-		if( t.equals( "COLUMN" ) )
+		if( t.eq( "COLUMN" ) )
 		{
 			result.columns = new HashMap< String, FileSpec >();
-			while( t.equals( "COLUMN" ) )
+			while( t.eq( "COLUMN" ) )
 			{
 				List< Token > columns = new ArrayList< Token >();
 				columns.add( tokenizer.get() );
 				t = tokenizer.get();
-				while( t.equals( "," ) )
+				while( t.eq( "," ) )
 				{
 					columns.add( tokenizer.get() );
 					t = tokenizer.get();
@@ -474,7 +474,7 @@ public class DumpJSON implements CommandListener
 
 				tokenizer.get( "TO" );
 				t = tokenizer.get( "BINARY", "TEXT" );
-				boolean binary = t.equals( "BINARY" );
+				boolean binary = t.eq( "BINARY" );
 				tokenizer.get( "FILE" );
 				t = tokenizer.get();
 				String fileName = t.getValue();
@@ -484,7 +484,7 @@ public class DumpJSON implements CommandListener
 
 				t = tokenizer.get();
 				int threshold = 0;
-				if( t.equals( "THRESHOLD" ) )
+				if( t.eq( "THRESHOLD" ) )
 				{
 					t = tokenizer.get();
 					threshold = Integer.parseInt( t.getValue() );

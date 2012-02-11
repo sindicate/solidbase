@@ -99,7 +99,7 @@ public class URLRandomAccessLineReader extends ReaderLineReader implements Rando
 	 *
 	 * @throws FileNotFoundException
 	 */
-	protected void open() throws FileNotFoundException
+	private void open() throws FileNotFoundException
 	{
 		BufferedInputStream is = new BufferedInputStream( this.resource.getInputStream() );
 
@@ -136,7 +136,7 @@ public class URLRandomAccessLineReader extends ReaderLineReader implements Rando
 	 * @param in The input stream.
 	 */
 	// TODO This is double with the one in BOMDetectingLineReader
-	protected void detectBOM( BufferedInputStream in )
+	private void detectBOM( BufferedInputStream in )
 	{
 		this.bom = null;
 		try

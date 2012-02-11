@@ -118,6 +118,7 @@ public class UpgradeFile
 	 *
 	 * @param file The reader which is used to read the contents of the file.
 	 */
+	// TODO Use a variant of the BOMDetectingLineReader
 	protected UpgradeFile( RandomAccessLineReader file )
 	{
 		this.file = file;

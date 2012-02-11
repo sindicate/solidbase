@@ -338,7 +338,7 @@ public class ExportCSV implements CommandListener
 		tokenizer.get( "CSV" );
 
 		Token t = tokenizer.get( "WITH", "SEPARATED", "COALESCE", "FILE" );
-		if( t.equals( "WITH" ) )
+		if( t.eq( "WITH" ) )
 		{
 			tokenizer.get( "HEADER" );
 			result.withHeader = true;
@@ -346,11 +346,11 @@ public class ExportCSV implements CommandListener
 			t = tokenizer.get( "SEPARATED", "COALESCE", "FILE" );
 		}
 
-		if( t.equals( "SEPARATED" ) )
+		if( t.eq( "SEPARATED" ) )
 		{
 			tokenizer.get( "BY" );
 			t = tokenizer.get();
-			if( t.equals( "TAB" ) )
+			if( t.eq( "TAB" ) )
 				result.separator = '\t';
 			else
 			{
@@ -362,7 +362,7 @@ public class ExportCSV implements CommandListener
 			t = tokenizer.get( "COALESCE", "FILE" );
 		}
 
-		if( t.equals( "COALESCE" ) )
+		if( t.eq( "COALESCE" ) )
 		{
 			result.coalesce = new HashSet< String >();
 			do
@@ -371,7 +371,7 @@ public class ExportCSV implements CommandListener
 				result.coalesce.add( t.getValue().toUpperCase() );
 				t = tokenizer.get();
 			}
-			while( t.equals( "," ) );
+			while( t.eq( "," ) );
 			tokenizer.push( t );
 
 			tokenizer.get( "FILE" );
@@ -391,15 +391,15 @@ public class ExportCSV implements CommandListener
 		encoding = encoding.substring( 1, encoding.length() - 1 );
 
 		t = tokenizer.get();
-		if( t.equals( "COLUMN" ) )
+		if( t.eq( "COLUMN" ) )
 		{
 			result.columns = new HashMap< String, FileSpec >();
-			while( t.equals( "COLUMN" ) )
+			while( t.eq( "COLUMN" ) )
 			{
 				List< Token > columns = new ArrayList< Token >();
 				columns.add( tokenizer.get() );
 				t = tokenizer.get();
-				while( t.equals( "," ) )
+				while( t.eq( "," ) )
 				{
 					columns.add( tokenizer.get() );
 					t = tokenizer.get();
@@ -408,7 +408,7 @@ public class ExportCSV implements CommandListener
 
 				tokenizer.get( "TO" );
 				t = tokenizer.get( "BINARY", "TEXT" );
-				boolean binary = t.equals( "BINARY" );
+				boolean binary = t.eq( "BINARY" );
 				tokenizer.get( "FILE" );
 				t = tokenizer.get();
 				String fileName = t.getValue();
@@ -418,7 +418,7 @@ public class ExportCSV implements CommandListener
 
 				t = tokenizer.get();
 				int threshold = 0;
-				if( t.equals( "THRESHOLD" ) )
+				if( t.eq( "THRESHOLD" ) )
 				{
 					t = tokenizer.get();
 					threshold = Integer.parseInt( t.getValue() );

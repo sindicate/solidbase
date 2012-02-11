@@ -207,6 +207,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	 * @param downgradeable Also consider downgrade paths.
 	 * @return All possible targets from the current version.
 	 */
+	// TODO Why is this a LinkedHashSet?
 	public LinkedHashSet< String > getTargets( boolean tips, String prefix, boolean downgradeable )
 	{
 		LinkedHashSet< String > result = new LinkedHashSet< String >();
@@ -219,7 +220,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	 *
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	public void setupControlTables() throws SQLExecutionException
+	public void setupControlTables() throws SQLExecutionException // TODO This is a RuntimeException, remove or not? Keep in Javadoc?
 	{
 		String spec = this.dbVersion.getSpec();
 

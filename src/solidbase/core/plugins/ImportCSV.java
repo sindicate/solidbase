@@ -345,7 +345,7 @@ public class ImportCSV implements CommandListener
 
 		Token t = tokenizer.get( "SKIP", "SEPARATED", "IGNORE", "PREPEND", "NOBATCH", "USING", "INTO" );
 
-		if( t.equals( "SKIP" ) )
+		if( t.eq( "SKIP" ) )
 		{
 			tokenizer.get( "HEADER" );
 			result.skipHeader = true;
@@ -353,11 +353,11 @@ public class ImportCSV implements CommandListener
 			t = tokenizer.get( "SEPARATED", "IGNORE", "PREPEND", "NOBATCH", "USING", "INTO" );
 		}
 
-		if( t.equals( "SEPARATED" ) )
+		if( t.eq( "SEPARATED" ) )
 		{
 			tokenizer.get( "BY" );
 			t = tokenizer.get();
-			if( t.equals( "TAB" ) )
+			if( t.eq( "TAB" ) )
 				result.separator = '\t';
 			else
 			{
@@ -369,7 +369,7 @@ public class ImportCSV implements CommandListener
 			t = tokenizer.get( "IGNORE", "PREPEND", "NOBATCH", "USING", "INTO" );
 		}
 
-		if( t.equals( "IGNORE" ) )
+		if( t.eq( "IGNORE" ) )
 		{
 			tokenizer.get( "WHITESPACE" );
 			result.ignoreWhiteSpace = true;
@@ -377,7 +377,7 @@ public class ImportCSV implements CommandListener
 			t = tokenizer.get( "PREPEND", "NOBATCH", "USING", "INTO" );
 		}
 
-		if( t.equals( "PREPEND" ) )
+		if( t.eq( "PREPEND" ) )
 		{
 			tokenizer.get( "LINENUMBER" );
 			result.prependLineNumber = true;
@@ -385,30 +385,30 @@ public class ImportCSV implements CommandListener
 			t = tokenizer.get( "NOBATCH", "USING", "INTO" );
 		}
 
-		if( t.equals( "NOBATCH" ) )
+		if( t.eq( "NOBATCH" ) )
 		{
 			result.noBatch = true;
 
 			t = tokenizer.get( "USING", "INTO" );
 		}
 
-		if( !t.equals( "INTO" ) )
+		if( !t.eq( "INTO" ) )
 			throw new CommandFileException( "Expecting [INTO], not [" + t + "]", tokenizer.getLocation() );
 		result.tableName = tokenizer.get().toString();
 
 		t = tokenizer.get( "(", "VALUES", "DATA", "FILE", null );
 
-		if( t.equals( "(" ) )
+		if( t.eq( "(" ) )
 		{
 			t = tokenizer.get();
-			if( t.equals( ")" ) || t.equals( "," ) )
+			if( t.eq( ")" ) || t.eq( "," ) )
 				throw new CommandFileException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
 			columns.add( t.getValue() );
 			t = tokenizer.get( ",", ")" );
-			while( !t.equals( ")" ) )
+			while( !t.eq( ")" ) )
 			{
 				t = tokenizer.get();
-				if( t.equals( ")" ) || t.equals( "," ) )
+				if( t.eq( ")" ) || t.eq( "," ) )
 					throw new CommandFileException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
 				columns.add( t.getValue() );
 				t = tokenizer.get( ",", ")" );
@@ -417,7 +417,7 @@ public class ImportCSV implements CommandListener
 			t = tokenizer.get( "VALUES", "DATA", "FILE", null );
 		}
 
-		if( t.equals( "VALUES" ) )
+		if( t.eq( "VALUES" ) )
 		{
 			tokenizer.get( "(" );
 			do
@@ -429,7 +429,7 @@ public class ImportCSV implements CommandListener
 
 				t = tokenizer.get( ",", ")" );
 			}
-			while( t.equals( "," ) );
+			while( t.eq( "," ) );
 
 			if( columns.size() > 0 )
 				if( columns.size() != values.size() )
@@ -446,7 +446,7 @@ public class ImportCSV implements CommandListener
 		if( t.isEndOfInput() )
 			return result;
 
-		if( t.equals( "DATA" ) )
+		if( t.eq( "DATA" ) )
 		{
 			tokenizer.getNewline();
 			result.reader = tokenizer.getReader();
@@ -500,12 +500,12 @@ public class ImportCSV implements CommandListener
 		outer:
 			while( true )
 			{
-				if( t.equals( "(" ) )
+				if( t.eq( "(" ) )
 				{
 					//System.out.println( "(" );
 					parseTill( tokenizer, result, true, ')' );
 					t = tokenizer.get();
-					Assert.isTrue( t.equals( ")" ) );
+					Assert.isTrue( t.eq( ")" ) );
 					//System.out.println( ")" );
 					result.append( t.getWhiteSpace() );
 					result.append( t.getValue() );

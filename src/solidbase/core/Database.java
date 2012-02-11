@@ -58,7 +58,7 @@ public class Database
 	/**
 	 * A map of connections indexed by user name.
 	 */
-	protected HashMap< String, Connection > connections = new HashMap< String, Connection >();
+	protected Map< String, Connection > connections = new HashMap< String, Connection >();
 
 	/**
 	 * The default user name to use for this database. When using a {@link #dataSource} this can be left blank.

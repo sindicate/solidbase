@@ -422,7 +422,7 @@ public class LoadJSON implements CommandListener
 
 		Token t = tokenizer.get( "PREPEND", "NOBATCH", "USING", "INTO" );
 
-		if( t.equals( "PREPEND" ) )
+		if( t.eq( "PREPEND" ) )
 		{
 			tokenizer.get( "LINENUMBER" );
 			result.prependLineNumber = true;
@@ -430,30 +430,30 @@ public class LoadJSON implements CommandListener
 			t = tokenizer.get( "NOBATCH", "USING", "INTO" );
 		}
 
-		if( t.equals( "NOBATCH" ) )
+		if( t.eq( "NOBATCH" ) )
 		{
 			result.noBatch = true;
 
 			t = tokenizer.get( "USING", "INTO" );
 		}
 
-		if( !t.equals( "INTO" ) )
+		if( !t.eq( "INTO" ) )
 			throw new CommandFileException( "Expecting [INTO], not [" + t + "]", tokenizer.getLocation() );
 		result.tableName = tokenizer.get().toString();
 
 		t = tokenizer.get( "(", "VALUES", "FILE" );
 
-		if( t.equals( "(" ) )
+		if( t.eq( "(" ) )
 		{
 			t = tokenizer.get();
-			if( t.equals( ")" ) || t.equals( "," ) )
+			if( t.eq( ")" ) || t.eq( "," ) )
 				throw new CommandFileException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
 			columns.add( t.getValue() );
 			t = tokenizer.get( ",", ")" );
-			while( !t.equals( ")" ) )
+			while( !t.eq( ")" ) )
 			{
 				t = tokenizer.get();
-				if( t.equals( ")" ) || t.equals( "," ) )
+				if( t.eq( ")" ) || t.eq( "," ) )
 					throw new CommandFileException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
 				columns.add( t.getValue() );
 				t = tokenizer.get( ",", ")" );
@@ -462,7 +462,7 @@ public class LoadJSON implements CommandListener
 			t = tokenizer.get( "VALUES", "FILE" );
 		}
 
-		if( t.equals( "VALUES" ) )
+		if( t.eq( "VALUES" ) )
 		{
 			tokenizer.get( "(" );
 			do
@@ -473,7 +473,7 @@ public class LoadJSON implements CommandListener
 
 				t = tokenizer.get( ",", ")" );
 			}
-			while( t.equals( "," ) );
+			while( t.eq( "," ) );
 
 			if( columns.size() > 0 )
 				if( columns.size() != values.size() )
@@ -526,12 +526,12 @@ public class LoadJSON implements CommandListener
 		outer:
 			while( true )
 			{
-				if( t.equals( "(" ) )
+				if( t.eq( "(" ) )
 				{
 					//System.out.println( "(" );
 					parseTill( tokenizer, result, true, ')' );
 					t = tokenizer.get();
-					Assert.isTrue( t.equals( ")" ) );
+					Assert.isTrue( t.eq( ")" ) );
 					//System.out.println( ")" );
 					result.append( t.getWhiteSpace() );
 					result.append( t.getValue() );
