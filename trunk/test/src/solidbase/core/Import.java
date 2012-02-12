@@ -61,7 +61,7 @@ public class Import
 		catch( FatalException e )
 		{
 			String message = e.getMessage().replace( '\\', '/' );
-			assert message.contains( "java.io.FileNotFoundException: folder/notexist.csv" );
+			assert message.contains( "java.io.FileNotFoundException: folder/notexist.csv" ) : message;
 		}
 
 		patcher.end();
