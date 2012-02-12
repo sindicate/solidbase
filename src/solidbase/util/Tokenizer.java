@@ -320,7 +320,7 @@ public class Tokenizer
 
 
 	/**
-	 * A token. The token is case insensitive, so the {@link #eq(String)} does a case insensitive comparison.
+	 * A token. Tokens are stored upper case, except for strings.
 	 *
 	 * @author René M. de Bloois
 	 */
@@ -344,7 +344,7 @@ public class Tokenizer
 		 */
 		public Token( String value, String whiteSpace )
 		{
-			this.value = value != null ? value.toUpperCase() : null;
+			this.value = value != null && !value.startsWith( "\"" ) ? value.toUpperCase() : value;
 			this.whiteSpace = whiteSpace;
 		}
 
@@ -394,7 +394,7 @@ public class Tokenizer
 		{
 			if( this.value == null )
 				return false;
-			return this.value.startsWith( "\"" ) && this.value.endsWith( "\"" );
+			return this.value.startsWith( "\"" );
 		}
 
 		public String stripQuotes()
