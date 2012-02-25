@@ -1,7 +1,6 @@
 package solidbase.io;
 
 
-// TODO Rename to LineNumber, ResourceLocation, FileLocation, ...
 public class FileLocation
 {
 	private Resource resource;
