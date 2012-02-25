@@ -71,7 +71,7 @@ public class URLRandomAccessLineReader extends ReaderLineReader implements Rando
 	 * @param resource The resource to read from.
 	 * @throws FileNotFoundException
 	 */
-	// TODO Why is URL still in the name?
+	// FIXME Why is URL still in the name?
 	public URLRandomAccessLineReader( Resource resource ) throws FileNotFoundException
 	{
 		this.resource = resource;

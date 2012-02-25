@@ -101,7 +101,7 @@ public class MemoryResource implements Resource
 		int count;
 		try
 		{
-			// TODO Also handle the case where count == 0
+			// FIXME Also handle the case where count == 0
 			while( ( count = input.read( buffer ) ) > 0 )
 			{
 				byte[] b = new byte[ count ];
