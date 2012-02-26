@@ -19,7 +19,6 @@ package solidbase.io;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
 
 
@@ -28,7 +27,7 @@ import java.net.URL;
  *
  * @author René M. de Bloois
  */
-public class ClassPathResource implements Resource
+public class ClassPathResource extends ResourceAdapter
 {
 	/**
 	 * The path of the resource.
@@ -42,6 +41,12 @@ public class ClassPathResource implements Resource
 	 */
 	public ClassPathResource( String path )
 	{
+		this( path, false );
+	}
+
+	public ClassPathResource( String path, boolean folder )
+	{
+		super( folder );
 		if( path.startsWith( "classpath:" ) )
 			this.path = path.substring( 10 );
 		else
@@ -51,6 +56,7 @@ public class ClassPathResource implements Resource
 	/**
 	 * Always returns true.
 	 */
+	@Override
 	public boolean supportsURL()
 	{
 		return true;
@@ -61,6 +67,7 @@ public class ClassPathResource implements Resource
 	 * 
 	 * @throws FileNotFoundException When a file is not found.
 	 */
+	@Override
 	public URL getURL() throws FileNotFoundException
 	{
 		URL result = ClassPathResource.class.getClassLoader().getResource( this.path );
@@ -74,6 +81,7 @@ public class ClassPathResource implements Resource
 	 * 
 	 * @throws FileNotFoundException When a file is not found.
 	 */
+	@Override
 	public InputStream getInputStream() throws FileNotFoundException
 	{
 		InputStream result = ClassPathResource.class.getClassLoader().getResourceAsStream( this.path );
@@ -82,15 +90,8 @@ public class ClassPathResource implements Resource
 		return result;
 	}
 
-	/**
-	 * Returns an OutputStream for this resource.
-	 */
-	public OutputStream getOutputStream()
-	{
-		throw new UnsupportedOperationException();
-	}
-
 	// TODO Need test for this
+	@Override
 	public Resource createRelative( String path )
 	{
 		String scheme = URLResource.getScheme( path );
@@ -98,7 +99,11 @@ public class ClassPathResource implements Resource
 		{
 			if( scheme != null )
 				path = path.substring( 10 );
-			return new ClassPathResource( new File( new File( this.path ).getParentFile(), path ).getPath() );
+			File parent = new File( this.path );
+			if( !isFolder() )
+				parent = parent.getParentFile();
+			path = new File( parent, path ).getPath().replace( '\\', '/' ); // ClassLoader does not understand backslashes
+			return ResourceFactory.getResource( "classpath:" + path );
 		}
 		return ResourceFactory.getResource( path );
 	}
@@ -109,16 +114,13 @@ public class ClassPathResource implements Resource
 		return this.path;
 	}
 
-	public String getPathFrom( Resource other )
-	{
-		throw new UnsupportedOperationException();
-	}
-
+	@Override
 	public boolean exists()
 	{
 		return ClassPathResource.class.getClassLoader().getResource( this.path ) != null;
 	}
 
+	@Override
 	public long getLastModified()
 	{
 		return 0;

@@ -32,7 +32,7 @@ import java.net.URL;
  *
  * @author René M. de Bloois
  */
-public class FileResource implements Resource
+public class FileResource extends ResourceAdapter
 {
 	/**
 	 * The file.
@@ -46,8 +46,7 @@ public class FileResource implements Resource
 	 */
 	public FileResource( File file )
 	{
-		if( file.isDirectory() )
-			throw new FatalIOException( "File can't be a directory" );
+		super( file.isDirectory() );
 		this.file = file;
 	}
 
@@ -72,11 +71,13 @@ public class FileResource implements Resource
 		this( new File( parent, path ) );
 	}
 
+	@Override
 	public boolean supportsURL()
 	{
 		return true;
 	}
 
+	@Override
 	public URL getURL()
 	{
 		try
@@ -89,11 +90,13 @@ public class FileResource implements Resource
 		}
 	}
 
+	@Override
 	public InputStream getInputStream() throws FileNotFoundException
 	{
 		return new FileInputStream( this.file );
 	}
 
+	@Override
 	public OutputStream getOutputStream()
 	{
 		File parent = this.file.getParentFile();
@@ -110,18 +113,25 @@ public class FileResource implements Resource
 	}
 
 	// TODO Need test for this
+	@Override
 	public Resource createRelative( String path )
 	{
 //		System.out.println( "Create relative [" + this.file + "] [" + path + "]" );
 		String scheme = URLResource.getScheme( path );
-		if( scheme == null || scheme.length() == 1 )
-			return new FileResource( new File( this.file.getParentFile(), path ) );
+		if( scheme == null || scheme.length() == 1 ) // No scheme or a drive letter
+		{
+			File parent = this.file;
+			if( !isFolder() )
+				parent = parent.getParentFile();
+			return new FileResource( parent, path );
+		}
 		if( scheme.equals( "file" ) )
 			return new URLResource( getURL() ).createRelative( path );
 		return ResourceFactory.getResource( path );
 	}
 
 	// TODO Need test for this
+	@Override
 	public String getPathFrom( Resource base )
 	{
 		if( !( base instanceof FileResource ) )
@@ -174,11 +184,13 @@ public class FileResource implements Resource
 		return this.file.getAbsolutePath();
 	}
 
+	@Override
 	public boolean exists()
 	{
 		return this.file.exists();
 	}
 
+	@Override
 	public long getLastModified()
 	{
 		return this.file.lastModified();

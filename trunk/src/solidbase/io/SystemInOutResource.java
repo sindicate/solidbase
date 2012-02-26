@@ -18,14 +18,13 @@ package solidbase.io;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
 
 /**
  * An input stream resource.
  *
  * @author René M. de Bloois
  */
-public class SystemInOutResource implements Resource
+public class SystemInOutResource extends ResourceAdapter
 {
 	/**
 	 * The {@link System#in}. Registered at the time of creation of this resource.
@@ -38,6 +37,7 @@ public class SystemInOutResource implements Resource
 	protected OutputStream out = System.out;
 
 
+	@Override
 	public InputStream getInputStream()
 	{
 		if( this.in == null )
@@ -47,6 +47,7 @@ public class SystemInOutResource implements Resource
 		return result;
 	}
 
+	@Override
 	public OutputStream getOutputStream()
 	{
 		if( this.out == null )
@@ -54,35 +55,5 @@ public class SystemInOutResource implements Resource
 		OutputStream result = new NonClosingOutputStream( this.out );
 		this.out = null;
 		return result;
-	}
-
-	public boolean supportsURL()
-	{
-		return false;
-	}
-
-	public URL getURL()
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	public Resource createRelative( String path )
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	public String getPathFrom( Resource other )
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	public boolean exists()
-	{
-		return true;
-	}
-
-	public long getLastModified()
-	{
-		return 0;
 	}
 }
