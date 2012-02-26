@@ -18,7 +18,6 @@ package solidbase.io;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.regex.Matcher;
@@ -31,7 +30,7 @@ import java.util.regex.Pattern;
  * @author René M. de Bloois
  */
 // TODO Maybe we should use URIResource. That one has no problems with the classpath scheme.
-public class URLResource implements Resource
+public class URLResource extends ResourceAdapter
 {
 	/**
 	 * The URL.
@@ -59,16 +58,25 @@ public class URLResource implements Resource
 		this( new URL( url ) );
 	}
 
+	public URLResource( String url, boolean folder ) throws MalformedURLException
+	{
+		super( folder );
+		this.url = new URL( url );
+	}
+
+	@Override
 	public boolean supportsURL()
 	{
 		return true;
 	}
 
+	@Override
 	public URL getURL()
 	{
 		return this.url;
 	}
 
+	@Override
 	public InputStream getInputStream()
 	{
 		try
@@ -81,15 +89,13 @@ public class URLResource implements Resource
 		}
 	}
 
-	public OutputStream getOutputStream()
-	{
-		throw new UnsupportedOperationException();
-	}
-
+	@Override
 	public Resource createRelative( String path )
 	{
 		try
 		{
+			// TODO Unit test with folder url
+			// TODO The resource factory has more logic then this
 			return new URLResource( new URL( this.url, path ) );
 		}
 		catch( MalformedURLException e )
@@ -114,18 +120,17 @@ public class URLResource implements Resource
 		return this.url.toString();
 	}
 
-	public String getPathFrom( Resource other )
-	{
-		throw new UnsupportedOperationException();
-	}
-
+	@Override
 	public boolean exists()
 	{
+		// TODO This should be implemented I think
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public long getLastModified()
 	{
+		// TODO This should be implemented I think
 		return 0;
 	}
 }

@@ -63,6 +63,7 @@ public final class ResourceFactory
 	{
 		if( path.equals( "-" ) )
 			return new SystemInOutResource();
+
 		if( path.startsWith( "classpath:" ) )
 		{
 			Resource result = new ClassPathResource( path );
@@ -78,6 +79,7 @@ public final class ResourceFactory
 				return result;
 			}
 		}
+
 		try
 		{
 
@@ -87,7 +89,7 @@ public final class ResourceFactory
 			{
 				url = resource.getURL();
 				if( url.getProtocol().equals( "file" ) )
-					return new FileResource( url.getFile() );
+					return new FileResource( url.getFile() ); // TODO Check that the file is not a folder
 			}
 			catch( FileNotFoundException e )
 			{
@@ -97,7 +99,56 @@ public final class ResourceFactory
 		}
 		catch( MalformedURLException e )
 		{
-			return new FileResource( parent, path );
+			return new FileResource( parent, path ); // TODO Check that the file is not a folder
 		}
+	}
+
+	static public Resource getFolderResource( String path )
+	{
+		return getFolderResource( null, path );
+	}
+
+	/**
+	 * Creates a resource for the given path. If the path starts with classpath:, a {@link ClassPathResource}, {@link URLResource} or {@link FileResource} will be
+	 * returned. If the path is a URL, a {@link URLResource} will be returned. Otherwise a {@link FileResource} is
+	 * returned. The parent argument is only used when the path is not a URL (including the classpath protocol).
+	 *
+	 * @param parent The parent folder of the resource.
+	 * @param path The path for the resource.
+	 * @return The resource.
+	 */
+	static public Resource getFolderResource( File parent, String path )
+	{
+		if( path.equals( "-" ) )
+			throw new FatalIOException( "'-' not supported for folder resources" );
+
+		if( path.startsWith( "classpath:" ) )
+			return new ClassPathResource( path, true );
+
+		try
+		{
+			Resource resource = new URLResource( path, true );
+			URL url;
+			try
+			{
+				url = resource.getURL();
+				if( url.getProtocol().equals( "file" ) )
+					return new FileResource( url.getFile() ); // TODO Check that the file is indeed a folder
+			}
+			catch( FileNotFoundException e )
+			{
+				// Ignore
+			}
+			return resource;
+		}
+		catch( MalformedURLException e )
+		{
+			return new FileResource( parent, path ); // TODO Check that the file is indeed a folder
+		}
+	}
+
+	static public Resource currentFolder()
+	{
+		return getFolderResource( "" );
 	}
 }

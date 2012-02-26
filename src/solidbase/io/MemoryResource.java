@@ -19,7 +19,6 @@ package solidbase.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,7 +28,7 @@ import java.util.List;
  *
  * @author René M. de Bloois
  */
-public class MemoryResource implements Resource
+public class MemoryResource extends ResourceAdapter
 {
 	/**
 	 * The buffer containing the resource's bytes.
@@ -64,29 +63,24 @@ public class MemoryResource implements Resource
 		append( input );
 	}
 
-	public boolean supportsURL()
-	{
-		return false;
-	}
-
-	public URL getURL()
-	{
-		throw new UnsupportedOperationException();
-	}
-
+	@Override
 	public InputStream getInputStream()
 	{
 		return new ByteMatrixInputStream( this.buffer.toArray( new byte[ this.buffer.size() ][] ) );
 	}
 
+	@Override
 	public OutputStream getOutputStream()
 	{
 		// TODO Should we implement this?
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public Resource createRelative( String path )
 	{
+		// TODO Should we keep a reference to the original resource so that this can work?
+		// TODO Should we rename this resource to BufferedResource then?
 		throw new UnsupportedOperationException();
 	}
 
@@ -115,18 +109,22 @@ public class MemoryResource implements Resource
 		}
 	}
 
+	@Override
 	public String getPathFrom( Resource other )
 	{
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public boolean exists()
 	{
 		return true;
 	}
 
+	@Override
 	public long getLastModified()
 	{
+		// TODO Should this be implemented?
 		return 0;
 	}
 }

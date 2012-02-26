@@ -72,4 +72,6 @@ public interface Resource
 	boolean exists();
 
 	long getLastModified();
+
+	boolean isFolder();
 }
