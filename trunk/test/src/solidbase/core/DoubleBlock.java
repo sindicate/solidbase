@@ -21,17 +21,15 @@ import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import solidbase.core.FatalException;
-import solidbase.core.UpgradeFile;
 import solidstack.io.FileResource;
-import solidstack.io.URLRandomAccessLineReader;
+import solidstack.io.RandomAccessBOMDetectingLineReader;
 
 public class DoubleBlock
 {
 	@Test
 	public void testDoubleBlock() throws IOException
 	{
-		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "testpatch-doubleblock.sql" ) );
+		RandomAccessBOMDetectingLineReader ralr = new RandomAccessBOMDetectingLineReader( new FileResource( "testpatch-doubleblock.sql" ) );
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		try
 		{

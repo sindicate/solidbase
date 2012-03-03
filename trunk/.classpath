@@ -20,5 +20,6 @@
 	<classpathentry kind="lib" path="lib/org.springframework.core-3.0.5.RELEASE.jar" sourcepath="G:/Users/Rene/.m2/repository/org/springframework/spring-core/3.0.5.RELEASE/spring-core-3.0.5.RELEASE-sources.jar"/>
 	<classpathentry kind="lib" path="lib/apache-ant-launcher-1.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.6.1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/solidstack"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

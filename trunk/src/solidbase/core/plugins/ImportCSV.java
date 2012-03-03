@@ -81,7 +81,7 @@ public class ImportCSV implements CommandListener
 		else if( parsed.fileName != null )
 		{
 			// Data is in a file
-			Resource resource = processor.getResource().createRelative( parsed.fileName );
+			Resource resource = processor.getResource().resolve( parsed.fileName );
 			try
 			{
 				lineReader = new BOMDetectingLineReader( resource, parsed.encoding );

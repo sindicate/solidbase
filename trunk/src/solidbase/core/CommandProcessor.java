@@ -463,7 +463,7 @@ abstract public class CommandProcessor
 	 */
 	protected void run( String url )
 	{
-		SQLFile file = Factory.openSQLFile( getResource().createRelative( url ), this.progress );
+		SQLFile file = Factory.openSQLFile( getResource().resolve( url ), this.progress );
 		SQLProcessor processor = new SQLProcessor( this.progress );
 		processor.setContext( new SQLContext( this.context, file.getSource() ) );
 		processor.process();

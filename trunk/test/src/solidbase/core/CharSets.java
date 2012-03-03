@@ -26,8 +26,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidstack.io.FileResource;
+import solidstack.io.RandomAccessBOMDetectingLineReader;
 import solidstack.io.RandomAccessLineReader;
-import solidstack.io.URLRandomAccessLineReader;
 
 
 public class CharSets
@@ -35,7 +35,7 @@ public class CharSets
 	@Test
 	public void testIso8859() throws IOException
 	{
-		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "testpatch1.sql" ) );
+		RandomAccessBOMDetectingLineReader ralr = new RandomAccessBOMDetectingLineReader( new FileResource( "testpatch1.sql" ) );
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		upgradeFile.scan();
 		Assert.assertEquals( upgradeFile.file.getEncoding(), "ISO-8859-1" );
@@ -68,7 +68,7 @@ public class CharSets
 	@Test
 	public void testUtf16Bom() throws IOException
 	{
-		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "patch-utf-16-bom-1.sql" ) );
+		RandomAccessBOMDetectingLineReader ralr = new RandomAccessBOMDetectingLineReader( new FileResource( "patch-utf-16-bom-1.sql" ) );
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		upgradeFile.scan();
 		Assert.assertEquals( upgradeFile.file.getBOM(), new byte[] { -1, -2 } );
@@ -79,7 +79,7 @@ public class CharSets
 	@Test
 	public void testUtf16BomAndExplicit() throws IOException
 	{
-		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "patch-utf-16-bom-2.sql" ) );
+		RandomAccessBOMDetectingLineReader ralr = new RandomAccessBOMDetectingLineReader( new FileResource( "patch-utf-16-bom-2.sql" ) );
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		upgradeFile.scan();
 		Assert.assertEquals( upgradeFile.file.getBOM(), new byte[] { -1, -2 } );
@@ -103,7 +103,7 @@ public class CharSets
 	@Test
 	public void testUtf16NoBom() throws IOException
 	{
-		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "patch-utf-16-nobom-1.sql" ) );
+		RandomAccessBOMDetectingLineReader ralr = new RandomAccessBOMDetectingLineReader( new FileResource( "patch-utf-16-nobom-1.sql" ) );
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		upgradeFile.scan();
 		Assert.assertNull( upgradeFile.file.getBOM() );

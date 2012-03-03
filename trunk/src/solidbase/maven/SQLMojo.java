@@ -45,13 +45,13 @@ public class SQLMojo extends DBMojo
 		if( this.connections != null )
 			for( Secondary connection : this.connections )
 				runner.setConnectionAttributes(
-					connection.getName(),
-					connection.getDriver(),
-					connection.getUrl(),
-					connection.getUsername(),
-					connection.getPassword() == null ? "" : connection.getPassword()
-				);
-		runner.setSQLFile( ResourceFactory.getResource( this.project.getBasedir(), this.sqlfile ) );
+						connection.getName(),
+						connection.getDriver(),
+						connection.getUrl(),
+						connection.getUsername(),
+						connection.getPassword() == null ? "" : connection.getPassword()
+						);
+		runner.setSQLFile( ResourceFactory.getResource( this.project.getBasedir() ).resolve( this.sqlfile ) );
 		try
 		{
 			runner.executeSQL();

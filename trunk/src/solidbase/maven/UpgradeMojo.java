@@ -55,13 +55,13 @@ public class UpgradeMojo extends DBMojo
 		if( this.connections != null )
 			for( Secondary connection : this.connections )
 				runner.setConnectionAttributes(
-					connection.getName(),
-					connection.getDriver(),
-					connection.getUrl(),
-					connection.getUsername(),
-					connection.getPassword() == null ? "" : connection.getPassword()
-				);
-		runner.setUpgradeFile( ResourceFactory.getResource( this.project.getBasedir(), this.upgradefile ) );
+						connection.getName(),
+						connection.getDriver(),
+						connection.getUrl(),
+						connection.getUsername(),
+						connection.getPassword() == null ? "" : connection.getPassword()
+						);
+		runner.setUpgradeFile( ResourceFactory.getResource( this.project.getBasedir() ).resolve( this.upgradefile ) );
 		runner.setUpgradeTarget( this.target );
 		runner.setDowngradeAllowed( this.downgradeallowed );
 		try
