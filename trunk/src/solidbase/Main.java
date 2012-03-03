@@ -182,12 +182,12 @@ public class Main
 		runner.setConnectionAttributes( "default", def.getDriver(), def.getUrl(), def.getUserName(), def.getPassword() );
 		for( solidbase.config.Database connection : configuration.getSecondaryDatabases() )
 			runner.setConnectionAttributes(
-				connection.getName(),
-				connection.getDriver(),
-				connection.getUrl(),
-				connection.getUserName(),
-				connection.getPassword()
-			);
+					connection.getName(),
+					connection.getDriver(),
+					connection.getUrl(),
+					connection.getUserName(),
+					connection.getPassword()
+					);
 
 		if( configuration.getSqlFile() != null )
 		{
@@ -281,6 +281,7 @@ public class Main
 		{
 			throw new SystemException( e );
 		}
+		// TODO Should we change the contextClassLoader too?
 		try
 		{
 			method.invoke( method, (Object)args );
