@@ -14,32 +14,26 @@
  * limitations under the License.
  */
 
-package solidbase.io;
-
-import java.io.FilterInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+package solidstack.io;
 
 /**
- * An InputStream wrapper that will ignore the call to close().
+ * A reader that reads lines or characters and has the ability to reposition itself on any give line number.
  *
  * @author René M. de Bloois
  */
-public class NonClosingInputStream extends FilterInputStream
+public interface RandomAccessLineReader extends LineReader
 {
 	/**
-	 * Constructor.
+	 * Repositions the reader so that the given line number is the one that is to be read next.
 	 *
-	 * @param in The real input stream.
+	 * @param lineNumber The number of the line that needs to be read next.
 	 */
-	public NonClosingInputStream( InputStream in )
-	{
-		super( in );
-	}
+	void gotoLine( int lineNumber );
 
-	@Override
-	public void close() throws IOException
-	{
-		// Ignore the close()
-	}
+	/**
+	 * Re-open the file with another encoding.
+	 *
+	 * @param encoding The new encoding.
+	 */
+	void reOpen( String encoding );
 }

@@ -17,10 +17,10 @@
 package solidbase.util;
 
 import solidbase.core.CommandFileException;
-import solidbase.io.FileLocation;
-import solidbase.io.LineReader;
-import solidbase.io.PushbackReader;
-import solidbase.io.ReaderLineReader;
+import solidstack.io.FileLocation;
+import solidstack.io.LineReader;
+import solidstack.io.PushbackReader;
+import solidstack.io.ReaderLineReader;
 
 
 /**

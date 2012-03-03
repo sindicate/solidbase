@@ -19,8 +19,8 @@ package solidbase.core;
 import java.io.FileNotFoundException;
 import java.util.regex.Pattern;
 
-import solidbase.io.BOMDetectingLineReader;
-import solidbase.io.Resource;
+import solidstack.io.BOMDetectingLineReader;
+import solidstack.io.Resource;
 
 
 /**

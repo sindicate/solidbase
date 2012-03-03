@@ -29,12 +29,12 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
-import solidbase.io.FileLocation;
-import solidbase.io.LineReader;
-import solidbase.io.Resource;
 import solidbase.util.Assert;
 import solidbase.util.ShutdownHook;
 import solidbase.util.WorkerThread;
+import solidstack.io.FileLocation;
+import solidstack.io.LineReader;
+import solidstack.io.Resource;
 
 
 /**

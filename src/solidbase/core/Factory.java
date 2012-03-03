@@ -18,10 +18,10 @@ package solidbase.core;
 
 import java.io.FileNotFoundException;
 
-import solidbase.io.MemoryResource;
-import solidbase.io.RandomAccessLineReader;
-import solidbase.io.Resource;
-import solidbase.io.URLRandomAccessLineReader;
+import solidstack.io.MemoryResource;
+import solidstack.io.RandomAccessLineReader;
+import solidstack.io.Resource;
+import solidstack.io.URLRandomAccessLineReader;
 
 
 /**

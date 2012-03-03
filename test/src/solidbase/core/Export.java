@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 
 import org.testng.annotations.Test;
 
-import solidbase.io.ResourceFactory;
+import solidstack.io.ResourceFactory;
 
 public class Export
 {

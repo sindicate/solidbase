@@ -17,7 +17,7 @@
 package solidbase.util;
 
 import solidbase.core.CommandFileException;
-import solidbase.io.LineReader;
+import solidstack.io.LineReader;
 
 
 /**

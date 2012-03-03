@@ -21,8 +21,8 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
-import solidbase.io.FileResource;
 import solidbase.util.DriverDataSource;
+import solidstack.io.FileResource;
 
 public class DataSourceTests
 {

@@ -20,7 +20,7 @@ import org.apache.maven.plugin.MojoFailureException;
 
 import solidbase.core.FatalException;
 import solidbase.core.Runner;
-import solidbase.io.ResourceFactory;
+import solidstack.io.ResourceFactory;
 
 
 /**

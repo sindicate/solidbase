@@ -16,7 +16,7 @@
 
 package solidbase.core;
 
-import solidbase.io.Resource;
+import solidstack.io.Resource;
 
 /**
  * Listener adapter.

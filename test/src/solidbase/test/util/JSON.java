@@ -4,12 +4,12 @@ import java.io.FileNotFoundException;
 
 import org.testng.annotations.Test;
 
-import solidbase.io.BOMDetectingLineReader;
-import solidbase.io.FileResource;
-import solidbase.io.LineReader;
-import solidbase.io.Resource;
 import solidbase.util.JSONReader;
 import solidbase.util.JSONWriter;
+import solidstack.io.BOMDetectingLineReader;
+import solidstack.io.FileResource;
+import solidstack.io.LineReader;
+import solidstack.io.Resource;
 
 public class JSON
 {

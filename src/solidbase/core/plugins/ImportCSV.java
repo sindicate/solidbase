@@ -31,14 +31,14 @@ import solidbase.core.CommandProcessor;
 import solidbase.core.FatalException;
 import solidbase.core.SQLExecutionException;
 import solidbase.core.SystemException;
-import solidbase.io.BOMDetectingLineReader;
-import solidbase.io.LineReader;
-import solidbase.io.Resource;
-import solidbase.io.StringLineReader;
 import solidbase.util.Assert;
 import solidbase.util.CSVReader;
 import solidbase.util.Tokenizer;
 import solidbase.util.Tokenizer.Token;
+import solidstack.io.BOMDetectingLineReader;
+import solidstack.io.LineReader;
+import solidstack.io.Resource;
+import solidstack.io.StringLineReader;
 
 
 /**

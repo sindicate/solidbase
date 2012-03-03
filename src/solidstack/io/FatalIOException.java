@@ -1,4 +1,4 @@
-package solidbase.io;
+package solidstack.io;
 
 public class FatalIOException extends RuntimeException
 {

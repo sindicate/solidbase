@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.io;
+package solidstack.io;
 
 import java.io.IOException;
 

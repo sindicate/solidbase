@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-package solidbase.io;
+package solidstack.io;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
- * A line reader that automatically detects character encoding through the BOM and is able to reposition itself on a line.
+ * A line reader that automatically detects character encoding through the BOM and the first line.
  *
  * @author René M. de Bloois
  */
-public class URLRandomAccessLineReader extends ReaderLineReader implements RandomAccessLineReader
+public class BOMDetectingLineReader extends ReaderLineReader
 {
 	/**
 	 * Constant for the ISO-8859-1 character set.
@@ -61,57 +63,45 @@ public class URLRandomAccessLineReader extends ReaderLineReader implements Rando
 	protected String encoding = CHARSET_DEFAULT;
 
 	/**
-	 * The Byte Order Mark found at the beginning of the stream.
+	 * The Byte Order Mark found at the beginning of the stream. Null if not present.
 	 */
 	protected byte[] bom;
 
+
 	/**
-	 * Creates a new line reader from the given resource.
-	 *
 	 * @param resource The resource to read from.
-	 * @throws FileNotFoundException
+	 * @param encodingDetection A regular expression to detect the encoding on the first line.
+	 * @throws FileNotFoundException When a file is not found.
 	 */
-	// FIXME Why is URL still in the name?
-	public URLRandomAccessLineReader( Resource resource ) throws FileNotFoundException
+	public BOMDetectingLineReader( Resource resource, Pattern encodingDetection ) throws FileNotFoundException
 	{
 		this.resource = resource;
-		open();
-	}
 
-	/**
-	 * Reopens itself to reset the position or change the character encoding.
-	 */
-	protected void reOpen()
-	{
-		close();
-		try
-		{
-			open();
-		}
-		catch( FileNotFoundException e )
-		{
-			throw new FatalIOException( e );
-		}
-	}
-
-	/**
-	 * Reopens itself to reset the position or change the character encoding.
-	 *
-	 * @throws FileNotFoundException
-	 */
-	private void open() throws FileNotFoundException
-	{
-		BufferedInputStream is = new BufferedInputStream( this.resource.getInputStream() );
-
+		BufferedInputStream in = new BufferedInputStream( resource.getInputStream() );
 		try // When an exception occurs below we need to close the input stream
 		{
-			detectBOM( is );
-
+			detectBOM( in );
 			try
 			{
-				init( new InputStreamReader( is, this.encoding ) );
+				if( encodingDetection != null )
+				{
+					BufferedReader reader = new BufferedReader( new InputStreamReader( in, this.encoding ) );
+					in.mark( 1000 );
+					String firstLine = reader.readLine(); // TODO This is a risk. Should read with max. Are there more like this?
+					in.reset();
+
+					if( firstLine != null )
+					{
+						firstLine = firstLine.replace( "\0000", "" ); // Remove zeroes
+						Matcher matcher = encodingDetection.matcher( firstLine );
+						if( matcher.matches() )
+							this.encoding = matcher.group( 1 );
+					}
+				}
+
+				init( new BufferedReader( new InputStreamReader( in, this.encoding ) ) );
 			}
-			catch( UnsupportedEncodingException e )
+			catch( IOException e )
 			{
 				throw new FatalIOException( e );
 			}
@@ -120,7 +110,7 @@ public class URLRandomAccessLineReader extends ReaderLineReader implements Rando
 		{
 			try
 			{
-				is.close();
+				in.close();
 			}
 			catch( IOException ee )
 			{
@@ -131,11 +121,57 @@ public class URLRandomAccessLineReader extends ReaderLineReader implements Rando
 	}
 
 	/**
+	 * @param resource The resource to read from.
+	 * @param encoding The encoding of the file. If not null, it will override the BOM.
+	 * @throws FileNotFoundException When a file is not found.
+	 */
+	public BOMDetectingLineReader( Resource resource, String encoding ) throws FileNotFoundException
+	{
+		this.resource = resource;
+
+		BufferedInputStream in = new BufferedInputStream( resource.getInputStream() );
+		try // When an exception occurs below we need to close the input stream
+		{
+			detectBOM( in );
+			try
+			{
+				if( encoding != null )
+					this.encoding = encoding;
+				init( new BufferedReader( new InputStreamReader( in, this.encoding ) ) );
+			}
+			catch( IOException e )
+			{
+				throw new FatalIOException( e );
+			}
+		}
+		catch( RuntimeException e )
+		{
+			try
+			{
+				in.close();
+			}
+			catch( IOException ee )
+			{
+				throw new FatalIOException( e );
+			}
+			throw e;
+		}
+	}
+
+	/**
+	 * @param resource The resource to read from.
+	 * @throws FileNotFoundException When a file is not found.
+	 */
+	public BOMDetectingLineReader( Resource resource ) throws FileNotFoundException
+	{
+		this( resource, (String)null );
+	}
+
+	/**
 	 * Detect the encoding from the BOM.
 	 *
 	 * @param in The input stream.
 	 */
-	// TODO This is double with the one in BOMDetectingLineReader
 	private void detectBOM( BufferedInputStream in )
 	{
 		this.bom = null;
@@ -176,36 +212,6 @@ public class URLRandomAccessLineReader extends ReaderLineReader implements Rando
 		{
 			throw new FatalIOException( e );
 		}
-	}
-
-
-	/**
-	 * Reopen the stream to change the character decoding.
-	 *
-	 * @param encoding the requested encoding.
-	 */
-	public void reOpen( String encoding )
-	{
-		this.encoding = encoding;
-		reOpen();
-	}
-
-	/**
-	 * Repositions the stream so that the given line number is the one that is to be read next. The underlying stream will be reopened if needed.
-	 *
-	 * @param lineNumber the number of the line that will be read next.
-	 */
-	public void gotoLine( int lineNumber )
-	{
-		if( this.reader == null )
-			throw new IllegalStateException( "Stream is not open" );
-		if( lineNumber < 1 )
-			throw new IllegalArgumentException( "lineNumber must be 1 or greater" );
-		if( lineNumber < this.currentLineNumber )
-			reOpen();
-		while( lineNumber > this.currentLineNumber )
-			if( readLine() == null )
-				throw new IllegalArgumentException( "lineNumber " + lineNumber + " not found" );
 	}
 
 	/**

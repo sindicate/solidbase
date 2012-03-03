@@ -18,8 +18,8 @@ package solidbase.core;
 
 import java.sql.SQLException;
 
-import solidbase.io.LineReader;
-import solidbase.io.Resource;
+import solidstack.io.LineReader;
+import solidstack.io.Resource;
 
 
 /**

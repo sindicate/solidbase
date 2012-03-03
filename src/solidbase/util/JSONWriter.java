@@ -10,7 +10,7 @@ import java.util.BitSet;
 import java.util.Map.Entry;
 
 import solidbase.core.SystemException;
-import solidbase.io.Resource;
+import solidstack.io.Resource;
 
 public class JSONWriter
 {
