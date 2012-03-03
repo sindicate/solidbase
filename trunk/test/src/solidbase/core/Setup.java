@@ -16,7 +16,7 @@
 
 package solidbase.core;
 
-import solidbase.io.ResourceFactory;
+import solidstack.io.ResourceFactory;
 
 
 public class Setup

@@ -22,8 +22,8 @@ import org.testng.annotations.Test;
 
 import solidbase.core.FatalException;
 import solidbase.core.UpgradeFile;
-import solidbase.io.FileResource;
-import solidbase.io.URLRandomAccessLineReader;
+import solidstack.io.FileResource;
+import solidstack.io.URLRandomAccessLineReader;
 
 public class MissingBlock
 {

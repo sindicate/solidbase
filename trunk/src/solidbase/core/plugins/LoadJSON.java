@@ -37,12 +37,6 @@ import solidbase.core.CommandProcessor;
 import solidbase.core.FatalException;
 import solidbase.core.SQLExecutionException;
 import solidbase.core.SystemException;
-import solidbase.io.BOMDetectingLineReader;
-import solidbase.io.LineReader;
-import solidbase.io.Resource;
-import solidbase.io.SegmentedInputStream;
-import solidbase.io.SegmentedReader;
-import solidbase.io.StringLineReader;
 import solidbase.util.Assert;
 import solidbase.util.CloseQueue;
 import solidbase.util.JDBCSupport;
@@ -51,6 +45,12 @@ import solidbase.util.JSONObject;
 import solidbase.util.JSONReader;
 import solidbase.util.Tokenizer;
 import solidbase.util.Tokenizer.Token;
+import solidstack.io.BOMDetectingLineReader;
+import solidstack.io.LineReader;
+import solidstack.io.Resource;
+import solidstack.io.SegmentedInputStream;
+import solidstack.io.SegmentedReader;
+import solidstack.io.StringLineReader;
 
 
 /**

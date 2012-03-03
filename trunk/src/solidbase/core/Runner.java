@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import solidbase.Version;
-import solidbase.io.Resource;
+import solidstack.io.Resource;
 
 /**
  * The runner contains the logic to execute upgrade files and SQL files and is used by the Ant tasks and Maven plugins.

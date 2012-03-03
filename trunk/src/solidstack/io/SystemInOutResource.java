@@ -14,41 +14,46 @@
  * limitations under the License.
  */
 
-package solidbase.io;
+package solidstack.io;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * An input stream resource.
  *
  * @author René M. de Bloois
  */
-public class InputStreamResource extends ResourceAdapter
+public class SystemInOutResource extends ResourceAdapter
 {
 	/**
-	 * The input stream.
+	 * The {@link System#in}. Registered at the time of creation of this resource.
 	 */
-	protected InputStream inputStream;
+	protected InputStream in = System.in;
 
 	/**
-	 * Constructor.
-	 *
-	 * @param inputStream The input stream.
+	 * The {@link System#out}. Registered at the time of creation of this resource.
 	 */
-	public InputStreamResource( InputStream inputStream )
-	{
-		if( inputStream == null )
-			throw new IllegalArgumentException( "inputStream should not be null" );
-		this.inputStream = inputStream;
-	}
+	protected OutputStream out = System.out;
+
 
 	@Override
 	public InputStream getInputStream()
 	{
-		if( this.inputStream == null )
+		if( this.in == null )
 			throw new IllegalStateException( "inputStream has been accessed earlier" );
-		InputStream result = this.inputStream;
-		this.inputStream = null;
+		InputStream result = new NonClosingInputStream( this.in );
+		this.in = null;
+		return result;
+	}
+
+	@Override
+	public OutputStream getOutputStream()
+	{
+		if( this.out == null )
+			throw new IllegalStateException( "outputStream has been accessed earlier" );
+		OutputStream result = new NonClosingOutputStream( this.out );
+		this.out = null;
 		return result;
 	}
 }

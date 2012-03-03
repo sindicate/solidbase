@@ -1,4 +1,4 @@
-package solidbase.io;
+package solidstack.io;
 
 import java.io.IOException;
 import java.io.InputStream;

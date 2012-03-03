@@ -25,7 +25,7 @@ import mockit.Mock;
 
 import org.testng.Assert;
 
-import solidbase.io.URLRandomAccessLineReader;
+import solidstack.io.URLRandomAccessLineReader;
 
 
 /**

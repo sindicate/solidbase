@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.xml.elements;
+package solidstack.xml.elements;
 
 import java.util.ArrayList;
 import java.util.Collections;

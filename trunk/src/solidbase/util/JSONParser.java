@@ -19,11 +19,11 @@ package solidbase.util;
 import java.util.Stack;
 
 import solidbase.core.CommandFileException;
-import solidbase.io.FileLocation;
-import solidbase.io.LineReader;
-import solidbase.io.Resource;
 import solidbase.util.JSONTokenizer.Token;
 import solidbase.util.JSONTokenizer.Token.TYPE;
+import solidstack.io.FileLocation;
+import solidstack.io.LineReader;
+import solidstack.io.Resource;
 
 
 /**

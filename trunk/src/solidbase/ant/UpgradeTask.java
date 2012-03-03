@@ -21,7 +21,7 @@ import org.apache.tools.ant.Project;
 
 import solidbase.core.FatalException;
 import solidbase.core.Runner;
-import solidbase.io.ResourceFactory;
+import solidstack.io.ResourceFactory;
 
 
 /**

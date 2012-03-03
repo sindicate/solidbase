@@ -19,10 +19,10 @@ package solidbase.core;
 import java.util.regex.Matcher;
 
 import solidbase.core.Delimiter.Type;
-import solidbase.io.FileLocation;
-import solidbase.io.LineReader;
-import solidbase.io.Resource;
-import solidbase.io.StringLineReader;
+import solidstack.io.FileLocation;
+import solidstack.io.LineReader;
+import solidstack.io.Resource;
+import solidstack.io.StringLineReader;
 
 
 /**

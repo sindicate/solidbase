@@ -37,8 +37,8 @@ import solidbase.core.FatalException;
 import solidbase.core.Runner;
 import solidbase.core.SQLExecutionException;
 import solidbase.core.SystemException;
-import solidbase.io.ResourceFactory;
 import solidbase.util.Assert;
+import solidstack.io.ResourceFactory;
 
 
 /**

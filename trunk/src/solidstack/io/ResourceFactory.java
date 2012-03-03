@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package solidbase.io;
+package solidstack.io;
 
 import java.io.File;
 import java.io.FileNotFoundException;
