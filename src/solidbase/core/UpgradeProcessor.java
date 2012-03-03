@@ -593,7 +593,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	 */
 	protected void include( String url )
 	{
-		SQLFile file = Factory.openSQLFile( getResource().createRelative( url ), this.progress );
+		SQLFile file = Factory.openSQLFile( getResource().resolve( url ), this.progress );
 		setContext( new UpgradeContext( this.upgradeContext, file.getSource() ) );
 	}
 

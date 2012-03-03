@@ -19,9 +19,9 @@ package solidbase.core;
 import java.io.FileNotFoundException;
 
 import solidstack.io.MemoryResource;
+import solidstack.io.RandomAccessBOMDetectingLineReader;
 import solidstack.io.RandomAccessLineReader;
 import solidstack.io.Resource;
-import solidstack.io.URLRandomAccessLineReader;
 
 
 /**
@@ -54,13 +54,13 @@ public final class Factory
 			if( resource.supportsURL() )
 			{
 				listener.openingUpgradeFile( resource );
-				return new URLRandomAccessLineReader( resource );
+				return new RandomAccessBOMDetectingLineReader( resource );
 			}
 
 			// TODO What about the message? "Opening internal resource..."
 			MemoryResource memResource = new MemoryResource();
 			memResource.append( resource.getInputStream() );
-			return new URLRandomAccessLineReader( memResource );
+			return new RandomAccessBOMDetectingLineReader( memResource );
 		}
 		catch( FileNotFoundException e )
 		{

@@ -17,20 +17,19 @@
 package solidbase.core;
 
 import java.io.IOException;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import solidbase.core.FatalException;
-import solidbase.core.UpgradeFile;
 import solidstack.io.FileResource;
-import solidstack.io.URLRandomAccessLineReader;
+import solidstack.io.RandomAccessBOMDetectingLineReader;
 
 public class MissingBlock
 {
 	@Test
 	public void testBasic() throws IOException
 	{
-		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "testpatch-missingblock.sql" ) );
+		RandomAccessBOMDetectingLineReader ralr = new RandomAccessBOMDetectingLineReader( new FileResource( "testpatch-missingblock.sql" ) );
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		try
 		{
@@ -47,7 +46,7 @@ public class MissingBlock
 	@Test
 	public void testMissingInitBlock() throws IOException
 	{
-		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "testpatch-missinginitblock.sql" ) );
+		RandomAccessBOMDetectingLineReader ralr = new RandomAccessBOMDetectingLineReader( new FileResource( "testpatch-missinginitblock.sql" ) );
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		try
 		{

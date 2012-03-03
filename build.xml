@@ -138,7 +138,12 @@
 	<target name="compile">
 		<echo message="java.home=${java.home}" />
 		<mkdir dir="${build.home}/classes" />
-		<javac srcdir="src" destdir="${build.home}/classes" source="${target-jre}" target="${target-jre}" optimize="true" debug="true" deprecation="true" classpathref="compile.classpath" />
+		<javac destdir="${build.home}/classes" source="${target-jre}" target="${target-jre}" optimize="true" debug="true" deprecation="true" classpathref="compile.classpath">
+			<src path="src" />
+			<include name="solidbase/**/*.java" />
+			<src path="../solidstack/src" />
+			<include name="solidstack/io/*.java" />
+		</javac>
 		<sync todir="${build.home}/classes">
 			<fileset dir="src" excludes="**/*.java,**/*.html" />
 			<preserveInTarget includes="**/*.class" />

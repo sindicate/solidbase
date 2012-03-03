@@ -86,7 +86,7 @@ public class LoadJSON implements CommandListener
 
 		Parsed parsed = parse( command );
 
-		Resource resource = processor.getResource().createRelative( parsed.fileName );
+		Resource resource = processor.getResource().resolve( parsed.fileName );
 		LineReader lineReader;
 		try
 		{
@@ -228,7 +228,7 @@ public class LoadJSON implements CommandListener
 								{
 									try
 									{
-										InputStream in = resource.createRelative( filename ).getInputStream();
+										InputStream in = resource.resolve( filename ).getInputStream();
 										closer.add( in );
 										// Some databases read the stream directly (Oracle), others read it later (HSQLDB).
 										statement.setBinaryStream( pos++, in );
@@ -260,7 +260,7 @@ public class LoadJSON implements CommandListener
 									SegmentedInputStream in = streams[ index ];
 									if( in == null )
 									{
-										Resource r = resource.createRelative( fileNames[ index ] );
+										Resource r = resource.resolve( fileNames[ index ] );
 										try
 										{
 											in = new SegmentedInputStream( r.getInputStream() );
@@ -279,7 +279,7 @@ public class LoadJSON implements CommandListener
 									SegmentedReader in = textStreams[ index ];
 									if( in == null )
 									{
-										Resource r = resource.createRelative( fileNames[ index ] );
+										Resource r = resource.resolve( fileNames[ index ] );
 										try
 										{
 											try

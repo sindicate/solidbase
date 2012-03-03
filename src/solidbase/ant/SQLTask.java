@@ -104,9 +104,9 @@ public class SQLTask extends DBTask
 
 		List< Resource > sqlFiles = new ArrayList< Resource >();
 		if( this.sqlfile != null )
-			sqlFiles.add( ResourceFactory.getResource( project.getBaseDir(), this.sqlfile ) );
+			sqlFiles.add( ResourceFactory.getResource( project.getBaseDir() ).resolve( this.sqlfile ) );
 		for( Sqlfile file : this.sqlfiles )
-			sqlFiles.add( ResourceFactory.getResource( project.getBaseDir(), file.src ) );
+			sqlFiles.add( ResourceFactory.getResource( project.getBaseDir() ).resolve( file.src ) );
 		runner.setSQLFiles( sqlFiles );
 
 		try

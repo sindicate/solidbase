@@ -22,7 +22,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidstack.io.FileResource;
-import solidstack.io.URLRandomAccessLineReader;
+import solidstack.io.RandomAccessBOMDetectingLineReader;
 
 
 public class EmptyLines
@@ -30,7 +30,7 @@ public class EmptyLines
 	@Test
 	public void testEmptyLines() throws IOException
 	{
-		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "testpatch-emptylines.sql" ) );
+		RandomAccessBOMDetectingLineReader ralr = new RandomAccessBOMDetectingLineReader( new FileResource( "testpatch-emptylines.sql" ) );
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		upgradeFile.scan();
 		UpgradeSegment segment = upgradeFile.getSegment( "1.0.1", "1.0.2" );
@@ -44,7 +44,7 @@ public class EmptyLines
 				"\n" +
 				"\n" +
 				"of empty lines'\n" +
-		"\n" );
+				"\n" );
 		upgradeFile.close();
 	}
 }

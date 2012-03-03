@@ -25,7 +25,7 @@ import mockit.Mock;
 
 import org.testng.Assert;
 
-import solidstack.io.URLRandomAccessLineReader;
+import solidstack.io.RandomAccessBOMDetectingLineReader;
 
 
 /**
@@ -53,7 +53,7 @@ public class MockRandomAccessLineReader
 	/**
 	 * Get populated by the real class instance.
 	 */
-	public URLRandomAccessLineReader it;
+	public RandomAccessBOMDetectingLineReader it;
 
 	/**
 	 * Constructs a new mock instance.

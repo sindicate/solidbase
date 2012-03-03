@@ -177,7 +177,7 @@ public class UpgradeTask extends DBTask
 			runner.setConnectionAttributes( connection.getName(), connection.getDriver(), connection.getUrl(),
 					connection.getUsername(), connection.getPassword() );
 
-		runner.setUpgradeFile( ResourceFactory.getResource( project.getBaseDir(), this.upgradefile ) );
+		runner.setUpgradeFile( ResourceFactory.getResource( project.getBaseDir() ).resolve( this.upgradefile ) );
 		runner.setUpgradeTarget( this.upgradeTarget );
 		runner.setDowngradeAllowed( this.downgradeallowed );
 
