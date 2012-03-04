@@ -29,7 +29,7 @@ public class ClassPathTest
 	public void testClassPath() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( db, "sa", null );
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "classpath:testpatch-classpath.sql", db );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "classpath:/testpatch-classpath.sql", db );
 
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
@@ -42,7 +42,7 @@ public class ClassPathTest
 	public void testClassPath2() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( db, "sa", null );
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "classpath:folder/testpatch-classpath.sql", db );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "classpath:/folder/testpatch-classpath.sql", db );
 
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
