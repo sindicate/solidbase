@@ -35,7 +35,7 @@ import solidbase.core.SystemException;
 import solidbase.core.UpgradeProcessor;
 import solidbase.util.DriverDataSource;
 import solidstack.io.MemoryResource;
-import solidstack.io.URLResource;
+import solidstack.io.URIResource;
 
 /**
  * An upgrade Spring bean.
@@ -318,7 +318,7 @@ public class UpgradeBean
 				// Spring resource isOpen means that the resource cannot be reopened. Thats why we read it into memory.
 				resource = new MemoryResource( this.upgradefile.getInputStream() );
 			else
-				resource = new URLResource( this.upgradefile.getURL() );
+				resource = new URIResource( this.upgradefile.getURI() );
 			processor.setUpgradeFile( Factory.openUpgradeFile( resource, progress ) );
 		}
 		catch( IOException e )
