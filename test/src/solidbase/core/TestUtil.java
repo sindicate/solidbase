@@ -141,6 +141,7 @@ public class TestUtil
 	static public String generalizeOutput( String output )
 	{
 		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
+		output = output.replaceAll( "[A-Z]:/\\S+/", "X:/.../" );
 		output = output.replaceAll( "[A-Z]:\\\\\\S+\\\\", "X:/.../" );
 		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
 		output = output.replaceAll( "folder\\\\", "folder/" );

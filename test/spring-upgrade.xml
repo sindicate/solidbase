@@ -9,7 +9,7 @@
 		<property name="url" value="jdbc:hsqldb:mem:testdb2" />
 		<property name="username" value="sa" />
 		<property name="password" value="" />
-		<property name="upgradefile" value="classpath:testpatch-classpath.sql" />
+		<property name="upgradefile" value="classpath:/testpatch-classpath.sql" />
 		<property name="target" value="1.0.2" />
 		<property name="secondary">
 			<list>
