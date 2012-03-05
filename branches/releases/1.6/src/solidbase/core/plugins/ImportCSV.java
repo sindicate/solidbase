@@ -415,7 +415,15 @@ public class ImportCSV implements CommandListener
 			throw new CommandFileException( "Expecting [INTO], not [" + t + "]", tokenizer.getLineNumber() );
 		result.tableName = tokenizer.get().toString();
 
-		t = tokenizer.get( "(", "VALUES", "DATA", "FILE", null );
+		t = tokenizer.get( ".", "(", "VALUES", "DATA", "FILE", null );
+
+		if( t.equals( "." ) )
+		{
+			// TODO This means spaces are allowed, do we want that or not?
+			result.tableName = result.tableName + "." + tokenizer.get().toString();
+
+			t = tokenizer.get( "(", "VALUES", "DATA", "FILE", null );
+		}
 
 		if( t.equals( "(" ) )
 		{
