@@ -441,7 +441,15 @@ public class LoadJSON implements CommandListener
 			throw new CommandFileException( "Expecting [INTO], not [" + t + "]", tokenizer.getLocation() );
 		result.tableName = tokenizer.get().toString();
 
-		t = tokenizer.get( "(", "VALUES", "FILE" );
+		t = tokenizer.get( ".", "(", "VALUES", "FILE" );
+
+		if( t.equals( "." ) )
+		{
+			// TODO This means spaces are allowed, do we want that or not?
+			result.tableName = result.tableName + "." + tokenizer.get().toString();
+
+			t = tokenizer.get( "(", "VALUES", "FILE" );
+		}
 
 		if( t.eq( "(" ) )
 		{
