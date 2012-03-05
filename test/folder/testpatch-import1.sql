@@ -68,7 +68,7 @@ CREATE TABLE TEMP ( TEMP1 VARCHAR(40), TEMP2 VARCHAR(40), TEMP3 VARCHAR(40) );
 IMPORT CSV INTO TEMP DATA
 ;
 
-IMPORT CSV INTO TEMP DATA
+IMPORT CSV INTO PUBLIC.TEMP DATA
 "1","2","3";
 
 --* // Newline enclosed in double quotes was recognized as the end of the record

@@ -1,3 +1,8 @@
+Changes from 1.6.6 to 1.6.7
+---------------------------
+
+FIX  It wasn't possible to use schema names with the IMPORT CSV command. 
+
 Changes from 1.6.5 to 1.6.6
 ---------------------------
 
