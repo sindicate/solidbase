@@ -398,7 +398,7 @@ public class ImportCSV implements CommandListener
 
 		t = tokenizer.get( ".", "(", "VALUES", "DATA", "FILE", null );
 
-		if( t.equals( "." ) )
+		if( t.eq( "." ) )
 		{
 			// TODO This means spaces are allowed, do we want that or not?
 			result.tableName = result.tableName + "." + tokenizer.get().toString();

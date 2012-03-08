@@ -66,7 +66,7 @@ import solidstack.io.StringLineReader;
  * @author René M. de Bloois
  * @since Dec 2, 2009
  */
-// TODO Make this more strict, like assert that the number of values stays the same in the CSV data
+// TODO Inline JSON
 public class LoadJSON implements CommandListener
 {
 	static private final Pattern triggerPattern = Pattern.compile( "LOAD\\s+JSON\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
@@ -264,7 +264,7 @@ public class LoadJSON implements CommandListener
 										try
 										{
 											in = new SegmentedInputStream( r.getInputStream() );
-											biggerCloser.add( in );
+											biggerCloser.add( in ); // TODO Why? Don't understand anymore.
 											streams[ index ] = in;
 										}
 										catch( FileNotFoundException e )
@@ -330,6 +330,7 @@ public class LoadJSON implements CommandListener
 				{
 					statement.addBatch();
 					batchSize++;
+					// TODO Also check the closer's count
 					if( batchSize >= 1000 )
 					{
 						statement.executeBatch();
@@ -443,7 +444,7 @@ public class LoadJSON implements CommandListener
 
 		t = tokenizer.get( ".", "(", "VALUES", "FILE" );
 
-		if( t.equals( "." ) )
+		if( t.eq( "." ) )
 		{
 			// TODO This means spaces are allowed, do we want that or not?
 			result.tableName = result.tableName + "." + tokenizer.get().toString();

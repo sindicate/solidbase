@@ -46,6 +46,7 @@ import solidstack.io.Resource;
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
+// TODO Drop all connections at the end of a block?
 public class UpgradeProcessor extends CommandProcessor implements ConnectionListener
 {
 	// Don't need whitespace at the end of the Patterns
@@ -96,7 +97,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	/**
 	 * The upgrade execution context.
 	 */
-	// TODO This is redundant and risky. Also in SQLProcessor.
+	// TODO This is redundant and risky. Also in SQLProcessor and CommandContext.
 	protected UpgradeContext upgradeContext;
 
 	/**
