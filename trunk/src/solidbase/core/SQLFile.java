@@ -19,7 +19,7 @@ package solidbase.core;
 import java.io.FileNotFoundException;
 import java.util.regex.Pattern;
 
-import solidstack.io.BOMDetectingLineReader;
+import solidstack.io.CharsetDetectingLineReader;
 import solidstack.io.Resource;
 
 
@@ -36,7 +36,7 @@ public class SQLFile
 	/**
 	 * The underlying file.
 	 */
-	protected BOMDetectingLineReader reader;
+	protected CharsetDetectingLineReader reader;
 
 
 	/**
@@ -48,7 +48,7 @@ public class SQLFile
 	{
 		try
 		{
-			this.reader = new BOMDetectingLineReader( resource, ENCODING_PATTERN );
+			this.reader = new CharsetDetectingLineReader( resource, ENCODING_PATTERN );
 		}
 		catch( FileNotFoundException e )
 		{
