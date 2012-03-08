@@ -45,7 +45,7 @@ import solidbase.util.JSONObject;
 import solidbase.util.JSONReader;
 import solidbase.util.Tokenizer;
 import solidbase.util.Tokenizer.Token;
-import solidstack.io.BOMDetectingLineReader;
+import solidstack.io.CharsetDetectingLineReader;
 import solidstack.io.LineReader;
 import solidstack.io.Resource;
 import solidstack.io.SegmentedInputStream;
@@ -90,7 +90,8 @@ public class LoadJSON implements CommandListener
 		LineReader lineReader;
 		try
 		{
-			lineReader = new BOMDetectingLineReader( resource, "UTF-8" );
+			// TODO Use the same charset detection as JSON does. Maybe introduce the UTF charset if the default does not become UTF.
+			lineReader = new CharsetDetectingLineReader( resource, "UTF-8" );
 		}
 		catch( FileNotFoundException e )
 		{

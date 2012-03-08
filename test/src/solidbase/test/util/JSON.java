@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 
 import solidbase.util.JSONReader;
 import solidbase.util.JSONWriter;
-import solidstack.io.BOMDetectingLineReader;
+import solidstack.io.CharsetDetectingLineReader;
 import solidstack.io.FileResource;
 import solidstack.io.LineReader;
 import solidstack.io.Resource;
@@ -17,7 +17,7 @@ public class JSON
 	public void testJSON1() throws FileNotFoundException
 	{
 		Resource resource = new FileResource( "json/test1.json" );
-		LineReader reader = new BOMDetectingLineReader( resource );
+		LineReader reader = new CharsetDetectingLineReader( resource );
 		JSONReader json = new JSONReader( reader );
 		Object object = json.read();
 		json.close();
@@ -32,7 +32,7 @@ public class JSON
 	public void testJSON2() throws FileNotFoundException
 	{
 		Resource resource = new FileResource( "json/test2.json" );
-		LineReader reader = new BOMDetectingLineReader( resource );
+		LineReader reader = new CharsetDetectingLineReader( resource );
 		JSONReader json = new JSONReader( reader );
 		Object object = json.read();
 

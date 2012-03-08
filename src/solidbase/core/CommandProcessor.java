@@ -297,7 +297,7 @@ abstract public class CommandProcessor
 			}
 			if( encodingPattern.matcher( sql ).matches() )
 			{
-				// Ignore, already picked up by the BOMDetectingLineReader
+				// Ignore, already picked up by the CharsetDetectingLineReader
 				return true;
 			}
 		}

@@ -35,7 +35,7 @@ import solidbase.util.Assert;
 import solidbase.util.CSVReader;
 import solidbase.util.Tokenizer;
 import solidbase.util.Tokenizer.Token;
-import solidstack.io.BOMDetectingLineReader;
+import solidstack.io.CharsetDetectingLineReader;
 import solidstack.io.LineReader;
 import solidstack.io.Resource;
 import solidstack.io.StringLineReader;
@@ -84,7 +84,7 @@ public class ImportCSV implements CommandListener
 			Resource resource = processor.getResource().resolve( parsed.fileName );
 			try
 			{
-				lineReader = new BOMDetectingLineReader( resource, parsed.encoding );
+				lineReader = new CharsetDetectingLineReader( resource, parsed.encoding );
 			}
 			catch( FileNotFoundException e )
 			{
