@@ -118,6 +118,9 @@ abstract public class CommandProcessor
 	// TODO Newlines should be allowed
 	static protected Pattern runPattern = Pattern.compile( "RUN\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
 
+	// TODO Commit pattern
+//	static protected final Pattern commitPattern = Pattern.compile( "COMMIT", Pattern.CASE_INSENSITIVE );
+
 	/**
 	 * Pattern for &{xxx} or &xxx placeholder.
 	 */
@@ -300,6 +303,11 @@ abstract public class CommandProcessor
 				// Ignore, already picked up by the CharsetDetectingLineReader
 				return true;
 			}
+//			if( commitPattern.matcher( sql ).matches() )
+//			{
+//				getCurrentDatabase().getConnection().commit();
+//				return true;
+//			}
 		}
 		else if( ( matcher = runPattern.matcher( sql ) ).matches() )
 		{

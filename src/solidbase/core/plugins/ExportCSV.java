@@ -60,6 +60,8 @@ import solidstack.io.StringLineReader;
  * @author René M. de Bloois
  * @since Aug 12, 2011
  */
+// TODO To compressed file
+// TODO Escape with \ instead of doubling double quotes. This means also \n \t \r. ESCAPE DQ CR LF TAB WITH \
 public class ExportCSV implements CommandListener
 {
 	static private final Pattern triggerPattern = Pattern.compile( "EXPORT\\s+CSV\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );

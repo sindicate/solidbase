@@ -168,6 +168,7 @@ public class LoadJSON implements CommandListener
 		try
 		{
 			int batchSize = 0;
+//			int count = 0;
 			while( true )
 			{
 				if( Thread.currentThread().isInterrupted() )
@@ -209,6 +210,7 @@ public class LoadJSON implements CommandListener
 					else
 					{
 						index = par - ( prependLineNumber ? 2 : 1 );
+						int type = types[ index ];
 						Object value;
 						try
 						{
@@ -222,7 +224,6 @@ public class LoadJSON implements CommandListener
 						{
 							JSONObject object = (JSONObject)value;
 							String filename = object.findString( "file" );
-							int type = types[ index ];
 							if( filename != null )
 							{
 								if( type == Types.BLOB )
@@ -308,7 +309,12 @@ public class LoadJSON implements CommandListener
 						else
 						{
 							// TODO What if it is a CLOB and the string value is too long?
+//							Object v = values.get( index );
+							// MonetDB complains when calling setObject with null value
+//							if( v != null )
 							statement.setObject( pos++, values.get( index ) );
+//							else
+//								statement.setNull( pos++, type );
 						}
 					}
 				}
@@ -339,6 +345,10 @@ public class LoadJSON implements CommandListener
 						closer.closeAll();
 					}
 				}
+
+//				count++; TODO
+//				if( count % 100000 == 0 )
+//					processor.getCallBack().println( "Read " + count + " records" );
 			}
 		}
 		finally
