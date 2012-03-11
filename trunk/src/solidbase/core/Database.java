@@ -326,6 +326,7 @@ public class Database
 		{
 			try
 			{
+//				connection.rollback(); // TODO Derby 10.6 does not like it when connection is closed during an open transaction
 				connection.close();
 			}
 			catch( SQLException e )

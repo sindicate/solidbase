@@ -192,6 +192,7 @@ public class ImportCSV implements CommandListener
 		try
 		{
 			int batchSize = 0;
+//			int count = 0;
 			while( true )
 			{
 				if( Thread.currentThread().isInterrupted() )
@@ -282,6 +283,10 @@ public class ImportCSV implements CommandListener
 					commit = true;
 					return;
 				}
+
+//				count++; TODO
+//				if( count % 100000 == 0 )
+//					processor.getCallBack().println( "Read " + count + " records" );
 			}
 		}
 		finally

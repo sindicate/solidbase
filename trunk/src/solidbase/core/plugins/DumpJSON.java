@@ -69,6 +69,7 @@ import solidstack.io.StringLineReader;
  * @author René M. de Bloois
  * @since Aug 12, 2011
  */
+// TODO To compressed file
 public class DumpJSON implements CommandListener
 {
 	static private final Pattern triggerPattern = Pattern.compile( "DUMP\\s+JSON\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
@@ -102,16 +103,16 @@ public class DumpJSON implements CommandListener
 					ResultSetMetaData metaData = result.getMetaData();
 
 					// Define locals
-					int count = metaData.getColumnCount();
-					int[] types = new int[ count ];
-					String[] names = new String[ count ];
-					boolean[] skip = new boolean[ count ];
-					FileSpec[] fileSpecs = new FileSpec[ count ];
-					String schemaNames[] = new String[ count ];
-					String tableNames[] = new String[ count ];
+					int columns = metaData.getColumnCount();
+					int[] types = new int[ columns ];
+					String[] names = new String[ columns ];
+					boolean[] skip = new boolean[ columns ];
+					FileSpec[] fileSpecs = new FileSpec[ columns ];
+					String schemaNames[] = new String[ columns ];
+					String tableNames[] = new String[ columns ];
 
 					// Analyze metadata
-					for( int i = 0; i < count; i++ )
+					for( int i = 0; i < columns; i++ )
 					{
 						int col = i + 1;
 						String name = metaData.getColumnName( col ).toUpperCase();
@@ -167,7 +168,7 @@ public class DumpJSON implements CommandListener
 
 					JSONArray fields = new JSONArray();
 					properties.set( "fields", fields );
-					for( int i = 0; i < count; i++ )
+					for( int i = 0; i < columns; i++ )
 						if( !skip[ i ] )
 						{
 							JSONObject field = new JSONObject();
@@ -189,9 +190,10 @@ public class DumpJSON implements CommandListener
 
 					try
 					{
+//						int count = 0;
 						while( result.next() )
 						{
-							Object[] values = new Object[ count ];
+							Object[] values = new Object[ columns ];
 							for( int i = 0; i < values.length; i++ )
 								values[ i ] = JDBCSupport.getValue( result, types, i );
 
@@ -199,7 +201,7 @@ public class DumpJSON implements CommandListener
 								parsed.coalesce.coalesce( values );
 
 							JSONArray array = new JSONArray();
-							for( int i = 0; i < count; i++ )
+							for( int i = 0; i < columns; i++ )
 								if( !skip[ i ] )
 								{
 									Object value = values[ i ];
@@ -342,6 +344,10 @@ public class DumpJSON implements CommandListener
 							}
 							jsonWriter.write( array );
 							jsonWriter.getWriter().write( '\n' );
+
+//							count++; TODO
+//							if( count % 100000 == 0 )
+//								processor.getCallBack().println( "Written " + count + " records" );
 						}
 					}
 					finally
