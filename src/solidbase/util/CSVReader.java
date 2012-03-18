@@ -21,8 +21,8 @@ import java.util.List;
 
 import solidbase.core.CommandFileException;
 import solidbase.util.CSVTokenizer.Token;
-import solidstack.io.FileLocation;
-import solidstack.io.LineReader;
+import solidstack.io.SourceLocation;
+import solidstack.io.SourceReader;
 
 
 /**
@@ -50,7 +50,7 @@ public class CSVReader
 	 * @param separator The separator that separates the values.
 	 * @param ignoreWhiteSpace Ignore white space, except white space enclosed in double quotes.
 	 */
-	public CSVReader( LineReader reader, char separator, boolean ignoreWhiteSpace )
+	public CSVReader( SourceReader reader, char separator, boolean ignoreWhiteSpace )
 	{
 		this.tokenizer = new CSVTokenizer( reader, separator, ignoreWhiteSpace );
 		this.separator = separator;
@@ -107,7 +107,7 @@ public class CSVReader
 		return this.tokenizer.getLineNumber();
 	}
 
-	public FileLocation getLocation()
+	public SourceLocation getLocation()
 	{
 		return this.tokenizer.getLocation();
 	}

@@ -16,7 +16,7 @@
 
 package solidbase.core;
 
-import solidstack.io.FileLocation;
+import solidstack.io.SourceLocation;
 
 /**
  * Represents a problem in the file (upgrade file or SQL file). A stack trace is not required. The failure and
@@ -32,7 +32,7 @@ public class CommandFileException extends FatalException
 	/**
 	 * The file location where the problem is located.
 	 */
-	private FileLocation location;
+	private SourceLocation location;
 
 	/**
 	 * Constructor.
@@ -40,7 +40,7 @@ public class CommandFileException extends FatalException
 	 * @param message The failure message.
 	 * @param location The file location where the problem is located.
 	 */
-	public CommandFileException( String message, FileLocation location )
+	public CommandFileException( String message, SourceLocation location )
 	{
 		super( message );
 		this.location = location;
@@ -57,7 +57,7 @@ public class CommandFileException extends FatalException
 	 *
 	 * @return The file location where the problem is located.
 	 */
-	public FileLocation getLocation()
+	public SourceLocation getLocation()
 	{
 		return this.location;
 	}

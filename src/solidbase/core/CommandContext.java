@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import solidstack.io.FileLocation;
+import solidstack.io.SourceLocation;
 
 
 
@@ -129,7 +129,7 @@ abstract public class CommandContext
 
 	/**
 	 * Skip persistent commands depending on the boolean parameter. If the skip parameter is true commands will be
-	 * skipped, otherwise not. As {@link #skip(boolean)} and {@link #endSkip(FileLocation)} can be nested, the same number of
+	 * skipped, otherwise not. As {@link #skip(boolean)} and {@link #endSkip(SourceLocation)} can be nested, the same number of
 	 * endSkips need to be called as the number of skips to stop the skipping.
 	 *
 	 * @param skip If true, commands will be skipped, otherwise not.
@@ -152,7 +152,7 @@ abstract public class CommandContext
 	 * 
 	 * @param location The location where the ELSE is encountered.
 	 */
-	protected void doElse( FileLocation location )
+	protected void doElse( SourceLocation location )
 	{
 		if( this.noSkipCounter <= 0 && this.skipCounter <= 0 )
 			throw new CommandFileException( "ELSE without IF encountered", location );
@@ -166,7 +166,7 @@ abstract public class CommandContext
 	 * 
 	 * @param location The location where the END IF is encountered.
 	 */
-	protected void endIf( FileLocation location )
+	protected void endIf( SourceLocation location )
 	{
 		if( this.noSkipCounter <= 0 && this.skipCounter <= 0 )
 			throw new CommandFileException( "/IF without IF encountered", location );
@@ -174,12 +174,12 @@ abstract public class CommandContext
 	}
 
 	/**
-	 * Stop skipping commands. As {@link #skip(boolean)} and {@link #endSkip(FileLocation)} can be nested, only when the same number
+	 * Stop skipping commands. As {@link #skip(boolean)} and {@link #endSkip(SourceLocation)} can be nested, only when the same number
 	 * of endSkips are called as the number of skips, the skipping will stop.
 	 * 
 	 * @param location The location where the END SKIP is encountered.
 	 */
-	protected void endSkip( FileLocation location )
+	protected void endSkip( SourceLocation location )
 	{
 		if( this.skipCounter > 0 )
 			this.skipCounter--;

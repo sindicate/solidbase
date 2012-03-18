@@ -17,11 +17,11 @@
 package solidbase.util;
 
 import solidbase.core.CommandFileException;
-import solidstack.io.LineReader;
+import solidstack.io.SourceReader;
 
 
 /**
- * Reads JSON data from the given {@link LineReader}.
+ * Reads JSON data from the given {@link SourceReader}.
  *
  * @author René M. de Bloois
  */
@@ -34,8 +34,8 @@ public class JSONReader extends JSONParser
 	 *
 	 * @param reader The source of the JSON data.
 	 */
-	// TODO Resource instead of LineReader
-	public JSONReader( LineReader reader )
+	// TODO Resource instead of SourceReader
+	public JSONReader( SourceReader reader )
 	{
 		super( reader );
 	}

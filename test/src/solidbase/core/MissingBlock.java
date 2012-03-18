@@ -22,14 +22,14 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidstack.io.FileResource;
-import solidstack.io.RandomAccessCharsetDetectingLineReader;
+import solidstack.io.RandomAccessSourceReader;
 
 public class MissingBlock
 {
 	@Test
 	public void testBasic() throws IOException
 	{
-		RandomAccessCharsetDetectingLineReader ralr = new RandomAccessCharsetDetectingLineReader( new FileResource( "testpatch-missingblock.sql" ) );
+		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "testpatch-missingblock.sql" ) );
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		try
 		{
@@ -46,7 +46,7 @@ public class MissingBlock
 	@Test
 	public void testMissingInitBlock() throws IOException
 	{
-		RandomAccessCharsetDetectingLineReader ralr = new RandomAccessCharsetDetectingLineReader( new FileResource( "testpatch-missinginitblock.sql" ) );
+		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "testpatch-missinginitblock.sql" ) );
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		try
 		{

@@ -16,7 +16,7 @@
 
 package solidbase.core;
 
-import solidstack.io.FileLocation;
+import solidstack.io.SourceLocation;
 
 /**
  * An SQL fragment.
@@ -43,7 +43,7 @@ public class InitConnectionFragment extends Fragment
 	 * @param connectionName The name of the connection.
 	 * @param userName The name of the user.
 	 */
-	protected InitConnectionFragment( FileLocation location, String text, String connectionName, String userName )
+	protected InitConnectionFragment( SourceLocation location, String text, String connectionName, String userName )
 	{
 		super( location, text );
 		this.connectionName = connectionName;

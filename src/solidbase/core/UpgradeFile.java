@@ -34,8 +34,8 @@ import org.apache.commons.lang.StringUtils;
 
 import solidbase.core.UpgradeSegment.Type;
 import solidbase.util.Assert;
-import solidstack.io.FileLocation;
-import solidstack.io.RandomAccessLineReader;
+import solidstack.io.SourceLocation;
+import solidstack.io.RandomAccessSourceReader;
 
 
 /**
@@ -70,7 +70,7 @@ public class UpgradeFile
 	/**
 	 * The upgrade file.
 	 */
-	protected RandomAccessLineReader file;
+	protected RandomAccessSourceReader file;
 
 	/**
 	 * The default delimiters.
@@ -118,29 +118,9 @@ public class UpgradeFile
 	 *
 	 * @param file The reader which is used to read the contents of the file.
 	 */
-	// TODO Use a variant of the CharsetDetectingLineReader
-	protected UpgradeFile( RandomAccessLineReader file )
+	protected UpgradeFile( RandomAccessSourceReader file )
 	{
 		this.file = file;
-
-		String line = file.readLine();
-		//System.out.println( "First line [" + line + "]" );
-		StringBuilder s = new StringBuilder();
-		char[] chars = line.toCharArray();
-		for( char c : chars )
-			if( c != 0 )
-				s.append( c );
-
-		line = s.toString();
-		//System.out.println( "First line (fixed) [" + line + "]" );
-		Matcher matcher = SQLFile.ENCODING_PATTERN.matcher( line );
-		if( matcher.matches() )
-		{
-			file.reOpen( matcher.group( 1 ) );
-			file.readLine(); // skip the first line
-		}
-		else
-			file.gotoLine( 1 );
 	}
 
 
@@ -182,44 +162,14 @@ public class UpgradeFile
 			{
 				Assert.isTrue( line.startsWith( "--*" ), "Line should start with --*" );
 				line = line.substring( 3 ).trim();
-				if( line.equalsIgnoreCase( "DEFINITION" ) )
-				{
-					Assert.isFalse( withinDefinition, "Already within the definition" );
-					withinDefinition = true;
-				}
-				else if( line.startsWith( "//" ) )
+				if( line.startsWith( "//" ) )
 				{
 					// ignore line
 				}
-				else if( DEFINITION_MARKER_PATTERN.matcher( line ).matches() )
+				else if( line.equalsIgnoreCase( "DEFINITION" ) )
 				{
-					Assert.isTrue( withinDefinition, "Not within the definition" );
-
-					Matcher matcher = DEFINITION_PATTERN.matcher( line );
-					Assert.isTrue( matcher.matches(), DEFINITION_SYNTAX_ERROR );
-					String action = matcher.group( 1 );
-					boolean open = matcher.group( 2 ) != null;
-					String source = matcher.group( 3 );
-					if( source.length() == 0 )
-						source = null;
-					String target = matcher.group( 4 );
-					Type type = stringToType( action );
-					UpgradeSegment segment = new UpgradeSegment( type, source, target, open );
-					if( type == Type.SETUP )
-					{
-						if( this.setups.containsKey( source ) )
-							throw new CommandFileException( "Duplicate definition of init block for source version " + source, this.file.getLocation().previousLine() );
-						this.setups.put( source, segment );
-					}
-					else
-					{
-						Collection< UpgradeSegment > segments = this.segments.get( source );
-						if( segments == null )
-							this.segments.put( source, segments = new LinkedList< UpgradeSegment >() );
-						segments.add( segment );
-						this.versions.add( source );
-						this.versions.add( target );
-					}
+					Assert.isFalse( withinDefinition, "Already within the definition" ); // TODO Change the assertions to CommandFileExceptions
+					withinDefinition = true;
 				}
 				else if( line.equalsIgnoreCase( "/DEFINITION" ) )
 				{
@@ -229,7 +179,37 @@ public class UpgradeFile
 				else if( withinDefinition )
 				{
 					Matcher matcher;
-					if( ( matcher = CONTROL_TABLES_PATTERN.matcher( line ) ).matches() )
+					if( DEFINITION_MARKER_PATTERN.matcher( line ).matches() )
+					{
+						Assert.isTrue( withinDefinition, "Not within the definition" );
+
+						matcher = DEFINITION_PATTERN.matcher( line );
+						Assert.isTrue( matcher.matches(), DEFINITION_SYNTAX_ERROR );
+						String action = matcher.group( 1 );
+						boolean open = matcher.group( 2 ) != null;
+						String source = matcher.group( 3 );
+						if( source.length() == 0 )
+							source = null;
+						String target = matcher.group( 4 );
+						Type type = stringToType( action );
+						UpgradeSegment segment = new UpgradeSegment( type, source, target, open );
+						if( type == Type.SETUP )
+						{
+							if( this.setups.containsKey( source ) )
+								throw new CommandFileException( "Duplicate definition of init block for source version " + source, this.file.getLocation().previousLine() );
+							this.setups.put( source, segment );
+						}
+						else
+						{
+							Collection< UpgradeSegment > segments = this.segments.get( source );
+							if( segments == null )
+								this.segments.put( source, segments = new LinkedList< UpgradeSegment >() );
+							segments.add( segment );
+							this.versions.add( source );
+							this.versions.add( target );
+						}
+					}
+					else if( ( matcher = CONTROL_TABLES_PATTERN.matcher( line ) ).matches() )
 					{
 						this.versionTableName = matcher.group( 1 );
 						this.logTableName = matcher.group( 2 );
@@ -240,7 +220,10 @@ public class UpgradeFile
 						throw new CommandFileException( "Unexpected line within definition: " + line, this.file.getLocation() );
 				}
 				else
-					throw new CommandFileException( "Unexpected line outside definition: " + line, this.file.getLocation() );
+				{
+					if( !CommandProcessor.encodingPattern.matcher( line ).matches() )
+						throw new CommandFileException( "Unexpected line outside definition: " + line, this.file.getLocation() );
+				}
 			}
 		}
 
@@ -330,7 +313,7 @@ public class UpgradeFile
 				 */
 				if( SEGMENT_START_MARKER_PATTERN.matcher( line ).matches() )
 				{
-					FileLocation location = this.file.getLocation().previousLine();
+					SourceLocation location = this.file.getLocation().previousLine();
 					line = line.substring( 3 ).trim();
 					matcher = SEGMENT_START_PATTERN.matcher( line );
 					if( !matcher.matches() )

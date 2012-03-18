@@ -17,8 +17,8 @@
 package solidbase.util;
 
 import solidbase.core.CommandFileException;
-import solidstack.io.FileLocation;
-import solidstack.io.LineReader;
+import solidstack.io.SourceLocation;
+import solidstack.io.SourceReader;
 import solidstack.io.PushbackReader;
 
 
@@ -62,7 +62,7 @@ public class CSVTokenizer
 	 * @param separator The CSV separator.
 	 * @param ignoreWhiteSpace Ignore white space, except white space enclosed in double quotes.
 	 */
-	public CSVTokenizer( LineReader in, int separator, boolean ignoreWhiteSpace )
+	public CSVTokenizer( SourceReader in, int separator, boolean ignoreWhiteSpace )
 	{
 		this.in = new PushbackReader( in );
 		this.separator = separator;
@@ -189,7 +189,7 @@ public class CSVTokenizer
 	 *
 	 * @return The current file location.
 	 */
-	public FileLocation getLocation()
+	public SourceLocation getLocation()
 	{
 		return this.in.getLocation();
 	}
@@ -199,7 +199,7 @@ public class CSVTokenizer
 	 *
 	 * @return The underlying reader.
 	 */
-	public LineReader getReader()
+	public SourceReader getReader()
 	{
 		return this.in.getReader();
 	}

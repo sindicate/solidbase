@@ -35,10 +35,9 @@ import solidbase.util.Assert;
 import solidbase.util.CSVReader;
 import solidbase.util.Tokenizer;
 import solidbase.util.Tokenizer.Token;
-import solidstack.io.CharsetDetectingLineReader;
-import solidstack.io.LineReader;
 import solidstack.io.Resource;
-import solidstack.io.StringLineReader;
+import solidstack.io.SourceReader;
+import solidstack.io.SourceReaders;
 
 
 /**
@@ -74,7 +73,7 @@ public class ImportCSV implements CommandListener
 
 		Parsed parsed = parse( command );
 
-		LineReader lineReader;
+		SourceReader lineReader;
 		boolean needClose = false;
 		if( parsed.reader != null )
 			lineReader = parsed.reader; // Data is in the command
@@ -84,7 +83,7 @@ public class ImportCSV implements CommandListener
 			Resource resource = processor.getResource().resolve( parsed.fileName );
 			try
 			{
-				lineReader = new CharsetDetectingLineReader( resource, parsed.encoding );
+				lineReader = SourceReaders.forResource( resource, parsed.encoding );
 			}
 			catch( FileNotFoundException e )
 			{
@@ -343,7 +342,7 @@ public class ImportCSV implements CommandListener
 		List< String > columns = new ArrayList< String >();
 		List< String > values = new ArrayList< String >();
 
-		Tokenizer tokenizer = new Tokenizer( new StringLineReader( command.getCommand(), command.getLocation() ) );
+		Tokenizer tokenizer = new Tokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
 		tokenizer.get( "IMPORT" );
 		tokenizer.get( "CSV" );
@@ -572,7 +571,7 @@ public class ImportCSV implements CommandListener
 		protected String[] values;
 
 		/** The underlying reader from the {@link Tokenizer}. */
-		protected LineReader reader;
+		protected SourceReader reader;
 
 		/** The file path to import from */
 		protected String fileName;

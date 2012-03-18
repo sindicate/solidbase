@@ -18,7 +18,7 @@ package solidbase.core;
 
 import java.sql.SQLException;
 
-import solidstack.io.LineReader;
+import solidstack.io.SourceReader;
 import solidstack.io.Resource;
 
 
@@ -105,7 +105,7 @@ public class SQLProcessor extends CommandProcessor
 	}
 
 	@Override
-	public LineReader getReader()
+	public SourceReader getReader()
 	{
 		return this.sqlContext.getSource().reader;
 	}

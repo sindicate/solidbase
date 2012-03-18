@@ -25,7 +25,7 @@ import mockit.Mock;
 
 import org.testng.Assert;
 
-import solidstack.io.RandomAccessCharsetDetectingLineReader;
+import solidstack.io.RandomAccessSourceReader;
 
 
 /**
@@ -53,7 +53,7 @@ public class MockRandomAccessLineReader
 	/**
 	 * Get populated by the real class instance.
 	 */
-	public RandomAccessCharsetDetectingLineReader it;
+	public RandomAccessSourceReader it;
 
 	/**
 	 * Constructs a new mock instance.

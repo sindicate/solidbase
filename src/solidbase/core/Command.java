@@ -17,7 +17,7 @@
 package solidbase.core;
 
 import solidbase.util.Assert;
-import solidstack.io.FileLocation;
+import solidstack.io.SourceLocation;
 
 /**
  * Represents a command in an upgrade or SQL file.
@@ -40,7 +40,7 @@ public class Command
 	/**
 	 * The file location where the command is encountered.
 	 */
-	private FileLocation location;
+	private SourceLocation location;
 
 	/**
 	 * Constructor.
@@ -49,7 +49,7 @@ public class Command
 	 * @param isTransient Is the command transient or not?
 	 * @param location The location where the command is encountered.
 	 */
-	public Command( String command, boolean isTransient, FileLocation location )
+	public Command( String command, boolean isTransient, SourceLocation location )
 	{
 		Assert.notNull( command );
 
@@ -103,7 +103,7 @@ public class Command
 	 *
 	 * @return The file location where the command is encountered.
 	 */
-	public FileLocation getLocation()
+	public SourceLocation getLocation()
 	{
 		return this.location;
 	}

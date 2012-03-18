@@ -22,14 +22,14 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidstack.io.FileResource;
-import solidstack.io.RandomAccessCharsetDetectingLineReader;
+import solidstack.io.RandomAccessSourceReader;
 
 public class DoubleBlock
 {
 	@Test
 	public void testDoubleBlock() throws IOException
 	{
-		RandomAccessCharsetDetectingLineReader ralr = new RandomAccessCharsetDetectingLineReader( new FileResource( "testpatch-doubleblock.sql" ) );
+		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "testpatch-doubleblock.sql" ) );
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		try
 		{

@@ -66,13 +66,13 @@ public class TestProgressListener extends ProgressListener
 	@Override
 	protected void openedUpgradeFile( UpgradeFile upgradeFile )
 	{
-		System.out.println( "OPENEDPATCHFILE." );
+		System.out.println( "    ENCODING: " + upgradeFile.getEncoding() );
 	}
 
 	@Override
 	protected void openedSQLFile( SQLFile sqlFile )
 	{
-		System.out.println( "OPENEDSQLFILE." );
+		System.out.println( "    ENCODING: " + sqlFile.getEncoding() );
 	}
 
 	@Override

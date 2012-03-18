@@ -32,8 +32,8 @@ import org.apache.commons.lang.StringUtils;
 import solidbase.util.Assert;
 import solidbase.util.ShutdownHook;
 import solidbase.util.WorkerThread;
-import solidstack.io.FileLocation;
-import solidstack.io.LineReader;
+import solidstack.io.SourceLocation;
+import solidstack.io.SourceReader;
 import solidstack.io.Resource;
 
 
@@ -549,7 +549,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 		Assert.isTrue( this.segment.isSetup(), "UPGRADE only allowed in SETUP blocks" );
 		Assert.isTrue( this.segment.getSource().equals( "1.0" ) && this.segment.getTarget().equals( "1.1" ), "UPGRADE only possible from spec 1.0 to 1.1" );
 
-		FileLocation location = command.getLocation();
+		SourceLocation location = command.getLocation();
 		executeJdbc( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'S' WHERE RESULT IS NULL OR RESULT NOT LIKE 'COMPLETED VERSION %'", false, location ) );
 		executeJdbc( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'B', RESULT = 'COMPLETE' WHERE RESULT LIKE 'COMPLETED VERSION %'", false, location ) );
 		executeJdbc( new Command( "UPDATE DBVERSION SET SPEC = '1.1'", false, location ) ); // We need this because the column is made NOT NULL in the upgrade setup block
@@ -663,7 +663,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	}
 
 	@Override
-	public LineReader getReader()
+	public SourceReader getReader()
 	{
 		return this.upgradeFile.file;
 	}

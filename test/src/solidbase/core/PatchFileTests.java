@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 
 import solidbase.core.UpgradeSegment.Type;
 import solidstack.io.FileResource;
-import solidstack.io.RandomAccessCharsetDetectingLineReader;
+import solidstack.io.RandomAccessSourceReader;
 
 
 /**
@@ -47,7 +47,7 @@ public class PatchFileTests
 	@Test
 	public void testCollectTipVersions1() throws IOException
 	{
-		RandomAccessCharsetDetectingLineReader ralr = new RandomAccessCharsetDetectingLineReader( new FileResource( "testpatch1.sql" ) );
+		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "testpatch1.sql" ) );
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		upgradeFile.scan();
 		upgradeFile.close();
@@ -118,7 +118,7 @@ public class PatchFileTests
 	@Test
 	public void testCollectTipVersions2() throws IOException
 	{
-		RandomAccessCharsetDetectingLineReader ralr = new RandomAccessCharsetDetectingLineReader( new FileResource( "testpatch1.sql" ) );
+		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "testpatch1.sql" ) );
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		upgradeFile.scan();
 		upgradeFile.close();
@@ -153,7 +153,7 @@ public class PatchFileTests
 	@Test
 	public void testOpenPatch() throws IOException
 	{
-		RandomAccessCharsetDetectingLineReader ralr = new RandomAccessCharsetDetectingLineReader( new FileResource( "testpatch1.sql" ) );
+		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "testpatch1.sql" ) );
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		upgradeFile.close();
 
