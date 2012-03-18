@@ -19,10 +19,10 @@ package solidbase.core;
 import java.util.regex.Matcher;
 
 import solidbase.core.Delimiter.Type;
-import solidstack.io.FileLocation;
-import solidstack.io.LineReader;
 import solidstack.io.Resource;
-import solidstack.io.StringLineReader;
+import solidstack.io.SourceLocation;
+import solidstack.io.SourceReader;
+import solidstack.io.SourceReaders;
 
 
 /**
@@ -41,7 +41,7 @@ public class SQLSource
 	/**
 	 * The underlying reader.
 	 */
-	protected LineReader reader;
+	protected SourceReader reader;
 
 	/**
 	 * A buffer needed when a delimiter is used of type {@link Type#FREE}.
@@ -59,7 +59,7 @@ public class SQLSource
 	 *
 	 * @param in The reader which is used to read the SQL.
 	 */
-	protected SQLSource( LineReader in )
+	protected SQLSource( SourceReader in )
 	{
 		this.reader = in;
 	}
@@ -72,7 +72,7 @@ public class SQLSource
 	 */
 	protected SQLSource( String sql )
 	{
-		this( new StringLineReader( sql ) );
+		this( SourceReaders.forString( sql ) );
 	}
 
 
@@ -82,9 +82,9 @@ public class SQLSource
 	 * @param sql The SQL to read.
 	 * @param location The location of the SQL within the original file.
 	 */
-	protected SQLSource( String sql, FileLocation location )
+	protected SQLSource( String sql, SourceLocation location )
 	{
-		this( new StringLineReader( sql, location ) );
+		this( SourceReaders.forString( sql, location ) );
 	}
 
 
@@ -95,7 +95,7 @@ public class SQLSource
 	 */
 	protected SQLSource( Fragment fragment )
 	{
-		this( new StringLineReader( fragment.getText(), fragment.getLocation() ) );
+		this( SourceReaders.forString( fragment.getText(), fragment.getLocation() ) );
 	}
 
 

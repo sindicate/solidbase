@@ -16,7 +16,7 @@
 
 package solidbase.core;
 
-import solidstack.io.FileLocation;
+import solidstack.io.SourceLocation;
 
 /**
  * An SQL fragment.
@@ -28,7 +28,7 @@ public class Fragment
 	/**
 	 * The file location of this fragment.
 	 */
-	protected FileLocation location;
+	protected SourceLocation location;
 
 	/**
 	 * The text of the fragment.
@@ -41,7 +41,7 @@ public class Fragment
 	 * @param location The location of the fragment in the original file.
 	 * @param text The text of the fragment.
 	 */
-	public Fragment( FileLocation location, String text )
+	public Fragment( SourceLocation location, String text )
 	{
 		this.location = location;
 		this.text = text;
@@ -52,7 +52,7 @@ public class Fragment
 	 *
 	 * @return The file location of the fragment.
 	 */
-	public FileLocation getLocation()
+	public SourceLocation getLocation()
 	{
 		return this.location;
 	}

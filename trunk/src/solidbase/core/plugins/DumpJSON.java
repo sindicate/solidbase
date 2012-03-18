@@ -60,7 +60,7 @@ import solidbase.util.Tokenizer.Token;
 import solidstack.io.DeferringWriter;
 import solidstack.io.FileResource;
 import solidstack.io.Resource;
-import solidstack.io.StringLineReader;
+import solidstack.io.SourceReaders;
 
 
 /**
@@ -392,7 +392,7 @@ public class DumpJSON implements CommandListener
 	{
 		Parsed result = new Parsed();
 
-		Tokenizer tokenizer = new Tokenizer( new StringLineReader( command.getCommand(), command.getLocation() ) );
+		Tokenizer tokenizer = new Tokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
 		tokenizer.get( "DUMP" );
 		tokenizer.get( "JSON" );

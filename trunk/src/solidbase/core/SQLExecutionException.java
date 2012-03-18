@@ -19,7 +19,7 @@ package solidbase.core;
 import java.sql.SQLException;
 
 import solidbase.util.Assert;
-import solidstack.io.FileLocation;
+import solidstack.io.SourceLocation;
 
 
 /**
@@ -40,7 +40,7 @@ public class SQLExecutionException extends FatalException
 	/**
 	 * The file location where the exception occurred.
 	 */
-	private FileLocation location;
+	private SourceLocation location;
 
 	/**
 	 * Constructor.
@@ -49,7 +49,7 @@ public class SQLExecutionException extends FatalException
 	 * @param location The file location where the exception occurred.
 	 * @param sqlException The {@link SQLException}.
 	 */
-	public SQLExecutionException( String command, FileLocation location, SQLException sqlException )
+	public SQLExecutionException( String command, SourceLocation location, SQLException sqlException )
 	{
 		super( sqlException );
 

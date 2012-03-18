@@ -17,7 +17,7 @@
 package solidbase.core;
 
 import solidbase.util.Assert;
-import solidstack.io.LineReader;
+import solidstack.io.SourceReader;
 
 
 /**
@@ -32,7 +32,7 @@ public class UpgradeSource extends SQLSource
 	 *
 	 * @param in The reader which is used to read the SQL.
 	 */
-	protected UpgradeSource( LineReader in )
+	protected UpgradeSource( SourceReader in )
 	{
 		super( in );
 	}

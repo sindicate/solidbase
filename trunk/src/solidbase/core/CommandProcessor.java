@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 
 import solidbase.core.Delimiter.Type;
 import solidbase.util.Assert;
-import solidstack.io.LineReader;
+import solidstack.io.SourceReader;
 import solidstack.io.Resource;
 
 
@@ -300,7 +300,8 @@ abstract public class CommandProcessor
 			}
 			if( encodingPattern.matcher( sql ).matches() )
 			{
-				// Ignore, already picked up by the CharsetDetectingLineReader
+				// Ignore, already picked up by the EncodingDetector
+				// TODO Check that it is the first line, and check with the detected encoding
 				return true;
 			}
 //			if( commitPattern.matcher( sql ).matches() )
@@ -608,11 +609,11 @@ abstract public class CommandProcessor
 	}
 
 	/**
-	 * Returns the {@link LineReader} that is the source of the commands.
+	 * Returns the {@link SourceReader} that is the source of the commands.
 	 *
-	 * @return the {@link LineReader} that is the source of the commands.
+	 * @return the {@link SourceReader} that is the source of the commands.
 	 */
-	abstract public LineReader getReader();
+	abstract public SourceReader getReader();
 
 	/**
 	 * Returns the underlying resource.

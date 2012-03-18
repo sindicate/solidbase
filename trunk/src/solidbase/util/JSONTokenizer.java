@@ -20,8 +20,8 @@ import java.math.BigDecimal;
 
 import solidbase.core.CommandFileException;
 import solidbase.util.JSONTokenizer.Token.TYPE;
-import solidstack.io.FileLocation;
-import solidstack.io.LineReader;
+import solidstack.io.SourceLocation;
+import solidstack.io.SourceReader;
 import solidstack.io.PushbackReader;
 
 
@@ -48,7 +48,7 @@ public class JSONTokenizer
 	 *
 	 * @param in The input.
 	 */
-	public JSONTokenizer( LineReader in )
+	public JSONTokenizer( SourceReader in )
 	{
 		this.in = new PushbackReader( in );
 	}
@@ -216,7 +216,7 @@ public class JSONTokenizer
 	 *
 	 * @return The current file location.
 	 */
-	public FileLocation getLocation()
+	public SourceLocation getLocation()
 	{
 		return this.in.getLocation();
 	}
@@ -226,7 +226,7 @@ public class JSONTokenizer
 	 *
 	 * @return The underlying reader.
 	 */
-	public LineReader getReader()
+	public SourceReader getReader()
 	{
 		return this.in.getReader();
 	}

@@ -26,7 +26,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidstack.io.FileResource;
-import solidstack.io.RandomAccessCharsetDetectingLineReader;
+import solidstack.io.RandomAccessSourceReader;
 
 
 public class CharSets
@@ -34,7 +34,7 @@ public class CharSets
 	@Test
 	public void testIso8859() throws IOException
 	{
-		RandomAccessCharsetDetectingLineReader ralr = new RandomAccessCharsetDetectingLineReader( new FileResource( "testpatch1.sql" ) );
+		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "testpatch1.sql" ), EncodingDetector.INSTANCE );
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		upgradeFile.scan();
 		Assert.assertEquals( upgradeFile.file.getEncoding(), "ISO-8859-1" );
@@ -69,7 +69,7 @@ public class CharSets
 //	@Test
 //	public void testUtf16Bom() throws IOException
 //	{
-//		RandomAccessCharsetDetectingLineReader ralr = new RandomAccessCharsetDetectingLineReader( new FileResource( "patch-utf-16-bom-1.sql" ) );
+//		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "patch-utf-16-bom-1.sql" ) );
 //		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 //		upgradeFile.scan();
 //		Assert.assertEquals( upgradeFile.file.getBOM(), new byte[] { -1, -2 } );
@@ -80,13 +80,13 @@ public class CharSets
 //	@Test
 //	public void testUtf16BomAndExplicit() throws IOException
 //	{
-//		RandomAccessCharsetDetectingLineReader ralr = new RandomAccessCharsetDetectingLineReader( new FileResource( "patch-utf-16-bom-2.sql" ) );
+//		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "patch-utf-16-bom-2.sql" ) );
 //		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 //		upgradeFile.scan();
 //		Assert.assertEquals( upgradeFile.file.getBOM(), new byte[] { -1, -2 } );
 //		Assert.assertEquals( upgradeFile.file.getEncoding(), "UTF-16LE" );
 //
-//		RandomAccessLineReader reader = upgradeFile.file;
+//		RandomAccessSourceReader reader = upgradeFile.file;
 //		reader.gotoLine( 1 );
 //		boolean found = false;
 //		String line = reader.readLine();
@@ -104,13 +104,13 @@ public class CharSets
 //	@Test
 //	public void testUtf16NoBom() throws IOException
 //	{
-//		RandomAccessCharsetDetectingLineReader ralr = new RandomAccessCharsetDetectingLineReader( new FileResource( "patch-utf-16-nobom-1.sql" ) );
+//		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "patch-utf-16-nobom-1.sql" ) );
 //		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 //		upgradeFile.scan();
 //		Assert.assertNull( upgradeFile.file.getBOM() );
 //		Assert.assertEquals( upgradeFile.file.getEncoding(), "UTF-16LE" );
 //
-//		RandomAccessLineReader reader = upgradeFile.file;
+//		RandomAccessSourceReader reader = upgradeFile.file;
 //		reader.gotoLine( 1 );
 //		boolean found = false;
 //		String line = reader.readLine();

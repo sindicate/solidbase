@@ -45,12 +45,11 @@ import solidbase.util.JSONObject;
 import solidbase.util.JSONReader;
 import solidbase.util.Tokenizer;
 import solidbase.util.Tokenizer.Token;
-import solidstack.io.CharsetDetectingLineReader;
-import solidstack.io.LineReader;
 import solidstack.io.Resource;
 import solidstack.io.SegmentedInputStream;
 import solidstack.io.SegmentedReader;
-import solidstack.io.StringLineReader;
+import solidstack.io.SourceReader;
+import solidstack.io.SourceReaders;
 
 
 /**
@@ -87,11 +86,11 @@ public class LoadJSON implements CommandListener
 		Parsed parsed = parse( command );
 
 		Resource resource = processor.getResource().resolve( parsed.fileName );
-		LineReader lineReader;
+		SourceReader lineReader;
 		try
 		{
 			// TODO Use the same charset detection as JSON does. Maybe introduce the UTF charset if the default does not become UTF.
-			lineReader = new CharsetDetectingLineReader( resource, "UTF-8" );
+			lineReader = SourceReaders.forResource( resource, "UTF-8" );
 		}
 		catch( FileNotFoundException e )
 		{
@@ -427,7 +426,7 @@ public class LoadJSON implements CommandListener
 		List< String > columns = new ArrayList< String >();
 		List< String > values = new ArrayList< String >();
 
-		Tokenizer tokenizer = new Tokenizer( new StringLineReader( command.getCommand(), command.getLocation() ) );
+		Tokenizer tokenizer = new Tokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
 		tokenizer.get( "LOAD" );
 		tokenizer.get( "JSON" );
@@ -596,7 +595,7 @@ public class LoadJSON implements CommandListener
 		protected String[] values;
 
 //		/** The underlying reader from the {@link Tokenizer}. */
-//		protected LineReader reader;
+//		protected SourceReader reader;
 
 		/** The file path to import from */
 		protected String fileName;

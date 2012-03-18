@@ -16,7 +16,7 @@
 
 package solidbase.core;
 
-import solidstack.io.FileLocation;
+import solidstack.io.SourceLocation;
 
 
 /**
@@ -74,7 +74,7 @@ public class UpgradeSegment
 	/**
 	 * The file location of this segment.
 	 */
-	protected FileLocation location;
+	protected SourceLocation location;
 
 	/**
 	 * Constructs a new segment.
@@ -127,7 +127,7 @@ public class UpgradeSegment
 	 *
 	 * @param location The file location for this segment.
 	 */
-	protected void setLocation( FileLocation location )
+	protected void setLocation( SourceLocation location )
 	{
 		this.location = location;
 	}
@@ -147,7 +147,7 @@ public class UpgradeSegment
 	 *
 	 * @return The line number in the file for this segment.
 	 */
-	protected FileLocation getLocation()
+	protected SourceLocation getLocation()
 	{
 		return this.location;
 	}

@@ -21,13 +21,13 @@ import java.util.Stack;
 import solidbase.core.CommandFileException;
 import solidbase.util.JSONTokenizer.Token;
 import solidbase.util.JSONTokenizer.Token.TYPE;
-import solidstack.io.FileLocation;
-import solidstack.io.LineReader;
+import solidstack.io.SourceLocation;
+import solidstack.io.SourceReader;
 import solidstack.io.Resource;
 
 
 /**
- * Reads JSON data from the given {@link LineReader}.
+ * Reads JSON data from the given {@link SourceReader}.
  *
  * @author René M. de Bloois
  */
@@ -37,7 +37,7 @@ public class JSONParser
 	static protected enum STATE { BEFOREVALUE, BEFORENAME, AFTERVALUE };
 	static protected enum STRUCT { NONE, OBJECT, ARRAY };
 
-	private LineReader reader;
+	private SourceReader reader;
 
 	/**
 	 * The source of tokens.
@@ -59,7 +59,7 @@ public class JSONParser
 	 *
 	 * @param reader The source of the JSON data.
 	 */
-	public JSONParser( LineReader reader )
+	public JSONParser( SourceReader reader )
 	{
 		this.reader = reader;
 		this.tokenizer = new JSONTokenizer( reader );
@@ -170,7 +170,7 @@ public class JSONParser
 		return this.value;
 	}
 
-	public FileLocation getLocation()
+	public SourceLocation getLocation()
 	{
 		return this.tokenizer.getLocation();
 	}

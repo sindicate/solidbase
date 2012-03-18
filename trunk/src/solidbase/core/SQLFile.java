@@ -17,10 +17,10 @@
 package solidbase.core;
 
 import java.io.FileNotFoundException;
-import java.util.regex.Pattern;
 
-import solidstack.io.CharsetDetectingLineReader;
 import solidstack.io.Resource;
+import solidstack.io.SourceReader;
+import solidstack.io.SourceReaders;
 
 
 /**
@@ -31,12 +31,10 @@ import solidstack.io.Resource;
  */
 public class SQLFile
 {
-	static final Pattern ENCODING_PATTERN = Pattern.compile( "^--\\*[ \t]*ENCODING[ \t]+\"([^\"]*)\"[ \t]*$", Pattern.CASE_INSENSITIVE );
-
 	/**
 	 * The underlying file.
 	 */
-	protected CharsetDetectingLineReader reader;
+	protected SourceReader reader;
 
 
 	/**
@@ -48,7 +46,7 @@ public class SQLFile
 	{
 		try
 		{
-			this.reader = new CharsetDetectingLineReader( resource, ENCODING_PATTERN );
+			this.reader = SourceReaders.forResource( resource, EncodingDetector.INSTANCE );
 		}
 		catch( FileNotFoundException e )
 		{

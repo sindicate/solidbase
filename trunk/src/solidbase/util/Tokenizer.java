@@ -17,10 +17,9 @@
 package solidbase.util;
 
 import solidbase.core.CommandFileException;
-import solidstack.io.FileLocation;
-import solidstack.io.LineReader;
 import solidstack.io.PushbackReader;
-import solidstack.io.ReaderLineReader;
+import solidstack.io.SourceLocation;
+import solidstack.io.SourceReader;
 
 
 /**
@@ -41,7 +40,7 @@ public class Tokenizer
 	 *
 	 * @param in The input.
 	 */
-	public Tokenizer( ReaderLineReader in )
+	public Tokenizer( SourceReader in )
 	{
 		this.in = new PushbackReader( in );
 	}
@@ -308,12 +307,12 @@ public class Tokenizer
 	 *
 	 * @return The underlying reader.
 	 */
-	public LineReader getReader()
+	public SourceReader getReader()
 	{
 		return this.in.getReader();
 	}
 
-	public FileLocation getLocation()
+	public SourceLocation getLocation()
 	{
 		return this.in.getLocation();
 	}
