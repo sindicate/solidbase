@@ -310,8 +310,8 @@ public class DumpJSON implements CommandListener
 											if( spec.generator.isDynamic() )
 											{
 												DeferringWriter writer = (DeferringWriter)spec.writer;
-												if( writer.isInMemory() )
-													array.add( writer.getData() );
+												if( writer.isBuffered() )
+													array.add( writer.clearBuffer() );
 												else
 												{
 													JSONObject ref = new JSONObject();
