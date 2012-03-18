@@ -255,8 +255,8 @@ public class ExportCSV implements CommandListener
 											if( spec.generator.isDynamic() )
 											{
 												DeferringWriter writer = (DeferringWriter)spec.writer;
-												if( writer.isInMemory() )
-													csvWriter.writeValue( writer.getData() );
+												if( writer.isBuffered() )
+													csvWriter.writeValue( writer.clearBuffer() );
 												else
 													csvWriter.writeExtendedValue( "TXT(FILE=\"" + relFileName + "\",ENCODING=\"" + parsed.encoding + "\")" ); // TODO Escape filename (Linux filenames are allowed to have double quotes)
 												writer.close();

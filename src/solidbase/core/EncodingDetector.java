@@ -28,11 +28,11 @@ public class EncodingDetector implements solidstack.io.EncodingDetector
 		// Singleton
 	}
 
-	public String detect( byte[] bytes, int len )
+	public String detect( byte[] bytes )
 	{
 		String result = CHARSET_ISO; // TODO Or null for platform dependent? Think not. Or UTF-8?
 
-		String first = toAscii( bytes, len );
+		String first = toAscii( bytes );
 		Matcher matcher = ENCODING_PATTERN.matcher( first );
 		if( matcher.matches() )
 			result = matcher.group( 1 );
@@ -40,8 +40,9 @@ public class EncodingDetector implements solidstack.io.EncodingDetector
 		return result;
 	}
 
-	static private String toAscii( byte[] chars, int len )
+	static private String toAscii( byte[] chars )
 	{
+		int len = chars.length;
 		int j = 0;
 		byte[] result = new byte[ len ];
 		for( int i = 0; i < len; i++ )

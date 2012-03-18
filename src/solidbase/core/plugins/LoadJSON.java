@@ -229,7 +229,7 @@ public class LoadJSON implements CommandListener
 								{
 									try
 									{
-										InputStream in = resource.resolve( filename ).getInputStream();
+										InputStream in = resource.resolve( filename ).newInputStream();
 										closer.add( in );
 										// Some databases read the stream directly (Oracle), others read it later (HSQLDB).
 										statement.setBinaryStream( pos++, in );
@@ -264,7 +264,7 @@ public class LoadJSON implements CommandListener
 										Resource r = resource.resolve( fileNames[ index ] );
 										try
 										{
-											in = new SegmentedInputStream( r.getInputStream() );
+											in = new SegmentedInputStream( r.newInputStream() );
 											biggerCloser.add( in ); // TODO Why? Don't understand anymore.
 											streams[ index ] = in;
 										}
@@ -285,7 +285,7 @@ public class LoadJSON implements CommandListener
 										{
 											try
 											{
-												in = new SegmentedReader( new InputStreamReader( r.getInputStream(), "UTF-8" ) );
+												in = new SegmentedReader( new InputStreamReader( r.newInputStream(), "UTF-8" ) );
 											}
 											catch( UnsupportedEncodingException e )
 											{

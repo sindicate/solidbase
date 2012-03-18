@@ -58,7 +58,7 @@ public final class Factory
 
 			// TODO What about the message? "Opening internal resource..."
 			MemoryResource memResource = new MemoryResource();
-			memResource.append( resource.getInputStream() );
+			memResource.append( resource.newInputStream() );
 			return new RandomAccessSourceReader( memResource, EncodingDetector.INSTANCE );
 		}
 		catch( FileNotFoundException e )
