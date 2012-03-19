@@ -103,6 +103,7 @@ public class SQLTask extends DBTask
 					connection.getUsername(), connection.getPassword() );
 
 		List< Resource > sqlFiles = new ArrayList< Resource >();
+		// TODO Get the basedir only once
 		if( this.sqlfile != null )
 			sqlFiles.add( Resources.getResource( project.getBaseDir() ).resolve( this.sqlfile ) );
 		for( Sqlfile file : this.sqlfiles )
