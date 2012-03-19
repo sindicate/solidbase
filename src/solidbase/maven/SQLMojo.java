@@ -20,7 +20,7 @@ import org.apache.maven.plugin.MojoFailureException;
 
 import solidbase.core.FatalException;
 import solidbase.core.Runner;
-import solidstack.io.ResourceFactory;
+import solidstack.io.Resources;
 
 
 /**
@@ -51,7 +51,7 @@ public class SQLMojo extends DBMojo
 						connection.getUsername(),
 						connection.getPassword() == null ? "" : connection.getPassword()
 						);
-		runner.setSQLFile( ResourceFactory.getResource( this.project.getBasedir() ).resolve( this.sqlfile ) );
+		runner.setSQLFile( Resources.getResource( this.project.getBasedir() ).resolve( this.sqlfile ) );
 		try
 		{
 			runner.executeSQL();

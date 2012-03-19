@@ -10,16 +10,6 @@ public class EncodingDetector implements solidstack.io.EncodingDetector
 {
 	static final Pattern ENCODING_PATTERN = Pattern.compile( "--\\*[ \t]*ENCODING[ \t]+\"([^\"]*)\".*", Pattern.CASE_INSENSITIVE | Pattern.DOTALL );
 
-	/**
-	 * Constant for the ISO-8859-1 character set.
-	 */
-	static final public String CHARSET_ISO = "ISO-8859-1";
-
-	/**
-	 * Constant for the UTF-8 character set.
-	 */
-	static final public String CHARSET_UTF8 = "UTF-8";
-
 	static final public EncodingDetector INSTANCE = new EncodingDetector();
 
 
@@ -30,7 +20,7 @@ public class EncodingDetector implements solidstack.io.EncodingDetector
 
 	public String detect( byte[] bytes )
 	{
-		String result = CHARSET_ISO; // TODO Or null for platform dependent? Think not. Or UTF-8?
+		String result = CHARSET_ISO_8859_1; // TODO Or null for platform dependent? Think not. Or UTF-8?
 
 		String first = toAscii( bytes );
 		Matcher matcher = ENCODING_PATTERN.matcher( first );
@@ -53,7 +43,7 @@ public class EncodingDetector implements solidstack.io.EncodingDetector
 		}
 		try
 		{
-			return new String( result, 0, j, CHARSET_ISO );
+			return new String( result, 0, j, CHARSET_ISO_8859_1 );
 		}
 		catch( UnsupportedEncodingException e )
 		{
