@@ -38,7 +38,7 @@ import solidbase.core.Runner;
 import solidbase.core.SQLExecutionException;
 import solidbase.core.SystemException;
 import solidbase.util.Assert;
-import solidstack.io.ResourceFactory;
+import solidstack.io.Resources;
 
 
 /**
@@ -191,18 +191,18 @@ public class Main
 
 		if( configuration.getSqlFile() != null )
 		{
-			runner.setSQLFile( ResourceFactory.getResource( configuration.getSqlFile() ) );
+			runner.setSQLFile( Resources.getResource( configuration.getSqlFile() ) );
 			runner.executeSQL();
 		}
 		else if( opts.dumplog )
 		{
-			runner.setUpgradeFile( ResourceFactory.getResource( configuration.getUpgradeFile() ) );
-			runner.setOutputFile( ResourceFactory.getResource( line.getOptionValue( "dumplog" ) ) );
+			runner.setUpgradeFile( Resources.getResource( configuration.getUpgradeFile() ) );
+			runner.setOutputFile( Resources.getResource( line.getOptionValue( "dumplog" ) ) );
 			runner.logToXML();
 		}
 		else
 		{
-			runner.setUpgradeFile( ResourceFactory.getResource( configuration.getUpgradeFile() ) );
+			runner.setUpgradeFile( Resources.getResource( configuration.getUpgradeFile() ) );
 			runner.setUpgradeTarget( configuration.getTarget() );
 			runner.setDowngradeAllowed( opts.downgradeallowed );
 			runner.upgrade();

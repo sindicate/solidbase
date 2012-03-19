@@ -25,7 +25,7 @@ import org.apache.tools.ant.Project;
 import solidbase.core.FatalException;
 import solidbase.core.Runner;
 import solidstack.io.Resource;
-import solidstack.io.ResourceFactory;
+import solidstack.io.Resources;
 
 
 /**
@@ -104,9 +104,9 @@ public class SQLTask extends DBTask
 
 		List< Resource > sqlFiles = new ArrayList< Resource >();
 		if( this.sqlfile != null )
-			sqlFiles.add( ResourceFactory.getResource( project.getBaseDir() ).resolve( this.sqlfile ) );
+			sqlFiles.add( Resources.getResource( project.getBaseDir() ).resolve( this.sqlfile ) );
 		for( Sqlfile file : this.sqlfiles )
-			sqlFiles.add( ResourceFactory.getResource( project.getBaseDir() ).resolve( file.src ) );
+			sqlFiles.add( Resources.getResource( project.getBaseDir() ).resolve( file.src ) );
 		runner.setSQLFiles( sqlFiles );
 
 		try

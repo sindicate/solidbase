@@ -8,11 +8,11 @@ import java.sql.Timestamp;
 
 import org.testng.annotations.Test;
 
-import solidstack.io.ResourceFactory;
+import solidstack.io.Resources;
 
 public class Export
 {
-	@Test(groups="new")
+	@Test
 	public void testExport() throws SQLException, UnsupportedEncodingException
 	{
 		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
@@ -57,7 +57,7 @@ public class Export
 		TestProgressListener progress = new TestProgressListener();
 		Database database = new Database( "default", "oracle.jdbc.OracleDriver", "jdbc:oracle:thin:@192.168.0.109:1521:XE", "XXXX", "XXXX", progress );
 		SQLProcessor processor = new SQLProcessor( progress );
-		SQLFile sqlFile = Factory.openSQLFile( ResourceFactory.getResource( "testsql-export-oracle.sql" ), progress );
+		SQLFile sqlFile = Factory.openSQLFile( Resources.getResource( "testsql-export-oracle.sql" ), progress );
 		DatabaseContext databases = new DatabaseContext( database );
 		SQLContext context = new SQLContext( sqlFile.getSource() );
 		context.setDatabases( databases );

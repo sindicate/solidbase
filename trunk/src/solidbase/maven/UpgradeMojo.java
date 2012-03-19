@@ -20,7 +20,7 @@ import org.apache.maven.plugin.MojoFailureException;
 
 import solidbase.core.FatalException;
 import solidbase.core.Runner;
-import solidstack.io.ResourceFactory;
+import solidstack.io.Resources;
 
 
 /**
@@ -61,7 +61,7 @@ public class UpgradeMojo extends DBMojo
 						connection.getUsername(),
 						connection.getPassword() == null ? "" : connection.getPassword()
 						);
-		runner.setUpgradeFile( ResourceFactory.getResource( this.project.getBasedir() ).resolve( this.upgradefile ) );
+		runner.setUpgradeFile( Resources.getResource( this.project.getBasedir() ).resolve( this.upgradefile ) );
 		runner.setUpgradeTarget( this.target );
 		runner.setDowngradeAllowed( this.downgradeallowed );
 		try

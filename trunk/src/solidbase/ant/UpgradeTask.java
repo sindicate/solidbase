@@ -21,7 +21,7 @@ import org.apache.tools.ant.Project;
 
 import solidbase.core.FatalException;
 import solidbase.core.Runner;
-import solidstack.io.ResourceFactory;
+import solidstack.io.Resources;
 
 
 /**
@@ -177,7 +177,7 @@ public class UpgradeTask extends DBTask
 			runner.setConnectionAttributes( connection.getName(), connection.getDriver(), connection.getUrl(),
 					connection.getUsername(), connection.getPassword() );
 
-		runner.setUpgradeFile( ResourceFactory.getResource( project.getBaseDir() ).resolve( this.upgradefile ) );
+		runner.setUpgradeFile( Resources.getResource( project.getBaseDir() ).resolve( this.upgradefile ) );
 		runner.setUpgradeTarget( this.upgradeTarget );
 		runner.setDowngradeAllowed( this.downgradeallowed );
 
