@@ -24,6 +24,7 @@
 				p:driverClass="org.hsqldb.jdbcDriver" p:url="jdbc:hsqldb:mem:testdb" p:username="sa" p:password="" />
 		</property>
 		<property name="upgradefile">
+			<!-- This tests the buffering of the resource -->
 			<bean class="org.springframework.core.io.InputStreamResource">
 				<constructor-arg>
 					<bean class="java.io.FileInputStream">

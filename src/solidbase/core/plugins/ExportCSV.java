@@ -174,7 +174,7 @@ public class ExportCSV implements CommandListener
 												String fileName = spec.generator.generateFileName( result );
 												Resource fileResource = new FileResource( fileName );
 												spec.out = fileResource.getOutputStream();
-												relFileName = fileResource.getPathFrom( csvResource );
+												relFileName = fileResource.getPathFrom( csvResource ).toString();
 											}
 											else
 											{
@@ -220,7 +220,7 @@ public class ExportCSV implements CommandListener
 												String fileName = spec.generator.generateFileName( result );
 												Resource fileResource = new FileResource( fileName );
 												spec.writer = new DeferringWriter( spec.threshold, fileResource, parsed.encoding );
-												relFileName = fileResource.getPathFrom( csvResource );
+												relFileName = fileResource.getPathFrom( csvResource ).toString();
 											}
 											else
 											{
