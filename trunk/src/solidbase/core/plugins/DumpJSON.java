@@ -180,7 +180,7 @@ public class DumpJSON implements CommandListener
 							if( spec != null && !spec.generator.isDynamic() )
 							{
 								Resource fileResource = new FileResource( spec.generator.fileName );
-								field.set( "file", fileResource.getPathFrom( jsvResource ) );
+								field.set( "file", fileResource.getPathFrom( jsvResource ).toString() );
 							}
 							fields.add( field );
 						}
@@ -226,7 +226,7 @@ public class DumpJSON implements CommandListener
 												Resource fileResource = new FileResource( fileName );
 												spec.out = fileResource.getOutputStream();
 												spec.index = 0;
-												relFileName = fileResource.getPathFrom( jsvResource );
+												relFileName = fileResource.getPathFrom( jsvResource ).toString();
 											}
 											else if( spec.out == null )
 											{
@@ -278,7 +278,7 @@ public class DumpJSON implements CommandListener
 												Resource fileResource = new FileResource( fileName );
 												spec.writer = new DeferringWriter( spec.threshold, fileResource, jsonWriter.getEncoding() );
 												spec.index = 0;
-												relFileName = fileResource.getPathFrom( jsvResource );
+												relFileName = fileResource.getPathFrom( jsvResource ).toString();
 											}
 											else if( spec.writer == null )
 											{

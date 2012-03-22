@@ -24,7 +24,7 @@ import solidstack.io.SourceLocation;
  *
  * @author René M. de Bloois
  */
-// TODO Look for another name for this exception, like LocalizedFatalException and include the file's url
+// TODO Rename to SourceException
 public class CommandFileException extends FatalException
 {
 	private static final long serialVersionUID = 1L;

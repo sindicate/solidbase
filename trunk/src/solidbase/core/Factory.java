@@ -18,7 +18,7 @@ package solidbase.core;
 
 import java.io.FileNotFoundException;
 
-import solidstack.io.MemoryResource;
+import solidstack.io.BufferedResource;
 import solidstack.io.RandomAccessSourceReader;
 import solidstack.io.Resource;
 
@@ -57,9 +57,7 @@ public final class Factory
 			}
 
 			// TODO What about the message? "Opening internal resource..."
-			MemoryResource memResource = new MemoryResource();
-			memResource.append( resource.newInputStream() );
-			return new RandomAccessSourceReader( memResource, EncodingDetector.INSTANCE );
+			return new RandomAccessSourceReader( new BufferedResource( resource ), EncodingDetector.INSTANCE );
 		}
 		catch( FileNotFoundException e )
 		{
