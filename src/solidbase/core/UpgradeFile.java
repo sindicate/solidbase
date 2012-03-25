@@ -34,8 +34,8 @@ import org.apache.commons.lang.StringUtils;
 
 import solidbase.core.UpgradeSegment.Type;
 import solidbase.util.Assert;
-import solidstack.io.SourceLocation;
 import solidstack.io.RandomAccessSourceReader;
+import solidstack.io.SourceLocation;
 
 
 /**
@@ -156,12 +156,14 @@ public class UpgradeFile
 		{
 			String line = this.file.readLine();
 			if( line == null )
-				throw new CommandFileException( "Unexpected EOF found", this.file.getLocation() );
+				throw new CommandFileException( "Unexpected end of file", this.file.getLocation() );
 
 			if( line.trim().length() > 0 )
 			{
-				Assert.isTrue( line.startsWith( "--*" ), "Line should start with --*" );
+				if( !line.startsWith( "--*" ) )
+					throw new CommandFileException( "Line should start with --*", this.file.getLocation() );
 				line = line.substring( 3 ).trim();
+
 				if( line.startsWith( "//" ) )
 				{
 					// ignore line
