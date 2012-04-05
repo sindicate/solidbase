@@ -28,6 +28,7 @@ import solidbase.test.mocks.MockConsole;
 public class CommandLineTests
 {
 	static private final String db = "jdbc:hsqldb:mem:testCommandLine";
+	static private final String db2 = "jdbc:hsqldb:mem:testCommandLine2";
 
 	@Test
 	static public void testCommandLine() throws Exception
@@ -94,14 +95,14 @@ public class CommandLineTests
 	@Test
 	static public void testCommandLineNoTarget() throws Exception
 	{
-		TestUtil.dropHSQLDBSchema( db, "sa", null );
+		TestUtil.dropHSQLDBSchema( db2, "sa", null );
 
 		MockConsole console = new MockConsole();
 		Main.console = console;
 
 		Main.main0( "-verbose",
 				"-driver", "org.hsqldb.jdbcDriver",
-				"-url", db,
+				"-url", db2,
 				"-username", "sa",
 				"-password", "",
 				"-upgradefile", "testpatch1.sql" );
@@ -132,7 +133,7 @@ public class CommandLineTests
 	@Test
 	static public void testCommandLineNotPossible() throws Exception
 	{
-		TestUtil.dropHSQLDBSchema( db, "sa", null );
+		TestUtil.dropHSQLDBSchema( db2, "sa", null );
 
 		MockConsole console = new MockConsole();
 		Main.console = console;
@@ -140,7 +141,7 @@ public class CommandLineTests
 		try
 		{
 			Main.main0( "-driver", "org.hsqldb.jdbcDriver",
-					"-url", db,
+					"-url", db2,
 					"-username", "sa",
 					"-password", "",
 					"-target", "100.0.*",
@@ -228,13 +229,13 @@ public class CommandLineTests
 	@Test
 	static public void testCommandLineSQLFile() throws Exception
 	{
-		TestUtil.dropHSQLDBSchema( db, "sa", null );
+		TestUtil.dropHSQLDBSchema( db2, "sa", null );
 
 		MockConsole console = new MockConsole();
 		Main.console = console;
 
 		Main.main0( "-driver", "org.hsqldb.jdbcDriver",
-				"-url", db,
+				"-url", db2,
 				"-username", "sa",
 				"-password", "",
 				"-sqlfile", "testsql-sections.sql" );
@@ -262,14 +263,14 @@ public class CommandLineTests
 	@Test
 	static public void testSkip() throws Exception
 	{
-		TestUtil.dropHSQLDBSchema( db, "sa", null );
+		TestUtil.dropHSQLDBSchema( db2, "sa", null );
 
 		MockConsole console = new MockConsole();
 		Main.console = console;
 
 		Main.main0( "-verbose",
 				"-driver", "org.hsqldb.jdbcDriver",
-				"-url", db,
+				"-url", db2,
 				"-username", "sa",
 				"-password", "",
 				"-target", "1.0.*",

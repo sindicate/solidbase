@@ -27,6 +27,8 @@ import solidstack.io.SourceReader;
  *
  * @author René M. de Bloois
  */
+// TODO Improve. See example JSPLikeTemplateParser.
+// FIXME Rename to SQLTokenizer.
 public class Tokenizer
 {
 	/**
