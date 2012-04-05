@@ -35,7 +35,7 @@ An upgrade file or SQL file should have the following first line:
 {{{
 --* ENCODING "UTF-8"
 }}}
-This indicates to !SolidBase what the character encoding of the input file is. The available encodings may depend on the JVM vendor but are probably:
+This indicates to !SolidBase what the character encoding of the input file is. The supported encodings vary between different implementations of the Java 2 platform, but every implementation is required to support the following encodings:
 || US-ASCII || Seven-bit ASCII ||
 || ISO-8859-1 || ISO Latin Alphabet No. 1, a.k.a. ISO-LATIN-1 ||
 || UTF-8 || Eight-bit UCS Transformation Format ||
@@ -258,7 +258,7 @@ INTO <tablename>
 [ VALUES ( <valuelist> ) ]
 FILE "<filename>" ENCODING "<encoding>" <current delimiter>
 }}}
-The available encodings may depend on the JVM vendor but are probably:
+The supported encodings vary between different implementations of the Java 2 platform, but every implementation is required to support the following encodings:
 || US-ASCII || Seven-bit ASCII ||
 || ISO-8859-1 || ISO Latin Alphabet No. 1, a.k.a. ISO-LATIN-1 ||
 || UTF-8 || Eight-bit UCS Transformation Format ||
@@ -360,6 +360,21 @@ Sets the next message to be displayed. The message will be displayed as soon as 
 === Example ===
 {{{
 --* SECTION "Creating indexes"
+}}}
+It is also possible to add an indentation level to the section.
+=== Syntax ===
+{{{
+--* SECTION.x "<message>"
+}}}
+=== Example ===
+{{{
+--* SECTION.1 "Creating tables"
+--* SECTION.2 "Audit tables"
+}}}
+=== Output ===
+{{{
+Creating tables...
+    Audit tables...
 }}}
 
 ----------------------------------------
