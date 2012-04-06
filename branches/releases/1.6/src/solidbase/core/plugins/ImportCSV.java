@@ -59,7 +59,7 @@ import solidbase.util.Tokenizer.Token;
 // TODO Make this more strict, like assert that the number of values stays the same in the CSV data
 public class ImportCSV implements CommandListener
 {
-	static private final Pattern triggerPattern = Pattern.compile( "IMPORT\\s+CSV\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern triggerPattern = Pattern.compile( "\\s*IMPORT\\s+CSV\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 	static private final Pattern parameterPattern = Pattern.compile( ":(\\d+)" );
 
