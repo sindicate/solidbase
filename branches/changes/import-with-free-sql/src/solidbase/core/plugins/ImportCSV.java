@@ -33,8 +33,8 @@ import solidbase.core.SQLExecutionException;
 import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidbase.util.CSVReader;
-import solidbase.util.Tokenizer;
-import solidbase.util.Tokenizer.Token;
+import solidbase.util.SQLTokenizer;
+import solidbase.util.SQLTokenizer.Token;
 import solidstack.io.Resource;
 import solidstack.io.SourceReader;
 import solidstack.io.SourceReaders;
@@ -356,7 +356,7 @@ public class ImportCSV implements CommandListener
 		List< String > columns = new ArrayList< String >();
 		List< String > values = new ArrayList< String >();
 
-		Tokenizer tokenizer = new Tokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
+		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
 		tokenizer.get( "IMPORT" );
 		tokenizer.get( "CSV" );
@@ -500,7 +500,7 @@ public class ImportCSV implements CommandListener
 	}
 
 
-	static private void parseFile( Tokenizer tokenizer, Parsed result )
+	static private void parseFile( SQLTokenizer tokenizer, Parsed result )
 	{
 		Token t = tokenizer.get();
 		String file = t.getValue();
@@ -525,7 +525,7 @@ public class ImportCSV implements CommandListener
 	 * @param chars The end characters.
 	 * @param includeInitialWhiteSpace Include the whitespace that precedes the first token.
 	 */
-	static protected void parseTill( Tokenizer tokenizer, StringBuilder result, boolean includeInitialWhiteSpace, char... chars )
+	static protected void parseTill( SQLTokenizer tokenizer, StringBuilder result, boolean includeInitialWhiteSpace, char... chars )
 	{
 		Token t = tokenizer.get();
 		if( t == null )
@@ -602,7 +602,7 @@ public class ImportCSV implements CommandListener
 		/** The values to insert. Use :1, :2, etc to replace with the values from the CSV list. */
 		protected String[] values;
 
-		/** The underlying reader from the {@link Tokenizer}. */
+		/** The underlying reader from the {@link SQLTokenizer}. */
 		protected SourceReader reader;
 
 		/** The file path to import from */

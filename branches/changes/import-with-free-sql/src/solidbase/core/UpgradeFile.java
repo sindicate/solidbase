@@ -170,12 +170,14 @@ public class UpgradeFile
 				}
 				else if( line.equalsIgnoreCase( "DEFINITION" ) )
 				{
-					Assert.isFalse( withinDefinition, "Already within the definition" ); // TODO Change the assertions to CommandFileExceptions
+					if( withinDefinition )
+						throw new CommandFileException( "Unexpected DEFINITION", this.file.getLocation() );
 					withinDefinition = true;
 				}
 				else if( line.equalsIgnoreCase( "/DEFINITION" ) )
 				{
-					Assert.isTrue( withinDefinition, "Not within the definition" );
+					if( !withinDefinition )
+						throw new CommandFileException( "Unexpected /DEFINITION", this.file.getLocation() );
 					definitionComplete = true;
 				}
 				else if( withinDefinition )
@@ -183,10 +185,9 @@ public class UpgradeFile
 					Matcher matcher;
 					if( DEFINITION_MARKER_PATTERN.matcher( line ).matches() )
 					{
-						Assert.isTrue( withinDefinition, "Not within the definition" );
-
 						matcher = DEFINITION_PATTERN.matcher( line );
-						Assert.isTrue( matcher.matches(), DEFINITION_SYNTAX_ERROR );
+						if( !matcher.matches() )
+							throw new CommandFileException( DEFINITION_SYNTAX_ERROR, this.file.getLocation() );
 						String action = matcher.group( 1 );
 						boolean open = matcher.group( 2 ) != null;
 						String source = matcher.group( 3 );

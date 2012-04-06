@@ -55,8 +55,8 @@ import solidbase.util.JDBCSupport;
 import solidbase.util.JSONArray;
 import solidbase.util.JSONObject;
 import solidbase.util.JSONWriter;
-import solidbase.util.Tokenizer;
-import solidbase.util.Tokenizer.Token;
+import solidbase.util.SQLTokenizer;
+import solidbase.util.SQLTokenizer.Token;
 import solidstack.io.DeferringWriter;
 import solidstack.io.FileResource;
 import solidstack.io.Resource;
@@ -392,7 +392,7 @@ public class DumpJSON implements CommandListener
 	{
 		Parsed result = new Parsed();
 
-		Tokenizer tokenizer = new Tokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
+		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
 		tokenizer.get( "DUMP" );
 		tokenizer.get( "JSON" );

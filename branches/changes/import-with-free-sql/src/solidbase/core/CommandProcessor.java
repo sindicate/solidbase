@@ -26,8 +26,8 @@ import java.util.regex.Pattern;
 
 import solidbase.core.Delimiter.Type;
 import solidbase.util.Assert;
-import solidstack.io.SourceReader;
 import solidstack.io.Resource;
+import solidstack.io.SourceReader;
 
 
 
@@ -124,6 +124,8 @@ abstract public class CommandProcessor
 	/**
 	 * Pattern for &{xxx} or &xxx placeholder.
 	 */
+	// TODO & or something else?
+	// TODO Only with { }?
 	static protected Pattern placeHolderPattern = Pattern.compile( "&(([A-Za-z\\$_][A-Za-z0-9\\$_]*)|\\{([A-Za-z\\$_][A-Za-z0-9\\$_]*)\\})" );
 
 	/**
@@ -196,7 +198,7 @@ abstract public class CommandProcessor
 	{
 		if( !this.context.hasVariables() )
 			return;
-		if( !command.getCommand().contains( "&" ) )
+		if( !command.getCommand().contains( "&" ) ) // TODO & or something else?
 			return;
 
 		// TODO Maybe do a two-step when the command is very large (collect all first, replace only if found)
