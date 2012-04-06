@@ -16,6 +16,7 @@
 
 package solidbase.ant;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,11 +104,11 @@ public class SQLTask extends DBTask
 					connection.getUsername(), connection.getPassword() );
 
 		List< Resource > sqlFiles = new ArrayList< Resource >();
-		// TODO Get the basedir only once
+		File baseDir = project.getBaseDir();
 		if( this.sqlfile != null )
-			sqlFiles.add( Resources.getResource( project.getBaseDir() ).resolve( this.sqlfile ) );
+			sqlFiles.add( Resources.getResource( baseDir ).resolve( this.sqlfile ) );
 		for( Sqlfile file : this.sqlfiles )
-			sqlFiles.add( Resources.getResource( project.getBaseDir() ).resolve( file.src ) );
+			sqlFiles.add( Resources.getResource( baseDir ).resolve( file.src ) );
 		runner.setSQLFiles( sqlFiles );
 
 		try

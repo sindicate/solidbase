@@ -1,5 +1,5 @@
 /*--
- * Copyright 2006 René M. de Bloois
+ * Copyright 2011 René M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,8 @@ import solidbase.util.JDBCSupport;
 import solidbase.util.JSONArray;
 import solidbase.util.JSONObject;
 import solidbase.util.JSONReader;
-import solidbase.util.Tokenizer;
-import solidbase.util.Tokenizer.Token;
+import solidbase.util.SQLTokenizer;
+import solidbase.util.SQLTokenizer.Token;
 import solidstack.io.Resource;
 import solidstack.io.SegmentedInputStream;
 import solidstack.io.SegmentedReader;
@@ -52,23 +52,9 @@ import solidstack.io.SourceReader;
 import solidstack.io.SourceReaders;
 
 
-/**
- * This plugin executes IMPORT CSV statements.
- *
- * <blockquote><pre>
- * IMPORT CSV INTO tablename
- * "xxxx1","yyyy1","zzzz1"
- * "xxxx2","yyyy2","zzzz2"
- * GO
- * </pre></blockquote>
- *
- * @author René M. de Bloois
- * @since Dec 2, 2009
- */
-// TODO Inline JSON
 public class LoadJSON implements CommandListener
 {
-	static private final Pattern triggerPattern = Pattern.compile( "LOAD\\s+JSON\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern triggerPattern = Pattern.compile( "\\s*LOAD\\s+JSON\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 	static private final Pattern parameterPattern = Pattern.compile( ":(\\d+)" );
 
@@ -171,7 +157,7 @@ public class LoadJSON implements CommandListener
 			while( true )
 			{
 				if( Thread.currentThread().isInterrupted() )
-					throw new ThreadDeath();
+					throw new ThreadDeath(); // TODO I think I had another exception for this
 
 				JSONArray values = (JSONArray)reader.read();
 				if( values == null )
@@ -426,26 +412,26 @@ public class LoadJSON implements CommandListener
 		List< String > columns = new ArrayList< String >();
 		List< String > values = new ArrayList< String >();
 
-		Tokenizer tokenizer = new Tokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
+		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
 		tokenizer.get( "LOAD" );
 		tokenizer.get( "JSON" );
 
-		Token t = tokenizer.get( "PREPEND", "NOBATCH", "USING", "INTO" );
+		Token t = tokenizer.get( "PREPEND", "NOBATCH", "INTO" );
 
 		if( t.eq( "PREPEND" ) )
 		{
 			tokenizer.get( "LINENUMBER" );
 			result.prependLineNumber = true;
 
-			t = tokenizer.get( "NOBATCH", "USING", "INTO" );
+			t = tokenizer.get( "NOBATCH", "INTO" );
 		}
 
 		if( t.eq( "NOBATCH" ) )
 		{
 			result.noBatch = true;
 
-			t = tokenizer.get( "USING", "INTO" );
+			t = tokenizer.get( "INTO" );
 		}
 
 		if( !t.eq( "INTO" ) )
@@ -528,7 +514,7 @@ public class LoadJSON implements CommandListener
 	 * @param chars The end characters.
 	 * @param includeInitialWhiteSpace Include the whitespace that precedes the first token.
 	 */
-	static protected void parseTill( Tokenizer tokenizer, StringBuilder result, boolean includeInitialWhiteSpace, char... chars )
+	static protected void parseTill( SQLTokenizer tokenizer, StringBuilder result, boolean includeInitialWhiteSpace, char... chars )
 	{
 		Token t = tokenizer.get();
 		if( t == null )

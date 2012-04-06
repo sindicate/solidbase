@@ -27,7 +27,8 @@ import solidstack.io.SourceReader;
  *
  * @author René M. de Bloois
  */
-public class Tokenizer
+// TODO Improve. See example JSPLikeTemplateParser.
+public class SQLTokenizer
 {
 	/**
 	 * The reader used to read from and push back characters.
@@ -40,7 +41,7 @@ public class Tokenizer
 	 *
 	 * @param in The input.
 	 */
-	public Tokenizer( SourceReader in )
+	public SQLTokenizer( SourceReader in )
 	{
 		this.in = new PushbackReader( in );
 	}

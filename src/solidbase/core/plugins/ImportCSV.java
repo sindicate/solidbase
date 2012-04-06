@@ -33,8 +33,8 @@ import solidbase.core.SQLExecutionException;
 import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidbase.util.CSVReader;
-import solidbase.util.Tokenizer;
-import solidbase.util.Tokenizer.Token;
+import solidbase.util.SQLTokenizer;
+import solidbase.util.SQLTokenizer.Token;
 import solidstack.io.Resource;
 import solidstack.io.SourceReader;
 import solidstack.io.SourceReaders;
@@ -43,20 +43,12 @@ import solidstack.io.SourceReaders;
 /**
  * This plugin executes IMPORT CSV statements.
  *
- * <blockquote><pre>
- * IMPORT CSV INTO tablename
- * "xxxx1","yyyy1","zzzz1"
- * "xxxx2","yyyy2","zzzz2"
- * GO
- * </pre></blockquote>
- *
  * @author René M. de Bloois
- * @since Dec 2, 2009
  */
 // TODO Make this more strict, like assert that the number of values stays the same in the CSV data
 public class ImportCSV implements CommandListener
 {
-	static private final Pattern triggerPattern = Pattern.compile( "IMPORT\\s+CSV\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern triggerPattern = Pattern.compile( "\\s*IMPORT\\s+CSV\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 	static private final Pattern parameterPattern = Pattern.compile( ":(\\d+)" );
 
@@ -141,52 +133,63 @@ public class ImportCSV implements CommandListener
 	{
 		boolean prependLineNumber = parsed.prependLineNumber;
 
-		StringBuilder sql = new StringBuilder( "INSERT INTO " );
-		sql.append( parsed.tableName );
-		if( parsed.columns != null )
-		{
-			sql.append( " (" );
-			for( int i = 0; i < parsed.columns.length; i++ )
-			{
-				if( i > 0 )
-					sql.append( ',' );
-				sql.append( parsed.columns[ i ] );
-			}
-			sql.append( ')' );
-		}
+		String sql;
 		List< Integer > parameterMap = new ArrayList< Integer >();
-		if( parsed.values != null )
+
+		if( parsed.sql != null )
 		{
-			sql.append( " VALUES (" );
-			for( int i = 0; i < parsed.values.length; i++ )
-			{
-				if( i > 0 )
-					sql.append( "," );
-				String value = parsed.values[ i ];
-				value = translateArgument( value, parameterMap );
-				sql.append( value );
-			}
-			sql.append( ')' );
+			sql = parsed.sql;
+			sql = translateArgument( sql, parameterMap );
 		}
 		else
 		{
-			int count = line.length;
+			StringBuilder sql1 = new StringBuilder( "INSERT INTO " );
+			sql1.append( parsed.tableName );
 			if( parsed.columns != null )
-				count = parsed.columns.length;
-			if( prependLineNumber )
-				count++;
-			int par = 1;
-			sql.append( " VALUES (?" );
-			parameterMap.add( par++ );
-			while( par <= count )
 			{
-				sql.append( ",?" );
-				parameterMap.add( par++ );
+				sql1.append( " (" );
+				for( int i = 0; i < parsed.columns.length; i++ )
+				{
+					if( i > 0 )
+						sql1.append( ',' );
+					sql1.append( parsed.columns[ i ] );
+				}
+				sql1.append( ')' );
 			}
-			sql.append( ')' );
+			if( parsed.values != null )
+			{
+				sql1.append( " VALUES (" );
+				for( int i = 0; i < parsed.values.length; i++ )
+				{
+					if( i > 0 )
+						sql1.append( "," );
+					String value = parsed.values[ i ];
+					value = translateArgument( value, parameterMap );
+					sql1.append( value );
+				}
+				sql1.append( ')' );
+			}
+			else
+			{
+				int count = line.length;
+				if( parsed.columns != null )
+					count = parsed.columns.length;
+				if( prependLineNumber )
+					count++;
+				int par = 1;
+				sql1.append( " VALUES (?" );
+				parameterMap.add( par++ );
+				while( par <= count )
+				{
+					sql1.append( ",?" );
+					parameterMap.add( par++ );
+				}
+				sql1.append( ')' );
+			}
+			sql = sql1.toString();
 		}
 
-		PreparedStatement statement = processor.prepareStatement( sql.toString() );
+		PreparedStatement statement = processor.prepareStatement( sql );
 		boolean commit = false;
 		try
 		{
@@ -195,7 +198,7 @@ public class ImportCSV implements CommandListener
 			while( true )
 			{
 				if( Thread.currentThread().isInterrupted() )
-					throw new ThreadDeath();
+					throw new ThreadDeath(); // TODO I think I had another exception for this
 
 				preprocess( line );
 
@@ -219,6 +222,11 @@ public class ImportCSV implements CommandListener
 					{
 						throw new CommandFileException( "Value with index " + ( index + 1 ) + " does not exist, record has only " + line.length + " values", reader.getLocation().lineNumber( lineNumber ) );
 					}
+					catch( SQLException e )
+					{
+						String message = buildMessage( sql, parameterMap, prependLineNumber, lineNumber, line );
+						throw new SQLExecutionException( message, reader.getLocation().lineNumber( lineNumber ), e );
+					}
 				}
 
 				if( parsed.noBatch )
@@ -229,36 +237,9 @@ public class ImportCSV implements CommandListener
 					}
 					catch( SQLException e )
 					{
-						StringBuilder b = new StringBuilder( sql.toString() );
-						b.append( " VALUES (" );
-						boolean first = true;
-						for( int par : parameterMap )
-						{
-							if( first )
-								first = false;
-							else
-								b.append( ',' );
-							try
-							{
-								if( prependLineNumber )
-								{
-									if( par == 1 )
-										b.append( lineNumber );
-									else
-										b.append( line[ par - 2 ] );
-								}
-								else
-									b.append( line[ par - 1 ] );
-							}
-							catch( ArrayIndexOutOfBoundsException ee )
-							{
-								throw new SystemException( ee );
-							}
-						}
-						b.append( ')' );
-
+						String message = buildMessage( sql, parameterMap, prependLineNumber, lineNumber, line );
 						// When NOBATCH is on, you can see the actual insert statement and line number in the file where the SQLException occurred.
-						throw new SQLExecutionException( b.toString(), reader.getLocation().lineNumber( lineNumber ), e );
+						throw new SQLExecutionException( message, reader.getLocation().lineNumber( lineNumber ), e );
 					}
 				}
 				else
@@ -292,6 +273,39 @@ public class ImportCSV implements CommandListener
 		{
 			processor.closeStatement( statement, commit );
 		}
+	}
+
+
+	static private String buildMessage( String sql, List<Integer> parameterMap, boolean prependLineNumber, int lineNumber, String[] line )
+	{
+		StringBuilder result = new StringBuilder( sql );
+		result.append( " VALUES (" );
+		boolean first = true;
+		for( int par : parameterMap )
+		{
+			if( first )
+				first = false;
+			else
+				result.append( ',' );
+			try
+			{
+				if( prependLineNumber )
+				{
+					if( par == 1 )
+						result.append( lineNumber );
+					else
+						result.append( line[ par - 2 ] );
+				}
+				else
+					result.append( line[ par - 1 ] );
+			}
+			catch( ArrayIndexOutOfBoundsException ee )
+			{
+				throw new SystemException( ee );
+			}
+		}
+		result.append( ')' );
+		return result.toString();
 	}
 
 
@@ -342,19 +356,19 @@ public class ImportCSV implements CommandListener
 		List< String > columns = new ArrayList< String >();
 		List< String > values = new ArrayList< String >();
 
-		Tokenizer tokenizer = new Tokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
+		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
 		tokenizer.get( "IMPORT" );
 		tokenizer.get( "CSV" );
 
-		Token t = tokenizer.get( "SKIP", "SEPARATED", "IGNORE", "PREPEND", "NOBATCH", "USING", "INTO" );
+		Token t = tokenizer.get( "SKIP", "SEPARATED", "IGNORE", "PREPEND", "NOBATCH", "FILE", "EXECUTE", "INTO" );
 
 		if( t.eq( "SKIP" ) )
 		{
 			tokenizer.get( "HEADER" );
 			result.skipHeader = true;
 
-			t = tokenizer.get( "SEPARATED", "IGNORE", "PREPEND", "NOBATCH", "USING", "INTO" );
+			t = tokenizer.get( "SEPARATED", "IGNORE", "PREPEND", "NOBATCH", "FILE", "EXECUTE", "INTO" );
 		}
 
 		if( t.eq( "SEPARATED" ) )
@@ -363,14 +377,16 @@ public class ImportCSV implements CommandListener
 			t = tokenizer.get();
 			if( t.eq( "TAB" ) )
 				result.separator = '\t';
+			else if( t.eq( "SPACE" ) )
+				result.separator = ' ';
 			else
 			{
 				if( t.length() != 1 )
-					throw new CommandFileException( "Expecting [TAB] or one character, not [" + t + "]", tokenizer.getLocation() );
+					throw new CommandFileException( "Expecting [TAB], [SPACE] or a single character, not [" + t + "]", tokenizer.getLocation() );
 				result.separator = t.getValue().charAt( 0 );
 			}
 
-			t = tokenizer.get( "IGNORE", "PREPEND", "NOBATCH", "USING", "INTO" );
+			t = tokenizer.get( "IGNORE", "PREPEND", "NOBATCH", "FILE", "EXECUTE", "INTO" );
 		}
 
 		if( t.eq( "IGNORE" ) )
@@ -378,7 +394,7 @@ public class ImportCSV implements CommandListener
 			tokenizer.get( "WHITESPACE" );
 			result.ignoreWhiteSpace = true;
 
-			t = tokenizer.get( "PREPEND", "NOBATCH", "USING", "INTO" );
+			t = tokenizer.get( "PREPEND", "NOBATCH", "FILE", "EXECUTE", "INTO" );
 		}
 
 		if( t.eq( "PREPEND" ) )
@@ -386,18 +402,30 @@ public class ImportCSV implements CommandListener
 			tokenizer.get( "LINENUMBER" );
 			result.prependLineNumber = true;
 
-			t = tokenizer.get( "NOBATCH", "USING", "INTO" );
+			t = tokenizer.get( "NOBATCH", "FILE", "EXECUTE", "INTO" );
 		}
 
 		if( t.eq( "NOBATCH" ) )
 		{
 			result.noBatch = true;
 
-			t = tokenizer.get( "USING", "INTO" );
+			t = tokenizer.get( "FILE", "EXECUTE", "INTO" );
 		}
 
-		if( !t.eq( "INTO" ) )
-			throw new CommandFileException( "Expecting [INTO], not [" + t + "]", tokenizer.getLocation() );
+		if( t.eq( "FILE" ) )
+		{
+			parseFile( tokenizer, result );
+
+			t = tokenizer.get( "EXECUTE" );
+		}
+
+		if( t.eq( "EXECUTE" ) )
+		{
+			result.sql = tokenizer.getRemaining();
+			return result;
+		}
+
+		Assert.isTrue( t.eq( "INTO" ), "Expecting [INTO]" );
 		result.tableName = tokenizer.get().toString();
 
 		t = tokenizer.get( ".", "(", "VALUES", "DATA", "FILE", null );
@@ -465,25 +493,27 @@ public class ImportCSV implements CommandListener
 			return result;
 		}
 
-		// File
-		t = tokenizer.get();
+		parseFile( tokenizer, result );
+
+		tokenizer.get( (String)null );
+		return result;
+	}
+
+
+	static private void parseFile( SQLTokenizer tokenizer, Parsed result )
+	{
+		Token t = tokenizer.get();
 		String file = t.getValue();
 		if( !file.startsWith( "\"" ) )
 			throw new CommandFileException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-		file = file.substring( 1, file.length() - 1 );
+		result.fileName = file.substring( 1, file.length() - 1 );
 
 		t = tokenizer.get( "ENCODING" );
 		t = tokenizer.get();
 		String encoding = t.getValue();
 		if( !encoding.startsWith( "\"" ) )
 			throw new CommandFileException( "Expecting encoding enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-		encoding = encoding.substring( 1, encoding.length() - 1 );
-
-		tokenizer.get( (String)null );
-
-		result.fileName = file;
-		result.encoding = encoding;
-		return result;
+		result.encoding = encoding.substring( 1, encoding.length() - 1 );
 	}
 
 
@@ -495,7 +525,7 @@ public class ImportCSV implements CommandListener
 	 * @param chars The end characters.
 	 * @param includeInitialWhiteSpace Include the whitespace that precedes the first token.
 	 */
-	static protected void parseTill( Tokenizer tokenizer, StringBuilder result, boolean includeInitialWhiteSpace, char... chars )
+	static protected void parseTill( SQLTokenizer tokenizer, StringBuilder result, boolean includeInitialWhiteSpace, char... chars )
 	{
 		Token t = tokenizer.get();
 		if( t == null )
@@ -561,6 +591,8 @@ public class ImportCSV implements CommandListener
 		/** Don't use JDBC batch update. */
 		protected boolean noBatch;
 
+		protected String sql;
+
 		/** The table name to insert into. */
 		protected String tableName;
 
@@ -570,7 +602,7 @@ public class ImportCSV implements CommandListener
 		/** The values to insert. Use :1, :2, etc to replace with the values from the CSV list. */
 		protected String[] values;
 
-		/** The underlying reader from the {@link Tokenizer}. */
+		/** The underlying reader from the {@link SQLTokenizer}. */
 		protected SourceReader reader;
 
 		/** The file path to import from */

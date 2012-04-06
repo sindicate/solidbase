@@ -48,7 +48,7 @@ import solidbase.util.JDBCSupport;
  */
 public class PrintSelect implements CommandListener
 {
-	static private final Pattern printSelectPattern = Pattern.compile( "PRINT\\s+(SELECT\\s+.+)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern printSelectPattern = Pattern.compile( "\\s*PRINT\\s+(SELECT\\s+.+)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 	//@Override
 	public boolean execute( CommandProcessor processor, Command command ) throws SQLException
