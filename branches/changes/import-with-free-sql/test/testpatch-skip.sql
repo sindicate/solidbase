@@ -45,7 +45,11 @@ CREATE TABLE TEST2 ( TEST INTEGER );
 --* SECTION.2 "Section 4"
 --* SKIP
 Skipping...;
---* /SKIP
+--* END SKIP
+
+--* // Test the new END TRANSIENT 
+--* TRANSIENT
+--* END TRANSIENT
 
 --* SECTION "Section 5"
 CREATE TABLE TEST3 ( TEST INTEGER );

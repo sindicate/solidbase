@@ -54,7 +54,7 @@ abstract public class CommandProcessor
 	/**
 	 * Pattern for /IGNORE SQL ERROR.
 	 */
-	static protected final Pattern ignoreEnd = Pattern.compile( "/IGNORE\\s+SQL\\s+ERROR", Pattern.CASE_INSENSITIVE );
+	static protected final Pattern ignoreEnd = Pattern.compile( "END\\s+IGNORE|/IGNORE\\s+SQL\\s+ERROR", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * Pattern for SET USER.
@@ -64,6 +64,7 @@ abstract public class CommandProcessor
 	/**
 	 * Pattern for SELECT CONNECTION.
 	 */
+	// FIXME "USE CONNECTION" instead
 	static protected final Pattern selectConnectionPattern = Pattern.compile( "SELECT\\s+CONNECTION\\s+(\\w+)", Pattern.CASE_INSENSITIVE );
 
 	/**
@@ -84,7 +85,7 @@ abstract public class CommandProcessor
 	/**
 	 * Pattern for /SKIP.
 	 */
-	static protected final Pattern skipEnd = Pattern.compile( "/SKIP", Pattern.CASE_INSENSITIVE );
+	static protected final Pattern skipEnd = Pattern.compile( "END\\s+SKIP|/SKIP", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * Pattern for JDBC ESCAPE PROCESSING
@@ -110,7 +111,7 @@ abstract public class CommandProcessor
 	/**
 	 * Pattern for /IF.
 	 */
-	static protected Pattern ifEndPattern = Pattern.compile( "/IF", Pattern.CASE_INSENSITIVE );
+	static protected Pattern ifEndPattern = Pattern.compile( "END\\s+IF|/IF", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * Pattern for RUN.
@@ -363,7 +364,7 @@ abstract public class CommandProcessor
 
 	/**
 	 * Closes the given statement and commits or rollbacks if the command processor is in auto commit mode.
-	 * 
+	 *
 	 * @param statement The statement to close.
 	 * @param commitOrRollback If the command processor is in auto commit mode, this boolean indicates if commit or
 	 *        rollback should be called on the statement's connection. If the command processor is not in auto commit
@@ -627,7 +628,7 @@ abstract public class CommandProcessor
 	/**
 	 * If true ({@link UpgradeProcessor}), commands get committed automatically, and rolled back when an {@link SQLException} occurs.
 	 * If false ({@link SQLProcessor}), commit/rollback should be in the command source.
-	 * 
+	 *
 	 * @return True if commands get committed or rollbacked automatically, false otherwise.
 	 */
 	abstract public boolean autoCommit();

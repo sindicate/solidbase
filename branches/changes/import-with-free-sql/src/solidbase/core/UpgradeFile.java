@@ -49,13 +49,14 @@ public class UpgradeFile
 	static private final Pattern DEFINITION_MARKER_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE)[ \t]+.*", Pattern.CASE_INSENSITIVE );
 	static private final Pattern DEFINITION_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
 	static private final String DEFINITION_SYNTAX_ERROR = "Line should match the following syntax: (SETUP|UPGRADE|SWITCH|DOWNGRADE) [OPEN] \"...\" --> \"...\"";
+	static private final Pattern DEFINITION_END_PATTERN = Pattern.compile( "(?:END\\s+|/)DEFINITION", Pattern.CASE_INSENSITIVE );
 
 	static private final Pattern CONTROL_TABLES_PATTERN = Pattern.compile( "VERSION\\s+TABLE\\s+(\\S+)\\s+LOG\\s+TABLE\\s+(\\S+)", Pattern.CASE_INSENSITIVE );
 
 	static private final Pattern SEGMENT_START_MARKER_PATTERN = Pattern.compile( "--\\*[ \t]*(SETUP|UPGRADE|SWITCH|DOWNGRADE).*", Pattern.CASE_INSENSITIVE );
 	static final Pattern SEGMENT_START_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
 
-	static final Pattern SEGMENT_END_PATTERN = Pattern.compile( "/(SETUP|UPGRADE|SWITCH|DOWNGRADE) *", Pattern.CASE_INSENSITIVE );
+	static final Pattern SEGMENT_END_PATTERN = Pattern.compile( "(?:END\\s+|/)(SETUP|UPGRADE|SWITCH|DOWNGRADE) *", Pattern.CASE_INSENSITIVE );
 
 //	static private final Pattern INITIALIZATION_TRIGGER = Pattern.compile( "--\\*\\s*INITIALIZATION\\s*", Pattern.CASE_INSENSITIVE );
 //	static private final Pattern INITIALIZATION_END_PATTERN = Pattern.compile( "--\\*\\s*/INITIALIZATION\\s*", Pattern.CASE_INSENSITIVE );
@@ -174,10 +175,10 @@ public class UpgradeFile
 						throw new CommandFileException( "Unexpected DEFINITION", this.file.getLocation() );
 					withinDefinition = true;
 				}
-				else if( line.equalsIgnoreCase( "/DEFINITION" ) )
+				else if( DEFINITION_END_PATTERN.matcher( line ).matches() )
 				{
 					if( !withinDefinition )
-						throw new CommandFileException( "Unexpected /DEFINITION", this.file.getLocation() );
+						throw new CommandFileException( "Unexpected " + line, this.file.getLocation() );
 					definitionComplete = true;
 				}
 				else if( withinDefinition )

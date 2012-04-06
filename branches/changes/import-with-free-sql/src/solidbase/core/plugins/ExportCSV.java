@@ -215,12 +215,14 @@ public class ExportCSV implements CommandListener
 		{
 			tokenizer.get( "BY" );
 			t = tokenizer.get();
-			if( t.eq( "TAB" ) ) // TODO SPACE
+			if( t.eq( "TAB" ) )
 				result.separator = '\t';
+			else if( t.eq( "SPACE" ) )
+				result.separator = ' ';
 			else
 			{
 				if( t.length() != 1 )
-					throw new CommandFileException( "Expecting [TAB] or one character, not [" + t + "]", tokenizer.getLocation() );
+					throw new CommandFileException( "Expecting [TAB], [SPACE] or a single character, not [" + t + "]", tokenizer.getLocation() );
 				result.separator = t.getValue().charAt( 0 );
 			}
 

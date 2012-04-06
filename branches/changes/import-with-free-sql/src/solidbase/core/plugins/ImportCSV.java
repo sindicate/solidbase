@@ -382,7 +382,7 @@ public class ImportCSV implements CommandListener
 			else
 			{
 				if( t.length() != 1 )
-					throw new CommandFileException( "Expecting [TAB], [SPACE] or one character, not [" + t + "]", tokenizer.getLocation() );
+					throw new CommandFileException( "Expecting [TAB], [SPACE] or a single character, not [" + t + "]", tokenizer.getLocation() );
 				result.separator = t.getValue().charAt( 0 );
 			}
 

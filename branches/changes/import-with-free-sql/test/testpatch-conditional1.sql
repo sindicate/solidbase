@@ -18,7 +18,7 @@
 --*	DEFINITION
 --*		UPGRADE "" --> "1.0.1"
 --*		UPGRADE "1.0.1" --> "1.0.2"
---*	/DEFINITION
+--*	END DEFINITION
 
 
 
@@ -54,7 +54,7 @@ CREATE TABLE DBVERSIONLOG
 
 --* // The existence of DBVERSIONLOG will automatically be detected at the end of this patch
 
---* /UPGRADE
+--* END UPGRADE
 
 
 
@@ -86,9 +86,9 @@ CREATE TABLE DBVERSION
 	STATEMENTS INTEGER NOT NULL 
 );
 
---* /IF
+--* END IF
 
---* /IF
+--* END IF
 
 --* IF HISTORY NOT CONTAINS "1.0.1"
 
@@ -99,8 +99,8 @@ CREATE TABLE DBVERSION
 	STATEMENTS INTEGER NOT NULL 
 );
 
---* /IF
+--* END IF
 
 --* // No actual executed statement here. This is to test that DBVERSION.STATEMENTS becomes 3.
 
---* /UPGRADE
+--* END UPGRADE
