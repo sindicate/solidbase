@@ -26,7 +26,7 @@ import solidstack.io.SourceReader;
 
 
 /**
- * Reads CSV data from the given {@link Tokenizer}.
+ * Reads CSV data from the given {@link SQLTokenizer}.
  *
  * @author René M. de Bloois
  */

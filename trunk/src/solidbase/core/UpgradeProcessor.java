@@ -32,9 +32,9 @@ import org.apache.commons.lang.StringUtils;
 import solidbase.util.Assert;
 import solidbase.util.ShutdownHook;
 import solidbase.util.WorkerThread;
+import solidstack.io.Resource;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
-import solidstack.io.Resource;
 
 
 /**
@@ -59,7 +59,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	/**
 	 * Pattern for /TRANSIENT.
 	 */
-	static protected Pattern transientPatternEnd = Pattern.compile( "/TRANSIENT", Pattern.CASE_INSENSITIVE );
+	static protected Pattern transientPatternEnd = Pattern.compile( "END\\s+TRANSIENT|/TRANSIENT", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * Pattern for IF HISTORY [NOT] CONTAINS.

@@ -18,7 +18,7 @@
 --*	DEFINITION
 --*		UPGRADE "" --> "1.0.1"
 --*		UPGRADE "1.0.1" --> "1.0.2"
---*	/DEFINITION
+--*	END DEFINITION
 
 
 
@@ -54,7 +54,7 @@ CREATE TABLE DBVERSIONLOG
 
 --* // The existence of DBVERSIONLOG will automatically be detected at the end of this patch
 
---* /UPGRADE
+--* END UPGRADE
 
 
 
@@ -77,7 +77,7 @@ CREATE TABLE USERS
 --* SECTION "Inserting admin user" 
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' );
 
---* /UPGRADE
+--* END UPGRADE
 
 --* // ========================================================================
 

@@ -35,7 +35,7 @@ COMMIT;
 --* // Best during SQL execution
 --* // During an upgrade it is counted as 1 statement?
 --* // CALL "OTHERSQL.SQL"
-RUN "TESTSQL1.SQL";
+ RUN "TESTSQL1.SQL";
 --* // EXECUTE "OTHERSQL.SQL"
 
 --* // Best for upgrade

@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.sql.DataSource;
+
 import solidbase.Version;
 import solidstack.io.Resource;
 
@@ -89,6 +91,11 @@ public class Runner
 	public void setConnectionAttributes( String name, String driver, String url, String username, String password )
 	{
 		this.connections.put( name, new ConnectionAttributes( name, driver, url, username, password ) );
+	}
+
+	public void setConnectionAttributes( String name, DataSource dataSource, String username, String password )
+	{
+		this.connections.put( name, new ConnectionAttributes( name, dataSource, username, password ) );
 	}
 
 	/**
@@ -164,22 +171,7 @@ public class Runner
 		this.listener.println( "" );
 
 		SQLProcessor processor = new SQLProcessor( this.listener );
-
-		ConnectionAttributes def = this.connections.get( "default" );
-		if( def == null )
-			throw new IllegalArgumentException( "Missing 'default' connection." );
-
-		DatabaseContext databases = new DatabaseContext();
-		for( ConnectionAttributes connection : this.connections.values() )
-			databases.addDatabase( new Database(
-							connection.getName(),
-							connection.getDriver() == null ? def.driver : connection.getDriver(),
-							connection.getUrl() == null ? def.url : connection.getUrl(),
-							connection.getUsername(),
-							connection.getPassword(),
-							this.listener
-					)
-			);
+		DatabaseContext databases = getDatabases();
 
 		boolean complete = false;
 		try
@@ -225,26 +217,8 @@ public class Runner
 		this.listener.println( "" );
 
 		UpgradeProcessor processor = new UpgradeProcessor( this.listener );
-
-		ConnectionAttributes def = this.connections.get( "default" );
-		if( def == null )
-			throw new IllegalArgumentException( "Missing 'default' connection." );
-
-		DatabaseContext databases = new DatabaseContext();
-		for( ConnectionAttributes connection : this.connections.values() )
-			databases.addDatabase(
-					new Database(
-							connection.getName(),
-							connection.getDriver() == null ? def.driver : connection.getDriver(),
-							connection.getUrl() == null ? def.url : connection.getUrl(),
-							connection.getUsername(),
-							connection.getPassword(),
-							this.listener
-					)
-			);
-
 		processor.setUpgradeFile( Factory.openUpgradeFile( this.upgradeFile, this.listener ) );
-		processor.setDatabases( databases );
+		processor.setDatabases( getDatabases() );
 		boolean complete = false;
 		try
 		{
@@ -267,6 +241,34 @@ public class Runner
 			processor.end();
 			PluginManager.terminateListeners();
 		}
+	}
+
+	private DatabaseContext getDatabases()
+	{
+		ConnectionAttributes def = this.connections.get( "default" );
+		if( def == null )
+			throw new IllegalArgumentException( "Missing 'default' connection." );
+
+		DatabaseContext databases = new DatabaseContext();
+		for( ConnectionAttributes connection : this.connections.values() )
+		{
+			DataSource dataSource = connection.getDatasource();
+			String driver = connection.getDriver();
+			if( driver == null && dataSource == null )
+			{
+				driver = def.getDriver();
+				dataSource = def.getDatasource();
+			}
+			String url = connection.getUrl();
+			if( url == null )
+				url = def.getUrl();
+
+			if( dataSource != null )
+				databases.addDatabase( new Database( connection.getName(), dataSource, connection.getUsername(), connection.getPassword(), this.listener ) );
+			else
+				databases.addDatabase( new Database( connection.getName(), driver, url, connection.getUsername(), connection.getPassword(), this.listener ) );
+		}
+		return databases;
 	}
 
 	/**
@@ -292,12 +294,12 @@ public class Runner
 					new Database(
 							connection.getName(),
 							connection.getDriver() == null ? def.driver : connection.getDriver(),
-							connection.getUrl() == null ? def.url : connection.getUrl(),
-							connection.getUsername(),
-							connection.getPassword(),
-							this.listener
-					)
-			);
+									connection.getUrl() == null ? def.url : connection.getUrl(),
+											connection.getUsername(),
+											connection.getPassword(),
+											this.listener
+							)
+					);
 
 		processor.setUpgradeFile( Factory.openUpgradeFile( this.upgradeFile, this.listener ) );
 		processor.setDatabases( databases );

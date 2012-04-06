@@ -49,13 +49,14 @@ public class UpgradeFile
 	static private final Pattern DEFINITION_MARKER_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE)[ \t]+.*", Pattern.CASE_INSENSITIVE );
 	static private final Pattern DEFINITION_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
 	static private final String DEFINITION_SYNTAX_ERROR = "Line should match the following syntax: (SETUP|UPGRADE|SWITCH|DOWNGRADE) [OPEN] \"...\" --> \"...\"";
+	static private final Pattern DEFINITION_END_PATTERN = Pattern.compile( "(?:END\\s+|/)DEFINITION", Pattern.CASE_INSENSITIVE );
 
 	static private final Pattern CONTROL_TABLES_PATTERN = Pattern.compile( "VERSION\\s+TABLE\\s+(\\S+)\\s+LOG\\s+TABLE\\s+(\\S+)", Pattern.CASE_INSENSITIVE );
 
 	static private final Pattern SEGMENT_START_MARKER_PATTERN = Pattern.compile( "--\\*[ \t]*(SETUP|UPGRADE|SWITCH|DOWNGRADE).*", Pattern.CASE_INSENSITIVE );
 	static final Pattern SEGMENT_START_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
 
-	static final Pattern SEGMENT_END_PATTERN = Pattern.compile( "/(SETUP|UPGRADE|SWITCH|DOWNGRADE) *", Pattern.CASE_INSENSITIVE );
+	static final Pattern SEGMENT_END_PATTERN = Pattern.compile( "(?:END\\s+|/)(SETUP|UPGRADE|SWITCH|DOWNGRADE) *", Pattern.CASE_INSENSITIVE );
 
 //	static private final Pattern INITIALIZATION_TRIGGER = Pattern.compile( "--\\*\\s*INITIALIZATION\\s*", Pattern.CASE_INSENSITIVE );
 //	static private final Pattern INITIALIZATION_END_PATTERN = Pattern.compile( "--\\*\\s*/INITIALIZATION\\s*", Pattern.CASE_INSENSITIVE );
@@ -170,12 +171,14 @@ public class UpgradeFile
 				}
 				else if( line.equalsIgnoreCase( "DEFINITION" ) )
 				{
-					Assert.isFalse( withinDefinition, "Already within the definition" ); // TODO Change the assertions to CommandFileExceptions
+					if( withinDefinition )
+						throw new CommandFileException( "Unexpected DEFINITION", this.file.getLocation() );
 					withinDefinition = true;
 				}
-				else if( line.equalsIgnoreCase( "/DEFINITION" ) )
+				else if( DEFINITION_END_PATTERN.matcher( line ).matches() )
 				{
-					Assert.isTrue( withinDefinition, "Not within the definition" );
+					if( !withinDefinition )
+						throw new CommandFileException( "Unexpected " + line, this.file.getLocation() );
 					definitionComplete = true;
 				}
 				else if( withinDefinition )
@@ -183,10 +186,9 @@ public class UpgradeFile
 					Matcher matcher;
 					if( DEFINITION_MARKER_PATTERN.matcher( line ).matches() )
 					{
-						Assert.isTrue( withinDefinition, "Not within the definition" );
-
 						matcher = DEFINITION_PATTERN.matcher( line );
-						Assert.isTrue( matcher.matches(), DEFINITION_SYNTAX_ERROR );
+						if( !matcher.matches() )
+							throw new CommandFileException( DEFINITION_SYNTAX_ERROR, this.file.getLocation() );
 						String action = matcher.group( 1 );
 						boolean open = matcher.group( 2 ) != null;
 						String source = matcher.group( 3 );
