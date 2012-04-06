@@ -33,6 +33,6 @@ Between these two upgrade segments, records are inserted by the unit test.
 
 --* UPGRADE "1" --> "2"
 
-PRINT SELECT TEXT FROM TEMP1;
+ PRINT SELECT TEXT FROM TEMP1;
 
 --* /UPGRADE

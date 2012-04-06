@@ -54,7 +54,7 @@ import solidstack.io.SourceReaders;
 
 public class LoadJSON implements CommandListener
 {
-	static private final Pattern triggerPattern = Pattern.compile( "LOAD\\s+JSON\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern triggerPattern = Pattern.compile( "\\s*LOAD\\s+JSON\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 	static private final Pattern parameterPattern = Pattern.compile( ":(\\d+)" );
 

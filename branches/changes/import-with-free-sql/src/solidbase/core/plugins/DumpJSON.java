@@ -72,7 +72,7 @@ import solidstack.io.SourceReaders;
 // TODO To compressed file
 public class DumpJSON implements CommandListener
 {
-	static private final Pattern triggerPattern = Pattern.compile( "DUMP\\s+JSON\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern triggerPattern = Pattern.compile( "\\s*DUMP\\s+JSON\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 
 	//@Override

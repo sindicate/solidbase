@@ -156,7 +156,7 @@ public class SQLSource
 					if( result.length() > 0 )
 						throw new NonDelimitedStatementException( this.reader.getLocation().previousLine() );
 
-					line = line.substring( 3 ).trim();
+					line = line.substring( 3 ).trim(); // TODO Remove this trim()?
 					if( !line.startsWith( "//" )) // skip comment
 					{
 						if( pos == 0 )
@@ -180,7 +180,7 @@ public class SQLSource
 					if( matcher.groupCount() > 0 )
 						result.append( matcher.group( 1 ) );
 					if( matcher.groupCount() > 1 )
-						this.buffer = matcher.group( 2 );
+						this.buffer = matcher.group( 2 ); // TODO Does this buffer thing work correctly?
 					return new Command( result.toString(), false, this.reader.getLocation().lineNumber( pos ) );
 				}
 			}
