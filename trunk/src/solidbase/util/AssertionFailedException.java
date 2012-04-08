@@ -23,9 +23,11 @@ package solidbase.util;
  */
 public class AssertionFailedException extends RuntimeException
 {
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Constructs a <code>AssertionFailedException</code> object with a detail message.
-	 * 
+	 *
 	 * @param message the detail message.
 	 */
 	public AssertionFailedException( String message )
