@@ -21,4 +21,4 @@ public class StringUtils
 		}
 		return new String( chars );
 	}
-		}
+}

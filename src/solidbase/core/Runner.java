@@ -93,6 +93,14 @@ public class Runner
 		this.connections.put( name, new ConnectionAttributes( name, driver, url, username, password ) );
 	}
 
+	/**
+	 * Sets a connection to use.
+	 *
+	 * @param name The name of the connection.
+	 * @param dataSource The data source to connect with.
+	 * @param username The user name to connect with.
+	 * @param password The password of the user.
+	 */
 	public void setConnectionAttributes( String name, DataSource dataSource, String username, String password )
 	{
 		this.connections.put( name, new ConnectionAttributes( name, dataSource, username, password ) );
