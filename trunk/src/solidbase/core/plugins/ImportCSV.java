@@ -38,6 +38,7 @@ import solidbase.util.SQLTokenizer.Token;
 import solidstack.io.Resource;
 import solidstack.io.SourceReader;
 import solidstack.io.SourceReaders;
+import solidstack.lang.ThreadInterrupted;
 
 
 /**
@@ -198,7 +199,7 @@ public class ImportCSV implements CommandListener
 			while( true )
 			{
 				if( Thread.currentThread().isInterrupted() )
-					throw new ThreadDeath(); // TODO I think I had another exception for this
+					throw new ThreadInterrupted();
 
 				preprocess( line );
 

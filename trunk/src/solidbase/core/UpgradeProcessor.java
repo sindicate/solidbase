@@ -30,11 +30,10 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import solidbase.util.Assert;
-import solidbase.util.ShutdownHook;
-import solidbase.util.WorkerThread;
 import solidstack.io.Resource;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
+import solidstack.lang.ThreadInterrupted;
 
 
 /**
@@ -237,7 +236,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 			process( segment );
 			this.dbVersion.updateSpec( segment.getTarget() );
 			if( Thread.currentThread().isInterrupted() )
-				throw new ThreadDeath();
+				throw new ThreadInterrupted();
 			// TODO How do we get a more dramatic error message here, if something goes wrong?
 		}
 	}
@@ -255,61 +254,13 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 
 	/**
 	 * Perform upgrade to the given target version. The target version can end with an '*', indicating whatever tip version that
-	 * matches the target prefix. This method protects itself against SIGTERMs (CTRL-C).
-	 *
-	 * @param target The target requested.
-	 * @param downgradeable Indicates that downgrade paths are allowed to reach the given target.
-	 * @throws SQLExecutionException When the execution of a command throws an {@link SQLException}.
-	 */
-	public void upgrade( final String target, final boolean downgradeable ) throws SQLExecutionException
-	{
-		WorkerThread worker = new WorkerThread()
-		{
-			@Override
-			public void work()
-			{
-				upgradeProtected( target, downgradeable );
-			}
-		};
-
-		// Protect from Ctrl-C aborting all threads, uses interrupt() instead.
-		ShutdownHook hook = new ShutdownHook( worker );
-		Runtime.getRuntime().addShutdownHook( hook );
-
-		worker.start();
-		try
-		{
-			worker.join();
-			if( worker.getException() != null )
-				throw worker.getException();
-			if( worker.isThreadDeath() )
-				throw new FatalException( "Interrupted by user" );
-			try
-			{
-				Runtime.getRuntime().removeShutdownHook( hook );
-			}
-			catch( IllegalStateException e )
-			{
-				// Can't use isInterrupted(), that one returns false after the thread ended
-				throw new FatalException( "Interrupted by user" );
-			}
-		}
-		catch( InterruptedException e )
-		{
-			// TODO Shouldn't we throw "Interrupted by user" here?
-			Thread.currentThread().interrupt();
-		}
-	}
-
-	/**
-	 * Perform upgrade to the given target version. The target version can end with an '*', indicating whatever tip version that
 	 * matches the target prefix.
 	 *
 	 * @param target The target requested.
 	 * @param downgradeable Indicates that downgrade paths are allowed to reach the given target.
 	 * @throws SQLExecutionException When the execution of a command throws an {@link SQLException}.
 	 */
-	protected void upgradeProtected( String target, boolean downgradeable ) throws SQLExecutionException
+	protected void upgrade( String target, boolean downgradeable ) throws SQLExecutionException
 	{
 		setupControlTables();
 
@@ -382,7 +333,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 		{
 			process( segment );
 			if( Thread.currentThread().isInterrupted() )
-				throw new ThreadDeath();
+				throw new ThreadInterrupted();
 		}
 	}
 
@@ -468,7 +419,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 
 				if( !segment.isSetup() )
 					if( Thread.currentThread().isInterrupted() )
-						throw new ThreadDeath();
+						throw new ThreadInterrupted();
 
 				command = readCommand();
 			}
