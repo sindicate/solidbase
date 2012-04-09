@@ -24,6 +24,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import solidbase.Version;
+import solidbase.util.SynchronizedProtectedWorkerThread;
 import solidstack.io.Resource;
 
 /**
@@ -214,7 +215,7 @@ public class Runner
 	}
 
 	/**
-	 * Upgrade the database.
+	 * Upgrade the database. This method protects itself against SIGINT (Ctrl-C).
 	 */
 	public void upgrade()
 	{
@@ -224,31 +225,45 @@ public class Runner
 		this.listener.println( Version.getInfo() );
 		this.listener.println( "" );
 
-		UpgradeProcessor processor = new UpgradeProcessor( this.listener );
+		final UpgradeProcessor processor = new UpgradeProcessor( this.listener );
 		processor.setUpgradeFile( Factory.openUpgradeFile( this.upgradeFile, this.listener ) );
 		processor.setDatabases( getDatabases() );
-		boolean complete = false;
-		try
-		{
-			processor.init();
-			this.listener.println( "Connecting to database..." );
-			this.listener.println( processor.getVersionStatement() );
-			processor.upgrade( this.upgradeTarget, this.downgradeAllowed ); // TODO Print this target
-			this.listener.println( "" );
-			this.listener.println( processor.getVersionStatement() );
 
-			complete = true;
-		}
-		finally
-		{
-			if( complete )
-				this.listener.upgradeComplete();
-			else
-				this.listener.upgradeAborted();
+		final ProgressListener listener = this.listener;
+		final String upgradeTarget = this.upgradeTarget;
+		final boolean downgradeAllowed = this.downgradeAllowed;
 
-			processor.end();
-			PluginManager.terminateListeners();
-		}
+		SynchronizedProtectedWorkerThread worker = new SynchronizedProtectedWorkerThread( "UpgradeThread" )
+		{
+			@Override
+			public void work()
+			{
+				boolean complete = false;
+				try
+				{
+					processor.init();
+					listener.println( "Connecting to database..." );
+					listener.println( processor.getVersionStatement() );
+					processor.upgrade( upgradeTarget, downgradeAllowed ); // TODO Print this target
+					listener.println( "" );
+					listener.println( processor.getVersionStatement() );
+
+					complete = true;
+				}
+				finally
+				{
+					if( complete )
+						listener.upgradeComplete();
+					else
+						listener.upgradeAborted();
+
+					processor.end();
+					PluginManager.terminateListeners();
+				}
+			}
+		};
+
+		worker.start();
 	}
 
 	private DatabaseContext getDatabases()

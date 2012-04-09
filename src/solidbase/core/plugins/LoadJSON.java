@@ -50,6 +50,7 @@ import solidstack.io.SegmentedInputStream;
 import solidstack.io.SegmentedReader;
 import solidstack.io.SourceReader;
 import solidstack.io.SourceReaders;
+import solidstack.lang.ThreadInterrupted;
 
 
 public class LoadJSON implements CommandListener
@@ -157,7 +158,7 @@ public class LoadJSON implements CommandListener
 			while( true )
 			{
 				if( Thread.currentThread().isInterrupted() )
-					throw new ThreadDeath(); // TODO I think I had another exception for this
+					throw new ThreadInterrupted();
 
 				JSONArray values = (JSONArray)reader.read();
 				if( values == null )
