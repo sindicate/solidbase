@@ -18,6 +18,7 @@ package solidbase.core;
 
 import java.io.FileNotFoundException;
 
+import solidstack.io.BufferedResource;
 import solidstack.io.RandomAccessSourceReader;
 import solidstack.io.Resource;
 
@@ -48,9 +49,15 @@ public final class Factory
 	{
 		try
 		{
-			listener.openingUpgradeFile( resource );
-			// FIXME Need to spill to a temp file is buffering is too big
-			return new RandomAccessSourceReader( resource.buffer(), EncodingDetector.INSTANCE );
+			// TODO supportsURL() is not right for this purpose.
+			if( resource.supportsURL() )
+			{
+				listener.openingUpgradeFile( resource );
+				return new RandomAccessSourceReader( resource, EncodingDetector.INSTANCE );
+			}
+
+			// TODO What about the message? "Opening internal resource..."
+			return new RandomAccessSourceReader( new BufferedResource( resource ), EncodingDetector.INSTANCE );
 		}
 		catch( FileNotFoundException e )
 		{
