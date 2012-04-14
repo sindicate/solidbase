@@ -156,21 +156,23 @@ abstract public class CommandProcessor
 	 * @return Whenever an {@link SQLException} is ignored.
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	protected SQLExecutionException executeWithListeners( Command command ) throws SQLExecutionException
+	protected SQLExecutionException executeWithListeners( Command command, boolean skip ) throws SQLExecutionException
 	{
 		substituteVariables( command );
 
 		if( command.isPersistent() )
-			this.progress.executing( command );
+			if( !skip )
+				this.progress.executing( command );
 
 		SQLExecutionException result = null;
 		try
 		{
-			if( !executeListeners( command ) )
-				if( command.isPersistent() )
-					executeJdbc( command );
-				else
-					throw new CommandFileException( "Unknown command " + command.getCommand(), command.getLocation() );
+			if( !executeListeners( command, skip ) )
+				if( !skip )
+					if( command.isPersistent() )
+						executeJdbc( command );
+					else
+						throw new CommandFileException( "Unknown command " + command.getCommand(), command.getLocation() );
 		}
 		catch( SQLException e )
 		{
@@ -185,7 +187,10 @@ abstract public class CommandProcessor
 		}
 
 		if( command.isPersistent() )
-			this.progress.executed();
+			if( !skip )
+				this.progress.executed();
+			else
+				this.progress.skipped( command );
 
 		return result;
 	}
@@ -230,7 +235,7 @@ abstract public class CommandProcessor
 	 * @return True if a listener has processed the command, false otherwise.
 	 * @throws SQLException If the database throws an exception.
 	 */
-	protected boolean executeListeners( Command command ) throws SQLException
+	protected boolean executeListeners( Command command, boolean skip ) throws SQLException
 	{
 		String sql = command.getCommand();
 		Matcher matcher;
@@ -313,14 +318,17 @@ abstract public class CommandProcessor
 //				return true;
 //			}
 		}
-		else if( ( matcher = runPattern.matcher( sql ) ).matches() )
+		else if( !skip )
 		{
-			run( matcher.group( 1 ) );
-			return true;
+			if( ( matcher = runPattern.matcher( sql ) ).matches() )
+			{
+				run( matcher.group( 1 ) );
+				return true;
+			}
 		}
 
 		for( CommandListener listener : PluginManager.listeners )
-			if( listener.execute( this, command ) )
+			if( listener.execute( this, command, skip ) )
 				return true;
 
 		return false;

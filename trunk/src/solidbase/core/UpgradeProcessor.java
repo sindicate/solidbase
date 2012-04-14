@@ -376,10 +376,9 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 		this.context.getCurrentDatabase().resetUser();
 
 		// Determine how many to skip
-		int skip = this.dbVersion.getStatements();
-		if( this.dbVersion.getTarget() == null )
-			skip = 0;
-
+		int skipCount = 0;
+		if( this.dbVersion.getTarget() != null )
+			skipCount = this.dbVersion.getStatements();
 
 		int count = 0;
 		this.segment = segment;
@@ -388,14 +387,15 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 			Command command = readCommand();
 			while( command != null )
 			{
-				if( command.isPersistent() && !this.upgradeContext.isDontCount() && !segment.isSetup() )
+				if( command.isPersistent() && !this.upgradeContext.isTransient() && !segment.isSetup() )
 				{
+					boolean windForward = count < skipCount;
 					count++;
-					if( count > skip && !this.context.skipping() )
+					try
 					{
-						try
+						SQLExecutionException result = executeWithListeners( command, windForward || this.context.skipping() );
+						if( !windForward )
 						{
-							SQLExecutionException result = executeWithListeners( command );
 							// We have to update the progress even if the logging fails. Otherwise the segment cannot be
 							// restarted. That's why the progress update is first. But some logging will be lost in that case.
 							this.dbVersion.updateProgress( segment.getTarget(), count );
@@ -404,18 +404,16 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 							else
 								this.dbVersion.log( "S", segment.getSource(), segment.getTarget(), count, command.getCommand(), (String)null );
 						}
-						catch( SQLExecutionException e )
-						{
-							// TODO We need a unit test for this, and the above
-							this.dbVersion.logSQLException( segment.getSource(), segment.getTarget(), count, command.getCommand(), e );
-							throw e;
-						}
 					}
-					else
-						this.progress.skipped( command );
+					catch( SQLExecutionException e )
+					{
+						// TODO We need a unit test for this, and the above
+						this.dbVersion.logSQLException( segment.getSource(), segment.getTarget(), count, command.getCommand(), e );
+						throw e;
+					}
 				}
 				else
-					executeWithListeners( command );
+					executeWithListeners( command, false );
 
 				if( !segment.isSetup() )
 					if( Thread.currentThread().isInterrupted() )
@@ -454,7 +452,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	}
 
 	@Override
-	protected boolean executeListeners( Command command ) throws SQLException
+	protected boolean executeListeners( Command command, boolean skip ) throws SQLException
 	{
 		if( command.isTransient() )
 		{
@@ -462,12 +460,12 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 			Matcher matcher;
 			if( transientPattern.matcher( sql ).matches() )
 			{
-				enableDontCount();
+				startTransient();
 				return true;
 			}
 			if( transientPatternEnd.matcher( sql ).matches() )
 			{
-				disableDontCount();
+				stopTransient();
 				return true;
 			}
 			if( ( matcher = ifHistoryContainsPattern.matcher( sql ) ).matches() )
@@ -482,7 +480,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 			}
 		}
 
-		return super.executeListeners( command );
+		return super.executeListeners( command, skip );
 	}
 
 	@Override
@@ -509,19 +507,21 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	/**
 	 * Persistent commands should be considered transient.
 	 */
-	protected void enableDontCount()
+	protected void startTransient( SourceLocation location )
 	{
-		Assert.isFalse( this.upgradeContext.isDontCount(), "Counting already enabled" );
-		this.upgradeContext.setDontCount( true );
+		if( this.upgradeContext.isTransient() )
+			throw new CommandFileException( "TRANSIENT already enabled", location );
+		this.upgradeContext.setTransient( true );
 	}
 
 	/**
 	 * Persistent commands should be considered persistent again.
 	 */
-	protected void disableDontCount()
+	protected void stopTransient( SourceLocation location )
 	{
-		Assert.isTrue( this.upgradeContext.isDontCount(), "Counting already disabled" );
-		this.upgradeContext.setDontCount( false );
+		if( !this.upgradeContext.isTransient() )
+			throw new CommandFileException( "TRANSIENT is not enabled", location );
+		this.upgradeContext.setTransient( false );
 	}
 
 	/**

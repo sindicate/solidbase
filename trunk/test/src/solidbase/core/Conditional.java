@@ -31,7 +31,7 @@ public class Conditional
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-conditional1.sql", db );
 
 		patcher.upgrade( "1.0.2" );
-		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null ); // TODO STATEMENTS should be 3.
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 3, null );
 
 		patcher.end();
 	}

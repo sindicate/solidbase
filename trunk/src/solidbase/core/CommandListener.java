@@ -29,20 +29,20 @@ public interface CommandListener
 	/**
 	 * Called when a command from the upgrade file needs to be executed. Commands can be transient or persistent (see
 	 * {@link Command#isTransient}). This method should return true if it accepted the command.
-	 * 
+	 *
 	 * Problems caused by the user (command syntax, configuration mistakes or problems in data files) should be wrapped
 	 * in a {@link FatalException}.
-	 * 
+	 *
 	 * {@link SQLException}s should be wrapped in a {@link SQLExecutionException}. You can choose to give it the
 	 * original command that triggered this listener or the actual SQL being sent to the database. You may choose to let
 	 * the {@link SQLException} pass, then SolidBase will wrap it for you.
-	 * 
+	 *
 	 * @param processor The command processor.
 	 * @param command The command that needs to be executed.
 	 * @return True if it accepted the command.
 	 * @throws SQLException Whenever an unhandled {@link SQLException} is thrown.
 	 */
-	boolean execute( CommandProcessor processor, Command command ) throws SQLException;
+	boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException;
 
 	/**
 	 * Gives this listener a chance to cleanup. For example to kill threads that it started or temporary tables that it

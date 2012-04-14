@@ -58,13 +58,16 @@ public class ExportCSV implements CommandListener
 
 
 	//@Override
-	public boolean execute( CommandProcessor processor, Command command ) throws SQLException
+	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
 	{
 		if( command.isTransient() )
 			return false;
 
 		if( !triggerPattern.matcher( command.getCommand() ).matches() )
 			return false;
+
+		if( skip )
+			return true;
 
 		Parsed parsed = parse( command );
 

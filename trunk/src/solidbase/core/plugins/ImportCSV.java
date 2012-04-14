@@ -55,7 +55,7 @@ public class ImportCSV implements CommandListener
 
 
 	//@Override
-	public boolean execute( CommandProcessor processor, Command command ) throws SQLException
+	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
 	{
 		if( command.isTransient() )
 			return false;
@@ -65,6 +65,18 @@ public class ImportCSV implements CommandListener
 			return false;
 
 		Parsed parsed = parse( command );
+
+		if( skip )
+		{
+			if( parsed.reader == null && parsed.fileName == null )
+			{
+				SourceReader reader = processor.getReader(); // Data is in the source file, need to skip it.
+				String line = reader.readLine();
+				while( line != null && line.length() > 0 )
+					line = reader.readLine();
+			}
+			return true;
+		}
 
 		SourceReader lineReader;
 		boolean needClose = false;

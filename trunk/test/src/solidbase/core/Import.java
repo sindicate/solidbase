@@ -31,7 +31,7 @@ public class Import
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "folder/testpatch-import1.sql", db );
 
 		patcher.upgrade( "1.0.2" );
-		TestUtil.verifyVersion( patcher, "1.0.2", null, 18, null );
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 19, null );
 		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP", 10 );
 		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP2", 6 );
 
