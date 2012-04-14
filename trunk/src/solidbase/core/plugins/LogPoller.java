@@ -16,17 +16,20 @@
 
 package solidbase.core.plugins;
 
-import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
+import solidbase.core.ProgressListener;
 import solidbase.core.SystemException;
+import solidbase.util.Assert;
+import solidstack.lang.ThreadInterrupted;
 
 
 /**
@@ -38,20 +41,12 @@ import solidbase.core.SystemException;
  * @author René M. de Bloois
  * @since May 29, 2006
  */
-public class OracleDBMSOutputPoller implements CommandListener
+public class LogPoller implements CommandListener
 {
-	static private Pattern disablePattern = Pattern.compile( "\\s*DISABLE\\s+DBMSOUTPUT\\s*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
-	static private Pattern enablePattern = Pattern.compile( "\\s*ENABLE\\s+DBMSOUTPUT\\s*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private Pattern disablePattern = Pattern.compile( "LOG\\s+POLLER\\s+OFF", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private Pattern enablePattern = Pattern.compile( "LOG\\s+POLLER\\s+ON", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 	private Poller poller;
-
-	/**
-	 * Constructor.
-	 */
-	public OracleDBMSOutputPoller()
-	{
-		super();
-	}
 
 	//@Override
 	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
@@ -62,23 +57,10 @@ public class OracleDBMSOutputPoller implements CommandListener
 		Matcher matcher = enablePattern.matcher( command.getCommand() );
 		if( matcher.matches() )
 		{
-			if( skip )
-				return true;
+			Connection connection = processor.getCurrentDatabase().newConnection();
 
-			Connection connection = processor.getCurrentDatabase().getConnection();
-
-			CallableStatement call = connection.prepareCall( "begin dbms_output.enable; end;" );
-			try
-			{
-				call.execute();
-			}
-			finally
-			{
-				call.close();
-			}
-			System.out.println( "Enabled serveroutput" );
-
-			this.poller = new Poller( connection );
+			Assert.isNull( this.poller );
+			this.poller = new Poller( processor.getProgressListener(), connection );
 			this.poller.start();
 			return true;
 		}
@@ -86,21 +68,6 @@ public class OracleDBMSOutputPoller implements CommandListener
 		matcher = disablePattern.matcher( command.getCommand() );
 		if( matcher.matches() )
 		{
-			if( skip )
-				return true;
-
-			Connection connection = processor.getCurrentDatabase().getConnection();
-			CallableStatement call = connection.prepareCall( "begin dbms_output.disable; end;" );
-			try
-			{
-				call.execute();
-			}
-			finally
-			{
-				call.close();
-			}
-			System.out.println( "Disabled serveroutput" );
-
 			terminate();
 			return true;
 		}
@@ -113,24 +80,30 @@ public class OracleDBMSOutputPoller implements CommandListener
 	{
 		if( this.poller != null )
 		{
-			this.poller.interrupt();
+			Poller poller = this.poller;
+			this.poller = null;
+
+			poller.interrupt();
 			try
 			{
-				this.poller.join();
+				poller.join();
 			}
 			catch( InterruptedException e )
 			{
-				throw new SystemException( e );
+				throw new ThreadInterrupted();
 			}
 		}
 	}
 
 	static private class Poller extends Thread
 	{
+		private ProgressListener listener;
 		private Connection connection;
+		private int lastId;
 
-		Poller( Connection connection )
+		public Poller( ProgressListener listener, Connection connection )
 		{
+			this.listener = listener;
 			this.connection = connection;
 		}
 
@@ -139,49 +112,39 @@ public class OracleDBMSOutputPoller implements CommandListener
 		{
 			try
 			{
-				System.out.println( "Started Poller thread" );
-
-				String sql = "begin dbms_output.get_line( ?, ? ); end;";
-				CallableStatement statement = this.connection.prepareCall( sql );
-				statement.registerOutParameter( 1, Types.VARCHAR );
-				statement.registerOutParameter( 2, Types.INTEGER );
-
-				boolean stop = false;
-				boolean needsleep = false;
-				while( !stop && !isInterrupted() )
+				try
 				{
-					System.out.println( "Poll" );
-					needsleep = true;
+					String sql = "SELECT ID, MESSAGE FROM LOG WHERE ID > ? ORDER BY ID";
+					PreparedStatement statement = this.connection.prepareStatement( sql );
 
-					statement.execute();
-					while( statement.getInt( 2 ) == 0 )
+					while( !interrupted() )
 					{
-						System.out.println( statement.getString( 1 ) );
-						statement.execute();
-					}
+						statement.setInt( 1, this.lastId );
+						ResultSet result = statement.executeQuery();
+						while( result.next() )
+						{
+							this.listener.println( result.getString( 2 ) );
+							this.lastId = result.getInt( 1 );
+						}
 
-					if( needsleep )
-					{
-						needsleep = false;
 						try
 						{
-							sleep( 1000 );
+							sleep( 200 );
 						}
 						catch( InterruptedException e )
 						{
-							stop = true;
+							throw new ThreadInterrupted();
 						}
 					}
 				}
-
-				this.connection.close();
-
-				System.out.println( "Finished Poller thread" );
+				finally
+				{
+					this.connection.close();
+				}
 			}
-			catch( Throwable t )
+			catch( SQLException e )
 			{
-				System.err.println( "The DBMSOutput poller thread crashed" );
-				t.printStackTrace( System.err );
+				throw new SystemException( e );
 			}
 		}
 	}

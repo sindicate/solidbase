@@ -3,4 +3,5 @@ solidbase.core.plugins.DumpJSON
 solidbase.core.plugins.ExportCSV
 solidbase.core.plugins.ImportCSV
 solidbase.core.plugins.LoadJSON
+solidbase.core.plugins.LogPoller
 solidbase.core.plugins.PrintSelect
