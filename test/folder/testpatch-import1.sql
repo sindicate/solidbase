@@ -135,6 +135,16 @@ PRINT SELECT TEMP1 || TEMP2 || TEMP3 FROM TEMP3;
 
 IMPORT CSV SKIP HEADER INTO TEMP2 FILE "data.csv" ENCODING "UTF-8";
 
+--* // This gave a "non-delimited statement found" because the skip wasn't done correctly
+--* SKIP
+IMPORT CSV INTO TEMP;
+"1","2","3"
+"1","
+","3"
+"1","2","3"
+
+--* END SKIP
+
 --* SECTION.2 "Importing through update"
 
 IMPORT

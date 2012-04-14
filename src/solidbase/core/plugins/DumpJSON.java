@@ -78,13 +78,16 @@ public class DumpJSON implements CommandListener
 	//@Override
 	// TODO Escape dynamic file names, because illegal characters may be generated
 	// TODO Export multiple tables to a single file. If no PK than sort on all columns. Schema name for import or not?
-	public boolean execute( CommandProcessor processor, Command command ) throws SQLException
+	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
 	{
 		if( command.isTransient() )
 			return false;
 
 		if( !triggerPattern.matcher( command.getCommand() ).matches() )
 			return false;
+
+		if( skip )
+			return true;
 
 		Parsed parsed = parse( command );
 
@@ -106,7 +109,7 @@ public class DumpJSON implements CommandListener
 					int columns = metaData.getColumnCount();
 					int[] types = new int[ columns ];
 					String[] names = new String[ columns ];
-					boolean[] skip = new boolean[ columns ];
+					boolean[] ignore = new boolean[ columns ];
 					FileSpec[] fileSpecs = new FileSpec[ columns ];
 					String schemaNames[] = new String[ columns ];
 					String tableNames[] = new String[ columns ];
@@ -123,7 +126,7 @@ public class DumpJSON implements CommandListener
 						if( parsed.columns != null )
 							fileSpecs[ i ] = parsed.columns.get( name );
 						if( parsed.coalesce != null && parsed.coalesce.notFirst( name ) )
-							skip[ i ] = true;
+							ignore[ i ] = true;
 						tableNames[ i ] = StringUtils.upperCase( StringUtils.defaultIfEmpty( metaData.getTableName( col ), null ) );
 						schemaNames[ i ] = StringUtils.upperCase( StringUtils.defaultIfEmpty( metaData.getSchemaName( col ), null ) );
 //						if( tableNameUnique && ( !coalesce[ i ] || firstCoalesce == i ) )
@@ -169,7 +172,7 @@ public class DumpJSON implements CommandListener
 					JSONArray fields = new JSONArray();
 					properties.set( "fields", fields );
 					for( int i = 0; i < columns; i++ )
-						if( !skip[ i ] )
+						if( !ignore[ i ] )
 						{
 							JSONObject field = new JSONObject();
 							field.set( "schemaName", schemaNames[ i ] );
@@ -202,7 +205,7 @@ public class DumpJSON implements CommandListener
 
 							JSONArray array = new JSONArray();
 							for( int i = 0; i < columns; i++ )
-								if( !skip[ i ] )
+								if( !ignore[ i ] )
 								{
 									Object value = values[ i ];
 									if( value == null )

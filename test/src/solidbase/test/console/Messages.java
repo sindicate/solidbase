@@ -71,7 +71,7 @@ public class Messages
 		        "4770.\n" +
 		        "        Importing through delete.\n" +
 		        "2360.\n" +
-		        "DEBUG: version=1.0.1, target=1.0.2, statements=18\n" +
+		        "DEBUG: version=1.0.1, target=1.0.2, statements=19\n" +
 				"\n" +
 				"Current database version is \"1.0.2\".\n" +
 				"Upgrade complete.\n"

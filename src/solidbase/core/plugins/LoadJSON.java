@@ -61,7 +61,7 @@ public class LoadJSON implements CommandListener
 
 
 	//@Override
-	public boolean execute( CommandProcessor processor, Command command ) throws SQLException
+	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
 	{
 		if( command.isTransient() )
 			return false;
@@ -69,6 +69,9 @@ public class LoadJSON implements CommandListener
 		Matcher matcher = triggerPattern.matcher( command.getCommand() );
 		if( !matcher.matches() )
 			return false;
+
+		if( skip )
+			return true;
 
 		Parsed parsed = parse( command );
 

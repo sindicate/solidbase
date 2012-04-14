@@ -32,9 +32,9 @@ import solidbase.core.SystemException;
 /**
  * The purpose of this plugin was to capture dbms output and present it to the user while the upgrade was running. It doesn't work however because
  * parallel statements through the same connection is not possible with the Oracle jdbc driver (or any driver).
- * 
+ *
  * But this plugin acts as a good example for a future plugin that may implement the required functionality in a temporary table.
- * 
+ *
  * @author René M. de Bloois
  * @since May 29, 2006
  */
@@ -54,7 +54,7 @@ public class OracleDBMSOutputPoller implements CommandListener
 	}
 
 	//@Override
-	public boolean execute( CommandProcessor processor, Command command ) throws SQLException
+	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
 	{
 		if( command.isPersistent() )
 			return false;
@@ -62,6 +62,9 @@ public class OracleDBMSOutputPoller implements CommandListener
 		Matcher matcher = enablePattern.matcher( command.getCommand() );
 		if( matcher.matches() )
 		{
+			if( skip )
+				return true;
+
 			Connection connection = processor.getCurrentDatabase().getConnection();
 
 			CallableStatement call = connection.prepareCall( "begin dbms_output.enable; end;" );
@@ -83,6 +86,9 @@ public class OracleDBMSOutputPoller implements CommandListener
 		matcher = disablePattern.matcher( command.getCommand() );
 		if( matcher.matches() )
 		{
+			if( skip )
+				return true;
+
 			Connection connection = processor.getCurrentDatabase().getConnection();
 			CallableStatement call = connection.prepareCall( "begin dbms_output.disable; end;" );
 			try

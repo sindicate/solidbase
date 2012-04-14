@@ -30,7 +30,7 @@ public class UpgradeContext extends CommandContext
 	/**
 	 * Indicates that the statements are transient and should not be counted.
 	 */
-	private boolean dontCount;
+	private boolean isTransient;
 
 	/**
 	 * Constructor.
@@ -51,7 +51,7 @@ public class UpgradeContext extends CommandContext
 	public UpgradeContext( UpgradeContext parent, SQLSource source )
 	{
 		super( parent );
-		this.dontCount = parent.dontCount;
+		this.isTransient = parent.isTransient;
 
 		this.source = source;
 	}
@@ -61,19 +61,19 @@ public class UpgradeContext extends CommandContext
 	 *
 	 * @return True if in transient mode, false otherwise.
 	 */
-	public boolean isDontCount()
+	public boolean isTransient()
 	{
-		return this.dontCount;
+		return this.isTransient;
 	}
 
 	/**
 	 * Enable or disable transient mode.
 	 *
-	 * @param dontCount True for transient, false for pesistent mode.
+	 * @param isTransient True for transient, false for pesistent mode.
 	 */
-	public void setDontCount( boolean dontCount )
+	public void setTransient( boolean isTransient )
 	{
-		this.dontCount = dontCount;
+		this.isTransient = isTransient;
 	}
 
 	/**
