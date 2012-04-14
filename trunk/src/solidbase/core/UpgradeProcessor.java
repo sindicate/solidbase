@@ -460,12 +460,12 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 			Matcher matcher;
 			if( transientPattern.matcher( sql ).matches() )
 			{
-				startTransient();
+				startTransient( command.getLocation() );
 				return true;
 			}
 			if( transientPatternEnd.matcher( sql ).matches() )
 			{
-				stopTransient();
+				stopTransient( command.getLocation() );
 				return true;
 			}
 			if( ( matcher = ifHistoryContainsPattern.matcher( sql ) ).matches() )
