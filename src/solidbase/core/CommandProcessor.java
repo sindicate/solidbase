@@ -494,7 +494,7 @@ abstract public class CommandProcessor
 	 *
 	 * @return The progress listener.
 	 */
-	public ProgressListener getCallBack()
+	public ProgressListener getProgressListener()
 	{
 		return this.progress;
 	}

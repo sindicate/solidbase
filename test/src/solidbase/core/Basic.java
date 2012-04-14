@@ -182,7 +182,7 @@ public class Basic
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-connectionsetup1.sql" );
-		patcher.databases.addDatabase( new Database( "queues", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, patcher.getCallBack() ) );
+		patcher.databases.addDatabase( new Database( "queues", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, patcher.getProgressListener() ) );
 
 		patcher.upgrade( "1.0.1" );
 		TestUtil.verifyVersion( patcher, "1.0.1", null, 1, "1.1" );
@@ -195,7 +195,7 @@ public class Basic
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-initialization.sql" );
-		patcher.databases.addDatabase( new Database( "queues", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, patcher.getCallBack() ) );
+		patcher.databases.addDatabase( new Database( "queues", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, patcher.getProgressListener() ) );
 
 		patcher.upgrade( "1.0.1" );
 		TestUtil.verifyVersion( patcher, "1.0.1", null, 1, "1.1" );

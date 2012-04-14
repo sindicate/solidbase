@@ -92,11 +92,11 @@ public class PrintSelect implements CommandListener
 					{
 						throw (SQLException)new SQLException( e.toString() ).initCause( e ); // Java 1.5 has no SQLException constructor with cause parameter.
 					}
-					processor.getCallBack().print( buffer.toString() );
+					processor.getProgressListener().print( buffer.toString() );
 				}
 				else
 				{
-					processor.getCallBack().print( value.toString() );
+					processor.getProgressListener().print( value.toString() );
 				}
 
 			}
