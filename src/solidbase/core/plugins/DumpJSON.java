@@ -127,6 +127,10 @@ public class DumpJSON implements CommandListener
 							fileSpecs[ i ] = parsed.columns.get( name );
 						if( parsed.coalesce != null && parsed.coalesce.notFirst( name ) )
 							ignore[ i ] = true;
+						// TODO STRUCT serialize
+						// TODO This must be optional and not the default
+						else if( types[ i ] == 2002 || JDBCSupport.toTypeName( types[ i ] ) == null )
+							ignore[ i ] = true;
 						tableNames[ i ] = StringUtils.upperCase( StringUtils.defaultIfEmpty( metaData.getTableName( col ), null ) );
 						schemaNames[ i ] = StringUtils.upperCase( StringUtils.defaultIfEmpty( metaData.getSchemaName( col ), null ) );
 //						if( tableNameUnique && ( !coalesce[ i ] || firstCoalesce == i ) )
@@ -160,6 +164,8 @@ public class DumpJSON implements CommandListener
 					SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
 //					DateFormat format = DateFormat.getDateTimeInstance( DateFormat.MEDIUM, DateFormat.MEDIUM );
 					properties.set( "createdDate", format.format( new Date() ) );
+					properties.set( "file", parsed.fileName );
+					properties.set( "binaryFile", parsed.binaryFileName );
 //					properties.set( "contentType", "application/json" );
 //					properties.set( "schemaName", schemaName );
 //					properties.set( "tableName", tableName );
@@ -178,7 +184,7 @@ public class DumpJSON implements CommandListener
 							field.set( "schemaName", schemaNames[ i ] );
 							field.set( "tableName", tableNames[ i ] );
 							field.set( "name", names[ i ] );
-							field.set( "type", JDBCSupport.toTypeName( types[ i ] ) );
+							field.set( "type", JDBCSupport.toTypeName( types[ i ] ) ); // TODO Better error message when type is not recognized, for example Oracle's 2007 for a user type
 							FileSpec spec = fileSpecs[ i ];
 							if( spec != null && !spec.generator.isDynamic() )
 							{
@@ -188,12 +194,15 @@ public class DumpJSON implements CommandListener
 							fields.add( field );
 						}
 
+					FileSpec binaryFile = parsed.binaryFileName != null ? new FileSpec( true, parsed.binaryFileName, 0 ) : null;
+
 					jsonWriter.writeFormatted( properties, 120 );
 					jsonWriter.getWriter().write( '\n' );
 
 					try
 					{
-//						int count = 0;
+						long count = 0;
+						long progressNext = 1;
 						while( result.next() )
 						{
 							Object[] values = new Object[ columns ];
@@ -335,6 +344,36 @@ public class DumpJSON implements CommandListener
 									}
 									else if( value instanceof Clob )
 										array.add( ( (Clob)value ).getCharacterStream() );
+									else if( binaryFile != null && ( value instanceof Blob || value instanceof byte[] ) )
+									{
+										if( binaryFile.out == null )
+										{
+											String fileName = binaryFile.generator.generateFileName( null );
+											Resource fileResource = new FileResource( fileName );
+											binaryFile.out = fileResource.getOutputStream();
+										}
+										int startIndex = binaryFile.index;
+										if( value instanceof Blob )
+										{
+											InputStream in = ( (Blob)value ).getBinaryStream();
+											byte[] buf = new byte[ 4096 ];
+											for( int read = in.read( buf ); read >= 0; read = in.read( buf ) )
+											{
+												binaryFile.out.write( buf, 0, read );
+												binaryFile.index += read;
+											}
+											in.close();
+										}
+										else
+										{
+											binaryFile.out.write( (byte[])value );
+											binaryFile.index += ( (byte[])value ).length;
+										}
+										JSONObject ref = new JSONObject();
+										ref.set( "index", startIndex );
+										ref.set( "length", binaryFile.index - startIndex );
+										array.add( ref );
+									}
 									else
 										array.add( value );
 								}
@@ -348,10 +387,16 @@ public class DumpJSON implements CommandListener
 							jsonWriter.write( array );
 							jsonWriter.getWriter().write( '\n' );
 
-//							count++; TODO
+							count++;
+							if( count >= progressNext )
+							{
+								progressNext = count + count / 10;
+								processor.getProgressListener().println( "Written " + count + " records..." );
+							}
 //							if( count % 100000 == 0 )
-//								processor.getCallBack().println( "Written " + count + " records" );
 						}
+
+						processor.getProgressListener().println( "Written " + count + " records." );
 					}
 					finally
 					{
@@ -364,6 +409,8 @@ public class DumpJSON implements CommandListener
 								if( fileSpec.writer != null )
 									fileSpec.writer.close();
 							}
+						if( binaryFile != null && binaryFile.out != null )
+							binaryFile.out.close();
 					}
 				}
 				finally
@@ -407,6 +454,19 @@ public class DumpJSON implements CommandListener
 		String file = t.stripQuotes();
 
 		t = tokenizer.get();
+
+		String binaryFile = null;
+		if( t.eq( "BINARY" ) )
+		{
+			tokenizer.get( "FILE" );
+			t = tokenizer.get();
+			if( !t.isString() )
+				throw new CommandFileException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+			binaryFile = t.stripQuotes();
+
+			t = tokenizer.get();
+		}
+
 		if( t.eq( "DATE" ) )
 		{
 			tokenizer.get( "AS" );
@@ -511,6 +571,7 @@ public class DumpJSON implements CommandListener
 		String query = tokenizer.getRemaining();
 
 		result.fileName = file;
+		result.binaryFileName = binaryFile;
 		result.query = query;
 
 		return result;
@@ -533,6 +594,8 @@ public class DumpJSON implements CommandListener
 	{
 		/** The file path to export to */
 		protected String fileName;
+
+		protected String binaryFileName;
 
 //		protected String tableName;
 //		protected String schemaName;

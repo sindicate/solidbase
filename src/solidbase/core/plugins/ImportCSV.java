@@ -86,6 +86,7 @@ public class ImportCSV implements CommandListener
 		{
 			// Data is in a file
 			Resource resource = processor.getResource().resolve( parsed.fileName );
+			resource.setGZip( parsed.gzip );
 			try
 			{
 				lineReader = SourceReaders.forResource( resource, parsed.encoding );
@@ -527,6 +528,12 @@ public class ImportCSV implements CommandListener
 		if( !encoding.startsWith( "\"" ) )
 			throw new CommandFileException( "Expecting encoding enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 		result.encoding = encoding.substring( 1, encoding.length() - 1 );
+
+		t = tokenizer.get();
+		if( t.eq( "GZIP" ) )
+			result.gzip = true;
+		else
+			tokenizer.push( t );
 	}
 
 
@@ -623,6 +630,8 @@ public class ImportCSV implements CommandListener
 
 		/** The encoding of the file */
 		protected String encoding;
+
+		protected boolean gzip;
 	}
 
 
