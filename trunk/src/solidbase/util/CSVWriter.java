@@ -2,14 +2,12 @@ package solidbase.util;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.regex.Pattern;
 
 import solidbase.core.SystemException;
-import solidstack.io.Resource;
 
 public class CSVWriter
 {
@@ -22,13 +20,13 @@ public class CSVWriter
 	private boolean extendedFormat;
 	private boolean valueWritten;
 
-	public CSVWriter( Resource resource, String encoding, char separator, boolean extendedFormat ) throws UnsupportedEncodingException
+	public CSVWriter( Writer out, char separator, boolean extendedFormat ) throws UnsupportedEncodingException
 	{
 		Assert.isFalse( separator == '"', "Double quote (\") not allowed as value separator" );
 		if( extendedFormat )
 			Assert.isFalse( separator == '^', "Caret (^) not allowed as value separator when extended format is enabled" );
 
-		this.out = new OutputStreamWriter( resource.getOutputStream(), encoding );
+		this.out = out;
 		this.separator = separator;
 		this.extendedFormat = extendedFormat;
 
@@ -102,7 +100,7 @@ public class CSVWriter
 				for( int j = 0; j < read; j++ )
 				{
 					int b = buf[ j ];
-					this.out.write( HEX[ ( b >> 4 ) & 15 ] );
+					this.out.write( HEX[ b >> 4 & 15 ] );
 					this.out.write( HEX[ b & 15 ] );
 				}
 			}
@@ -125,7 +123,7 @@ public class CSVWriter
 
 			for( int b : value )
 			{
-				this.out.write( HEX[ ( b >> 4 ) & 15 ] );
+				this.out.write( HEX[ b >> 4 & 15 ] );
 				this.out.write( HEX[ b & 15 ] );
 			}
 		}

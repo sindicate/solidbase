@@ -96,7 +96,7 @@ public class PrintSelect implements CommandListener
 				}
 				else
 				{
-					processor.getProgressListener().print( value.toString() );
+					processor.getProgressListener().print( value != null ? value.toString() : "" );
 				}
 
 			}

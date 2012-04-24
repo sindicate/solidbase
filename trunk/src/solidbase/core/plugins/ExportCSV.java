@@ -16,8 +16,11 @@
 
 package solidbase.core.plugins;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.sql.Blob;
@@ -29,6 +32,7 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPOutputStream;
 
 import solidbase.core.Command;
 import solidbase.core.CommandFileException;
@@ -73,18 +77,23 @@ public class ExportCSV implements CommandListener
 
 		Resource csvResource = Resources.getResource( parsed.fileName ); // Relative to current folder
 
-		CSVWriter csvWriter;
 		try
 		{
-			csvWriter = new CSVWriter( csvResource, parsed.encoding, parsed.separator, false );
-		}
-		catch( UnsupportedEncodingException e )
-		{
-			// toString() instead of getMessage(), the getMessage only returns the encoding string
-			throw new CommandFileException( e.toString(), command.getLocation() );
-		}
-		try
-		{
+			OutputStream out = csvResource.getOutputStream();
+			if( parsed.gzip )
+				out = new BufferedOutputStream( new GZIPOutputStream( out, 65536 ), 65536 ); // TODO Ctrl-C, close the outputstream?
+
+			CSVWriter csvWriter;
+			try
+			{
+				csvWriter = new CSVWriter( new OutputStreamWriter( out, parsed.encoding ), parsed.separator, false );
+			}
+			catch( UnsupportedEncodingException e )
+			{
+				// toString() instead of getMessage(), the getMessage only returns the encoding string
+				throw new CommandFileException( e.toString(), command.getLocation() );
+			}
+
 			try
 			{
 				Statement statement = processor.createStatement();
@@ -93,13 +102,13 @@ public class ExportCSV implements CommandListener
 					ResultSet result = statement.executeQuery( parsed.query );
 
 					ResultSetMetaData metaData = result.getMetaData();
-					int count = metaData.getColumnCount();
-					int[] types = new int[ count ];
-					String[] names = new String[ count ];
-					boolean[] coalesce = new boolean[ count ];
+					int columns = metaData.getColumnCount();
+					int[] types = new int[ columns ];
+					String[] names = new String[ columns ];
+					boolean[] coalesce = new boolean[ columns ];
 					int firstCoalesce = -1;
 
-					for( int i = 0; i < count; i++ )
+					for( int i = 0; i < columns; i++ )
 					{
 						String name = metaData.getColumnName( i + 1 ).toUpperCase();
 						types[ i ] = metaData.getColumnType( i + 1 );
@@ -114,17 +123,19 @@ public class ExportCSV implements CommandListener
 
 					if( parsed.withHeader )
 					{
-						for( int i = 0; i < count; i++ )
+						for( int i = 0; i < columns; i++ )
 							if( !coalesce[ i ] || firstCoalesce == i )
 								csvWriter.writeValue( names[ i ] );
 						csvWriter.nextRecord();
 					}
 
+					int count = 0;
+					int progressNext = 1;
 					while( result.next() )
 					{
 						Object coalescedValue = null;
 						if( parsed.coalesce != null )
-							for( int i = 0; i < count; i++ )
+							for( int i = 0; i < columns; i++ )
 								if( coalesce[ i ] )
 								{
 									coalescedValue = JDBCSupport.getValue( result, types, i );
@@ -132,7 +143,7 @@ public class ExportCSV implements CommandListener
 										break;
 								}
 
-						for( int i = 0; i < count; i++ )
+						for( int i = 0; i < columns; i++ )
 						{
 							if( !coalesce[ i ] || firstCoalesce == i )
 							{
@@ -169,6 +180,16 @@ public class ExportCSV implements CommandListener
 						}
 
 						csvWriter.nextRecord();
+
+						count++;
+						if( count >= progressNext )
+						{
+							progressNext = count + count / 10;
+							processor.getProgressListener().println( "Written " + count + " records..." );
+						}
+//						if( count % 100000 == 0 )
+
+						processor.getProgressListener().println( "Written " + count + " records." );
 					}
 				}
 				finally
@@ -260,6 +281,12 @@ public class ExportCSV implements CommandListener
 			throw new CommandFileException( "Expecting encoding enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 		encoding = encoding.substring( 1, encoding.length() - 1 );
 
+		t = tokenizer.get();
+		if( t.eq( "GZIP" ) )
+			result.gzip = true;
+		else
+			tokenizer.push( t );
+
 		String query = tokenizer.getRemaining();
 
 		result.fileName = file;
@@ -294,6 +321,8 @@ public class ExportCSV implements CommandListener
 
 		/** The encoding of the file */
 		protected String encoding;
+
+		protected boolean gzip;
 
 		/** The query */
 		protected String query;

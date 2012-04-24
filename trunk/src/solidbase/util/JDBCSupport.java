@@ -61,7 +61,9 @@ public class JDBCSupport
 			initTypeNames();
 
 		String result = typeNames.get( type );
-		Assert.notNull( result, "Unknown JDBC type " + type );
+//		if( result == null )
+//			return Integer.toString( type );
+//		Assert.notNull( result, "Unknown JDBC type " + type );
 		return result;
 	}
 
