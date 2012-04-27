@@ -60,6 +60,7 @@ import solidbase.util.SQLTokenizer.Token;
 import solidstack.io.DeferringWriter;
 import solidstack.io.FileResource;
 import solidstack.io.Resource;
+import solidstack.io.Resources;
 import solidstack.io.SourceReaders;
 
 
@@ -102,10 +103,10 @@ public class DumpJSON implements CommandListener
 				try
 				{
 					ResultSet result = statement.executeQuery( parsed.query );
-
 					ResultSetMetaData metaData = result.getMetaData();
 
 					// Define locals
+
 					int columns = metaData.getColumnCount();
 					int[] types = new int[ columns ];
 					String[] names = new String[ columns ];
@@ -115,6 +116,7 @@ public class DumpJSON implements CommandListener
 					String tableNames[] = new String[ columns ];
 
 					// Analyze metadata
+
 					for( int i = 0; i < columns; i++ )
 					{
 						int col = i + 1;
@@ -133,47 +135,25 @@ public class DumpJSON implements CommandListener
 							ignore[ i ] = true;
 						tableNames[ i ] = StringUtils.upperCase( StringUtils.defaultIfEmpty( metaData.getTableName( col ), null ) );
 						schemaNames[ i ] = StringUtils.upperCase( StringUtils.defaultIfEmpty( metaData.getSchemaName( col ), null ) );
-//						if( tableNameUnique && ( !coalesce[ i ] || firstCoalesce == i ) )
-//						{
-//							String t = StringUtils.upperCase( StringUtils.defaultString( metaData.getTableName( col ), null ) );
-//							String s = StringUtils.upperCase( StringUtils.defaultString( metaData.getSchemaName( col ), null ) );
-//							if( t != null )
-//							{
-//								if( tableName == null )
-//								{
-//									tableName = t;
-//									schemaName = s;
-//								}
-//								else if( !t.equals( tableName ) || !StringUtils.equals( s, schemaName ) )
-//								{
-//									tableNameUnique = false; // Stop looking
-//									tableName = schemaName = null;
-//								}
-//							}
-//						}
 					}
 
 					if( parsed.coalesce != null )
 						parsed.coalesce.bind( names );
+
+					// Write header
 
 					JSONObject properties = new JSONObject();
 					properties.set( "version", "1.0" );
 					properties.set( "format", "record-stream" );
 					properties.set( "description", "SolidBase JSON Data Dump File" );
 					properties.set( "createdBy", new JSONObject( "product", "SolidBase", "version", "2.0.0" ) );
-					SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
-//					DateFormat format = DateFormat.getDateTimeInstance( DateFormat.MEDIUM, DateFormat.MEDIUM );
-					properties.set( "createdDate", format.format( new Date() ) );
-					properties.set( "file", parsed.fileName );
-					properties.set( "binaryFile", parsed.binaryFileName );
-//					properties.set( "contentType", "application/json" );
-//					properties.set( "schemaName", schemaName );
-//					properties.set( "tableName", tableName );
 
-//					if( parsed.schemaName != null )
-//						properties.set( "schemaName", StringUtils.defaultIfEmpty( parsed.schemaName, null ) );
-//					if( parsed.tableName != null )
-//						properties.set( "tableName", parsed.tableName );
+					SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
+					properties.set( "createdDate", format.format( new Date() ) );
+
+					Resource binResource = Resources.getResource( parsed.binaryFileName );
+					Resource resource = Resources.getResource( parsed.fileName );
+					properties.set( "binaryFile", binResource.getPathFrom( resource ).toString() );
 
 					JSONArray fields = new JSONArray();
 					properties.set( "fields", fields );

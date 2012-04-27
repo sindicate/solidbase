@@ -78,7 +78,6 @@ public class SQLTokenizer
 			case '!':
 			case '"':
 			case '#':
-			case '$':
 			case '%':
 			case '&':
 			case '\'':

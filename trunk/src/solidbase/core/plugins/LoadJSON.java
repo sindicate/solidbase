@@ -89,7 +89,11 @@ public class LoadJSON implements CommandListener
 		// TODO Close the lineReader
 
 		JSONReader reader = new JSONReader( lineReader );
+
 		JSONObject properties = (JSONObject)reader.read();
+		String binaryFile = properties.findString( "binaryFile" );
+
+		// Fields
 		JSONArray fields = properties.getArray( "fields" );
 		int len = fields.size();
 		int[] types = new int[ len ];
@@ -215,7 +219,7 @@ public class LoadJSON implements CommandListener
 							String filename = object.findString( "file" );
 							if( filename != null )
 							{
-								if( type == Types.BLOB )
+								if( type == Types.BLOB || type == Types.VARBINARY )
 								{
 									try
 									{
@@ -243,15 +247,18 @@ public class LoadJSON implements CommandListener
 								BigDecimal lobLength = object.getNumber( "length" );
 								if( lobLength == null )
 									throw new CommandFileException( "Expected a 'length' attribute", reader.getLocation() );
-								if( fileNames[ index ] == null )
-									throw new CommandFileException( "No file configured", reader.getLocation() );
 
-								if( type == Types.BLOB )
+								if( type == Types.BLOB || type == Types.VARBINARY )
 								{
+									String fileName = fileNames[ index ];
+									if( fileName == null )
+										fileName = binaryFile;
+									if( fileName == null )
+										throw new CommandFileException( "No file configured", reader.getLocation() );
 									SegmentedInputStream in = streams[ index ];
 									if( in == null )
 									{
-										Resource r = resource.resolve( fileNames[ index ] );
+										Resource r = resource.resolve( fileName );
 										try
 										{
 											in = new SegmentedInputStream( r.newInputStream() );
@@ -267,6 +274,8 @@ public class LoadJSON implements CommandListener
 								}
 								else if( type == Types.CLOB )
 								{
+									if( fileNames[ index ] == null )
+										throw new CommandFileException( "No file configured", reader.getLocation() );
 									SegmentedReader in = textStreams[ index ];
 									if( in == null )
 									{
@@ -297,13 +306,24 @@ public class LoadJSON implements CommandListener
 						}
 						else
 						{
-							// TODO What if it is a CLOB and the string value is too long?
-//							Object v = values.get( index );
-							// MonetDB complains when calling setObject with null value
-//							if( v != null )
-							statement.setObject( pos++, values.get( index ) );
+//							if( type == Types.CLOB )
+//							{
+//								if( values.get( index ) == null )
+//									System.out.println( "NULL!" );
+//								else if( ( (String)values.get( index ) ).length() == 0 )
+//									System.out.println( "EMPTY!" );
+//
+//								// TODO What if it is a CLOB and the string value is too long?
+//								// Oracle needs this because CLOBs can contain empty strings "", and setObject() makes that null BUT THIS DOES NOT WORK!
+//								statement.setCharacterStream( pos++, new StringReader( (String)values.get( index ) ) );
+//							}
 //							else
-//								statement.setNull( pos++, type );
+								// MonetDB complains when calling setObject with null value
+//								Object v = values.get( index );
+//								if( v != null )
+								statement.setObject( pos++, values.get( index ) );
+//								else
+//									statement.setNull( pos++, type );
 						}
 					}
 				}
