@@ -151,9 +151,12 @@ public class DumpJSON implements CommandListener
 					SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
 					properties.set( "createdDate", format.format( new Date() ) );
 
-					Resource binResource = Resources.getResource( parsed.binaryFileName );
-					Resource resource = Resources.getResource( parsed.fileName );
-					properties.set( "binaryFile", binResource.getPathFrom( resource ).toString() );
+					if( parsed.binaryFileName != null )
+					{
+						Resource binResource = Resources.getResource( parsed.binaryFileName );
+						Resource resource = Resources.getResource( parsed.fileName );
+						properties.set( "binaryFile", binResource.getPathFrom( resource ).toString() );
+					}
 
 					JSONArray fields = new JSONArray();
 					properties.set( "fields", fields );
