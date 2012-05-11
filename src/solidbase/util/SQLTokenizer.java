@@ -288,7 +288,8 @@ public class SQLTokenizer
 	 */
 	public void push( Token token )
 	{
-		this.in.push( token.getValue() );
+		if( token.getValue() != null )
+			this.in.push( token.getValue() );
 		this.in.push( token.getWhiteSpace() );
 	}
 
