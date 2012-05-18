@@ -57,4 +57,36 @@ public class Downgrade
 
 		patcher.end();
 	}
+
+	@Test
+	public void testDowngrade2() throws SQLException
+	{
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+
+		TestProgressListener progress = new TestProgressListener();
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-downgrade-2.sql" );
+		patcher.init();
+
+		Set< String > targets = patcher.getTargets( false, null, false );
+		assert targets.size() > 0;
+
+		patcher.upgrade( "1.0.4" );
+		TestUtil.verifyVersion( patcher, "1.0.4", null, 1, "1.1" );
+		TestUtil.verifyHistoryIncludes( patcher, "1.0.4" );
+
+		patcher.upgrade( "1.0.2", true );
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 1, "1.1" );
+		TestUtil.verifyHistoryIncludes( patcher, "1.0.2" );
+		TestUtil.verifyHistoryNotIncludes( patcher, "1.0.3" );
+		TestUtil.verifyHistoryNotIncludes( patcher, "1.0.4" );
+
+		patcher.upgrade( "1.0.1", true );
+		TestUtil.verifyVersion( patcher, "1.0.1", null, 1, "1.1" );
+		TestUtil.verifyHistoryIncludes( patcher, "1.0.1" );
+		TestUtil.verifyHistoryNotIncludes( patcher, "1.0.2" );
+		TestUtil.verifyHistoryNotIncludes( patcher, "1.0.3" );
+		TestUtil.verifyHistoryNotIncludes( patcher, "1.0.4" );
+
+		patcher.end();
+	}
 }

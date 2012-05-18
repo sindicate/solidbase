@@ -400,15 +400,15 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 							// restarted. That's why the progress update is first. But some logging will be lost in that case.
 							this.dbVersion.updateProgress( segment.getTarget(), count );
 							if( result != null )
-								this.dbVersion.logSQLException( segment.getSource(), segment.getTarget(), count, command.getCommand(), result );
+								this.dbVersion.logSQLException( segment, count, command.getCommand(), result );
 							else
-								this.dbVersion.log( "S", segment.getSource(), segment.getTarget(), count, command.getCommand(), (String)null );
+								this.dbVersion.log( segment, count, command.getCommand() );
 						}
 					}
 					catch( SQLExecutionException e )
 					{
 						// TODO We need a unit test for this, and the above
-						this.dbVersion.logSQLException( segment.getSource(), segment.getTarget(), count, command.getCommand(), e );
+						this.dbVersion.logSQLException( segment, count, command.getCommand(), e );
 						throw e;
 					}
 				}
@@ -441,7 +441,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 				if( !segment.isOpen() )
 				{
 					this.dbVersion.updateVersion( segment.getTarget() );
-					this.dbVersion.logComplete( segment.getSource(), segment.getTarget(), count );
+					this.dbVersion.logComplete( segment, count );
 				}
 			}
 		}

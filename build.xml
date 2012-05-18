@@ -141,6 +141,7 @@
 		<javac destdir="${build.home}/classes" source="${target-jre}" target="${target-jre}" optimize="true" debug="true" deprecation="true" classpathref="compile.classpath">
 			<src path="src" />
 			<include name="solidbase/**/*.java" />
+			<!-- SolidStack project: http://solidstack.googlecode.com/svn/trunk/ -->
 			<src path="../solidstack/src" />
 			<include name="solidstack/io/*.java" />
 		</javac>
