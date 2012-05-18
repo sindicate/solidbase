@@ -18,8 +18,6 @@ package solidbase.core;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -455,14 +453,9 @@ public class DBVersion
 	 * @param command The executed statement.
 	 * @param e The exception.
 	 */
-	protected void log( String source, String target, int count, String command, Exception e )
+	protected void log( UpgradeSegment segment, int count, String command )
 	{
-		Assert.notNull( e, "exception must not be null" );
-
-		StringWriter buffer = new StringWriter();
-		e.printStackTrace( new PrintWriter( buffer ) );
-
-		log( "S", source, target, count, command, buffer.toString() );
+		log( segment.isDowngrade() ? "T" : "S", segment.getSource(), segment.getTarget(), count, command, null );
 	}
 
 	/**
@@ -474,11 +467,11 @@ public class DBVersion
 	 * @param command The executed statement.
 	 * @param e The SQL exception.
 	 */
-	protected void logSQLException( String source, String target, int count, String command, SQLExecutionException e )
+	protected void logSQLException( UpgradeSegment segment, int count, String command, SQLExecutionException e )
 	{
 		Assert.notNull( e, "exception must not be null" );
 
-		log( "S", source, target, count, command, e.getSQLErrorMessages() );
+		log( segment.isDowngrade() ? "T" : "S", segment.getSource(), segment.getTarget(), count, command, e.getSQLErrorMessages() );
 	}
 
 	/**
@@ -488,9 +481,9 @@ public class DBVersion
 	 * @param target The target version.
 	 * @param count The statement count.
 	 */
-	protected void logComplete( String source, String target, int count )
+	protected void logComplete( UpgradeSegment segment, int count )
 	{
-		log( "B", source, target, count, null, SPEC11.equals( this.effectiveSpec ) ? "COMPLETE" : "COMPLETED VERSION " + target );
+		log( segment.isDowngrade() ? "D" : "B", segment.getSource(), segment.getTarget(), count, null, SPEC11.equals( this.effectiveSpec ) ? "COMPLETE" : "COMPLETED VERSION " + segment.getTarget() );
 	}
 
 	/**
@@ -651,7 +644,7 @@ public class DBVersion
 		try
 		{
 			Connection connection = this.database.getDefaultConnection();
-			PreparedStatement statement = connection.prepareStatement( "UPDATE " + this.logTableName + " SET RESULT = 'DOWNGRADED' WHERE TYPE = 'B' AND TARGET = ? AND RESULT = 'COMPLETE'" );
+			PreparedStatement statement = connection.prepareStatement( "UPDATE " + this.logTableName + " SET TYPE = 'R' WHERE TYPE = 'B' AND TARGET = ? AND RESULT = 'COMPLETE'" );
 			boolean commit = false;
 			try
 			{

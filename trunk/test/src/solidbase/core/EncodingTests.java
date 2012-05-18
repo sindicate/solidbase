@@ -12,8 +12,8 @@ import solidstack.io.Resource;
 
 public class EncodingTests
 {
-	@Test(groups="new")
-	static public void test1() throws UnsupportedEncodingException, FileNotFoundException
+	@Test
+	static public void testEncoding1() throws UnsupportedEncodingException, FileNotFoundException
 	{
 		String text = "\u00EF\u00BB\u00BF--* ENCODING \"UTF-8\"\n" +
 				"--* DEFINITION\n" +
