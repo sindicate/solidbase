@@ -644,7 +644,7 @@ public class DBVersion
 		try
 		{
 			Connection connection = this.database.getDefaultConnection();
-			PreparedStatement statement = connection.prepareStatement( "UPDATE " + this.logTableName + " SET TYPE = 'R' WHERE TYPE = 'B' AND TARGET = ? AND RESULT = 'COMPLETE'" );
+			PreparedStatement statement = connection.prepareStatement( "UPDATE " + this.logTableName + " SET TYPE = 'R', RESULT = 'REVERTED' WHERE TYPE = 'B' AND TARGET = ? AND RESULT = 'COMPLETE'" );
 			boolean commit = false;
 			try
 			{
