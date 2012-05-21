@@ -9,13 +9,14 @@ Major/minor release
 		solidbase/maven-plugin/test/pom.xml, project/build/plugins/plugin(solidbase)/version
 		solidbase/src/META-INF/maven/plugin.xml, plugin/version
 		solidbase/build.properties, release.number (why did we call this release.number?)
+		solidbase/build.xml, sonar:sonar
 		solidbase/pom.xml, project/version
 		solidbase/deploy-pom.xml, project/version
 		solidbase/scripts/generategettingstarted.groovy (5 times)
 		Use 1.6.0-RC1 when doing a first major release
 			We don't do snapshots. Snapshot are automatic releases, we don't do automatic.
 	Update the changelog
-	Make sure you are using java 1.6.0_25 or newer to build.
+	Make sure you are using java 1.6.0_30 or newer to build.
 	Check 'svn update && ant clean build test'
 	If release a candidate, test it at your current project
 	Commit
