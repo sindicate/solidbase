@@ -55,6 +55,13 @@
 					<description>The Maven Project</description>
 				</parameter>
 				<parameter>
+					<name>skip</name>
+					<type>boolean</type>
+					<required>false</required>
+					<editable>true</editable>
+					<description>Skip execution.</description>
+				</parameter>
+				<parameter>
 					<name>target</name>
 					<type>java.lang.String</type>
 					<required>false</required>
@@ -99,6 +106,7 @@
 				<username implementation="java.lang.String">${username}</username>
 				<password implementation="java.lang.String">${password}</password>
 				<url implementation="java.lang.String">${url}</url>
+				<skip implementation="boolean">${skip}</skip>
 			</configuration>
 		</mojo>
 		<mojo>
@@ -138,6 +146,13 @@
 					<description>The Maven Project</description>
 				</parameter>
 				<parameter>
+					<name>skip</name>
+					<type>boolean</type>
+					<required>false</required>
+					<editable>true</editable>
+					<description>Skip execution.</description>
+				</parameter>
+				<parameter>
 					<name>sqlfile</name>
 					<type>java.lang.String</type>
 					<required>true</required>
@@ -173,6 +188,7 @@
 				<username implementation="java.lang.String">${username}</username>
 				<password implementation="java.lang.String">${password}</password>
 				<url implementation="java.lang.String">${url}</url>
+				<skip implementation="boolean">${skip}</skip>
 			</configuration>
 		</mojo>
 	</mojos>

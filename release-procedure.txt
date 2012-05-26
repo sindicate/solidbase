@@ -32,7 +32,7 @@ Major/minor release
 		Otherwise wait till you start doing new developments on the trunk
 			or when a development branch is about to be merged to the trunk
 	Check and commit this local solidbase-repository
-		Check that the size of the jar is indeed small (under 300KB)
+		Check that the size of the jar is indeed small (under 400KB)
 		Comment "Released 1.6.0-RC1"
 	Check the Gettingstarteds
 	Check the content on the site

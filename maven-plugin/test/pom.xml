@@ -42,6 +42,7 @@
 					<upgradefile>upgrade-hsqldb-example.sql</upgradefile>
 					<target>1.0.*</target>
 					<sqlfile>hsqldb-test.sql</sqlfile>
+					<skip>${skipDatabase}</skip>
 					<connections>
 						<secondary>
 							<name>queues</name>
