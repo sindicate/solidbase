@@ -407,6 +407,7 @@
 			<jvmarg value="-Duser.home=${build.home}/mavenuser" /> <!-- Use our own user folder -->
 			<jvmarg value="-Dmaven.home=${basedir}/tools/maven" />
 			<jvmarg value="-Dtest.repo.url=file:///${build.home}/remote" /> <!-- Used in the pom.xml -->
+			<jvmarg value="-DskipDatabase=false" /> <!-- Used in the pom.xml -->
 			<arg value="--batch-mode" />
 			<arg value="solidbase:upgrade" />
 			<arg value="solidbase:sql" />

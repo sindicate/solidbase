@@ -217,6 +217,7 @@ public class Runner
 	/**
 	 * Upgrade the database. This method protects itself against SIGINT (Ctrl-C).
 	 */
+	// TODO executeSQL() prints a newline at the end, but upgrade() does not
 	public void upgrade()
 	{
 		if( this.listener == null )

@@ -23,7 +23,7 @@ import org.apache.maven.project.MavenProject;
 
 /**
  * Maven plugin that has database connection functionality.
- * 
+ *
  * @author René de Bloois
  */
 abstract public class DBMojo extends AbstractMojo
@@ -54,13 +54,18 @@ abstract public class DBMojo extends AbstractMojo
 	protected String password;
 
 	/**
+	 * Skip execution of the plugin.
+	 */
+	protected boolean skip;
+
+	/**
 	 * An array of secondary connections.
 	 */
 	protected Secondary[] connections;
 
 	/**
 	 * Validate the configuration of the plugin.
-	 * 
+	 *
 	 * @throws MojoFailureException Whenever a configuration item is missing.
 	 */
 	protected void validate() throws MojoFailureException

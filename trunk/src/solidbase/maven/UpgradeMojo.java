@@ -47,6 +47,13 @@ public class UpgradeMojo extends DBMojo
 
 	public void execute() throws MojoFailureException
 	{
+		if( this.skip )
+		{
+			getLog().info( "Skipped." );
+			getLog().info( "" );
+			return;
+		}
+
 		validate();
 
 		Runner runner = new Runner();
