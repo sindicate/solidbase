@@ -325,7 +325,7 @@
 		<property name="sonar.tests" value="list of test source directories separated by a comma" />
 		<property name="sonar.libraries" value="list of paths to libraries separated by a comma (These libraries are for example used by the Sonar Findbugs plugin)" />
 	 
-	    <sonar:sonar key="solidbase:solidbase" version="2.0.0-beta2" xmlns:sonar="antlib:org.sonar.ant" />
+	    <sonar:sonar key="solidbase:solidbase" version="2.0.0-beta3" xmlns:sonar="antlib:org.sonar.ant" />
 	</target>
 
 	<target name="maven:deploy" depends="build" description="Deploys to the remote repo">
