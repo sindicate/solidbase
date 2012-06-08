@@ -27,7 +27,6 @@ Major/minor release
 		This deploys to the local solidbase-repository which is a checked out folder from subversion.
 		Check this folder, a folder should be created for the correct solidbase version
 			Open the jar and check MANIFEST.MF, version.properties and CHANGELOG.TXT
-		Commit this repository
 	Create a branch when you know that you are going to do major enhancements on the trunk
 		Otherwise wait till you start doing new developments on the trunk
 			or when a development branch is about to be merged to the trunk
