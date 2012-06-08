@@ -1,3 +1,34 @@
+Changes from 1.6.7 to 2.0.0-beta3 (rev 805)
+---------------------------------
+
+ENH  Refactored the SolidBase core. Is is now easier to embed SolidBase.
+     - You can now use a DataSource when embedding SolidBase.
+     - Added a resource abstraction. It is now possible to read files from the classpath (classpath: protocol) or the filesystem (file: protocol).
+     - Added a Runner which makes it easier to perform an upgrade or execute an SQL file when embedding SolidBase.
+ENH  IMPORT CSV can now execute a custom SQL statement for each row in the CSV data.
+ENH  Added EXPORT CSV plugin.
+ENH  Added INCLUDE annotation which includes an external SQL file into the upgrade file.
+ENH  Added RUN command which runs an external SQL file.
+ENH  The Maven plugin now has a 'skip' parameter.
+ENH  Added the LOG POLLER ON/OFF plugin. Monitors the LOG table and prints the contents.
+ENH  Errors in input files now include the file name together with the line number.
+ENH  Added ELSE annotation.
+ENH  PRINT SELECT can now also print a CLOB.
+ENH  IMPORT CSV can now a SPACE as separator.
+
+CHA  Dropping support for Java 5. Or not?
+CHA  File encoding detection has changed. The BOM (Byte Order Mark) is not used anymore. But is it skipped if the configured encoding is one of the UTF encodings.
+CHA  INIT, PATCH, BRANCH, RETURN, SESSIONCONFIG and SET MESSAGE annotations do not work anymore.
+CHA  /DEFINITION, /SETUP, /UPGRADE, /SWITCH and /DOWNGRADE are deprecated. Use END DEFINITION, END SETUP, END UPGRADE, END SWITCH and END DOWNGRADE instead.
+CHA  /IGNORE SQL ERROR, /SKIP, /IF and /TRANSIENT are deprecated. Use END IGNORE, END SKIP, END IF and END TRANSIENT instead.
+
+FIX  Plugins are still called when a statement is skipped. Some plugins (IMPORT CSV) need to parse the statement and skip accompanying data.
+FIX  Fixed problems with SIGINT (Ctrl-C).
+FIX  Fixed downgrade problems.
+     - Downgrade statements are now logged in DBVERSIONLOG with the 'T' type instead of the 'S' type.
+     - A complete downgrade segment is now logged in DBVERSIONLOG with the 'D' type instead of the 'B' type.
+     - Completed upgrades that are downgraded are now marked in DBVERSIONLOG with the 'R' type and the result is updated to 'REVERTED'.
+
 Changes from 1.6.6 to 1.6.7
 ---------------------------
 
