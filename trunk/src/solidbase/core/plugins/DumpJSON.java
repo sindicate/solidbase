@@ -94,9 +94,9 @@ public class DumpJSON implements CommandListener
 
 		Resource jsvResource = new FileResource( new File( parsed.fileName ) ); // Relative to current folder
 
-		JSONWriter jsonWriter = new JSONWriter( jsvResource );
 		try
 		{
+			JSONWriter jsonWriter = new JSONWriter( jsvResource );
 			try
 			{
 				Statement statement = processor.createStatement();

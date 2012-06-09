@@ -29,8 +29,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashSet;
-import java.util.Set;
+import java.sql.Types;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
@@ -39,6 +38,7 @@ import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.SystemException;
+import solidbase.core.plugins.DumpJSON.Coalescer;
 import solidbase.util.CSVWriter;
 import solidbase.util.JDBCSupport;
 import solidbase.util.SQLTokenizer;
@@ -90,41 +90,53 @@ public class ExportCSV implements CommandListener
 			}
 			catch( UnsupportedEncodingException e )
 			{
-				// toString() instead of getMessage(), the getMessage only returns the encoding string
+				// toString() instead of getMessage(), the getMessage only returns the character encoding
 				throw new CommandFileException( e.toString(), command.getLocation() );
 			}
 
+			// TODO Lots of identical code in DumpJSON
 			try
 			{
 				Statement statement = processor.createStatement();
 				try
 				{
 					ResultSet result = statement.executeQuery( parsed.query );
-
 					ResultSetMetaData metaData = result.getMetaData();
+
+					// Define locals
+
 					int columns = metaData.getColumnCount();
 					int[] types = new int[ columns ];
 					String[] names = new String[ columns ];
-					boolean[] coalesce = new boolean[ columns ];
-					int firstCoalesce = -1;
+					boolean[] ignore = new boolean[ columns ];
+
+					// Analyze metadata
 
 					for( int i = 0; i < columns; i++ )
 					{
-						String name = metaData.getColumnName( i + 1 ).toUpperCase();
-						types[ i ] = metaData.getColumnType( i + 1 );
+						int col = i + 1;
+						String name = metaData.getColumnName( col ).toUpperCase();
+						types[ i ] = metaData.getColumnType( col );
+						if( types[ i ] == Types.DATE && parsed.dateAsTimestamp )
+							types[ i ] = Types.TIMESTAMP;
 						names[ i ] = name;
-						if( parsed.coalesce != null && parsed.coalesce.contains( name ) )
-						{
-							coalesce[ i ] = true;
-							if( firstCoalesce < 0 )
-								firstCoalesce = i;
-						}
+						if( parsed.coalesce != null && parsed.coalesce.notFirst( name ) )
+							ignore[ i ] = true;
+						// TODO STRUCT serialize
+						// TODO This must be optional and not the default
+						else if( types[ i ] == 2002 || JDBCSupport.toTypeName( types[ i ] ) == null )
+							ignore[ i ] = true;
 					}
+
+					if( parsed.coalesce != null )
+						parsed.coalesce.bind( names );
+
+					// Write header
 
 					if( parsed.withHeader )
 					{
 						for( int i = 0; i < columns; i++ )
-							if( !coalesce[ i ] || firstCoalesce == i )
+							if( !ignore[ i ] )
 								csvWriter.writeValue( names[ i ] );
 						csvWriter.nextRecord();
 					}
@@ -133,32 +145,20 @@ public class ExportCSV implements CommandListener
 					int progressNext = 1;
 					while( result.next() )
 					{
-						Object coalescedValue = null;
+						Object[] values = new Object[ columns ];
+						for( int i = 0; i < values.length; i++ )
+							values[ i ] = JDBCSupport.getValue( result, types, i );
+
 						if( parsed.coalesce != null )
-							for( int i = 0; i < columns; i++ )
-								if( coalesce[ i ] )
-								{
-									coalescedValue = JDBCSupport.getValue( result, types, i );
-									if( coalescedValue != null )
-										break;
-								}
+							parsed.coalesce.coalesce( values );
 
 						for( int i = 0; i < columns; i++ )
-						{
-							if( !coalesce[ i ] || firstCoalesce == i )
+							if( !ignore[ i ] )
 							{
-								Object value = coalescedValue;
-								if( firstCoalesce != i )
-									value = JDBCSupport.getValue( result, types, i );
-
-								// TODO Write null as ^NULL in extended format?
+								Object value = values[ i ];
 								if( value == null )
-								{
 									csvWriter.writeValue( (String)null );
-									continue;
-								}
-
-								if( value instanceof Clob )
+								else if( value instanceof Clob )
 								{
 									Reader in = ( (Clob)value ).getCharacterStream();
 									csvWriter.writeValue( in );
@@ -171,13 +171,10 @@ public class ExportCSV implements CommandListener
 									in.close();
 								}
 								else if( value instanceof byte[] )
-								{
 									csvWriter.writeValue( (byte[])value );
-								}
 								else
 									csvWriter.writeValue( value.toString() );
 							}
-						}
 
 						csvWriter.nextRecord();
 
@@ -253,17 +250,40 @@ public class ExportCSV implements CommandListener
 			t = tokenizer.get( "COALESCE", "FILE" );
 		}
 
-		if( t.eq( "COALESCE" ) )
+		if( t.eq( "DATE" ) )
 		{
-			result.coalesce = new HashSet< String >();
+			tokenizer.get( "AS" );
+			tokenizer.get( "TIMESTAMP" );
+
+			result.dateAsTimestamp = true;
+
+			t = tokenizer.get();
+		}
+
+		while( t.eq( "COALESCE" ) )
+		{
+			if( result.coalesce == null )
+				result.coalesce = new Coalescer();
+
+			t = tokenizer.get();
+			if( !t.isString() )
+				throw new CommandFileException( "Expecting column name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+			result.coalesce.first( t.stripQuotes() );
+
+			t = tokenizer.get( "," );
 			do
 			{
 				t = tokenizer.get();
-				result.coalesce.add( t.getValue().toUpperCase() );
+				if( !t.isString() )
+					throw new CommandFileException( "Expecting column name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+				result.coalesce.next( t.stripQuotes() );
+
 				t = tokenizer.get();
 			}
 			while( t.eq( "," ) );
 			tokenizer.push( t );
+
+			result.coalesce.end();
 
 			tokenizer.get( "FILE" );
 		}
@@ -327,7 +347,9 @@ public class ExportCSV implements CommandListener
 		/** The query */
 		protected String query;
 
+		protected boolean dateAsTimestamp;
+
 		/** Which columns need to be coalesced */
-		protected Set< String > coalesce;
+		protected Coalescer coalesce;
 	}
 }
