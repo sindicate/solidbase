@@ -64,7 +64,7 @@ EXECUTE <sql> <current delimiter>
 
 === Examples ===
 {{{
---* MERGE
+--* // MERGE
 IMPORT CSV
 EXECUTE MERGE INTO ATABLE
 USING ( VALUES ( CAST( :1 AS INTEGER ), CAST( :2 AS VARCHAR(40) ) ) ) AS VALS( ID, DESC )
@@ -74,7 +74,7 @@ WHEN NOT MATCHED THEN INSERT VALUES VALS.ID, VALS.DESC;
 "2","The second record"
 "3","The third record"
 
---* Delete from a file containing ids of records
+--* // Delete from a file containing ids of records
 IMPORT CSV FILE "ids.csv" ENCODING "UTF-8"
 EXECUTE DELETE FROM ATABLE WHERE ID = :1;
 }}}
