@@ -1,4 +1,4 @@
-#summary Reference Guide describing every feature of SolidBase (in progress)
+#summary Reference Guide describing every feature of SolidBase
 
 = Contents =
 == Using !SolidBase ==
