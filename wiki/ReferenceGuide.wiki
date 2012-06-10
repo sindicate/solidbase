@@ -35,13 +35,7 @@ An upgrade file or SQL file should have the following first line:
 {{{
 --* ENCODING "UTF-8"
 }}}
-This indicates to !SolidBase what the character encoding of the input file is. The supported encodings vary between different implementations of the Java 2 platform, but every implementation is required to support the following encodings:
-|| US-ASCII || Seven-bit ASCII ||
-|| ISO-8859-1 || ISO Latin Alphabet No. 1, a.k.a. ISO-LATIN-1 ||
-|| UTF-8 || Eight-bit UCS Transformation Format ||
-|| UTF-16BE || Sixteen-bit UCS Transformation Format, big-endian byte order ||
-|| UTF-16LE || Sixteen-bit UCS Transformation Format, little-endian byte order ||
-|| UTF-16 || Sixteen-bit UCS Transformation Format, byte order identified by an optional byte-order mark ||
+This indicates to !SolidBase what the character encoding of the input file is. The supported encodings vary between different implementations of the Java 2 platform, but every implementation is required to support US-ASCII, ISO-8859-1, UTF-8, UTF-16BE, UTF-16LE and UTF-16. See http://docs.oracle.com/javase/6/docs/api/java/nio/charset/Charset.html.
 
 ----------------------------------------
 == Differences between upgrade files and SQL files ==
@@ -258,13 +252,7 @@ INTO <tablename>
 [ VALUES ( <valuelist> ) ]
 FILE "<filename>" ENCODING "<encoding>" <current delimiter>
 }}}
-The supported encodings vary between different implementations of the Java 2 platform, but every implementation is required to support the following encodings:
-|| US-ASCII || Seven-bit ASCII ||
-|| ISO-8859-1 || ISO Latin Alphabet No. 1, a.k.a. ISO-LATIN-1 ||
-|| UTF-8 || Eight-bit UCS Transformation Format ||
-|| UTF-16BE || Sixteen-bit UCS Transformation Format, big-endian byte order ||
-|| UTF-16LE || Sixteen-bit UCS Transformation Format, little-endian byte order ||
-|| UTF-16 || Sixteen-bit UCS Transformation Format, byte order identified by an optional byte-order mark ||
+The supported encodings vary between different implementations of the Java 2 platform, but every implementation is required to support US-ASCII, ISO-8859-1, UTF-8, UTF-16BE, UTF-16LE and UTF-16. See http://docs.oracle.com/javase/6/docs/api/java/nio/charset/Charset.html.
 
 === Examples ===
 These are all syntax 1 examples, but they work with syntax 2 and 3 too.
