@@ -71,7 +71,11 @@ public class Messages
 		        "4770.\n" +
 		        "        Importing through delete.\n" +
 		        "2360.\n" +
-		        "DEBUG: version=1.0.1, target=1.0.2, statements=19\n" +
+		        "        Importing through merge...\n" +
+		        "1 The first record\n" +
+		        "2 The second record\n" +
+		        "3 The third record.\n" +
+		        "DEBUG: version=1.0.1, target=1.0.2, statements=23\n" +
 				"\n" +
 				"Current database version is \"1.0.2\".\n" +
 				"Upgrade complete.\n"

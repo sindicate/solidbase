@@ -1,3 +1,6 @@
 eclipse.preferences.version=1
+encoding//test/patch-utf-16-bom-1.sql=UTF-16
+encoding//test/patch-utf-16-bom-2.sql=UTF-16
+encoding//test/patch-utf-16-nobom-1.sql=UTF-16LE
 encoding//test/patch-utf-8-1.sql=UTF-8
 encoding/<project>=ISO-8859-1

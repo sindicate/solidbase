@@ -64,8 +64,7 @@ abstract public class CommandProcessor
 	/**
 	 * Pattern for SELECT CONNECTION.
 	 */
-	// FIXME "USE CONNECTION" instead
-	static protected final Pattern selectConnectionPattern = Pattern.compile( "SELECT\\s+CONNECTION\\s+(\\w+)", Pattern.CASE_INSENSITIVE );
+	static protected final Pattern selectConnectionPattern = Pattern.compile( "(?:USE|SELECT)\\s+CONNECTION\\s+(\\w+)", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * Pattern for DELIMITER.

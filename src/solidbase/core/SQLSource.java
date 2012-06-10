@@ -180,7 +180,7 @@ public class SQLSource
 					if( matcher.groupCount() > 0 )
 						result.append( matcher.group( 1 ) );
 					if( matcher.groupCount() > 1 )
-						this.buffer = matcher.group( 2 ); // TODO Does this buffer thing work correctly?
+						this.buffer = matcher.group( 2 );
 					return new Command( result.toString(), false, this.reader.getLocation().lineNumber( pos ) );
 				}
 			}

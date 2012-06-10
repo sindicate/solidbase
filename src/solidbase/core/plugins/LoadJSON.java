@@ -86,285 +86,290 @@ public class LoadJSON implements CommandListener
 		{
 			throw new FatalException( e.toString() );
 		}
-		// TODO Close the lineReader
 
 		JSONReader reader = new JSONReader( lineReader );
-
-		JSONObject properties = (JSONObject)reader.read();
-		String binaryFile = properties.findString( "binaryFile" );
-
-		// Fields
-		JSONArray fields = properties.getArray( "fields" );
-		int len = fields.size();
-		int[] types = new int[ len ];
-		String[] fileNames = new String[ len ];
-		SegmentedInputStream[] streams = new SegmentedInputStream[ len ];
-		SegmentedReader[] textStreams = new SegmentedReader[ len ];
-		for( int i = 0; i < len; i++ )
-		{
-			JSONObject field = (JSONObject)fields.get( i );
-			types[ i ] = JDBCSupport.fromTypeName( field.getString( "type" ) );
-			fileNames[ i ] = field.findString( "file" );
-		}
-
-		boolean prependLineNumber = parsed.prependLineNumber;
-
-		StringBuilder sql = new StringBuilder( "INSERT INTO " );
-		sql.append( parsed.tableName ); // TODO Where else do we need the quotes?
-		if( parsed.columns != null )
-		{
-			sql.append( " (" );
-			for( int i = 0; i < parsed.columns.length; i++ )
-			{
-				if( i > 0 )
-					sql.append( ',' );
-				sql.append( parsed.columns[ i ] );
-			}
-			sql.append( ')' );
-		}
-		List< Integer > parameterMap = new ArrayList< Integer >();
-		if( parsed.values != null )
-		{
-			sql.append( " VALUES (" );
-			for( int i = 0; i < parsed.values.length; i++ )
-			{
-				if( i > 0 )
-					sql.append( "," );
-				String value = parsed.values[ i ];
-				value = translateArgument( value, parameterMap );
-				sql.append( value );
-			}
-			sql.append( ')' );
-		}
-		else
-		{
-			int count = types.length;
-			if( parsed.columns != null )
-				count = parsed.columns.length;
-			if( prependLineNumber )
-				count++;
-			int par = 1;
-			sql.append( " VALUES (?" );
-			parameterMap.add( par++ );
-			while( par <= count )
-			{
-				sql.append( ",?" );
-				parameterMap.add( par++ );
-			}
-			sql.append( ')' );
-		}
-
-		PreparedStatement statement = processor.prepareStatement( sql.toString() );
-		CloseQueue biggerCloser = new CloseQueue();
-		CloseQueue closer = new CloseQueue();
-		boolean commit = false;
 		try
 		{
-			int batchSize = 0;
-//			int count = 0;
-			while( true )
+			JSONObject properties = (JSONObject)reader.read();
+			String binaryFile = properties.findString( "binaryFile" );
+
+			// Fields
+			JSONArray fields = properties.getArray( "fields" );
+			int len = fields.size();
+			int[] types = new int[ len ];
+			String[] fileNames = new String[ len ];
+			SegmentedInputStream[] streams = new SegmentedInputStream[ len ];
+			SegmentedReader[] textStreams = new SegmentedReader[ len ];
+			for( int i = 0; i < len; i++ )
 			{
-				if( Thread.currentThread().isInterrupted() )
-					throw new ThreadInterrupted();
+				JSONObject field = (JSONObject)fields.get( i );
+				types[ i ] = JDBCSupport.fromTypeName( field.getString( "type" ) );
+				fileNames[ i ] = field.findString( "file" );
+			}
 
-				JSONArray values = (JSONArray)reader.read();
-				if( values == null )
+			boolean prependLineNumber = parsed.prependLineNumber;
+
+			StringBuilder sql = new StringBuilder( "INSERT INTO " );
+			sql.append( parsed.tableName ); // TODO Where else do we need the quotes?
+			if( parsed.columns != null )
+			{
+				sql.append( " (" );
+				for( int i = 0; i < parsed.columns.length; i++ )
 				{
-					Assert.isTrue( reader.isEOF() );
-					if( batchSize > 0 )
-						statement.executeBatch();
-					commit = true;
-					return true;
+					if( i > 0 )
+						sql.append( ',' );
+					sql.append( parsed.columns[ i ] );
 				}
-				int lineNumber = reader.getLineNumber();
-
-				int i = 0;
-				for( ListIterator< Object > it = values.iterator(); it.hasNext(); )
+				sql.append( ')' );
+			}
+			List< Integer > parameterMap = new ArrayList< Integer >();
+			if( parsed.values != null )
+			{
+				sql.append( " VALUES (" );
+				for( int i = 0; i < parsed.values.length; i++ )
 				{
-					Object value = it.next();
-					if( value != null )
+					if( i > 0 )
+						sql.append( "," );
+					String value = parsed.values[ i ];
+					value = translateArgument( value, parameterMap );
+					sql.append( value );
+				}
+				sql.append( ')' );
+			}
+			else
+			{
+				int count = types.length;
+				if( parsed.columns != null )
+					count = parsed.columns.length;
+				if( prependLineNumber )
+					count++;
+				int par = 1;
+				sql.append( " VALUES (?" );
+				parameterMap.add( par++ );
+				while( par <= count )
+				{
+					sql.append( ",?" );
+					parameterMap.add( par++ );
+				}
+				sql.append( ')' );
+			}
+
+			PreparedStatement statement = processor.prepareStatement( sql.toString() );
+			CloseQueue biggerCloser = new CloseQueue();
+			CloseQueue closer = new CloseQueue();
+			boolean commit = false;
+			try
+			{
+				int batchSize = 0;
+//				int count = 0;
+				while( true )
+				{
+					if( Thread.currentThread().isInterrupted() )
+						throw new ThreadInterrupted();
+
+					JSONArray values = (JSONArray)reader.read();
+					if( values == null )
 					{
-						if( types[ i ] == Types.DATE )
-							it.set( java.sql.Date.valueOf( (String)value ) );
-						else if( types[ i ] == Types.TIMESTAMP )
-							it.set( java.sql.Timestamp.valueOf( (String)value ) );
-						else if( types[ i ] == Types.TIME )
-							it.set( java.sql.Time.valueOf( (String)value ) );
+						Assert.isTrue( reader.isEOF() );
+						if( batchSize > 0 )
+							statement.executeBatch();
+						commit = true;
+						return true;
 					}
-					i++;
-				}
+					int lineNumber = reader.getLineNumber();
 
-				int pos = 1;
-				int index = 0;
-				for( int par : parameterMap )
-				{
-					if( par == 1 && prependLineNumber )
-						statement.setInt( pos++, lineNumber );
-					else
+					int i = 0;
+					for( ListIterator< Object > it = values.iterator(); it.hasNext(); )
 					{
-						index = par - ( prependLineNumber ? 2 : 1 );
-						int type = types[ index ];
-						Object value;
-						try
+						Object value = it.next();
+						if( value != null )
 						{
-							value = values.get( index );
+							if( types[ i ] == Types.DATE )
+								it.set( java.sql.Date.valueOf( (String)value ) );
+							else if( types[ i ] == Types.TIMESTAMP )
+								it.set( java.sql.Timestamp.valueOf( (String)value ) );
+							else if( types[ i ] == Types.TIME )
+								it.set( java.sql.Time.valueOf( (String)value ) );
 						}
-						catch( ArrayIndexOutOfBoundsException e )
+						i++;
+					}
+
+					int pos = 1;
+					int index = 0;
+					for( int par : parameterMap )
+					{
+						if( par == 1 && prependLineNumber )
+							statement.setInt( pos++, lineNumber );
+						else
 						{
-							throw new CommandFileException( "Value with index " + ( index + 1 ) + " does not exist, record has only " + values.size() + " values", reader.getLocation() );
-						}
-						if( value instanceof JSONObject )
-						{
-							JSONObject object = (JSONObject)value;
-							String filename = object.findString( "file" );
-							if( filename != null )
+							index = par - ( prependLineNumber ? 2 : 1 );
+							int type = types[ index ];
+							Object value;
+							try
 							{
-								if( type == Types.BLOB || type == Types.VARBINARY )
+								value = values.get( index );
+							}
+							catch( ArrayIndexOutOfBoundsException e )
+							{
+								throw new CommandFileException( "Value with index " + ( index + 1 ) + " does not exist, record has only " + values.size() + " values", reader.getLocation() );
+							}
+							if( value instanceof JSONObject )
+							{
+								JSONObject object = (JSONObject)value;
+								String filename = object.findString( "file" );
+								if( filename != null )
 								{
-									try
+									if( type == Types.BLOB || type == Types.VARBINARY )
 									{
-										InputStream in = resource.resolve( filename ).newInputStream();
-										closer.add( in );
-										// Some databases read the stream directly (Oracle), others read it later (HSQLDB).
-										statement.setBinaryStream( pos++, in );
-										// TODO Do we need to decrease the batch size when files are being kept open?
-										// TODO What if the contents of the blob is sufficiently small, shouldn't we just call setBytes()?
-										// TODO We could detect that the database has read the stream already, and close the file
+										try
+										{
+											InputStream in = resource.resolve( filename ).newInputStream();
+											closer.add( in );
+											// Some databases read the stream directly (Oracle), others read it later (HSQLDB).
+											statement.setBinaryStream( pos++, in );
+											// TODO Do we need to decrease the batch size when files are being kept open?
+											// TODO What if the contents of the blob is sufficiently small, shouldn't we just call setBytes()?
+											// TODO We could detect that the database has read the stream already, and close the file
+										}
+										catch( FileNotFoundException e )
+										{
+											throw new CommandFileException( e.getMessage(), reader.getLocation() );
+										}
 									}
-									catch( FileNotFoundException e )
-									{
-										throw new CommandFileException( e.getMessage(), reader.getLocation() );
-									}
+									else
+										Assert.fail( "Unexpected field type for external file: " + JDBCSupport.toTypeName( type ) );
 								}
 								else
-									Assert.fail( "Unexpected field type for external file: " + JDBCSupport.toTypeName( type ) );
+								{
+									BigDecimal lobIndex = object.getNumber( "index" ); // TODO Use findNumber
+									if( lobIndex == null )
+										throw new CommandFileException( "Expected a 'file' or 'index' attribute", reader.getLocation() );
+									BigDecimal lobLength = object.getNumber( "length" );
+									if( lobLength == null )
+										throw new CommandFileException( "Expected a 'length' attribute", reader.getLocation() );
+
+									if( type == Types.BLOB || type == Types.VARBINARY )
+									{
+										String fileName = fileNames[ index ];
+										if( fileName == null )
+											fileName = binaryFile;
+										if( fileName == null )
+											throw new CommandFileException( "No file configured", reader.getLocation() );
+										SegmentedInputStream in = streams[ index ];
+										if( in == null )
+										{
+											Resource r = resource.resolve( fileName );
+											try
+											{
+												in = new SegmentedInputStream( r.newInputStream() );
+												biggerCloser.add( in ); // TODO Why? Don't understand anymore.
+												streams[ index ] = in;
+											}
+											catch( FileNotFoundException e )
+											{
+												throw new CommandFileException( e.getMessage(), reader.getLocation() );
+											}
+										}
+										statement.setBinaryStream( pos++, in.getSegmentInputStream( lobIndex.longValue(), lobLength.longValue() ) ); // TODO Maybe use the limited setBinaryStream instead
+									}
+									else if( type == Types.CLOB )
+									{
+										if( fileNames[ index ] == null )
+											throw new CommandFileException( "No file configured", reader.getLocation() );
+										SegmentedReader in = textStreams[ index ];
+										if( in == null )
+										{
+											Resource r = resource.resolve( fileNames[ index ] );
+											try
+											{
+												try
+												{
+													in = new SegmentedReader( new InputStreamReader( r.newInputStream(), "UTF-8" ) );
+												}
+												catch( UnsupportedEncodingException e )
+												{
+													throw new SystemException( e );
+												}
+												biggerCloser.add( in );
+												textStreams[ index ] = in;
+											}
+											catch( FileNotFoundException e )
+											{
+												throw new CommandFileException( e.getMessage(), reader.getLocation() );
+											}
+										}
+										statement.setCharacterStream( pos++, in.getSegmentReader( lobIndex.longValue(), lobLength.longValue() ) );
+									}
+									else
+										Assert.fail( "Unexpected field type for external file: " + JDBCSupport.toTypeName( type ) );
+								}
 							}
 							else
 							{
-								BigDecimal lobIndex = object.getNumber( "index" ); // TODO Use findNumber
-								if( lobIndex == null )
-									throw new CommandFileException( "Expected a 'file' or 'index' attribute", reader.getLocation() );
-								BigDecimal lobLength = object.getNumber( "length" );
-								if( lobLength == null )
-									throw new CommandFileException( "Expected a 'length' attribute", reader.getLocation() );
-
-								if( type == Types.BLOB || type == Types.VARBINARY )
-								{
-									String fileName = fileNames[ index ];
-									if( fileName == null )
-										fileName = binaryFile;
-									if( fileName == null )
-										throw new CommandFileException( "No file configured", reader.getLocation() );
-									SegmentedInputStream in = streams[ index ];
-									if( in == null )
-									{
-										Resource r = resource.resolve( fileName );
-										try
-										{
-											in = new SegmentedInputStream( r.newInputStream() );
-											biggerCloser.add( in ); // TODO Why? Don't understand anymore.
-											streams[ index ] = in;
-										}
-										catch( FileNotFoundException e )
-										{
-											throw new CommandFileException( e.getMessage(), reader.getLocation() );
-										}
-									}
-									statement.setBinaryStream( pos++, in.getSegmentInputStream( lobIndex.longValue(), lobLength.longValue() ) ); // TODO Maybe use the limited setBinaryStream instead
-								}
-								else if( type == Types.CLOB )
-								{
-									if( fileNames[ index ] == null )
-										throw new CommandFileException( "No file configured", reader.getLocation() );
-									SegmentedReader in = textStreams[ index ];
-									if( in == null )
-									{
-										Resource r = resource.resolve( fileNames[ index ] );
-										try
-										{
-											try
-											{
-												in = new SegmentedReader( new InputStreamReader( r.newInputStream(), "UTF-8" ) );
-											}
-											catch( UnsupportedEncodingException e )
-											{
-												throw new SystemException( e );
-											}
-											biggerCloser.add( in );
-											textStreams[ index ] = in;
-										}
-										catch( FileNotFoundException e )
-										{
-											throw new CommandFileException( e.getMessage(), reader.getLocation() );
-										}
-									}
-									statement.setCharacterStream( pos++, in.getSegmentReader( lobIndex.longValue(), lobLength.longValue() ) );
-								}
-								else
-									Assert.fail( "Unexpected field type for external file: " + JDBCSupport.toTypeName( type ) );
-							}
-						}
-						else
-						{
-//							if( type == Types.CLOB )
-//							{
-//								if( values.get( index ) == null )
-//									System.out.println( "NULL!" );
-//								else if( ( (String)values.get( index ) ).length() == 0 )
-//									System.out.println( "EMPTY!" );
+//								if( type == Types.CLOB )
+//								{
+//									if( values.get( index ) == null )
+//										System.out.println( "NULL!" );
+//									else if( ( (String)values.get( index ) ).length() == 0 )
+//										System.out.println( "EMPTY!" );
 //
-//								// TODO What if it is a CLOB and the string value is too long?
-//								// Oracle needs this because CLOBs can contain empty strings "", and setObject() makes that null BUT THIS DOES NOT WORK!
-//								statement.setCharacterStream( pos++, new StringReader( (String)values.get( index ) ) );
-//							}
-//							else
-								// MonetDB complains when calling setObject with null value
-//								Object v = values.get( index );
+//									// TODO What if it is a CLOB and the string value is too long?
+//									// Oracle needs this because CLOBs can contain empty strings "", and setObject() makes that null BUT THIS DOES NOT WORK!
+//									statement.setCharacterStream( pos++, new StringReader( (String)values.get( index ) ) );
+//								}
+//								else
+									// MonetDB complains when calling setObject with null value
+//									Object v = values.get( index );
 //								if( v != null )
-								statement.setObject( pos++, values.get( index ) );
+									statement.setObject( pos++, values.get( index ) );
 //								else
 //									statement.setNull( pos++, type );
+							}
 						}
 					}
-				}
 
-				if( parsed.noBatch )
-				{
-					try
+					if( parsed.noBatch )
 					{
-						statement.executeUpdate();
-						closer.closeAll();
+						try
+						{
+							statement.executeUpdate();
+							closer.closeAll();
+						}
+						catch( SQLException e )
+						{
+							// When NOBATCH is on, you can see the actual insert statement and line number in the file where the SQLException occurred.
+							String message = buildErrorMessage( sql, parameterMap, values, prependLineNumber, lineNumber );
+							throw new SQLExecutionException( message, reader.getLocation().lineNumber( lineNumber ), e );
+						}
 					}
-					catch( SQLException e )
+					else
 					{
-						// When NOBATCH is on, you can see the actual insert statement and line number in the file where the SQLException occurred.
-						String message = buildErrorMessage( sql, parameterMap, values, prependLineNumber, lineNumber );
-						throw new SQLExecutionException( message, reader.getLocation().lineNumber( lineNumber ), e );
+						statement.addBatch();
+						batchSize++;
+						// TODO Also check the closer's count
+						if( batchSize >= 1000 )
+						{
+							statement.executeBatch();
+							batchSize = 0;
+							closer.closeAll();
+						}
 					}
-				}
-				else
-				{
-					statement.addBatch();
-					batchSize++;
-					// TODO Also check the closer's count
-					if( batchSize >= 1000 )
-					{
-						statement.executeBatch();
-						batchSize = 0;
-						closer.closeAll();
-					}
-				}
 
-//				count++; TODO
-//				if( count % 100000 == 0 )
-//					processor.getCallBack().println( "Read " + count + " records" );
+//					count++; TODO
+//					if( count % 100000 == 0 )
+//						processor.getCallBack().println( "Read " + count + " records" );
+				}
+			}
+			finally
+			{
+				processor.closeStatement( statement, commit );
+				biggerCloser.closeAll();
+				closer.closeAll();
 			}
 		}
 		finally
 		{
-			processor.closeStatement( statement, commit );
-			biggerCloser.closeAll();
-			closer.closeAll();
+			reader.close();
 		}
 	}
 

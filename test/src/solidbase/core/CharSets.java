@@ -66,62 +66,62 @@ public class CharSets
 
 	// TODO Add these tests to solidstack
 
-//	@Test
-//	public void testUtf16Bom() throws IOException
-//	{
-//		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "patch-utf-16-bom-1.sql" ) );
-//		UpgradeFile upgradeFile = new UpgradeFile( ralr );
-//		upgradeFile.scan();
+	@Test
+	public void testUtf16Bom() throws IOException
+	{
+		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "patch-utf-16-bom-1.sql" ), EncodingDetector.INSTANCE );
+		UpgradeFile upgradeFile = new UpgradeFile( ralr );
+		upgradeFile.scan();
 //		Assert.assertEquals( upgradeFile.file.getBOM(), new byte[] { -1, -2 } );
-//		Assert.assertEquals( upgradeFile.file.getEncoding(), "UTF-16LE" );
-//		upgradeFile.close();
-//	}
+		Assert.assertEquals( upgradeFile.file.getEncoding(), "UTF-16" );
+		upgradeFile.close();
+	}
 
-//	@Test
-//	public void testUtf16BomAndExplicit() throws IOException
-//	{
-//		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "patch-utf-16-bom-2.sql" ) );
-//		UpgradeFile upgradeFile = new UpgradeFile( ralr );
-//		upgradeFile.scan();
+	@Test
+	public void testUtf16BomAndExplicit() throws IOException
+	{
+		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "patch-utf-16-bom-2.sql" ), EncodingDetector.INSTANCE );
+		UpgradeFile upgradeFile = new UpgradeFile( ralr );
+		upgradeFile.scan();
 //		Assert.assertEquals( upgradeFile.file.getBOM(), new byte[] { -1, -2 } );
-//		Assert.assertEquals( upgradeFile.file.getEncoding(), "UTF-16LE" );
-//
-//		RandomAccessSourceReader reader = upgradeFile.file;
-//		reader.gotoLine( 1 );
-//		boolean found = false;
-//		String line = reader.readLine();
-//		while( line != null )
-//		{
-//			if( line.contains( "rené" ) )
-//				found = true;
-//			line = reader.readLine();
-//		}
-//		Assert.assertTrue( found, "Expected to find rené" );
-//
-//		upgradeFile.close();
-//	}
+		Assert.assertEquals( upgradeFile.file.getEncoding(), "UTF-16LE" );
 
-//	@Test
-//	public void testUtf16NoBom() throws IOException
-//	{
-//		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "patch-utf-16-nobom-1.sql" ) );
-//		UpgradeFile upgradeFile = new UpgradeFile( ralr );
-//		upgradeFile.scan();
+		RandomAccessSourceReader reader = upgradeFile.file;
+		reader.gotoLine( 1 );
+		boolean found = false;
+		String line = reader.readLine();
+		while( line != null )
+		{
+			if( line.contains( "rené" ) )
+				found = true;
+			line = reader.readLine();
+		}
+		Assert.assertTrue( found, "Expected to find rené" );
+
+		upgradeFile.close();
+	}
+
+	@Test
+	public void testUtf16NoBom() throws IOException
+	{
+		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "patch-utf-16-nobom-1.sql" ), EncodingDetector.INSTANCE );
+		UpgradeFile upgradeFile = new UpgradeFile( ralr );
+		upgradeFile.scan();
 //		Assert.assertNull( upgradeFile.file.getBOM() );
-//		Assert.assertEquals( upgradeFile.file.getEncoding(), "UTF-16LE" );
-//
-//		RandomAccessSourceReader reader = upgradeFile.file;
-//		reader.gotoLine( 1 );
-//		boolean found = false;
-//		String line = reader.readLine();
-//		while( line != null )
-//		{
-//			if( line.contains( "rené" ) )
-//				found = true;
-//			line = reader.readLine();
-//		}
-//		Assert.assertTrue( found, "Expected to find rené" );
-//
-//		upgradeFile.close();
-//	}
+		Assert.assertEquals( upgradeFile.file.getEncoding(), "UTF-16LE" );
+
+		RandomAccessSourceReader reader = upgradeFile.file;
+		reader.gotoLine( 1 );
+		boolean found = false;
+		String line = reader.readLine();
+		while( line != null )
+		{
+			if( line.contains( "rené" ) )
+				found = true;
+			line = reader.readLine();
+		}
+		Assert.assertTrue( found, "Expected to find rené" );
+
+		upgradeFile.close();
+	}
 }

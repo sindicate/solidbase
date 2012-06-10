@@ -85,7 +85,7 @@ CREATE INDEX DBVERSIONLOG_INDEX1 ON DBVERSIONLOG ( TYPE, TARGET );
 --* UPGRADE "1.0.1" --> "1.1.0"
 --* // ========================================================================
 
---* SELECT CONNECTION USER
+--* USE CONNECTION USER
 
 --* // We need at least one sql without a message. This is a test too.
 
