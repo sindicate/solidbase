@@ -260,7 +260,7 @@
 	-->
 
 	<target name="checksvnstatus">
-		<!-- <groovy src="scripts/checksvnstatus.groovy" /> TODO Fix -->
+		<groovy src="scripts/checksvnstatus.groovy" />
 	</target>
 
 
