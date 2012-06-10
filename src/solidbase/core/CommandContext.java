@@ -155,7 +155,7 @@ abstract public class CommandContext
 	protected void doElse( SourceLocation location )
 	{
 		if( this.noSkipCounter <= 0 && this.skipCounter <= 0 )
-			throw new CommandFileException( "ELSE without IF encountered", location );
+			throw new SourceException( "ELSE without IF encountered", location );
 		boolean skip = this.skipCounter > 0;
 		endSkip( location );
 		skip( !skip );
@@ -169,7 +169,7 @@ abstract public class CommandContext
 	protected void endIf( SourceLocation location )
 	{
 		if( this.noSkipCounter <= 0 && this.skipCounter <= 0 )
-			throw new CommandFileException( "/IF without IF encountered", location );
+			throw new SourceException( "/IF without IF encountered", location );
 		endSkip( location );
 	}
 
@@ -186,7 +186,7 @@ abstract public class CommandContext
 		else
 		{
 			if( this.noSkipCounter <= 0 )
-				throw new CommandFileException( "/SKIP without SKIP encountered", location );
+				throw new SourceException( "/SKIP without SKIP encountered", location );
 			this.noSkipCounter--;
 		}
 	}

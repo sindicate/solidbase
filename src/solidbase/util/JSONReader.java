@@ -16,7 +16,7 @@
 
 package solidbase.util;
 
-import solidbase.core.CommandFileException;
+import solidbase.core.SourceException;
 import solidstack.io.SourceReader;
 
 
@@ -61,7 +61,7 @@ public class JSONReader extends JSONParser
 			return null;
 		}
 
-		throw new CommandFileException( "Expecting {, [, \", a number, true, false or null, not '" + event + "'", getLocation() );
+		throw new SourceException( "Expecting {, [, \", a number, true, false or null, not '" + event + "'", getLocation() );
 	}
 
 	public boolean isEOF()

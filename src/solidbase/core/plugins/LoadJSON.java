@@ -31,7 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import solidbase.core.Command;
-import solidbase.core.CommandFileException;
+import solidbase.core.SourceException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.FatalException;
@@ -211,7 +211,7 @@ public class LoadJSON implements CommandListener
 							}
 							catch( ArrayIndexOutOfBoundsException e )
 							{
-								throw new CommandFileException( "Value with index " + ( index + 1 ) + " does not exist, record has only " + values.size() + " values", reader.getLocation() );
+								throw new SourceException( "Value with index " + ( index + 1 ) + " does not exist, record has only " + values.size() + " values", reader.getLocation() );
 							}
 							if( value instanceof JSONObject )
 							{
@@ -233,7 +233,7 @@ public class LoadJSON implements CommandListener
 										}
 										catch( FileNotFoundException e )
 										{
-											throw new CommandFileException( e.getMessage(), reader.getLocation() );
+											throw new SourceException( e.getMessage(), reader.getLocation() );
 										}
 									}
 									else
@@ -243,10 +243,10 @@ public class LoadJSON implements CommandListener
 								{
 									BigDecimal lobIndex = object.getNumber( "index" ); // TODO Use findNumber
 									if( lobIndex == null )
-										throw new CommandFileException( "Expected a 'file' or 'index' attribute", reader.getLocation() );
+										throw new SourceException( "Expected a 'file' or 'index' attribute", reader.getLocation() );
 									BigDecimal lobLength = object.getNumber( "length" );
 									if( lobLength == null )
-										throw new CommandFileException( "Expected a 'length' attribute", reader.getLocation() );
+										throw new SourceException( "Expected a 'length' attribute", reader.getLocation() );
 
 									if( type == Types.BLOB || type == Types.VARBINARY )
 									{
@@ -254,7 +254,7 @@ public class LoadJSON implements CommandListener
 										if( fileName == null )
 											fileName = binaryFile;
 										if( fileName == null )
-											throw new CommandFileException( "No file configured", reader.getLocation() );
+											throw new SourceException( "No file configured", reader.getLocation() );
 										SegmentedInputStream in = streams[ index ];
 										if( in == null )
 										{
@@ -267,7 +267,7 @@ public class LoadJSON implements CommandListener
 											}
 											catch( FileNotFoundException e )
 											{
-												throw new CommandFileException( e.getMessage(), reader.getLocation() );
+												throw new SourceException( e.getMessage(), reader.getLocation() );
 											}
 										}
 										statement.setBinaryStream( pos++, in.getSegmentInputStream( lobIndex.longValue(), lobLength.longValue() ) ); // TODO Maybe use the limited setBinaryStream instead
@@ -275,7 +275,7 @@ public class LoadJSON implements CommandListener
 									else if( type == Types.CLOB )
 									{
 										if( fileNames[ index ] == null )
-											throw new CommandFileException( "No file configured", reader.getLocation() );
+											throw new SourceException( "No file configured", reader.getLocation() );
 										SegmentedReader in = textStreams[ index ];
 										if( in == null )
 										{
@@ -295,7 +295,7 @@ public class LoadJSON implements CommandListener
 											}
 											catch( FileNotFoundException e )
 											{
-												throw new CommandFileException( e.getMessage(), reader.getLocation() );
+												throw new SourceException( e.getMessage(), reader.getLocation() );
 											}
 										}
 										statement.setCharacterStream( pos++, in.getSegmentReader( lobIndex.longValue(), lobLength.longValue() ) );
@@ -464,7 +464,7 @@ public class LoadJSON implements CommandListener
 		}
 
 		if( !t.eq( "INTO" ) )
-			throw new CommandFileException( "Expecting [INTO], not [" + t + "]", tokenizer.getLocation() );
+			throw new SourceException( "Expecting [INTO], not [" + t + "]", tokenizer.getLocation() );
 		result.tableName = tokenizer.get().toString();
 
 		t = tokenizer.get( ".", "(", "VALUES", "FILE" );
@@ -481,14 +481,14 @@ public class LoadJSON implements CommandListener
 		{
 			t = tokenizer.get();
 			if( t.eq( ")" ) || t.eq( "," ) )
-				throw new CommandFileException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
+				throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
 			columns.add( t.getValue() );
 			t = tokenizer.get( ",", ")" );
 			while( !t.eq( ")" ) )
 			{
 				t = tokenizer.get();
 				if( t.eq( ")" ) || t.eq( "," ) )
-					throw new CommandFileException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
+					throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
 				columns.add( t.getValue() );
 				t = tokenizer.get( ",", ")" );
 			}
@@ -511,7 +511,7 @@ public class LoadJSON implements CommandListener
 
 			if( columns.size() > 0 )
 				if( columns.size() != values.size() )
-					throw new CommandFileException( "Number of specified columns does not match number of given values", tokenizer.getLocation() );
+					throw new SourceException( "Number of specified columns does not match number of given values", tokenizer.getLocation() );
 
 			t = tokenizer.get( "FILE" );
 		}
@@ -525,7 +525,7 @@ public class LoadJSON implements CommandListener
 		t = tokenizer.get();
 		String file = t.getValue();
 		if( !file.startsWith( "\"" ) )
-			throw new CommandFileException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+			throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 		file = file.substring( 1, file.length() - 1 );
 
 		tokenizer.get( (String)null );
@@ -547,11 +547,11 @@ public class LoadJSON implements CommandListener
 	{
 		Token t = tokenizer.get();
 		if( t == null )
-			throw new CommandFileException( "Unexpected EOF", tokenizer.getLocation() );
+			throw new SourceException( "Unexpected EOF", tokenizer.getLocation() );
 		if( t.length() == 1 )
 			for( char c : chars )
 				if( t.getValue().charAt( 0 ) == c )
-					throw new CommandFileException( "Unexpected [" + t + "]", tokenizer.getLocation() );
+					throw new SourceException( "Unexpected [" + t + "]", tokenizer.getLocation() );
 
 		if( includeInitialWhiteSpace )
 			result.append( t.getWhiteSpace() );
@@ -573,7 +573,7 @@ public class LoadJSON implements CommandListener
 
 				t = tokenizer.get();
 				if( t == null )
-					throw new CommandFileException( "Unexpected EOF", tokenizer.getLocation() );
+					throw new SourceException( "Unexpected EOF", tokenizer.getLocation() );
 				if( t.length() == 1 )
 					for( char c : chars )
 						if( t.getValue().charAt( 0 ) == c )

@@ -25,7 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import solidbase.core.Command;
-import solidbase.core.CommandFileException;
+import solidbase.core.SourceException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.FatalException;
@@ -234,7 +234,7 @@ public class ImportCSV implements CommandListener
 					}
 					catch( ArrayIndexOutOfBoundsException e )
 					{
-						throw new CommandFileException( "Value with index " + ( index + 1 ) + " does not exist, record has only " + line.length + " values", reader.getLocation().lineNumber( lineNumber ) );
+						throw new SourceException( "Value with index " + ( index + 1 ) + " does not exist, record has only " + line.length + " values", reader.getLocation().lineNumber( lineNumber ) );
 					}
 					catch( SQLException e )
 					{
@@ -396,7 +396,7 @@ public class ImportCSV implements CommandListener
 			else
 			{
 				if( t.length() != 1 )
-					throw new CommandFileException( "Expecting [TAB], [SPACE] or a single character, not [" + t + "]", tokenizer.getLocation() );
+					throw new SourceException( "Expecting [TAB], [SPACE] or a single character, not [" + t + "]", tokenizer.getLocation() );
 				result.separator = t.getValue().charAt( 0 );
 			}
 
@@ -456,14 +456,14 @@ public class ImportCSV implements CommandListener
 		{
 			t = tokenizer.get();
 			if( t.eq( ")" ) || t.eq( "," ) )
-				throw new CommandFileException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
+				throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
 			columns.add( t.getValue() );
 			t = tokenizer.get( ",", ")" );
 			while( !t.eq( ")" ) )
 			{
 				t = tokenizer.get();
 				if( t.eq( ")" ) || t.eq( "," ) )
-					throw new CommandFileException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
+					throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
 				columns.add( t.getValue() );
 				t = tokenizer.get( ",", ")" );
 			}
@@ -487,7 +487,7 @@ public class ImportCSV implements CommandListener
 
 			if( columns.size() > 0 )
 				if( columns.size() != values.size() )
-					throw new CommandFileException( "Number of specified columns does not match number of given values", tokenizer.getLocation() );
+					throw new SourceException( "Number of specified columns does not match number of given values", tokenizer.getLocation() );
 
 			t = tokenizer.get( "DATA", "FILE", null );
 		}
@@ -519,14 +519,14 @@ public class ImportCSV implements CommandListener
 		Token t = tokenizer.get();
 		String file = t.getValue();
 		if( !file.startsWith( "\"" ) )
-			throw new CommandFileException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+			throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 		result.fileName = file.substring( 1, file.length() - 1 );
 
 		t = tokenizer.get( "ENCODING" );
 		t = tokenizer.get();
 		String encoding = t.getValue();
 		if( !encoding.startsWith( "\"" ) )
-			throw new CommandFileException( "Expecting encoding enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+			throw new SourceException( "Expecting encoding enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 		result.encoding = encoding.substring( 1, encoding.length() - 1 );
 
 		t = tokenizer.get();
@@ -549,11 +549,11 @@ public class ImportCSV implements CommandListener
 	{
 		Token t = tokenizer.get();
 		if( t == null )
-			throw new CommandFileException( "Unexpected EOF", tokenizer.getLocation() );
+			throw new SourceException( "Unexpected EOF", tokenizer.getLocation() );
 		if( t.length() == 1 )
 			for( char c : chars )
 				if( t.getValue().charAt( 0 ) == c )
-					throw new CommandFileException( "Unexpected [" + t + "]", tokenizer.getLocation() );
+					throw new SourceException( "Unexpected [" + t + "]", tokenizer.getLocation() );
 
 		if( includeInitialWhiteSpace )
 			result.append( t.getWhiteSpace() );
@@ -575,7 +575,7 @@ public class ImportCSV implements CommandListener
 
 				t = tokenizer.get();
 				if( t == null )
-					throw new CommandFileException( "Unexpected EOF", tokenizer.getLocation() );
+					throw new SourceException( "Unexpected EOF", tokenizer.getLocation() );
 				if( t.length() == 1 )
 					for( char c : chars )
 						if( t.getValue().charAt( 0 ) == c )

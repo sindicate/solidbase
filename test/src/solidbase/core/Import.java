@@ -91,7 +91,7 @@ public class Import
 			patcher.upgrade( "3" );
 			assert false;
 		}
-		catch( CommandFileException e )
+		catch( SourceException e )
 		{
 			assert e.getMessage().contains( "<separator>, <newline>" );
 			assert e.getMessage().contains( "at line 53" ) : "Wrong error message: " + e.getMessage();
@@ -102,7 +102,7 @@ public class Import
 			patcher.upgrade( "4" );
 			assert false;
 		}
-		catch( CommandFileException e )
+		catch( SourceException e )
 		{
 			assert e.getMessage().contains( "Unexpected \"" );
 			assert e.getMessage().contains( "at line 62" );

@@ -171,7 +171,7 @@ abstract public class CommandProcessor
 					if( command.isPersistent() )
 						executeJdbc( command );
 					else
-						throw new CommandFileException( "Unknown command " + command.getCommand(), command.getLocation() );
+						throw new SourceException( "Unknown command " + command.getCommand(), command.getLocation() );
 		}
 		catch( SQLException e )
 		{
@@ -219,7 +219,7 @@ abstract public class CommandProcessor
 			{
 				String value = this.context.getVariableValue( name );
 				if( value == null )
-					throw new CommandFileException( "Variable '" + name + "' is null", command.getLocation() );
+					throw new SourceException( "Variable '" + name + "' is null", command.getLocation() );
 				matcher.appendReplacement( sb, value );
 			}
 		}
@@ -457,9 +457,9 @@ abstract public class CommandProcessor
 	{
 		int l = level != null ? Integer.parseInt( level ) : 1;
 		if( l < 0 || l > 9 )
-			throw new CommandFileException( "Section level must be 0..9", command.getLocation() );
+			throw new SourceException( "Section level must be 0..9", command.getLocation() );
 		if( l > this.context.getSectionLevel() + 1 ) // TODO Why is this?
-			throw new CommandFileException( "Section levels can't be skipped, current section level is " + this.context.getSectionLevel(), command.getLocation() );
+			throw new SourceException( "Section levels can't be skipped, current section level is " + this.context.getSectionLevel(), command.getLocation() );
 		this.context.setSectionLevel( l );
 		startSection( l, message );
 	}
@@ -524,7 +524,7 @@ abstract public class CommandProcessor
 		name = name.toLowerCase();
 		Database database = this.context.getDatabase( name );
 		if( database == null )
-			throw new CommandFileException( "Database '" + name + "' not configured", command.getLocation() );
+			throw new SourceException( "Database '" + name + "' not configured", command.getLocation() );
 		setConnection( database );
 	}
 
@@ -563,7 +563,7 @@ abstract public class CommandProcessor
 	protected void ifVariableIsNull( String name, String not, Command command )
 	{
 		if( !this.context.hasVariable( name ) )
-			throw new CommandFileException( "Variable '" + name + "' is not defined", command.getLocation() );
+			throw new SourceException( "Variable '" + name + "' is not defined", command.getLocation() );
 		this.context.skip( this.context.getVariableValue( name ) == null != ( not == null ) );
 	}
 

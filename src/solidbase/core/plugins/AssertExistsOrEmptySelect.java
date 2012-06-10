@@ -22,7 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import solidbase.core.Command;
-import solidbase.core.CommandFileException;
+import solidbase.core.SourceException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.util.Assert;
@@ -61,7 +61,7 @@ public class AssertExistsOrEmptySelect implements CommandListener
 		{
 			boolean result = statement.executeQuery( select ).next();
 			if( mode.equalsIgnoreCase( "EXISTS" ) ? !result : result )
-				throw new CommandFileException( message, command.getLocation() );
+				throw new SourceException( message, command.getLocation() );
 			// Resultset is closed when the statement is closed
 		}
 		finally

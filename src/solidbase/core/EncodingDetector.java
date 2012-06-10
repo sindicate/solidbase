@@ -29,7 +29,7 @@ public class EncodingDetector implements solidstack.io.EncodingDetector
 	 */
 	public String detect( byte[] bytes )
 	{
-		String result = CHARSET_ISO_8859_1; // TODO Or null for platform dependent? Think not. Or UTF-8?
+		String result = CHARSET_ISO_8859_1; // FIXME Or null for platform dependent? Think not. Or UTF-8?
 
 		String first = solidstack.template.EncodingDetector.toAscii( bytes );
 		Matcher matcher = ENCODING_PATTERN.matcher( first );
