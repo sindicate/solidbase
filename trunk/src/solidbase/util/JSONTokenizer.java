@@ -18,7 +18,7 @@ package solidbase.util;
 
 import java.math.BigDecimal;
 
-import solidbase.core.CommandFileException;
+import solidbase.core.SourceException;
 import solidbase.util.JSONTokenizer.Token.TYPE;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
@@ -93,14 +93,14 @@ public class JSONTokenizer
 					{
 						ch = this.in.read();
 						if( ch == -1 )
-							throw new CommandFileException( "Missing \"", this.in.getLocation() );
+							throw new SourceException( "Missing \"", this.in.getLocation() );
 						if( ch == '"' )
 							break;
 						if( ch == '\\' )
 						{
 							ch = this.in.read();
 							if( ch == -1 )
-								throw new CommandFileException( "Incomplete escape sequence", this.in.getLocation() );
+								throw new SourceException( "Incomplete escape sequence", this.in.getLocation() );
 							switch( ch )
 							{
 								case 'b': ch = '\b'; break;
@@ -117,12 +117,12 @@ public class JSONTokenizer
 										ch = this.in.read();
 										codePoint[ i ] = (char)ch;
 										if( !( ch >= '0' && ch <= '9' ) )
-											throw new CommandFileException( "Illegal escape sequence: \\u" + String.valueOf( codePoint, 0, i + 1 ), this.in.getLocation() );
+											throw new SourceException( "Illegal escape sequence: \\u" + String.valueOf( codePoint, 0, i + 1 ), this.in.getLocation() );
 									}
 									ch = Integer.valueOf( String.valueOf( codePoint ), 16 );
 									break;
 								default:
-									throw new CommandFileException( "Illegal escape sequence: \\" + ( ch >= 0 ? (char)ch : "" ), this.in.getLocation() );
+									throw new SourceException( "Illegal escape sequence: \\" + ( ch >= 0 ? (char)ch : "" ), this.in.getLocation() );
 							}
 						}
 						result.append( (char)ch );
@@ -133,7 +133,7 @@ public class JSONTokenizer
 					result.append( (char)ch );
 					ch = this.in.read();
 					if( !( ch >= '0' && ch <= '9' ) )
-						throw new CommandFileException( "Invalid number", this.in.getLocation() );
+						throw new SourceException( "Invalid number", this.in.getLocation() );
 					//$FALL-THROUGH$
 				case '0': case '1': case '2': case '3': case '4':
 				case '5': case '6': case '7': case '8': case '9':
@@ -147,7 +147,7 @@ public class JSONTokenizer
 						result.append( (char)ch );
 						ch = this.in.read();
 						if( !( ch >= '0' && ch <= '9' ) )
-							throw new CommandFileException( "Invalid number", this.in.getLocation() );
+							throw new SourceException( "Invalid number", this.in.getLocation() );
 						while( ch >= '0' && ch <= '9' )
 						{
 							result.append( (char)ch );
@@ -164,7 +164,7 @@ public class JSONTokenizer
 							ch = this.in.read();
 						}
 						if( !( ch >= '0' && ch <= '9' ) )
-							throw new CommandFileException( "Invalid number", this.in.getLocation() );
+							throw new SourceException( "Invalid number", this.in.getLocation() );
 						while( ch >= '0' && ch <= '9' )
 						{
 							result.append( (char)ch );
@@ -194,9 +194,9 @@ public class JSONTokenizer
 					if( keyword.equals( "true" ) )
 						return Token.TRUE;
 
-					throw new CommandFileException( "Unexpected keyword " + keyword, this.in.getLocation() );
+					throw new SourceException( "Unexpected keyword " + keyword, this.in.getLocation() );
 				default:
-					throw new CommandFileException( "Unexpected character '" + (char)ch + "'", this.in.getLocation() );
+					throw new SourceException( "Unexpected character '" + (char)ch + "'", this.in.getLocation() );
 			}
 		}
 	}

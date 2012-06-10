@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
 import solidbase.core.Command;
-import solidbase.core.CommandFileException;
+import solidbase.core.SourceException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.SystemException;
@@ -91,7 +91,7 @@ public class ExportCSV implements CommandListener
 			catch( UnsupportedEncodingException e )
 			{
 				// toString() instead of getMessage(), the getMessage only returns the character encoding
-				throw new CommandFileException( e.toString(), command.getLocation() );
+				throw new SourceException( e.toString(), command.getLocation() );
 			}
 
 			// TODO Lots of identical code in DumpJSON
@@ -243,7 +243,7 @@ public class ExportCSV implements CommandListener
 			else
 			{
 				if( t.length() != 1 )
-					throw new CommandFileException( "Expecting [TAB], [SPACE] or a single character, not [" + t + "]", tokenizer.getLocation() );
+					throw new SourceException( "Expecting [TAB], [SPACE] or a single character, not [" + t + "]", tokenizer.getLocation() );
 				result.separator = t.getValue().charAt( 0 );
 			}
 
@@ -267,7 +267,7 @@ public class ExportCSV implements CommandListener
 
 			t = tokenizer.get();
 			if( !t.isString() )
-				throw new CommandFileException( "Expecting column name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+				throw new SourceException( "Expecting column name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 			result.coalesce.first( t.stripQuotes() );
 
 			t = tokenizer.get( "," );
@@ -275,7 +275,7 @@ public class ExportCSV implements CommandListener
 			{
 				t = tokenizer.get();
 				if( !t.isString() )
-					throw new CommandFileException( "Expecting column name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+					throw new SourceException( "Expecting column name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 				result.coalesce.next( t.stripQuotes() );
 
 				t = tokenizer.get();
@@ -291,14 +291,14 @@ public class ExportCSV implements CommandListener
 		t = tokenizer.get();
 		String file = t.getValue();
 		if( !file.startsWith( "\"" ) )
-			throw new CommandFileException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+			throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 		file = file.substring( 1, file.length() - 1 );
 
 		t = tokenizer.get( "ENCODING" );
 		t = tokenizer.get();
 		String encoding = t.getValue();
 		if( !encoding.startsWith( "\"" ) )
-			throw new CommandFileException( "Expecting encoding enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+			throw new SourceException( "Expecting encoding enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 		encoding = encoding.substring( 1, encoding.length() - 1 );
 
 		t = tokenizer.get();

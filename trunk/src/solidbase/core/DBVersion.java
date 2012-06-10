@@ -637,7 +637,7 @@ public class DBVersion
 	 *
 	 * @param versions The versions to be downgraded.
 	 */
-	// TODO Make this faster with an IN.
+	// TODO Make this faster with an IN or a batch.
 	protected void downgradeHistory( Collection< String > versions )
 	{
 		Assert.notEmpty( versions );

@@ -28,7 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import solidbase.core.Command;
-import solidbase.core.CommandFileException;
+import solidbase.core.SourceException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.util.JDBCSupport;
@@ -76,7 +76,7 @@ public class PrintSelect implements CommandListener
 				Object value = JDBCSupport.getValue( result, types, 0 );
 				// TODO Print binary columns as hex characters
 				if( value instanceof Blob || value instanceof byte[] )
-					throw new CommandFileException( "Binary columns like BLOB, RAW, BINARY VARYING cannot be printed", command.getLocation() );
+					throw new SourceException( "Binary columns like BLOB, RAW, BINARY VARYING cannot be printed", command.getLocation() );
 				if( value instanceof Clob )
 				{
 					StringBuilder buffer = new StringBuilder();

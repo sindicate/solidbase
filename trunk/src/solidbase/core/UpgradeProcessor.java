@@ -68,7 +68,6 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	/**
 	 * Pattern for INCLUDE.
 	 */
-	// TODO Newlines should be allowed
 	static protected Pattern includePattern = Pattern.compile( "INCLUDE\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
 
 	// The fields below are all part of the upgrade context. It's reset at the start of each change package.
@@ -510,7 +509,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	protected void startTransient( SourceLocation location )
 	{
 		if( this.upgradeContext.isTransient() )
-			throw new CommandFileException( "TRANSIENT already enabled", location );
+			throw new SourceException( "TRANSIENT already enabled", location );
 		this.upgradeContext.setTransient( true );
 	}
 
@@ -520,7 +519,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	protected void stopTransient( SourceLocation location )
 	{
 		if( !this.upgradeContext.isTransient() )
-			throw new CommandFileException( "TRANSIENT is not enabled", location );
+			throw new SourceException( "TRANSIENT is not enabled", location );
 		this.upgradeContext.setTransient( false );
 	}
 

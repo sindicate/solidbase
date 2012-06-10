@@ -18,7 +18,7 @@ package solidbase.util;
 
 import java.util.Stack;
 
-import solidbase.core.CommandFileException;
+import solidbase.core.SourceException;
 import solidbase.util.JSONTokenizer.Token;
 import solidbase.util.JSONTokenizer.Token.TYPE;
 import solidstack.io.SourceLocation;
@@ -91,7 +91,7 @@ public class JSONParser
 									this.currentStruct = this.pastStructs.pop(); // TODO EmptyStack
 									return EVENT.END_OBJECT;
 								default:
-									throw new CommandFileException( "Expecting , or }, not '" + token + "'", tokenizer.getLocation() );
+									throw new SourceException( "Expecting , or }, not '" + token + "'", tokenizer.getLocation() );
 							}
 						case ARRAY:
 							switch( token.getType() )
@@ -104,7 +104,7 @@ public class JSONParser
 									this.currentStruct = this.pastStructs.pop(); // TODO EmptyStack
 									return EVENT.END_OBJECT;
 								default:
-									throw new CommandFileException( "Expecting , or ], not '" + token + "'", tokenizer.getLocation() );
+									throw new SourceException( "Expecting , or ], not '" + token + "'", tokenizer.getLocation() );
 							}
 						case NONE:
 							// Multiple top level objects are allowed, fall through to BEFOREVALUE
@@ -136,16 +136,16 @@ public class JSONParser
 							//$FALL-THROUGH$
 						default:
 							// TODO We have 2 kinds of EOF (are we in a STRUCT or not?)
-							throw new CommandFileException( "Expecting {, [, \", a number, true, false or null, not '" + token + "'", tokenizer.getLocation() );
+							throw new SourceException( "Expecting {, [, \", a number, true, false or null, not '" + token + "'", tokenizer.getLocation() );
 					}
 
 				case BEFORENAME:
 					if( token.getType() != TYPE.STRING )
-						throw new CommandFileException( "Expecting \", not '" + token + "'", tokenizer.getLocation() );
+						throw new SourceException( "Expecting \", not '" + token + "'", tokenizer.getLocation() );
 					this.name = (String)token.getValue();
 					token = tokenizer.get();
 					if( token.getType() != TYPE.NAME_SEPARATOR )
-						throw new CommandFileException( "Expecting :, not '" + token + "'", tokenizer.getLocation() );
+						throw new SourceException( "Expecting :, not '" + token + "'", tokenizer.getLocation() );
 					this.state = STATE.BEFOREVALUE;
 					return EVENT.NAME;
 			}
@@ -156,7 +156,7 @@ public class JSONParser
 		EVENT event = next();
 		if( event != required )
 			// TODO eventToString()
-			throw new CommandFileException( "Expected " + required + ", not " + event, getLocation() );
+			throw new SourceException( "Expected " + required + ", not " + event, getLocation() );
 		return event;
 	}
 

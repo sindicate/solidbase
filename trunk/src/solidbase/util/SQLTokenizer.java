@@ -16,7 +16,7 @@
 
 package solidbase.util;
 
-import solidbase.core.CommandFileException;
+import solidbase.core.SourceException;
 import solidstack.io.PushbackReader;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
@@ -139,7 +139,7 @@ public class SQLTokenizer
 
 				ch = this.in.read();
 				if( ch == -1 )
-					throw new CommandFileException( "Unexpected end of statement", getLocation() );
+					throw new SourceException( "Unexpected end of statement", getLocation() );
 				if( ch == quote )
 				{
 					result.append( (char)ch );
@@ -179,7 +179,7 @@ public class SQLTokenizer
 	}
 
 	/**
-	 * A token that matches one of the expected tokens. Throws a {@link CommandFileException} if a token is encountered
+	 * A token that matches one of the expected tokens. Throws a {@link SourceException} if a token is encountered
 	 * that does not match the given expected tokens.
 	 *
 	 * @param expected The expected tokens.
@@ -239,11 +239,11 @@ public class SQLTokenizer
 		if( token.isNewline() )
 			lineNumber--;
 
-		throw new CommandFileException( error.toString(), getLocation().lineNumber( lineNumber ) );
+		throw new SourceException( error.toString(), getLocation().lineNumber( lineNumber ) );
 	}
 
 	/**
-	 * Returns a newline token. Throws a {@link CommandFileException} if another token is found.
+	 * Returns a newline token. Throws a {@link SourceException} if another token is found.
 	 *
 	 * @return The newline token.
 	 */
@@ -260,9 +260,9 @@ public class SQLTokenizer
 
 		// Check newline
 		if( ch == -1 )
-			throw new CommandFileException( "Unexpected end of statement", getLocation() );
+			throw new SourceException( "Unexpected end of statement", getLocation() );
 		if( ch != '\n' )
-			throw new CommandFileException( "Expecting end of line, not [" + (char)ch + "]", getLocation() );
+			throw new SourceException( "Expecting end of line, not [" + (char)ch + "]", getLocation() );
 
 		// Return the result
 		return new Token( String.valueOf( (char)ch ), whiteSpace.toString() );

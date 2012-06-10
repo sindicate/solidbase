@@ -24,7 +24,7 @@ import solidstack.io.SourceLocation;
  *
  * @author René M. de Bloois
  */
-public class NonDelimitedStatementException extends CommandFileException
+public class NonDelimitedStatementException extends SourceException
 {
 	private static final long serialVersionUID = 1L;
 

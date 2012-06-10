@@ -24,8 +24,7 @@ import solidstack.io.SourceLocation;
  *
  * @author René M. de Bloois
  */
-// TODO Rename to SourceException
-public class CommandFileException extends FatalException
+public class SourceException extends FatalException
 {
 	private static final long serialVersionUID = 1L;
 
@@ -40,7 +39,7 @@ public class CommandFileException extends FatalException
 	 * @param message The failure message.
 	 * @param location The file location where the problem is located.
 	 */
-	public CommandFileException( String message, SourceLocation location )
+	public SourceException( String message, SourceLocation location )
 	{
 		super( message );
 		this.location = location;

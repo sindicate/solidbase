@@ -45,10 +45,10 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 
 import solidbase.core.Command;
-import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.FatalException;
+import solidbase.core.SourceException;
 import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidbase.util.JDBCSupport;
@@ -248,7 +248,7 @@ public class DumpJSON implements CommandListener
 												spec.index += ( (byte[])value ).length;
 											}
 											else
-												throw new CommandFileException( names[ i ] + " (" + value.getClass().getName() + ") is not a binary column. Only binary columns like BLOB, RAW, BINARY VARYING can be written to a binary file", command.getLocation() );
+												throw new SourceException( names[ i ] + " (" + value.getClass().getName() + ") is not a binary column. Only binary columns like BLOB, RAW, BINARY VARYING can be written to a binary file", command.getLocation() );
 											if( spec.generator.isDynamic() )
 											{
 												spec.out.close();
@@ -282,7 +282,7 @@ public class DumpJSON implements CommandListener
 												spec.writer = new OutputStreamWriter( fileResource.getOutputStream(), jsonWriter.getEncoding() );
 											}
 											if( value instanceof Blob || value instanceof byte[] )
-												throw new CommandFileException( names[ i ] + " is a binary column. Binary columns like BLOB, RAW, BINARY VARYING cannot be written to a text file", command.getLocation() );
+												throw new SourceException( names[ i ] + " is a binary column. Binary columns like BLOB, RAW, BINARY VARYING cannot be written to a text file", command.getLocation() );
 											if( value instanceof Clob )
 											{
 												Reader in = ( (Clob)value ).getCharacterStream();
@@ -433,7 +433,7 @@ public class DumpJSON implements CommandListener
 		tokenizer.get( "FILE" );
 		Token t = tokenizer.get();
 		if( !t.isString() )
-			throw new CommandFileException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+			throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 		String file = t.stripQuotes();
 
 		t = tokenizer.get();
@@ -444,7 +444,7 @@ public class DumpJSON implements CommandListener
 			tokenizer.get( "FILE" );
 			t = tokenizer.get();
 			if( !t.isString() )
-				throw new CommandFileException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+				throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 			binaryFile = t.stripQuotes();
 
 			t = tokenizer.get();
@@ -467,7 +467,7 @@ public class DumpJSON implements CommandListener
 
 			t = tokenizer.get();
 			if( !t.isString() )
-				throw new CommandFileException( "Expecting column name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+				throw new SourceException( "Expecting column name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 			result.coalesce.first( t.stripQuotes() );
 
 			t = tokenizer.get( "," );
@@ -475,7 +475,7 @@ public class DumpJSON implements CommandListener
 			{
 				t = tokenizer.get();
 				if( !t.isString() )
-					throw new CommandFileException( "Expecting column name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+					throw new SourceException( "Expecting column name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 				result.coalesce.next( t.stripQuotes() );
 
 				t = tokenizer.get();
@@ -531,7 +531,7 @@ public class DumpJSON implements CommandListener
 				t = tokenizer.get();
 				String fileName = t.getValue();
 				if( !fileName.startsWith( "\"" ) )
-					throw new CommandFileException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+					throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 				fileName = fileName.substring( 1, fileName.length() - 1 );
 
 				t = tokenizer.get();
@@ -654,7 +654,6 @@ public class DumpJSON implements CommandListener
 	}
 
 
-	// TODO Use this with EXPORT CSV too
 	static protected class Coalescer
 	{
 //		protected Set< String > first = new HashSet();
