@@ -21,6 +21,7 @@ CHA  File encoding detection has changed. The BOM (Byte Order Mark) is not used 
 CHA  INIT, PATCH, BRANCH, RETURN, SESSIONCONFIG and SET MESSAGE annotations do not work anymore.
 CHA  /DEFINITION, /SETUP, /UPGRADE, /SWITCH and /DOWNGRADE are deprecated. Use END DEFINITION, END SETUP, END UPGRADE, END SWITCH and END DOWNGRADE instead.
 CHA  /IGNORE SQL ERROR, /SKIP, /IF and /TRANSIENT are deprecated. Use END IGNORE, END SKIP, END IF and END TRANSIENT instead.
+CHA  SELECT CONNECTION is deprecated. Use USE CONNECTION instead.
 
 FIX  Plugins are still called when a statement is skipped. Some plugins (IMPORT CSV) need to parse the statement and skip accompanying data.
 FIX  Fixed problems with SIGINT (Ctrl-C).
