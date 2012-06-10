@@ -31,15 +31,17 @@ public class Import
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "folder/testpatch-import1.sql", db );
 
 		patcher.upgrade( "1.0.2" );
-		TestUtil.verifyVersion( patcher, "1.0.2", null, 19, null );
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 23, null );
 		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP", 10 );
 		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP2", 6 );
+		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP7", 3 );
 
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP2 FROM TEMP WHERE TEMP1 = 'x'", "2\n" );
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP4 FROM TEMP3 WHERE TEMP1 = 2", "-)-\", \nTEST 'X" );
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP2 FROM TEMP WHERE TEMP1 = 'y'", "2 2" );
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP3 FROM TEMP WHERE TEMP1 = 'y'", " 3 " );
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP3 FROM TEMP2 WHERE LINENUMBER = 101", "René" );
+		TestUtil.assertQueryResultEquals( patcher, "SELECT DESC FROM TEMP7 WHERE ID = 2", "The second record" );
 
 		patcher.upgrade( "1.0.3" );
 		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP5", 3 );
