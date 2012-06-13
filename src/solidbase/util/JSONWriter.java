@@ -1,6 +1,7 @@
 package solidbase.util;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
@@ -28,9 +29,14 @@ public class JSONWriter
 
 	public JSONWriter( Resource resource )
 	{
+		this( resource.getOutputStream() );
+	}
+
+	public JSONWriter( OutputStream out )
+	{
 		try
 		{
-			this.out = new OutputStreamWriter( resource.getOutputStream(), ENCODING );
+			this.out = new OutputStreamWriter( out, ENCODING );
 		}
 		catch( UnsupportedEncodingException e )
 		{

@@ -16,6 +16,7 @@
 
 package solidbase.core.plugins;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,6 +42,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -96,7 +98,11 @@ public class DumpJSON implements CommandListener
 
 		try
 		{
-			JSONWriter jsonWriter = new JSONWriter( jsvResource );
+			OutputStream out = jsvResource.getOutputStream();
+			if( parsed.gzip )
+				out = new BufferedOutputStream( new GZIPOutputStream( out, 65536 ), 65536 ); // TODO Ctrl-C, close the outputstream?
+
+			JSONWriter jsonWriter = new JSONWriter( out );
 			try
 			{
 				Statement statement = processor.createStatement();
@@ -334,6 +340,8 @@ public class DumpJSON implements CommandListener
 											String fileName = binaryFile.generator.generateFileName( null );
 											Resource fileResource = new FileResource( fileName );
 											binaryFile.out = fileResource.getOutputStream();
+											if( parsed.binaryGzip )
+												binaryFile.out = new BufferedOutputStream( new GZIPOutputStream( binaryFile.out, 65536 ), 65536 ); // TODO Ctrl-C, close the outputstream?
 										}
 										int startIndex = binaryFile.index;
 										if( value instanceof Blob )
@@ -434,20 +442,29 @@ public class DumpJSON implements CommandListener
 		Token t = tokenizer.get();
 		if( !t.isString() )
 			throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-		String file = t.stripQuotes();
+		result.fileName = t.stripQuotes();
 
 		t = tokenizer.get();
+		if( t.eq( "GZIP" ) )
+		{
+			result.gzip = true;
+			t = tokenizer.get();
+		}
 
-		String binaryFile = null;
 		if( t.eq( "BINARY" ) )
 		{
 			tokenizer.get( "FILE" );
 			t = tokenizer.get();
 			if( !t.isString() )
 				throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-			binaryFile = t.stripQuotes();
+			result.binaryFileName = t.stripQuotes();
 
 			t = tokenizer.get();
+			if( t.eq( "GZIP" ) )
+			{
+				result.binaryGzip = true;
+				t = tokenizer.get();
+			}
 		}
 
 		if( t.eq( "DATE" ) )
@@ -553,8 +570,6 @@ public class DumpJSON implements CommandListener
 
 		String query = tokenizer.getRemaining();
 
-		result.fileName = file;
-		result.binaryFileName = binaryFile;
 		result.query = query;
 
 		return result;
@@ -577,8 +592,10 @@ public class DumpJSON implements CommandListener
 	{
 		/** The file path to export to */
 		protected String fileName;
+		protected boolean gzip;
 
 		protected String binaryFileName;
+		protected boolean binaryGzip;
 
 //		protected String tableName;
 //		protected String schemaName;
