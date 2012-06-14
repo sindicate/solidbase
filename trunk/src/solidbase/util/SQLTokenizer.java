@@ -191,18 +191,26 @@ public class SQLTokenizer
 			throw new IllegalArgumentException( "Specify one ore more expected tokens" );
 
 		Token token = get();
+		expect( token, expected );
+		return token;
+	}
+
+	public void expect( Token token, String... expected )
+	{
+		if( expected.length == 0 )
+			throw new IllegalArgumentException( "Specify one or more expected tokens" );
 
 		if( token.isEndOfInput() )
 		{
 			for( String exp : expected )
 				if( exp == null )
-					return token;
+					return;
 		}
 		else
 		{
 			for( String exp : expected )
 				if( token.eq( exp ) )
-					return token;
+					return;
 		}
 
 		// Raise exception

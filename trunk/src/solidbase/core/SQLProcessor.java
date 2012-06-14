@@ -75,6 +75,8 @@ public class SQLProcessor extends CommandProcessor
 			executeWithListeners( command, this.context.skipping() ); // TODO What if exception is ignored, how do we call progress then?
 			command = this.sqlContext.getSource().readCommand();
 		}
+
+		// FIXME Rollback every connection
 	}
 
 	@Override
