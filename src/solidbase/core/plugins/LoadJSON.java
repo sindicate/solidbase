@@ -31,11 +31,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import solidbase.core.Command;
-import solidbase.core.SourceException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.FatalException;
 import solidbase.core.SQLExecutionException;
+import solidbase.core.SourceException;
 import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidbase.util.CloseQueue;
@@ -76,6 +76,7 @@ public class LoadJSON implements CommandListener
 		Parsed parsed = parse( command );
 
 		Resource resource = processor.getResource().resolve( parsed.fileName );
+		resource.setGZip( parsed.gzip );
 		SourceReader lineReader;
 		try
 		{
@@ -161,7 +162,8 @@ public class LoadJSON implements CommandListener
 			try
 			{
 				int batchSize = 0;
-//				int count = 0;
+				long count = 0;
+				long progressNext = 1;
 				while( true )
 				{
 					if( Thread.currentThread().isInterrupted() )
@@ -174,6 +176,8 @@ public class LoadJSON implements CommandListener
 						if( batchSize > 0 )
 							statement.executeBatch();
 						commit = true;
+
+						processor.getProgressListener().println( "Read " + count + " records." );
 						return true;
 					}
 					int lineNumber = reader.getLineNumber();
@@ -355,9 +359,12 @@ public class LoadJSON implements CommandListener
 						}
 					}
 
-//					count++; TODO
-//					if( count % 100000 == 0 )
-//						processor.getCallBack().println( "Read " + count + " records" );
+					count++;
+					if( count >= progressNext )
+					{
+						progressNext = count + count / 10;
+						processor.getProgressListener().println( "Read " + count + " records..." );
+					}
 				}
 			}
 			finally
@@ -528,7 +535,14 @@ public class LoadJSON implements CommandListener
 			throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 		file = file.substring( 1, file.length() - 1 );
 
-		tokenizer.get( (String)null );
+		t = tokenizer.get();
+		if( t.eq( "GZIP" ) )
+		{
+			result.gzip = true;
+			t = tokenizer.get();
+		}
+
+		tokenizer.expect( t, (String)null );
 
 		result.fileName = file;
 		return result;
@@ -614,6 +628,7 @@ public class LoadJSON implements CommandListener
 
 		/** The file path to import from */
 		protected String fileName;
+		protected boolean gzip;
 	}
 
 
