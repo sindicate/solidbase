@@ -122,7 +122,7 @@ public class Import
 		patcher.end();
 	}
 
-	@Test(groups="new")
+	@Test
 	static public void testProgress() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
