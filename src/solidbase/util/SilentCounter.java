@@ -1,10 +1,10 @@
 package solidbase.util;
 
-public class SilentCounter extends Counter
+public class SilentCounter extends RecordCounter
 {
 	public SilentCounter()
 	{
-		setNext();
+		init();
 	}
 
 	@Override

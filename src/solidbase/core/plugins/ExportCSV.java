@@ -313,7 +313,7 @@ public class ExportCSV implements CommandListener
 			else
 				result.logSeconds = interval;
 
-			t = tokenizer.get( "FILE" );
+			tokenizer.get( "FILE" );
 		}
 
 		t = tokenizer.get();

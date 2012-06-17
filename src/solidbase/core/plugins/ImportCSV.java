@@ -25,16 +25,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import solidbase.core.Command;
-import solidbase.core.SourceException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.FatalException;
 import solidbase.core.SQLExecutionException;
+import solidbase.core.SourceException;
 import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidbase.util.CSVReader;
+import solidbase.util.Counter;
+import solidbase.util.FixedCounter;
 import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
+import solidbase.util.TimedCounter;
 import solidstack.io.Resource;
 import solidstack.io.SourceReader;
 import solidstack.io.SourceReaders;
@@ -203,12 +206,17 @@ public class ImportCSV implements CommandListener
 			sql = sql1.toString();
 		}
 
+		Counter counter = null;
+		if( parsed.logRecords > 0 )
+			counter = new FixedCounter( parsed.logRecords );
+		else if( parsed.logSeconds > 0 )
+			counter = new TimedCounter( parsed.logSeconds );
+
 		PreparedStatement statement = processor.prepareStatement( sql );
 		boolean commit = false;
 		try
 		{
 			int batchSize = 0;
-//			int count = 0;
 			while( true )
 			{
 				if( Thread.currentThread().isInterrupted() )
@@ -267,6 +275,9 @@ public class ImportCSV implements CommandListener
 					}
 				}
 
+				if( counter != null && counter.next() )
+					processor.getProgressListener().println( "Imported " + counter.total() + " records." );
+
 				lineNumber = reader.getLineNumber();
 				line = reader.getLine();
 				if( line == null )
@@ -274,13 +285,12 @@ public class ImportCSV implements CommandListener
 					if( batchSize > 0 )
 						statement.executeBatch();
 
+					if( counter != null && counter.needFinal() )
+						processor.getProgressListener().println( "Imported " + counter.total() + " records." );
+
 					commit = true;
 					return;
 				}
-
-//				count++; TODO
-//				if( count % 100000 == 0 )
-//					processor.getCallBack().println( "Read " + count + " records" );
 			}
 		}
 		finally
@@ -366,6 +376,25 @@ public class ImportCSV implements CommandListener
 	 */
 	static protected Parsed parse( Command command )
 	{
+		// FIXME Replace LINENUMBER with RECORD NUMBER
+		/*
+		IMPORT CSV
+		[ SKIP HEADER ]
+		[ SEPARATED BY TAB | SPACE | <character> ]
+		[ IGNORE WHITESPACE ]
+		[ PREPEND LINENUMBER ]
+		[ NOBATCH ]
+		[ LOG EVERY n RECORDS | SECONDS ]
+		(
+			[ FILE "<file>" ENCODING "<encoding>" [ GZIP ] ]
+			EXECUTE ...
+		|
+			INTO <schema>.<table> [ ( <columns> ) ]
+			[ VALUES ( <values> ) ]
+			[ DATA | FILE ]
+		)
+		*/
+
 		Parsed result = new Parsed();
 		List< String > columns = new ArrayList< String >();
 		List< String > values = new ArrayList< String >();
@@ -375,14 +404,14 @@ public class ImportCSV implements CommandListener
 		tokenizer.get( "IMPORT" );
 		tokenizer.get( "CSV" );
 
-		Token t = tokenizer.get( "SKIP", "SEPARATED", "IGNORE", "PREPEND", "NOBATCH", "FILE", "EXECUTE", "INTO" );
+		Token t = tokenizer.get( "SKIP", "SEPARATED", "IGNORE", "PREPEND", "NOBATCH", "LOG", "FILE", "EXECUTE", "INTO" );
 
 		if( t.eq( "SKIP" ) )
 		{
 			tokenizer.get( "HEADER" );
 			result.skipHeader = true;
 
-			t = tokenizer.get( "SEPARATED", "IGNORE", "PREPEND", "NOBATCH", "FILE", "EXECUTE", "INTO" );
+			t = tokenizer.get( "SEPARATED", "IGNORE", "PREPEND", "NOBATCH", "LOG", "FILE", "EXECUTE", "INTO" );
 		}
 
 		if( t.eq( "SEPARATED" ) )
@@ -400,7 +429,7 @@ public class ImportCSV implements CommandListener
 				result.separator = t.getValue().charAt( 0 );
 			}
 
-			t = tokenizer.get( "IGNORE", "PREPEND", "NOBATCH", "FILE", "EXECUTE", "INTO" );
+			t = tokenizer.get( "IGNORE", "PREPEND", "NOBATCH", "LOG", "FILE", "EXECUTE", "INTO" );
 		}
 
 		if( t.eq( "IGNORE" ) )
@@ -408,7 +437,7 @@ public class ImportCSV implements CommandListener
 			tokenizer.get( "WHITESPACE" );
 			result.ignoreWhiteSpace = true;
 
-			t = tokenizer.get( "PREPEND", "NOBATCH", "FILE", "EXECUTE", "INTO" );
+			t = tokenizer.get( "PREPEND", "NOBATCH", "LOG", "FILE", "EXECUTE", "INTO" );
 		}
 
 		if( t.eq( "PREPEND" ) )
@@ -416,12 +445,29 @@ public class ImportCSV implements CommandListener
 			tokenizer.get( "LINENUMBER" );
 			result.prependLineNumber = true;
 
-			t = tokenizer.get( "NOBATCH", "FILE", "EXECUTE", "INTO" );
+			t = tokenizer.get( "NOBATCH", "LOG", "FILE", "EXECUTE", "INTO" );
 		}
 
 		if( t.eq( "NOBATCH" ) )
 		{
 			result.noBatch = true;
+
+			t = tokenizer.get( "LOG", "FILE", "EXECUTE", "INTO" );
+		}
+
+		if( t.eq( "LOG" ) )
+		{
+			tokenizer.get( "EVERY" );
+			t = tokenizer.get();
+			if( !t.isNumber() )
+				throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
+
+			int interval = Integer.parseInt( t.getValue() );
+			t = tokenizer.get( "RECORDS", "SECONDS" );
+			if( t.eq( "RECORDS" ) )
+				result.logRecords = interval;
+			else
+				result.logSeconds = interval;
 
 			t = tokenizer.get( "FILE", "EXECUTE", "INTO" );
 		}
@@ -439,7 +485,7 @@ public class ImportCSV implements CommandListener
 			return result;
 		}
 
-		Assert.isTrue( t.eq( "INTO" ), "Expecting [INTO]" );
+		tokenizer.expect( t, "INTO" );
 		result.tableName = tokenizer.get().toString();
 
 		t = tokenizer.get( ".", "(", "VALUES", "DATA", "FILE", null );
@@ -610,6 +656,9 @@ public class ImportCSV implements CommandListener
 
 		/** Don't use JDBC batch update. */
 		protected boolean noBatch;
+
+		protected int logRecords;
+		protected int logSeconds;
 
 		protected String sql;
 

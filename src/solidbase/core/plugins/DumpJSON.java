@@ -53,12 +53,15 @@ import solidbase.core.FatalException;
 import solidbase.core.SourceException;
 import solidbase.core.SystemException;
 import solidbase.util.Assert;
+import solidbase.util.Counter;
+import solidbase.util.FixedCounter;
 import solidbase.util.JDBCSupport;
 import solidbase.util.JSONArray;
 import solidbase.util.JSONObject;
 import solidbase.util.JSONWriter;
 import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
+import solidbase.util.TimedCounter;
 import solidstack.io.DeferringWriter;
 import solidstack.io.FileResource;
 import solidstack.io.Resource;
@@ -188,10 +191,14 @@ public class DumpJSON implements CommandListener
 					jsonWriter.writeFormatted( properties, 120 );
 					jsonWriter.getWriter().write( '\n' );
 
+					Counter counter = null;
+					if( parsed.logRecords > 0 )
+						counter = new FixedCounter( parsed.logRecords );
+					else if( parsed.logSeconds > 0 )
+						counter = new TimedCounter( parsed.logSeconds );
+
 					try
 					{
-						long count = 0;
-						long progressNext = 1;
 						while( result.next() )
 						{
 							Object[] values = new Object[ columns ];
@@ -378,16 +385,11 @@ public class DumpJSON implements CommandListener
 							jsonWriter.write( array );
 							jsonWriter.getWriter().write( '\n' );
 
-							count++;
-							if( count >= progressNext )
-							{
-								progressNext = count + count / 10;
-								processor.getProgressListener().println( "Written " + count + " records..." );
-							}
-//							if( count % 100000 == 0 )
+							if( counter != null && counter.next() )
+								processor.getProgressListener().println( "Exported " + counter.total() + " records." );
 						}
-
-						processor.getProgressListener().println( "Written " + count + " records." );
+						if( counter != null && counter.needFinal() )
+							processor.getProgressListener().println( "Exported " + counter.total() + " records." );
 					}
 					finally
 					{
@@ -431,6 +433,16 @@ public class DumpJSON implements CommandListener
 	 */
 	static protected Parsed parse( Command command )
 	{
+		/*
+		DUMP JSON
+		DATE AS TIMESTAMP
+		COALESCE "<col1>", "<col2>"
+		LOG EVERY n RECORDS|SECONDS
+		FILE "file" GZIP
+		BINARY FILE "file" GZIP
+		COLUMN col1, col2 TO BINARY|TEXT FILE "file" THRESHOLD n
+		*/
+
 		Parsed result = new Parsed();
 
 		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
@@ -438,34 +450,7 @@ public class DumpJSON implements CommandListener
 		tokenizer.get( "DUMP" );
 		tokenizer.get( "JSON" );
 
-		tokenizer.get( "FILE" );
-		Token t = tokenizer.get();
-		if( !t.isString() )
-			throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-		result.fileName = t.stripQuotes();
-
-		t = tokenizer.get();
-		if( t.eq( "GZIP" ) )
-		{
-			result.gzip = true;
-			t = tokenizer.get();
-		}
-
-		if( t.eq( "BINARY" ) )
-		{
-			tokenizer.get( "FILE" );
-			t = tokenizer.get();
-			if( !t.isString() )
-				throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-			result.binaryFileName = t.stripQuotes();
-
-			t = tokenizer.get();
-			if( t.eq( "GZIP" ) )
-			{
-				result.binaryGzip = true;
-				t = tokenizer.get();
-			}
-		}
+		Token t = tokenizer.get( "DATE", "COALESCE", "LOG", "FILE" );
 
 		if( t.eq( "DATE" ) )
 		{
@@ -474,7 +459,7 @@ public class DumpJSON implements CommandListener
 
 			result.dateAsTimestamp = true;
 
-			t = tokenizer.get();
+			t = tokenizer.get( "COALESCE", "LOG", "FILE" );
 		}
 
 		while( t.eq( "COALESCE" ) )
@@ -502,29 +487,52 @@ public class DumpJSON implements CommandListener
 			result.coalesce.end();
 		}
 
-//		if( t.equals( "SCHEMA" ) )
-//		{
-//			tokenizer.get( "NAME" );
-//			t = tokenizer.get();
-//			String name = t.getValue();
-//			if( !name.startsWith( "\"" ) )
-//				throw new CommandFileException( "Expecting schema name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-//			result.schemaName = name.substring( 1, name.length() - 1 );
-//
-//			t = tokenizer.get();
-//		}
+		tokenizer.expect( t, "LOG", "FILE" );
 
-//		if( t.equals( "TABLE" ) )
-//		{
-//			tokenizer.get( "NAME" );
-//			t = tokenizer.get();
-//			String name = t.getValue();
-//			if( !name.startsWith( "\"" ) )
-//				throw new CommandFileException( "Expecting table name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-//			result.tableName = name.substring( 1, name.length() - 1 );
-//
-//			t = tokenizer.get();
-//		}
+		if( t.eq( "LOG" ) )
+		{
+			tokenizer.get( "EVERY" );
+			t = tokenizer.get();
+			if( !t.isNumber() )
+				throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
+
+			int interval = Integer.parseInt( t.getValue() );
+			t = tokenizer.get( "RECORDS", "SECONDS" );
+			if( t.eq( "RECORDS" ) )
+				result.logRecords = interval;
+			else
+				result.logSeconds = interval;
+
+			tokenizer.get( "FILE" );
+		}
+
+		t = tokenizer.get();
+		if( !t.isString() )
+			throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+		result.fileName = t.stripQuotes();
+
+		t = tokenizer.get();
+		if( t.eq( "GZIP" ) )
+		{
+			result.gzip = true;
+			t = tokenizer.get();
+		}
+
+		if( t.eq( "BINARY" ) )
+		{
+			tokenizer.get( "FILE" );
+			t = tokenizer.get();
+			if( !t.isString() )
+				throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+			result.binaryFileName = t.stripQuotes();
+
+			t = tokenizer.get();
+			if( t.eq( "GZIP" ) )
+			{
+				result.binaryGzip = true;
+				t = tokenizer.get();
+			}
+		}
 
 		if( t.eq( "COLUMN" ) )
 		{
@@ -568,9 +576,7 @@ public class DumpJSON implements CommandListener
 		}
 		tokenizer.push( t );
 
-		String query = tokenizer.getRemaining();
-
-		result.query = query;
+		result.query = tokenizer.getRemaining();
 
 		return result;
 	}
@@ -597,9 +603,6 @@ public class DumpJSON implements CommandListener
 		protected String binaryFileName;
 		protected boolean binaryGzip;
 
-//		protected String tableName;
-//		protected String schemaName;
-
 		/** The query */
 		protected String query;
 
@@ -607,6 +610,9 @@ public class DumpJSON implements CommandListener
 
 		/** Which columns need to be coalesced */
 		protected Coalescer coalesce;
+
+		protected int logRecords;
+		protected int logSeconds;
 
 		protected Map< String, FileSpec > columns;
 	}
