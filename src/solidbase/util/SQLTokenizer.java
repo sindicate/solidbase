@@ -410,6 +410,12 @@ public class SQLTokenizer
 			return this.value.substring( 1, this.value.length() - 1 );
 		}
 
+		public boolean isNumber()
+		{
+			char ch = this.value.charAt( 0 );
+			return ch >= '0' && ch <= '9';
+		}
+
 		/**
 		 * Does a case sensitive comparison with the given string. Tokens are always upper case.
 		 *

@@ -121,4 +121,13 @@ public class Import
 
 		patcher.end();
 	}
+
+	@Test(groups="new")
+	static public void testProgress() throws SQLException
+	{
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-import3.sql" );
+		patcher.upgrade( "1" );
+		patcher.end();
+	}
 }
