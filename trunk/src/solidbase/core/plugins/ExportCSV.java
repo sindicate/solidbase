@@ -34,15 +34,18 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
 import solidbase.core.Command;
-import solidbase.core.SourceException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
+import solidbase.core.SourceException;
 import solidbase.core.SystemException;
 import solidbase.core.plugins.DumpJSON.Coalescer;
 import solidbase.util.CSVWriter;
+import solidbase.util.Counter;
+import solidbase.util.FixedCounter;
 import solidbase.util.JDBCSupport;
 import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
+import solidbase.util.TimedCounter;
 import solidstack.io.Resource;
 import solidstack.io.Resources;
 import solidstack.io.SourceReaders;
@@ -141,8 +144,12 @@ public class ExportCSV implements CommandListener
 						csvWriter.nextRecord();
 					}
 
-					int count = 0;
-					int progressNext = 1;
+					Counter counter = null;
+					if( parsed.logRecords > 0 )
+						counter = new FixedCounter( parsed.logRecords );
+					else if( parsed.logSeconds > 0 )
+						counter = new TimedCounter( parsed.logSeconds );
+
 					while( result.next() )
 					{
 						Object[] values = new Object[ columns ];
@@ -178,16 +185,11 @@ public class ExportCSV implements CommandListener
 
 						csvWriter.nextRecord();
 
-						count++;
-						if( count >= progressNext )
-						{
-							progressNext = count + count / 10;
-							processor.getProgressListener().println( "Written " + count + " records..." );
-						}
-//						if( count % 100000 == 0 )
-
-						processor.getProgressListener().println( "Written " + count + " records." );
+						if( counter != null && counter.next() )
+								processor.getProgressListener().println( "Exported " + counter.total() + " records." );
 					}
+					if( counter != null && counter.needFinal() )
+						processor.getProgressListener().println( "Exported " + counter.total() + " records." );
 				}
 				finally
 				{
@@ -216,6 +218,16 @@ public class ExportCSV implements CommandListener
 	 */
 	static protected Parsed parse( Command command )
 	{
+		/*
+		EXPORT CSV
+		WITH HEADER
+		SEPARATED BY TAB|SPACE|<character>
+		DATE AS TIMESTAMP
+		COALESCE "<col1>", "<col2>"
+		LOG EVERY n RECORDS|SECONDS
+		FILE "<file>" ENCODING "<encoding>" GZIP
+		*/
+
 		Parsed result = new Parsed();
 
 		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
@@ -223,13 +235,13 @@ public class ExportCSV implements CommandListener
 		tokenizer.get( "EXPORT" );
 		tokenizer.get( "CSV" );
 
-		Token t = tokenizer.get( "WITH", "SEPARATED", "COALESCE", "FILE" );
+		Token t = tokenizer.get( "WITH", "SEPARATED", "DATE", "COALESCE", "LOG", "FILE" );
 		if( t.eq( "WITH" ) )
 		{
 			tokenizer.get( "HEADER" );
 			result.withHeader = true;
 
-			t = tokenizer.get( "SEPARATED", "COALESCE", "FILE" );
+			t = tokenizer.get( "SEPARATED", "DATE", "COALESCE", "LOG", "FILE" );
 		}
 
 		if( t.eq( "SEPARATED" ) )
@@ -247,7 +259,7 @@ public class ExportCSV implements CommandListener
 				result.separator = t.getValue().charAt( 0 );
 			}
 
-			t = tokenizer.get( "COALESCE", "FILE" );
+			t = tokenizer.get( "DATE", "COALESCE", "LOG", "FILE" );
 		}
 
 		if( t.eq( "DATE" ) )
@@ -257,7 +269,7 @@ public class ExportCSV implements CommandListener
 
 			result.dateAsTimestamp = true;
 
-			t = tokenizer.get();
+			t = tokenizer.get( "COALESCE", "LOG", "FILE" );
 		}
 
 		while( t.eq( "COALESCE" ) )
@@ -281,11 +293,27 @@ public class ExportCSV implements CommandListener
 				t = tokenizer.get();
 			}
 			while( t.eq( "," ) );
-			tokenizer.push( t );
 
 			result.coalesce.end();
+		}
 
-			tokenizer.get( "FILE" );
+		tokenizer.expect( t, "LOG", "FILE" );
+
+		if( t.eq( "LOG" ) )
+		{
+			tokenizer.get( "EVERY" );
+			t = tokenizer.get();
+			if( !t.isNumber() )
+				throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
+
+			int interval = Integer.parseInt( t.getValue() );
+			t = tokenizer.get( "RECORDS", "SECONDS" );
+			if( t.eq( "RECORDS" ) )
+				result.logRecords = interval;
+			else
+				result.logSeconds = interval;
+
+			t = tokenizer.get( "FILE" );
 		}
 
 		t = tokenizer.get();
@@ -351,5 +379,8 @@ public class ExportCSV implements CommandListener
 
 		/** Which columns need to be coalesced */
 		protected Coalescer coalesce;
+
+		protected int logRecords;
+		protected int logSeconds;
 	}
 }
