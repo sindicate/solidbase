@@ -39,12 +39,15 @@ import solidbase.core.SourceException;
 import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidbase.util.CloseQueue;
+import solidbase.util.Counter;
+import solidbase.util.FixedCounter;
 import solidbase.util.JDBCSupport;
 import solidbase.util.JSONArray;
 import solidbase.util.JSONObject;
 import solidbase.util.JSONReader;
 import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
+import solidbase.util.TimedCounter;
 import solidstack.io.Resource;
 import solidstack.io.SegmentedInputStream;
 import solidstack.io.SegmentedReader;
@@ -155,6 +158,12 @@ public class LoadJSON implements CommandListener
 				sql.append( ')' );
 			}
 
+			Counter counter = null;
+			if( parsed.logRecords > 0 )
+				counter = new FixedCounter( parsed.logRecords );
+			else if( parsed.logSeconds > 0 )
+				counter = new TimedCounter( parsed.logSeconds );
+
 			PreparedStatement statement = processor.prepareStatement( sql.toString() );
 			CloseQueue biggerCloser = new CloseQueue();
 			CloseQueue closer = new CloseQueue();
@@ -162,8 +171,6 @@ public class LoadJSON implements CommandListener
 			try
 			{
 				int batchSize = 0;
-				long count = 0;
-				long progressNext = 1;
 				while( true )
 				{
 					if( Thread.currentThread().isInterrupted() )
@@ -175,9 +182,11 @@ public class LoadJSON implements CommandListener
 						Assert.isTrue( reader.isEOF() );
 						if( batchSize > 0 )
 							statement.executeBatch();
-						commit = true;
 
-						processor.getProgressListener().println( "Read " + count + " records." );
+						if( counter != null && counter.needFinal() )
+							processor.getProgressListener().println( "Imported " + counter.total() + " records." );
+
+						commit = true;
 						return true;
 					}
 					int lineNumber = reader.getLineNumber();
@@ -359,12 +368,8 @@ public class LoadJSON implements CommandListener
 						}
 					}
 
-					count++;
-					if( count >= progressNext )
-					{
-						progressNext = count + count / 10;
-						processor.getProgressListener().println( "Read " + count + " records..." );
-					}
+					if( counter != null && counter.next() )
+						processor.getProgressListener().println( "Imported " + counter.total() + " records." );
 				}
 			}
 			finally
@@ -444,6 +449,18 @@ public class LoadJSON implements CommandListener
 	 */
 	static protected Parsed parse( Command command )
 	{
+		// FIXME Replace LINENUMBER with RECORD NUMBER
+		// TODO Match column names
+		/*
+		LOAD JSON
+		[ PREPEND LINENUMBER ]
+		[ NOBATCH ]
+		[ LOG EVERY n RECORDS | SECONDS ]
+		INTO <schema>.<table> [ ( <columns> ) ]
+		[ VALUES ( <values> ) ]
+		FILE "<file>" [ GZIP ]
+		*/
+
 		Parsed result = new Parsed();
 		List< String > columns = new ArrayList< String >();
 		List< String > values = new ArrayList< String >();
@@ -453,25 +470,40 @@ public class LoadJSON implements CommandListener
 		tokenizer.get( "LOAD" );
 		tokenizer.get( "JSON" );
 
-		Token t = tokenizer.get( "PREPEND", "NOBATCH", "INTO" );
+		Token t = tokenizer.get( "PREPEND", "NOBATCH", "LOG", "INTO" );
 
 		if( t.eq( "PREPEND" ) )
 		{
 			tokenizer.get( "LINENUMBER" );
 			result.prependLineNumber = true;
 
-			t = tokenizer.get( "NOBATCH", "INTO" );
+			t = tokenizer.get( "NOBATCH", "LOG", "INTO" );
 		}
 
 		if( t.eq( "NOBATCH" ) )
 		{
 			result.noBatch = true;
 
+			t = tokenizer.get( "LOG", "INTO" );
+		}
+
+		if( t.eq( "LOG" ) )
+		{
+			tokenizer.get( "EVERY" );
+			t = tokenizer.get();
+			if( !t.isNumber() )
+				throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
+
+			int interval = Integer.parseInt( t.getValue() );
+			t = tokenizer.get( "RECORDS", "SECONDS" );
+			if( t.eq( "RECORDS" ) )
+				result.logRecords = interval;
+			else
+				result.logSeconds = interval;
+
 			t = tokenizer.get( "INTO" );
 		}
 
-		if( !t.eq( "INTO" ) )
-			throw new SourceException( "Expecting [INTO], not [" + t + "]", tokenizer.getLocation() );
 		result.tableName = tokenizer.get().toString();
 
 		t = tokenizer.get( ".", "(", "VALUES", "FILE" );
@@ -613,6 +645,9 @@ public class LoadJSON implements CommandListener
 
 		/** Don't use JDBC batch update. */
 		protected boolean noBatch;
+
+		protected int logRecords;
+		protected int logSeconds;
 
 		/** The table name to insert into. */
 		protected String tableName;

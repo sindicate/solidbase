@@ -1,6 +1,6 @@
 package solidbase.util;
 
-public class ProgressiveCounter extends Counter
+public class ProgressiveCounter extends RecordCounter
 {
 	private int percent;
 	private long min;
@@ -11,7 +11,7 @@ public class ProgressiveCounter extends Counter
 		this.percent = percent;
 		this.min = min;
 		this.max = max;
-		setNext();
+		init();
 	}
 
 	@Override

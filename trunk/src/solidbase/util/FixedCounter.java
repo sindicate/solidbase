@@ -1,13 +1,13 @@
 package solidbase.util;
 
-public class FixedCounter extends Counter
+public class FixedCounter extends RecordCounter
 {
 	private long interval;
 
 	public FixedCounter( long interval )
 	{
 		this.interval = interval;
-		setNext();
+		init();
 	}
 
 	@Override
