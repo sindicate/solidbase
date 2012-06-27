@@ -219,7 +219,7 @@ public class ImportCSV implements CommandListener
 			int batchSize = 0;
 			while( true )
 			{
-				if( Thread.currentThread().isInterrupted() )
+				if( Thread.currentThread().isInterrupted() ) // TODO Is this the right spot during an upgrade?
 					throw new ThreadInterrupted();
 
 				preprocess( line );
