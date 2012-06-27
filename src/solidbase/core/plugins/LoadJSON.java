@@ -173,7 +173,7 @@ public class LoadJSON implements CommandListener
 				int batchSize = 0;
 				while( true )
 				{
-					if( Thread.currentThread().isInterrupted() )
+					if( Thread.currentThread().isInterrupted() ) // TODO Is this the right spot during an upgrade?
 						throw new ThreadInterrupted();
 
 					JSONArray values = (JSONArray)reader.read();
