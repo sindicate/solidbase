@@ -21,7 +21,7 @@ EXPORT CSV
 [ DATE AS TIMESTAMP ]
 [ COALESCE <field1>, <field2> [ , <fieldn> ] ] *
 FILE "<filename>" ENCODING "<encoding>"
-<query>;
+<query> <current delimiter>
 }}}
 The supported encodings vary between different implementations of the Java 2 platform, but every implementation is required to support US-ASCII, ISO-8859-1, UTF-8, UTF-16BE, UTF-16LE and UTF-16. See http://docs.oracle.com/javase/6/docs/api/java/nio/charset/Charset.html.
 
@@ -86,12 +86,12 @@ Includes an external file into the upgrade. The statements in the included file 
 2.0.0-beta3
 === Syntax ===
 {{{
-INCLUDE "<file>";
+--* INCLUDE "<file>"
 }}}
 
 === Examples ===
 {{{
-INCLUDE "procedures.sql";
+--* INCLUDE "procedures.sql"
 }}}
 
 ----------------------------------------
@@ -101,7 +101,7 @@ Runs an external SQL file.
 2.0.0-beta3
 === Syntax ===
 {{{
-RUN "<file>";
+RUN "<file>" <current delimiter>
 }}}
 
 === Examples ===
