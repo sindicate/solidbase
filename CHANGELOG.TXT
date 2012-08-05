@@ -1,4 +1,4 @@
-Changes from 1.6.7 to 2.0.0-beta3 (rev 805)
+Changes from 1.6.7 to 2.0.0-beta4
 ---------------------------------
 
 ENH  Refactored the SolidBase core to make it easier to use SolidBase as a library:
@@ -9,6 +9,7 @@ ENH  Refactored the SolidBase core to make it easier to use SolidBase as a libra
      - Added a Runner class which makes it easier to perform an upgrade or execute an SQL file.
      
 ENH  IMPORT CSV is now able to execute any valid SQL statement for each row in the CSV data.
+ENH  Added LOG EVERY to IMPORT CSV which prints the number of records processed each n records or n seconds.
 ENH  Added EXPORT CSV plugin.
 ENH  Added INCLUDE annotation which includes an external SQL file into an upgrade file.
 ENH  Added RUN command which runs an external SQL file.
