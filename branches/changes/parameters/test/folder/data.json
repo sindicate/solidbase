@@ -1,0 +1,38 @@
+{
+	"version": "1.0",
+	"format": "record-stream",
+	"description": "SolidBase JSON Data Dump File",
+	"createdBy": { "product": "SolidBase", "version": "2.0.0" },
+	"createdDate": "2012-01-08 19:40:54",
+	"fields": [
+		{ "name": "ID", "type": "NUMERIC" },
+		{ "name": "ISOCODE", "type": "NUMERIC" },
+		{ "name": "NAME", "type": "VARCHAR" },
+		{ "name": "START", "type": "DATE" },
+		{ "name": "END", "type": "TIMESTAMP" },
+		{ "name": "IMAGE", "type": "BLOB" }
+	]
+}
+[1,9076,"Abessinië",null,"1991-06-01 00:00:00.0",{"file":"image.png"}]
+[2,9061,"Aboe Dhabi",null,"1991-06-01 00:00:00.0",null]
+[3,9041,"Aden",null,"1991-06-01 00:00:00.0",null]
+[4,9062,"Adjman",null,"1991-06-01 00:00:00.0",null]
+[5,6023,"Afganistan",null,null,null]
+[6,5034,"Albanië",null,null,null]
+[7,6047,"Algerije",null,null,null]
+[8,8002,"Amerikaans Samoa",null,null,null]
+[9,7088,"Amerikaanse Maagdeneilanden",null,null,null]
+[10,7005,"Andorra",null,null,null]
+[11,5026,"Angola",null,null,null]
+[12,8036,"Anguilla",null,null,null]
+[13,8038,"Antigua",null,"1981-11-01 00:00:00.0",null]
+[14,8045,"Antigua en Barbuda","1981-11-01",null,null]
+[15,7015,"Argentinië",null,null,null]
+[16,5054,"Armenië","1991-12-31",null,null]
+[17,5095,"Aruba","1986-01-01",null,null]
+[18,5055,"Ascension",null,null,null]
+[19,6016,"Australië",null,null,null]
+[20,5041,"Australisch Nieuwguinea",null,"1975-09-16 00:00:00.0",null]
+[21,7089,"Australische Salomonseilanden",null,"1975-09-16 00:00:00.0",null]
+[22,5097,"Azerbajdsjan","1991-12-31",null,null]
+[23,5056,"Azoren",null,null,null]
