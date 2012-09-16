@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 
@@ -118,6 +119,8 @@ abstract public class CommandContext
 		this.jdbcEscaping = parent.jdbcEscaping;
 		this.sectionLevel = parent.sectionLevel;
 		this.currentDatabase = parent.currentDatabase;
+
+		// Clone variables from parent so that modifications are not passed to the parent
 		if( parent.variables != null )
 			this.variables = new HashMap< String, String >( parent.variables );
 
@@ -149,7 +152,7 @@ abstract public class CommandContext
 
 	/**
 	 * Process the ELSE annotation.
-	 * 
+	 *
 	 * @param location The location where the ELSE is encountered.
 	 */
 	protected void doElse( SourceLocation location )
@@ -163,7 +166,7 @@ abstract public class CommandContext
 
 	/**
 	 * Process the /IF annotation.
-	 * 
+	 *
 	 * @param location The location where the END IF is encountered.
 	 */
 	protected void endIf( SourceLocation location )
@@ -176,7 +179,7 @@ abstract public class CommandContext
 	/**
 	 * Stop skipping commands. As {@link #skip(boolean)} and {@link #endSkip(SourceLocation)} can be nested, only when the same number
 	 * of endSkips are called as the number of skips, the skipping will stop.
-	 * 
+	 *
 	 * @param location The location where the END SKIP is encountered.
 	 */
 	protected void endSkip( SourceLocation location )
@@ -259,6 +262,12 @@ abstract public class CommandContext
 		this.variables.put( name.toUpperCase(), value == null ? null : value.toString() );
 	}
 
+	public void setVariables( Map<String, String> variables )
+	{
+		for( Entry<String, String> variable : variables.entrySet() )
+			setVariable( variable.getKey(), variable.getValue() );
+	}
+
 	/**
 	 * Are any variables defined?
 	 *
@@ -266,7 +275,7 @@ abstract public class CommandContext
 	 */
 	public boolean hasVariables()
 	{
-		return this.variables != null || this.parent != null && this.parent.hasVariables();
+		return this.variables != null;
 	}
 
 	/**
@@ -277,7 +286,7 @@ abstract public class CommandContext
 	 */
 	public boolean hasVariable( String name )
 	{
-		return this.variables != null && this.variables.containsKey( name ) || this.parent != null && this.parent.hasVariable( name );
+		return this.variables != null && this.variables.containsKey( name.toUpperCase() );
 	}
 
 	/**
@@ -288,11 +297,7 @@ abstract public class CommandContext
 	 */
 	public String getVariableValue( String name )
 	{
-		if( this.variables != null && this.variables.containsKey( name ) )
-			return this.variables.get( name );
-		if( this.parent == null )
-			return null;
-		return this.parent.getVariableValue( name );
+		return this.variables.get( name.toUpperCase() );
 	}
 
 	/**

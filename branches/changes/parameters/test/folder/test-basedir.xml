@@ -23,7 +23,7 @@
 	
 
 	<target name="ant-test-basedir">
-		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testBaseDir" user="sa" password="" upgradefile="testpatch-basedir.sql" />
+		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testBaseDir" username="sa" password="" upgradefile="testpatch-basedir.sql" />
 	</target>
 
 

@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.Project;
 
 import solidbase.core.FatalException;
 import solidbase.core.Runner;
@@ -88,29 +87,28 @@ public class SQLTask extends DBTask
 		}
 	}
 
-
 	@Override
-	public void execute()
+	public Runner prepareRunner()
 	{
-		validate();
-
-		Project project = getProject();
-
-		Runner runner = new Runner();
-		runner.setProgressListener( new Progress( project, this ) );
-		runner.setConnectionAttributes( "default", this.driver, this.url, this.username, this.password );
-		for( Connection connection : this.connections )
-			runner.setConnectionAttributes( connection.getName(), connection.getDriver(), connection.getUrl(),
-					connection.getUsername(), connection.getPassword() );
+		Runner runner = super.prepareRunner();
 
 		List< Resource > sqlFiles = new ArrayList< Resource >();
-		File baseDir = project.getBaseDir();
+		File baseDir = getProject().getBaseDir();
 		if( this.sqlfile != null )
 			sqlFiles.add( Resources.getResource( baseDir ).resolve( this.sqlfile ) );
 		for( Sqlfile file : this.sqlfiles )
 			sqlFiles.add( Resources.getResource( baseDir ).resolve( file.src ) );
 		runner.setSQLFiles( sqlFiles );
 
+		return runner;
+	}
+
+	@Override
+	public void execute()
+	{
+		validate();
+
+		Runner runner = prepareRunner();
 		try
 		{
 			runner.executeSQL();
@@ -118,6 +116,7 @@ public class SQLTask extends DBTask
 		catch( FatalException e )
 		{
 			// TODO When debugging, we should give the whole exception, not only the message
+			// TODO Shouldn't we just wrap the exception, and then Ant is the one who decides if it only shows the message or the complete stacktrace?
 			throw new BuildException( e.getMessage() );
 		}
 	}

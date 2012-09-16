@@ -50,4 +50,14 @@
 	</target>
 
 
+	<target name="ant-test-parameters">
+		<taskdef resource="solidbasetasks" classpathref="test.classpath" />
+		<sb-sql driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask3" username="sa" password="">
+			<sqlfile src="testsql-parameter2.sql" />
+			<variable name="par1" value="val1" />
+			<variable name="par2" /> <!-- null -->
+        </sb-sql>
+	</target>
+
+
 </project>

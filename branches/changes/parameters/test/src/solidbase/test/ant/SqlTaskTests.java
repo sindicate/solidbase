@@ -17,7 +17,6 @@
 package solidbase.test.ant;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -54,7 +53,7 @@ public class SqlTaskTests extends MyBuildFileTest
 	}
 
 	@Test
-	public void testSqlFileDoesNotExist() throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException
+	public void testSqlFileDoesNotExist()
 	{
 		String log = TestUtil.captureAnt( new Runnable()
 		{
@@ -76,6 +75,24 @@ public class SqlTaskTests extends MyBuildFileTest
 				"X:/.../test-sqltask.xml:47: java.io.FileNotFoundException: X:/.../doesnotexist.sql (The system cannot find the file specified)\n" +
 				"\n" +
 				"Total time: 0 seconds\n"
+				);
+	}
+
+	@Test
+	public void testSqlParameters()
+	{
+		configureProject( "test-sqltask.xml" );
+		this.project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
+		executeTarget( "ant-test-parameters" );
+		String log = TestUtil.generalizeOutput( getLog() );
+		Assert.assertEquals( log, "SolidBase v1.5.x (http://solidbase.org)\n" +
+				"\n" +
+				"Opening file 'X:/.../testsql-parameter2.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
+				"Connecting to database...\n" +
+				"val1\n" +
+				"Execution complete.\n" +
+				"\n"
 				);
 	}
 }

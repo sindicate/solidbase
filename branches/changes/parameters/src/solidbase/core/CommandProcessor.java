@@ -201,6 +201,7 @@ abstract public class CommandProcessor
 	 */
 	protected void substituteVariables( Command command )
 	{
+		// TODO Or should we always substitute?
 		if( !this.context.hasVariables() )
 			return;
 		if( !command.getCommand().contains( "&" ) ) // TODO & or something else?
@@ -214,8 +215,7 @@ abstract public class CommandProcessor
 			String name = matcher.group( 2 );
 			if( name == null )
 				name = matcher.group( 3 );
-			name = name.toUpperCase();
-			if( this.context.hasVariable( name ) )
+			if( this.context.hasVariable( name ) ) // TODO No else, does that work?
 			{
 				String value = this.context.getVariableValue( name );
 				if( value == null )
@@ -550,7 +550,7 @@ abstract public class CommandProcessor
 			closeStatement( statement, true );
 		}
 
-		this.context.setVariable( name.toUpperCase(), value );
+		this.context.setVariable( name, value );
 	}
 
 	/**

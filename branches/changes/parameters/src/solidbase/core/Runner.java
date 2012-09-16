@@ -69,6 +69,12 @@ public class Runner
 	 */
 	protected Resource outputFile;
 
+	/**
+	 * The variables.
+	 */
+	// TODO Or call it 'parameters'?
+	protected Map< String, String > variables = new HashMap<String, String>();
+
 
 	/**
 	 * Sets the progress listener.
@@ -169,6 +175,17 @@ public class Runner
 	}
 
 	/**
+	 * Adds a variable.
+	 *
+	 * @param name The name of the variable.
+	 * @param value The value of the variable.
+	 */
+	public void addVariable( String name, String value )
+	{
+		this.variables.put( name, value );
+	}
+
+	/**
 	 * Execute the SQL files.
 	 */
 	public void executeSQL()
@@ -190,6 +207,7 @@ public class Runner
 			{
 				SQLContext context = new SQLContext( Factory.openSQLFile( resource, this.listener ).getSource() );
 				context.setDatabases( databases );
+				context.setVariables( this.variables );
 				processor.setContext( context );
 				if( first )
 				{
