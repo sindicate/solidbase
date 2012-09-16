@@ -70,10 +70,9 @@ public class Runner
 	protected Resource outputFile;
 
 	/**
-	 * The variables.
+	 * The parameters.
 	 */
-	// TODO Or call it 'parameters'?
-	protected Map< String, String > variables = new HashMap<String, String>();
+	protected Map< String, String > parameters = new HashMap<String, String>();
 
 
 	/**
@@ -175,14 +174,14 @@ public class Runner
 	}
 
 	/**
-	 * Adds a variable.
+	 * Adds a parameter.
 	 *
-	 * @param name The name of the variable.
-	 * @param value The value of the variable.
+	 * @param name The name of the parameter.
+	 * @param value The value of the parameter.
 	 */
-	public void addVariable( String name, String value )
+	public void addParameter( String name, String value )
 	{
-		this.variables.put( name, value );
+		this.parameters.put( name, value );
 	}
 
 	/**
@@ -207,7 +206,7 @@ public class Runner
 			{
 				SQLContext context = new SQLContext( Factory.openSQLFile( resource, this.listener ).getSource() );
 				context.setDatabases( databases );
-				context.setVariables( this.variables );
+				context.setVariables( this.parameters );
 				processor.setContext( context );
 				if( first )
 				{

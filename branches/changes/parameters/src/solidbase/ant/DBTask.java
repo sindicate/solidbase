@@ -58,9 +58,9 @@ public class DBTask extends Task
 	protected List< Connection > connections = new ArrayList< Connection >();
 
 	/**
-	 * Field to store the variables.
+	 * Field to store the parameters.
 	 */
-	protected List< Variable > variables = new ArrayList< Variable >();
+	protected List< Parameter > parameters = new ArrayList< Parameter >();
 
 	/**
 	 * Returns the configured driver.
@@ -165,24 +165,23 @@ public class DBTask extends Task
 	}
 
 	/**
-	 * Creates a variable.
+	 * Creates a parameter.
 	 *
-	 * @return The variable created.
+	 * @return The parameter created.
 	 */
-	// TODO Or call it 'createParameter'?
-	public Variable createVariable()
+	public Parameter createParameter()
 	{
-		Variable variable = new Variable();
-		this.variables.add( variable );
-		return variable;
+		Parameter parameter = new Parameter();
+		this.parameters.add( parameter );
+		return parameter;
 	}
 
 	/**
-	 * @return All configured variables.
+	 * @return All configured parameters.
 	 */
-	public List< Variable > getVariables()
+	public List< Parameter > getParameters()
 	{
-		return this.variables;
+		return this.parameters;
 	}
 
 	/**
@@ -319,17 +318,17 @@ public class DBTask extends Task
 	}
 
 	/**
-	 * Variable object to allow configuring of variables.
+	 * Parameter object to allow configuring of parameters.
 	 *
 	 * @author René de Bloois
 	 */
-	static protected class Variable
+	static protected class Parameter
 	{
 		private String name;
 		private String value;
 
 		/**
-		 * @return The name of the variable.
+		 * @return The name of the parameter.
 		 */
 		public String getName()
 		{
@@ -337,8 +336,8 @@ public class DBTask extends Task
 		}
 
 		/**
-		 * Sets the name of the variable.
-		 * @param name The name for the variable.
+		 * Sets the name of the parameter.
+		 * @param name The name for the parameter.
 		 */
 		public void setName( String name )
 		{
@@ -346,7 +345,7 @@ public class DBTask extends Task
 		}
 
 		/**
-		 * @return The value of the variable.
+		 * @return The value of the parameter.
 		 */
 		public String getValue()
 		{
@@ -354,9 +353,10 @@ public class DBTask extends Task
 		}
 
 		/**
-		 * Set the value of the variable.
-		 * @param value The value of the variable.
+		 * Set the value of the parameter.
+		 * @param value The value of the parameter.
 		 */
+		// TODO Text as value, but Ant does not substitute placeholders in the text element.
 		public void setValue( String value )
 		{
 			this.value = value;
@@ -389,10 +389,10 @@ public class DBTask extends Task
 				throw new BuildException( "The connection name 'default' is reserved" );
 		}
 
-		for( Variable variable : this.variables )
+		for( Parameter parameter : this.parameters )
 		{
-			if( variable.getName() == null )
-				throw new BuildException( "The 'name' attribute is mandatory for a 'variable' element" );
+			if( parameter.getName() == null )
+				throw new BuildException( "The 'name' attribute is mandatory for a 'parameter' element" );
 		}
 	}
 
@@ -412,8 +412,8 @@ public class DBTask extends Task
 			runner.setConnectionAttributes( connection.getName(), connection.getDriver(), connection.getUrl(),
 					connection.getUsername(), connection.getPassword() );
 
-		for( Variable variable : this.variables )
-			runner.addVariable( variable.getName(), variable.getValue() );
+		for( Parameter parameter : this.parameters )
+			runner.addParameter( parameter.getName(), parameter.getValue() );
 
 		return runner;
 	}
