@@ -262,6 +262,11 @@ abstract public class CommandContext
 		this.variables.put( name.toUpperCase(), value == null ? null : value.toString() );
 	}
 
+	/**
+	 * Sets the given variables. Does not remove existing variables.
+	 *
+	 * @param variables The variables to set.
+	 */
 	public void setVariables( Map<String, String> variables )
 	{
 		for( Entry<String, String> variable : variables.entrySet() )

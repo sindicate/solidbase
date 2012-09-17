@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import solidbase.core.TestUtil;
 
 
+@SuppressWarnings( "javadoc" )
 public class SqlTaskTests extends MyBuildFileTest
 {
 	@Test

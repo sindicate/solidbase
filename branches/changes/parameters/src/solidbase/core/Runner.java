@@ -246,6 +246,7 @@ public class Runner
 		final UpgradeProcessor processor = new UpgradeProcessor( this.listener );
 		processor.setUpgradeFile( Factory.openUpgradeFile( this.upgradeFile, this.listener ) );
 		processor.setDatabases( getDatabases() );
+		processor.setParameters( this.parameters );
 
 		final ProgressListener listener = this.listener;
 		final String upgradeTarget = this.upgradeTarget;

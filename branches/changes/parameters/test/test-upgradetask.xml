@@ -52,4 +52,15 @@
 	</target>
 
 
+	<target name="ant-test-parameters">
+		<taskdef resource="solidbasetasks" classpathref="test.classpath" />
+		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:upgradeTask1"
+				username="sa" password=""
+				upgradefile="testpatch-parameter2.sql">
+			<parameter name="par1" value="val1" />
+			<parameter name="par2" /> <!-- null -->
+		</solidbase-upgrade>
+	</target>
+
+
 </project>

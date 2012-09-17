@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import solidbase.core.TestUtil;
 
 
+@SuppressWarnings( "javadoc" )
 public class UpgradeTaskTests extends MyBuildFileTest
 {
 	@Test
@@ -109,6 +110,30 @@ public class UpgradeTaskTests extends MyBuildFileTest
 				"X:/.../test-upgradetask.xml:51: java.io.FileNotFoundException: X:/.../doesnotexist.sql (The system cannot find the file specified)\n" +
 				"\n" +
 				"Total time: 0 seconds\n"
+				);
+	}
+
+	@Test
+	public void testUpgradeParameters()
+	{
+		configureProject( "test-upgradetask.xml" );
+		this.project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
+		executeTarget( "ant-test-parameters" );
+		String log = TestUtil.generalizeOutput( getLog() );
+		Assert.assertEquals( log, "SolidBase v1.5.x (http://solidbase.org)\n" +
+				"\n" +
+				"Opening file 'X:/.../testpatch-parameter2.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
+				"Connecting to database...\n" +
+				"The database is unmanaged.\n" +
+				"Setting up control tables to \"1.1\"\n" +
+				"Opening file 'X:/.../setup-1.1.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
+				"Upgrading to \"1\"\n" +
+				"val1\n" +
+				"\n" +
+				"Current database version is \"1\".\n" +
+				"Upgrade complete.\n"
 				);
 	}
 }

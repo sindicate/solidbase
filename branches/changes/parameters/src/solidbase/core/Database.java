@@ -195,8 +195,7 @@ public class Database
 
 	/**
 	 * Returns a connection for the current user. Connections are cached per user. If a connection for the current user
-	 * is not found in the cache, a password will be requested by calling
-	 * {@link ProgressListener#requestPassword(String)} of {@link UpgradeProcessor#progress}.
+	 * is not found in the cache, a password will be requested by calling {@link ProgressListener#requestPassword(String)}.
 	 *
 	 * @return The connection for the current user.
 	 */
@@ -205,6 +204,12 @@ public class Database
 		return getConnection( this.currentUser );
 	}
 
+	/**
+	 * Returns a new connection for the current user. Passwords are remembered. If a password for the current user
+	 * is not known, a password will be requested by calling {@link ProgressListener#requestPassword(String)}.
+	 *
+	 * @return The new connection for the current user.
+	 */
 	public Connection newConnection()
 	{
 		return newConnection( this.currentUser );
@@ -212,8 +217,7 @@ public class Database
 
 	/**
 	 * Returns a connection for the default user. Connections are cached per user. If the password for the default user
-	 * has not been specified, a password will be requested by calling {@link ProgressListener#requestPassword(String)} of
-	 * {@link UpgradeProcessor#progress}.
+	 * has not been specified, a password will be requested by calling {@link ProgressListener#requestPassword(String)}.
 	 *
 	 * @return The connection for the default user.
 	 */
@@ -224,8 +228,7 @@ public class Database
 
 	/**
 	 * Returns a connection for the given user. Connections are cached per user. If a connection for the current user
-	 * is not found in the cache, a password will be requested by calling
-	 * {@link ProgressListener#requestPassword(String)} of {@link UpgradeProcessor#progress}.
+	 * is not found in the cache, a password will be requested by calling {@link ProgressListener#requestPassword(String)}.
 	 *
 	 * @param user The user to get a connection for.
 	 * @return The connection for the given user.
@@ -265,6 +268,13 @@ public class Database
 		return connection;
 	}
 
+	/**
+	 * Returns a new connection for the given user. Passwords are remembered. If a password for the given user
+	 * is not known, a password will be requested by calling {@link ProgressListener#requestPassword(String)}.
+	 *
+	 * @param user The user name for the connection.
+	 * @return The new connection for the current user.
+	 */
 	public Connection newConnection( String user )
 	{
 		// Retrieve password when user is specified
