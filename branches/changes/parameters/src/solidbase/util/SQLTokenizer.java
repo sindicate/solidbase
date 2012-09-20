@@ -195,6 +195,12 @@ public class SQLTokenizer
 		return token;
 	}
 
+	/**
+	 * Checks if the given token matches the expected tokens.
+	 *
+	 * @param token The token.
+	 * @param expected The expected tokens.
+	 */
 	public void expect( Token token, String... expected )
 	{
 		if( expected.length == 0 )
@@ -321,6 +327,9 @@ public class SQLTokenizer
 		return this.in.getReader();
 	}
 
+	/**
+	 * @return The location of this token.
+	 */
 	public SourceLocation getLocation()
 	{
 		return this.in.getLocation();
@@ -398,6 +407,9 @@ public class SQLTokenizer
 			return this.value == null;
 		}
 
+		/**
+		 * @return True if the token is a string.
+		 */
 		public boolean isString()
 		{
 			if( this.value == null )
@@ -405,11 +417,17 @@ public class SQLTokenizer
 			return this.value.startsWith( "\"" );
 		}
 
+		/**
+		 * @return The value but without the first and last character.
+		 */
 		public String stripQuotes()
 		{
 			return this.value.substring( 1, this.value.length() - 1 );
 		}
 
+		/**
+		 * @return True if the token is a number.
+		 */
 		public boolean isNumber()
 		{
 			char ch = this.value.charAt( 0 );

@@ -33,17 +33,17 @@ public class UpgradeMojo extends DBMojo
 	/**
 	 * File containing the upgrade.
 	 */
-	protected String upgradefile;
+	public String upgradefile;
 
 	/**
 	 * Target to upgrade the database to.
 	 */
-	protected String target;
+	public String target;
 
 	/**
 	 * Allow downgrades to reach the target.
 	 */
-	private boolean downgradeallowed;
+	public boolean downgradeallowed;
 
 	public void execute() throws MojoFailureException
 	{
@@ -56,21 +56,7 @@ public class UpgradeMojo extends DBMojo
 
 		validate();
 
-		Runner runner = new Runner();
-		runner.setProgressListener( new Progress( getLog() ) );
-		runner.setConnectionAttributes( "default", this.driver, this.url, this.username, this.password == null ? "" : this.password );
-		if( this.connections != null )
-			for( Secondary connection : this.connections )
-				runner.setConnectionAttributes(
-						connection.getName(),
-						connection.getDriver(),
-						connection.getUrl(),
-						connection.getUsername(),
-						connection.getPassword() == null ? "" : connection.getPassword()
-						);
-		runner.setUpgradeFile( Resources.getResource( this.project.getBasedir() ).resolve( this.upgradefile ) );
-		runner.setUpgradeTarget( this.target );
-		runner.setDowngradeAllowed( this.downgradeallowed );
+		Runner runner = prepareRunner();
 		try
 		{
 			runner.upgrade();
@@ -79,5 +65,17 @@ public class UpgradeMojo extends DBMojo
 		{
 			throw new MojoFailureException( e.getMessage() );
 		}
+	}
+
+	@Override
+	public Runner prepareRunner()
+	{
+		Runner runner = super.prepareRunner();
+
+		runner.setUpgradeFile( Resources.getResource( this.project.getBasedir() ).resolve( this.upgradefile ) );
+		runner.setUpgradeTarget( this.target );
+		runner.setDowngradeAllowed( this.downgradeallowed );
+
+		return runner;
 	}
 }

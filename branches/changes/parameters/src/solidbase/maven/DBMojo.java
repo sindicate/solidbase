@@ -20,6 +20,8 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 
+import solidbase.core.Runner;
+
 
 /**
  * Maven plugin that has database connection functionality.
@@ -31,37 +33,42 @@ abstract public class DBMojo extends AbstractMojo
 	/**
 	 * The Maven Project Object
 	 */
-	protected MavenProject project;
+	public MavenProject project;
 
 	/**
 	 * Database driver class.
 	 */
-	protected String driver;
+	public String driver;
 
 	/**
 	 * Database URL.
 	 */
-	protected String url;
+	public String url;
 
 	/**
 	 * Database username.
 	 */
-	protected String username;
+	public String username;
 
 	/**
 	 * Database password.
 	 */
-	protected String password;
+	public String password;
 
 	/**
 	 * Skip execution of the plugin.
 	 */
-	protected boolean skip;
+	public boolean skip;
 
 	/**
 	 * An array of secondary connections.
 	 */
-	protected Secondary[] connections;
+	public Secondary[] connections;
+
+	/**
+	 * An array of parameters.
+	 */
+	public Parameter[] parameters;
 
 	/**
 	 * Validate the configuration of the plugin.
@@ -82,5 +89,34 @@ abstract public class DBMojo extends AbstractMojo
 				if( secondary.getName().equals( "default" ) )
 					throw new MojoFailureException( "The secondary name 'default' is reserved" );
 			}
+	}
+
+	/**
+	 * Prepares the core's Runner.
+	 *
+	 * @return The Runner.
+	 */
+	public Runner prepareRunner()
+	{
+		Runner runner = new Runner();
+
+		runner.setProgressListener( new Progress( getLog() ) );
+
+		runner.setConnectionAttributes( "default", this.driver, this.url, this.username, this.password == null ? "" : this.password );
+		if( this.connections != null )
+			for( Secondary connection : this.connections )
+				runner.setConnectionAttributes(
+						connection.getName(),
+						connection.getDriver(),
+						connection.getUrl(),
+						connection.getUsername(),
+						connection.getPassword() == null ? "" : connection.getPassword()
+						);
+
+		if( this.parameters != null )
+			for( Parameter parameter : this.parameters )
+				runner.addParameter( parameter.getName(), parameter.getValue() );
+
+		return runner;
 	}
 }

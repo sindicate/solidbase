@@ -51,6 +51,11 @@
 							<password></password>
 						</secondary>
 					</connections>
+					<parameters>
+						<parameter><name>users1</name><value>USERS</value></parameter>
+						<parameter><name>users2</name><value>USERS2</value></parameter>
+						<parameter><name>par</name></parameter>
+					</parameters>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -33,7 +33,7 @@ public class SQLMojo extends DBMojo
 	/**
 	 * File containing the upgrade.
 	 */
-	protected String sqlfile;
+	public String sqlfile;
 
 	public void execute() throws MojoFailureException
 	{
@@ -46,19 +46,7 @@ public class SQLMojo extends DBMojo
 
 		validate();
 
-		Runner runner = new Runner();
-		runner.setProgressListener( new Progress( getLog() ) );
-		runner.setConnectionAttributes( "default", this.driver, this.url, this.username, this.password == null ? "" : this.password );
-		if( this.connections != null )
-			for( Secondary connection : this.connections )
-				runner.setConnectionAttributes(
-						connection.getName(),
-						connection.getDriver(),
-						connection.getUrl(),
-						connection.getUsername(),
-						connection.getPassword() == null ? "" : connection.getPassword()
-						);
-		runner.setSQLFile( Resources.getResource( this.project.getBasedir() ).resolve( this.sqlfile ) );
+		Runner runner = prepareRunner();
 		try
 		{
 			runner.executeSQL();
@@ -67,5 +55,13 @@ public class SQLMojo extends DBMojo
 		{
 			throw new MojoFailureException( e.getMessage() );
 		}
+	}
+
+	@Override
+	public Runner prepareRunner()
+	{
+		Runner runner = super.prepareRunner();
+		runner.setSQLFile( Resources.getResource( this.project.getBasedir() ).resolve( this.sqlfile ) );
+		return runner;
 	}
 }
