@@ -316,6 +316,7 @@ public class Runner
 	/**
 	 * Dump the database log to an XML file.
 	 */
+	// TODO Replace with DUMP JSON
 	public void logToXML()
 	{
 		if( this.listener == null )

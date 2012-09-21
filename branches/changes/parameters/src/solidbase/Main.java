@@ -25,6 +25,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
@@ -114,6 +115,7 @@ public class Main
 		options.addOption( "target", true, "sets the target version to upgrade to" );
 		options.addOption( "upgradefile", true, "specifies the file containing the database upgrades" );
 		options.addOption( "sqlfile", true, "specifies an SQL file to execute" );
+		options.addOption( "D", true, "parameter to the SQL file or upgrade file" );
 		options.addOption( "config", true, "specifies a properties file to use" );
 		options.addOption( "downgradeallowed", false, "allow downgrades to reach the target" );
 		options.addOption( "help", false, "Brings up this page" );
@@ -125,6 +127,10 @@ public class Main
 		options.getOption( "password" ).setArgName( "password" );
 		options.getOption( "target" ).setArgName( "version" );
 		options.getOption( "upgradefile" ).setArgName( "filename" );
+		options.getOption( "sqlfile" ).setArgName( "filename" );
+		options.getOption( "D" ).setArgName( "property=value" );
+		options.getOption( "D" ).setArgs( 2 );
+		options.getOption( "D" ).setValueSeparator( '=' );
 		options.getOption( "config" ).setArgName( "filename" );
 
 		// Read the commandline options
@@ -145,7 +151,7 @@ public class Main
 				.hasOption( "dumplog" ), line.getOptionValue( "driver" ), line.getOptionValue( "url" ), line
 				.getOptionValue( "username" ), line.getOptionValue( "password" ), line.getOptionValue( "target" ), line
 				.getOptionValue( "upgradefile" ), line.getOptionValue( "sqlfile" ), line.getOptionValue( "config" ),
-				line.hasOption( "downgradeallowed" ), line.hasOption( "help" ) );
+				line.hasOption( "downgradeallowed" ), line.hasOption( "help" ), line.getOptionProperties( "D" ) );
 
 		if( opts.help )
 		{
@@ -188,6 +194,9 @@ public class Main
 					connection.getUserName(),
 					connection.getPassword()
 					);
+
+		for( Entry<Object, Object> entry : configuration.getParameters().entrySet() )
+			runner.addParameter( (String)entry.getKey(), (String)entry.getValue() );
 
 		if( configuration.getSqlFile() != null )
 		{

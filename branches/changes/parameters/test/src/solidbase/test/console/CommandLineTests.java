@@ -177,17 +177,18 @@ public class CommandLineTests
 		String output = TestUtil.generalizeOutput( console.getOutput() );
 //		System.out.println( "[[[" + output + "]]]" );
 		Assert.assertEquals( output,
-				"usage: solidbase [-config <filename>] [-downgradeallowed] [-driver <classname>]\n" +
-				"       [-dumplog <filename>] [-help] [-password <password>] [-sqlfile <arg>]\n" +
-				"       [-target <version>] [-upgradefile <filename>] [-url <url>] [-username\n" +
-				"       <username>] [-verbose]\n" +
+				"usage: solidbase [-config <filename>] [-D <property=value>] [-downgradeallowed]\n" +
+				"       [-driver <classname>] [-dumplog <filename>] [-help] [-password\n" +
+				"       <password>] [-sqlfile <filename>] [-target <version>] [-upgradefile\n" +
+				"       <filename>] [-url <url>] [-username <username>] [-verbose]\n" +
 				" -config <filename>        specifies a properties file to use\n" +
+				" -D <property=value>       parameter to the SQL file or upgrade file\n" +
 				" -downgradeallowed         allow downgrades to reach the target\n" +
 				" -driver <classname>       sets the JDBC driverclass\n" +
 				" -dumplog <filename>       export historical upgrade results to an XML file\n" +
 				" -help                     Brings up this page\n" +
 				" -password <password>      sets the password of the default user\n" +
-				" -sqlfile <arg>            specifies an SQL file to execute\n" +
+				" -sqlfile <filename>       specifies an SQL file to execute\n" +
 				" -target <version>         sets the target version to upgrade to\n" +
 				" -upgradefile <filename>   specifies the file containing the database upgrades\n" +
 				" -url <url>                sets the URL for the database\n" +
@@ -207,17 +208,18 @@ public class CommandLineTests
 		String output = TestUtil.generalizeOutput( console.getOutput() );
 //		System.out.println( "[[[" + output + "]]]" );
 		Assert.assertEquals( output,
-				"usage: solidbase [-config <filename>] [-downgradeallowed] [-driver <classname>]\n" +
-				"       [-dumplog <filename>] [-help] [-password <password>] [-sqlfile <arg>]\n" +
-				"       [-target <version>] [-upgradefile <filename>] [-url <url>] [-username\n" +
-				"       <username>] [-verbose]\n" +
+				"usage: solidbase [-config <filename>] [-D <property=value>] [-downgradeallowed]\n" +
+				"       [-driver <classname>] [-dumplog <filename>] [-help] [-password\n" +
+				"       <password>] [-sqlfile <filename>] [-target <version>] [-upgradefile\n" +
+				"       <filename>] [-url <url>] [-username <username>] [-verbose]\n" +
 				" -config <filename>        specifies a properties file to use\n" +
+				" -D <property=value>       parameter to the SQL file or upgrade file\n" +
 				" -downgradeallowed         allow downgrades to reach the target\n" +
 				" -driver <classname>       sets the JDBC driverclass\n" +
 				" -dumplog <filename>       export historical upgrade results to an XML file\n" +
 				" -help                     Brings up this page\n" +
 				" -password <password>      sets the password of the default user\n" +
-				" -sqlfile <arg>            specifies an SQL file to execute\n" +
+				" -sqlfile <filename>       specifies an SQL file to execute\n" +
 				" -target <version>         sets the target version to upgrade to\n" +
 				" -upgradefile <filename>   specifies the file containing the database upgrades\n" +
 				" -url <url>                sets the URL for the database\n" +
@@ -294,6 +296,79 @@ public class CommandLineTests
 				"DEBUG: version=null, target=1.0.1, statements=4\n" +
 				"\n" +
 				"Current database version is \"1.0.1\".\n" +
+				"Upgrade complete.\n"
+		);
+	}
+
+	@Test
+	static public void testSqlParameters() throws Exception
+	{
+		TestUtil.dropHSQLDBSchema( db2, "sa", null );
+
+		MockConsole console = new MockConsole();
+		Main.console = console;
+
+		Main.main0( "-verbose",
+				"-driver", "org.hsqldb.jdbcDriver",
+				"-url", db2,
+				"-username", "sa",
+				"-password", "",
+				"-sqlfile", "testsql-parameter2.sql",
+				"-Dpar1=val1",
+				"-Dpar2=" );
+
+		String output = TestUtil.generalizeOutput( console.getOutput() );
+//		System.out.println( "[[[" + output + "]]]" );
+		Assert.assertEquals( output,
+				"Reading property file file:/.../solidbase-default.properties\n" +
+				"SolidBase v1.5.x (http://solidbase.org)\n" +
+				"\n" +
+				"Opening file 'X:/.../testsql-parameter2.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
+				"Connecting to database...\n" +
+				"..\n" +
+				"val1..\n" +
+				"Execution complete.\n" +
+				"\n"
+		);
+	}
+
+	@Test
+	static public void testUpgradeParameters() throws Exception
+	{
+		TestUtil.dropHSQLDBSchema( db2, "sa", null );
+
+		MockConsole console = new MockConsole();
+		Main.console = console;
+
+		Main.main0( "-verbose",
+				"-driver", "org.hsqldb.jdbcDriver",
+				"-url", db2,
+				"-username", "sa",
+				"-password", "",
+				"-upgradefile", "testpatch-parameter2.sql",
+				"-Dpar1=val1",
+				"-Dpar2=" );
+
+		String output = TestUtil.generalizeOutput( console.getOutput() );
+//		System.out.println( "[[[" + output + "]]]" );
+		Assert.assertEquals( output,
+				"Reading property file file:/.../solidbase-default.properties\n" +
+				"SolidBase v1.5.x (http://solidbase.org)\n" +
+				"\n" +
+				"Opening file 'X:/.../testpatch-parameter2.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
+				"Connecting to database...\n" +
+				"The database is unmanaged.\n" +
+				"Setting up control tables to \"1.1\"\n" +
+				"Opening file 'X:/.../setup-1.1.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
+				"....\n" +
+				"Upgrading to \"1\"..\n" +
+				"val1.\n" +
+				"DEBUG: version=null, target=1, statements=3\n" +
+				"\n" +
+				"Current database version is \"1\".\n" +
 				"Upgrade complete.\n"
 		);
 	}
