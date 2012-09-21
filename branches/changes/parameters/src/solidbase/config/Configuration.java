@@ -237,6 +237,12 @@ public class Configuration
 						else
 							Assert.fail();
 					}
+					else if( key.startsWith( "parameter." ) )
+					{
+						key = key.substring( 10 );
+						if( !this.parameters.containsKey( key ) )
+							this.parameters.put( key, entry.getValue() );
+					}
 				}
 
 				// Validate them
