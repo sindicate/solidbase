@@ -19,13 +19,14 @@ package solidbase.core;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
 import solidstack.io.SourceLocation;
+import solidstack.script.scopes.AbstractScope;
+import solidstack.script.scopes.Scope;
+import solidstack.script.scopes.Symbol;
 
 
 
@@ -87,9 +88,9 @@ abstract public class CommandContext
 	private int skipCounter;
 
 	/**
-	 * Variables. Null instead of empty.
+	 * The scripting scope.
 	 */
-	private Map< String, String > variables;
+	private AbstractScope scope;
 
 
 	/**
@@ -99,7 +100,6 @@ abstract public class CommandContext
 	{
 		this.jdbcEscaping = false;
 		this.sectionLevel = 0;
-		this.variables = null;
 		this.ignoreStack = new Stack< String[] >();
 		this.ignoreSet = new HashSet< String >();
 		this.noSkipCounter = this.skipCounter = 0;
@@ -118,8 +118,7 @@ abstract public class CommandContext
 		this.jdbcEscaping = parent.jdbcEscaping;
 		this.sectionLevel = parent.sectionLevel;
 		this.currentDatabase = parent.currentDatabase;
-		if( parent.variables != null )
-			this.variables = new HashMap< String, String >( parent.variables );
+		// TODO Inherit scope from parent?
 
 		// no inherit
 		this.ignoreStack = new Stack< String[] >();
@@ -149,7 +148,7 @@ abstract public class CommandContext
 
 	/**
 	 * Process the ELSE annotation.
-	 * 
+	 *
 	 * @param location The location where the ELSE is encountered.
 	 */
 	protected void doElse( SourceLocation location )
@@ -163,7 +162,7 @@ abstract public class CommandContext
 
 	/**
 	 * Process the /IF annotation.
-	 * 
+	 *
 	 * @param location The location where the END IF is encountered.
 	 */
 	protected void endIf( SourceLocation location )
@@ -176,7 +175,7 @@ abstract public class CommandContext
 	/**
 	 * Stop skipping commands. As {@link #skip(boolean)} and {@link #endSkip(SourceLocation)} can be nested, only when the same number
 	 * of endSkips are called as the number of skips, the skipping will stop.
-	 * 
+	 *
 	 * @param location The location where the END SKIP is encountered.
 	 */
 	protected void endSkip( SourceLocation location )
@@ -246,53 +245,24 @@ abstract public class CommandContext
 		return this.ignoreSet.contains( error ) || this.parent != null && this.parent.ignoreSQLError( error );
 	}
 
-	/**
-	 * Sets the specified variable.
-	 *
-	 * @param name The name of the variable.
-	 * @param value The value to store into the variable.
-	 */
-	public void setVariable( String name, Object value )
+	public AbstractScope getScope()
 	{
-		if( this.variables == null )
-			this.variables = new HashMap< String, String >();
-		this.variables.put( name.toUpperCase(), value == null ? null : value.toString() );
+		if( this.scope == null )
+		{
+			this.scope = new Scope();
+			this.scope.def( Symbol.forString( "db" ), new ScriptDB( this ) );
+		}
+		return this.scope;
 	}
 
 	/**
-	 * Are any variables defined?
+	 * Is there a scripting scope?
 	 *
-	 * @return True if variables are defined, false otherwise.
+	 * @return True if a scripting scope exists.
 	 */
-	public boolean hasVariables()
+	public boolean hasScope()
 	{
-		return this.variables != null || this.parent != null && this.parent.hasVariables();
-	}
-
-	/**
-	 * Is the variable with the given name defined?
-	 *
-	 * @param name The name of the variable.
-	 * @return True if the variable is defined, false otherwise.
-	 */
-	public boolean hasVariable( String name )
-	{
-		return this.variables != null && this.variables.containsKey( name ) || this.parent != null && this.parent.hasVariable( name );
-	}
-
-	/**
-	 * Return the value of the variable with the given name.
-	 *
-	 * @param name The name of the variable.
-	 * @return The value of the variable with the given name.
-	 */
-	public String getVariableValue( String name )
-	{
-		if( this.variables != null && this.variables.containsKey( name ) )
-			return this.variables.get( name );
-		if( this.parent == null )
-			return null;
-		return this.parent.getVariableValue( name );
+		return this.scope != null;
 	}
 
 	/**

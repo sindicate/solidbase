@@ -14,36 +14,25 @@
  * limitations under the License.
  */
 
-package solidbase.core;
+package solidbase.test.scripting;
 
 import java.sql.SQLException;
 
 import org.testng.annotations.Test;
 
-public class Sql
+import solidbase.core.SQLProcessor;
+import solidbase.core.Setup;
+import solidbase.core.TestUtil;
+
+public class Scripting
 {
 	@Test
-	public void testSql1() throws SQLException
+	public void testParameter1() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		SQLProcessor processor = Setup.setupSQLProcessor( "testsql1.sql" );
+		SQLProcessor processor = Setup.setupSQLProcessor( "scripting/testsql-parameter1.sql" );
 
 		processor.process();
 		processor.end();
-
-		TestUtil.assertRecordCount( processor.getCurrentDatabase(), "USERS", 13 );
-	}
-
-	@Test
-	// TODO Move to console test
-	public void testSql2() throws SQLException
-	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		SQLProcessor processor = Setup.setupSQLProcessor( "testsql-sections.sql" );
-
-		processor.process();
-		processor.end();
-
-		TestUtil.assertRecordCount( processor.getCurrentDatabase(), "USERS", 13 );
 	}
 }
