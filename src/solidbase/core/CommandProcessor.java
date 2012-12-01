@@ -29,6 +29,8 @@ import solidstack.io.Resource;
 import solidstack.io.SourceReader;
 import solidstack.io.SourceReaders;
 import solidstack.script.Script;
+import solidstack.script.ScriptParser;
+import solidstack.script.expressions.Expression;
 
 
 
@@ -95,7 +97,7 @@ abstract public class CommandProcessor
 	/**
 	 * Pattern for IF VARIABLE.
 	 */
-	static protected final Pattern IF_SCRIPT_COMMAND = Pattern.compile( "IF\\s+&\\{(.*)\\}", Pattern.CASE_INSENSITIVE );
+	static protected final Pattern IF_SCRIPT_COMMAND = Pattern.compile( "IF\\s+SCRIPT\\s+(.*)", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * Pattern for ELSE.
@@ -116,7 +118,7 @@ abstract public class CommandProcessor
 	/**
 	 * Pattern for SCRIPT.
 	 */
-	static protected Pattern SCRIPT_COMMAND = Pattern.compile( "\\s*SCRIPT\\s+(.*)", Pattern.CASE_INSENSITIVE );
+	static protected Pattern SCRIPT_COMMAND = Pattern.compile( "SCRIPT\\s+(.*)", Pattern.CASE_INSENSITIVE );
 
 	// TODO Commit pattern
 //	static protected final Pattern commitPattern = Pattern.compile( "COMMIT", Pattern.CASE_INSENSITIVE );
@@ -195,7 +197,7 @@ abstract public class CommandProcessor
 	}
 
 	/**
-	 * Substitutes place holders in the command with the values from the variables.
+	 * Substitutes place holders in the command.
 	 *
 	 * @param command The command.
 	 */
@@ -203,24 +205,14 @@ abstract public class CommandProcessor
 	{
 		if( !this.context.hasScope() )
 			return;
-		if( !command.getCommand().contains( "&" ) ) // TODO & or something else?
+
+		// TODO Is this needed? The string parser is fast too.
+		if( !command.getCommand().contains( "${" ) ) // TODO & or something else?
 			return;
 
-		// TODO Maybe do a two-step when the command is very large (collect all first, replace only if found)
-		Matcher matcher = placeHolderPattern.matcher( command.getCommand() );
-		StringBuffer sb = new StringBuffer();
-		while( matcher.find() )
-		{
-			String script = matcher.group( 2 );
-			if( script == null )
-				script = matcher.group( 3 );
-
-			Object value = script( script, command );
-			if( value != null )
-				matcher.appendReplacement( sb, value.toString() );
-		}
-		matcher.appendTail( sb );
-		command.setCommand( sb.toString() );
+		Expression expression = ScriptParser.parseString( command.getCommand(), command.getLocation() );
+		Object object = Script.eval( expression, this.context.getScope() );
+		command.setCommand( object.toString() );
 	}
 
 	/**
@@ -487,7 +479,7 @@ abstract public class CommandProcessor
 	protected Object script( String script, Command command )
 	{
 		SourceReader reader = SourceReaders.forString( script, command.getLocation() );
-		return Script.compile( reader ).execute( this.context.getScope() );
+		return Script.compile( reader ).eval( this.context.getScope() );
 	}
 
 	/**
@@ -530,34 +522,11 @@ abstract public class CommandProcessor
 		setConnection( database );
 	}
 
-//	/**
-//	 * Execute the SELECT and set the variable with the result from the SELECT.
-//	 *
-//	 * @param name Name of the variable.
-//	 * @param select The SELECT SQL statement.
-//	 * @throws SQLException Whenever the database throws one.
-//	 */
-//	protected void setVariableFromSelect( String name, String select ) throws SQLException
-//	{
-//		Statement statement = createStatement();
-//		Object value = null;
-//		try
-//		{
-//			ResultSet result = statement.executeQuery( select );
-//			if( result.next() )
-//				value = result.getObject( 1 ); // TODO What about the Oracle TIMESTAMP problem?
-//		}
-//		finally
-//		{
-//			closeStatement( statement, true );
-//		}
-//
-//		this.context.setVariable( name.toUpperCase(), value );
-//	}
-
 	protected void ifScript( String script, Command command )
 	{
-		this.context.skip( Script.isTrue( script( script, command ) ) );
+		SourceReader reader = SourceReaders.forString( script, command.getLocation() );
+		boolean condition = Script.compile( reader ).evalBoolean( this.context.getScope() );
+		this.context.skip( !condition );
 	}
 
 	/**

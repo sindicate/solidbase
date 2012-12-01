@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import solidstack.script.objects.Null;
 import solidstack.script.objects.Tuple;
 
 public class ScriptDB
@@ -24,11 +23,11 @@ public class ScriptDB
 
 		int count = result.getMetaData().getColumnCount();
 		if( count == 1 )
-			return record ? result.getObject( 1 ) : Null.INSTANCE;
+			return record ? result.getObject( 1 ) : null;
 
 		Tuple tuple = new Tuple(); // TODO This is not language independent
 		for( int i = 1; i <= count; i++ )
-			tuple.append( record ? result.getObject( i ) : Null.INSTANCE );
+			tuple.append( record ? result.getObject( i ) : null );
 		return tuple;
 	}
 }
