@@ -15,33 +15,38 @@
 
 --* // ========================================================================
 
---* SCRIPT tableName = "TESTTEST"
+--*  SCRIPT tableName = "TESTTEST"
 
---* IF &{tableName != null}
+--*  IF SCRIPT tableName
 
---* SECTION "Creating table &{tableName}"
-CREATE TABLE &{tableName} ( TEST VARCHAR( 10 ) );
-INSERT INTO &{tableName} VALUES ( 'TEST' );
+--* SECTION "Creating table ${tableName}"
+CREATE TABLE ${tableName} ( TEST VARCHAR( 10 ) );
+INSERT INTO ${tableName} VALUES ( 'TEST' );
 COMMIT;
 
 --* /IF
 
 CREATE TABLE DBPARAMETERS ( KEY VARCHAR( 10 ), VALUE VARCHAR( 100 ) );
-INSERT INTO DBPARAMETERS VALUES ( 'TABLENAME', '&{tableName}' );
+INSERT INTO DBPARAMETERS VALUES ( 'TABLENAME', '${tableName}' );
 
 --* SCRIPT tableName = db.selectFirst( "SELECT VALUE FROM DBPARAMETERS WHERE KEY = 'TABLENAME'" )
 
---* IF &{tableName == null}
+--* IF SCRIPT !tableName
 --* ELSE
 
---* SECTION "Creating table &{tableName}TEST"
-CREATE TABLE &{tableName}TEST ( TEST VARCHAR( 100 ) );
+--* SECTION "Creating table ${tableName}TEST"
+CREATE TABLE ${tableName}TEST ( TEST VARCHAR( 100 ) );
 
 --* SCRIPT ( key, value ) = db.selectFirst( "SELECT KEY, VALUE FROM DBPARAMETERS WHERE KEY = 'TABLENAME'" )
 
---* SECTION "Found &{key} = &{value}"
-INSERT INTO &{tableName}TEST ( TEST ) VALUES ( '&{key} = &{value}' );
+--* SECTION "Found ${key} = ${value}"
+INSERT INTO ${tableName}TEST ( TEST ) VALUES ( '${key} = ${value}' );
 
-PRINT SELECT * FROM &{tableName}TEST;
+PRINT SELECT * FROM ${tableName}TEST;
+
+--* END IF
+
+--* // This should not give an exception 
+--* IF SCRIPT undefinedVariable
 
 --* END IF
