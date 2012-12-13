@@ -150,6 +150,11 @@ abstract public class CommandProcessor
 		this.progress = listener;
 	}
 
+	public CommandContext getContext()
+	{
+		return this.context;
+	}
+
 	/**
 	 * Execute the given command.
 	 *

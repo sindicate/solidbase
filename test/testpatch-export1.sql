@@ -48,6 +48,8 @@ FROM TEMP1;
 	COLUMN TEXT2 TO TEXT FILE "folder/export3.txt"
 SELECT * FROM TEMP1;
 
+--* DUMP JSON DATE_CREATED OFF
+
 DUMP JSON
 FILE "folder/export4.json"
 COLUMN PICTURE TO BINARY FILE "folder/export4-blob-?1.txt"
