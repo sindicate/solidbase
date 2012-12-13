@@ -100,7 +100,7 @@ public class DumpJSON implements CommandListener
 			// TODO What about other configuration settings?
 			tokenizer.get( "DUMP" );
 			tokenizer.get( "JSON" );
-			tokenizer.get( "DATE_CREATED" );
+			tokenizer.get( "DATE_CREATED" ); // FIXME This should be CREATED_DATE
 			Token t = tokenizer.get( "ON", "OFF" );
 			tokenizer.get( (String)null );
 
@@ -188,6 +188,7 @@ public class DumpJSON implements CommandListener
 
 					if( parsed.binaryFileName != null )
 					{
+						// TODO FIXME Should be wrapped in a SourceException: solidbase.solidstack.io.FatalURISyntaxException: java.net.URISyntaxException: Illegal character in path at index 1: &{folder}/JIADHOCCH
 						Resource binResource = Resources.getResource( parsed.binaryFileName );
 						Resource resource = Resources.getResource( parsed.fileName );
 						properties.set( "binaryFile", binResource.getPathFrom( resource ).toString() );

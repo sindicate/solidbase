@@ -447,11 +447,9 @@ public class DBVersion
 	/**
 	 * Adds a log record to the version log table.
 	 *
-	 * @param source The source version.
-	 * @param target The target version.
+	 * @param segment The upgrade segment.
 	 * @param count The statement count.
 	 * @param command The executed statement.
-	 * @param e The exception.
 	 */
 	protected void log( UpgradeSegment segment, int count, String command )
 	{
@@ -461,8 +459,7 @@ public class DBVersion
 	/**
 	 * Adds a log record to the version log table.
 	 *
-	 * @param source The source version.
-	 * @param target The target version.
+	 * @param segment The upgrade segment.
 	 * @param count The statement count.
 	 * @param command The executed statement.
 	 * @param e The SQL exception.
@@ -477,8 +474,7 @@ public class DBVersion
 	/**
 	 * Log a complete block.
 	 *
-	 * @param source The source version.
-	 * @param target The target version.
+	 * @param segment The upgrade segment.
 	 * @param count The statement count.
 	 */
 	protected void logComplete( UpgradeSegment segment, int count )

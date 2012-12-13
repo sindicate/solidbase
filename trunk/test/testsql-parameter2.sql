@@ -1,6 +1,5 @@
---* ENCODING "ISO-8859-1"
 
---* // Copyright 2006 René M. de Bloois
+--* // Copyright 2012 René M. de Bloois
 
 --* // Licensed under the Apache License, Version 2.0 (the "License");
 --* // you may not use this file except in compliance with the License.
@@ -17,21 +16,10 @@
 --* // ========================================================================
 
 
+CREATE TABLE TEST ( COL1 VARCHAR( 10 ) );
 
---* SECTION "Creating table ${users2}"
+INSERT INTO TEST VALUES ( '${par1}' );
 
-CREATE TABLE ${users2}
-(
-	USER_ID INT IDENTITY,
-	USER_USERNAME VARCHAR NOT NULL,
-	USER_PASSWORD VARCHAR NOT NULL
-);
+PRINT SELECT COL1 FROM TEST;
 
---* SECTION "Inserting admin user"
-
-INSERT INTO ${users2} ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' );
-
---* SECTION "Inserting user"
-
-INSERT INTO ${users2} ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' );
-
+COMMIT;

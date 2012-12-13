@@ -27,7 +27,7 @@
 	<target name="ant-test">
 		<taskdef resource="solidbasetasks" classpathref="test.classpath" />
 		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask"
-				user="sa" password=""
+				username="sa" password=""
 				upgradefile="testpatch-multiconnections.sql" target="1.1.*">
        		<secondary name="queues" url="jdbc:hsqldb:mem:queues" username="sa" password="geheim" />
        		<secondary name="user" username="sa" password="" />
@@ -47,8 +47,19 @@
 	<target name="ant-test-filenotfound">
 		<taskdef resource="solidbasetasks" classpathref="test.classpath" />
 		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask"
-				user="sa" password=""
+				username="sa" password=""
 				upgradefile="doesnotexist.sql" />
+	</target>
+
+
+	<target name="ant-test-parameters">
+		<taskdef resource="solidbasetasks" classpathref="test.classpath" />
+		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:upgradeTask1"
+				username="sa" password=""
+				upgradefile="testpatch-parameter2.sql">
+			<parameter name="par1" value="val1" />
+			<parameter name="par2" /> <!-- null -->
+		</solidbase-upgrade>
 	</target>
 
 

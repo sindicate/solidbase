@@ -53,7 +53,7 @@ public class Configuration
 
 	/**
 	 * The contents of the properties file. Default this is solidbase.properties in the current folder, with missing
-	 * properties coming from solidbase-default in the classpath.
+	 * properties coming from solidbase-default.properties in the classpath.
 	 */
 	protected Properties properties;
 
@@ -86,6 +86,11 @@ public class Configuration
 	 * The SQL file to be executed.
 	 */
 	protected String sqlFile;
+
+	/**
+	 * Parameters.
+	 */
+	protected Properties parameters;
 
 	/**
 	 * Returns the path of the properties file. Can be relative or absolute. Needed for testing.
@@ -127,7 +132,7 @@ public class Configuration
 				input.close();
 			}
 
-			// Load the solid.properties
+			// Load the solidbase.properties
 
 			File file;
 			if( options.config != null )
@@ -176,6 +181,7 @@ public class Configuration
 				commandLineProperties.put( "sql.file", options.sqlfile );
 			if( !commandLineProperties.isEmpty() )
 				this.properties = commandLineProperties;
+			this.parameters = options.parameters;
 
 			// Read the classpath extension
 
@@ -230,6 +236,12 @@ public class Configuration
 							database.setPassword( value );
 						else
 							Assert.fail();
+					}
+					else if( key.startsWith( "parameter." ) )
+					{
+						key = key.substring( 10 );
+						if( !this.parameters.containsKey( key ) )
+							this.parameters.put( key, entry.getValue() );
 					}
 				}
 
@@ -319,6 +331,14 @@ public class Configuration
 	public String getProperty( String name )
 	{
 		return this.properties.getProperty( name );
+	}
+
+	/**
+	 * @return The parameters.
+	 */
+	public Properties getParameters()
+	{
+		return this.parameters;
 	}
 
 	/**

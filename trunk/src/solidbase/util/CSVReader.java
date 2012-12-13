@@ -107,6 +107,9 @@ public class CSVReader
 		return this.tokenizer.getLineNumber();
 	}
 
+	/**
+	 * @return The current location within the file.
+	 */
 	public SourceLocation getLocation()
 	{
 		return this.tokenizer.getLocation();

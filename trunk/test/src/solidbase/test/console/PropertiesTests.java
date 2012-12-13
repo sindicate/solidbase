@@ -24,7 +24,7 @@ import solidbase.core.TestUtil;
 import solidbase.test.mocks.MockConsole;
 
 
-public class ThroughConsoleTests
+public class PropertiesTests
 {
 	@Test
 	static public void testConsole() throws Exception
@@ -117,6 +117,65 @@ public class ThroughConsoleTests
 				"DEBUG: version=1.0.2, target=1.0.3, statements=1\n" +
 				"\n" +
 				"Current database version is \"1.0.3\".\n" +
+				"Upgrade complete.\n"
+		);
+	}
+
+	@Test
+	static public void testSqlParameters() throws Exception
+	{
+		MockConsole console = new MockConsole();
+		console.addAnswer( "" );
+		Main.console = console;
+
+		Main.pass2( "-verbose", "-config", "testsql-parameters2.properties" );
+
+		String output = TestUtil.generalizeOutput( console.getOutput() );
+//		System.out.println( "[[[" + output + "]]]" );
+		Assert.assertEquals( output,
+				"Reading property file file:/.../solidbase-default.properties\n" +
+				"Reading property file X:/.../testsql-parameters2.properties\n" +
+				"SolidBase v1.5.x (http://solidbase.org)\n" +
+				"\n" +
+				"Opening file 'X:/.../testsql-parameter2.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
+				"Connecting to database...\n" +
+				"Input password for user 'sa': ..\n" +
+				"val1..\n" +
+				"Execution complete.\n" +
+				"\n"
+		);
+	}
+
+	@Test
+	static public void testUpgradeParameters() throws Exception
+	{
+		MockConsole console = new MockConsole();
+		console.addAnswer( "" );
+		Main.console = console;
+
+		Main.pass2( "-verbose", "-config", "testpatch-parameters2.properties" );
+
+		String output = TestUtil.generalizeOutput( console.getOutput() );
+//		System.out.println( "[[[" + output + "]]]" );
+		Assert.assertEquals( output,
+				"Reading property file file:/.../solidbase-default.properties\n" +
+				"Reading property file X:/.../testpatch-parameters2.properties\n" +
+				"SolidBase v1.5.x (http://solidbase.org)\n" +
+				"\n" +
+				"Opening file 'X:/.../testpatch-parameter2.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
+				"Connecting to database...\n" +
+				"Input password for user 'sa': The database is unmanaged.\n" +
+				"Setting up control tables to \"1.1\"\n" +
+				"Opening file 'X:/.../setup-1.1.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
+				"....\n" +
+				"Upgrading to \"1\"..\n" +
+				"val1.\n" +
+				"DEBUG: version=null, target=1, statements=3\n" +
+				"\n" +
+				"Current database version is \"1\".\n" +
 				"Upgrade complete.\n"
 		);
 	}
