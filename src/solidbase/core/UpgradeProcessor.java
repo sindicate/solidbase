@@ -22,6 +22,7 @@ import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -99,6 +100,11 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	protected UpgradeContext upgradeContext;
 
 	/**
+	 * Parameters.
+	 */
+	protected Map<String, String> parameters;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param listener Listens to the progress.
@@ -137,6 +143,16 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	public void setUpgradeFile( UpgradeFile file )
 	{
 		this.upgradeFile = file;
+	}
+
+	/**
+	 * Sets the parameters.
+	 *
+	 * @param parameters The parameters to set.
+	 */
+	public void setParameters( Map<String, String> parameters )
+	{
+		this.parameters = parameters;
 	}
 
 	/**
@@ -370,6 +386,8 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 
 		UpgradeContext context = new UpgradeContext( this.upgradeFile.gotoSegment( segment ) );
 		context.setDatabases( this.databases );
+		if( this.parameters != null ) // May be null during unit tests
+			context.getScope().setAll( this.parameters );
 		setContext( context );
 		this.context.setCurrentDatabase( getDefaultDatabase() );
 		this.context.getCurrentDatabase().resetUser();
@@ -505,6 +523,8 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 
 	/**
 	 * Persistent commands should be considered transient.
+	 *
+	 * @param location Location of the TRANSIENT annotation.
 	 */
 	protected void startTransient( SourceLocation location )
 	{
@@ -515,6 +535,8 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 
 	/**
 	 * Persistent commands should be considered persistent again.
+	 *
+	 * @param location Location of the END TRANSIENT annotation.
 	 */
 	protected void stopTransient( SourceLocation location )
 	{

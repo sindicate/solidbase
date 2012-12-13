@@ -39,6 +39,7 @@ public interface CommandListener
 	 *
 	 * @param processor The command processor.
 	 * @param command The command that needs to be executed.
+	 * @param skip The command needs to be skipped.
 	 * @return True if it accepted the command.
 	 * @throws SQLException Whenever an unhandled {@link SQLException} is thrown.
 	 */

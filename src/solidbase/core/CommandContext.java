@@ -262,6 +262,7 @@ abstract public class CommandContext
 	 */
 	public boolean hasScope()
 	{
+		// TODO This does not work, there is always a scope, maybe an empty scope
 		return this.scope != null;
 	}
 

@@ -18,61 +18,15 @@ package solidbase.test.ant;
 
 import java.io.File;
 import java.sql.SQLException;
-import java.util.Iterator;
 
-import org.apache.tools.ant.BuildEvent;
-import org.apache.tools.ant.BuildFileTest;
-import org.apache.tools.ant.BuildListener;
-import org.apache.tools.ant.Project;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidbase.core.TestUtil;
 
 
-public class SqlSectionsTests extends BuildFileTest
+public class SqlSectionsTests extends MyBuildFileTest
 {
-	protected StringBuilder logBuffer;
-
-	@Override
-	public void configureProject( String filename, int logLevel )
-	{
-		super.configureProject( filename, logLevel );
-
-		// The current listener that BuildFileTest uses does not add newlines with each log message.
-		// Thus you cannot distinguish between separate log messages.
-		// So we remove the default listener and add our own.
-		// TODO Need to signal this to the Ant project
-
-		int count = 0;
-		Iterator< BuildListener > iterator = this.project.getBuildListeners().iterator();
-		while( iterator.hasNext() )
-		{
-			BuildListener listener = iterator.next();
-			if( listener.getClass().getName().equals( "org.apache.tools.ant.BuildFileTest$AntTestListener" ) )
-			{
-				iterator.remove();
-				count++;
-			}
-		}
-		Assert.assertEquals( count, 1 );
-
-		this.logBuffer = new StringBuilder();
-		this.project.addBuildListener( new MyAntTestListener( logLevel ) );
-	}
-
-	@Override
-	public String getFullLog()
-	{
-		return this.logBuffer.toString();
-	}
-
-	@Override
-	public String getLog()
-	{
-		return this.logBuffer.toString();
-	}
-
 	@Test
 	public void testSqlTask() throws SQLException
 	{
@@ -98,52 +52,5 @@ public class SqlSectionsTests extends BuildFileTest
 				"Execution complete.\n" +
 				"\n"
 		);
-	}
-
-	protected class MyAntTestListener implements BuildListener
-	{
-		public MyAntTestListener( int logLevel )
-		{
-			// Not needed
-		}
-
-		public void buildStarted( BuildEvent event )
-		{
-			// Not needed
-		}
-
-		public void buildFinished( BuildEvent event )
-		{
-			// Not needed
-		}
-
-		public void targetStarted( BuildEvent event )
-		{
-			// Not needed
-		}
-
-		public void targetFinished( BuildEvent event )
-		{
-			// Not needed
-		}
-
-		public void taskStarted( BuildEvent event )
-		{
-			// Not needed
-		}
-
-		public void taskFinished( BuildEvent event )
-		{
-			// Not needed
-		}
-
-		public void messageLogged( BuildEvent event )
-		{
-			if( event.getPriority() == Project.MSG_INFO || event.getPriority() == Project.MSG_WARN || event.getPriority() == Project.MSG_ERR )
-			{
-				SqlSectionsTests.this.logBuffer.append( event.getMessage() );
-				SqlSectionsTests.this.logBuffer.append( '\n' );
-			}
-		}
 	}
 }

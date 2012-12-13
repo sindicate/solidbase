@@ -50,4 +50,16 @@
 	</target>
 
 
+	<!-- TODO Use less databases, for example 1 database and the unit tests just use different table names for the tests -->
+	<target name="ant-test-parameters">
+		<taskdef resource="solidbasetasks" classpathref="test.classpath" />
+		<property name="prop1" value="val1" />
+		<sb-sql driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask3" username="sa" password="">
+			<sqlfile src="testsql-parameter2.sql" />
+			<parameter name="par1" value="${prop1}" />
+			<parameter name="par2" /> <!-- null -->
+        </sb-sql>
+	</target>
+
+
 </project>

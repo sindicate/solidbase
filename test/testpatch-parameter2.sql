@@ -1,6 +1,5 @@
---* ENCODING "ISO-8859-1"
 
---* // Copyright 2006 René M. de Bloois
+--* // Copyright 2012 René M. de Bloois
 
 --* // Licensed under the Apache License, Version 2.0 (the "License");
 --* // you may not use this file except in compliance with the License.
@@ -17,21 +16,19 @@
 --* // ========================================================================
 
 
+--*	DEFINITION
+--*		SETUP "" --> "1.1"
+--*		UPGRADE "" --> "1"
+--*	END DEFINITION
 
---* SECTION "Creating table ${users2}"
 
-CREATE TABLE ${users2}
-(
-	USER_ID INT IDENTITY,
-	USER_USERNAME VARCHAR NOT NULL,
-	USER_PASSWORD VARCHAR NOT NULL
-);
+--* SETUP "" --> "1.1"
+RUN "setup-1.1.sql";
+--* END SETUP
 
---* SECTION "Inserting admin user"
 
-INSERT INTO ${users2} ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' );
-
---* SECTION "Inserting user"
-
-INSERT INTO ${users2} ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' );
-
+--* UPGRADE "" --> "1"
+CREATE TABLE TEST ( COL1 VARCHAR( 10 ) );
+INSERT INTO TEST VALUES ( '${par1}' );
+PRINT SELECT COL1 FROM TEST;
+--* END UPGRADE

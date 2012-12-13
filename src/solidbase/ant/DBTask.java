@@ -22,10 +22,12 @@ import java.util.List;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
+import solidbase.core.Runner;
+
 
 /**
  * Ant task that has database connection functionality.
- * 
+ *
  * @author René M. de Bloois
  */
 public class DBTask extends Task
@@ -56,8 +58,13 @@ public class DBTask extends Task
 	protected List< Connection > connections = new ArrayList< Connection >();
 
 	/**
+	 * Field to store the parameters.
+	 */
+	protected List< Parameter > parameters = new ArrayList< Parameter >();
+
+	/**
 	 * Returns the configured driver.
-	 * 
+	 *
 	 * @return The configured driver.
 	 */
 	public String getDriver()
@@ -67,7 +74,7 @@ public class DBTask extends Task
 
 	/**
 	 * Sets the driver to be configured.
-	 * 
+	 *
 	 * @param driver The driver to be configured.
 	 */
 	public void setDriver( String driver )
@@ -77,7 +84,7 @@ public class DBTask extends Task
 
 	/**
 	 * Returns the configured url.
-	 * 
+	 *
 	 * @return The configured url.
 	 */
 	public String getUrl()
@@ -87,7 +94,7 @@ public class DBTask extends Task
 
 	/**
 	 * Sets the url to be configured.
-	 * 
+	 *
 	 * @param url The url to be configured.
 	 */
 	public void setUrl( String url )
@@ -97,7 +104,7 @@ public class DBTask extends Task
 
 	/**
 	 * Returns the configured user name.
-	 * 
+	 *
 	 * @return The configured user name.
 	 */
 	public String getUsername()
@@ -107,7 +114,7 @@ public class DBTask extends Task
 
 	/**
 	 * Sets the user name to configure.
-	 * 
+	 *
 	 * @param username The user name to configure.
 	 */
 	public void setUsername( String username )
@@ -117,7 +124,7 @@ public class DBTask extends Task
 
 	/**
 	 * Returns the configured password.
-	 * 
+	 *
 	 * @return The configured password.
 	 */
 	public String getPassword()
@@ -127,7 +134,7 @@ public class DBTask extends Task
 
 	/**
 	 * Sets the password to configure.
-	 * 
+	 *
 	 * @param password The password to configure.
 	 */
 	public void setPassword( String password )
@@ -137,7 +144,7 @@ public class DBTask extends Task
 
 	/**
 	 * Creates a secondary connection.
-	 * 
+	 *
 	 * @return The secondary connection created.
 	 */
 	public Connection createSecondary()
@@ -149,7 +156,7 @@ public class DBTask extends Task
 
 	/**
 	 * Returns all configured secondary connections.
-	 * 
+	 *
 	 * @return All configured connections.
 	 */
 	public List< Connection > getConnections()
@@ -158,8 +165,28 @@ public class DBTask extends Task
 	}
 
 	/**
+	 * Creates a parameter.
+	 *
+	 * @return The parameter created.
+	 */
+	public Parameter createParameter()
+	{
+		Parameter parameter = new Parameter();
+		this.parameters.add( parameter );
+		return parameter;
+	}
+
+	/**
+	 * @return All configured parameters.
+	 */
+	public List< Parameter > getParameters()
+	{
+		return this.parameters;
+	}
+
+	/**
 	 * Connection object used to configure the Ant Task.
-	 * 
+	 *
 	 * @author René M. de Bloois
 	 */
 	static protected class Connection
@@ -191,7 +218,7 @@ public class DBTask extends Task
 
 		/**
 		 * Returns the configured name of the secondary connection.
-		 * 
+		 *
 		 * @return The configured name of the secondary connection.
 		 */
 		public String getName()
@@ -201,7 +228,7 @@ public class DBTask extends Task
 
 		/**
 		 * Sets the name of the secondary connection to configure.
-		 * 
+		 *
 		 * @param name The name of the secondary connection to configure.
 		 */
 		public void setName( String name )
@@ -211,7 +238,7 @@ public class DBTask extends Task
 
 		/**
 		 * Returns the configured database driver of the secondary connection.
-		 * 
+		 *
 		 * @return The configured database driver of the secondary connection.
 		 */
 		public String getDriver()
@@ -221,7 +248,7 @@ public class DBTask extends Task
 
 		/**
 		 * Sets the database driver of the secondary connection to configure.
-		 * 
+		 *
 		 * @param driver The database driver of the secondary connection to configure.
 		 */
 		public void setDriver( String driver )
@@ -231,7 +258,7 @@ public class DBTask extends Task
 
 		/**
 		 * Returns the configured database url of the secondary connection.
-		 * 
+		 *
 		 * @return The configured database url of the secondary connection.
 		 */
 		public String getUrl()
@@ -241,7 +268,7 @@ public class DBTask extends Task
 
 		/**
 		 * Sets the database url of the secondary connection to configure.
-		 * 
+		 *
 		 * @param url The database url of the secondary connection to configure.
 		 */
 		public void setUrl( String url )
@@ -251,7 +278,7 @@ public class DBTask extends Task
 
 		/**
 		 * Returns the configured user name of the secondary connection.
-		 * 
+		 *
 		 * @return The configured user name of the secondary connection.
 		 */
 		public String getUsername()
@@ -261,7 +288,7 @@ public class DBTask extends Task
 
 		/**
 		 * Sets the user name of the secondary connection to configure.
-		 * 
+		 *
 		 * @param username The user name of the secondary connection to configure.
 		 */
 		public void setUsername( String username )
@@ -271,7 +298,7 @@ public class DBTask extends Task
 
 		/**
 		 * Returns the configured password of the secondary connection.
-		 * 
+		 *
 		 * @return The configured password of the secondary connection.
 		 */
 		public String getPassword()
@@ -281,12 +308,58 @@ public class DBTask extends Task
 
 		/**
 		 * Sets the password of the secondary connection to configure.
-		 * 
+		 *
 		 * @param password The password of the secondary connection to configure.
 		 */
 		public void setPassword( String password )
 		{
 			this.password = password;
+		}
+	}
+
+	/**
+	 * Parameter object to allow configuring of parameters.
+	 *
+	 * @author René de Bloois
+	 */
+	static protected class Parameter
+	{
+		private String name;
+		private String value;
+
+		/**
+		 * @return The name of the parameter.
+		 */
+		public String getName()
+		{
+			return this.name;
+		}
+
+		/**
+		 * Sets the name of the parameter.
+		 * @param name The name for the parameter.
+		 */
+		public void setName( String name )
+		{
+			this.name = name;
+		}
+
+		/**
+		 * @return The value of the parameter.
+		 */
+		public String getValue()
+		{
+			return this.value;
+		}
+
+		/**
+		 * Set the value of the parameter.
+		 * @param value The value of the parameter.
+		 */
+		// TODO Text as value, but Ant does not substitute placeholders in the text element.
+		public void setValue( String value )
+		{
+			this.value = value;
 		}
 	}
 
@@ -315,5 +388,33 @@ public class DBTask extends Task
 			if( connection.getName().equals( "default" ) )
 				throw new BuildException( "The connection name 'default' is reserved" );
 		}
+
+		for( Parameter parameter : this.parameters )
+		{
+			if( parameter.getName() == null )
+				throw new BuildException( "The 'name' attribute is mandatory for a 'parameter' element" );
+		}
+	}
+
+	/**
+	 * Prepares the core's Runner.
+	 *
+	 * @return The Runner.
+	 */
+	public Runner prepareRunner()
+	{
+		Runner runner = new Runner();
+
+		runner.setProgressListener( new Progress( getProject(), this ) );
+
+		runner.setConnectionAttributes( "default", this.driver, this.url, this.username, this.password );
+		for( Connection connection : this.connections )
+			runner.setConnectionAttributes( connection.getName(), connection.getDriver(), connection.getUrl(),
+					connection.getUsername(), connection.getPassword() );
+
+		for( Parameter parameter : this.parameters )
+			runner.addParameter( parameter.getName(), parameter.getValue() );
+
+		return runner;
 	}
 }

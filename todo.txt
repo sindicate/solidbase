@@ -1,2 +1,31 @@
-Introduce ProgressListener interface
-Remove runtime dependency on Spring
+commandline:
+
+	java -cp .... MainClass -Dname=value
+
+property file:
+
+	properties.name = value
+
+ant:
+
+	<property name="" value="" />
+
+	or
+
+	<properties>
+		name1 = value1
+		name2 = value2
+	</properties>
+
+maven:
+
+	<properties>
+		<name>value</name>
+	</properties>
+
+	xor
+
+	<properties>
+		name1 = value1
+		name2 = value2
+	</properties>

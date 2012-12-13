@@ -62,9 +62,9 @@ CREATE INDEX DBVERSIONLOG_INDEX1 ON DBVERSIONLOG ( TYPE, TARGET );
 --* UPGRADE "" --> "1.0.1"
 --* // ========================================================================
 
---* SECTION "Creating table USERS"
+--* SECTION "Creating table ${users1}"
 
-CREATE TABLE USERS
+CREATE TABLE ${users1}
 (
 	USER_ID INT IDENTITY,
 	USER_USERNAME VARCHAR NOT NULL,
@@ -73,10 +73,10 @@ CREATE TABLE USERS
 
 --* SECTION "Inserting admin user"
 
-INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' );
+INSERT INTO ${users1} ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' );
 
 --* SECTION "Inserting user"
 
-INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' );
+INSERT INTO ${users1} ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' );
 
 --* /UPGRADE

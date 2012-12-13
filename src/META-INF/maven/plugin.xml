@@ -91,10 +91,17 @@
 				</parameter>
 				<parameter>
 					<name>connections</name>
-					<type>java.lang.Secondary[]</type>
+					<type>solidbase.maven.Secondary[]</type>
 					<required>false</required>
 					<editable>true</editable>
 					<description>Secondary connections.</description>
+				</parameter>
+				<parameter>
+					<name>parameters</name>
+					<type>solidbase.maven.Parameter[]</type>
+					<required>false</required>
+					<editable>true</editable>
+					<description>Parameters.</description>
 				</parameter>
 			</parameters>
 			<configuration>
@@ -107,6 +114,8 @@
 				<password implementation="java.lang.String">${password}</password>
 				<url implementation="java.lang.String">${url}</url>
 				<skip implementation="boolean">${skip}</skip>
+				<connections implementation="solidbase.maven.Secondary[]">${connections}</connections>
+				<parameters implementation="solidbase.maven.Parameter[]">${parameters}</parameters>
 			</configuration>
 		</mojo>
 		<mojo>
@@ -175,10 +184,17 @@
 				</parameter>
 				<parameter>
 					<name>connections</name>
-					<type>java.lang.Secondary[]</type>
+					<type>solidbase.maven.Secondary[]</type>
 					<required>false</required>
 					<editable>true</editable>
 					<description>Secondary connections.</description>
+				</parameter>
+				<parameter>
+					<name>parameters</name>
+					<type>solidbase.maven.Parameter[]</type>
+					<required>false</required>
+					<editable>true</editable>
+					<description>Parameters.</description>
 				</parameter>
 			</parameters>
 			<configuration>
@@ -189,6 +205,8 @@
 				<password implementation="java.lang.String">${password}</password>
 				<url implementation="java.lang.String">${url}</url>
 				<skip implementation="boolean">${skip}</skip>
+				<connections implementation="solidbase.maven.Secondary[]">${connections}</connections>
+				<parameters implementation="solidbase.maven.Parameter[]">${parameters}</parameters>
 			</configuration>
 		</mojo>
 	</mojos>

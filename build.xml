@@ -21,11 +21,11 @@
 
 	<!-- Maven Ant Task -->
 
-	<path id="maven.classpath">
+	<path id="maventasks.classpath">
 		<fileset dir="tools/maven" includes="*.jar" />
 	</path>
 
-	<typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven.classpath" />
+	<typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maventasks.classpath" />
 
 	<!-- <maven:dependencies><pom file="pom.xml" /></maven:dependencies> -->
 
@@ -75,6 +75,10 @@
 		<fileset dir="tools/jing" includes="*.jar" />
 	</path>
 
+	<path id="maven.classpath">
+		<fileset dir="tools/maven/lib" includes="*.jar" />
+	</path>
+
 	<path id="compile.classpath">
 		<fileset dir="lib" includes="*.jar" />
 	</path>
@@ -88,6 +92,7 @@
 	<path id="test.classpath">
 		<pathelement location="${build.home}/testclasses" />
 		<path refid="compiletest.classpath" />
+		<path refid="maven.classpath" />
 	</path>
 
 	<path id="maven2.classpath">

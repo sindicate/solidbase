@@ -159,6 +159,7 @@ abstract public class CommandProcessor
 	 * Execute the given command.
 	 *
 	 * @param command The command to be executed.
+	 * @param skip The command needs to be skipped.
 	 * @return Whenever an {@link SQLException} is ignored.
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
@@ -208,6 +209,7 @@ abstract public class CommandProcessor
 	 */
 	protected void substituteVariables( Command command )
 	{
+		// TODO Or should we always substitute?
 		if( !this.context.hasScope() )
 			return;
 
@@ -224,6 +226,7 @@ abstract public class CommandProcessor
 	 * Give the listeners a chance to react to the given command.
 	 *
 	 * @param command The command to be executed.
+	 * @param skip The command needs to be skipped.
 	 * @return True if a listener has processed the command, false otherwise.
 	 * @throws SQLException If the database throws an exception.
 	 */
