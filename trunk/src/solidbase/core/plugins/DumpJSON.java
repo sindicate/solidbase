@@ -67,6 +67,7 @@ import solidstack.io.FileResource;
 import solidstack.io.Resource;
 import solidstack.io.Resources;
 import solidstack.io.SourceReaders;
+import solidstack.script.scopes.AbstractScope;
 
 
 /**
@@ -86,16 +87,38 @@ public class DumpJSON implements CommandListener
 	// TODO Export multiple tables to a single file. If no PK than sort on all columns. Schema name for import or not?
 	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
 	{
-		if( command.isTransient() )
-			return false;
-
 		if( !triggerPattern.matcher( command.getCommand() ).matches() )
 			return false;
+
+		if( command.isTransient() )
+		{
+			/* DUMP JSON DATE_CREATED ON | OFF */
+
+			SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
+
+			// TODO Maybe DUMP JSON CONFIG or DUMP JSON SET
+			// TODO What about other configuration settings?
+			tokenizer.get( "DUMP" );
+			tokenizer.get( "JSON" );
+			tokenizer.get( "DATE_CREATED" );
+			Token t = tokenizer.get( "ON", "OFF" );
+			tokenizer.get( (String)null );
+
+			// TODO I think we should have a scope that is restricted to the current file and a scope that gets inherited when running or including another file.
+			AbstractScope scope = processor.getContext().getScope();
+			scope.set( "solidbase.dump_json.dateCreated", t.eq( "ON" ) ); // TODO Make this a constant
+
+			return true;
+		}
 
 		if( skip )
 			return true;
 
 		Parsed parsed = parse( command );
+
+		AbstractScope scope = processor.getContext().getScope();
+		Object object = scope.get( "solidbase.dump_json.dateCreated" );
+		boolean dateCreated = object == null || object instanceof Boolean && (Boolean)object;
 
 		Resource jsvResource = new FileResource( new File( parsed.fileName ) ); // Relative to current folder
 
@@ -157,8 +180,11 @@ public class DumpJSON implements CommandListener
 					properties.set( "description", "SolidBase JSON Data Dump File" );
 					properties.set( "createdBy", new JSONObject( "product", "SolidBase", "version", "2.0.0" ) );
 
-					SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
-					properties.set( "createdDate", format.format( new Date() ) );
+					if( dateCreated )
+					{
+						SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
+						properties.set( "createdDate", format.format( new Date() ) );
+					}
 
 					if( parsed.binaryFileName != null )
 					{
