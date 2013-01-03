@@ -158,7 +158,14 @@ public class DumpJSON implements CommandListener
 							types[ i ] = Types.TIMESTAMP;
 						names[ i ] = name;
 						if( parsed.columns != null )
-							fileSpecs[ i ] = parsed.columns.get( name );
+						{
+							ColumnSpec columnSpec = parsed.columns.get( name );
+							if( columnSpec != null )
+								if( columnSpec.skip )
+									ignore[ i ] = true;
+								else
+									fileSpecs[ i ] = columnSpec.toFile;
+						}
 						if( parsed.coalesce != null && parsed.coalesce.notFirst( name ) )
 							ignore[ i ] = true;
 						// TODO STRUCT serialize
@@ -563,7 +570,7 @@ public class DumpJSON implements CommandListener
 
 		if( t.eq( "COLUMN" ) )
 		{
-			result.columns = new HashMap< String, FileSpec >();
+			result.columns = new HashMap< String, ColumnSpec >();
 			while( t.eq( "COLUMN" ) )
 			{
 				List< Token > columns = new ArrayList< Token >();
@@ -576,29 +583,37 @@ public class DumpJSON implements CommandListener
 				}
 				tokenizer.push( t );
 
-				tokenizer.get( "TO" );
-				t = tokenizer.get( "BINARY", "TEXT" );
-				boolean binary = t.eq( "BINARY" );
-				tokenizer.get( "FILE" );
-				t = tokenizer.get();
-				String fileName = t.getValue();
-				if( !fileName.startsWith( "\"" ) )
-					throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-				fileName = fileName.substring( 1, fileName.length() - 1 );
-
-				t = tokenizer.get();
-				int threshold = 0;
-				if( t.eq( "THRESHOLD" ) )
+				ColumnSpec columnSpec;
+				t = tokenizer.get( "TO", "SKIP" );
+				if( t.eq( "TO" ) )
 				{
+					t = tokenizer.get( "BINARY", "TEXT" );
+					boolean binary = t.eq( "BINARY" );
+					tokenizer.get( "FILE" );
 					t = tokenizer.get();
-					threshold = Integer.parseInt( t.getValue() );
+					String fileName = t.getValue();
+					if( !fileName.startsWith( "\"" ) )
+						throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+					fileName = fileName.substring( 1, fileName.length() - 1 );
 
+					t = tokenizer.get();
+					int threshold = 0;
+					if( t.eq( "THRESHOLD" ) )
+					{
+						threshold = Integer.parseInt( tokenizer.get().getValue() );
+						t = tokenizer.get();
+					}
+
+					columnSpec = new ColumnSpec( false, new FileSpec( binary, fileName, threshold ) );
+				}
+				else
+				{
+					columnSpec = new ColumnSpec( true, null );
 					t = tokenizer.get();
 				}
 
-				FileSpec fileSpec = new FileSpec( binary, fileName, threshold );
 				for( Token column : columns )
-					result.columns.put( column.getValue().toUpperCase(), fileSpec );
+					result.columns.put( column.getValue().toUpperCase(), columnSpec );
 			}
 		}
 		tokenizer.push( t );
@@ -641,7 +656,7 @@ public class DumpJSON implements CommandListener
 		protected int logRecords;
 		protected int logSeconds;
 
-		protected Map< String, FileSpec > columns;
+		protected Map<String, ColumnSpec> columns;
 	}
 
 
@@ -660,6 +675,19 @@ public class DumpJSON implements CommandListener
 			this.binary = binary;
 			this.threshold = threshold;
 			this.generator = new FileNameGenerator( fileName );
+		}
+	}
+
+
+	static protected class ColumnSpec
+	{
+		protected boolean skip;
+		protected FileSpec toFile;
+
+		protected ColumnSpec( boolean skip, FileSpec toFile )
+		{
+			this.skip = skip;
+			this.toFile = toFile;
 		}
 	}
 
