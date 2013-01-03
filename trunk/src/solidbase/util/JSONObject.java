@@ -27,14 +27,20 @@ public class JSONObject implements Iterable< Map.Entry< String, Object > >
 		this.values.put( name, value );
 	}
 
-	public BigDecimal getNumber( String name )
+	public BigDecimal findNumber( String name )
 	{
 		Object result = this.values.get( name );
-		if( result == null )
-			throw new SystemException( "Missing attribute '" + name + "'" );
-		if( result instanceof BigDecimal )
+		if( result == null || result instanceof BigDecimal )
 			return (BigDecimal)result;
 		throw new SystemException( "Attribute '" + name + "' is not a BigDecimal" );
+	}
+
+	public BigDecimal getNumber( String name )
+	{
+		BigDecimal result = findNumber( name );
+		if( result == null )
+			throw new SystemException( "Missing attribute '" + name + "'" );
+		return result;
 	}
 
 	public String findString( String name )
@@ -47,10 +53,10 @@ public class JSONObject implements Iterable< Map.Entry< String, Object > >
 
 	public String getString( String name )
 	{
-		Object result = findString( name );
+		String result = findString( name );
 		if( result == null )
 			throw new SystemException( "Missing attribute '" + name + "'" );
-		return (String)result;
+		return result;
 	}
 
 	public JSONArray getArray( String name )

@@ -23,10 +23,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
+import funny.Symbol;
+
 import solidstack.io.SourceLocation;
 import solidstack.script.scopes.AbstractScope;
 import solidstack.script.scopes.Scope;
-import solidstack.script.scopes.Symbol;
 
 
 
@@ -250,7 +251,7 @@ abstract public class CommandContext
 		if( this.scope == null )
 		{
 			this.scope = new Scope();
-			this.scope.def( Symbol.forString( "db" ), new ScriptDB( this ) );
+			this.scope.def( Symbol.apply( "db" ), new ScriptDB( this ) );
 		}
 		return this.scope;
 	}

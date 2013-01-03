@@ -16,7 +16,9 @@
 
 package solidbase.core.plugins;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -54,6 +56,7 @@ import solidstack.io.SegmentedReader;
 import solidstack.io.SourceReader;
 import solidstack.io.SourceReaders;
 import solidstack.lang.ThreadInterrupted;
+import solidstack.script.java.DefaultClassExtensions;
 
 
 public class LoadJSON implements CommandListener
@@ -76,35 +79,44 @@ public class LoadJSON implements CommandListener
 		if( skip )
 			return true;
 
+		// Parse the command
 		Parsed parsed = parse( command );
 
+		// Open the file resource
 		Resource resource = processor.getResource().resolve( parsed.fileName );
 		resource.setGZip( parsed.gzip );
-		SourceReader lineReader;
+		SourceReader sourceReader;
 		try
 		{
 			// TODO Use the same charset detection as JSON does. Maybe introduce the UTF charset if the default does not become UTF.
-			lineReader = SourceReaders.forResource( resource, "UTF-8" );
+			sourceReader = SourceReaders.forResource( resource, "UTF-8" );
 		}
 		catch( FileNotFoundException e )
 		{
 			throw new FatalException( e.toString() );
 		}
 
-		JSONReader reader = new JSONReader( lineReader );
+		// Create a JSON reader
+		JSONReader reader = new JSONReader( sourceReader );
 		try
 		{
+			// Read the header
 			JSONObject properties = (JSONObject)reader.read();
+
+			// The default binary file
 			String binaryFile = properties.findString( "binaryFile" );
 
-			// Fields
+			// The fields
 			JSONArray fields = properties.getArray( "fields" );
-			int len = fields.size();
-			int[] types = new int[ len ];
-			String[] fileNames = new String[ len ];
-			SegmentedInputStream[] streams = new SegmentedInputStream[ len ];
-			SegmentedReader[] textStreams = new SegmentedReader[ len ];
-			for( int i = 0; i < len; i++ )
+			int fieldCount = fields.size();
+
+			// Initialise the working arrays
+			int[] types = new int[ fieldCount ];
+			String[] fileNames = new String[ fieldCount ];
+			SegmentedInputStream[] streams = new SegmentedInputStream[ fieldCount ];
+			SegmentedReader[] textStreams = new SegmentedReader[ fieldCount ];
+
+			for( int i = 0; i < fieldCount; i++ )
 			{
 				JSONObject field = (JSONObject)fields.get( i );
 				types[ i ] = JDBCSupport.fromTypeName( field.getString( "type" ) );
@@ -113,32 +125,19 @@ public class LoadJSON implements CommandListener
 
 			boolean prependLineNumber = parsed.prependLineNumber;
 
+			// Create the INSERT statement
 			StringBuilder sql = new StringBuilder( "INSERT INTO " );
 			sql.append( parsed.tableName ); // TODO Where else do we need the quotes?
 			if( parsed.columns != null )
-			{
-				sql.append( " (" );
-				for( int i = 0; i < parsed.columns.length; i++ )
-				{
-					if( i > 0 )
-						sql.append( ',' );
-					sql.append( parsed.columns[ i ] );
-				}
-				sql.append( ')' );
-			}
+				DefaultClassExtensions.addString( parsed.columns, sql, " (", ",", ")" );
 			List< Integer > parameterMap = new ArrayList< Integer >();
 			if( parsed.values != null )
 			{
-				sql.append( " VALUES (" );
-				for( int i = 0; i < parsed.values.length; i++ )
-				{
-					if( i > 0 )
-						sql.append( "," );
-					String value = parsed.values[ i ];
-					value = translateArgument( value, parameterMap );
-					sql.append( value );
-				}
-				sql.append( ')' );
+				int len = parsed.values.length;
+				String[] values = new String[ len ];
+				for( int i = 0; i < len; i++ )
+					values[ i ] = translateArgument( parsed.values[ i ], parameterMap );
+				DefaultClassExtensions.addString( values, sql, " VALUES (", ",", ")" );
 			}
 			else
 			{
@@ -158,27 +157,35 @@ public class LoadJSON implements CommandListener
 				sql.append( ')' );
 			}
 
+			// Create the log counter
 			Counter counter = null;
 			if( parsed.logRecords > 0 )
 				counter = new FixedCounter( parsed.logRecords );
 			else if( parsed.logSeconds > 0 )
 				counter = new TimedCounter( parsed.logSeconds );
 
+			// Prepare the INSERT statement
 			PreparedStatement statement = processor.prepareStatement( sql.toString() );
-			CloseQueue biggerCloser = new CloseQueue();
+
+			// Queues the will remember the files we need to close
+			CloseQueue outerCloser = new CloseQueue();
 			CloseQueue closer = new CloseQueue();
-			boolean commit = false;
+
+			boolean commit = false; // boolean to see if we reached the end
 			try
 			{
 				int batchSize = 0;
 				while( true )
 				{
+					// Detect interruption
 					if( Thread.currentThread().isInterrupted() ) // TODO Is this the right spot during an upgrade?
 						throw new ThreadInterrupted();
 
+					// Read a record
 					JSONArray values = (JSONArray)reader.read();
 					if( values == null )
 					{
+						// End of file, finalize things
 						Assert.isTrue( reader.isEOF() );
 						if( batchSize > 0 )
 							statement.executeBatch();
@@ -189,8 +196,10 @@ public class LoadJSON implements CommandListener
 						commit = true;
 						return true;
 					}
+
 					int lineNumber = reader.getLineNumber();
 
+					// Convert the strings to date, time and timestamps
 					int i = 0;
 					for( ListIterator< Object > it = values.iterator(); it.hasNext(); )
 					{
@@ -207,15 +216,15 @@ public class LoadJSON implements CommandListener
 						i++;
 					}
 
+					// Set the statement parameters
 					int pos = 1;
-					int index = 0;
 					for( int par : parameterMap )
 					{
 						if( par == 1 && prependLineNumber )
 							statement.setInt( pos++, lineNumber );
 						else
 						{
-							index = par - ( prependLineNumber ? 2 : 1 );
+							int index = par - ( prependLineNumber ? 2 : 1 );
 							int type = types[ index ];
 							Object value;
 							try
@@ -228,21 +237,30 @@ public class LoadJSON implements CommandListener
 							}
 							if( value instanceof JSONObject )
 							{
+								// Value of parameter is in a separate file
 								JSONObject object = (JSONObject)value;
 								String filename = object.findString( "file" );
 								if( filename != null )
 								{
+									// One file per record
 									if( type == Types.BLOB || type == Types.VARBINARY )
 									{
 										try
 										{
-											InputStream in = resource.resolve( filename ).newInputStream();
-											closer.add( in );
-											// Some databases read the stream directly (Oracle), others read it later (HSQLDB).
-											statement.setBinaryStream( pos++, in );
-											// TODO Do we need to decrease the batch size when files are being kept open?
-											// TODO What if the contents of the blob is sufficiently small, shouldn't we just call setBytes()?
-											// TODO We could detect that the database has read the stream already, and close the file
+											// TODO Fix the input stream size given the size in the JSON file
+											Resource r = resource.resolve( filename );
+											BigDecimal filesize = object.findNumber( "size" );
+											if( filesize == null || filesize.intValue() > 10240 ) // TODO Whats a good size here? Should it be a long?
+											{
+												// Some databases read the stream directly (Oracle), others read it later (HSQLDB).
+												// TODO Do we need to decrease the batch size when files are being kept open?
+												// TODO We could detect that the database has read the stream already, and close the file
+												InputStream in = r.newInputStream();
+												statement.setBinaryStream( pos++, in );
+												closer.add( in );
+											}
+											else
+												statement.setBytes( pos++, readBytes( r ) ); // TODO Do a speed test
 										}
 										catch( FileNotFoundException e )
 										{
@@ -254,6 +272,7 @@ public class LoadJSON implements CommandListener
 								}
 								else
 								{
+									// One file for all records
 									BigDecimal lobIndex = object.getNumber( "index" ); // TODO Use findNumber
 									if( lobIndex == null )
 										throw new SourceException( "Expected a 'file' or 'index' attribute", reader.getLocation() );
@@ -263,19 +282,21 @@ public class LoadJSON implements CommandListener
 
 									if( type == Types.BLOB || type == Types.VARBINARY )
 									{
-										String fileName = fileNames[ index ];
-										if( fileName == null )
-											fileName = binaryFile;
-										if( fileName == null )
-											throw new SourceException( "No file configured", reader.getLocation() );
+										// Get the input stream
 										SegmentedInputStream in = streams[ index ];
 										if( in == null )
 										{
+											// File not opened yet, open it
+											String fileName = fileNames[ index ];
+											if( fileName == null )
+												fileName = binaryFile;
+											if( fileName == null )
+												throw new SourceException( "No file or default binary file configured", reader.getLocation() );
 											Resource r = resource.resolve( fileName );
 											try
 											{
 												in = new SegmentedInputStream( r.newInputStream() );
-												biggerCloser.add( in ); // TODO Why? Don't understand anymore.
+												outerCloser.add( in ); // Close at the final end
 												streams[ index ] = in;
 											}
 											catch( FileNotFoundException e )
@@ -287,11 +308,13 @@ public class LoadJSON implements CommandListener
 									}
 									else if( type == Types.CLOB )
 									{
-										if( fileNames[ index ] == null )
-											throw new SourceException( "No file configured", reader.getLocation() );
+										// Get the reader
 										SegmentedReader in = textStreams[ index ];
 										if( in == null )
 										{
+											// File not opened yet, open it
+											if( fileNames[ index ] == null )
+												throw new SourceException( "No file configured", reader.getLocation() );
 											Resource r = resource.resolve( fileNames[ index ] );
 											try
 											{
@@ -303,7 +326,7 @@ public class LoadJSON implements CommandListener
 												{
 													throw new SystemException( e );
 												}
-												biggerCloser.add( in );
+												outerCloser.add( in ); // Close at the final end
 												textStreams[ index ] = in;
 											}
 											catch( FileNotFoundException e )
@@ -375,7 +398,7 @@ public class LoadJSON implements CommandListener
 			finally
 			{
 				processor.closeStatement( statement, commit );
-				biggerCloser.closeAll();
+				outerCloser.closeAll();
 				closer.closeAll();
 			}
 		}
@@ -383,6 +406,32 @@ public class LoadJSON implements CommandListener
 		{
 			reader.close();
 		}
+	}
+
+
+	static byte[] readBytes( Resource resource ) throws FileNotFoundException
+	{
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		byte[] buffer = new byte[ 4096 ];
+		try
+		{
+			InputStream in = resource.newInputStream();
+			try
+			{
+				int read;
+				while( ( read = in.read( buffer ) ) >= 0 )
+					bytes.write( buffer, 0, read );
+			}
+			finally
+			{
+				in.close();
+			}
+		}
+		catch( IOException e )
+		{
+			throw new SystemException( e );
+		}
+		return bytes.toByteArray();
 	}
 
 
@@ -451,6 +500,7 @@ public class LoadJSON implements CommandListener
 	{
 		// FIXME Replace LINENUMBER with RECORD NUMBER
 		// TODO Match column names
+		// TODO Free SQL like with IMPORT CSV
 		/*
 		LOAD JSON
 		[ PREPEND LINENUMBER ]
@@ -641,7 +691,7 @@ public class LoadJSON implements CommandListener
 	static protected class Parsed
 	{
 		/** Prepend the values from the CSV list with the line number from the command file. */
-		protected boolean prependLineNumber;
+		protected boolean prependLineNumber; // TODO Remove, after it is made possible to use an expression for auto increment
 
 		/** Don't use JDBC batch update. */
 		protected boolean noBatch;

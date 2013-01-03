@@ -1,4 +1,5 @@
 eclipse.preferences.version=1
+encoding//test/folder/data.json=UTF-8
 encoding//test/patch-utf-16-bom-1.sql=UTF-16
 encoding//test/patch-utf-16-bom-2.sql=UTF-16
 encoding//test/patch-utf-16-nobom-1.sql=UTF-16LE
