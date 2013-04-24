@@ -56,7 +56,7 @@ This will execute the specified SQL files with the given database parameters and
 	<secondary name="user" username="sa" password="" />
 	<sqlfile src="testsql1.sql" />
 	<sqlfile src="testsql2.sql" />
-</solidbase-sql>
+</sb-sql>
 }}}
 
 The parameters in the task element represent the primary connection. The secondary elements specify extra connections available during the upgrade (See [ReferenceGuide#SELECT_CONNECTION]). In these secondary elements, the driver and url attributes are optional. If not specified they are inherited from the primary connection.
