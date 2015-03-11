@@ -68,6 +68,7 @@ import solidstack.io.Resource;
 import solidstack.io.Resources;
 import solidstack.io.SourceReaders;
 import solidstack.script.scopes.AbstractScope;
+import solidstack.script.scopes.UndefinedException;
 import funny.Symbol;
 
 
@@ -118,8 +119,16 @@ public class DumpJSON implements CommandListener
 		Parsed parsed = parse( command );
 
 		AbstractScope scope = processor.getContext().getScope();
-		Object object = scope.get( Symbol.apply( "solidbase.dump_json.dateCreated" ) );
-		boolean dateCreated = object == null || object instanceof Boolean && (Boolean)object;
+		boolean dateCreated;
+		try
+		{
+			Object object = scope.get( Symbol.apply( "solidbase.dump_json.dateCreated" ) );
+			dateCreated = object instanceof Boolean && (Boolean)object;
+		}
+		catch( UndefinedException e )
+		{
+			dateCreated = true;
+		}
 
 		Resource jsvResource = new FileResource( new File( parsed.fileName ) ); // Relative to current folder
 
