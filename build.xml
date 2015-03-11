@@ -80,6 +80,7 @@
 	</path>
 
 	<path id="compile.classpath">
+		<pathelement location="${build.home}/../solidstack/classes" /> <!-- TODO This is temporary -->
 		<fileset dir="lib" includes="*.jar" />
 	</path>
 
@@ -143,14 +144,7 @@
 	<target name="compile">
 		<echo message="java.home=${java.home}" />
 		<mkdir dir="${build.home}/classes" />
-		<javac destdir="${build.home}/classes" source="${target-jre}" target="${target-jre}" optimize="true" debug="true" deprecation="true" classpathref="compile.classpath">
-			<src path="src" />
-			<include name="solidbase/**/*.java" />
-			<!-- SolidStack project: https://solidstack.googlecode.com/svn/branches/features/scripting2/ -->
-			<src path="../solidstack/src" />
-			<include name="solidstack/io/*.java" />
-			<include name="solidstack/script/**/*.java" />
-		</javac>
+		<javac srcdir="src" destdir="${build.home}/classes" source="${target-jre}" target="${target-jre}" optimize="true" debug="true" deprecation="true" classpathref="compile.classpath" />
 		<sync todir="${build.home}/classes">
 			<fileset dir="src" excludes="**/*.java,**/*.html" />
 			<preserveInTarget includes="**/*.class" />
@@ -220,7 +214,8 @@
 			<zipfileset file="${build.home}/config/version.properties" prefix="solidbase" />
 			<zipfileset src="lib/commons-cli-1.2.jar" excludes="META-INF/**" />
 			<zipfileset src="lib/commons-lang-2.3.jar" excludes="META-INF/**" />
-			<!-- <zipfileset src="lib/solidstack-1.9.2-beta.jar" includes="solidstack/**/*.class" /> -->
+			<zipfileset dir="${build.home}/../solidstack/classes" includes="**/*.class" /> <!-- TODO This is temporary -->
+			<!-- <zipfileset src="lib/solidstack-1.9.2-beta.jar" includes="solidstack/**/*.class" /> --> <!-- TODO This is the correct way -->
 			<zipfileset dir="." includes="LICENSE.txt,NOTICE.txt,CHANGELOG.TXT" prefix="META-INF" />
 			<rule pattern="org.apache.commons.**" result="solidbase.@0" />
 			<rule pattern="solidstack.**" result="solidbase.@0" />
