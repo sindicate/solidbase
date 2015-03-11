@@ -33,6 +33,7 @@ import java.sql.Statement;
 import java.sql.Struct;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Executor;
 
 // This mock Connection (and mock DriverManager, PreparedStatement) simulate PostgreSQL
 // PostgreSQL aborts a transaction when an SQLException is raised, so you can't continue with it
@@ -304,6 +305,31 @@ public class PostgreSQLConnection implements Connection
 	}
 
 	public Struct createStruct( String typeName, Object[] attributes ) throws SQLException
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public void setSchema( String schema ) throws SQLException
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public String getSchema() throws SQLException
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public void abort( Executor executor ) throws SQLException
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public void setNetworkTimeout( Executor executor, int milliseconds ) throws SQLException
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public int getNetworkTimeout() throws SQLException
 	{
 		throw new UnsupportedOperationException();
 	}

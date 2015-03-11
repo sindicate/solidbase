@@ -68,6 +68,7 @@ import solidstack.io.Resource;
 import solidstack.io.Resources;
 import solidstack.io.SourceReaders;
 import solidstack.script.scopes.AbstractScope;
+import funny.Symbol;
 
 
 /**
@@ -106,7 +107,7 @@ public class DumpJSON implements CommandListener
 
 			// TODO I think we should have a scope that is restricted to the current file and a scope that gets inherited when running or including another file.
 			AbstractScope scope = processor.getContext().getScope();
-			scope.set( "solidbase.dump_json.dateCreated", t.eq( "ON" ) ); // TODO Make this a constant
+			scope.set( Symbol.apply( "solidbase.dump_json.dateCreated" ), t.eq( "ON" ) ); // TODO Make this a constant
 
 			return true;
 		}
@@ -117,7 +118,7 @@ public class DumpJSON implements CommandListener
 		Parsed parsed = parse( command );
 
 		AbstractScope scope = processor.getContext().getScope();
-		Object object = scope.get( "solidbase.dump_json.dateCreated" );
+		Object object = scope.get( Symbol.apply( "solidbase.dump_json.dateCreated" ) );
 		boolean dateCreated = object == null || object instanceof Boolean && (Boolean)object;
 
 		Resource jsvResource = new FileResource( new File( parsed.fileName ) ); // Relative to current folder

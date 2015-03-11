@@ -558,4 +558,14 @@ public class PostgreSQLPreparedStatement implements PreparedStatement
 	{
 		throw new UnsupportedOperationException();
 	}
+
+	public void closeOnCompletion() throws SQLException
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	public boolean isCloseOnCompletion() throws SQLException
+	{
+		throw new UnsupportedOperationException();
+	}
 }
