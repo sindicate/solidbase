@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 import solidbase.core.Delimiter.Type;
 import solidbase.util.Assert;
 import solidstack.io.Resource;
+import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
 import solidstack.io.SourceReaders;
 import solidstack.script.Script;
@@ -118,7 +119,12 @@ abstract public class CommandProcessor
 	/**
 	 * Pattern for SCRIPT.
 	 */
-	static protected Pattern SCRIPT_COMMAND = Pattern.compile( "SCRIPT\\s+(.*)", Pattern.CASE_INSENSITIVE );
+	static protected Pattern SCRIPT_COMMAND = Pattern.compile( "SCRIPT(?:\\s+(.*))?", Pattern.CASE_INSENSITIVE );
+
+	/**
+	 * Pattern for END SCRIPT.
+	 */
+	static protected Pattern END_SCRIPT_COMMAND = Pattern.compile( "--\\*\\s*END\\s+SCRIPT\\s*", Pattern.CASE_INSENSITIVE );
 
 	// TODO Commit pattern
 //	static protected final Pattern commitPattern = Pattern.compile( "COMMIT", Pattern.CASE_INSENSITIVE );
@@ -304,7 +310,24 @@ abstract public class CommandProcessor
 			}
 			if( ( matcher = SCRIPT_COMMAND.matcher( sql ) ).matches() )
 			{
-				script( matcher.group( 1 ), command );
+				String script = matcher.group( 1 );
+				if( script != null )
+					script( script, command.getLocation() );
+				else
+				{
+					SourceReader reader = getReader();
+					StringBuilder buf = new StringBuilder();
+					while( true )
+					{
+						String line = reader.readLine();
+						if( line == null )
+							throw new SourceException( "Missing END SCRIPT for script", command.getLocation() );
+						if( END_SCRIPT_COMMAND.matcher( line ).matches() )
+							break;
+						buf.append( line ).append( '\n' );
+					}
+					script( buf.toString(), command.getLocation().nextLine() );
+				}
 				return true;
 			}
 //			if( commitPattern.matcher( sql ).matches() )
@@ -484,9 +507,9 @@ abstract public class CommandProcessor
 		processor.process();
 	}
 
-	protected Object script( String script, Command command )
+	protected Object script( String script, SourceLocation location )
 	{
-		SourceReader reader = SourceReaders.forString( script, command.getLocation() );
+		SourceReader reader = SourceReaders.forString( script, location );
 		return Script.compile( reader ).eval( this.context.getScope() );
 	}
 
