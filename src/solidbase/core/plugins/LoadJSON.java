@@ -200,6 +200,7 @@ public class LoadJSON implements CommandListener
 					int lineNumber = reader.getLineNumber();
 
 					// Convert the strings to date, time and timestamps
+					// TODO Time zones, is there a default way of putting times and dates in a text file? For example whats in a HTTP header?
 					int i = 0;
 					for( ListIterator< Object > it = values.iterator(); it.hasNext(); )
 					{
