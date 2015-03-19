@@ -61,6 +61,7 @@ public class JSONWriter
 	}
 
 	// TODO More types to implement here?
+	// TODO Tests?
 	private void writeInternal( Object object )
 	{
 		try
@@ -75,6 +76,10 @@ public class JSONWriter
 				writeNotString( ( (Integer)object ).toString() );
 			else if( object instanceof Long )
 				writeNotString( ( (Long)object ).toString() );
+			else if( object instanceof Float )
+				writeNotString( ( (Float)object ).toString() );
+			else if( object instanceof Double )
+				writeNotString( ( (Double)object ).toString() );
 			else if( object instanceof JSONObject )
 				writeObject( (JSONObject)object );
 			else if( object instanceof JSONArray )

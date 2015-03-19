@@ -85,7 +85,7 @@ abstract public class DBMojo extends AbstractMojo
 				if( secondary.getName() == null )
 					throw new MojoFailureException( "The 'name' attribute is mandatory for a 'secondary' element" );
 				if( secondary.getUsername() == null )
-					throw new MojoFailureException( "The 'user' attribute is mandatory for a 'secondary' element" );
+					throw new MojoFailureException( "The 'username' attribute is mandatory for a 'secondary' element" );
 				if( secondary.getName().equals( "default" ) )
 					throw new MojoFailureException( "The secondary name 'default' is reserved" );
 			}
