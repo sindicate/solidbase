@@ -117,6 +117,7 @@ public class TestUtil
 
 	static public void dropHSQLDBSchema( String url, String username, String password ) throws SQLException
 	{
+		System.out.println( "Dropping schema: " + url );
 		try
 		{
 			Class.forName( "org.hsqldb.jdbcDriver" );
@@ -126,10 +127,20 @@ public class TestUtil
 			throw new SystemException( e );
 		}
 
+		System.out.println( "44444" );
 		try
 		{
 			Connection connection = DriverManager.getConnection( url, username, password );
-			connection.createStatement().execute( "DROP SCHEMA PUBLIC CASCADE" );
+			try
+			{
+				System.out.println( "55555" );
+				connection.createStatement().execute( "DROP SCHEMA PUBLIC CASCADE" );
+				System.out.println( "66666" );
+			}
+			finally
+			{
+				connection.close();
+			}
 		}
 		catch( SQLException e )
 		{

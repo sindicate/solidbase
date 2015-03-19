@@ -172,7 +172,7 @@
 			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.999.10.jar" />
 			<jvmarg value="-Xmx256m" />
 			<classfileset dir="${build.home}/testclasses" />
-			<!-- <reporter classname="solidbase.test.TestListener"/> -->
+			<reporter classname="solidbase.test.TestListener"/>
 		</testng>
 	</target>
 
