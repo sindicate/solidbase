@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>solidbase</groupId>
+	<artifactId>solidbase</artifactId>
+	<version>2.0.0-beta3</version>
+	<packaging>jar</packaging>
+
+	<name>SolidBase</name>
+	<inceptionYear>2006</inceptionYear>
+	<description>A database change and version control tool using annotated SQL.</description>
+	<url>http://code.google.com/p/solidbase/</url>
+	
+	<prerequisites><maven>2.0</maven></prerequisites>
+
+	<issueManagement>
+		<system>Google Code</system>
+		<url>http://code.google.com/p/solidbase/issues/list</url>
+	</issueManagement>
+	
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	
+	<developers>
+		<developer>
+			<email>rene.de.bloois@gmail.com</email>
+			<name>René M. de Bloois</name>
+			<roles><role>owner</role></roles>
+		</developer>
+	</developers>
+	
+	<scm>
+		<url>http://code.google.com/p/solidbase/source/browse/</url>
+		<connection>scm:svn:http://code.google.com/p/solidbase/source/browse/trunk/</connection>
+	</scm>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>src</directory>
+				<excludes><exclude>**/*.java</exclude></excludes>
+			</resource>
+		</resources>
+		<testSourceDirectory>test/src</testSourceDirectory>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<includes><include>**/*.java</include></includes>
+					<!-- verbose>3</verbose -->
+					<argLine>-Xmx256M -javaagent:${settings.localRepository}/mockit/jmockit/0.999.10/jmockit-0.999.10.jar</argLine>
+					<!-- useSystemClassLoader>true</useSystemClassLoader -->
+					<!-- forkMode>always</forkMode -->
+					<!-- baseDir>test</baseDir -->
+					<workingDirectory>test</workingDirectory>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<dependencies>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.4</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.2.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-cli</groupId>
+			<artifactId>commons-cli</artifactId>
+			<version>1.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.ant</groupId>
+			<artifactId>ant</artifactId>
+			<version>1.8.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.groovy</groupId>
+			<artifactId>groovy</artifactId>
+			<version>1.7.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-plugin-api</artifactId>
+			<version>2.2.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-project</artifactId>
+			<version>2.2.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>6.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.ant</groupId>
+			<artifactId>ant-testutil</artifactId>
+			<version>1.8.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>mockit</groupId>
+			<artifactId>jmockit</artifactId>
+			<version>0.998</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>2.0.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+			<version>10.5.3.0_1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<repositories>
+		<!-- Project private repository -->
+		<repository>
+			<id>private</id>
+			<name>SolidBase private dependencies</name>
+			<url>file:repository</url>
+			<releases>
+				<checksumPolicy>ignore</checksumPolicy>
+			</releases>
+		</repository>
+		<repository>
+			<id>java.net</id>
+			<name>Java.net</name>
+			<url>http://download.java.net/maven/2/</url>
+		</repository>
+	</repositories>
+
+</project>
