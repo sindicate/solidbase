@@ -373,20 +373,20 @@ public class DBTask extends Task
 		if( this.url == null )
 			throw new BuildException( "The 'url' attribute is mandatory for the " + getTaskName() + " task" );
 		if( this.username == null )
-			throw new BuildException( "The 'user' attribute is mandatory for the " + getTaskName() + " task" );
+			throw new BuildException( "The 'username' attribute is mandatory for the " + getTaskName() + " task" );
 		if( this.password == null )
 			throw new BuildException( "The 'password' attribute is mandatory for the " + getTaskName() + " task" );
 
 		for( Connection connection : this.connections )
 		{
 			if( connection.getName() == null )
-				throw new BuildException( "The 'name' attribute is mandatory for a 'connection' element" );
+				throw new BuildException( "The 'name' attribute is mandatory for a 'secondary' element" );
 			if( connection.getUsername() == null )
-				throw new BuildException( "The 'user' attribute is mandatory for a 'connection' element" );
+				throw new BuildException( "The 'username' attribute is mandatory for a 'secondary' element" );
 			if( connection.getPassword() == null )
-				throw new BuildException( "The 'password' attribute is mandatory for a 'connection' element" );
+				throw new BuildException( "The 'password' attribute is mandatory for a 'secondary' element" );
 			if( connection.getName().equals( "default" ) )
-				throw new BuildException( "The connection name 'default' is reserved" );
+				throw new BuildException( "The secondary name 'default' is reserved" );
 		}
 
 		for( Parameter parameter : this.parameters )
