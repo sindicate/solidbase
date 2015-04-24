@@ -206,7 +206,7 @@ public class Runner
 			{
 				SQLContext context = new SQLContext( Factory.openSQLFile( resource, this.listener ).getSource() );
 				context.setDatabases( databases );
-				context.getScope().setAll( this.parameters );
+				context.setVariables( this.parameters );
 				processor.setContext( context );
 				if( first )
 				{

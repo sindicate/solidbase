@@ -67,9 +67,6 @@ import solidstack.io.FileResource;
 import solidstack.io.Resource;
 import solidstack.io.Resources;
 import solidstack.io.SourceReaders;
-import solidstack.script.scopes.AbstractScope;
-import solidstack.script.scopes.UndefinedException;
-import funny.Symbol;
 
 
 /**
@@ -89,46 +86,16 @@ public class DumpJSON implements CommandListener
 	// TODO Export multiple tables to a single file. If no PK than sort on all columns. Schema name for import or not?
 	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
 	{
-		if( !triggerPattern.matcher( command.getCommand() ).matches() )
+		if( command.isTransient() )
 			return false;
 
-		if( command.isTransient() )
-		{
-			/* DUMP JSON DATE_CREATED ON | OFF */
-
-			SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
-
-			// TODO Maybe DUMP JSON CONFIG or DUMP JSON SET
-			// TODO What about other configuration settings?
-			tokenizer.get( "DUMP" );
-			tokenizer.get( "JSON" );
-			tokenizer.get( "DATE_CREATED" ); // FIXME This should be CREATED_DATE
-			Token t = tokenizer.get( "ON", "OFF" );
-			tokenizer.get( (String)null );
-
-			// TODO I think we should have a scope that is restricted to the current file and a scope that gets inherited when running or including another file.
-			AbstractScope scope = processor.getContext().getScope();
-			scope.set( Symbol.apply( "solidbase.dump_json.dateCreated" ), t.eq( "ON" ) ); // TODO Make this a constant
-
-			return true;
-		}
+		if( !triggerPattern.matcher( command.getCommand() ).matches() )
+			return false;
 
 		if( skip )
 			return true;
 
 		Parsed parsed = parse( command );
-
-		AbstractScope scope = processor.getContext().getScope();
-		boolean dateCreated;
-		try
-		{
-			Object object = scope.get( Symbol.apply( "solidbase.dump_json.dateCreated" ) );
-			dateCreated = object instanceof Boolean && (Boolean)object;
-		}
-		catch( UndefinedException e )
-		{
-			dateCreated = true;
-		}
 
 		Resource jsvResource = new FileResource( new File( parsed.fileName ) ); // Relative to current folder
 
@@ -168,14 +135,7 @@ public class DumpJSON implements CommandListener
 							types[ i ] = Types.TIMESTAMP;
 						names[ i ] = name;
 						if( parsed.columns != null )
-						{
-							ColumnSpec columnSpec = parsed.columns.get( name );
-							if( columnSpec != null )
-								if( columnSpec.skip )
-									ignore[ i ] = true;
-								else
-									fileSpecs[ i ] = columnSpec.toFile;
-						}
+							fileSpecs[ i ] = parsed.columns.get( name );
 						if( parsed.coalesce != null && parsed.coalesce.notFirst( name ) )
 							ignore[ i ] = true;
 						// TODO STRUCT serialize
@@ -197,15 +157,11 @@ public class DumpJSON implements CommandListener
 					properties.set( "description", "SolidBase JSON Data Dump File" );
 					properties.set( "createdBy", new JSONObject( "product", "SolidBase", "version", "2.0.0" ) );
 
-					if( dateCreated )
-					{
-						SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
-						properties.set( "createdDate", format.format( new Date() ) );
-					}
+					SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
+					properties.set( "createdDate", format.format( new Date() ) );
 
 					if( parsed.binaryFileName != null )
 					{
-						// TODO FIXME Should be wrapped in a SourceException: solidbase.solidstack.io.FatalURISyntaxException: java.net.URISyntaxException: Illegal character in path at index 1: &{folder}/JIADHOCCH
 						Resource binResource = Resources.getResource( parsed.binaryFileName );
 						Resource resource = Resources.getResource( parsed.fileName );
 						properties.set( "binaryFile", binResource.getPathFrom( resource ).toString() );
@@ -580,7 +536,7 @@ public class DumpJSON implements CommandListener
 
 		if( t.eq( "COLUMN" ) )
 		{
-			result.columns = new HashMap< String, ColumnSpec >();
+			result.columns = new HashMap< String, FileSpec >();
 			while( t.eq( "COLUMN" ) )
 			{
 				List< Token > columns = new ArrayList< Token >();
@@ -593,37 +549,29 @@ public class DumpJSON implements CommandListener
 				}
 				tokenizer.push( t );
 
-				ColumnSpec columnSpec;
-				t = tokenizer.get( "TO", "SKIP" );
-				if( t.eq( "TO" ) )
-				{
-					t = tokenizer.get( "BINARY", "TEXT" );
-					boolean binary = t.eq( "BINARY" );
-					tokenizer.get( "FILE" );
-					t = tokenizer.get();
-					String fileName = t.getValue();
-					if( !fileName.startsWith( "\"" ) )
-						throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-					fileName = fileName.substring( 1, fileName.length() - 1 );
+				tokenizer.get( "TO" );
+				t = tokenizer.get( "BINARY", "TEXT" );
+				boolean binary = t.eq( "BINARY" );
+				tokenizer.get( "FILE" );
+				t = tokenizer.get();
+				String fileName = t.getValue();
+				if( !fileName.startsWith( "\"" ) )
+					throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+				fileName = fileName.substring( 1, fileName.length() - 1 );
 
-					t = tokenizer.get();
-					int threshold = 0;
-					if( t.eq( "THRESHOLD" ) )
-					{
-						threshold = Integer.parseInt( tokenizer.get().getValue() );
-						t = tokenizer.get();
-					}
-
-					columnSpec = new ColumnSpec( false, new FileSpec( binary, fileName, threshold ) );
-				}
-				else
+				t = tokenizer.get();
+				int threshold = 0;
+				if( t.eq( "THRESHOLD" ) )
 				{
-					columnSpec = new ColumnSpec( true, null );
+					t = tokenizer.get();
+					threshold = Integer.parseInt( t.getValue() );
+
 					t = tokenizer.get();
 				}
 
+				FileSpec fileSpec = new FileSpec( binary, fileName, threshold );
 				for( Token column : columns )
-					result.columns.put( column.getValue().toUpperCase(), columnSpec );
+					result.columns.put( column.getValue().toUpperCase(), fileSpec );
 			}
 		}
 		tokenizer.push( t );
@@ -666,7 +614,7 @@ public class DumpJSON implements CommandListener
 		protected int logRecords;
 		protected int logSeconds;
 
-		protected Map<String, ColumnSpec> columns;
+		protected Map< String, FileSpec > columns;
 	}
 
 
@@ -685,19 +633,6 @@ public class DumpJSON implements CommandListener
 			this.binary = binary;
 			this.threshold = threshold;
 			this.generator = new FileNameGenerator( fileName );
-		}
-	}
-
-
-	static protected class ColumnSpec
-	{
-		protected boolean skip;
-		protected FileSpec toFile;
-
-		protected ColumnSpec( boolean skip, FileSpec toFile )
-		{
-			this.skip = skip;
-			this.toFile = toFile;
 		}
 	}
 

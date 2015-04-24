@@ -387,7 +387,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 		UpgradeContext context = new UpgradeContext( this.upgradeFile.gotoSegment( segment ) );
 		context.setDatabases( this.databases );
 		if( this.parameters != null ) // May be null during unit tests
-			context.getScope().setAll( this.parameters );
+			context.setVariables( this.parameters );
 		setContext( context );
 		this.context.setCurrentDatabase( getDefaultDatabase() );
 		this.context.getCurrentDatabase().resetUser();

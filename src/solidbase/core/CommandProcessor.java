@@ -18,6 +18,7 @@ package solidbase.core;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.regex.Matcher;
@@ -26,12 +27,7 @@ import java.util.regex.Pattern;
 import solidbase.core.Delimiter.Type;
 import solidbase.util.Assert;
 import solidstack.io.Resource;
-import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
-import solidstack.io.SourceReaders;
-import solidstack.script.Script;
-import solidstack.script.ScriptParser;
-import solidstack.script.expressions.Expression;
 
 
 
@@ -96,9 +92,15 @@ abstract public class CommandProcessor
 	static protected final Pattern JDBC_ESCAPING = Pattern.compile( "JDBC\\s+ESCAPE\\s+PROCESSING\\s+(ON|OFF)", Pattern.CASE_INSENSITIVE );
 
 	/**
+	 * Pattern for SET VARIABLE.
+	 */
+	// FIXME This should work with whatever SQL statement. How?
+	static protected final Pattern setVariablePattern = Pattern.compile( "SET\\s+VARIABLE\\s+(\\w+)\\s*=\\s*((SELECT|VALUES)\\s+.*)", Pattern.CASE_INSENSITIVE );
+
+	/**
 	 * Pattern for IF VARIABLE.
 	 */
-	static protected final Pattern IF_SCRIPT_COMMAND = Pattern.compile( "IF\\s+SCRIPT\\s+(.*)", Pattern.CASE_INSENSITIVE );
+	static protected final Pattern ifVariablePattern = Pattern.compile( "IF\\s+VARIABLE\\s+(\\w+)\\s+IS\\s+(NOT\\s+)?NULL", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * Pattern for ELSE.
@@ -115,16 +117,6 @@ abstract public class CommandProcessor
 	 */
 	// TODO Newlines should be allowed
 	static protected Pattern runPattern = Pattern.compile( "\\s*RUN\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
-
-	/**
-	 * Pattern for SCRIPT.
-	 */
-	static protected Pattern SCRIPT_COMMAND = Pattern.compile( "SCRIPT(?:\\s+(.*))?", Pattern.CASE_INSENSITIVE );
-
-	/**
-	 * Pattern for END SCRIPT.
-	 */
-	static protected Pattern END_SCRIPT_COMMAND = Pattern.compile( "--\\*\\s*END\\s+SCRIPT\\s*", Pattern.CASE_INSENSITIVE );
 
 	// TODO Commit pattern
 //	static protected final Pattern commitPattern = Pattern.compile( "COMMIT", Pattern.CASE_INSENSITIVE );
@@ -154,11 +146,6 @@ abstract public class CommandProcessor
 	public CommandProcessor( ProgressListener listener )
 	{
 		this.progress = listener;
-	}
-
-	public CommandContext getContext()
-	{
-		return this.context;
 	}
 
 	/**
@@ -209,23 +196,36 @@ abstract public class CommandProcessor
 	}
 
 	/**
-	 * Substitutes place holders in the command.
+	 * Substitutes place holders in the command with the values from the variables.
 	 *
 	 * @param command The command.
 	 */
 	protected void substituteVariables( Command command )
 	{
 		// TODO Or should we always substitute?
-		if( !this.context.hasScope() )
+		if( !this.context.hasVariables() )
+			return;
+		if( !command.getCommand().contains( "&" ) ) // TODO & or something else?
 			return;
 
-		// TODO Is this needed? The string parser is fast too.
-		if( !command.getCommand().contains( "${" ) ) // TODO & or something else?
-			return;
-
-		Expression expression = ScriptParser.parseString( command.getCommand(), command.getLocation() );
-		Object object = Script.eval( expression, this.context.getScope() );
-		command.setCommand( object.toString() );
+		// TODO Maybe do a two-step when the command is very large (collect all first, replace only if found)
+		Matcher matcher = placeHolderPattern.matcher( command.getCommand() );
+		StringBuffer sb = new StringBuffer();
+		while( matcher.find() )
+		{
+			String name = matcher.group( 2 );
+			if( name == null )
+				name = matcher.group( 3 );
+			if( this.context.hasVariable( name ) ) // TODO No else, does that work?
+			{
+				String value = this.context.getVariableValue( name );
+				if( value == null )
+					throw new SourceException( "Variable '" + name + "' is null", command.getLocation() );
+				matcher.appendReplacement( sb, value );
+			}
+		}
+		matcher.appendTail( sb );
+		command.setCommand( sb.toString() );
 	}
 
 	/**
@@ -267,9 +267,14 @@ abstract public class CommandProcessor
 				selectConnection( matcher.group( 1 ), command );
 				return true;
 			}
-			if( ( matcher = IF_SCRIPT_COMMAND.matcher( sql ) ).matches() )
+			if( ( matcher = setVariablePattern.matcher( sql ) ).matches() )
 			{
-				ifScript( matcher.group( 1 ), command );
+				setVariableFromSelect( matcher.group( 1 ), matcher.group( 2 ) );
+				return true;
+			}
+			if( ( matcher = ifVariablePattern.matcher( sql ) ).matches() )
+			{
+				ifVariableIsNull( matcher.group( 1 ), matcher.group( 2 ), command );
 				return true;
 			}
 			if( elsePattern.matcher( sql ).matches() )
@@ -306,28 +311,6 @@ abstract public class CommandProcessor
 			{
 				// Ignore, already picked up by the EncodingDetector
 				// TODO Check that it is the first line, and check with the detected encoding
-				return true;
-			}
-			if( ( matcher = SCRIPT_COMMAND.matcher( sql ) ).matches() )
-			{
-				String script = matcher.group( 1 );
-				if( script != null )
-					script( script, command.getLocation() );
-				else
-				{
-					SourceReader reader = getReader();
-					StringBuilder buf = new StringBuilder();
-					while( true )
-					{
-						String line = reader.readLine();
-						if( line == null )
-							throw new SourceException( "Missing END SCRIPT for script", command.getLocation() );
-						if( END_SCRIPT_COMMAND.matcher( line ).matches() )
-							break;
-						buf.append( line ).append( '\n' );
-					}
-					script( buf.toString(), command.getLocation().nextLine() );
-				}
 				return true;
 			}
 //			if( commitPattern.matcher( sql ).matches() )
@@ -507,12 +490,6 @@ abstract public class CommandProcessor
 		processor.process();
 	}
 
-	protected Object script( String script, SourceLocation location )
-	{
-		SourceReader reader = SourceReaders.forString( script, location );
-		return Script.compile( reader ).eval( this.context.getScope() );
-	}
-
 	/**
 	 * Returns the progress listener.
 	 *
@@ -553,11 +530,43 @@ abstract public class CommandProcessor
 		setConnection( database );
 	}
 
-	protected void ifScript( String script, Command command )
+	/**
+	 * Execute the SELECT and set the variable with the result from the SELECT.
+	 *
+	 * @param name Name of the variable.
+	 * @param select The SELECT SQL statement.
+	 * @throws SQLException Whenever the database throws one.
+	 */
+	protected void setVariableFromSelect( String name, String select ) throws SQLException
 	{
-		SourceReader reader = SourceReaders.forString( script, command.getLocation() );
-		boolean condition = Script.compile( reader ).evalBoolean( this.context.getScope() );
-		this.context.skip( !condition );
+		Statement statement = createStatement();
+		Object value = null;
+		try
+		{
+			ResultSet result = statement.executeQuery( select );
+			if( result.next() )
+				value = result.getObject( 1 ); // TODO What about the Oracle TIMESTAMP problem?
+		}
+		finally
+		{
+			closeStatement( statement, true );
+		}
+
+		this.context.setVariable( name, value );
+	}
+
+	/**
+	 * Process the IF VARIABLE IS [NOT] NULL annotation.
+	 *
+	 * @param name The name of the variable.
+	 * @param not Is NOT part of the annotation?
+	 * @param command The command itself needed for the line number if an exception is thrown.
+	 */
+	protected void ifVariableIsNull( String name, String not, Command command )
+	{
+		if( !this.context.hasVariable( name ) )
+			throw new SourceException( "Variable '" + name + "' is not defined", command.getLocation() );
+		this.context.skip( this.context.getVariableValue( name ) == null != ( not == null ) );
 	}
 
 	/**

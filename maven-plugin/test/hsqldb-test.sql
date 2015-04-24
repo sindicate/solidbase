@@ -18,9 +18,9 @@
 
 
 
---* SECTION "Creating table ${users2}"
+--* SECTION "Creating table &{users2}"
 
-CREATE TABLE ${users2}
+CREATE TABLE &{users2}
 (
 	USER_ID INT IDENTITY,
 	USER_USERNAME VARCHAR NOT NULL,
@@ -29,9 +29,9 @@ CREATE TABLE ${users2}
 
 --* SECTION "Inserting admin user"
 
-INSERT INTO ${users2} ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' );
+INSERT INTO &{users2} ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' );
 
 --* SECTION "Inserting user"
 
-INSERT INTO ${users2} ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' );
+INSERT INTO &{users2} ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' );
 
