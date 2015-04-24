@@ -1,59 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V5.0//EN" "../tools/docbook/docbook-5.0b5.dtd">
 
-<!--
-   Copyright 2006 René M. de Bloois
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
--->
-
-<book xmlns="http://docbook.org/ns/docbook"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd">
+<book xmlns="http://docbook.org/ns/docbook">
 
 	<info>
-		<title>SolidBase 1.0 User's Manual</title>
-		<subtitle>A database change and version control tool using SQL and markup.</subtitle>
-		<author>
-			<personname>René de Bloois</personname>
-			<email>rene.de.bloois@gmail.com</email>
-		</author>
-		<productname>SolidBase</productname>
-		<copyright>
-			<year>2006</year>
-			<holder>René M. de Bloois</holder>
-		</copyright>
+		<title>Database Patch Tool User's Manual</title>
+		<subtitle>A tool to manage the controlled upgrade of database structures</subtitle>
+		<author><personname>René M. de Bloois</personname></author>
+		<productname>Database Patch Tool</productname>
 	</info>
 
-	<chapter xml:id="introduction">
-		<title>Introduction</title>
-		
-		<para>This document is obsolete. It will be the basis for a new manual for the 1.6 release.</para>
-		
+	<chapter xml:id="audience">
+		<title>Audience</title>
+
+		<para>
+			TODO Audience &amp; why use the patchtool
+		</para>
+				
 	</chapter>
 
 	<chapter xml:id="concepts">
 		<title>Concepts</title>
 		
 		<section xml:id="database-structure-and-versions">
-			<title>Database evolution</title>
+			<title>Database structure and versions</title>
 			
 			<para>
-				Applications need a database with a certain configuration.
-				This configuration is defined by the database objects (tables, indexes, constraints, stored procedures, views, triggers, etc.), fixed reference data that is needed by the applications, and database parameters.
-				This configuration evolves, there are multiple successive versions of a database configuration.
-				SolidBase's function is to track these versions and make it possible to transform the database configuration from one version to the next while maintaining the data contained in it.
-				An upgrade from one version to another happens through the execution of a series of changes.
-				Changes are bundled in packages that carry the database from one version to the next by applying a series of changes in the form of SQL.
+				An application needs a database with a certain defined structure.
+				This structure is defined by the database objects (like tables, views, indexes, constraints, stored procedures and triggers) and fixed reference data that is needed by the application.
+				This structure evolves over time.
+				There are multiple versions of the database structure.
+				The patchtool's function is to track this version and make it possible to transform the database structure from one version to the next version while maintaining the data contained.
+				A transformation from one version to another happens by executing a series of change scripts (called patches).
+				A patch transforms the database structure from one version to the next by applying a series of database changes.
 			</para>
 			
 		</section>
@@ -62,11 +41,11 @@
 			<title>Database changes</title>
 			
 			<para>
-				A change package consists of one or more database configuration changes.
+				Database changes form the meat of the patch. They change the structure/configuration of the database and the fixed reference data in it.
 			</para>
 			
 			<itemizedlist>
-				<title>Examples of database configuration changes</title>
+				<title>Examples of database changes</title>
 				<listitem><para><computeroutput>CREATE TABLE ...</computeroutput></para></listitem>
 				<listitem><para><computeroutput>CREATE INDEX ...</computeroutput></para></listitem>
 				<listitem><para><computeroutput>ALTER TABLE ADD COLUMN ...</computeroutput></para></listitem>
@@ -77,28 +56,28 @@
 		</section>
 		
 		<section xml:id="session-configuration">
-			<!-- Options, Hints, Advice, Indication, Instruction, Guidance, Directive, Direction, Control -->
-			<title>Context parameters</title>
+			<title>Patch session configuration</title>
 			
 			<para>
-				Database changes are executed in a specific context.
-				This context consists of the parameters set within SolidBase, the parameters set on the connection to the database, and the global parameters defined in the database.
+				When applying database changes to the database certain conditions or parameters apply.
+				These conditions and parameters together form the patch session configuration.
 				Examples are:
+				<itemizedlist>
+					<listitem><para>Which user is used to apply the database changes?</para></listitem>
+					<listitem><para>What message should be shown when this database change is applied?</para></listitem>
+					<listitem><para>What date/time format is currently active on the database session?</para></listitem>
+					<listitem><para>Are there any sql errors that should be ignored because they are expected?</para></listitem>
+				</itemizedlist>
 			</para>
 			
-			<itemizedlist>
-				<listitem><para>Which user is used to apply the database changes?</para></listitem>
-				<listitem><para>What date/time format is currently active?</para></listitem>
-				<listitem><para>Should specific sql errors be ignored because they are expected?</para></listitem>
-			</itemizedlist>
-
 			<para>
-				Context parameters can be changed in between the execution of the database changes.
+				Patch session configuration can be changed in between the execution of the database changes.
 			</para>
 			
 			<itemizedlist>
-				<title>Examples of changing context parameters</title>
+				<title>Examples of patch session configuration</title>
 				<listitem><para><computeroutput>--* SET USER &lt;username&gt;</computeroutput></para></listitem>
+				<listitem><para><computeroutput>--* SET MESSAGE "&lt;message&gt;"</computeroutput></para></listitem>
 				<listitem>
 <programlisting>--* SESSIONCONFIG
 ALTER SESSION ...
@@ -108,11 +87,11 @@ ALTER SESSION ...
 			</itemizedlist>
 			
 			<para>
-				Keep in mind that the context is reset at the start of each change package.
+				Keep in mind that the patch session configuration is reset at the start of each individual patch.
 			</para>
 
 			<para>
-				SolidBase context parameters are described in <xref linkend="patch-session-configuration"/>.
+				Patch session configuration commands are described in <xref linkend="patch-session-configuration"/>.
 			</para>
 			
 		</section>
@@ -144,7 +123,7 @@ ALTER SESSION ...
 				This may result in a lot of patches and a quickly growing version number.
 				If you do not want this you can keep the patch open.
 				An open patch can be executed but the bump to the new version number will be prevented.
-				New changes to the database can be added at the end of this patch, they will automatically be picked up when the patch is re-executed.
+				New changes to the database can be added at the end of this patch, they will automatically be picked up when someone re-executes the patch.
 				When the time comes to officially deliver the patch for execution on a test, acceptance or production database, you can close the patch. 
 			</para>
 			
@@ -164,16 +143,16 @@ ALTER SESSION ...
 			
 			<para>
 				The patchtool is started with the following command:
-				<programlisting>java -jar solidbase.jar</programlisting>
+				<programlisting>java -jar dbpatcher.jar</programlisting>
 				This will start the interactive mode of the patchtool, 
 				which will present the user with some choices regarding the database and application, the target version, 
 				and will ask the user for passwords when needed. 
 			</para>
 			
 			<example><title>Example interactive mode</title>
-<screen><![CDATA[C:\PROJECTS\BUILDS\solidbase\dist>java -jar solidbase.jar
-20-1-09 20:47   SolidBase v1.0.101
-20-1-09 20:47   (C) 2006-2009 René M. de Bloois
+<screen><![CDATA[C:\PROJECTS\BUILDS\dbpatcher\dist>java -jar dbpatcher.jar
+20-1-09 20:47   DBPatcher v1.0.101
+20-1-09 20:47   (C) 2006-2009 R.M. de Bloois, Logica
 
 20-1-09 20:47   Available database:
 20-1-09 20:47       prod (DHL Production)
@@ -188,7 +167,7 @@ ALTER SESSION ...
 20-1-09 20:47   Connecting to database 'prod', application 'app1'...
 20-1-09 20:47   Input password for user 'sa':
 20-1-09 20:47   The database has no version yet.
-20-1-09 20:47   Opening file 'C:\PROJECTS\BUILDS\solidbase\dist\upgrade-hsqldb-example.sql'
+20-1-09 20:47   Opening patchfile 'C:\PROJECTS\BUILDS\dbpatcher\dist\dbpatch-hsqldb-example.sql'
 20-1-09 20:47       Encoding is 'ISO-8859-1'
 20-1-09 20:47   Possible targets are: 1.0.1, 1.0.2
 20-1-09 20:47   Input target version: 1.0.2
@@ -202,7 +181,7 @@ ALTER SESSION ...
 
 20-1-09 20:47   Current database version is "1.0.2".
 
-C:\PROJECTS\BUILDS\solidbase\dist>]]></screen>
+C:\PROJECTS\BUILDS\dbpatcher\dist>]]></screen>
 			</example>
 			
 		</section>
@@ -218,13 +197,13 @@ C:\PROJECTS\BUILDS\solidbase\dist>]]></screen>
 			
 			<itemizedlist>
 				<listitem><para>
-					By configuring the following property in the solidbase.properties file:
+					By configuring the following property in the dbpatcher.properties file:
 					<programlisting>classpathext = ojdbc14.jar;derby-10.2.1.6.jar</programlisting>
 					<note><para>Currently, this does not work when the <code>-driver</code> option is specified on the command line, as the complete property file is skipped in that case.</para></note>
 				</para></listitem>
 				<listitem><para>
 					By adding the jar files to the -cp option when starting java:
-					<programlisting>java -cp solidbase.jar;ojdbc14.jar;derby-10.2.1.6.jar solidbase.Main</programlisting>
+					<programlisting>java -cp dbpatcher.jar;ojdbc14.jar;derby-10.2.1.6.jar ronnie.dbpatcher.Main</programlisting>
 					As you see, you need to start the patch tool specifying the Main class instead of the jar.
 				</para></listitem>
 			</itemizedlist>
@@ -236,19 +215,19 @@ C:\PROJECTS\BUILDS\solidbase\dist>]]></screen>
 			
 			<para>
 				Following is the output of the
-				<programlisting>java -jar solidbase.jar -help</programlisting>
+				<programlisting>java -jar dbpatcher.jar -help</programlisting>
 				command:
 			</para>
 			
-<screen><![CDATA[usage: solidbase [-driver <classname>] [-dumplog <filename>] [-fromant]
-       [-password <password>] [-upgradefile <filename>] [-target <targetversion>]
+<screen><![CDATA[usage: dbpatcher [-driver <classname>] [-dumplog <filename>] [-fromant]
+       [-password <password>] [-patchfile <patchfile>] [-target <targetversion>]
        [-url <url>] [-username <username>] [-verbose]
  -driver <classname>       sets the jdbc driverclass
  -dumplog <filename>       export historical patch results to an xml file
  -fromant                  adds newlines after input requests
  -password <password>      sets the password of the default username
- -upgradefile <filename>   specifies the file containing the database upgrades
- -target <version>         sets the target version
+ -patchfile <patchfile>    sets the patch file
+ -target <targetversion>   sets the target version
  -url <url>                sets the url of the database
  -username <username>      sets the default username to patch with
  -verbose                  be extra verbose]]></screen>
@@ -261,24 +240,24 @@ C:\PROJECTS\BUILDS\solidbase\dist>]]></screen>
  			
  			<example>
  				<title>Command line examples</title>
-				<screen>java -jar solidbase.jar</screen>
- 				<para>Starts the patchtool in interactive mode. All configuration is read from the <code>solidbase.properties</code>.</para>
-<screen>java -cp solidbase.jar;ojdbc14.jar solidbase.Main 
+				<screen>java -jar dbpatcher.jar</screen>
+ 				<para>Starts the patchtool in interactive mode. All configuration is read from the <code>dbpatcher.properties</code>.</para>
+<screen>java -cp dbpatcher.jar;ojdbc14.jar ronnie.dbpatcher.Main 
   -driver oracle.jdbc.OracleDriver 
   -url jdbc:oracle:thin:@hostname:1521:dbname 
   -username rene</screen>
- 				<para>Starts the patchtool in interactive mode for the given database and user. The <code>solidbase.properties</code> is ignored.</para>
-<screen>java -cp solidbase.jar;ojdbc14.jar solidbase.Main 
+ 				<para>Starts the patchtool in interactive mode for the given database and user. The <code>dbpatcher.properties</code> is ignored.</para>
+<screen>java -cp dbpatcher.jar;ojdbc14.jar ronnie.dbpatcher.Main 
   -driver oracle.jdbc.OracleDriver 
   -url jdbc:oracle:thin:@hostname:1521:dbname 
   -username rene -password geheim 
-  -upgradefile oracle-patch.sql -target 2.0.*</screen>
- 				<para>Patches the given database to the last version that start with 2.0. The <code>solidbase.properties</code> is ignored.</para>
- <screen>java -cp solidbase.jar;ojdbc14.jar solidbase.Main 
+  -patchfile oracle-patch.sql -target 2.0.*</screen>
+ 				<para>Patches the given database to the last version that start with 2.0. The <code>dbpatcher.properties</code> is ignored.</para>
+ <screen>java -cp dbpatcher.jar;ojdbc14.jar ronnie.dbpatcher.Main 
    -driver oracle.jdbc.OracleDriver 
    -url jdbc:oracle:thin:@hostname:1521:dbname 
    -username rene -dumplog upgrade.log</screen>
- 				<para>Dumps the patch log of the given database. The <code>solidbase.properties</code> is ignored.</para>
+ 				<para>Dumps the patch log of the given database. The <code>dbpatcher.properties</code> is ignored.</para>
  			</example>
  			
 		</section>
@@ -309,18 +288,18 @@ C:\PROJECTS\BUILDS\solidbase\dist>]]></screen>
 			<itemizedlist>
 				<listitem>
 					<para>
-						The internal /solidbase/config/solidbase-default.properties;
+						The internal /ronnie/dbpatcher/config/dbpatcher-default.properties;
 					</para>
 				</listitem>
 				<listitem>
 					<para>
-						solidbase.properties in the working folder.
+						dbpatcher.properties in the working folder.
 					</para>
 				</listitem>
 			</itemizedlist>
 			
 			<para>
-				The solidbase.properties overrides properties in the solidbase-default.properties. This makes it possible to instrument the jar file with default settings.
+				The dbpatcher.properties overrides properties in the dbpatcher-default.properties. This makes it possible to instrument the jar file with default settings.
 			</para>
 			
 			<example><title>Example configuration</title>
@@ -341,21 +320,21 @@ prod.applications = app1, app2
 
 # database 'prod', application 'app1'
 prod.app1.description = app1 description
-prod.app1.username = sa
-prod.app1.patchfile = upgrade-hsqldb-example1.sql
+prod.app1.user = sa
+prod.app1.patchfile = dbpatch-hsqldb-example1.sql
 
 # database 'prod', application 'app2'
-prod.app2.username = sa
-prod.app2.patchfile = upgrade-hsqldb-example2.sql
+prod.app2.user = sa
+prod.app2.patchfile = dbpatch-hsqldb-example2.sql
 
 # database 'test'
 test.driver = org.apache.derby.jdbc.EmbeddedDriver
-test.url = jdbc:derby:c:/projects/temp/solidbase/db;create=true
+test.url = jdbc:derby:c:/projects/temp/dbpatcher/db;create=true
 test.applications = app3
 
 # database 'test', application 'app3'
-test.app3.username = app
-test.app3.patchfile = upgrade-derby-example.sql]]></programlisting>
+test.app3.user = app
+test.app3.patchfile = dbpatch-derby-example.sql]]></programlisting>
 			</example>
 		
 			<table border="1">
@@ -416,9 +395,9 @@ test.app3.patchfile = upgrade-derby-example.sql]]></programlisting>
 					<td>Description for this application</td>
 				</tr>
 				<tr>
-					<td>&lt;dbname&gt;.&lt;appname&gt;.username</td>
+					<td>&lt;dbname&gt;.&lt;appname&gt;.user</td>
 					<td></td>
-					<td>User name needed to connect to this application</td>
+					<td>User needed to connect to this application</td>
 				</tr>
 				<tr>
 					<td>&lt;dbname&gt;.&lt;appname&gt;.patchfile</td>
@@ -433,7 +412,7 @@ test.app3.patchfile = upgrade-derby-example.sql]]></programlisting>
 			<title>Using external databases configuration</title>
 			
 			<para>
-				It is possible to replace the normal databases configuration in solidbase.properties with an external class or script.
+				It is possible to replace the normal databases configuration in dbpatcher.properties with an external class or script.
 			</para>
 			
 			<section xml:id="configuring-databases-with-external-class">
@@ -443,7 +422,7 @@ test.app3.patchfile = upgrade-derby-example.sql]]></programlisting>
 					You need to add a class to the classpath which extends the following interface:
 				</para>
 				
-<programlisting><![CDATA[package solidbase.config;
+<programlisting><![CDATA[package ronnie.dbpatcher.config;
 public interface DatabasesConfiguration
 {
     void init( Configuration configuration );
@@ -453,9 +432,9 @@ public interface DatabasesConfiguration
 				<example><title>Example databases configuration class</title>
 <programlisting><![CDATA[package somePackage;
 
-import solidbase.config.Configuration;
-import solidbase.config.Database;
-import solidbase.config.DatabasesConfiguration;
+import ronnie.dbpatcher.config.Configuration;
+import ronnie.dbpatcher.config.Database;
+import ronnie.dbpatcher.config.DatabasesConfiguration;
 
 public class CustomDatabasesConfiguration implements DatabasesConfiguration
 {
@@ -463,14 +442,14 @@ public class CustomDatabasesConfiguration implements DatabasesConfiguration
 
     public void init( Configuration configuration )
     {
-        // You can read configuration from the solidbase.properties like this: 
+        // You can read configuration from the dbpatcher.properties like this: 
         String test = configuration.getProperty( "databases.config.test" );
         
         this.databases = new ArrayList();
         Database database = new Database( "<name>", "<description or null>", 
                 "<driver>", "<url>" );
         database.addApplication( "<name>", "<description or null>", 
-                "<username>", "<upgradefile>" );
+                "<username>", "<patchfile>" );
         this.databases.add( database );
     }
 
@@ -503,16 +482,16 @@ databases.config.test = value to be read by the databases configuration class]]>
 					<title>Example databases configuration script</title>
 <programlisting><![CDATA[// This is a groovy script called: databasesconfig.groovy
 
-import solidbase.config.Database;
+import ronnie.dbpatcher.config.Database;
 
-// You can read configuration from the solidbase.properties like this: 
+// You can read configuration from the dbpatcher.properties like this: 
 def test = configuration.getProperty( "databases.config.test" );
 
 def result = []; // Creates a java.util.List
 def database = new Database( "<name>", "<description or null>", 
         "<driver>", "<url>" );
 database.addApplication( "<name>", "<description or null>", 
-        "<username>", "<upgradefile>" );
+        "<username>", "<patchfile>" );
 result.add( database );
 
 return result; // Will be picked up by the patchtool
@@ -611,7 +590,7 @@ GO
 --* SET MESSAGE "Inserting admin user"
 
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD )
-VALUES ( 'admin', '*****' )
+VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
 GO
 
 --* /PATCH

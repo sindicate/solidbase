@@ -22,7 +22,7 @@
 <refsection><info><title>Description</title></info>
 
 <para>The body font size is specified in two parameters
-(<parameter>body.font.master</parameter> and <parameter>body.font.size</parameter>)
+(<varname>body.font.master</varname> and <varname>body.font.size</varname>)
 so that math can be performed on the font size by XSLT.
 </para>
 

@@ -1,23 +1,8 @@
-
---* // Copyright 2006 René M. de Bloois
-
---* // Licensed under the Apache License, Version 2.0 (the "License");
---* // you may not use this file except in compliance with the License.
---* // You may obtain a copy of the License at
-
---* //     http://www.apache.org/licenses/LICENSE-2.0
-
---* // Unless required by applicable law or agreed to in writing, software
---* // distributed under the License is distributed on an "AS IS" BASIS,
---* // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
---* // See the License for the specific language governing permissions and
---* // limitations under the License.
-
 --* // ========================================================================
 
---*	DEFINITION
---*		UPGRADE "" --> "1.0.1"
---*	/DEFINITION
+--*	PATCHES
+--*		PATCH "" --> "1.0.1"
+--*	/PATCHES
 
 
 
@@ -26,29 +11,31 @@
 
 
 --* // ========================================================================
---* UPGRADE "" --> "1.0.1"
+--* PATCH "" --> "1.0.1"
 --* // ========================================================================
 
---* SECTION "Creating table DBVERSION"
+--* SET MESSAGE "Creating table DBVERSION"
 CREATE TABLE DBVERSION
 ( 
-	VERSION VARCHAR(20), 
-	TARGET VARCHAR(20), 
+	VERSION VARCHAR, 
+	TARGET VARCHAR, 
 	STATEMENTS INTEGER NOT NULL 
-);
+)
+GO
 
-NON-DELIMITED COMMAND
+UNTERMINATED COMMAND
 
---* SECTION "Must fail here"
+--* SET MESSAGE "Must fail here"
 
 CREATE TABLE USERS
 (
 	USER_ID INT IDENTITY,
-	USER_USERNAME VARCHAR(40) NOT NULL,
-	USER_PASSWORD VARCHAR(40) NOT NULL
-);
+	USER_USERNAME VARCHAR NOT NULL,
+	USER_PASSWORD VARCHAR NOT NULL
+)
+GO
 
---* /UPGRADE
+--* /PATCH
 
 --* // ========================================================================
 
