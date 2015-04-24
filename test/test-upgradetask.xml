@@ -25,15 +25,15 @@
 	
 
 	<target name="ant-test">
-		<taskdef resource="solidbasetasks" classpathref="test.classpath" />
+        <taskdef name="solidbase-upgrade" classname="solidbase.ant.UpgradeTask" classpathref="test.classpath" />
 		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask"
-				username="sa" password=""
+				user="sa" password=""
 				upgradefile="testpatch-multiconnections.sql" target="1.1.*">
-       		<secondary name="queues" url="jdbc:hsqldb:mem:queues" username="sa" password="geheim" />
-       		<secondary name="user" username="sa" password="" />
+       		<secondary name="queues" url="jdbc:hsqldb:mem:queues" user="sa" password="geheim" />
+       		<secondary name="user" user="sa" password="" />
         </solidbase-upgrade>
-		<upgradedb driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask"
-				username="sa" password=""
+		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask"
+				user="sa" password=""
 				upgradefile="testpatch-multiconnections.sql" target="1.0.*"
 				downgradeallowed="yes" />
 	</target>
@@ -41,25 +41,6 @@
 
 	<target name="ant-basedir-test">
 		<ant antfile="test-basedir.xml" dir="folder" target="ant-test-basedir" />
-	</target>
-
-
-	<target name="ant-test-filenotfound">
-		<taskdef resource="solidbasetasks" classpathref="test.classpath" />
-		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask"
-				username="sa" password=""
-				upgradefile="doesnotexist.sql" />
-	</target>
-
-
-	<target name="ant-test-parameters">
-		<taskdef resource="solidbasetasks" classpathref="test.classpath" />
-		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:upgradeTask1"
-				username="sa" password=""
-				upgradefile="testpatch-parameter2.sql">
-			<parameter name="par1" value="val1" />
-			<parameter name="par2" /> <!-- null -->
-		</solidbase-upgrade>
 	</target>
 
 

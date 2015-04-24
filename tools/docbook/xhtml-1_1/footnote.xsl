@@ -4,7 +4,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:exsl="http://exslt.org/common" xmlns="http://www.w3.org/1999/xhtml" exclude-result-prefixes="exsl" version="1.0">
 
 <!-- ********************************************************************
-     $Id: footnote.xsl 8421 2009-05-04 07:49:49Z bobstayton $
+     $Id: footnote.xsl 6910 2007-06-28 23:23:30Z xmldoc $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -49,15 +49,6 @@
 <xsl:template match="footnoteref">
   <xsl:variable name="targets" select="key('id',@linkend)"/>
   <xsl:variable name="footnote" select="$targets[1]"/>
-
-  <xsl:if test="not(local-name($footnote) = 'footnote')">
-   <xsl:message terminate="yes">
-ERROR: A footnoteref element has a linkend that points to an element that is not a footnote. 
-Typically this happens when an id attribute is accidentally applied to the child of a footnote element. 
-target element: <xsl:value-of select="local-name($footnote)"/>
-linkend/id: <xsl:value-of select="@linkend"/>
-   </xsl:message>
-  </xsl:if>
 
   <xsl:variable name="target.href">
     <xsl:call-template name="href.target">
@@ -135,7 +126,6 @@ linkend/id: <xsl:value-of select="@linkend"/>
     </xsl:call-template>
   </xsl:variable>
   <p>
-    <xsl:call-template name="locale.html.attributes"/>
     <xsl:if test="@role and $para.propagates.style != 0">
       <xsl:apply-templates select="." mode="class.attribute">
         <xsl:with-param name="class" select="@role"/>
@@ -184,7 +174,7 @@ linkend/id: <xsl:value-of select="@linkend"/>
   </xsl:variable>
 
   <xsl:choose>
-    <xsl:when test="$exsl.node.set.available != 0">
+    <xsl:when test="function-available('exsl:node-set')">
       <xsl:variable name="html-nodes" select="exsl:node-set($html)"/>
       <xsl:choose>
         <xsl:when test="$html-nodes//p">
@@ -264,14 +254,14 @@ linkend/id: <xsl:value-of select="@linkend"/>
   <xsl:choose>
     <xsl:when test="local-name(*[1]) = 'para' or local-name(*[1]) = 'simpara'">
       <div>
-        <xsl:call-template name="common.html.attributes"/>
+        <xsl:apply-templates select="." mode="class.attribute"/>
         <xsl:apply-templates/>
       </div>
     </xsl:when>
 
-    <xsl:when test="$html.cleanup != 0 and                      $exsl.node.set.available != 0">
+    <xsl:when test="$html.cleanup != 0 and function-available('exsl:node-set')">
       <div>
-        <xsl:call-template name="common.html.attributes"/>
+        <xsl:apply-templates select="." mode="class.attribute"/>
         <xsl:apply-templates select="*[1]" mode="footnote.body.number"/>
         <xsl:apply-templates select="*[position() &gt; 1]"/>
       </div>
@@ -285,7 +275,7 @@ linkend/id: <xsl:value-of select="@linkend"/>
         <xsl:text> unexpected as first child of footnote.</xsl:text>
       </xsl:message>
       <div>
-        <xsl:call-template name="common.html.attributes"/>
+        <xsl:apply-templates select="." mode="class.attribute"/>
         <xsl:apply-templates/>
       </div>
     </xsl:otherwise>

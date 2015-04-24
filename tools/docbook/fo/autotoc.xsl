@@ -5,7 +5,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: autotoc.xsl 8286 2009-03-06 22:53:04Z bobstayton $
+     $Id: autotoc.xsl 7634 2008-01-05 16:06:30Z mzjn $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -17,7 +17,6 @@
 <!-- ==================================================================== -->
 
 <xsl:template name="set.toc">
-
   <xsl:param name="toc-context" select="."/>
 
   <xsl:variable name="id">
@@ -30,7 +29,7 @@
     </xsl:call-template>
   </xsl:variable>
 
-  <xsl:variable name="nodes" select="book|set|setindex"/>
+  <xsl:variable name="nodes" select=".|book|set|setindex"/>
 
   <xsl:if test="$nodes">
     <fo:block id="toc...{$id}"
@@ -275,7 +274,7 @@
 
   <xsl:if test="$nodes">
     <fo:block id="toc.{$cid}.{$id}">
-      <xsl:attribute name="margin-{$direction.align.start}">
+      <xsl:attribute name="margin-left">
         <xsl:call-template name="set.toc.indent"/>
       </xsl:attribute>
 
@@ -292,30 +291,7 @@
 
 <xsl:template match="question" mode="toc">
   <xsl:variable name="firstchunk">
-    <!-- Use a titleabbrev or title if available -->
-    <xsl:choose>
-      <xsl:when test="../blockinfo/titleabbrev">
-        <xsl:apply-templates select="../blockinfo/titleabbrev[1]/node()"/>
-      </xsl:when>
-      <xsl:when test="../blockinfo/title">
-        <xsl:apply-templates select="../blockinfo/title[1]/node()"/>
-      </xsl:when>
-      <xsl:when test="../info/titleabbrev">
-        <xsl:apply-templates select="../info/titleabbrev[1]/node()"/>
-      </xsl:when>
-      <xsl:when test="../titleabbrev">
-        <xsl:apply-templates select="../titleabbrev[1]/node()"/>
-      </xsl:when>
-      <xsl:when test="../info/title">
-        <xsl:apply-templates select="../info/title[1]/node()"/>
-      </xsl:when>
-      <xsl:when test="../title">
-        <xsl:apply-templates select="../title[1]/node()"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:apply-templates select="(*[local-name(.)!='label'])[1]/node()"/>
-      </xsl:otherwise>
-    </xsl:choose>
+    <xsl:apply-templates select="(*[local-name(.)!='label'])[1]/node()"/>
   </xsl:variable>
 
   <xsl:variable name="deflabel">
@@ -339,10 +315,10 @@
   </xsl:variable>
 
   <fo:block xsl:use-attribute-sets="toc.line.properties"
+	    margin-left="3em"
+	    text-indent="-3em"
             end-indent="{$toc.indent.width}pt"
             last-line-end-indent="-{$toc.indent.width}pt">
-    <xsl:attribute name="margin-{$direction.align.start}">3em</xsl:attribute>
-    <xsl:attribute name="text-indent">-3em</xsl:attribute>
     <fo:inline keep-with-next.within-line="always">
       <fo:basic-link internal-destination="{$id}">
         <xsl:if test="$label != ''">
@@ -398,7 +374,7 @@
                 and $toc.max.depth > $depth.from.context
                 and $nodes">
     <fo:block id="toc.{$cid}.{$id}">
-      <xsl:attribute name="margin-{$direction.align.start}">
+      <xsl:attribute name="margin-left">
         <xsl:call-template name="set.toc.indent"/>
       </xsl:attribute>
 
@@ -434,7 +410,7 @@
                 and $toc.max.depth > $depth.from.context
                 and $nodes">
     <fo:block id="toc.{$cid}.{$id}">
-      <xsl:attribute name="margin-{$direction.align.start}">
+      <xsl:attribute name="margin-left">
         <xsl:call-template name="set.toc.indent"/>
       </xsl:attribute>
       
@@ -472,7 +448,7 @@
                 and $toc.max.depth > $depth.from.context
                 and $nodes">
     <fo:block id="toc.{$cid}.{$id}">
-      <xsl:attribute name="margin-{$direction.align.start}">
+      <xsl:attribute name="margin-left">
         <xsl:call-template name="set.toc.indent"/>
       </xsl:attribute>
       
@@ -506,7 +482,7 @@
                 and $toc.max.depth > $depth.from.context
                 and refentry">
     <fo:block id="toc.{$cid}.{$id}">
-      <xsl:attribute name="margin-{$direction.align.start}">
+      <xsl:attribute name="margin-left">
         <xsl:call-template name="set.toc.indent"/>
       </xsl:attribute>
               
@@ -554,7 +530,7 @@
                 and $toc.max.depth > $depth.from.context
                 and $nodes">
     <fo:block id="toc.{$cid}.{$id}">
-      <xsl:attribute name="margin-{$direction.align.start}">
+      <xsl:attribute name="margin-left">
         <xsl:call-template name="set.toc.indent"/>
       </xsl:attribute>
               
@@ -588,7 +564,7 @@
                 and $toc.max.depth > $depth.from.context
                 and sect2">
     <fo:block id="toc.{$cid}.{$id}">
-      <xsl:attribute name="margin-{$direction.align.start}">
+      <xsl:attribute name="margin-left">
         <xsl:call-template name="set.toc.indent"/>
       </xsl:attribute>
               
@@ -626,7 +602,7 @@
                 and $toc.max.depth > $depth.from.context
                 and sect3">
     <fo:block id="toc.{$cid}.{$id}">
-      <xsl:attribute name="margin-{$direction.align.start}">
+      <xsl:attribute name="margin-left">
         <xsl:call-template name="set.toc.indent">
           <xsl:with-param name="reldepth" select="$reldepth"/>
         </xsl:call-template>
@@ -666,7 +642,7 @@
                 and $toc.max.depth > $depth.from.context
                 and sect4">
     <fo:block id="toc.{$cid}.{$id}">
-      <xsl:attribute name="margin-{$direction.align.start}">
+      <xsl:attribute name="margin-left">
         <xsl:call-template name="set.toc.indent">
           <xsl:with-param name="reldepth" select="$reldepth"/>
         </xsl:call-template>
@@ -706,7 +682,7 @@
                 and $toc.max.depth > $depth.from.context
                 and sect5">
     <fo:block id="toc.{$cid}.{$id}">
-      <xsl:attribute name="margin-{$direction.align.start}">
+      <xsl:attribute name="margin-left">
         <xsl:call-template name="set.toc.indent">
           <xsl:with-param name="reldepth" select="$reldepth"/>
         </xsl:call-template>
@@ -781,7 +757,7 @@
                   and $toc.max.depth > $depth.from.context
                   and section">
       <fo:block id="toc.{$cid}.{$id}">
-        <xsl:attribute name="margin-{$direction.align.start}">
+        <xsl:attribute name="margin-left">
           <xsl:call-template name="set.toc.indent">
             <xsl:with-param name="reldepth" select="$reldepth"/>
           </xsl:call-template>
@@ -897,7 +873,7 @@
                   and $toc.max.depth > $depth.from.context
                   and (child::qandadiv or child::qandaentry)">
       <fo:block id="toc.{$cid}.{$id}">
-        <xsl:attribute name="margin-{$direction.align.start}">
+        <xsl:attribute name="margin-left">
           <xsl:call-template name="set.toc.indent">
             <xsl:with-param name="reldepth" select="$reldepth"/>
           </xsl:call-template>

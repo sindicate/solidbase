@@ -16,108 +16,91 @@
 
 package solidbase;
 
+import java.io.File;
+import java.net.URL;
+
 import solidbase.config.ConfigListener;
 import solidbase.core.Command;
+import solidbase.core.PatchFile;
 import solidbase.core.ProgressListener;
-import solidbase.core.UpgradeSegment;
-import solidbase.util.Assert;
 
 
-/**
- * Implements the progress listener for the command line version of SolidBase.
- *
- * @author René M. de Bloois
- */
 public class Progress extends ProgressListener implements ConfigListener
 {
-	static private final String SPACES = "                                        ";
-
-	/**
-	 * Show extra information?
-	 */
 	protected boolean verbose;
-
-	/**
-	 * The console to use.
-	 */
 	protected Console console;
 
-	/**
-	 * Constructor.
-	 *
-	 * @param console The console to use.
-	 * @param verbose Show extra information?
-	 */
 	public Progress( Console console, boolean verbose )
 	{
 		this.console = console;
 		this.verbose = verbose;
 	}
 
-	@Override
-	public void cr()
-	{
-		this.console.carriageReturn();
-	}
-
-	@Override
-	public void println( String message )
-	{
-		this.console.println( message );
-	}
-
-	public void readingConfigFile( String path )
+	public void readingPropertyFile( String path )
 	{
 		if( this.verbose )
 			this.console.println( "Reading property file " + path );
 	}
 
 	@Override
-	protected void upgradeStarting( UpgradeSegment segment )
+	protected void openingPatchFile( File patchFile )
 	{
-		switch( segment.getType() )
-		{
-			case SETUP:
-				this.console.print( "Setting up control tables" );
-				break;
-			case UPGRADE:
-				this.console.print( "Upgrading" );
-				break;
-			case SWITCH:
-				this.console.print( "Switching" );
-				break;
-			case DOWNGRADE:
-				this.console.print( "Downgrading" );
-				break;
-			default:
-				Assert.fail( "Unknown segment type: " + segment.getType() );
-		}
-		if( segment.getSource() == null )
-			this.console.print( " to \"" + segment.getTarget() + "\"" );
-		else
-			this.console.print( " \"" + segment.getSource() + "\" to \"" + segment.getTarget() + "\"" );
+		this.console.println( "Opening file '" + patchFile + "'" );
 	}
 
 	@Override
-	protected void executing( Command command )
+	protected void openingPatchFile( URL patchFile )
 	{
-		for( int i = 0; i < this.messages.length; i++ )
+		this.console.println( "Opening file '" + patchFile + "'" );
+	}
+
+	@Override
+	public void openedPatchFile( PatchFile patchFile )
+	{
+		this.console.println( "    Encoding is '" + patchFile.getEncoding() + "'" );
+	}
+
+	@Override
+	protected void patchStarting( String source, String target )
+	{
+		if( source == null )
+			this.console.print( "Upgrading to \"" + target + "\"" );
+		else
+			this.console.print( "Upgrading \"" + source + "\" to \"" + target + "\"" );
+	}
+
+	@Override
+	protected void executing( Command command, String message )
+	{
+		if( message != null ) // Message can be null, when a message has not been set, but sql is still being executed
 		{
-			String m = this.messages[ i ];
-			if( m != null )
-			{
-				this.console.carriageReturn();
-				this.console.print( SPACES.substring( 0, i * 4 ) );
-				this.console.print( m );
-				this.messages[ i ] = null;
-			}
+			this.console.carriageReturn();
+			this.console.print( message );
 		}
+	}
+
+	@Override
+	protected void exception( Command command )
+	{
+		// The sql is now printed by the SQLExecutionException.printStackTrace().
 	}
 
 	@Override
 	protected void executed()
 	{
 		this.console.print( "." );
+	}
+
+	@Override
+	protected void patchFinished()
+	{
+		this.console.println();
+	}
+
+	@Override
+	protected void patchingFinished()
+	{
+		this.console.println( "The database is upgraded." );
 	}
 
 	@Override
@@ -133,12 +116,5 @@ public class Progress extends ProgressListener implements ConfigListener
 	{
 		if( this.verbose )
 			this.console.println( "DEBUG: " + message );
-	}
-
-	@Override
-	public void print( String message )
-	{
-		this.console.carriageReturn();
-		this.console.print( message );
 	}
 }

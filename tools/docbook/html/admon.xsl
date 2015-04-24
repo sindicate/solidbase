@@ -3,7 +3,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: admon.xsl 8421 2009-05-04 07:49:49Z bobstayton $
+     $Id: admon.xsl 7072 2007-07-17 16:14:37Z xmldoc $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -61,7 +61,7 @@
   </xsl:variable>
 
   <div>
-    <xsl:call-template name="common.html.attributes"/>
+    <xsl:apply-templates select="." mode="class.attribute"/>
     <xsl:if test="$admon.style != ''">
       <xsl:attribute name="style">
         <xsl:value-of select="$admon.style"/>
@@ -87,7 +87,7 @@
             </xsl:attribute>
           </img>
         </td>
-        <th align="{$direction.align.start}">
+        <th align="left">
           <xsl:call-template name="anchor"/>
           <xsl:if test="$admon.textlabel != 0 or title or info/title">
             <xsl:apply-templates select="." mode="object.title.markup"/>
@@ -95,7 +95,7 @@
         </th>
       </tr>
       <tr>
-        <td align="{$direction.align.start}" valign="top">
+        <td align="left" valign="top">
           <xsl:apply-templates/>
         </td>
       </tr>
@@ -105,9 +105,7 @@
 
 <xsl:template name="nongraphical.admonition">
   <div>
-    <xsl:call-template name="common.html.attributes">
-      <xsl:with-param name="inherit" select="1"/>
-    </xsl:call-template>
+    <xsl:apply-templates select="." mode="class.attribute"/>
     <xsl:if test="$admon.style">
       <xsl:attribute name="style">
         <xsl:value-of select="$admon.style"/>

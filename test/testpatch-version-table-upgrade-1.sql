@@ -17,10 +17,10 @@
 
 
 
---*	DEFINITION
---*		SETUP "" --> "1.0"
---*		UPGRADE "" --> "1.0.1"
---*	/DEFINITION
+--*	PATCHES
+--*		INIT "" --> "1.0"
+--*		PATCH "" --> "1.0.1"
+--*	/PATCHES
 
 
 
@@ -28,14 +28,15 @@
 
 
 
---* SETUP "" --> "1.0"
+--* INIT "" --> "1.0"
 
 CREATE TABLE DBVERSION
 ( 
 	VERSION VARCHAR, 
 	TARGET VARCHAR, 
 	STATEMENTS INTEGER NOT NULL 
-);
+)
+GO
 
 CREATE TABLE DBVERSIONLOG
 (
@@ -45,21 +46,23 @@ CREATE TABLE DBVERSIONLOG
 	STAMP TIMESTAMP NOT NULL,
 	COMMAND VARCHAR,
 	RESULT VARCHAR
-);
+)
+GO
 
---* /SETUP
-
-
-
+--* /INIT
 
 
 
 
---* UPGRADE "" --> "1.0.1"
 
-CREATE TABLE TEST1 ( TEST VARCHAR );
 
---* /UPGRADE
+
+--* PATCH "" --> "1.0.1"
+
+CREATE TABLE TEST1 ( TEST VARCHAR )
+GO
+
+--* /PATCH
 
 
 

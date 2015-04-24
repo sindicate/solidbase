@@ -7,7 +7,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: xref.xsl 8421 2009-05-04 07:49:49Z bobstayton $
+     $Id: xref.xsl 7107 2007-07-22 10:22:06Z xmldoc $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -158,13 +158,13 @@
             <xsl:value-of select="@endterm"/>
           </xsl:message>
           <a href="{$href}">
-            <xsl:apply-templates select="." mode="common.html.attributes"/>
+            <xsl:apply-templates select="." mode="class.attribute"/>
             <xsl:text>???</xsl:text>
           </a>
         </xsl:when>
         <xsl:otherwise>
           <a href="{$href}">
-            <xsl:apply-templates select="." mode="common.html.attributes"/>
+            <xsl:apply-templates select="." mode="class.attribute"/>
             <xsl:apply-templates select="$etarget" mode="endterm"/>
           </a>
         </xsl:otherwise>
@@ -173,7 +173,7 @@
 
     <xsl:when test="$target/@xreflabel">
       <a>
-        <xsl:apply-templates select="." mode="common.html.attributes"/>
+        <xsl:apply-templates select="." mode="class.attribute"/>
         <xsl:attribute name="href">
           <xsl:call-template name="href.target">
             <xsl:with-param name="object" select="$target"/>
@@ -234,7 +234,7 @@
   </xsl:variable>
 
   <xsl:choose>
-    <xsl:when test="$exsl.node.set.available != 0">
+    <xsl:when test="function-available('exsl:node-set')">
       <xsl:apply-templates select="exsl:node-set($endterm)" mode="remove-ids"/>
     </xsl:when>
     <xsl:otherwise>
@@ -424,7 +424,7 @@
   <xsl:apply-templates select="(.//function)[1]" mode="xref"/>
 </xsl:template>
 
-<xsl:template match="dedication|acknowledgements|preface|chapter|appendix|article" mode="xref-to">
+<xsl:template match="dedication|preface|chapter|appendix|article" mode="xref-to">
   <xsl:param name="referrer"/>
   <xsl:param name="xrefstyle"/>
   <xsl:param name="verbose" select="1"/>
@@ -555,7 +555,7 @@
   </xsl:choose>
 </xsl:template>
 
-<xsl:template match="glossterm|firstterm" mode="xref-to">
+<xsl:template match="glossterm" mode="xref-to">
   <xsl:apply-templates/>
 </xsl:template>
 
@@ -646,7 +646,8 @@
   <xsl:param name="xrefstyle"/>
   <xsl:param name="verbose" select="1"/>
 
-  <xsl:apply-templates select="question[1]" mode="xref-to">
+  <xsl:apply-templates select="question[1]" mode="object.xref.markup">
+    <xsl:with-param name="purpose" select="'xref'"/>
     <xsl:with-param name="xrefstyle" select="$xrefstyle"/>
     <xsl:with-param name="referrer" select="$referrer"/>
     <xsl:with-param name="verbose" select="$verbose"/>
@@ -658,19 +659,12 @@
   <xsl:param name="xrefstyle"/>
   <xsl:param name="verbose" select="1"/>
 
-  <xsl:choose>
-    <xsl:when test="string-length(label) != 0">
-      <xsl:apply-templates select="." mode="label.markup"/>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:apply-templates select="." mode="object.xref.markup">
-        <xsl:with-param name="purpose" select="'xref'"/>
-        <xsl:with-param name="xrefstyle" select="$xrefstyle"/>
-        <xsl:with-param name="referrer" select="$referrer"/>
-        <xsl:with-param name="verbose" select="$verbose"/>
-      </xsl:apply-templates>
-    </xsl:otherwise>
-  </xsl:choose>
+  <xsl:apply-templates select="." mode="object.xref.markup">
+    <xsl:with-param name="purpose" select="'xref'"/>
+    <xsl:with-param name="xrefstyle" select="$xrefstyle"/>
+    <xsl:with-param name="referrer" select="$referrer"/>
+    <xsl:with-param name="verbose" select="$verbose"/>
+  </xsl:apply-templates>
 </xsl:template>
 
 <xsl:template match="part|reference" mode="xref-to">
@@ -744,14 +738,6 @@
   </xsl:apply-templates>
 </xsl:template>
 
-<xsl:template match="primary|secondary|tertiary" mode="xref-to">
-  <xsl:value-of select="."/>
-</xsl:template>
-
-<xsl:template match="indexterm" mode="xref-to">
-  <xsl:value-of select="primary"/>
-</xsl:template>
-
 <xsl:template match="varlistentry/term" mode="xref-to">
   <xsl:param name="referrer"/>
   <xsl:param name="xrefstyle"/>
@@ -791,10 +777,7 @@
   </xsl:apply-templates>
 </xsl:template>
 
-<!-- These are elements for which no link text exists, so an xref to one
-     uses the xrefstyle attribute if specified, or if not it falls back
-     to the container element's link text -->
-<xsl:template match="para|phrase|simpara|anchor|quote" mode="xref-to">
+<xsl:template match="para" mode="xref-to">
   <xsl:param name="referrer"/>
   <xsl:param name="xrefstyle"/>
   <xsl:param name="verbose" select="1"/>
@@ -815,7 +798,6 @@
                                        |ancestor::preface
                                        |ancestor::partintro
                                        |ancestor::dedication
-                                       |ancestor::acknowledgements
                                        |ancestor::colophon
                                        |ancestor::bibliography
                                        |ancestor::index
@@ -824,23 +806,12 @@
                                        |ancestor::listitem
                                        |ancestor::varlistentry)[last()]"/>
 
-  <xsl:choose>
-    <xsl:when test="$xrefstyle != ''">
-      <xsl:apply-templates select="." mode="object.xref.markup">
-        <xsl:with-param name="xrefstyle" select="$xrefstyle"/>
-        <xsl:with-param name="referrer" select="$referrer"/>
-        <xsl:with-param name="verbose" select="$verbose"/>
-      </xsl:apply-templates>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:apply-templates select="$context" mode="xref-to">
-        <xsl:with-param name="purpose" select="'xref'"/>
-        <xsl:with-param name="xrefstyle" select="$xrefstyle"/>
-        <xsl:with-param name="referrer" select="$referrer"/>
-        <xsl:with-param name="verbose" select="$verbose"/>
-      </xsl:apply-templates>
-    </xsl:otherwise>
-  </xsl:choose>
+  <xsl:apply-templates select="$context" mode="xref-to">
+    <xsl:with-param name="purpose" select="'xref'"/>
+    <xsl:with-param name="xrefstyle" select="$xrefstyle"/>
+    <xsl:with-param name="referrer" select="$referrer"/>
+    <xsl:with-param name="verbose" select="$verbose"/>
+  </xsl:apply-templates>
 </xsl:template>
 
 <!-- ==================================================================== -->
@@ -988,7 +959,7 @@
   <xsl:param name="url" select="@url"/>
   <xsl:variable name="link">
     <a>
-      <xsl:apply-templates select="." mode="common.html.attributes"/>
+      <xsl:apply-templates select="." mode="class.attribute"/>
       <xsl:if test="@id or @xml:id">
         <xsl:attribute name="name">
           <xsl:value-of select="(@id|@xml:id)[1]"/>
@@ -1115,7 +1086,7 @@
 
       <xsl:variable name="hottext">
         <xsl:choose>
-          <xsl:when test="string-length($content) != 0">
+          <xsl:when test="$content">
             <xsl:copy-of select="$content"/>
           </xsl:when>
           <xsl:otherwise>
@@ -1147,7 +1118,7 @@
       <xsl:choose>
         <xsl:when test="$href != ''">
           <a href="{$href}">
-            <xsl:apply-templates select="." mode="common.html.attributes"/>
+            <xsl:apply-templates select="." mode="class.attribute"/>
             <xsl:copy-of select="$hottext"/>
           </a>
           <xsl:copy-of select="$olink.page.citation"/>
@@ -1205,7 +1176,7 @@
       <xsl:choose>
         <xsl:when test="$href != ''">
           <a href="{$href}">
-            <xsl:apply-templates select="." mode="common.html.attributes"/>
+            <xsl:apply-templates select="." mode="class.attribute"/>
             <xsl:call-template name="olink.hottext"/>
           </a>
         </xsl:when>

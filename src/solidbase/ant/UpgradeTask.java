@@ -1,182 +1,295 @@
-/*--
- * Copyright 2009 René M. de Bloois
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package solidbase.ant;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.Task;
 
-import solidbase.core.FatalException;
-import solidbase.core.Runner;
-import solidstack.io.Resources;
+import solidbase.Main;
+import solidbase.config.Configuration;
+import solidbase.core.Patcher;
+import solidbase.core.SQLExecutionException;
 
 
-/**
- * The Upgrade Ant Task.
- *
- * @author René M. de Bloois
- */
-public class UpgradeTask extends DBTask
+// TODO Rename this class
+public class UpgradeTask extends Task
 {
-	/**
-	 * Field to store the configured upgrade file.
-	 */
+	protected String name;
+	protected String driver;
+	protected String url;
+	protected String user;
+	protected String password;
 	protected String upgradefile;
-
-	/**
-	 * Field to store the configured target.
-	 */
-	protected String upgradeTarget;
-
-	/**
-	 * Field to store the configured downgrade allowed option.
-	 */
+	protected String target;
 	protected boolean downgradeallowed;
 
-	/**
-	 * Returns the configured upgrade file.
-	 *
-	 * @return the configured upgrade file.
+	protected List< Connection > connections = new ArrayList< Connection >();
+
+	/*
+	protected Path classpath;
+
+	public Path createClasspath()
+	{
+		if( this.classpath == null )
+			this.classpath = new Path( getProject() );
+		return this.classpath.createPath();
+	}
+
+	public Path getClasspath()
+	{
+		return this.classpath;
+	}
+
+	public void setClasspath( Path classpath )
+	{
+		if( this.classpath == null )
+			this.classpath = new Path( getProject() );
+		this.classpath.append( classpath );
+	}
+
+	public void setClasspathref( Reference reference )
+	{
+		if( this.classpath == null )
+			this.classpath = new Path( getProject() );
+		this.classpath.createPath().setRefid( reference );
+	}
 	 */
+
+	public String getName()
+	{
+		return this.name;
+	}
+
+	public void setName( String name )
+	{
+		this.name = name;
+	}
+
+	public String getDriver()
+	{
+		return this.driver;
+	}
+
+	public void setDriver( String driver )
+	{
+		this.driver = driver;
+	}
+
+	public String getUrl()
+	{
+		return this.url;
+	}
+
+	public void setUrl( String url )
+	{
+		this.url = url;
+	}
+
+	public String getUser()
+	{
+		return this.user;
+	}
+
+	public void setUser( String user )
+	{
+		this.user = user;
+	}
+
+	public String getPassword()
+	{
+		return this.password;
+	}
+
+	public void setPassword( String password )
+	{
+		this.password = password;
+	}
+
 	public String getUpgradefile()
 	{
 		return this.upgradefile;
 	}
 
-	/**
-	 * Sets the upgrade file to configure.
-	 *
-	 * @param upgradefile The upgrade file to configure.
-	 */
 	public void setUpgradefile( String upgradefile )
 	{
 		this.upgradefile = upgradefile;
 	}
 
-	/**
-	 * Returns the configured target.
-	 *
-	 * @return The configured target.
-	 */
 	public String getTarget()
 	{
-		return this.upgradeTarget;
+		return this.target;
 	}
 
-	/**
-	 * Sets the target to configure.
-	 *
-	 * @param target The target to configure.
-	 */
 	public void setTarget( String target )
 	{
-		this.upgradeTarget = target;
+		this.target = target;
 	}
 
-	/**
-	 * Returns if downgrades are allowed or not.
-	 *
-	 * @return True if downgrades are allowed, false otherwise.
-	 */
 	public boolean isDowngradeallowed()
 	{
 		return this.downgradeallowed;
 	}
 
-	/**
-	 * Sets if downgrades are allowed or not.
-	 *
-	 * @param downgradeallowed Are downgrades allowed?
-	 */
 	public void setDowngradeallowed( boolean downgradeallowed )
 	{
 		this.downgradeallowed = downgradeallowed;
 	}
 
-	/**
-	 * Validates the configuration of the Ant Task.
-	 */
-	@Override
+	public Connection createSecondary()
+	{
+		Connection connection = new Connection();
+		this.connections.add( connection );
+		return connection;
+	}
+
+	public List< Connection > getConnections()
+	{
+		return this.connections;
+	}
+
+	protected class Connection
+	{
+		protected String name;
+		protected String driver;
+		protected String url;
+		protected String user;
+		protected String password;
+
+		public String getName()
+		{
+			return this.name;
+		}
+
+		public void setName( String name )
+		{
+			this.name = name;
+		}
+
+		public String getDriver()
+		{
+			return this.driver;
+		}
+
+		public void setDriver( String driver )
+		{
+			this.driver = driver;
+		}
+
+		public String getUrl()
+		{
+			return this.url;
+		}
+
+		public void setUrl( String url )
+		{
+			this.url = url;
+		}
+
+		public String getUser()
+		{
+			return this.user;
+		}
+
+		public void setUser( String user )
+		{
+			this.user = user;
+		}
+
+		public String getPassword()
+		{
+			return this.password;
+		}
+
+		public void setPassword( String password )
+		{
+			this.password = password;
+		}
+	}
+
+
 	protected void validate()
 	{
-		super.validate();
-
+		if( this.driver == null )
+			throw new BuildException( "The 'driver' attribute is mandatory for the " + getTaskName() + " task" );
+		if( this.url == null )
+			throw new BuildException( "The 'url' attribute is mandatory for the " + getTaskName() + " task" );
+		if( this.user == null )
+			throw new BuildException( "The 'user' attribute is mandatory for the " + getTaskName() + " task" );
+		if( this.password == null )
+			throw new BuildException( "The 'password' attribute is mandatory for the " + getTaskName() + " task" );
 		if( this.upgradefile == null )
 			throw new BuildException( "The 'upgradefile' attribute is mandatory for the " + getTaskName() + " task" );
+		if( this.target == null )
+			throw new BuildException( "The 'target' attribute is mandatory for the " + getTaskName() + " task" );
+
+		for( Connection connection : this.connections )
+		{
+			if( connection.getName() == null )
+				throw new BuildException( "The 'name' attribute is mandatory for a 'connection' element" );
+			if( connection.getUser() == null )
+				throw new BuildException( "The 'user' attribute is mandatory for a 'connection' element" );
+			if( connection.getPassword() == null )
+				throw new BuildException( "The 'password' attribute is mandatory for a 'connection' element" );
+			if( connection.getName().equals( "default" ) )
+				throw new BuildException( "The connection name 'default' is reserved" );
+		}
 	}
 
-	@Override
-	public Runner prepareRunner()
-	{
-		Runner runner = super.prepareRunner();
-
-		runner.setUpgradeFile( Resources.getResource( getProject().getBaseDir() ).resolve( this.upgradefile ) );
-		runner.setUpgradeTarget( this.upgradeTarget );
-		runner.setDowngradeAllowed( this.downgradeallowed );
-
-		return runner;
-	}
 
 	@Override
 	public void execute()
 	{
 		validate();
 
-//		The code below is meant to get to the REAL System.out.
-//		PrintStream out = null;
-//		try
-//		{
-//			Class main = Class.forName( "org.apache.tools.ant.Main" );
-//			Field outField = main.getDeclaredField( "out" );
-//			outField.setAccessible( true );
-//			Object object = outField.get( null );
-//			out = (PrintStream)object;
-//		}
-//		catch( SecurityException e )
-//		{
-//			throw new SystemException( e );
-//		}
-//		catch( NoSuchFieldException e )
-//		{
-//			throw new SystemException( e );
-//		}
-//		catch( IllegalArgumentException e )
-//		{
-//			throw new SystemException( e );
-//		}
-//		catch( IllegalAccessException e )
-//		{
-//			throw new SystemException( e );
-//		}
-//		catch( ClassNotFoundException e )
-//		{
-//			throw new SystemException( e );
-//		}
-//
-//		out.println( "Dit is een test" );
+		Project project = getProject();
+		Progress progress = new Progress( project, this );
+		Configuration configuration = new Configuration( progress );
 
-		Runner runner = prepareRunner();
+		progress.info( "SolidBase v" + configuration.getVersion() );
+		// TODO Ant messes up the encoding, try add the é again
+		progress.info( "(C) 2006-2009 Rene M. de Bloois" );
+		progress.info( "" );
+
 		try
 		{
-			runner.upgrade();
+			Patcher.setCallBack( progress );
+
+			Patcher.setDefaultConnection( new solidbase.core.Database( this.driver, this.url, this.user, this.password ) );
+
+			for( Connection connection : this.connections )
+				Patcher.addConnection( new solidbase.config.Connection( connection.getName(), connection.getDriver(), connection.getUrl(), connection.getUser(), connection.getPassword() ) );
+
+			progress.info( "Connecting to database..." );
+
+			progress.info( Main.getCurrentVersion() );
+
+			try
+			{
+				Patcher.openPatchFile( project.getBaseDir(), this.upgradefile );
+				try
+				{
+					if( this.target != null )
+						Patcher.patch( this.target, this.downgradeallowed ); // TODO Print this target
+					else
+						throw new UnsupportedOperationException();
+					progress.info( "" );
+					progress.info( Main.getCurrentVersion() );
+				}
+				finally
+				{
+					Patcher.closePatchFile();
+				}
+			}
+			catch( SQLExecutionException e )
+			{
+				throw new BuildException( e.getMessage() );
+			}
 		}
-		catch( FatalException e )
+		finally
 		{
-			// TODO When debugging, we should give the whole exception, not only the message
-			// TODO Shouldn't we just wrap the exception, and then Ant is the one who decides if it only shows the message or the complete stacktrace?
-			throw new BuildException( e.getMessage() );
+			Patcher.end();
 		}
 	}
 }

@@ -9,7 +9,7 @@
 <xsl:import href="../html/chunk.xsl"/>
 
 <!-- ********************************************************************
-     $Id: eclipse.xsl 8400 2009-04-08 07:44:54Z bobstayton $
+     $Id: eclipse.xsl 7582 2007-12-03 03:22:06Z dcramer $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -29,7 +29,9 @@
          toss the namespace and continue.  Use the docbook5 namespaced
          stylesheets for DocBook5 if you don't want to use this feature.-->
     <!-- include extra test for Xalan quirk -->
-    <xsl:when test="$exsl.node.set.available != 0
+    <xsl:when test="(function-available('exsl:node-set') or
+                     contains(system-property('xsl:vendor'),
+                       'Apache Software Foundation'))
                     and (*/self::ng:* or */self::db:*)">
       <xsl:call-template name="log.message">
         <xsl:with-param name="level">Note</xsl:with-param>
