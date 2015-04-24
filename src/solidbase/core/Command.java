@@ -16,71 +16,60 @@
 
 package solidbase.core;
 
-import solidbase.util.Assert;
-import solidstack.io.SourceLocation;
-
 /**
- * Represents a command in an upgrade or SQL file.
- *
+ * <p>Represents a command in the patchfile. A command can be repeatable or non-repeatable. Repeatable commands start with <code>--*</code>. Example of a repeatable command is:</p>
+ * <blockquote><pre>
+ * --* SET USER SYSTEM</pre></blockquote>
+ * <p>Repeatable commands are executed as they are encountered even when the patchtool is in the process of skipping non-repeatable commands.</p>
+ * <p>Example of a non-repeatable command:</p>
+ * <blockquote><pre>
+ * DROP TABLE REJECTED_SHIPMENTS PURGE
+ * GO</pre></blockquote>
+ * <p>Non-repeatable commands are DDL (data definition language) most of the time.</p>
+ * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:13:28 PM
  */
 public class Command
 {
-	/**
-	 * The text of the command.
-	 */
-	private String command;
+	protected String command;
+	protected boolean repeatable;
 
 	/**
-	 * Is the command transient or not?
-	 */
-	private boolean isTransient;
-
-	/**
-	 * The file location where the command is encountered.
-	 */
-	private SourceLocation location;
-
-	/**
-	 * Constructor.
-	 *
+	 * Constructs the command.
+	 * 
 	 * @param command The text of the command.
-	 * @param isTransient Is the command transient or not?
-	 * @param location The location where the command is encountered.
+	 * @param repeatable The repeatability of the command.
 	 */
-	public Command( String command, boolean isTransient, SourceLocation location )
+	protected Command( String command, boolean repeatable )
 	{
-		Assert.notNull( command );
-
 		this.command = command;
-		this.isTransient = isTransient;
-		this.location = location;
+		this.repeatable = repeatable;
 	}
 
 	/**
-	 * Indicates if the command is transient or not.
-	 *
-	 * @return true if the command is transient, false otherwise.
+	 * Indicates if the command is repeatable or not.
+	 * 
+	 * @return true if the command is repeatable, false otherwise.
 	 */
-	public boolean isTransient()
+	public boolean isRepeatable()
 	{
-		return this.isTransient;
+		return this.repeatable;
 	}
 
 	/**
-	 * Indicates if the command is persistent or not.
-	 *
-	 * @return true if the command is persistent, false otherwise.
+	 * Indicates if the command is repeatable or not.
+	 * 
+	 * @return true if the command is non-repeatable, false otherwise.
 	 */
-	public boolean isPersistent()
+	public boolean isNonRepeatable() // TODO Rename to isDatabaseCommand
 	{
-		return !this.isTransient;
+		return !this.repeatable;
 	}
 
 	/**
 	 * Returns the text of the command.
-	 *
+	 * 
 	 * @return the text of the command.
 	 */
 	public String getCommand()
@@ -90,27 +79,11 @@ public class Command
 
 	/**
 	 * Sets the command text.
-	 *
+	 * 
 	 * @param command the command text.
 	 */
 	public void setCommand( String command )
 	{
 		this.command = command;
-	}
-
-	/**
-	 * Returns the file location where the command is encountered.
-	 *
-	 * @return The file location where the command is encountered.
-	 */
-	public SourceLocation getLocation()
-	{
-		return this.location;
-	}
-
-	@Override
-	public String toString()
-	{
-		return this.command;
 	}
 }

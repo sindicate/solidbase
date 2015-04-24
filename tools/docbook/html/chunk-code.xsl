@@ -8,7 +8,7 @@
                 version="1.0">
 
 <!-- ********************************************************************
-     $Id: chunk-code.xsl 8345 2009-03-16 06:44:07Z bobstayton $
+     $Id: chunk-code.xsl 6942 2007-07-04 04:42:17Z xmldoc $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -413,7 +413,10 @@
     <!-- Hack! If someone hands us a DocBook V5.x or DocBook NG document,
          toss the namespace and continue.  Use the docbook5 namespaced
 	 stylesheets for DocBook5 if you don't want to use this feature.-->
-    <xsl:when test="$exsl.node.set.available != 0 
+    <!-- include extra test for Xalan quirk -->
+    <xsl:when test="(function-available('exsl:node-set') or
+                     contains(system-property('xsl:vendor'),
+                       'Apache Software Foundation'))
                     and (*/self::ng:* or */self::db:*)">
       <xsl:call-template name="log.message">
         <xsl:with-param name="level">Note</xsl:with-param>

@@ -7,7 +7,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: utility.xsl 8236 2009-02-09 17:44:52Z xmldoc $
+     $Id: utility.xsl 7961 2008-03-29 02:28:55Z xmldoc $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -69,43 +69,31 @@
   </xsl:template>
 
   <xsl:template name="code-inline-start">
-    <xsl:if test="not($man.output.better.ps.enabled = 0)">
-      <xsl:text>\FC</xsl:text>
-    </xsl:if>
+    <xsl:text>\FC</xsl:text>
   </xsl:template>
 
   <xsl:template name="code-inline-end">
-    <xsl:if test="not($man.output.better.ps.enabled = 0)">
-      <xsl:text>\F[]</xsl:text>
-    </xsl:if>
+    <xsl:text>\F[]</xsl:text>
   </xsl:template>
 
   <!-- ================================================================== -->
 
   <xsl:template name="verbatim-block-start">
-    <xsl:if test="not($man.output.better.ps.enabled = 0)">
-      <xsl:text>.fam C&#10;</xsl:text>
-      <xsl:text>.ps -1&#10;</xsl:text>
-    </xsl:if>
+    <xsl:text>.fam C&#10;</xsl:text>
+    <xsl:text>.ps -1&#10;</xsl:text>
   </xsl:template>
 
   <xsl:template name="verbatim-block-end">
-    <xsl:if test="not($man.output.better.ps.enabled = 0)">
-      <xsl:text>.fam&#10;</xsl:text>
-      <xsl:text>.ps +1&#10;</xsl:text>
-    </xsl:if>
+    <xsl:text>.fam&#10;</xsl:text>
+    <xsl:text>.ps +1&#10;</xsl:text>
   </xsl:template>
 
   <xsl:template name="synopsis-block-start">
-    <xsl:if test="not($man.output.better.ps.enabled = 0)">
-      <xsl:text>.fam C&#10;</xsl:text>
-    </xsl:if>
+    <xsl:text>.fam C&#10;</xsl:text>
   </xsl:template>
 
   <xsl:template name="synopsis-block-end">
-    <xsl:if test="not($man.output.better.ps.enabled = 0)">
-      <xsl:text>.fam&#10;</xsl:text>
-    </xsl:if>
+    <xsl:text>.fam&#10;</xsl:text>
   </xsl:template>
 
   <!-- ================================================================== -->
@@ -502,16 +490,7 @@
     <xsl:text>.SH</xsl:text>
     <xsl:text> </xsl:text>
     <xsl:text>"</xsl:text>
-    <xsl:choose>
-      <xsl:when test="not($man.output.better.ps.enabled = 0)">
-        <xsl:value-of select="$title"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:call-template name="string.upper">
-          <xsl:with-param name="string" select="$title"/>
-        </xsl:call-template>
-      </xsl:otherwise>
-    </xsl:choose>
+    <xsl:value-of select="$title"/>
     <xsl:text>"</xsl:text>
     <xsl:text>&#10;</xsl:text>
     <xsl:call-template name="mark.subheading"/>
