@@ -16,55 +16,45 @@
 
 package solidbase.ant;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.tools.ant.BuildException;
-
+import org.apache.tools.ant.Project;
+import solidbase.Version;
+import solidbase.core.Database;
 import solidbase.core.FatalException;
-import solidbase.core.Runner;
-import solidstack.io.Resource;
-import solidstack.io.Resources;
+import solidbase.core.SQLExecutionException;
+import solidbase.core.SQLProcessor;
 
 
 /**
  * The Sql Ant Task.
- *
+ * 
  * @author René M. de Bloois
  */
 public class SQLTask extends DBTask
 {
 	/**
-	 * Field to store the sqlfile attribute.
+	 * Field to store the configured sql file.
 	 */
 	protected String sqlfile;
 
 	/**
-	 * Field to store multiple nested sqlfile elements.
+	 * Returns the configured sql file.
+	 * 
+	 * @return the configured sql file.
 	 */
-	protected List< Sqlfile > sqlfiles = new ArrayList< Sqlfile >();
+	public String getSqlfile()
+	{
+		return this.sqlfile;
+	}
 
 	/**
-	 * Sets the sqlfile attribute.
-	 *
-	 * @param sqlfile The sqlfile attribute.
+	 * Sets the sql file to configure.
+	 * 
+	 * @param sqlfile The sql file to configure.
 	 */
 	public void setSqlfile( String sqlfile )
 	{
 		this.sqlfile = sqlfile;
-	}
-
-	/**
-	 * Creates a nested sqlfile element.
-	 *
-	 * @return The nested sqlfile element.
-	 */
-	public Sqlfile createSqlfile()
-	{
-		Sqlfile sqlfile = new Sqlfile();
-		this.sqlfiles.add( sqlfile );
-		return sqlfile;
 	}
 
 	/**
@@ -76,89 +66,52 @@ public class SQLTask extends DBTask
 		super.validate();
 
 		if( this.sqlfile == null )
-		{
-			if( this.sqlfiles.isEmpty() )
-				throw new BuildException( "The " + getTaskName() + " task needs the 'sqlfile' attribute or nested 'sqlfile' elements" );
-		}
-		else
-		{
-			if( !this.sqlfiles.isEmpty() )
-				throw new BuildException( "The " + getTaskName() + " task does not accept both the 'sqlfile' attribute and nested 'sqlfile' elements" );
-		}
+			throw new BuildException( "The 'sqlfile' attribute is mandatory for the " + getTaskName() + " task" );
 	}
 
-	@Override
-	public Runner prepareRunner()
-	{
-		Runner runner = super.prepareRunner();
-
-		List< Resource > sqlFiles = new ArrayList< Resource >();
-		File baseDir = getProject().getBaseDir();
-		if( this.sqlfile != null )
-			sqlFiles.add( Resources.getResource( baseDir ).resolve( this.sqlfile ) );
-		for( Sqlfile file : this.sqlfiles )
-			sqlFiles.add( Resources.getResource( baseDir ).resolve( file.src ) );
-		runner.setSQLFiles( sqlFiles );
-
-		return runner;
-	}
 
 	@Override
 	public void execute()
 	{
 		validate();
 
-		Runner runner = prepareRunner();
+		Project project = getProject();
+		Progress progress = new Progress( project, this );
+
+		String[] info = Version.getInfo();
+		progress.info( info[ 0 ] );
+		progress.info( info[ 1 ] );
+		progress.info( "" );
+
 		try
 		{
-			runner.executeSQL();
+			SQLProcessor executer = new SQLProcessor( progress, new Database( this.driver, this.url, this.username, this.password, progress ) );
+
+			for( Connection connection : this.connections )
+				executer.addDatabase( connection.getName(),
+						new Database( connection.getDriver() == null ? this.driver : connection.getDriver(),
+								connection.getUrl() == null ? this.url : connection.getUrl(),
+										connection.getUsername(), connection.getPassword(), progress ) );
+
+			executer.init( project.getBaseDir(), this.sqlfile );
+			try
+			{
+				progress.info( "Connecting to database..." );
+				executer.execute();
+				progress.info( "" );
+			}
+			finally
+			{
+				executer.end();
+			}
+		}
+		catch( SQLExecutionException e )
+		{
+			throw new BuildException( e.getMessage() );
 		}
 		catch( FatalException e )
 		{
-			// TODO When debugging, we should give the whole exception, not only the message
-			// TODO Shouldn't we just wrap the exception, and then Ant is the one who decides if it only shows the message or the complete stacktrace?
 			throw new BuildException( e.getMessage() );
-		}
-	}
-
-	/**
-	 * Object used to configure the nested sqlfile element of the SQLTask.
-	 *
-	 * @author R.M. de Bloois
-	 */
-	static protected class Sqlfile
-	{
-		/**
-		 * The file path.
-		 */
-		protected String src;
-
-		/**
-		 * Constructor.
-		 */
-		public Sqlfile()
-		{
-			super();
-		}
-
-		/**
-		 * Constructor.
-		 *
-		 * @param src The file path.
-		 */
-		public Sqlfile( String src )
-		{
-			this.src = src;
-		}
-
-		/**
-		 * Sets the file path.
-		 *
-		 * @param src The file path.
-		 */
-		public void setSrc( String src )
-		{
-			this.src = src;
 		}
 	}
 }

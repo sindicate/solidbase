@@ -16,128 +16,113 @@
 
 package solidbase.core;
 
-import solidstack.io.Resource;
+import java.io.File;
+import java.net.URL;
 
 /**
  * Listener adapter.
- *
+ * 
  * @author R.M. de Bloois
  * @since Apr 14, 2006
  */
 @SuppressWarnings( "unused" )
-abstract public class ProgressListener
+public class ProgressListener
 {
 	/**
-	 * A store for nested messages coming from SECTIONs in the command file.
+	 * Constructor.
 	 */
-	protected String[] messages = new String[ 10 ];
-
-
-	/**
-	 * Returns to column 1 and generates a newline if needed.
-	 */
-	abstract public void cr();
-
-	/**
-	 * Prints a line completely by itself. Generates a carriage return before printing if needed.
-	 *
-	 * @param message The message to be printed.
-	 */
-	abstract public void println( String message );
-	// TODO Also add a message() which automatically indents one more than the last section
-
-	/**
-	 * Resets all state that the listener has.
-	 */
-	public void reset()
+	public ProgressListener()
 	{
-		startSection( 0, null ); // This clears up all section levels.
+		super();
 	}
 
 	/**
 	 * An upgrade file is about to be opened.
-	 *
-	 * @param file The upgrade file that is about to be opened.
+	 * 
+	 * @param patchFile The upgrade file that is about to be opened.
 	 */
-	protected void openingUpgradeFile( Resource file )
+	protected void openingPatchFile( File patchFile )
 	{
-		cr();
-		println( "Opening file '" + file + "'" );
+		// could be implemented in subclass
+	}
+
+	/**
+	 * An upgrade file is about to be opened.
+	 * 
+	 * @param patchFile The upgrade file that is about to be opened.
+	 */
+	protected void openingPatchFile( URL patchFile )
+	{
+		// could be implemented in subclass
 	}
 
 	/**
 	 * An sql file is about to be opened.
-	 *
+	 * 
 	 * @param sqlFile The sql file that is about to be opened.
 	 */
-	protected void openingSQLFile( Resource sqlFile )
+	protected void openingSQLFile( File sqlFile )
 	{
-		cr();
-		println( "Opening file '" + sqlFile + "'" );
+		// could be implemented in subclass
+	}
+
+	/**
+	 * An sql file is about to be opened.
+	 * 
+	 * @param sqlFile The sql file that is about to be opened.
+	 */
+	protected void openingSQLFile( URL sqlFile )
+	{
+		// could be implemented in subclass
 	}
 
 	/**
 	 * An upgrade file is opened.
-	 *
-	 * @param file The upgrade file that is opened.
+	 * 
+	 * @param patchFile The upgrade file that is opened.
 	 */
-	protected void openedUpgradeFile( UpgradeFile file )
+	protected void openedPatchFile( PatchFile patchFile )
 	{
-		cr();
-		println( "    Encoding is '" + file.getEncoding() + "'" );
+		// could be implemented in subclass
 	}
 
 	/**
 	 * An sql file is opened.
-	 *
+	 * 
 	 * @param sqlFile The sql file that is opened.
 	 */
 	protected void openedSQLFile( SQLFile sqlFile )
 	{
-		cr();
-		println( "    Encoding is '" + sqlFile.getEncoding() + "'" );
+		// could be implemented in subclass
 	}
 
 	/**
 	 * The given change set is about to be processed.
-	 *
-	 * @param segment The segment that is about to be started.
+	 * 
+	 * @param patch The change set that is about to be started.
 	 */
-	protected void upgradeStarting( UpgradeSegment segment )
+	protected void patchStarting( Patch patch )
 	{
 		// could be implemented in subclass
-	}
-
-	/**
-	 * A section is started.
-	 *
-	 * @param level Section level.
-	 * @param message Message.
-	 */
-	protected void startSection( int level, String message )
-	{
-		this.messages[ level++ ] = message;
-		while( level < this.messages.length )
-			this.messages[ level++ ] = null; // Deeper sections are reset
 	}
 
 	/**
 	 * About to execute to given command with the given message for the user.
-	 *
+	 * 
 	 * @param command The command that is about to be executed.
+	 * @param message The message that is set.
 	 */
-	protected void executing( Command command )
+	protected void executing( Command command, String message )
 	{
 		// could be implemented in subclass
 	}
 
 	/**
-	 * An exception occurred during execution of the given command.
-	 *
-	 * @param exception The exception that occurred.
+	 * An exception occured during execution of the given command.
+	 * 
+	 * @param command The command during which an exception occured.
 	 */
-	// TODO Should this be FatalException?
-	protected void exception( SQLExecutionException exception )
+	protected void exception( Command command )
 	{
 		// could be implemented in subclass
 	}
@@ -153,9 +138,9 @@ abstract public class ProgressListener
 	/**
 	 * A change set is completed.
 	 */
-	protected void upgradeFinished()
+	protected void patchFinished()
 	{
-		cr();
+		// could be implemented in subclass
 	}
 
 	/**
@@ -163,26 +148,7 @@ abstract public class ProgressListener
 	 */
 	protected void upgradeComplete()
 	{
-		cr();
-		println( "Upgrade complete." );
-	}
-
-	/**
-	 * The upgrade is aborted.
-	 */
-	protected void upgradeAborted()
-	{
-		cr();
-		println( "Upgrade aborted." );
-	}
-
-	/**
-	 * No upgrade is needed.
-	 */
-	protected void noUpgradeNeeded()
-	{
-		cr();
-		println( "No upgrade is needed." );
+		// could be implemented in subclass
 	}
 
 	/**
@@ -190,33 +156,24 @@ abstract public class ProgressListener
 	 */
 	protected void sqlExecutionComplete()
 	{
-		cr();
-		println( "Execution complete." );
-	}
-
-	/**
-	 * The sql execution is aborted.
-	 */
-	protected void sqlExecutionAborted()
-	{
-		cr();
-		println( "Execution aborted." );
+		// could be implemented in subclass
 	}
 
 	/**
 	 * Request a password for the given user name.
-	 *
+	 * 
 	 * @param user The user name for which a password needs to be requested.
 	 * @return The password that is requested.
 	 */
 	protected String requestPassword( String user )
 	{
-		throw new UnsupportedOperationException();
+		// could be implemented in subclass
+		return null;
 	}
 
 	/**
 	 * A command is skipped because it has been processed earlier in an upgrade that did not complete.
-	 *
+	 * 
 	 * @param command The command that is skipped.
 	 */
 	protected void skipped( Command command )
@@ -226,20 +183,10 @@ abstract public class ProgressListener
 
 	/**
 	 * A debug message is given.
-	 *
+	 * 
 	 * @param message The debug message.
 	 */
 	protected void debug( String message )
-	{
-		// could be implemented in subclass
-	}
-
-	/**
-	 * An info message is produced.
-	 *
-	 * @param message The info message.
-	 */
-	public void print( String message )
 	{
 		// could be implemented in subclass
 	}

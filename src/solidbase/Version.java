@@ -20,18 +20,17 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
 
+import solidbase.core.Assert;
 import solidbase.core.SystemException;
-import solidbase.util.Assert;
 
 
 /**
- * Represents the version of SolidBase. It reads from version.properties.
  * 
  * @author René M. de Bloois
  */
 public class Version
 {
-	static private final String SOLIDBASE_VERSION_PROPERTIES = "version.properties";
+	static private final String DBPATCHER_VERSION_PROPERTIES = "version.properties";
 
 	/**
 	 * The version of SolidBase.
@@ -42,7 +41,7 @@ public class Version
 	{
 		// Load the version properties
 
-		URL url = Version.class.getResource( SOLIDBASE_VERSION_PROPERTIES );
+		URL url = Version.class.getResource( DBPATCHER_VERSION_PROPERTIES );
 		Assert.notNull( url );
 		Properties properties = new Properties();
 		try
@@ -70,8 +69,9 @@ public class Version
 	 * 
 	 * @return The SolidBase version & copyright info to be displayed to the user.
 	 */
-	static public String getInfo()
+	static public String[] getInfo()
 	{
-		return "SolidBase v" + version + " (http://solidbase.org)";
+		// TODO Ant messes up the encoding, try add the é again
+		return new String[] { "SolidBase v" + version, "(C) 2006-2010 Rene M. de Bloois" };
 	}
 }

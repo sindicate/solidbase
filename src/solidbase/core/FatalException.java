@@ -24,18 +24,6 @@ package solidbase.core;
  */
 public class FatalException extends RuntimeException
 {
-	private static final long serialVersionUID = 1L;
-
-	/**
-	 * Constructor.
-	 * 
-	 * @param cause The cause.
-	 */
-	protected FatalException( Throwable cause )
-	{
-		super( cause );
-	}
-
 	/**
 	 * Constructor.
 	 * 
