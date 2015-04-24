@@ -10,7 +10,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: index.xsl 8317 2009-03-12 06:14:02Z bobstayton $
+     $Id: index.xsl 7902 2008-03-11 21:29:37Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -116,8 +116,7 @@
         <xsl:with-param name="master-reference" select="$master-reference"/>
       </xsl:call-template>
 
-      <fo:block id="{$id}"
-                xsl:use-attribute-sets="component.titlepage.properties">
+      <fo:block id="{$id}">
         <xsl:call-template name="index.titlepage"/>
       </fo:block>
       <xsl:apply-templates/>
@@ -447,12 +446,8 @@
   <fo:block>
     <xsl:attribute name="start-indent">
       <xsl:choose>
-        <xsl:when test="(preceding-sibling::tertiaryie |
-                         preceding-sibling::secondaryie)[last()]
-                         [self::tertiaryie]">3pc</xsl:when>
-        <xsl:when test="(preceding-sibling::tertiaryie |
-                         preceding-sibling::secondaryie)[last()]
-                         [self::secondaryie]">2pc</xsl:when>
+        <xsl:when test="preceding-sibling::tertiaryie">3pc</xsl:when>
+        <xsl:when test="preceding-sibling::secondaryie">2pc</xsl:when>
         <xsl:otherwise>1pc</xsl:otherwise>
       </xsl:choose>
     </xsl:attribute>

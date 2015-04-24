@@ -18,7 +18,7 @@
                 version="1.0">
 
 <!-- ********************************************************************
-     $Id: autoidx-kosek.xsl 8399 2009-04-08 07:37:42Z bobstayton $
+     $Id: autoidx-kosek.xsl 6910 2007-06-28 23:23:30Z xmldoc $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -50,7 +50,8 @@
     </xsl:message>
   </xsl:if>
 
-  <xsl:if test="$exsl.node.set.available = 0">
+  <xsl:if test="not(function-available('exslt:node-set') or
+                    function-available('exslt:nodeSet'))">
     <xsl:message terminate="yes">
       <xsl:text>ERROR: the 'kosek' index method requires the </xsl:text>
       <xsl:text>exslt:node-set() function. Use a processor that </xsl:text>

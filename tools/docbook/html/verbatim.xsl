@@ -8,7 +8,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: verbatim.xsl 8421 2009-05-04 07:49:49Z bobstayton $
+     $Id: verbatim.xsl 6946 2007-07-04 10:21:57Z xmldoc $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -17,11 +17,8 @@
 
      ******************************************************************** -->
 
-<!-- XSLTHL highlighting is turned off by default. See highlighting/README
-     for instructions on how to turn on XSLTHL -->
-<xsl:template name="apply-highlighting">
-    <xsl:apply-templates/>
-</xsl:template>
+<xsl:include href="../highlighting/common.xsl"/>
+<xsl:include href="highlight.xsl"/>
 
 <lxslt:component prefix="xverb"
                  functions="numberLines"/>
@@ -48,47 +45,23 @@
 
   <xsl:choose>
     <xsl:when test="$suppress-numbers = '0'
-                    and @linenumbering = 'numbered'
-                    and $use.extensions != '0'
-                    and $linenumbering.extension != '0'">
+		    and @linenumbering = 'numbered'
+		    and $use.extensions != '0'
+		    and $linenumbering.extension != '0'">
       <xsl:variable name="rtf">
-        <xsl:choose>
-          <xsl:when test="$highlight.source != 0">
-            <xsl:call-template name="apply-highlighting"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:apply-templates/>
-          </xsl:otherwise>
-        </xsl:choose>
+	<xsl:call-template name="apply-highlighting"/>
       </xsl:variable>
       <pre>
-        <xsl:apply-templates select="." mode="common.html.attributes"/>
-        <xsl:if test="@width != ''">
-          <xsl:attribute name="width">
-            <xsl:value-of select="@width"/>
-          </xsl:attribute>
-        </xsl:if>
-        <xsl:call-template name="number.rtf.lines">
-          <xsl:with-param name="rtf" select="$rtf"/>
-        </xsl:call-template>
+        <xsl:apply-templates select="." mode="class.attribute"/>
+	<xsl:call-template name="number.rtf.lines">
+	  <xsl:with-param name="rtf" select="$rtf"/>
+	</xsl:call-template>
       </pre>
     </xsl:when>
     <xsl:otherwise>
       <pre>
-        <xsl:apply-templates select="." mode="common.html.attributes"/>
-        <xsl:if test="@width != ''">
-          <xsl:attribute name="width">
-            <xsl:value-of select="@width"/>
-          </xsl:attribute>
-        </xsl:if>
-        <xsl:choose>
-          <xsl:when test="$highlight.source != 0">
-            <xsl:call-template name="apply-highlighting"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:apply-templates/>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="class.attribute"/>
+	<xsl:call-template name="apply-highlighting"/>
       </pre>
     </xsl:otherwise>
   </xsl:choose>
@@ -115,48 +88,48 @@
 
   <xsl:choose>
     <xsl:when test="$suppress-numbers = '0'
-                    and @linenumbering = 'numbered'
-                    and $use.extensions != '0'
-                    and $linenumbering.extension != '0'">
+		    and @linenumbering = 'numbered'
+		    and $use.extensions != '0'
+		    and $linenumbering.extension != '0'">
       <xsl:choose>
-        <xsl:when test="@class='monospaced'">
+	<xsl:when test="@class='monospaced'">
           <pre>
-            <xsl:apply-templates select="." mode="common.html.attributes"/>
-            <xsl:call-template name="number.rtf.lines">
-              <xsl:with-param name="rtf" select="$rtf"/>
-            </xsl:call-template>
-          </pre>
-        </xsl:when>
-        <xsl:otherwise>
+            <xsl:apply-templates select="." mode="class.attribute"/>
+	    <xsl:call-template name="number.rtf.lines">
+	      <xsl:with-param name="rtf" select="$rtf"/>
+	    </xsl:call-template>
+	  </pre>
+	</xsl:when>
+	<xsl:otherwise>
           <div>
-            <xsl:apply-templates select="." mode="common.html.attributes"/>
-            <p>
-              <xsl:call-template name="number.rtf.lines">
-                <xsl:with-param name="rtf" select="$rtf"/>
-              </xsl:call-template>
-            </p>
-          </div>
-        </xsl:otherwise>
+            <xsl:apply-templates select="." mode="class.attribute"/>
+	    <p>
+	      <xsl:call-template name="number.rtf.lines">
+		<xsl:with-param name="rtf" select="$rtf"/>
+	      </xsl:call-template>
+	    </p>
+	  </div>
+	</xsl:otherwise>
       </xsl:choose>
     </xsl:when>
     <xsl:otherwise>
       <xsl:choose>
-        <xsl:when test="@class='monospaced'">
+	<xsl:when test="@class='monospaced'">
           <pre>
-            <xsl:apply-templates select="." mode="common.html.attributes"/>
-            <xsl:copy-of select="$rtf"/>
-          </pre>
-        </xsl:when>
-        <xsl:otherwise>
+            <xsl:apply-templates select="." mode="class.attribute"/>
+	    <xsl:copy-of select="$rtf"/>
+	  </pre>
+	</xsl:when>
+	<xsl:otherwise>
           <div>
-            <xsl:apply-templates select="." mode="common.html.attributes"/>
-            <p>
-              <xsl:call-template name="make-verbatim">
-                <xsl:with-param name="rtf" select="$rtf"/>
-              </xsl:call-template>
-            </p>
-          </div>
-        </xsl:otherwise>
+            <xsl:apply-templates select="." mode="class.attribute"/>
+	    <p>
+	      <xsl:call-template name="make-verbatim">
+		<xsl:with-param name="rtf" select="$rtf"/>
+	      </xsl:call-template>
+	    </p>
+	  </div>
+	</xsl:otherwise>
       </xsl:choose>
     </xsl:otherwise>
   </xsl:choose>
@@ -175,7 +148,7 @@
                     and $use.extensions != '0'
                     and $linenumbering.extension != '0'">
       <div>
-        <xsl:apply-templates select="." mode="common.html.attributes"/>
+        <xsl:apply-templates select="." mode="class.attribute"/>
         <p>
           <xsl:call-template name="number.rtf.lines">
             <xsl:with-param name="rtf" select="$rtf"/>
@@ -186,7 +159,7 @@
 
     <xsl:otherwise>
       <div>
-        <xsl:apply-templates select="." mode="common.html.attributes"/>
+        <xsl:apply-templates select="." mode="class.attribute"/>
         <p>
           <xsl:call-template name="make-verbatim">
             <xsl:with-param name="rtf" select="$rtf"/>
@@ -341,7 +314,7 @@
        or I have to rely on CSS. -->
 
   <xsl:choose>
-    <xsl:when test="$exsl.node.set.available != 0">
+    <xsl:when test="function-available('exsl:node-set')">
       <xsl:apply-templates select="exsl:node-set($rtf)" mode="make.verbatim.mode"/>
     </xsl:when>
     <xsl:otherwise>

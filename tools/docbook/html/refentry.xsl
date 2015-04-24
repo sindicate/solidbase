@@ -3,7 +3,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: refentry.xsl 8421 2009-05-04 07:49:49Z bobstayton $
+     $Id: refentry.xsl 6910 2007-06-28 23:23:30Z xmldoc $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -18,9 +18,11 @@
   <xsl:call-template name="id.warning"/>
 
   <div>
-    <xsl:call-template name="common.html.attributes">
+    <xsl:apply-templates select="." mode="class.attribute"/>
+    <xsl:call-template name="dir">
       <xsl:with-param name="inherit" select="1"/>
     </xsl:call-template>
+    <xsl:call-template name="language.attribute"/>
     <xsl:if test="$generate.id.attributes != 0">
       <xsl:attribute name="id">
         <xsl:call-template name="object.id"/>
@@ -85,9 +87,11 @@
   <xsl:call-template name="id.warning"/>
 
   <div>
-    <xsl:call-template name="common.html.attributes">
+    <xsl:apply-templates select="." mode="class.attribute"/>
+    <xsl:call-template name="dir">
       <xsl:with-param name="inherit" select="1"/>
     </xsl:call-template>
+    <xsl:call-template name="language.attribute"/>
     <xsl:if test="$refentry.separator != 0 and preceding-sibling::refentry">
       <div class="refentry.separator">
         <hr/>
@@ -129,7 +133,8 @@
 
 <xsl:template match="refnamediv">
   <div>
-    <xsl:call-template name="common.html.attributes">
+    <xsl:apply-templates select="." mode="class.attribute"/>
+    <xsl:call-template name="dir">
       <xsl:with-param name="inherit" select="1"/>
     </xsl:call-template>
     <xsl:call-template name="anchor"/>
@@ -191,19 +196,22 @@
 
 <xsl:template match="refclass">
   <xsl:if test="$refclass.suppress = 0">
-  <b>
-    <xsl:if test="@role">
-      <xsl:value-of select="@role"/>
-      <xsl:text>: </xsl:text>
-    </xsl:if>
-    <xsl:apply-templates/>
-  </b>
+  <p>
+    <b>
+      <xsl:if test="@role">
+        <xsl:value-of select="@role"/>
+        <xsl:text>: </xsl:text>
+      </xsl:if>
+      <xsl:apply-templates/>
+    </b>
+  </p>
   </xsl:if>
 </xsl:template>
 
 <xsl:template match="refsynopsisdiv">
   <div>
-    <xsl:call-template name="common.html.attributes">
+    <xsl:apply-templates select="." mode="class.attribute"/>
+    <xsl:call-template name="dir">
       <xsl:with-param name="inherit" select="1"/>
     </xsl:call-template>
     <xsl:call-template name="anchor"/>
@@ -235,9 +243,11 @@
 
 <xsl:template match="refsection|refsect1|refsect2|refsect3">
   <div>
-    <xsl:call-template name="common.html.attributes">
+    <xsl:apply-templates select="." mode="class.attribute"/>
+    <xsl:call-template name="dir">
       <xsl:with-param name="inherit" select="1"/>
     </xsl:call-template>
+    <xsl:call-template name="language.attribute"/>
     <xsl:call-template name="anchor">
       <xsl:with-param name="conditional" select="0"/>
     </xsl:call-template>
