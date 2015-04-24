@@ -18,15 +18,21 @@ package solidbase.maven;
 
 import org.apache.maven.plugin.logging.Log;
 
+import solidbase.core.Assert;
 import solidbase.core.Command;
+import solidbase.core.Patch;
+import solidbase.core.PatchFile;
 import solidbase.core.ProgressListener;
-import solidbase.core.UpgradeSegment;
-import solidbase.util.Assert;
+import solidbase.core.SQLExecutionException;
+import solidbase.core.SQLFile;
+
+import java.io.File;
+import java.net.URL;
 
 
 /**
  * Implements the progress listener for the Maven plugin.
- *
+ * 
  * @author Ruud de Jong
  * @author René M. de Bloois
  */
@@ -45,32 +51,18 @@ public class Progress extends ProgressListener
 	protected StringBuilder buffer;
 
 	/**
+	 * A store for nested messages coming from SECTIONs in the command file.
+	 */
+	protected String[] messages = new String[ 10 ];
+
+	/**
 	 * Constructor.
-	 *
+	 * 
 	 * @param log The Maven log.
 	 */
 	public Progress( Log log )
 	{
 		this.log = log;
-	}
-
-	@Override
-	public void reset()
-	{
-		super.reset();
-		this.buffer = null;
-	}
-
-	@Override
-	public void cr()
-	{
-		flush();
-	}
-
-	@Override
-	public void println( String message )
-	{
-		this.log.info( message );
 	}
 
 	/**
@@ -87,7 +79,7 @@ public class Progress extends ProgressListener
 
 	/**
 	 * Log an info message to the Maven log.
-	 *
+	 * 
 	 * @param message The message to log.
 	 */
 	void info( String message )
@@ -98,7 +90,7 @@ public class Progress extends ProgressListener
 
 	/**
 	 * Log a verbose message to the Maven log.
-	 *
+	 * 
 	 * @param message The message to log.
 	 */
 	void verbose( String message )
@@ -108,10 +100,46 @@ public class Progress extends ProgressListener
 	}
 
 	@Override
-	protected void upgradeStarting( UpgradeSegment segment )
+	protected void openingPatchFile( File patchFile )
+	{
+		info( "Opening file '" + patchFile + "'" );
+	}
+
+	@Override
+	protected void openingPatchFile( URL patchFile )
+	{
+		info( "Opening file '" + patchFile + "'" );
+	}
+
+	@Override
+	protected void openingSQLFile( File sqlFile )
+	{
+		info( "Opening file '" + sqlFile + "'" );
+	}
+
+	@Override
+	protected void openingSQLFile( URL sqlFile )
+	{
+		info( "Opening file '" + sqlFile + "'" );
+	}
+
+	@Override
+	protected void openedPatchFile( PatchFile patchFile )
+	{
+		info( "    Encoding is '" + patchFile.getEncoding() + "'" );
+	}
+
+	@Override
+	protected void openedSQLFile( SQLFile sqlFile )
+	{
+		info( "    Encoding is '" + sqlFile.getEncoding() + "'" );
+	}
+
+	@Override
+	protected void patchStarting( Patch patch )
 	{
 		flush();
-		switch( segment.getType() )
+		switch( patch.getType() )
 		{
 			case SETUP:
 				this.buffer = new StringBuilder( "Setting up control tables" );
@@ -126,17 +154,23 @@ public class Progress extends ProgressListener
 				this.buffer = new StringBuilder( "Downgrading" );
 				break;
 			default:
-				Assert.fail( "Unknown segment type: " + segment.getType() );
+				Assert.fail( "Unknown patch type: " + patch.getType() );
 		}
-		if( segment.getSource() == null )
-			this.buffer.append( " to \"" + segment.getTarget() + "\"" );
+		if( patch.getSource() == null )
+			this.buffer.append( " to \"" + patch.getTarget() + "\"" );
 		else
-			this.buffer.append( " \"" + segment.getSource() + "\" to \"" + segment.getTarget() + "\"" );
+			this.buffer.append( " \"" + patch.getSource() + "\" to \"" + patch.getTarget() + "\"" );
 		flush();
 	}
 
 	@Override
-	protected void executing( Command command )
+	protected void startSection( int level, String message )
+	{
+		this.messages[ level ] = message;
+	}
+
+	@Override
+	protected void executing( Command command, String message )
 	{
 		for( int i = 0; i < this.messages.length; i++ )
 		{
@@ -149,13 +183,49 @@ public class Progress extends ProgressListener
 			}
 		}
 
+		if( message != null ) // Message can be null, when a message has not been set, but sql is still being executed
+		{
+			flush();
+			this.buffer = new StringBuilder( message ).append( "..." );
+		}
+
 		flush();
+	}
+
+	@Override
+	protected void exception( SQLExecutionException exception )
+	{
+		// The sql is printed by the SQLExecutionException.printStackTrace().
 	}
 
 	@Override
 	protected void executed()
 	{
 		// Nothing to do
+	}
+
+	@Override
+	protected void patchFinished()
+	{
+		flush();
+	}
+
+	@Override
+	protected void sqlExecutionComplete()
+	{
+		info( "Execution complete." );
+	}
+
+	@Override
+	protected void upgradeComplete()
+	{
+		info( "The database is upgraded." );
+	}
+
+	@Override
+	protected String requestPassword( String username )
+	{
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

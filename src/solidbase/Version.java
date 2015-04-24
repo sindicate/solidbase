@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
 
+import solidbase.core.Assert;
 import solidbase.core.SystemException;
-import solidbase.util.Assert;
 
 
 /**
@@ -31,7 +31,7 @@ import solidbase.util.Assert;
  */
 public class Version
 {
-	static private final String SOLIDBASE_VERSION_PROPERTIES = "version.properties";
+	static private final String DBPATCHER_VERSION_PROPERTIES = "version.properties";
 
 	/**
 	 * The version of SolidBase.
@@ -42,7 +42,7 @@ public class Version
 	{
 		// Load the version properties
 
-		URL url = Version.class.getResource( SOLIDBASE_VERSION_PROPERTIES );
+		URL url = Version.class.getResource( DBPATCHER_VERSION_PROPERTIES );
 		Assert.notNull( url );
 		Properties properties = new Properties();
 		try

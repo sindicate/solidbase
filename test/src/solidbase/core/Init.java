@@ -21,22 +21,27 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import solidbase.core.Database;
+import solidbase.core.PatchFile;
+import solidbase.core.PatchProcessor;
+import solidbase.core.Util;
+
 public class Init
 {
-	static private final String db = "jdbc:hsqldb:mem:testInit";
-
 	@Test
 	public void testInit1() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( db, "sa", null );
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 
 		TestProgressListener progress = new TestProgressListener();
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch1.sql", db );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
+		PatchFile patchFile = Util.openPatchFile( "testpatch1.sql", progress );
+		patcher.setPatchFile( patchFile );
 		patcher.init();
 
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
-		patcher.upgrade( "1.0.1" );
+		patcher.patch( "1.0.1" );
 		TestUtil.verifyVersion( patcher, "1.0.1", null, 2, null );
 
 		patcher.end();
@@ -46,12 +51,14 @@ public class Init
 	public void testInit2() throws SQLException
 	{
 		TestProgressListener progress = new TestProgressListener();
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-version-table-upgrade-2.sql", db );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
+		PatchFile patchFile = Util.openPatchFile( "testpatch-version-table-upgrade-2.sql", progress );
+		patcher.setPatchFile( patchFile );
 		patcher.init();
 
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
-		patcher.upgrade( "1.0.2" );
+		patcher.patch( "1.0.2" );
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 1, "1.1.1" );
 
 		patcher.end();
@@ -60,15 +67,19 @@ public class Init
 	@Test
 	public void testInit3() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( db, "sa", null );
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 
 		TestProgressListener progress = new TestProgressListener();
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-version-table-upgrade-2.sql", db );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
+		PatchFile patchFile = Util.openPatchFile( "testpatch-version-table-upgrade-2.sql", progress );
+		patcher.setPatchFile( patchFile );
 		patcher.init();
 
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
-		patcher.upgrade( "1.0.2" );
+		patcher.patch( "" );
+		TestUtil.verifyVersion( patcher, null, null, 0, "1.1.1" );
+		patcher.patch( "1.0.2" );
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 1, "1.1.1" );
 
 		patcher.end();

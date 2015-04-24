@@ -19,15 +19,13 @@ package solidbase.core;
 import java.util.regex.Matcher;
 
 import solidbase.core.Delimiter.Type;
-import solidstack.io.Resource;
-import solidstack.io.SourceLocation;
-import solidstack.io.SourceReader;
-import solidstack.io.SourceReaders;
+import solidbase.util.LineReader;
+import solidbase.util.StringLineReader;
 
 
 /**
  * Source for SQL statements.
- *
+ * 
  * @author René M. de Bloois
  * @since June 2010
  */
@@ -41,7 +39,7 @@ public class SQLSource
 	/**
 	 * The underlying reader.
 	 */
-	protected SourceReader reader;
+	protected LineReader reader;
 
 	/**
 	 * A buffer needed when a delimiter is used of type {@link Type#FREE}.
@@ -56,10 +54,10 @@ public class SQLSource
 
 	/**
 	 * Constructor.
-	 *
+	 * 
 	 * @param in The reader which is used to read the SQL.
 	 */
-	protected SQLSource( SourceReader in )
+	protected SQLSource( LineReader in )
 	{
 		this.reader = in;
 	}
@@ -67,40 +65,40 @@ public class SQLSource
 
 	/**
 	 * Constructor.
-	 *
+	 * 
 	 * @param sql The SQL to read.
 	 */
 	protected SQLSource( String sql )
 	{
-		this( SourceReaders.forString( sql ) );
+		this( new StringLineReader( sql ) );
 	}
 
 
 	/**
 	 * Constructor.
-	 *
+	 * 
 	 * @param sql The SQL to read.
-	 * @param location The location of the SQL within the original file.
+	 * @param lineNumber The line number of the SQL within the original file.
 	 */
-	protected SQLSource( String sql, SourceLocation location )
+	protected SQLSource( String sql, int lineNumber )
 	{
-		this( SourceReaders.forString( sql, location ) );
+		this( new StringLineReader( sql, lineNumber ) );
 	}
 
 
 	/**
 	 * Constructor.
-	 *
-	 * @param fragment The fragment of SQL from a file.
+	 * 
+	 * @param fragment The fragment of SQL from a file, includes a line number.
 	 */
 	protected SQLSource( Fragment fragment )
 	{
-		this( SourceReaders.forString( fragment.getText(), fragment.getLocation() ) );
+		this( new StringLineReader( fragment.getText(), fragment.getLineNumber() ) );
 	}
 
 
 	/**
-	 * Close the source. This will also close the underlying file.
+	 * Close the patch file. This will also close the underlying file.
 	 */
 	public void close()
 	{
@@ -114,7 +112,7 @@ public class SQLSource
 
 	/**
 	 * Overrides the default delimiter.
-	 *
+	 * 
 	 * @param delimiters The delimiters.
 	 */
 	public void setDelimiters( Delimiter[] delimiters )
@@ -124,14 +122,14 @@ public class SQLSource
 
 
 	/**
-	 * Reads a command from the upgrade segment.
-	 *
-	 * @return A command from the upgrade segment or null when no more commands are available.
+	 * Reads a command from the patch file.
+	 * 
+	 * @return A command from the patch file or null when no more commands are available.
 	 */
 	public Command readCommand()
 	{
 		StringBuilder result = new StringBuilder();
-		int pos = 0; // No line found yet TODO Can we use source location instead?
+		int pos = 0; // No line found yet
 
 		while( true )
 		{
@@ -147,21 +145,21 @@ public class SQLSource
 				if( line == null )
 				{
 					if( result.length() > 0 )
-						throw new NonDelimitedStatementException( this.reader.getLocation().previousLine() );
+						throw new NonDelimitedStatementException( this.reader.getLineNumber() - 1 );
 					return null;
 				}
 
-				if( line.startsWith( "--*" ) )
+				if( line.startsWith( "--*" ) ) // Only if read from file
 				{
 					if( result.length() > 0 )
-						throw new NonDelimitedStatementException( this.reader.getLocation().previousLine() );
+						throw new NonDelimitedStatementException( this.reader.getLineNumber() - 1 );
 
-					line = line.substring( 3 ).trim(); // TODO Remove this trim()?
+					line = line.substring( 3 ).trim();
 					if( !line.startsWith( "//" )) // skip comment
 					{
 						if( pos == 0 )
-							pos = this.reader.getLocation().getLineNumber() - 1;
-						return new Command( line, true, this.reader.getLocation().lineNumber( pos ) );
+							pos = this.reader.getLineNumber() - 1;
+						return new Command( line, true, pos );
 					}
 					continue;
 				}
@@ -176,29 +174,29 @@ public class SQLSource
 				if( matcher.matches() )
 				{
 					if( pos == 0 )
-						pos = this.reader.getLocation().getLineNumber() - 1;
+						pos = this.reader.getLineNumber() - 1;
 					if( matcher.groupCount() > 0 )
 						result.append( matcher.group( 1 ) );
 					if( matcher.groupCount() > 1 )
 						this.buffer = matcher.group( 2 );
-					return new Command( result.toString(), false, this.reader.getLocation().lineNumber( pos ) );
+					return new Command( result.toString(), false, pos );
 				}
 			}
 
 			if( pos == 0 )
-				pos = this.reader.getLocation().getLineNumber() - 1;
+				pos = this.reader.getLineNumber() - 1;
 			result.append( line );
 			result.append( '\n' );
 		}
 	}
 
 	/**
-	 * Returns the underlying resource.
-	 *
-	 * @return The underlying resource.
+	 * Returns the current line number. The current line number is the line that is about to be read.
+	 * 
+	 * @return The current line number.
 	 */
-	public Resource getResource()
+	public int getLineNumber()
 	{
-		return this.reader.getLocation().getResource();
+		return this.reader.getLineNumber();
 	}
 }

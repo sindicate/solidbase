@@ -17,15 +17,17 @@
 package solidbase.ant;
 
 import org.apache.tools.ant.BuildException;
-
+import org.apache.tools.ant.Project;
+import solidbase.Version;
+import solidbase.core.Database;
 import solidbase.core.FatalException;
-import solidbase.core.Runner;
-import solidstack.io.Resources;
+import solidbase.core.PatchProcessor;
+import solidbase.core.Util;
 
 
 /**
  * The Upgrade Ant Task.
- *
+ * 
  * @author René M. de Bloois
  */
 public class UpgradeTask extends DBTask
@@ -46,8 +48,19 @@ public class UpgradeTask extends DBTask
 	protected boolean downgradeallowed;
 
 	/**
+	 * Sets the user name to configure.
+	 * 
+	 * @param username The user name to configure.
+	 */
+	@Deprecated
+	public void setUser( String username )
+	{
+		this.username = username;
+	}
+
+	/**
 	 * Returns the configured upgrade file.
-	 *
+	 * 
 	 * @return the configured upgrade file.
 	 */
 	public String getUpgradefile()
@@ -57,7 +70,7 @@ public class UpgradeTask extends DBTask
 
 	/**
 	 * Sets the upgrade file to configure.
-	 *
+	 * 
 	 * @param upgradefile The upgrade file to configure.
 	 */
 	public void setUpgradefile( String upgradefile )
@@ -67,7 +80,7 @@ public class UpgradeTask extends DBTask
 
 	/**
 	 * Returns the configured target.
-	 *
+	 * 
 	 * @return The configured target.
 	 */
 	public String getTarget()
@@ -77,7 +90,7 @@ public class UpgradeTask extends DBTask
 
 	/**
 	 * Sets the target to configure.
-	 *
+	 * 
 	 * @param target The target to configure.
 	 */
 	public void setTarget( String target )
@@ -87,7 +100,7 @@ public class UpgradeTask extends DBTask
 
 	/**
 	 * Returns if downgrades are allowed or not.
-	 *
+	 * 
 	 * @return True if downgrades are allowed, false otherwise.
 	 */
 	public boolean isDowngradeallowed()
@@ -97,7 +110,7 @@ public class UpgradeTask extends DBTask
 
 	/**
 	 * Sets if downgrades are allowed or not.
-	 *
+	 * 
 	 * @param downgradeallowed Are downgrades allowed?
 	 */
 	public void setDowngradeallowed( boolean downgradeallowed )
@@ -117,17 +130,6 @@ public class UpgradeTask extends DBTask
 			throw new BuildException( "The 'upgradefile' attribute is mandatory for the " + getTaskName() + " task" );
 	}
 
-	@Override
-	public Runner prepareRunner()
-	{
-		Runner runner = super.prepareRunner();
-
-		runner.setUpgradeFile( Resources.getResource( getProject().getBaseDir() ).resolve( this.upgradefile ) );
-		runner.setUpgradeTarget( this.upgradeTarget );
-		runner.setDowngradeAllowed( this.downgradeallowed );
-
-		return runner;
-	}
 
 	@Override
 	public void execute()
@@ -167,15 +169,40 @@ public class UpgradeTask extends DBTask
 //
 //		out.println( "Dit is een test" );
 
-		Runner runner = prepareRunner();
+		Project project = getProject();
+		Progress progress = new Progress( project, this );
+
+		String info = Version.getInfo();
+		progress.info( info );
+		progress.info( "" );
+
 		try
 		{
-			runner.upgrade();
+			PatchProcessor processor = new PatchProcessor( progress, new Database( "default", this.driver, this.url, this.username, this.password, progress ) );
+
+			for( Connection connection : this.connections )
+				processor.addDatabase(
+						new Database( connection.getName(), connection.getDriver() == null ? this.driver : connection.getDriver(),
+								connection.getUrl() == null ? this.url : connection.getUrl(),
+										connection.getUsername(), connection.getPassword(), progress ) );
+
+			processor.setPatchFile( Util.openPatchFile( project.getBaseDir(), this.upgradefile, progress ) );
+			try
+			{
+				processor.init();
+				progress.info( "Connecting to database..." );
+				progress.info( processor.getVersionStatement() );
+				processor.patch( this.upgradeTarget, this.downgradeallowed ); // TODO Print this target
+				progress.info( "" );
+				progress.info( processor.getVersionStatement() );
+			}
+			finally
+			{
+				processor.end();
+			}
 		}
 		catch( FatalException e )
 		{
-			// TODO When debugging, we should give the whole exception, not only the message
-			// TODO Shouldn't we just wrap the exception, and then Ant is the one who decides if it only shows the message or the complete stacktrace?
 			throw new BuildException( e.getMessage() );
 		}
 	}
