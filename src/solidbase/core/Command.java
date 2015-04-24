@@ -17,11 +17,10 @@
 package solidbase.core;
 
 import solidbase.util.Assert;
-import solidstack.io.SourceLocation;
 
 /**
  * Represents a command in an upgrade or SQL file.
- *
+ * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:13:28 PM
  */
@@ -38,29 +37,30 @@ public class Command
 	private boolean isTransient;
 
 	/**
-	 * The file location where the command is encountered.
+	 * The line number in the file where the command is encountered.
 	 */
-	private SourceLocation location;
+	private int lineNumber;
 
 	/**
 	 * Constructor.
-	 *
+	 * 
 	 * @param command The text of the command.
 	 * @param isTransient Is the command transient or not?
-	 * @param location The location where the command is encountered.
+	 * @param lineNumber The line number in the upgrade file where the command is encountered.
 	 */
-	public Command( String command, boolean isTransient, SourceLocation location )
+	public Command( String command, boolean isTransient, int lineNumber )
 	{
+		Assert.isTrue( lineNumber > 0 );
 		Assert.notNull( command );
 
 		this.command = command;
 		this.isTransient = isTransient;
-		this.location = location;
+		this.lineNumber = lineNumber;
 	}
 
 	/**
 	 * Indicates if the command is transient or not.
-	 *
+	 * 
 	 * @return true if the command is transient, false otherwise.
 	 */
 	public boolean isTransient()
@@ -70,7 +70,7 @@ public class Command
 
 	/**
 	 * Indicates if the command is persistent or not.
-	 *
+	 * 
 	 * @return true if the command is persistent, false otherwise.
 	 */
 	public boolean isPersistent()
@@ -80,7 +80,7 @@ public class Command
 
 	/**
 	 * Returns the text of the command.
-	 *
+	 * 
 	 * @return the text of the command.
 	 */
 	public String getCommand()
@@ -88,24 +88,24 @@ public class Command
 		return this.command;
 	}
 
-	/**
-	 * Sets the command text.
-	 *
-	 * @param command the command text.
-	 */
-	public void setCommand( String command )
-	{
-		this.command = command;
-	}
+//	/**
+//	 * Sets the command text.
+//	 *
+//	 * @param command the command text.
+//	 */
+//	public void setCommand( String command )
+//	{
+//		this.command = command;
+//	}
 
 	/**
-	 * Returns the file location where the command is encountered.
-	 *
-	 * @return The file location where the command is encountered.
+	 * Returns the line number in the upgrade file where the command is encountered.
+	 * 
+	 * @return The line number in the upgrade file where the command is encountered.
 	 */
-	public SourceLocation getLocation()
+	public int getLineNumber()
 	{
-		return this.location;
+		return this.lineNumber;
 	}
 
 	@Override

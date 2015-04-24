@@ -16,25 +16,21 @@
 
 package solidbase.core;
 
-import solidstack.io.SourceLocation;
-
 
 /**
  * Exception that is thrown when a statement is not delimited with the current delimiter.
- *
+ * 
  * @author René M. de Bloois
  */
-public class NonDelimitedStatementException extends SourceException
+public class NonDelimitedStatementException extends CommandFileException
 {
-	private static final long serialVersionUID = 1L;
-
 	/**
 	 * Constructor.
-	 *
-	 * @param location The file location where the problem is located.
+	 * 
+	 * @param lineNumber The line number in the file where the problem is located.
 	 */
-	public NonDelimitedStatementException( SourceLocation location )
+	public NonDelimitedStatementException( int lineNumber )
 	{
-		super( "Non-delimited statement found", location );
+		super( "Non-delimited statement found", lineNumber );
 	}
 }

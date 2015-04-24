@@ -54,7 +54,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;PREV CLASS&nbsp;
+&nbsp;<A HREF="../../solidbase/core/AssertionFailedException.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../solidbase/core/CommandFileException.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/Command.html" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -100,7 +100,28 @@ Class Command</H2>
 </PRE>
 
 <P>
-Represents a command in an upgrade or SQL file.
+<p>
+ Represents a command in an upgrade or SQL file. A command can be transient or persistent. Transient commands start with
+ <code>--*</code>. Example of a transient command is:
+ </p>
+ <blockquote>
+ <pre>
+ --* SET USER A_USER
+ </pre>
+ </blockquote>
+ <p>
+ Transient commands are executed as they are encountered even when a patch package fails and is re-processed.
+ </p>
+ <p>
+ Example of a persistent command:
+ </p>
+ <blockquote>
+ <pre>
+ DROP TABLE A_TABLE;
+ </pre>
+ </blockquote>
+ <p>
+ </p>
 <P>
 
 <P>
@@ -171,6 +192,14 @@ Represents a command in an upgrade or SQL file.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Indicates if the command is transient or not.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/Command.html#setCommand(java.lang.String)">setCommand</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;command)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets the command text.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -268,6 +297,19 @@ public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is
 </DL>
 <HR>
 
+<A NAME="setCommand(java.lang.String)"><!-- --></A><H3>
+setCommand</H3>
+<PRE>
+public void <B>setCommand</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;command)</PRE>
+<DL>
+<DD>Sets the command text.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>command</CODE> - the command text.</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="getLineNumber()"><!-- --></A><H3>
 getLineNumber</H3>
 <PRE>
@@ -324,7 +366,7 @@ public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;PREV CLASS&nbsp;
+&nbsp;<A HREF="../../solidbase/core/AssertionFailedException.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../solidbase/core/CommandFileException.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/Command.html" target="_top"><B>FRAMES</B></A>  &nbsp;
