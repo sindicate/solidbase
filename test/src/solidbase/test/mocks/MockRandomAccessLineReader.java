@@ -25,11 +25,11 @@ import mockit.Mock;
 
 import org.testng.Assert;
 
-import solidstack.io.RandomAccessSourceReader;
+import solidbase.util.RandomAccessLineReader;
 
 
 /**
- * A mock implementation of {@link URLRandomAccessLineReader}.
+ * A mock implementation of {@link RandomAccessLineReader}.
  * 
  * @author René M. de Bloois
  */
@@ -53,7 +53,7 @@ public class MockRandomAccessLineReader
 	/**
 	 * Get populated by the real class instance.
 	 */
-	public RandomAccessSourceReader it;
+	public RandomAccessLineReader it;
 
 	/**
 	 * Constructs a new mock instance.
@@ -68,9 +68,9 @@ public class MockRandomAccessLineReader
 	}
 
 	/**
-	 * Mock implementation of {@link URLRandomAccessLineReader#RandomAccessLineReader(URL)}
+	 * Mock implementation of {@link RandomAccessLineReader#RandomAccessLineReader(URL)}
 	 * 
-	 * @param url Not used. See {@link URLRandomAccessLineReader#RandomAccessLineReader(URL)}.
+	 * @param url Not used. See {@link RandomAccessLineReader#RandomAccessLineReader(URL)}.
 	 */
 	@Mock
 	public void $init( @SuppressWarnings( "unused" ) URL url )
@@ -79,7 +79,7 @@ public class MockRandomAccessLineReader
 	}
 
 	/**
-	 * Mock implementation of {@link URLRandomAccessLineReader#readLine()}.
+	 * Mock implementation of {@link RandomAccessLineReader#readLine()}.
 	 * 
 	 * @return A line from the simulated file.
 	 * @throws IOException Whenever an {@link IOException} is thrown by the underlying subsystem.
@@ -94,7 +94,7 @@ public class MockRandomAccessLineReader
 	}
 
 	/**
-	 * Mock implementation of {@link URLRandomAccessLineReader#getLineNumber()}.
+	 * Mock implementation of {@link RandomAccessLineReader#getLineNumber()}.
 	 * 
 	 * @return The current line number within the simulated file.
 	 */
@@ -105,7 +105,7 @@ public class MockRandomAccessLineReader
 	}
 
 	/**
-	 * Mock implementation of {@link URLRandomAccessLineReader#gotoLine(int)}.
+	 * Mock implementation of {@link RandomAccessLineReader#gotoLine(int)}.
 	 * 
 	 * @param lineNumber The line number to jump to in the simulated file.
 	 * @throws IOException Whenever an {@link IOException} is thrown by the underlying subsystem.

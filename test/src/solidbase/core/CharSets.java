@@ -16,17 +16,18 @@
 
 package solidbase.core;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import solidstack.io.FileResource;
-import solidstack.io.RandomAccessSourceReader;
+import solidbase.core.Database;
+import solidbase.core.PatchProcessor;
+import solidbase.util.RandomAccessLineReader;
 
 
 public class CharSets
@@ -34,11 +35,11 @@ public class CharSets
 	@Test
 	public void testIso8859() throws IOException
 	{
-		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "testpatch1.sql" ), EncodingDetector.INSTANCE );
-		UpgradeFile upgradeFile = new UpgradeFile( ralr );
-		upgradeFile.scan();
-		Assert.assertEquals( upgradeFile.file.getEncoding(), "ISO-8859-1" );
-		upgradeFile.close();
+		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch1.sql" ) );
+		PatchFile patchFile = new PatchFile( ralr );
+		patchFile.scan();
+		Assert.assertEquals( patchFile.file.getEncoding(), "ISO-8859-1" );
+		patchFile.close();
 	}
 
 	@Test
@@ -47,14 +48,14 @@ public class CharSets
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
 
 		TestProgressListener progress = new TestProgressListener();
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "patch-utf-8-1.sql" );
-		UpgradeFile upgradeFile = Factory.openUpgradeFile( new FileResource( "patch-utf-8-1.sql" ), progress );
-		patcher.setUpgradeFile( upgradeFile );
+		PatchProcessor patcher = new PatchProcessor( progress, new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress ) );
+		PatchFile patchFile = Util.openPatchFile( "patch-utf-8-1.sql", progress );
+		patcher.setPatchFile( patchFile );
 		patcher.init();
 
-		Assert.assertEquals( patcher.upgradeFile.file.getEncoding(), "UTF-8" );
-		patcher.upgrade( "1.0.2" );
-		Connection connection = patcher.getCurrentDatabase().getConnection();
+		Assert.assertEquals( patcher.patchFile.file.getEncoding(), "UTF-8" );
+		patcher.patch( "1.0.2" );
+		Connection connection = patcher.currentDatabase.getConnection();
 		Statement stat = connection.createStatement();
 		ResultSet result = stat.executeQuery( "SELECT * FROM USERS" );
 		assert result.next();
@@ -64,29 +65,27 @@ public class CharSets
 		patcher.end();
 	}
 
-	// TODO Add these tests to solidstack
-
 	@Test
 	public void testUtf16Bom() throws IOException
 	{
-		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "patch-utf-16-bom-1.sql" ), EncodingDetector.INSTANCE );
-		UpgradeFile upgradeFile = new UpgradeFile( ralr );
-		upgradeFile.scan();
-//		Assert.assertEquals( upgradeFile.file.getBOM(), new byte[] { -1, -2 } );
-		Assert.assertEquals( upgradeFile.file.getEncoding(), "UTF-16" );
-		upgradeFile.close();
+		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "patch-utf-16-bom-1.sql" ) );
+		PatchFile patchFile = new PatchFile( ralr );
+		patchFile.scan();
+		Assert.assertEquals( patchFile.file.getBOM(), new byte[] { -1, -2 } );
+		Assert.assertEquals( patchFile.file.getEncoding(), "UTF-16LE" );
+		patchFile.close();
 	}
 
 	@Test
 	public void testUtf16BomAndExplicit() throws IOException
 	{
-		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "patch-utf-16-bom-2.sql" ), EncodingDetector.INSTANCE );
-		UpgradeFile upgradeFile = new UpgradeFile( ralr );
-		upgradeFile.scan();
-//		Assert.assertEquals( upgradeFile.file.getBOM(), new byte[] { -1, -2 } );
-		Assert.assertEquals( upgradeFile.file.getEncoding(), "UTF-16LE" );
+		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "patch-utf-16-bom-2.sql" ) );
+		PatchFile patchFile = new PatchFile( ralr );
+		patchFile.scan();
+		Assert.assertEquals( patchFile.file.getBOM(), new byte[] { -1, -2 } );
+		Assert.assertEquals( patchFile.file.getEncoding(), "UTF-16LE" );
 
-		RandomAccessSourceReader reader = upgradeFile.file;
+		RandomAccessLineReader reader = patchFile.file;
 		reader.gotoLine( 1 );
 		boolean found = false;
 		String line = reader.readLine();
@@ -98,19 +97,19 @@ public class CharSets
 		}
 		Assert.assertTrue( found, "Expected to find rené" );
 
-		upgradeFile.close();
+		patchFile.close();
 	}
 
 	@Test
 	public void testUtf16NoBom() throws IOException
 	{
-		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "patch-utf-16-nobom-1.sql" ), EncodingDetector.INSTANCE );
-		UpgradeFile upgradeFile = new UpgradeFile( ralr );
-		upgradeFile.scan();
-//		Assert.assertNull( upgradeFile.file.getBOM() );
-		Assert.assertEquals( upgradeFile.file.getEncoding(), "UTF-16LE" );
+		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "patch-utf-16-nobom-1.sql" ) );
+		PatchFile patchFile = new PatchFile( ralr );
+		patchFile.scan();
+		Assert.assertNull( patchFile.file.getBOM() );
+		Assert.assertEquals( patchFile.file.getEncoding(), "UTF-16LE" );
 
-		RandomAccessSourceReader reader = upgradeFile.file;
+		RandomAccessLineReader reader = patchFile.file;
 		reader.gotoLine( 1 );
 		boolean found = false;
 		String line = reader.readLine();
@@ -122,6 +121,6 @@ public class CharSets
 		}
 		Assert.assertTrue( found, "Expected to find rené" );
 
-		upgradeFile.close();
+		patchFile.close();
 	}
 }

@@ -16,13 +16,14 @@
 
 package solidbase.core.plugins;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import solidbase.core.Command;
-import solidbase.core.SourceException;
+import solidbase.core.CommandFileException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.util.Assert;
@@ -31,7 +32,7 @@ import solidbase.util.Assert;
 /**
  * This plugin asserts that a given query statement returns results or no results. It generates an error with the given message
  * if the assertion fails. This plugin can be used to check the state of the database.
- *
+ * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:13:28 PM
  */
@@ -40,37 +41,37 @@ public class AssertExistsOrEmptySelect implements CommandListener
 	static private final Pattern assertPattern = Pattern.compile( "\\s*ASSERT\\s+(EXISTS|EMPTY)\\s+MESSAGE\\s+['\"]([^']*)['\"]\\s+(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 	//@Override
-	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
+	public boolean execute( CommandProcessor processor, Command command ) throws SQLException
 	{
 		if( command.isTransient() )
 			return false;
 
 		Matcher matcher = assertPattern.matcher( command.getCommand() );
-		if( !matcher.matches() )
-			return false;
+		if( matcher.matches() )
+		{
+			String mode = matcher.group( 1 );
+			String message = matcher.group( 2 );
+			String select  = matcher.group( 3 ).trim();
+			Assert.isTrue( select.substring( 0, 7 ).equalsIgnoreCase( "SELECT " ), "Check should be a SELECT" );
+			Connection connection = processor.getCurrentDatabase().getConnection();
+			Statement statement = processor.createStatement( connection );
+			try
+			{
+				boolean result = statement.executeQuery( select ).next();
+				if( mode.equalsIgnoreCase( "EXISTS" ) ? !result : result )
+					throw new CommandFileException( message, command.getLineNumber() );
+				// Resultset is closed when the statement is closed
+			}
+			finally
+			{
+				// TODO The core engine should be able to check if a plugin leaves statements open.
+				statement.close(); // Need to close the statement because the connection stays open.
+				connection.commit();
+			}
 
-		if( skip )
 			return true;
-
-		String mode = matcher.group( 1 );
-		String message = matcher.group( 2 );
-		String select  = matcher.group( 3 ).trim();
-		Assert.isTrue( select.substring( 0, 7 ).equalsIgnoreCase( "SELECT " ), "Check should be a SELECT" );
-		Statement statement = processor.createStatement();
-		try
-		{
-			boolean result = statement.executeQuery( select ).next();
-			if( mode.equalsIgnoreCase( "EXISTS" ) ? !result : result )
-				throw new SourceException( message, command.getLocation() );
-			// Resultset is closed when the statement is closed
 		}
-		finally
-		{
-			// TODO The core engine should be able to check if a plugin leaves statements open.
-			processor.closeStatement( statement, true );
-		}
-
-		return true;
+		return false;
 	}
 
 	//@Override

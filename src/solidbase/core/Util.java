@@ -16,9 +16,20 @@
 
 package solidbase.core;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+
+import solidbase.util.Assert;
+import solidbase.util.RandomAccessLineReader;
 
 
 /**
@@ -26,7 +37,7 @@ import java.sql.SQLException;
  * 
  * @author René M. de Bloois
  */
-public final class Util
+public class Util
 {
 	/**
 	 * This utility class cannot be constructed.
@@ -52,5 +63,153 @@ public final class Util
 			if( metaData.getColumnName( i ).equalsIgnoreCase( columnName ) )
 				return true;
 		return false;
+	}
+
+	/**
+	 * Open the specified SQL file in the specified folder.
+	 *
+	 * @param baseDir The base folder from where to look. May be null.
+	 * @param fileName The name and path of the SQL file.
+	 * @param listener The progress listener.
+	 * @return A random access reader for the file.
+	 */
+	static public RandomAccessLineReader openRALR( File baseDir, String fileName, ProgressListener listener )
+	{
+		Assert.notNull( fileName );
+
+		try
+		{
+			if( baseDir == null )
+			{
+				// TODO Should we remove this "/"?
+				URL url = Util.class.getResource( "/" + fileName ); // In the classpath
+				if( url != null )
+				{
+					listener.openingSQLFile( url );
+					return new RandomAccessLineReader( url );
+				}
+			}
+
+			File file = new File( baseDir, fileName ); // In the current folder
+			listener.openingPatchFile( file );
+			return new RandomAccessLineReader( file );
+		}
+		catch( IOException e )
+		{
+			throw new SystemException( e );
+		}
+	}
+
+	/**
+	 * Open the specified SQL file in the specified folder.
+	 *
+	 * @param baseDir The base folder from where to look. May be null.
+	 * @param fileName The name and path of the SQL file.
+	 * @param listener The progress listener.
+	 * @return The SQL file.
+	 * @throws FileNotFoundException When the file is not found.
+	 */
+	// TODO This should be done like openRALR
+	static public SQLFile openSQLFile( File baseDir, String fileName, ProgressListener listener )
+	{
+		Assert.notNull( fileName );
+
+		if( baseDir == null )
+		{
+			// TODO Should we remove this "/"?
+			URL url = Util.class.getResource( "/" + fileName ); // In the classpath
+			if( url != null )
+			{
+				listener.openingSQLFile( url );
+				InputStream in;
+				try
+				{
+					in = url.openStream();
+				}
+				catch( IOException e )
+				{
+					throw new SystemException( e );
+				}
+				SQLFile result = new SQLFile( new BufferedInputStream( in ), url );
+				listener.openedSQLFile( result );
+				return result;
+			}
+		}
+
+		File file = new File( baseDir, fileName ); // In the current folder
+		listener.openingSQLFile( file );
+		InputStream in;
+		try
+		{
+			in = new FileInputStream( file );
+		}
+		catch( FileNotFoundException e )
+		{
+			throw new FatalException( e.toString() );
+		}
+		SQLFile result;
+		try
+		{
+			result = new SQLFile( new BufferedInputStream( in ), file.toURI().toURL() );
+		}
+		catch( MalformedURLException e )
+		{
+			throw new SystemException( e );
+		}
+		listener.openedSQLFile( result );
+		return result;
+	}
+
+	/**
+	 * Open the specified SQL file.
+	 *
+	 * @param fileName The name and path of the SQL file.
+	 * @param listener The progress listener.
+	 * @return The SQL file.
+	 * @throws FileNotFoundException When the file is not found.
+	 */
+	static public SQLFile openSQLFile( String fileName, ProgressListener listener )
+	{
+		return openSQLFile( null, fileName, listener );
+	}
+
+	/**
+	 * Open the specified upgrade file in the specified folder.
+	 * 
+	 * @param baseDir The base folder from where to look. May be null.
+	 * @param fileName The name and path of the upgrade file.
+	 * @param listener The progress listener.
+	 * @return The patch file.
+	 */
+	static public PatchFile openPatchFile( File baseDir, String fileName, ProgressListener listener )
+	{
+		if( fileName == null )
+			fileName = "upgrade.sql";
+		RandomAccessLineReader reader = openRALR( baseDir, fileName, listener );
+		PatchFile result = new PatchFile( reader );
+		try
+		{
+			result.scan();
+		}
+		catch( RuntimeException e )
+		{
+			// When read() fails, close the file.
+			reader.close();
+			throw e;
+		}
+		listener.openedPatchFile( result );
+		return result;
+	}
+
+	/**
+	 * Open the specified upgrade file in the specified folder.
+	 * 
+	 * @param fileName The name and path of the upgrade file.
+	 * @param listener The progress listener.
+	 * @return The patch file.
+	 */
+	static public PatchFile openPatchFile( String fileName, ProgressListener listener )
+	{
+		return openPatchFile( null, fileName, listener );
 	}
 }

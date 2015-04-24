@@ -16,10 +16,7 @@
 
 package solidbase.util;
 
-import solidbase.core.SourceException;
-import solidstack.io.SourceLocation;
-import solidstack.io.SourceReader;
-import solidstack.io.PushbackReader;
+import solidbase.core.CommandFileException;
 
 
 /**
@@ -62,7 +59,7 @@ public class CSVTokenizer
 	 * @param separator The CSV separator.
 	 * @param ignoreWhiteSpace Ignore white space, except white space enclosed in double quotes.
 	 */
-	public CSVTokenizer( SourceReader in, int separator, boolean ignoreWhiteSpace )
+	public CSVTokenizer( LineReader in, int separator, boolean ignoreWhiteSpace )
 	{
 		this.in = new PushbackReader( in );
 		this.separator = separator;
@@ -112,7 +109,7 @@ public class CSVTokenizer
 			{
 				ch = this.in.read();
 				if( ch == -1 )
-					throw new SourceException( "Missing \"", this.in.getLocation() );
+					throw new CommandFileException( "Missing \"", this.in.getLineNumber() );
 				if( ch == '"' )
 				{
 					ch = this.in.read();
@@ -143,7 +140,7 @@ public class CSVTokenizer
 		do
 		{
 			if( ch == '"' )
-				throw new SourceException( "Unexpected \"", this.in.getLocation() );
+				throw new CommandFileException( "Unexpected \"", this.in.getLineNumber() );
 			if( ignoreWhiteSpace )
 			{
 				if( isWhitespace( ch ) )
@@ -185,21 +182,11 @@ public class CSVTokenizer
 	}
 
 	/**
-	 * Returns the current file location.
-	 *
-	 * @return The current file location.
-	 */
-	public SourceLocation getLocation()
-	{
-		return this.in.getLocation();
-	}
-
-	/**
 	 * Returns the underlying reader. But only if the back buffer is empty, otherwise an IllegalStateException is thrown.
 	 *
 	 * @return The underlying reader.
 	 */
-	public SourceReader getReader()
+	public LineReader getReader()
 	{
 		return this.in.getReader();
 	}

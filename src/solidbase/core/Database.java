@@ -22,8 +22,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
 import solidbase.util.Assert;
 
 
@@ -41,38 +39,32 @@ public class Database
 	protected String name;
 
 	/**
-	 * The class name of the driver to be used to access the database. Ignored when {@link #dataSource} is set.
+	 * The class name of the driver to be used to access the database.
 	 */
 	protected String driverName;
 
 	/**
-	 * The URL of the database. Ignored when {@link #dataSource} is set.
+	 * The URL of the database.
 	 */
 	protected String url;
 
 	/**
-	 * The data source. Overrules {@link #driverName} and {@link #url}.
-	 */
-	protected DataSource dataSource;
-
-	/**
 	 * A map of connections indexed by user name.
 	 */
-	protected Map< String, Connection > connections = new HashMap< String, Connection >();
+	protected HashMap< String, Connection > connections = new HashMap< String, Connection >();
 
 	/**
-	 * The default user name to use for this database. When using a {@link #dataSource} this can be left blank.
-	 * Connection are then retrieved from the datasource without specifying a user name.
+	 * The default user name to use for this database.
 	 */
 	protected String defaultUser;
 
 	/**
-	 * The password cache.
+	 * The password belonging to the default user.
 	 */
 	protected Map< String, String > passwords = new HashMap< String, String >();
 
 	/**
-	 * The current user. If {@link #defaultUser} is not set, this should stay null also.
+	 * The current user.
 	 */
 	private String currentUser;
 
@@ -87,8 +79,8 @@ public class Database
 	protected ConnectionListener connectionListener;
 
 	/**
-	 * Constructor for a named database that manages connections for multiple users.
-	 *
+	 * Constructor for a specific database and default user. This object will manage multiple connections to this database.
+	 * 
 	 * @param name The name of the database.
 	 * @param driverClassName Driver class name for the database.
 	 * @param url URL for the database.
@@ -98,10 +90,8 @@ public class Database
 	 */
 	public Database( String name, String driverClassName, String url, String defaultUser, String defaultPassword, ProgressListener callBack )
 	{
-		Assert.notNull( name );
 		Assert.notNull( driverClassName );
 		Assert.notNull( url );
-		Assert.notNull( defaultUser );
 
 		this.name = name;
 		this.driverName = driverClassName;
@@ -122,40 +112,6 @@ public class Database
 	}
 
 	/**
-	 * Constructor for a named database that manages connections for multiple users.
-	 *
-	 * @param name The name of the database.
-	 * @param dataSource The data source providing connections to the database.
-	 * @param defaultUser The default user name.
-	 * @param defaultPassword The password belonging to the default user.
-	 * @param callBack The progress listener.
-	 */
-	public Database( String name, DataSource dataSource, String defaultUser, String defaultPassword, ProgressListener callBack )
-	{
-		Assert.notNull( name );
-		Assert.notNull( dataSource );
-
-		this.name = name;
-		this.dataSource = dataSource;
-		this.callBack = callBack;
-		this.defaultUser = defaultUser;
-		if( defaultPassword != null )
-			this.passwords.put( defaultUser, defaultPassword );
-	}
-
-	/**
-	 * Constructor for a named database. You can't use multiple users with this database.
-	 *
-	 * @param name The name of the database.
-	 * @param dataSource The data source providing connections to the database.
-	 * @param callBack The progress listener.
-	 */
-	public Database( String name, DataSource dataSource, ProgressListener callBack )
-	{
-		this( name, dataSource, null, null, callBack );
-	}
-
-	/**
 	 * Resets the current user and initializes the connection if a password is known.
 	 */
 	public void init()
@@ -165,7 +121,7 @@ public class Database
 
 	/**
 	 * Returns the name of this database.
-	 *
+	 * 
 	 * @return The name of this database.
 	 */
 	public String getName()
@@ -185,7 +141,7 @@ public class Database
 
 	/**
 	 * Sets the connection listener that listens to connection events.
-	 *
+	 * 
 	 * @param connectionListener The connection listener.
 	 */
 	public void setConnectionListener( ConnectionListener connectionListener )
@@ -194,115 +150,19 @@ public class Database
 	}
 
 	/**
-	 * Returns a connection for the current user. Connections are cached per user. If a connection for the current user
-	 * is not found in the cache, a password will be requested by calling {@link ProgressListener#requestPassword(String)}.
+	 * Returns a new connection for the given URL, user name and password. The connection has auto commit disabled.
 	 *
-	 * @return The connection for the current user.
+	 * @param url URL for the database.
+	 * @param user The user name.
+	 * @param password The password of the user.
+	 * @return A new connection with auto commit disabled.
 	 */
-	public Connection getConnection()
+	static protected Connection getConnection( String url, String user, String password )
 	{
-		return getConnection( this.currentUser );
-	}
-
-	/**
-	 * Returns a new connection for the current user. Passwords are remembered. If a password for the current user
-	 * is not known, a password will be requested by calling {@link ProgressListener#requestPassword(String)}.
-	 *
-	 * @return The new connection for the current user.
-	 */
-	public Connection newConnection()
-	{
-		return newConnection( this.currentUser );
-	}
-
-	/**
-	 * Returns a connection for the default user. Connections are cached per user. If the password for the default user
-	 * has not been specified, a password will be requested by calling {@link ProgressListener#requestPassword(String)}.
-	 *
-	 * @return The connection for the default user.
-	 */
-	public Connection getDefaultConnection()
-	{
-		return getConnection( this.defaultUser );
-	}
-
-	/**
-	 * Returns a connection for the given user. Connections are cached per user. If a connection for the current user
-	 * is not found in the cache, a password will be requested by calling {@link ProgressListener#requestPassword(String)}.
-	 *
-	 * @param user The user to get a connection for.
-	 * @return The connection for the given user.
-	 */
-	public Connection getConnection( String user )
-	{
-		// State checks
-		if( this.dataSource == null )
-		{
-			Assert.notEmpty( this.defaultUser );
-			Assert.notEmpty( user );
-			Assert.notNull( this.url );
-		}
-		if( this.defaultUser == null )
-		{
-			Assert.notNull( this.dataSource );
-			Assert.isNull( user );
-		}
-		else
-			Assert.notNull( user );
-
-		// Look in cache
-		Connection connection = this.connections.get( user );
-		if( connection == null )
-		{
-			connection = newConnection( user );
-
-			// Cache connection
-			this.connections.put( user, connection ); // Put first, otherwise endless loop
-
-			// Call listener
-			// TODO Should this be moved to newConnection()?
-			if( this.connectionListener != null )
-				this.connectionListener.connected( this ); // TODO Check that auto commit is still off.
-		}
-
-		return connection;
-	}
-
-	/**
-	 * Returns a new connection for the given user. Passwords are remembered. If a password for the given user
-	 * is not known, a password will be requested by calling {@link ProgressListener#requestPassword(String)}.
-	 *
-	 * @param user The user name for the connection.
-	 * @return The new connection for the current user.
-	 */
-	public Connection newConnection( String user )
-	{
-		// Retrieve password when user is specified
-		String password = null;
-		if( user != null )
-		{
-			password = this.passwords.get( user );
-			if( password == null )
-				password = this.callBack.requestPassword( user );
-		}
-
 		try
 		{
-			Connection connection;
-
-			// Get connection
-			if( this.dataSource != null )
-				if( user != null )
-					connection = this.dataSource.getConnection( user, password );
-				else
-					connection = this.dataSource.getConnection();
-			else
-				connection = DriverManager.getConnection( this.url, user, password );
-
-			// Set autocommit false if needed
-			if( connection.getAutoCommit() )
-				connection.setAutoCommit( false );
-
+			Connection connection = DriverManager.getConnection( url, user, password );
+			connection.setAutoCommit( false );
 			return connection;
 		}
 		catch( SQLException e )
@@ -312,35 +172,48 @@ public class Database
 	}
 
 	/**
+	 * Returns a connection for the current user. Connections are cached per user. If a connection for the current user
+	 * is not found in the cache, a password will be requested by calling
+	 * {@link ProgressListener#requestPassword(String)} referenced by {@link PatchProcessor#progress}.
+	 * 
+	 * @return The connection for the current user.
+	 */
+	public Connection getConnection()
+	{
+		Assert.notEmpty( this.currentUser, "Current user must not be empty" );
+		Connection connection = this.connections.get( this.currentUser );
+		if( connection == null )
+		{
+			String password = this.passwords.get( this.currentUser );
+			if( password == null )
+				password = this.callBack.requestPassword( this.currentUser );
+			connection = getConnection( this.url, this.currentUser, password );
+			this.connections.put( this.currentUser, connection ); // Put first, otherwise endless loop
+			if( this.connectionListener != null )
+				this.connectionListener.connected( this ); // TODO Check that auto commit is still off.
+		}
+		return connection;
+	}
+
+	/**
 	 * Sets the current user.
 	 *
 	 * @param user The user name that should made current.
 	 */
 	protected void setCurrentUser( String user )
 	{
-		if( this.defaultUser == null )
-			throw new UnsupportedOperationException( "Can't change the user when the default user is not set." );
 		Assert.notEmpty( user, "User must not be empty" );
 		this.currentUser = user;
 	}
 
 	/**
 	 * Return the default user.
-	 *
+	 * 
 	 * @return The name of the default user.
 	 */
 	public String getDefaultUser()
 	{
 		return this.defaultUser;
-	}
-
-	/**
-	 * The current user becomes the default user.
-	 */
-	public void resetUser()
-	{
-		if( this.defaultUser != null )
-			this.currentUser = this.defaultUser;
 	}
 
 	/**
@@ -352,7 +225,6 @@ public class Database
 		{
 			try
 			{
-//				connection.rollback(); // TODO Derby 10.6 does not like it when connection is closed during an open transaction
 				connection.close();
 			}
 			catch( SQLException e )

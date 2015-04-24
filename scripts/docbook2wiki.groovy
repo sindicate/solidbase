@@ -15,7 +15,7 @@
  */
 
 import javax.xml.stream.*
-import solidstack.xml.elements.*
+import solidbase.xml.elements.*
 
 xrefs = [:]
 
