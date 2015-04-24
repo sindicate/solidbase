@@ -18,20 +18,20 @@
 
 
 
---* SECTION "Creating table ${users2}"
+--* SET MESSAGE "    Creating table USERS2"
 
-CREATE TABLE ${users2}
+CREATE TABLE USERS2
 (
 	USER_ID INT IDENTITY,
 	USER_USERNAME VARCHAR NOT NULL,
 	USER_PASSWORD VARCHAR NOT NULL
 );
 
---* SECTION "Inserting admin user"
+--* SET MESSAGE "    Inserting admin user"
 
-INSERT INTO ${users2} ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' );
+INSERT INTO USERS2 ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' );
 
---* SECTION "Inserting user"
+--* SET MESSAGE "    Inserting user"
 
-INSERT INTO ${users2} ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' );
+INSERT INTO USERS2 ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' );
 

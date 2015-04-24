@@ -18,14 +18,17 @@ package solidbase.maven;
 
 import org.apache.maven.plugin.MojoFailureException;
 
+import solidbase.Version;
+import solidbase.core.Database;
 import solidbase.core.FatalException;
-import solidbase.core.Runner;
-import solidstack.io.Resources;
+import solidbase.core.PatchProcessor;
+import solidbase.core.Util;
 
 
 /**
  * The Maven plugin for SolidBase.
- *
+ * 
+ * @author Ruud de Jong
  * @author René de Bloois
  */
 public class UpgradeMojo extends DBMojo
@@ -33,49 +36,57 @@ public class UpgradeMojo extends DBMojo
 	/**
 	 * File containing the upgrade.
 	 */
-	public String upgradefile;
+	protected String upgradefile;
 
 	/**
 	 * Target to upgrade the database to.
 	 */
-	public String target;
+	protected String target;
 
 	/**
 	 * Allow downgrades to reach the target.
 	 */
-	public boolean downgradeallowed;
+	private boolean downgradeallowed;
 
 	public void execute() throws MojoFailureException
 	{
-		if( this.skip )
-		{
-			getLog().info( "Skipped." );
-			getLog().info( "" );
-			return;
-		}
-
 		validate();
 
-		Runner runner = prepareRunner();
+		Progress progress = new Progress( getLog() );
+
+		String info = Version.getInfo();
+		getLog().info( info );
+		getLog().info( "" );
+
 		try
 		{
-			runner.upgrade();
+			PatchProcessor processor = new PatchProcessor( progress, new Database( "default", this.driver, this.url, this.username, this.password == null ? "" : this.password, progress ) );
+
+			if( this.connections != null )
+				for( Secondary secondary : this.connections )
+					processor.addDatabase(
+							new Database( secondary.getName(), secondary.getDriver() == null ? this.driver : secondary.getDriver(),
+									secondary.getUrl() == null ? this.url : secondary.getUrl(),
+											secondary.getUsername(), secondary.getPassword() == null ? "" : secondary.getPassword(), progress ) );
+
+			processor.setPatchFile( Util.openPatchFile( this.project.getBasedir(), this.upgradefile, progress ) );
+			try
+			{
+				processor.init();
+				progress.info( "Connecting to database..." );
+				progress.info( processor.getVersionStatement() );
+				processor.patch( this.target, this.downgradeallowed ); // TODO Print this target
+				progress.info( "" );
+				progress.info( processor.getVersionStatement() );
+			}
+			finally
+			{
+				processor.end();
+			}
 		}
 		catch( FatalException e )
 		{
 			throw new MojoFailureException( e.getMessage() );
 		}
-	}
-
-	@Override
-	public Runner prepareRunner()
-	{
-		Runner runner = super.prepareRunner();
-
-		runner.setUpgradeFile( Resources.getResource( this.project.getBasedir() ).resolve( this.upgradefile ) );
-		runner.setUpgradeTarget( this.target );
-		runner.setDowngradeAllowed( this.downgradeallowed );
-
-		return runner;
 	}
 }

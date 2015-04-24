@@ -150,7 +150,7 @@ Source for SQL statements.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A></CODE></FONT></TD>
+<CODE>protected &nbsp;<A HREF="../../solidbase/util/LineReader.html" title="interface in solidbase.util">LineReader</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/SQLSource.html#reader">reader</A></B></CODE>
 
 <BR>
@@ -177,7 +177,7 @@ Source for SQL statements.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected </CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/SQLSource.html#SQLSource(solidbase.util.LineReader)">SQLSource</A></B>(<A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A>&nbsp;in)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/core/SQLSource.html#SQLSource(solidbase.util.LineReader)">SQLSource</A></B>(<A HREF="../../solidbase/util/LineReader.html" title="interface in solidbase.util">LineReader</A>&nbsp;in)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructor.</TD>
@@ -216,22 +216,6 @@ Source for SQL statements.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Close the patch file.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;int</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/SQLSource.html#getLineNumber()">getLineNumber</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the current line number.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net">URL</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/SQLSource.html#getURL()">getURL</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Return the <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net"><CODE>URL</CODE></A> of the source.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -287,7 +271,7 @@ protected static final solidbase.core.Delimiter[] <B>DEFAULT_DELIMITERS</B></PRE
 <A NAME="reader"><!-- --></A><H3>
 reader</H3>
 <PRE>
-protected <A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A> <B>reader</B></PRE>
+protected <A HREF="../../solidbase/util/LineReader.html" title="interface in solidbase.util">LineReader</A> <B>reader</B></PRE>
 <DL>
 <DD>The underlying reader.
 <P>
@@ -332,7 +316,7 @@ protected solidbase.core.Delimiter[] <B>delimiters</B></PRE>
 <A NAME="SQLSource(solidbase.util.LineReader)"><!-- --></A><H3>
 SQLSource</H3>
 <PRE>
-protected <B>SQLSource</B>(<A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A>&nbsp;in)</PRE>
+protected <B>SQLSource</B>(<A HREF="../../solidbase/util/LineReader.html" title="interface in solidbase.util">LineReader</A>&nbsp;in)</PRE>
 <DL>
 <DD>Constructor.
 <P>
@@ -423,34 +407,6 @@ public <A HREF="../../solidbase/core/Command.html" title="class in solidbase.cor
 <DD><DL>
 
 <DT><B>Returns:</B><DD>A command from the patch file or null when no more commands are available.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="getLineNumber()"><!-- --></A><H3>
-getLineNumber</H3>
-<PRE>
-public int <B>getLineNumber</B>()</PRE>
-<DL>
-<DD>Returns the current line number. The current line number is the line that is about to be read.
-<P>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>The current line number.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="getURL()"><!-- --></A><H3>
-getURL</H3>
-<PRE>
-public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net">URL</A> <B>getURL</B>()</PRE>
-<DL>
-<DD>Return the <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net"><CODE>URL</CODE></A> of the source.
-<P>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>The <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net"><CODE>URL</CODE></A> of the source.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
