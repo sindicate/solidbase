@@ -17,65 +17,30 @@
 package solidbase.core;
 
 import java.sql.SQLException;
-
 import org.testng.annotations.Test;
+
+import solidbase.core.PatchProcessor;
 
 public class Import
 {
-	static private final String db = "jdbc:hsqldb:mem:testImport";
-
 	@Test
 	public void testImport() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( db, "sa", null );
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "folder/testpatch-import1.sql", db );
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "folder/testpatch-import1.sql" );
 
-		patcher.upgrade( "1.0.2" );
-		TestUtil.verifyVersion( patcher, "1.0.2", null, 23, null );
+		patcher.patch( "1.0.2" );
+		TestUtil.verifyVersion( patcher, "1.0.2", null, 14, null );
 		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP", 10 );
-		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP2", 6 );
-		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP7", 3 );
 
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP2 FROM TEMP WHERE TEMP1 = 'x'", "2\n" );
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP4 FROM TEMP3 WHERE TEMP1 = 2", "-)-\", \nTEST 'X" );
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP2 FROM TEMP WHERE TEMP1 = 'y'", "2 2" );
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP3 FROM TEMP WHERE TEMP1 = 'y'", " 3 " );
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP3 FROM TEMP2 WHERE LINENUMBER = 101", "René" );
-		TestUtil.assertQueryResultEquals( patcher, "SELECT DESC FROM TEMP7 WHERE ID = 2", "The second record" );
 
-		patcher.upgrade( "1.0.3" );
-		TestUtil.assertRecordCount( patcher.getCurrentDatabase(), "TEMP5", 3 );
+		patcher.patch( "1.0.3" );
 		TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP1 FROM TEMP4", null );
-
-		patcher.end();
-	}
-
-	@Test(dependsOnMethods="testImport")
-	public void testImportNotExist() throws SQLException
-	{
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "folder/testpatch-import1.sql", db );
-
-		try
-		{
-			patcher.upgrade( "1.0.4" );
-			assert false : "Expected a FatalException";
-		}
-		catch( FatalException e )
-		{
-			String message = e.getMessage().replace( '\\', '/' );
-			assert message.contains( "java.io.FileNotFoundException: " ) : message;
-			assert message.contains( "folder/notexist.csv" ) : message;
-		}
-
-		patcher.end();
-	}
-
-	@Test(dependsOnMethods="testImportNotExist")
-	public void testImportJSV() throws SQLException
-	{
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "folder/testpatch-import1.sql", db );
-
-		patcher.upgrade( "1.0.5" );
 
 		patcher.end();
 	}
@@ -84,25 +49,25 @@ public class Import
 	public void testImportLineNumber() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-import2.sql" );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-import2.sql" );
 
 		try
 		{
-			patcher.upgrade( "3" );
+			patcher.patch( "3" );
 			assert false;
 		}
-		catch( SourceException e )
+		catch( CommandFileException e )
 		{
 			assert e.getMessage().contains( "<separator>, <newline>" );
-			assert e.getMessage().contains( "at line 53" ) : "Wrong error message: " + e.getMessage();
+			assert e.getMessage().contains( "at line 53" );
 		}
 
 		try
 		{
-			patcher.upgrade( "4" );
+			patcher.patch( "4" );
 			assert false;
 		}
-		catch( SourceException e )
+		catch( CommandFileException e )
 		{
 			assert e.getMessage().contains( "Unexpected \"" );
 			assert e.getMessage().contains( "at line 62" );
@@ -110,7 +75,7 @@ public class Import
 
 		try
 		{
-			patcher.upgrade( "5" );
+			patcher.patch( "5" );
 			assert false;
 		}
 		catch( SQLExecutionException e )
@@ -119,15 +84,6 @@ public class Import
 			assert e.getMessage().contains( "executing line 70" );
 		}
 
-		patcher.end();
-	}
-
-	@Test
-	static public void testProgress() throws SQLException
-	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-import3.sql" );
-		patcher.upgrade( "1" );
 		patcher.end();
 	}
 }

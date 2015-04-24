@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package solidbase.core;
-
-import solidstack.io.SourceLocation;
 
 /**
  * An SQL fragment.
- *
+ * 
  * @author René de Bloois
  */
 public class InitConnectionFragment extends Fragment
@@ -37,15 +34,15 @@ public class InitConnectionFragment extends Fragment
 
 	/**
 	 * Constructor.
-	 *
-	 * @param location The location of the fragment in the original file.
+	 * 
+	 * @param lineNumber The line number of the fragment in the original file.
 	 * @param text The text of the fragment.
 	 * @param connectionName The name of the connection.
 	 * @param userName The name of the user.
 	 */
-	protected InitConnectionFragment( SourceLocation location, String text, String connectionName, String userName )
+	protected InitConnectionFragment( int lineNumber, String text, String connectionName, String userName )
 	{
-		super( location, text );
+		super( lineNumber, text );
 		this.connectionName = connectionName;
 		this.userName = userName;
 	}

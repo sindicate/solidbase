@@ -1,19 +1,3 @@
-/*--
- * Copyright 2010 René M. de Bloois
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package solidbase.core;
 
 import java.io.BufferedReader;
@@ -30,7 +14,7 @@ import java.util.List;
 /**
  * Reads plugins from the classpath. First it collects all of the following files: META-INF/solidbase.plugins.
  * Each (non-empty) line in these files represents a plugin class. A plugin should extend {@link CommandListener}.
- *
+ * 
  * @author René M. de Bloois
  * @since May 2010
  */
@@ -104,20 +88,11 @@ public class PluginManager
 
 	/**
 	 * Returns a list of all the plugins.
-	 *
+	 * 
 	 * @return a list of all the plugins.
 	 */
 	static public List< CommandListener > getListeners()
 	{
 		return listeners;
-	}
-
-	/**
-	 * Send all listeners the signal to terminate
-	 */
-	static public void terminateListeners()
-	{
-		for( CommandListener listener : listeners )
-			listener.terminate();
 	}
 }

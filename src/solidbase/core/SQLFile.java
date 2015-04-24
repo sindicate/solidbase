@@ -16,42 +16,38 @@
 
 package solidbase.core;
 
-import java.io.FileNotFoundException;
+import java.io.BufferedInputStream;
+import java.net.URL;
+import java.util.regex.Pattern;
 
-import solidstack.io.Resource;
-import solidstack.io.SourceReader;
-import solidstack.io.SourceReaders;
+import solidbase.util.BOMDetectingLineReader;
 
 
 /**
  * This class manages an SQL file's contents. It detects the encoding and reads commands from it.
- *
+ * 
  * @author René M. de Bloois
  * @since Apr 2010
  */
 public class SQLFile
 {
+	static final Pattern ENCODING_PATTERN = Pattern.compile( "^--\\*[ \t]*ENCODING[ \t]+\"([^\"]*)\"[ \t]*$", Pattern.CASE_INSENSITIVE );
+
 	/**
 	 * The underlying file.
 	 */
-	protected SourceReader reader;
+	protected BOMDetectingLineReader reader;
 
 
 	/**
 	 * Creates an new instance of an SQL file.
-	 *
-	 * @param resource The resource containing this SQL file.
+	 * 
+	 * @param in The input stream for the file.
+	 * @param url The url of the file.
 	 */
-	protected SQLFile( Resource resource )
+	protected SQLFile( BufferedInputStream in, URL url )
 	{
-		try
-		{
-			this.reader = SourceReaders.forResource( resource, EncodingDetector.INSTANCE );
-		}
-		catch( FileNotFoundException e )
-		{
-			throw new FatalException( e.toString() ); // TODO e or e.toString()?
-		}
+		this.reader = new BOMDetectingLineReader( in, ENCODING_PATTERN, url );
 	}
 
 	/**
@@ -67,9 +63,9 @@ public class SQLFile
 	}
 
 	/**
-	 * Gets the encoding of the SQL file.
-	 *
-	 * @return The encoding of the SQL file.
+	 * Gets the encoding of the patch file.
+	 * 
+	 * @return The encoding of the patch file.
 	 */
 	public String getEncoding()
 	{
@@ -78,7 +74,7 @@ public class SQLFile
 
 	/**
 	 * Returns a source for the SQL.
-	 *
+	 * 
 	 * @return A source for the SQL.
 	 */
 	public SQLSource getSource()
