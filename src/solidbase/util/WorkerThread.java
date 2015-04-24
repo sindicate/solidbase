@@ -16,65 +16,44 @@
 
 package solidbase.util;
 
-import solidbase.core.FatalException;
-import solidstack.lang.ThreadInterrupted;
-
-
 /**
  * Worker thread which stores the exception in case it ended with one. It also stores if the thread ended itself by throwing a ThreadDeath error.
  *
  * @author René M. de Bloois
  */
-abstract public class SynchronizedProtectedWorkerThread extends Thread
+abstract public class WorkerThread extends Thread
 {
 	private StackTraceElement[] startTrace;
 	private RuntimeException exception;
+	private boolean threadDeath;
 
 	/**
 	 * Constructor.
-	 *
-	 * @param name Name of the thread.
 	 */
-	public SynchronizedProtectedWorkerThread( String name )
+	public WorkerThread()
 	{
-		super( name );
+		super( "Worker" );
 	}
 
 	@Override
 	public void run()
 	{
-		ShutdownHook hook = new ShutdownHook();
-		Runtime.getRuntime().addShutdownHook( hook );
 		try
 		{
-			try
-			{
-				work();
-			}
-			catch( RuntimeException e )
-			{
-				StackTraceElement[] exceptionTrace = e.getStackTrace();
-				StackTraceElement[] newTrace = new StackTraceElement[ exceptionTrace.length + this.startTrace.length ];
-				System.arraycopy( exceptionTrace, 0, newTrace, 0, exceptionTrace.length );
-				System.arraycopy( this.startTrace, 0, newTrace, exceptionTrace.length, this.startTrace.length );
-				e.setStackTrace( newTrace );
-				this.exception = e;
-			}
-			catch( ThreadInterrupted i )
-			{
-				this.exception = new FatalException( "Aborted" ); // TODO Can't use the core FatalException in the util package
-			}
+			work();
 		}
-		finally
+		catch( RuntimeException e )
 		{
-			try
-			{
-				Runtime.getRuntime().removeShutdownHook( hook );
-			}
-			catch( IllegalStateException e )
-			{
-				// Happens when a shutdown is in progress
-			}
+			StackTraceElement[] exceptionTrace = e.getStackTrace();
+			StackTraceElement[] newTrace = new StackTraceElement[ exceptionTrace.length + this.startTrace.length ];
+			System.arraycopy( exceptionTrace, 0, newTrace, 0, exceptionTrace.length );
+			System.arraycopy( this.startTrace, 0, newTrace, exceptionTrace.length, this.startTrace.length );
+			e.setStackTrace( newTrace );
+			this.exception = e;
+		}
+		catch( ThreadDeath e )
+		{
+			this.threadDeath = true;
 		}
 	}
 
@@ -89,16 +68,6 @@ abstract public class SynchronizedProtectedWorkerThread extends Thread
 			this.startTrace = newTrace;
 		}
 		super.start();
-		try
-		{
-			join();
-			if( this.exception != null )
-				throw this.exception;
-		}
-		catch( InterruptedException e )
-		{
-			Thread.currentThread().interrupt();
-		}
 	}
 
 	/**
@@ -117,25 +86,12 @@ abstract public class SynchronizedProtectedWorkerThread extends Thread
 	}
 
 	/**
-	 * A thread that captures the shutdown and safely shuts down the main thread.
+	 * Returns true if the thread threw a {@link ThreadDeath} error to indicated that it was interrupted, false otherwise.
 	 *
-	 * @author René de Bloois
+	 * @return true if the thread threw a {@link ThreadDeath} error to indicated that it was interrupted, false otherwise.
 	 */
-	protected class ShutdownHook extends Thread
+	public boolean isThreadDeath()
 	{
-		@Override
-		public void run()
-		{
-			System.err.println( "Shutdown in progress, please wait..." );
-			try
-			{
-				SynchronizedProtectedWorkerThread.this.interrupt();
-				SynchronizedProtectedWorkerThread.this.join();
-			}
-			catch( InterruptedException e )
-			{
-				// OK to stop here
-			}
-		}
+		return this.threadDeath;
 	}
 }

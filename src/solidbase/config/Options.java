@@ -16,12 +16,10 @@
 
 package solidbase.config;
 
-import java.util.Properties;
-
 
 /**
  * Options from the command line.
- *
+ * 
  * @author René M. de Bloois
  */
 public class Options
@@ -87,11 +85,6 @@ public class Options
 	public boolean help;
 
 	/**
-	 * Parameters.
-	 */
-	public Properties parameters;
-
-	/**
 	 * @param verbose Be extra verbose.
 	 * @param dumplog Export historical upgrade results to an XML file.
 	 * @param driver The JDBC driver class name.
@@ -104,10 +97,9 @@ public class Options
 	 * @param config A properties file to use.
 	 * @param downgradeallowed Allow downgrades to reach the target.
 	 * @param help Brings up the help.
-	 * @param parameters Parameters.
 	 */
 	public Options( boolean verbose, boolean dumplog, String driver, String url, String username, String password,
-			String target, String upgradefile, String sqlfile, String config, boolean downgradeallowed, boolean help, Properties parameters )
+			String target, String upgradefile, String sqlfile, String config, boolean downgradeallowed, boolean help )
 	{
 		this.verbose = verbose;
 		this.dumplog = dumplog;
@@ -121,6 +113,5 @@ public class Options
 		this.upgradefile = upgradefile;
 		this.sqlfile = sqlfile;
 		this.config = config;
-		this.parameters = parameters;
 	}
 }

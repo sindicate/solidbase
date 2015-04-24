@@ -19,7 +19,7 @@ package solidbase.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import solidbase.core.SourceException;
+import solidbase.core.CommandFileException;
 import solidbase.util.CSVTokenizer.Token;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
@@ -88,7 +88,7 @@ public class CSVReader
 				if( token.isNewline() || token.isEndOfInput() )
 					break;
 				if( !token.isSeparator() )
-					throw new SourceException( "Expecting <separator>, <newline> or <end-of-input>, not '" + token.getValue() + "'", tokenizer.getLocation() );
+					throw new CommandFileException( "Expecting <separator>, <newline> or <end-of-input>, not '" + token.getValue() + "'", tokenizer.getLocation() );
 			}
 		}
 
@@ -107,9 +107,6 @@ public class CSVReader
 		return this.tokenizer.getLineNumber();
 	}
 
-	/**
-	 * @return The current location within the file.
-	 */
 	public SourceLocation getLocation()
 	{
 		return this.tokenizer.getLocation();

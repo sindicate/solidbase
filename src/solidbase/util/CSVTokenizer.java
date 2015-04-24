@@ -16,7 +16,7 @@
 
 package solidbase.util;
 
-import solidbase.core.SourceException;
+import solidbase.core.CommandFileException;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
 import solidstack.io.PushbackReader;
@@ -112,7 +112,7 @@ public class CSVTokenizer
 			{
 				ch = this.in.read();
 				if( ch == -1 )
-					throw new SourceException( "Missing \"", this.in.getLocation() );
+					throw new CommandFileException( "Missing \"", this.in.getLocation() );
 				if( ch == '"' )
 				{
 					ch = this.in.read();
@@ -143,7 +143,7 @@ public class CSVTokenizer
 		do
 		{
 			if( ch == '"' )
-				throw new SourceException( "Unexpected \"", this.in.getLocation() );
+				throw new CommandFileException( "Unexpected \"", this.in.getLocation() );
 			if( ignoreWhiteSpace )
 			{
 				if( isWhitespace( ch ) )

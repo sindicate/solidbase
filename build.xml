@@ -21,11 +21,11 @@
 
 	<!-- Maven Ant Task -->
 
-	<path id="maventasks.classpath">
+	<path id="maven.classpath">
 		<fileset dir="tools/maven" includes="*.jar" />
 	</path>
 
-	<typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maventasks.classpath" />
+	<typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven.classpath" />
 
 	<!-- <maven:dependencies><pom file="pom.xml" /></maven:dependencies> -->
 
@@ -75,12 +75,7 @@
 		<fileset dir="tools/jing" includes="*.jar" />
 	</path>
 
-	<path id="maven.classpath">
-		<fileset dir="tools/maven/lib" includes="*.jar" />
-	</path>
-
 	<path id="compile.classpath">
-		<pathelement location="${build.home}/../solidstack/classes" /> <!-- TODO This is temporary -->
 		<fileset dir="lib" includes="*.jar" />
 	</path>
 
@@ -93,7 +88,6 @@
 	<path id="test.classpath">
 		<pathelement location="${build.home}/testclasses" />
 		<path refid="compiletest.classpath" />
-		<path refid="maven.classpath" />
 	</path>
 
 	<path id="maven2.classpath">
@@ -144,7 +138,12 @@
 	<target name="compile">
 		<echo message="java.home=${java.home}" />
 		<mkdir dir="${build.home}/classes" />
-		<javac srcdir="src" destdir="${build.home}/classes" source="${target-jre}" target="${target-jre}" optimize="true" debug="true" deprecation="true" classpathref="compile.classpath" />
+		<javac destdir="${build.home}/classes" source="${target-jre}" target="${target-jre}" optimize="true" debug="true" deprecation="true" classpathref="compile.classpath">
+			<src path="src" />
+			<include name="solidbase/**/*.java" />
+			<src path="../solidstack/src" />
+			<include name="solidstack/io/*.java" />
+		</javac>
 		<sync todir="${build.home}/classes">
 			<fileset dir="src" excludes="**/*.java,**/*.html" />
 			<preserveInTarget includes="**/*.class" />
@@ -214,8 +213,6 @@
 			<zipfileset file="${build.home}/config/version.properties" prefix="solidbase" />
 			<zipfileset src="lib/commons-cli-1.2.jar" excludes="META-INF/**" />
 			<zipfileset src="lib/commons-lang-2.3.jar" excludes="META-INF/**" />
-			<zipfileset dir="${build.home}/../solidstack/classes" includes="**/*.class" /> <!-- TODO This is temporary -->
-			<!-- <zipfileset src="lib/solidstack-1.9.2-beta.jar" includes="solidstack/**/*.class" /> --> <!-- TODO This is the correct way -->
 			<zipfileset dir="." includes="LICENSE.txt,NOTICE.txt,CHANGELOG.TXT" prefix="META-INF" />
 			<rule pattern="org.apache.commons.**" result="solidbase.@0" />
 			<rule pattern="solidstack.**" result="solidbase.@0" />
@@ -327,7 +324,7 @@
 		<property name="sonar.tests" value="list of test source directories separated by a comma" />
 		<property name="sonar.libraries" value="list of paths to libraries separated by a comma (These libraries are for example used by the Sonar Findbugs plugin)" />
 	 
-	    <sonar:sonar key="solidbase:solidbase" version="2.0.0-beta3" xmlns:sonar="antlib:org.sonar.ant" />
+	    <sonar:sonar key="solidbase:solidbase" version="2.0.0-beta" xmlns:sonar="antlib:org.sonar.ant" />
 	</target>
 
 	<target name="maven:deploy" depends="build" description="Deploys to the remote repo">
@@ -409,7 +406,6 @@
 			<jvmarg value="-Duser.home=${build.home}/mavenuser" /> <!-- Use our own user folder -->
 			<jvmarg value="-Dmaven.home=${basedir}/tools/maven" />
 			<jvmarg value="-Dtest.repo.url=file:///${build.home}/remote" /> <!-- Used in the pom.xml -->
-			<jvmarg value="-DskipDatabase=false" /> <!-- Used in the pom.xml -->
 			<arg value="--batch-mode" />
 			<arg value="solidbase:upgrade" />
 			<arg value="solidbase:sql" />

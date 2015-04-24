@@ -24,7 +24,6 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import solidbase.Version;
-import solidbase.util.SynchronizedProtectedWorkerThread;
 import solidstack.io.Resource;
 
 /**
@@ -69,11 +68,6 @@ public class Runner
 	 */
 	protected Resource outputFile;
 
-	/**
-	 * The parameters.
-	 */
-	protected Map< String, String > parameters = new HashMap<String, String>();
-
 
 	/**
 	 * Sets the progress listener.
@@ -99,14 +93,6 @@ public class Runner
 		this.connections.put( name, new ConnectionAttributes( name, driver, url, username, password ) );
 	}
 
-	/**
-	 * Sets a connection to use.
-	 *
-	 * @param name The name of the connection.
-	 * @param dataSource The data source to connect with.
-	 * @param username The user name to connect with.
-	 * @param password The password of the user.
-	 */
 	public void setConnectionAttributes( String name, DataSource dataSource, String username, String password )
 	{
 		this.connections.put( name, new ConnectionAttributes( name, dataSource, username, password ) );
@@ -174,17 +160,6 @@ public class Runner
 	}
 
 	/**
-	 * Adds a parameter.
-	 *
-	 * @param name The name of the parameter.
-	 * @param value The value of the parameter.
-	 */
-	public void addParameter( String name, String value )
-	{
-		this.parameters.put( name, value );
-	}
-
-	/**
 	 * Execute the SQL files.
 	 */
 	public void executeSQL()
@@ -206,7 +181,6 @@ public class Runner
 			{
 				SQLContext context = new SQLContext( Factory.openSQLFile( resource, this.listener ).getSource() );
 				context.setDatabases( databases );
-				context.getScope().setAll( this.parameters );
 				processor.setContext( context );
 				if( first )
 				{
@@ -232,9 +206,8 @@ public class Runner
 	}
 
 	/**
-	 * Upgrade the database. This method protects itself against SIGINT (Ctrl-C).
+	 * Upgrade the database.
 	 */
-	// TODO executeSQL() prints a newline at the end, but upgrade() does not
 	public void upgrade()
 	{
 		if( this.listener == null )
@@ -243,46 +216,31 @@ public class Runner
 		this.listener.println( Version.getInfo() );
 		this.listener.println( "" );
 
-		final UpgradeProcessor processor = new UpgradeProcessor( this.listener );
+		UpgradeProcessor processor = new UpgradeProcessor( this.listener );
 		processor.setUpgradeFile( Factory.openUpgradeFile( this.upgradeFile, this.listener ) );
 		processor.setDatabases( getDatabases() );
-		processor.setParameters( this.parameters );
-
-		final ProgressListener listener = this.listener;
-		final String upgradeTarget = this.upgradeTarget;
-		final boolean downgradeAllowed = this.downgradeAllowed;
-
-		SynchronizedProtectedWorkerThread worker = new SynchronizedProtectedWorkerThread( "UpgradeThread" )
+		boolean complete = false;
+		try
 		{
-			@Override
-			public void work()
-			{
-				boolean complete = false;
-				try
-				{
-					processor.init();
-					listener.println( "Connecting to database..." );
-					listener.println( processor.getVersionStatement() );
-					processor.upgrade( upgradeTarget, downgradeAllowed ); // TODO Print this target
-					listener.println( "" );
-					listener.println( processor.getVersionStatement() );
+			processor.init();
+			this.listener.println( "Connecting to database..." );
+			this.listener.println( processor.getVersionStatement() );
+			processor.upgrade( this.upgradeTarget, this.downgradeAllowed ); // TODO Print this target
+			this.listener.println( "" );
+			this.listener.println( processor.getVersionStatement() );
 
-					complete = true;
-				}
-				finally
-				{
-					if( complete )
-						listener.upgradeComplete();
-					else
-						listener.upgradeAborted();
+			complete = true;
+		}
+		finally
+		{
+			if( complete )
+				this.listener.upgradeComplete();
+			else
+				this.listener.upgradeAborted();
 
-					processor.end();
-					PluginManager.terminateListeners();
-				}
-			}
-		};
-
-		worker.start();
+			processor.end();
+			PluginManager.terminateListeners();
+		}
 	}
 
 	private DatabaseContext getDatabases()
@@ -316,7 +274,6 @@ public class Runner
 	/**
 	 * Dump the database log to an XML file.
 	 */
-	// TODO Replace with DUMP JSON
 	public void logToXML()
 	{
 		if( this.listener == null )
