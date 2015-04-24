@@ -16,22 +16,17 @@
 
 package solidbase.core.plugins;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.sql.Blob;
-import java.sql.Clob;
+import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import solidbase.core.Command;
-import solidbase.core.SourceException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
-import solidbase.util.JDBCSupport;
+import solidbase.core.Database;
 
 
 /**
@@ -42,16 +37,16 @@ import solidbase.util.JDBCSupport;
  * FROM ATABLE
  * GO
  * </pre></blockquote>
- *
+ * 
  * @author René M. de Bloois
  * @since May 2010
  */
 public class PrintSelect implements CommandListener
 {
-	static private final Pattern printSelectPattern = Pattern.compile( "\\s*PRINT\\s+(SELECT\\s+.+)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern printSelectPattern = Pattern.compile( "PRINT\\s+(SELECT\\s+.+)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 	//@Override
-	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
+	public boolean execute( CommandProcessor processor, Command command ) throws SQLException
 	{
 		if( command.isTransient() )
 			return false;
@@ -60,50 +55,25 @@ public class PrintSelect implements CommandListener
 		if( !matcher.matches() )
 			return false;
 
-		if( skip )
-			return true;
-
 		String sql = matcher.group( 1 );
 
-		Statement statement = processor.createStatement();
+		Database database = processor.getCurrentDatabase();
+		Connection connection = database.getConnection();
+		Statement statement = processor.createStatement( connection );
 		try
 		{
 			ResultSet result = statement.executeQuery( sql );
-			ResultSetMetaData metaData = result.getMetaData();
-			int[] types = new int[] { metaData.getColumnType( 1 ) };
 			while( result.next() )
 			{
-				Object value = JDBCSupport.getValue( result, types, 0 );
-				// TODO Print binary columns as hex characters
-				if( value instanceof Blob || value instanceof byte[] )
-					throw new SourceException( "Binary columns like BLOB, RAW, BINARY VARYING cannot be printed", command.getLocation() );
-				if( value instanceof Clob )
-				{
-					StringBuilder buffer = new StringBuilder();
-					Reader in = ( (Clob)value ).getCharacterStream();
-					char[] buf = new char[ 4096 ];
-					try
-					{
-						for( int read = in.read( buf ); read >= 0; read = in.read( buf ) )
-							buffer.append( buf, 0, read );
-						in.close();
-					}
-					catch( IOException e )
-					{
-						throw (SQLException)new SQLException( e.toString() ).initCause( e ); // Java 1.5 has no SQLException constructor with cause parameter.
-					}
-					processor.getProgressListener().print( buffer.toString() );
-				}
-				else
-				{
-					processor.getProgressListener().print( value != null ? value.toString() : "" );
-				}
-
+				Object object = result.getObject( 1 );
+				processor.getCallBack().print( object.toString() );
 			}
 		}
 		finally
 		{
-			processor.closeStatement( statement, true );
+			if( statement != null )
+				statement.close();
+			connection.commit();
 		}
 
 		return true;

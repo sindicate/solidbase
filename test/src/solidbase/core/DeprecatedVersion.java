@@ -23,15 +23,13 @@ import org.testng.annotations.Test;
 
 public class DeprecatedVersion
 {
-	static private final String db = "jdbc:hsqldb:mem:testDeprecated";
-
 	@Test
 	public void testDeprecated1() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( db, "sa", null );
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch1.sql", db );
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch1.sql" );
 
-		patcher.upgrade( "1.0.2" );
+		patcher.patch( "1.0.2" );
 		TestUtil.verifyVersion( patcher, "1.0.2", null, 2, null );
 
 		patcher.end();
@@ -40,11 +38,11 @@ public class DeprecatedVersion
 	@Test(dependsOnMethods="testDeprecated1")
 	public void testDeprecated2()
 	{
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-deprecated-version-1.sql", db );
+		PatchProcessor patcher = Setup.setupPatchProcessor( "testpatch-deprecated-version-1.sql" );
 
 		try
 		{
-			patcher.upgrade( "1.0.1" );
+			patcher.patch( "1.0.1" );
 			Assert.fail( "Expected a FatalException" );
 		}
 		catch( FatalException e )

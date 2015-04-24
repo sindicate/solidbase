@@ -16,11 +16,17 @@
 
 package solidbase.core;
 
-import java.io.FileNotFoundException;
+import java.io.File;
+import java.net.MalformedURLException;
 
-import solidstack.io.BufferedResource;
-import solidstack.io.RandomAccessSourceReader;
-import solidstack.io.Resource;
+import solidbase.util.ClassPathResource;
+import solidbase.util.FileResource;
+import solidbase.util.MemoryResource;
+import solidbase.util.RandomAccessLineReader;
+import solidbase.util.Resource;
+import solidbase.util.SystemInOutResource;
+import solidbase.util.URLRandomAccessLineReader;
+import solidbase.util.URLResource;
 
 
 /**
@@ -39,30 +45,63 @@ public final class Factory
 	}
 
 	/**
+	 * Creates a resource for the given path. If the path starts with classpath:, a {@link ClassPathResource} will be
+	 * returned. If the path is a URL, a {@link URLResource} will be returned. Otherwise a {@link FileResource} is
+	 * returned.
+	 *
+	 * @param path The path for the resource.
+	 * @return The resource.
+	 */
+	static public Resource getResource( String path )
+	{
+		return getResource( null, path );
+	}
+
+	/**
+	 * Creates a resource for the given path. If the path starts with classpath:, a {@link ClassPathResource} will be
+	 * returned. If the path is a URL, a {@link URLResource} will be returned. Otherwise a {@link FileResource} is
+	 * returned. The parent argument is only used when returning a {@link FileResource}.
+	 *
+	 * @param parent The parent folder of the resource.
+	 * @param path The path for the resource.
+	 * @return The resource.
+	 */
+	static public Resource getResource( File parent, String path )
+	{
+		if( path.equals( "-" ) )
+			return new SystemInOutResource();
+		if( path.startsWith( "classpath:" ) )
+			return new ClassPathResource( path );
+		try
+		{
+			return new URLResource( path );
+		}
+		catch( MalformedURLException e )
+		{
+			return new FileResource( parent, path );
+		}
+	}
+
+	/**
 	 * Open the specified SQL file in the specified folder.
 	 *
 	 * @param resource The resource to open.
 	 * @param listener The progress listener.
 	 * @return A random access reader for the file.
 	 */
-	static public RandomAccessSourceReader openRALR( Resource resource, ProgressListener listener )
+	static public RandomAccessLineReader openRALR( Resource resource, ProgressListener listener )
 	{
-		try
+		// TODO supportsURL() is not right for this purpose.
+		if( resource.supportsURL() )
 		{
-			// TODO supportsURL() is not right for this purpose.
-			if( resource.supportsURL() )
-			{
-				listener.openingUpgradeFile( resource );
-				return new RandomAccessSourceReader( resource, EncodingDetector.INSTANCE );
-			}
+			listener.openingPatchFile( resource );
+			return new URLRandomAccessLineReader( resource );
+		}
 
-			// TODO What about the message? "Opening internal resource..."
-			return new RandomAccessSourceReader( new BufferedResource( resource ), EncodingDetector.INSTANCE );
-		}
-		catch( FileNotFoundException e )
-		{
-			throw new FatalException( e.toString() ); // TODO e or e.toString()
-		}
+		// TODO What about the message? "Opening internal resource..."
+		MemoryResource resource2 = new MemoryResource();
+		resource2.append( resource.getInputStream() );
+		return new URLRandomAccessLineReader( resource2 );
 	}
 
 	/**
@@ -87,12 +126,12 @@ public final class Factory
 	 *
 	 * @param resource The resource containing the upgrade file.
 	 * @param listener The progress listener.
-	 * @return The upgrade file.
+	 * @return The patch file.
 	 */
-	static public UpgradeFile openUpgradeFile( Resource resource, ProgressListener listener )
+	static public PatchFile openPatchFile( Resource resource, ProgressListener listener )
 	{
-		RandomAccessSourceReader reader = openRALR( resource, listener );
-		UpgradeFile result = new UpgradeFile( reader );
+		RandomAccessLineReader reader = openRALR( resource, listener );
+		PatchFile result = new PatchFile( reader );
 		try
 		{
 			result.scan();
@@ -103,7 +142,7 @@ public final class Factory
 			reader.close();
 			throw e;
 		}
-		listener.openedUpgradeFile( result );
+		listener.openedPatchFile( result );
 		return result;
 	}
 }

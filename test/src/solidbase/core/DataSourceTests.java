@@ -22,7 +22,7 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import solidbase.util.DriverDataSource;
-import solidstack.io.FileResource;
+import solidbase.util.FileResource;
 
 public class DataSourceTests
 {
@@ -34,16 +34,14 @@ public class DataSourceTests
 		TestProgressListener progress = new TestProgressListener();
 		DriverDataSource dataSource = new DriverDataSource( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb2", "sa", null );
 		Database database = new Database( "default", dataSource, progress );
-		DatabaseContext databases = new DatabaseContext( database );
-		UpgradeProcessor processor = new UpgradeProcessor( progress );
-		processor.setDatabases( databases );
-		UpgradeFile upgradeFile = Factory.openUpgradeFile( new FileResource( "testpatch1.sql" ), progress );
-		processor.setUpgradeFile( upgradeFile );
+		PatchProcessor processor = new PatchProcessor( progress, database );
+		PatchFile patchFile = Factory.openPatchFile( new FileResource( "testpatch1.sql" ), progress );
+		processor.setPatchFile( patchFile );
 		processor.init();
 
 		Set< String > targets = processor.getTargets( false, null, false );
 		assert targets.size() > 0;
-		processor.upgrade( "1.0.2" );
+		processor.patch( "1.0.2" );
 		TestUtil.verifyVersion( processor, "1.0.2", null, 2, null );
 
 		processor.end();
@@ -57,16 +55,14 @@ public class DataSourceTests
 		TestProgressListener progress = new TestProgressListener();
 		DriverDataSource dataSource = new DriverDataSource( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb2", "sa", null );
 		Database database = new Database( "default", dataSource, "sa", null, progress );
-		DatabaseContext databases = new DatabaseContext( database );
-		UpgradeProcessor processor = new UpgradeProcessor( progress );
-		processor.setDatabases( databases );
-		UpgradeFile upgradeFile = Factory.openUpgradeFile( new FileResource( "testpatch1.sql" ), progress );
-		processor.setUpgradeFile( upgradeFile );
+		PatchProcessor processor = new PatchProcessor( progress, database );
+		PatchFile patchFile = Factory.openPatchFile( new FileResource( "testpatch1.sql" ), progress );
+		processor.setPatchFile( patchFile );
 		processor.init();
 
 		Set< String > targets = processor.getTargets( false, null, false );
 		assert targets.size() > 0;
-		processor.upgrade( "1.0.2" );
+		processor.patch( "1.0.2" );
 		TestUtil.verifyVersion( processor, "1.0.2", null, 2, null );
 
 		processor.end();

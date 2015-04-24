@@ -16,19 +16,17 @@
 
 package solidbase.core;
 
-import solidstack.io.SourceLocation;
-
 /**
  * An SQL fragment.
- *
+ * 
  * @author René de Bloois
  */
 public class Fragment
 {
 	/**
-	 * The file location of this fragment.
+	 * The line number of this fragment.
 	 */
-	protected SourceLocation location;
+	protected int lineNumber;
 
 	/**
 	 * The text of the fragment.
@@ -37,29 +35,29 @@ public class Fragment
 
 	/**
 	 * Constructor.
-	 *
-	 * @param location The location of the fragment in the original file.
+	 * 
+	 * @param lineNumber The line number of the fragment in the original file.
 	 * @param text The text of the fragment.
 	 */
-	public Fragment( SourceLocation location, String text )
+	public Fragment( int lineNumber, String text )
 	{
-		this.location = location;
+		this.lineNumber = lineNumber;
 		this.text = text;
 	}
 
 	/**
-	 * Returns the file location of the fragment.
-	 *
-	 * @return The file location of the fragment.
+	 * Returns the line number of the fragment.
+	 * 
+	 * @return The line number of the fragment.
 	 */
-	public SourceLocation getLocation()
+	public int getLineNumber()
 	{
-		return this.location;
+		return this.lineNumber;
 	}
 
 	/**
 	 * Returns the text of the fragment.
-	 *
+	 * 
 	 * @return The text of the fragment.
 	 */
 	public String getText()

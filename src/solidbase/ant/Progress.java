@@ -20,14 +20,14 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
 import solidbase.core.Command;
+import solidbase.core.Patch;
 import solidbase.core.ProgressListener;
-import solidbase.core.UpgradeSegment;
 import solidbase.util.Assert;
 
 
 /**
  * Implements the progress listener for the Apache Ant task.
- *
+ * 
  * @author René M. de Bloois
  */
 public class Progress extends ProgressListener
@@ -51,7 +51,7 @@ public class Progress extends ProgressListener
 
 	/**
 	 * Constructor.
-	 *
+	 * 
 	 * @param project The Ant project.
 	 * @param task The Ant task.
 	 */
@@ -94,7 +94,7 @@ public class Progress extends ProgressListener
 
 	/**
 	 * Log an info message to the project's log.
-	 *
+	 * 
 	 * @param message The message to log.
 	 */
 	protected void info( String message )
@@ -105,7 +105,7 @@ public class Progress extends ProgressListener
 
 	/**
 	 * Log a verbose message to the project's log.
-	 *
+	 * 
 	 * @param message The message to log.
 	 */
 	protected void verbose( String message )
@@ -115,10 +115,10 @@ public class Progress extends ProgressListener
 	}
 
 	@Override
-	protected void upgradeStarting( UpgradeSegment segment )
+	protected void patchStarting( Patch patch )
 	{
 		flush();
-		switch( segment.getType() )
+		switch( patch.getType() )
 		{
 			case SETUP:
 				this.buffer = new StringBuilder( "Setting up control tables" );
@@ -133,17 +133,17 @@ public class Progress extends ProgressListener
 				this.buffer = new StringBuilder( "Downgrading" );
 				break;
 			default:
-				Assert.fail( "Unknown segment type: " + segment.getType() );
+				Assert.fail( "Unknown patch type: " + patch.getType() );
 		}
-		if( segment.getSource() == null )
-			this.buffer.append( " to \"" + segment.getTarget() + "\"" );
+		if( patch.getSource() == null )
+			this.buffer.append( " to \"" + patch.getTarget() + "\"" );
 		else
-			this.buffer.append( " \"" + segment.getSource() + "\" to \"" + segment.getTarget() + "\"" );
+			this.buffer.append( " \"" + patch.getSource() + "\" to \"" + patch.getTarget() + "\"" );
 		flush();
 	}
 
 	@Override
-	protected void executing( Command command )
+	protected void executing( Command command, String message )
 	{
 		for( int i = 0; i < this.messages.length; i++ )
 		{
@@ -154,6 +154,12 @@ public class Progress extends ProgressListener
 				this.buffer = new StringBuilder().append( SPACES, 0, i * 4 ).append( m ).append( "..." );
 				this.messages[ i ] = null;
 			}
+		}
+
+		if( message != null ) // Message can be null, when a message has not been set, but sql is still being executed
+		{
+			flush();
+			this.buffer = new StringBuilder( message ).append( "..." );
 		}
 
 		flush();

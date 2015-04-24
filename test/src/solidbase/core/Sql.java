@@ -20,6 +20,8 @@ import java.sql.SQLException;
 
 import org.testng.annotations.Test;
 
+import solidbase.core.SQLProcessor;
+
 public class Sql
 {
 	@Test

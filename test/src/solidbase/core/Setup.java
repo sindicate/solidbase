@@ -16,51 +16,32 @@
 
 package solidbase.core;
 
-import solidstack.io.Resources;
-
 
 public class Setup
 {
-	static public final String defaultdb = "jdbc:hsqldb:mem:testdb";
-
-	static public UpgradeProcessor setupUpgradeProcessor( String fileName, String driver, String url, String username )
+	static public PatchProcessor setupPatchProcessor( String fileName, String url )
 	{
 		TestProgressListener progress = new TestProgressListener();
-		Database database = new Database( "default", driver, url, username, null, progress );
-		UpgradeProcessor processor = new UpgradeProcessor( progress );
-		DatabaseContext databases = new DatabaseContext( database );
-		processor.setDatabases( databases );
-		UpgradeFile upgradeFile = Factory.openUpgradeFile( Resources.getResource( fileName ), progress );
-		processor.setUpgradeFile( upgradeFile );
+		Database database = new Database( "default", "org.hsqldb.jdbcDriver", url, "sa", null, progress );
+		PatchProcessor processor = new PatchProcessor( progress, database );
+		PatchFile patchFile = Factory.openPatchFile( Factory.getResource( fileName ), progress );
+		processor.setPatchFile( patchFile );
 		processor.init();
 		return processor;
 	}
 
-	static public UpgradeProcessor setupUpgradeProcessor( String fileName, String url )
+	static public PatchProcessor setupPatchProcessor( String fileName )
 	{
-		return setupUpgradeProcessor( fileName, "org.hsqldb.jdbcDriver", url, "sa" );
-	}
-
-	static public UpgradeProcessor setupUpgradeProcessor( String fileName )
-	{
-		return setupUpgradeProcessor( fileName, defaultdb );
-	}
-
-	static public UpgradeProcessor setupDerbyUpgradeProcessor( String fileName )
-	{
-		return setupUpgradeProcessor( fileName, "org.apache.derby.jdbc.EmbeddedDriver", "jdbc:derby:memory:test;create=true", "app" );
+		return setupPatchProcessor( fileName, "jdbc:hsqldb:mem:testdb" );
 	}
 
 	static public SQLProcessor setupSQLProcessor( String fileName )
 	{
 		TestProgressListener progress = new TestProgressListener();
-		Database database = new Database( "default", "org.hsqldb.jdbcDriver", defaultdb, "sa", null, progress );
-		SQLProcessor processor = new SQLProcessor( progress );
-		SQLFile sqlFile = Factory.openSQLFile( Resources.getResource( fileName ), progress );
-		DatabaseContext databases = new DatabaseContext( database );
-		SQLContext context = new SQLContext( sqlFile.getSource() );
-		context.setDatabases( databases );
-		processor.setContext( context );
+		Database database = new Database( "default", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, progress );
+		SQLProcessor processor = new SQLProcessor( progress, database );
+		SQLFile sqlFile = Factory.openSQLFile( Factory.getResource( fileName ), progress );
+		processor.setSQLSource( sqlFile.getSource() );
 		return processor;
 	}
 }

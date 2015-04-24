@@ -16,8 +16,14 @@
 
 package solidbase.core;
 
+import solidbase.core.Command;
+import solidbase.core.Patch;
+import solidbase.core.PatchFile;
+import solidbase.core.ProgressListener;
+import solidbase.core.SQLExecutionException;
+import solidbase.core.SQLFile;
 import solidbase.util.Assert;
-import solidstack.io.Resource;
+import solidbase.util.Resource;
 
 public class TestProgressListener extends ProgressListener
 {
@@ -30,7 +36,7 @@ public class TestProgressListener extends ProgressListener
 	@Override
 	public void println( String message )
 	{
-		System.out.println( "PRINTLN: " + message );
+		Assert.fail( "Should not be called" );
 	}
 
 	@Override
@@ -52,7 +58,7 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	protected void openingUpgradeFile( Resource patchFile )
+	protected void openingPatchFile( Resource patchFile )
 	{
 		System.out.println( "OPENINGPATCHFILE: " + patchFile );
 	}
@@ -64,15 +70,15 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	protected void openedUpgradeFile( UpgradeFile upgradeFile )
+	protected void openedPatchFile( PatchFile patchFile )
 	{
-		System.out.println( "    ENCODING: " + upgradeFile.getEncoding() );
+		System.out.println( "OPENEDPATCHFILE." );
 	}
 
 	@Override
 	protected void openedSQLFile( SQLFile sqlFile )
 	{
-		System.out.println( "    ENCODING: " + sqlFile.getEncoding() );
+		System.out.println( "OPENEDSQLFILE." );
 	}
 
 	@Override
@@ -82,9 +88,9 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	protected void executing( Command command )
+	protected void executing( Command command, String message )
 	{
-		System.out.println( "EXECUTING..." );
+		System.out.println( "EXECUTING: " + message );
 	}
 
 	@Override
@@ -94,15 +100,15 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	protected void upgradeFinished()
+	protected void patchFinished()
 	{
 		System.out.println( "PATCHFINISHED." );
 	}
 
 	@Override
-	protected void upgradeStarting( UpgradeSegment segment )
+	protected void patchStarting( Patch patch )
 	{
-		System.out.println( "PATCHSTARTING: " + segment.getSource() + " - " + segment.getTarget() );
+		System.out.println( "PATCHSTARTING: " + patch.getSource() + " - " + patch.getTarget() );
 	}
 
 	@Override

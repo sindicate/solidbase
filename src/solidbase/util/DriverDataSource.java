@@ -20,10 +20,6 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
-import java.util.logging.Logger;
-
-import javax.sql.DataSource;
 
 import solidbase.core.SystemException;
 
@@ -32,7 +28,7 @@ import solidbase.core.SystemException;
  *
  * @author René M. de Bloois
  */
-public class DriverDataSource implements DataSource
+public class DriverDataSource implements javax.sql.DataSource
 {
 	/**
 	 * The class name of the driver to be used to access the database.
@@ -88,7 +84,16 @@ public class DriverDataSource implements DataSource
 	 */
 	public Connection getConnection() throws SQLException
 	{
-		return DriverManager.getConnection( this.url, this.username, this.password );
+		try
+		{
+			Connection connection = DriverManager.getConnection( this.url, this.username, this.password );
+			connection.setAutoCommit( false );
+			return connection;
+		}
+		catch( SQLException e )
+		{
+			throw new SystemException( e );
+		}
 	}
 
 	/**
@@ -99,7 +104,16 @@ public class DriverDataSource implements DataSource
 	 */
 	public Connection getConnection( String username, String password ) throws SQLException
 	{
-		return DriverManager.getConnection( this.url, username, password );
+		try
+		{
+			Connection connection = DriverManager.getConnection( this.url, username, password );
+			connection.setAutoCommit( false );
+			return connection;
+		}
+		catch( SQLException e )
+		{
+			throw new SystemException( e );
+		}
 	}
 
 	public PrintWriter getLogWriter() throws SQLException
@@ -128,11 +142,6 @@ public class DriverDataSource implements DataSource
 	}
 
 	public boolean isWrapperFor( Class< ? > iface ) throws SQLException
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	public Logger getParentLogger() throws SQLFeatureNotSupportedException
 	{
 		throw new UnsupportedOperationException();
 	}
