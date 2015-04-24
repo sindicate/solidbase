@@ -8,7 +8,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: synop.xsl 8334 2009-03-15 14:26:23Z mzjn $
+     $Id: synop.xsl 6910 2007-06-28 23:23:30Z xmldoc $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -162,18 +162,12 @@
 </xsl:template>
 
 <xsl:template match="funcprototype">
-
-  <xsl:variable name="style">
-    <xsl:call-template name="funcsynopsis.style"/>
-  </xsl:variable>
-
   <fo:block font-family="{$monospace.font.family}"
           space-before.minimum="0.8em"
           space-before.optimum="1em"
           space-before.maximum="1.2em">
     <xsl:apply-templates/>
-    
-    <xsl:if test="$style='kr'">
+    <xsl:if test="$funcsynopsis.style='kr'">
       <fo:block
           space-before.minimum="0.8em"
           space-before.optimum="1em"
@@ -181,7 +175,6 @@
       <xsl:apply-templates select="./paramdef" mode="kr-funcsynopsis-mode"/>
       </fo:block>
     </xsl:if>
-
   </fo:block>
 </xsl:template>
 
@@ -205,13 +198,8 @@
 </xsl:template>
 
 <xsl:template match="void">
-
-  <xsl:variable name="style">
-    <xsl:call-template name="funcsynopsis.style"/>
-  </xsl:variable>
-
   <xsl:choose>
-    <xsl:when test="$style='ansi'">
+    <xsl:when test="$funcsynopsis.style='ansi'">
       <xsl:text>(void);</xsl:text>
     </xsl:when>
     <xsl:otherwise>
@@ -225,17 +213,12 @@
 </xsl:template>
 
 <xsl:template match="paramdef">
-
-  <xsl:variable name="style">
-    <xsl:call-template name="funcsynopsis.style"/>
-  </xsl:variable>
-  
   <xsl:variable name="paramnum">
     <xsl:number count="paramdef" format="1"/>
   </xsl:variable>
   <xsl:if test="$paramnum=1">(</xsl:if>
   <xsl:choose>
-    <xsl:when test="$style='ansi'">
+    <xsl:when test="$funcsynopsis.style='ansi'">
       <xsl:apply-templates/>
     </xsl:when>
     <xsl:otherwise>
@@ -277,24 +260,6 @@
   <xsl:text>(</xsl:text>
   <xsl:apply-templates/>
   <xsl:text>)</xsl:text>
-</xsl:template>
-
-<!-- Return value of PI or parameter -->
-<xsl:template name="funcsynopsis.style">
-  <xsl:variable name="pi.style">
-    <xsl:call-template name="pi.dbfo_funcsynopsis-style">
-      <xsl:with-param name="node" select="ancestor::funcsynopsis/descendant-or-self::*"/>
-    </xsl:call-template>
-  </xsl:variable>
-
-  <xsl:choose>
-    <xsl:when test="$pi.style != ''">
-      <xsl:value-of select="$pi.style"/>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:value-of select="$funcsynopsis.style"/>
-    </xsl:otherwise>
-  </xsl:choose>
 </xsl:template>
 
 <!-- ==================================================================== -->
@@ -972,11 +937,6 @@
     <xsl:text> { ... };</xsl:text>
     <xsl:call-template name="synop-break"/>
   </fo:block>
-</xsl:template>
-
-<!-- Used when not occurring as a child of classsynopsis -->
-<xsl:template match="ooclass|oointerface|ooexception">
-  <xsl:apply-templates/>
 </xsl:template>
 
 <!-- ==================================================================== -->

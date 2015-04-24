@@ -1,5 +1,5 @@
 /*--
- * Copyright 2009 René M. de Bloois
+ * Copyright 2006 René M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,70 +19,19 @@ package solidbase.ant;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 
+import solidbase.config.ConfigListener;
+import solidbase.core.Assert;
 import solidbase.core.Command;
+import solidbase.core.PatchFile;
 import solidbase.core.ProgressListener;
-import solidbase.core.UpgradeSegment;
-import solidbase.util.Assert;
 
 
-/**
- * Implements the progress listener for the Apache Ant task.
- *
- * @author René M. de Bloois
- */
-public class Progress extends ProgressListener
+public class Progress extends ProgressListener implements ConfigListener
 {
-	static private final String SPACES = "                                        ";
-
-	/**
-	 * The Ant project.
-	 */
 	protected Project project;
-
-	/**
-	 * The Ant task.
-	 */
 	protected Task task;
-
-	/**
-	 * Buffer to collect output before logging.
-	 */
 	protected StringBuilder buffer;
 
-	/**
-	 * Constructor.
-	 *
-	 * @param project The Ant project.
-	 * @param task The Ant task.
-	 */
-	public Progress( Project project, Task task )
-	{
-		this.project = project;
-		this.task = task;
-	}
-
-	@Override
-	public void reset()
-	{
-		super.reset();
-		this.buffer = null;
-	}
-
-	@Override
-	public void cr()
-	{
-		flush();
-	}
-
-	@Override
-	public void println( String message )
-	{
-		this.project.log( this.task, message, Project.MSG_INFO );
-	}
-
-	/**
-	 * Flush collected output to the project's log.
-	 */
 	protected void flush()
 	{
 		if( this.buffer != null && this.buffer.length() > 0 )
@@ -92,90 +41,88 @@ public class Progress extends ProgressListener
 		}
 	}
 
-	/**
-	 * Log an info message to the project's log.
-	 *
-	 * @param message The message to log.
-	 */
 	protected void info( String message )
 	{
 		flush();
 		this.project.log( this.task, message, Project.MSG_INFO );
 	}
 
-	/**
-	 * Log a verbose message to the project's log.
-	 *
-	 * @param message The message to log.
-	 */
 	protected void verbose( String message )
 	{
 		flush();
 		this.project.log( this.task, message, Project.MSG_VERBOSE );
 	}
 
-	@Override
-	protected void upgradeStarting( UpgradeSegment segment )
+	public Progress( Project project, Task task )
 	{
-		flush();
-		switch( segment.getType() )
-		{
-			case SETUP:
-				this.buffer = new StringBuilder( "Setting up control tables" );
-				break;
-			case UPGRADE:
-				this.buffer = new StringBuilder( "Upgrading" );
-				break;
-			case SWITCH:
-				this.buffer = new StringBuilder( "Switching" );
-				break;
-			case DOWNGRADE:
-				this.buffer = new StringBuilder( "Downgrading" );
-				break;
-			default:
-				Assert.fail( "Unknown segment type: " + segment.getType() );
-		}
-		if( segment.getSource() == null )
-			this.buffer.append( " to \"" + segment.getTarget() + "\"" );
-		else
-			this.buffer.append( " \"" + segment.getSource() + "\" to \"" + segment.getTarget() + "\"" );
-		flush();
+		this.project = project;
+		this.task = task;
+	}
+
+	public void readingPropertyFile( String path )
+	{
+		verbose( "Reading property file " + path );
 	}
 
 	@Override
-	protected void executing( Command command )
+	protected void openingPatchFile( String patchFile )
 	{
-		for( int i = 0; i < this.messages.length; i++ )
-		{
-			String m = this.messages[ i ];
-			if( m != null )
-			{
-				flush();
-				this.buffer = new StringBuilder().append( SPACES, 0, i * 4 ).append( m ).append( "..." );
-				this.messages[ i ] = null;
-			}
-		}
+		info( "Opening patchfile '" + patchFile + "'" );
+	}
 
+	@Override
+	public void openedPatchFile( PatchFile patchFile )
+	{
+		info( "    Encoding is '" + patchFile.getEncoding() + "'" );
+	}
+
+	@Override
+	protected void patchStarting( String source, String target )
+	{
+		info( "Patching \"" + source + "\" to \"" + target + "\"" );
+	}
+
+	@Override
+	protected void executing( Command command, String message )
+	{
+		Assert.notNull( message );
 		flush();
+		this.buffer = new StringBuilder( message );
+	}
+
+	@Override
+	protected void exception( Command command )
+	{
+		// The sql is printed by the SQLExecutionException.printStackTrace().
 	}
 
 	@Override
 	protected void executed()
 	{
-		// Nothing to do
+		this.buffer.append( '.' );
+	}
+
+	@Override
+	protected void patchFinished()
+	{
+		flush();
+	}
+
+	@Override
+	protected void patchingFinished()
+	{
+		info( "The database has been patched." );
+	}
+
+	@Override
+	protected String requestPassword( String user )
+	{
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	protected void debug( String message )
 	{
 		verbose( "DEBUG: " + message );
-	}
-
-	@Override
-	public void print( String message )
-	{
-		flush();
-		this.buffer = new StringBuilder( message );
-		flush();
 	}
 }
