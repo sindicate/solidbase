@@ -16,11 +16,10 @@
 
 package solidbase.core;
 
-import java.io.FileNotFoundException;
+import java.util.regex.Pattern;
 
-import solidstack.io.Resource;
-import solidstack.io.SourceReader;
-import solidstack.io.SourceReaders;
+import solidbase.util.BOMDetectingLineReader;
+import solidbase.util.Resource;
 
 
 /**
@@ -31,10 +30,12 @@ import solidstack.io.SourceReaders;
  */
 public class SQLFile
 {
+	static final Pattern ENCODING_PATTERN = Pattern.compile( "^--\\*[ \t]*ENCODING[ \t]+\"([^\"]*)\"[ \t]*$", Pattern.CASE_INSENSITIVE );
+
 	/**
 	 * The underlying file.
 	 */
-	protected SourceReader reader;
+	protected BOMDetectingLineReader reader;
 
 
 	/**
@@ -44,14 +45,7 @@ public class SQLFile
 	 */
 	protected SQLFile( Resource resource )
 	{
-		try
-		{
-			this.reader = SourceReaders.forResource( resource, EncodingDetector.INSTANCE );
-		}
-		catch( FileNotFoundException e )
-		{
-			throw new FatalException( e.toString() ); // TODO e or e.toString()?
-		}
+		this.reader = new BOMDetectingLineReader( resource, ENCODING_PATTERN );
 	}
 
 	/**

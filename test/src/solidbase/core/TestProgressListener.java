@@ -17,7 +17,7 @@
 package solidbase.core;
 
 import solidbase.util.Assert;
-import solidstack.io.Resource;
+import solidbase.util.Resource;
 
 public class TestProgressListener extends ProgressListener
 {
@@ -30,7 +30,7 @@ public class TestProgressListener extends ProgressListener
 	@Override
 	public void println( String message )
 	{
-		System.out.println( "PRINTLN: " + message );
+		Assert.fail( "Should not be called" );
 	}
 
 	@Override
@@ -66,13 +66,13 @@ public class TestProgressListener extends ProgressListener
 	@Override
 	protected void openedUpgradeFile( UpgradeFile upgradeFile )
 	{
-		System.out.println( "    ENCODING: " + upgradeFile.getEncoding() );
+		System.out.println( "OPENEDPATCHFILE." );
 	}
 
 	@Override
 	protected void openedSQLFile( SQLFile sqlFile )
 	{
-		System.out.println( "    ENCODING: " + sqlFile.getEncoding() );
+		System.out.println( "OPENEDSQLFILE." );
 	}
 
 	@Override

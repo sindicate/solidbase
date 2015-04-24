@@ -16,7 +16,7 @@
 
 package solidbase.core;
 
-import solidstack.io.Resource;
+import solidbase.util.Resource;
 
 /**
  * Listener adapter.
@@ -44,7 +44,6 @@ abstract public class ProgressListener
 	 * @param message The message to be printed.
 	 */
 	abstract public void println( String message );
-	// TODO Also add a message() which automatically indents one more than the last section
 
 	/**
 	 * Resets all state that the listener has.

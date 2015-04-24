@@ -1,23 +1,21 @@
 package solidbase.test.util;
 
-import java.io.FileNotFoundException;
-
 import org.testng.annotations.Test;
 
+import solidbase.util.BOMDetectingLineReader;
+import solidbase.util.FileResource;
 import solidbase.util.JSONReader;
 import solidbase.util.JSONWriter;
-import solidstack.io.FileResource;
-import solidstack.io.Resource;
-import solidstack.io.SourceReader;
-import solidstack.io.SourceReaders;
+import solidbase.util.LineReader;
+import solidbase.util.Resource;
 
 public class JSON
 {
 	@Test
-	public void testJSON1() throws FileNotFoundException
+	public void testJSON1()
 	{
 		Resource resource = new FileResource( "json/test1.json" );
-		SourceReader reader = SourceReaders.forResource( resource );
+		LineReader reader = new BOMDetectingLineReader( resource );
 		JSONReader json = new JSONReader( reader );
 		Object object = json.read();
 		json.close();
@@ -29,10 +27,10 @@ public class JSON
 	}
 
 	@Test
-	public void testJSON2() throws FileNotFoundException
+	public void testJSON2()
 	{
 		Resource resource = new FileResource( "json/test2.json" );
-		SourceReader reader = SourceReaders.forResource( resource );
+		LineReader reader = new BOMDetectingLineReader( resource );
 		JSONReader json = new JSONReader( reader );
 		Object object = json.read();
 

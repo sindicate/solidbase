@@ -22,7 +22,6 @@ import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,10 +30,11 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import solidbase.util.Assert;
-import solidstack.io.Resource;
-import solidstack.io.SourceLocation;
-import solidstack.io.SourceReader;
-import solidstack.lang.ThreadInterrupted;
+import solidbase.util.FileLocation;
+import solidbase.util.LineReader;
+import solidbase.util.Resource;
+import solidbase.util.ShutdownHook;
+import solidbase.util.WorkerThread;
 
 
 /**
@@ -46,7 +46,6 @@ import solidstack.lang.ThreadInterrupted;
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
-// TODO Drop all connections at the end of a block?
 public class UpgradeProcessor extends CommandProcessor implements ConnectionListener
 {
 	// Don't need whitespace at the end of the Patterns
@@ -59,7 +58,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	/**
 	 * Pattern for /TRANSIENT.
 	 */
-	static protected Pattern transientPatternEnd = Pattern.compile( "END\\s+TRANSIENT|/TRANSIENT", Pattern.CASE_INSENSITIVE );
+	static protected Pattern transientPatternEnd = Pattern.compile( "/TRANSIENT", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * Pattern for IF HISTORY [NOT] CONTAINS.
@@ -69,6 +68,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	/**
 	 * Pattern for INCLUDE.
 	 */
+	// TODO Newlines should be allowed
 	static protected Pattern includePattern = Pattern.compile( "INCLUDE\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
 
 	// The fields below are all part of the upgrade context. It's reset at the start of each change package.
@@ -96,13 +96,8 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	/**
 	 * The upgrade execution context.
 	 */
-	// TODO This is redundant and risky. Also in SQLProcessor and CommandContext.
+	// TODO This is redundant and risky. Also in SQLProcessor.
 	protected UpgradeContext upgradeContext;
-
-	/**
-	 * Parameters.
-	 */
-	protected Map<String, String> parameters;
 
 	/**
 	 * Constructor.
@@ -143,16 +138,6 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	public void setUpgradeFile( UpgradeFile file )
 	{
 		this.upgradeFile = file;
-	}
-
-	/**
-	 * Sets the parameters.
-	 *
-	 * @param parameters The parameters to set.
-	 */
-	public void setParameters( Map<String, String> parameters )
-	{
-		this.parameters = parameters;
 	}
 
 	/**
@@ -222,7 +207,6 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	 * @param downgradeable Also consider downgrade paths.
 	 * @return All possible targets from the current version.
 	 */
-	// TODO Why is this a LinkedHashSet?
 	public LinkedHashSet< String > getTargets( boolean tips, String prefix, boolean downgradeable )
 	{
 		LinkedHashSet< String > result = new LinkedHashSet< String >();
@@ -235,7 +219,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	 *
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	public void setupControlTables() throws SQLExecutionException // TODO This is a RuntimeException, remove or not? Keep in Javadoc?
+	public void setupControlTables() throws SQLExecutionException
 	{
 		String spec = this.dbVersion.getSpec();
 
@@ -251,7 +235,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 			process( segment );
 			this.dbVersion.updateSpec( segment.getTarget() );
 			if( Thread.currentThread().isInterrupted() )
-				throw new ThreadInterrupted();
+				throw new ThreadDeath();
 			// TODO How do we get a more dramatic error message here, if something goes wrong?
 		}
 	}
@@ -269,13 +253,61 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 
 	/**
 	 * Perform upgrade to the given target version. The target version can end with an '*', indicating whatever tip version that
+	 * matches the target prefix. This method protects itself against SIGTERMs (CTRL-C).
+	 *
+	 * @param target The target requested.
+	 * @param downgradeable Indicates that downgrade paths are allowed to reach the given target.
+	 * @throws SQLExecutionException When the execution of a command throws an {@link SQLException}.
+	 */
+	public void upgrade( final String target, final boolean downgradeable ) throws SQLExecutionException
+	{
+		WorkerThread worker = new WorkerThread()
+		{
+			@Override
+			public void work()
+			{
+				upgradeProtected( target, downgradeable );
+			}
+		};
+
+		// Protect from Ctrl-C aborting all threads, uses interrupt() instead.
+		ShutdownHook hook = new ShutdownHook( worker );
+		Runtime.getRuntime().addShutdownHook( hook );
+
+		worker.start();
+		try
+		{
+			worker.join();
+			if( worker.getException() != null )
+				throw worker.getException();
+			if( worker.isThreadDeath() )
+				throw new FatalException( "Interrupted by user" );
+			try
+			{
+				Runtime.getRuntime().removeShutdownHook( hook );
+			}
+			catch( IllegalStateException e )
+			{
+				// Can't use isInterrupted(), that one returns false after the thread ended
+				throw new FatalException( "Interrupted by user" );
+			}
+		}
+		catch( InterruptedException e )
+		{
+			// TODO Shouldn't we throw "Interrupted by user" here?
+			Thread.currentThread().interrupt();
+		}
+	}
+
+	/**
+	 * Perform upgrade to the given target version. The target version can end with an '*', indicating whatever tip version that
 	 * matches the target prefix.
 	 *
 	 * @param target The target requested.
 	 * @param downgradeable Indicates that downgrade paths are allowed to reach the given target.
 	 * @throws SQLExecutionException When the execution of a command throws an {@link SQLException}.
 	 */
-	protected void upgrade( String target, boolean downgradeable ) throws SQLExecutionException
+	protected void upgradeProtected( String target, boolean downgradeable ) throws SQLExecutionException
 	{
 		setupControlTables();
 
@@ -348,7 +380,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 		{
 			process( segment );
 			if( Thread.currentThread().isInterrupted() )
-				throw new ThreadInterrupted();
+				throw new ThreadDeath();
 		}
 	}
 
@@ -386,16 +418,15 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 
 		UpgradeContext context = new UpgradeContext( this.upgradeFile.gotoSegment( segment ) );
 		context.setDatabases( this.databases );
-		if( this.parameters != null ) // May be null during unit tests
-			context.getScope().setAll( this.parameters );
 		setContext( context );
 		this.context.setCurrentDatabase( getDefaultDatabase() );
 		this.context.getCurrentDatabase().resetUser();
 
 		// Determine how many to skip
-		int skipCount = 0;
-		if( this.dbVersion.getTarget() != null )
-			skipCount = this.dbVersion.getStatements();
+		int skip = this.dbVersion.getStatements();
+		if( this.dbVersion.getTarget() == null )
+			skip = 0;
+
 
 		int count = 0;
 		this.segment = segment;
@@ -404,37 +435,38 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 			Command command = readCommand();
 			while( command != null )
 			{
-				if( command.isPersistent() && !this.upgradeContext.isTransient() && !segment.isSetup() )
+				if( command.isPersistent() && !this.upgradeContext.isDontCount() && !segment.isSetup() )
 				{
-					boolean windForward = count < skipCount;
 					count++;
-					try
+					if( count > skip && !this.context.skipping() )
 					{
-						SQLExecutionException result = executeWithListeners( command, windForward || this.context.skipping() );
-						if( !windForward )
+						try
 						{
+							SQLExecutionException result = executeWithListeners( command );
 							// We have to update the progress even if the logging fails. Otherwise the segment cannot be
 							// restarted. That's why the progress update is first. But some logging will be lost in that case.
 							this.dbVersion.updateProgress( segment.getTarget(), count );
 							if( result != null )
-								this.dbVersion.logSQLException( segment, count, command.getCommand(), result );
+								this.dbVersion.logSQLException( segment.getSource(), segment.getTarget(), count, command.getCommand(), result );
 							else
-								this.dbVersion.log( segment, count, command.getCommand() );
+								this.dbVersion.log( "S", segment.getSource(), segment.getTarget(), count, command.getCommand(), (String)null );
+						}
+						catch( SQLExecutionException e )
+						{
+							// TODO We need a unit test for this, and the above
+							this.dbVersion.logSQLException( segment.getSource(), segment.getTarget(), count, command.getCommand(), e );
+							throw e;
 						}
 					}
-					catch( SQLExecutionException e )
-					{
-						// TODO We need a unit test for this, and the above
-						this.dbVersion.logSQLException( segment, count, command.getCommand(), e );
-						throw e;
-					}
+					else
+						this.progress.skipped( command );
 				}
 				else
-					executeWithListeners( command, false );
+					executeWithListeners( command );
 
 				if( !segment.isSetup() )
 					if( Thread.currentThread().isInterrupted() )
-						throw new ThreadInterrupted();
+						throw new ThreadDeath();
 
 				command = readCommand();
 			}
@@ -458,7 +490,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 				if( !segment.isOpen() )
 				{
 					this.dbVersion.updateVersion( segment.getTarget() );
-					this.dbVersion.logComplete( segment, count );
+					this.dbVersion.logComplete( segment.getSource(), segment.getTarget(), count );
 				}
 			}
 		}
@@ -469,7 +501,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	}
 
 	@Override
-	protected boolean executeListeners( Command command, boolean skip ) throws SQLException
+	protected boolean executeListeners( Command command ) throws SQLException
 	{
 		if( command.isTransient() )
 		{
@@ -477,12 +509,12 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 			Matcher matcher;
 			if( transientPattern.matcher( sql ).matches() )
 			{
-				startTransient( command.getLocation() );
+				enableDontCount();
 				return true;
 			}
 			if( transientPatternEnd.matcher( sql ).matches() )
 			{
-				stopTransient( command.getLocation() );
+				disableDontCount();
 				return true;
 			}
 			if( ( matcher = ifHistoryContainsPattern.matcher( sql ) ).matches() )
@@ -497,7 +529,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 			}
 		}
 
-		return super.executeListeners( command, skip );
+		return super.executeListeners( command );
 	}
 
 	@Override
@@ -515,7 +547,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 		Assert.isTrue( this.segment.isSetup(), "UPGRADE only allowed in SETUP blocks" );
 		Assert.isTrue( this.segment.getSource().equals( "1.0" ) && this.segment.getTarget().equals( "1.1" ), "UPGRADE only possible from spec 1.0 to 1.1" );
 
-		SourceLocation location = command.getLocation();
+		FileLocation location = command.getLocation();
 		executeJdbc( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'S' WHERE RESULT IS NULL OR RESULT NOT LIKE 'COMPLETED VERSION %'", false, location ) );
 		executeJdbc( new Command( "UPDATE DBVERSIONLOG SET TYPE = 'B', RESULT = 'COMPLETE' WHERE RESULT LIKE 'COMPLETED VERSION %'", false, location ) );
 		executeJdbc( new Command( "UPDATE DBVERSION SET SPEC = '1.1'", false, location ) ); // We need this because the column is made NOT NULL in the upgrade setup block
@@ -523,26 +555,20 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 
 	/**
 	 * Persistent commands should be considered transient.
-	 *
-	 * @param location Location of the TRANSIENT annotation.
 	 */
-	protected void startTransient( SourceLocation location )
+	protected void enableDontCount()
 	{
-		if( this.upgradeContext.isTransient() )
-			throw new SourceException( "TRANSIENT already enabled", location );
-		this.upgradeContext.setTransient( true );
+		Assert.isFalse( this.upgradeContext.isDontCount(), "Counting already enabled" );
+		this.upgradeContext.setDontCount( true );
 	}
 
 	/**
 	 * Persistent commands should be considered persistent again.
-	 *
-	 * @param location Location of the END TRANSIENT annotation.
 	 */
-	protected void stopTransient( SourceLocation location )
+	protected void disableDontCount()
 	{
-		if( !this.upgradeContext.isTransient() )
-			throw new SourceException( "TRANSIENT is not enabled", location );
-		this.upgradeContext.setTransient( false );
+		Assert.isTrue( this.upgradeContext.isDontCount(), "Counting already disabled" );
+		this.upgradeContext.setDontCount( false );
 	}
 
 	/**
@@ -566,7 +592,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	 */
 	protected void include( String url )
 	{
-		SQLFile file = Factory.openSQLFile( getResource().resolve( url ), this.progress );
+		SQLFile file = Factory.openSQLFile( getResource().createRelative( url ), this.progress );
 		setContext( new UpgradeContext( this.upgradeContext, file.getSource() ) );
 	}
 
@@ -635,7 +661,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	}
 
 	@Override
-	public SourceReader getReader()
+	public LineReader getReader()
 	{
 		return this.upgradeFile.file;
 	}

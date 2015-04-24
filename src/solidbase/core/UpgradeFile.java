@@ -34,8 +34,8 @@ import org.apache.commons.lang.StringUtils;
 
 import solidbase.core.UpgradeSegment.Type;
 import solidbase.util.Assert;
-import solidstack.io.RandomAccessSourceReader;
-import solidstack.io.SourceLocation;
+import solidbase.util.FileLocation;
+import solidbase.util.RandomAccessLineReader;
 
 
 /**
@@ -49,14 +49,13 @@ public class UpgradeFile
 	static private final Pattern DEFINITION_MARKER_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE)[ \t]+.*", Pattern.CASE_INSENSITIVE );
 	static private final Pattern DEFINITION_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE)([ \t]+OPEN)?[ \t]+\"([^\"]*)\"[ \t]+-->[ \t]+\"([^\"]+)\"([ \t]*//.*)?", Pattern.CASE_INSENSITIVE );
 	static private final String DEFINITION_SYNTAX_ERROR = "Line should match the following syntax: (SETUP|UPGRADE|SWITCH|DOWNGRADE) [OPEN] \"...\" --> \"...\"";
-	static private final Pattern DEFINITION_END_PATTERN = Pattern.compile( "(?:END\\s+|/)DEFINITION", Pattern.CASE_INSENSITIVE );
 
 	static private final Pattern CONTROL_TABLES_PATTERN = Pattern.compile( "VERSION\\s+TABLE\\s+(\\S+)\\s+LOG\\s+TABLE\\s+(\\S+)", Pattern.CASE_INSENSITIVE );
 
 	static private final Pattern SEGMENT_START_MARKER_PATTERN = Pattern.compile( "--\\*[ \t]*(SETUP|UPGRADE|SWITCH|DOWNGRADE).*", Pattern.CASE_INSENSITIVE );
 	static final Pattern SEGMENT_START_PATTERN = Pattern.compile( "(SETUP|UPGRADE|SWITCH|DOWNGRADE)[ \t]+\"([^\"]*)\"[ \t]-->[ \t]+\"([^\"]+)\"", Pattern.CASE_INSENSITIVE );
 
-	static final Pattern SEGMENT_END_PATTERN = Pattern.compile( "(?:END\\s+|/)(SETUP|UPGRADE|SWITCH|DOWNGRADE) *", Pattern.CASE_INSENSITIVE );
+	static final Pattern SEGMENT_END_PATTERN = Pattern.compile( "/(SETUP|UPGRADE|SWITCH|DOWNGRADE) *", Pattern.CASE_INSENSITIVE );
 
 //	static private final Pattern INITIALIZATION_TRIGGER = Pattern.compile( "--\\*\\s*INITIALIZATION\\s*", Pattern.CASE_INSENSITIVE );
 //	static private final Pattern INITIALIZATION_END_PATTERN = Pattern.compile( "--\\*\\s*/INITIALIZATION\\s*", Pattern.CASE_INSENSITIVE );
@@ -71,7 +70,7 @@ public class UpgradeFile
 	/**
 	 * The upgrade file.
 	 */
-	protected RandomAccessSourceReader file;
+	protected RandomAccessLineReader file;
 
 	/**
 	 * The default delimiters.
@@ -119,9 +118,28 @@ public class UpgradeFile
 	 *
 	 * @param file The reader which is used to read the contents of the file.
 	 */
-	protected UpgradeFile( RandomAccessSourceReader file )
+	protected UpgradeFile( RandomAccessLineReader file )
 	{
 		this.file = file;
+
+		String line = file.readLine();
+		//System.out.println( "First line [" + line + "]" );
+		StringBuilder s = new StringBuilder();
+		char[] chars = line.toCharArray();
+		for( char c : chars )
+			if( c != 0 )
+				s.append( c );
+
+		line = s.toString();
+		//System.out.println( "First line (fixed) [" + line + "]" );
+		Matcher matcher = SQLFile.ENCODING_PATTERN.matcher( line );
+		if( matcher.matches() )
+		{
+			file.reOpen( matcher.group( 1 ) );
+			file.readLine(); // skip the first line
+		}
+		else
+			file.gotoLine( 1 );
 	}
 
 
@@ -157,63 +175,60 @@ public class UpgradeFile
 		{
 			String line = this.file.readLine();
 			if( line == null )
-				throw new SourceException( "Unexpected end of file", this.file.getLocation() );
+				throw new CommandFileException( "Unexpected EOF found", this.file.getLocation() );
 
 			if( line.trim().length() > 0 )
 			{
-				if( !line.startsWith( "--*" ) )
-					throw new SourceException( "Line should start with --*", this.file.getLocation() );
+				Assert.isTrue( line.startsWith( "--*" ), "Line should start with --*" );
 				line = line.substring( 3 ).trim();
-
-				if( line.startsWith( "//" ) )
+				if( line.equalsIgnoreCase( "DEFINITION" ) )
+				{
+					Assert.isFalse( withinDefinition, "Already within the definition" );
+					withinDefinition = true;
+				}
+				else if( line.startsWith( "//" ) )
 				{
 					// ignore line
 				}
-				else if( line.equalsIgnoreCase( "DEFINITION" ) )
+				else if( DEFINITION_MARKER_PATTERN.matcher( line ).matches() )
 				{
-					if( withinDefinition )
-						throw new SourceException( "Unexpected DEFINITION", this.file.getLocation() );
-					withinDefinition = true;
+					Assert.isTrue( withinDefinition, "Not within the definition" );
+
+					Matcher matcher = DEFINITION_PATTERN.matcher( line );
+					Assert.isTrue( matcher.matches(), DEFINITION_SYNTAX_ERROR );
+					String action = matcher.group( 1 );
+					boolean open = matcher.group( 2 ) != null;
+					String source = matcher.group( 3 );
+					if( source.length() == 0 )
+						source = null;
+					String target = matcher.group( 4 );
+					Type type = stringToType( action );
+					UpgradeSegment segment = new UpgradeSegment( type, source, target, open );
+					if( type == Type.SETUP )
+					{
+						if( this.setups.containsKey( source ) )
+							throw new CommandFileException( "Duplicate definition of init block for source version " + source, this.file.getLocation().previousLine() );
+						this.setups.put( source, segment );
+					}
+					else
+					{
+						Collection< UpgradeSegment > segments = this.segments.get( source );
+						if( segments == null )
+							this.segments.put( source, segments = new LinkedList< UpgradeSegment >() );
+						segments.add( segment );
+						this.versions.add( source );
+						this.versions.add( target );
+					}
 				}
-				else if( DEFINITION_END_PATTERN.matcher( line ).matches() )
+				else if( line.equalsIgnoreCase( "/DEFINITION" ) )
 				{
-					if( !withinDefinition )
-						throw new SourceException( "Unexpected " + line, this.file.getLocation() );
+					Assert.isTrue( withinDefinition, "Not within the definition" );
 					definitionComplete = true;
 				}
 				else if( withinDefinition )
 				{
 					Matcher matcher;
-					if( DEFINITION_MARKER_PATTERN.matcher( line ).matches() )
-					{
-						matcher = DEFINITION_PATTERN.matcher( line );
-						if( !matcher.matches() )
-							throw new SourceException( DEFINITION_SYNTAX_ERROR, this.file.getLocation() );
-						String action = matcher.group( 1 );
-						boolean open = matcher.group( 2 ) != null;
-						String source = matcher.group( 3 );
-						if( source.length() == 0 )
-							source = null;
-						String target = matcher.group( 4 );
-						Type type = stringToType( action );
-						UpgradeSegment segment = new UpgradeSegment( type, source, target, open );
-						if( type == Type.SETUP )
-						{
-							if( this.setups.containsKey( source ) )
-								throw new SourceException( "Duplicate definition of init block for source version " + source, this.file.getLocation().previousLine() );
-							this.setups.put( source, segment );
-						}
-						else
-						{
-							Collection< UpgradeSegment > segments = this.segments.get( source );
-							if( segments == null )
-								this.segments.put( source, segments = new LinkedList< UpgradeSegment >() );
-							segments.add( segment );
-							this.versions.add( source );
-							this.versions.add( target );
-						}
-					}
-					else if( ( matcher = CONTROL_TABLES_PATTERN.matcher( line ) ).matches() )
+					if( ( matcher = CONTROL_TABLES_PATTERN.matcher( line ) ).matches() )
 					{
 						this.versionTableName = matcher.group( 1 );
 						this.logTableName = matcher.group( 2 );
@@ -221,13 +236,10 @@ public class UpgradeFile
 					else if( ( matcher = CommandProcessor.delimiterPattern.matcher( line ) ).matches() )
 						this.defaultDelimiters = CommandProcessor.parseDelimiters( matcher );
 					else
-						throw new SourceException( "Unexpected line within definition: " + line, this.file.getLocation() );
+						throw new CommandFileException( "Unexpected line within definition: " + line, this.file.getLocation() );
 				}
 				else
-				{
-					if( !CommandProcessor.encodingPattern.matcher( line ).matches() )
-						throw new SourceException( "Unexpected line outside definition: " + line, this.file.getLocation() );
-				}
+					throw new CommandFileException( "Unexpected line outside definition: " + line, this.file.getLocation() );
 			}
 		}
 
@@ -317,11 +329,11 @@ public class UpgradeFile
 				 */
 				if( SEGMENT_START_MARKER_PATTERN.matcher( line ).matches() )
 				{
-					SourceLocation location = this.file.getLocation().previousLine();
+					FileLocation location = this.file.getLocation().previousLine();
 					line = line.substring( 3 ).trim();
 					matcher = SEGMENT_START_PATTERN.matcher( line );
 					if( !matcher.matches() )
-						throw new SourceException( MARKER_SYNTAX_ERROR, location );
+						throw new CommandFileException( MARKER_SYNTAX_ERROR, location );
 					String action = matcher.group( 1 );
 					String source = matcher.group( 2 );
 					String target = matcher.group( 3 );
@@ -331,18 +343,18 @@ public class UpgradeFile
 					{
 						segment = getSetupSegment( source.length() == 0 ? null : source, target );
 						if( segment == null )
-							throw new SourceException( "Undefined setup block found: \"" + source + "\" --> \"" + target + "\"", location );
+							throw new CommandFileException( "Undefined setup block found: \"" + source + "\" --> \"" + target + "\"", location );
 					}
 					else
 					{
 						segment = getSegment( source.length() == 0 ? null : source, target );
 						if( segment == null )
-							throw new SourceException( "Undefined upgrade block found: \"" + source + "\" --> \"" + target + "\"", location );
+							throw new CommandFileException( "Undefined upgrade block found: \"" + source + "\" --> \"" + target + "\"", location );
 						if( segment.getType() != type )
-							throw new SourceException( "Upgrade block type '" + action + "' is different from its definition", location );
+							throw new CommandFileException( "Upgrade block type '" + action + "' is different from its definition", location );
 					}
 					if( segment.getLocation() != null )
-						throw new SourceException( "Duplicate upgrade block \"" + source + "\" --> \"" + target + "\" found", location );
+						throw new CommandFileException( "Duplicate upgrade block \"" + source + "\" --> \"" + target + "\" found", location );
 					segment.setLocation( location );
 				}
 			}
@@ -404,7 +416,7 @@ public class UpgradeFile
 				if( segment.getTarget().equals( target ) )
 				{
 					if( result != null )
-						throw new SourceException( "Duplicate upgrade block found", segment.getLocation() );
+						throw new CommandFileException( "Duplicate upgrade block found", segment.getLocation() );
 					result = segment;
 				}
 

@@ -21,11 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
 import solidbase.Version;
-import solidbase.util.SynchronizedProtectedWorkerThread;
-import solidstack.io.Resource;
+import solidbase.util.Resource;
 
 /**
  * The runner contains the logic to execute upgrade files and SQL files and is used by the Ant tasks and Maven plugins.
@@ -69,11 +66,6 @@ public class Runner
 	 */
 	protected Resource outputFile;
 
-	/**
-	 * The parameters.
-	 */
-	protected Map< String, String > parameters = new HashMap<String, String>();
-
 
 	/**
 	 * Sets the progress listener.
@@ -97,19 +89,6 @@ public class Runner
 	public void setConnectionAttributes( String name, String driver, String url, String username, String password )
 	{
 		this.connections.put( name, new ConnectionAttributes( name, driver, url, username, password ) );
-	}
-
-	/**
-	 * Sets a connection to use.
-	 *
-	 * @param name The name of the connection.
-	 * @param dataSource The data source to connect with.
-	 * @param username The user name to connect with.
-	 * @param password The password of the user.
-	 */
-	public void setConnectionAttributes( String name, DataSource dataSource, String username, String password )
-	{
-		this.connections.put( name, new ConnectionAttributes( name, dataSource, username, password ) );
 	}
 
 	/**
@@ -174,17 +153,6 @@ public class Runner
 	}
 
 	/**
-	 * Adds a parameter.
-	 *
-	 * @param name The name of the parameter.
-	 * @param value The value of the parameter.
-	 */
-	public void addParameter( String name, String value )
-	{
-		this.parameters.put( name, value );
-	}
-
-	/**
 	 * Execute the SQL files.
 	 */
 	public void executeSQL()
@@ -196,7 +164,22 @@ public class Runner
 		this.listener.println( "" );
 
 		SQLProcessor processor = new SQLProcessor( this.listener );
-		DatabaseContext databases = getDatabases();
+
+		ConnectionAttributes def = this.connections.get( "default" );
+		if( def == null )
+			throw new IllegalArgumentException( "Missing 'default' connection." );
+
+		DatabaseContext databases = new DatabaseContext();
+		for( ConnectionAttributes connection : this.connections.values() )
+			databases.addDatabase( new Database(
+							connection.getName(),
+							connection.getDriver() == null ? def.driver : connection.getDriver(),
+							connection.getUrl() == null ? def.url : connection.getUrl(),
+							connection.getUsername(),
+							connection.getPassword(),
+							this.listener
+					)
+			);
 
 		boolean complete = false;
 		try
@@ -206,7 +189,6 @@ public class Runner
 			{
 				SQLContext context = new SQLContext( Factory.openSQLFile( resource, this.listener ).getSource() );
 				context.setDatabases( databases );
-				context.getScope().setAll( this.parameters );
 				processor.setContext( context );
 				if( first )
 				{
@@ -232,9 +214,8 @@ public class Runner
 	}
 
 	/**
-	 * Upgrade the database. This method protects itself against SIGINT (Ctrl-C).
+	 * Upgrade the database.
 	 */
-	// TODO executeSQL() prints a newline at the end, but upgrade() does not
 	public void upgrade()
 	{
 		if( this.listener == null )
@@ -243,80 +224,54 @@ public class Runner
 		this.listener.println( Version.getInfo() );
 		this.listener.println( "" );
 
-		final UpgradeProcessor processor = new UpgradeProcessor( this.listener );
-		processor.setUpgradeFile( Factory.openUpgradeFile( this.upgradeFile, this.listener ) );
-		processor.setDatabases( getDatabases() );
-		processor.setParameters( this.parameters );
+		UpgradeProcessor processor = new UpgradeProcessor( this.listener );
 
-		final ProgressListener listener = this.listener;
-		final String upgradeTarget = this.upgradeTarget;
-		final boolean downgradeAllowed = this.downgradeAllowed;
-
-		SynchronizedProtectedWorkerThread worker = new SynchronizedProtectedWorkerThread( "UpgradeThread" )
-		{
-			@Override
-			public void work()
-			{
-				boolean complete = false;
-				try
-				{
-					processor.init();
-					listener.println( "Connecting to database..." );
-					listener.println( processor.getVersionStatement() );
-					processor.upgrade( upgradeTarget, downgradeAllowed ); // TODO Print this target
-					listener.println( "" );
-					listener.println( processor.getVersionStatement() );
-
-					complete = true;
-				}
-				finally
-				{
-					if( complete )
-						listener.upgradeComplete();
-					else
-						listener.upgradeAborted();
-
-					processor.end();
-					PluginManager.terminateListeners();
-				}
-			}
-		};
-
-		worker.start();
-	}
-
-	private DatabaseContext getDatabases()
-	{
 		ConnectionAttributes def = this.connections.get( "default" );
 		if( def == null )
 			throw new IllegalArgumentException( "Missing 'default' connection." );
 
 		DatabaseContext databases = new DatabaseContext();
 		for( ConnectionAttributes connection : this.connections.values() )
-		{
-			DataSource dataSource = connection.getDatasource();
-			String driver = connection.getDriver();
-			if( driver == null && dataSource == null )
-			{
-				driver = def.getDriver();
-				dataSource = def.getDatasource();
-			}
-			String url = connection.getUrl();
-			if( url == null )
-				url = def.getUrl();
+			databases.addDatabase(
+					new Database(
+							connection.getName(),
+							connection.getDriver() == null ? def.driver : connection.getDriver(),
+							connection.getUrl() == null ? def.url : connection.getUrl(),
+							connection.getUsername(),
+							connection.getPassword(),
+							this.listener
+					)
+			);
 
-			if( dataSource != null )
-				databases.addDatabase( new Database( connection.getName(), dataSource, connection.getUsername(), connection.getPassword(), this.listener ) );
-			else
-				databases.addDatabase( new Database( connection.getName(), driver, url, connection.getUsername(), connection.getPassword(), this.listener ) );
+		processor.setUpgradeFile( Factory.openUpgradeFile( this.upgradeFile, this.listener ) );
+		processor.setDatabases( databases );
+		boolean complete = false;
+		try
+		{
+			processor.init();
+			this.listener.println( "Connecting to database..." );
+			this.listener.println( processor.getVersionStatement() );
+			processor.upgrade( this.upgradeTarget, this.downgradeAllowed ); // TODO Print this target
+			this.listener.println( "" );
+			this.listener.println( processor.getVersionStatement() );
+
+			complete = true;
 		}
-		return databases;
+		finally
+		{
+			if( complete )
+				this.listener.upgradeComplete();
+			else
+				this.listener.upgradeAborted();
+
+			processor.end();
+			PluginManager.terminateListeners();
+		}
 	}
 
 	/**
 	 * Dump the database log to an XML file.
 	 */
-	// TODO Replace with DUMP JSON
 	public void logToXML()
 	{
 		if( this.listener == null )
@@ -337,12 +292,12 @@ public class Runner
 					new Database(
 							connection.getName(),
 							connection.getDriver() == null ? def.driver : connection.getDriver(),
-									connection.getUrl() == null ? def.url : connection.getUrl(),
-											connection.getUsername(),
-											connection.getPassword(),
-											this.listener
-							)
-					);
+							connection.getUrl() == null ? def.url : connection.getUrl(),
+							connection.getUsername(),
+							connection.getPassword(),
+							this.listener
+					)
+			);
 
 		processor.setUpgradeFile( Factory.openUpgradeFile( this.upgradeFile, this.listener ) );
 		processor.setDatabases( databases );

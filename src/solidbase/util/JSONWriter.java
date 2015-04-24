@@ -1,7 +1,6 @@
 package solidbase.util;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
@@ -11,12 +10,9 @@ import java.util.BitSet;
 import java.util.Map.Entry;
 
 import solidbase.core.SystemException;
-import solidstack.io.Resource;
 
 public class JSONWriter
 {
-	static private final String ENCODING = "UTF-8";
-
 	private Writer out;
 
 	// Needed for formatted output
@@ -29,14 +25,9 @@ public class JSONWriter
 
 	public JSONWriter( Resource resource )
 	{
-		this( resource.getOutputStream() );
-	}
-
-	public JSONWriter( OutputStream out )
-	{
 		try
 		{
-			this.out = new OutputStreamWriter( out, ENCODING );
+			this.out = new OutputStreamWriter( resource.getOutputStream(), getEncoding() );
 		}
 		catch( UnsupportedEncodingException e )
 		{
@@ -46,7 +37,7 @@ public class JSONWriter
 
 	public String getEncoding()
 	{
-		return ENCODING;
+		return "UTF-8";
 	}
 
 	public Writer getWriter()
@@ -60,8 +51,6 @@ public class JSONWriter
 		writeInternal( object );
 	}
 
-	// TODO More types to implement here?
-	// TODO Tests?
 	private void writeInternal( Object object )
 	{
 		try
@@ -74,12 +63,6 @@ public class JSONWriter
 				writeNotString( ( (BigDecimal)object ).toString() );
 			else if( object instanceof Integer )
 				writeNotString( ( (Integer)object ).toString() );
-			else if( object instanceof Long )
-				writeNotString( ( (Long)object ).toString() );
-			else if( object instanceof Float )
-				writeNotString( ( (Float)object ).toString() );
-			else if( object instanceof Double )
-				writeNotString( ( (Double)object ).toString() );
 			else if( object instanceof JSONObject )
 				writeObject( (JSONObject)object );
 			else if( object instanceof JSONArray )
@@ -220,6 +203,7 @@ public class JSONWriter
 
 	private void writeReader( Reader reader ) throws IOException
 	{
+		Writer out = this.out;
 		this.out.write( '"' );
 		char[] buf = new char[ 4096 ];
 		for( int read = reader.read( buf ); read >= 0; read = reader.read( buf ) )
@@ -388,7 +372,7 @@ public class JSONWriter
 		}
 	}
 
-	public interface CustomWriter
+	static public interface CustomWriter
 	{
 		void writeTo( JSONWriter out );
 		int length();

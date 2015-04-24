@@ -16,7 +16,7 @@
 
 package solidbase.core;
 
-import solidstack.io.SourceLocation;
+import solidbase.util.FileLocation;
 
 
 /**
@@ -24,16 +24,14 @@ import solidstack.io.SourceLocation;
  *
  * @author René M. de Bloois
  */
-public class NonDelimitedStatementException extends SourceException
+public class NonDelimitedStatementException extends CommandFileException
 {
-	private static final long serialVersionUID = 1L;
-
 	/**
 	 * Constructor.
 	 *
 	 * @param location The file location where the problem is located.
 	 */
-	public NonDelimitedStatementException( SourceLocation location )
+	public NonDelimitedStatementException( FileLocation location )
 	{
 		super( "Non-delimited statement found", location );
 	}

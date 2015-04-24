@@ -26,12 +26,16 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 
+import solidbase.Version;
 import solidbase.core.ConnectionAttributes;
-import solidbase.core.Runner;
+import solidbase.core.Database;
+import solidbase.core.DatabaseContext;
+import solidbase.core.Factory;
 import solidbase.core.SystemException;
-import solidstack.io.InputStreamResource;
-import solidstack.io.MemoryResource;
-import solidstack.io.URIResource;
+import solidbase.core.UpgradeProcessor;
+import solidbase.util.DriverDataSource;
+import solidbase.util.MemoryResource;
+import solidbase.util.URLResource;
 
 /**
  * An upgrade Spring bean.
@@ -275,40 +279,65 @@ public class UpgradeBean
 	{
 		validate();
 
+		// TODO Use the Runner
+
 		ProgressLogger progress = new ProgressLogger();
 
-		Runner runner = new Runner();
-		runner.setProgressListener( progress );
+		String info = Version.getInfo();
+		progress.println( info );
+		progress.println( "" );
 
-		if( this.datasource != null )
-			runner.setConnectionAttributes( "default", this.datasource, this.username, this.password );
-		else
-			runner.setConnectionAttributes( "default", this.driver, this.url, this.username, this.password );
+		DatabaseContext databases = new DatabaseContext();
+
+		DataSource dataSource = this.datasource;
+		if( dataSource == null )
+			dataSource = new DriverDataSource( this.driver, this.url, this.username, this.password );
+		Database database = new Database( "default", dataSource, this.username, this.password, progress );
+		databases.addDatabase( database );
 
 		for( ConnectionAttributes secondary : this.secondary )
-			if( secondary.getDatasource() != null )
-				runner.setConnectionAttributes( secondary.getName(), secondary.getDatasource(), secondary.getUsername(), secondary.getPassword() );
-			else
-				runner.setConnectionAttributes( secondary.getName(), secondary.getDriver(), secondary.getUrl(), secondary.getUsername(), secondary.getPassword() );
+		{
+			DataSource secondaryDataSource = secondary.getDatasource();
+			if( secondaryDataSource == null )
+				if( secondary.getDriver() != null )
+					secondaryDataSource = new DriverDataSource( secondary.getDriver(), secondary.getUrl(), secondary.getUsername(), secondary.getPassword() );
+				else
+					secondaryDataSource = dataSource;
+			databases.addDatabase( new Database( secondary.getName(), secondaryDataSource, secondary.getUsername(), secondary.getPassword(), progress ) );
+		}
+
+		UpgradeProcessor processor = new UpgradeProcessor( progress );
+		processor.setDatabases( databases );
 
 		try
 		{
+			solidbase.util.Resource resource;
 			if( this.upgradefile instanceof ByteArrayResource )
-				runner.setUpgradeFile( new MemoryResource( ( (ByteArrayResource)this.upgradefile ).getByteArray() ) );
+				resource = new MemoryResource( ( (ByteArrayResource)this.upgradefile ).getByteArray() );
 			else if( this.upgradefile.isOpen() )
-				// Spring resource isOpen means that the resource cannot be reopened. Thats why we get the inputstream.
-				runner.setUpgradeFile( new InputStreamResource( this.upgradefile.getInputStream() ) );
+				// Spring resource isOpen means that the resource cannot be reopened. Thats why we read it into memory.
+				resource = new MemoryResource( this.upgradefile.getInputStream() );
 			else
-				runner.setUpgradeFile( new URIResource( this.upgradefile.getURI() ) );
+				resource = new URLResource( this.upgradefile.getURL() );
+			processor.setUpgradeFile( Factory.openUpgradeFile( resource, progress ) );
 		}
 		catch( IOException e )
 		{
 			throw new SystemException( e );
 		}
 
-		runner.setUpgradeTarget( this.target );
-		runner.setDowngradeAllowed( this.downgradeallowed );
-
-		runner.upgrade();
+		try
+		{
+			processor.init();
+			progress.println( "Connecting to database..." );
+			progress.println( processor.getVersionStatement() );
+			processor.upgrade( this.target, false );
+			progress.println( "" );
+			progress.println( processor.getVersionStatement() );
+		}
+		finally
+		{
+			processor.end();
+		}
 	}
 }

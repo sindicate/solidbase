@@ -18,16 +18,13 @@ package solidbase.util;
 
 import java.util.Stack;
 
-import solidbase.core.SourceException;
+import solidbase.core.CommandFileException;
 import solidbase.util.JSONTokenizer.Token;
 import solidbase.util.JSONTokenizer.Token.TYPE;
-import solidstack.io.SourceLocation;
-import solidstack.io.SourceReader;
-import solidstack.io.Resource;
 
 
 /**
- * Reads JSON data from the given {@link SourceReader}.
+ * Reads JSON data from the given {@link LineReader}.
  *
  * @author René M. de Bloois
  */
@@ -37,7 +34,7 @@ public class JSONParser
 	static protected enum STATE { BEFOREVALUE, BEFORENAME, AFTERVALUE };
 	static protected enum STRUCT { NONE, OBJECT, ARRAY };
 
-	private SourceReader reader;
+	private LineReader reader;
 
 	/**
 	 * The source of tokens.
@@ -59,7 +56,7 @@ public class JSONParser
 	 *
 	 * @param reader The source of the JSON data.
 	 */
-	public JSONParser( SourceReader reader )
+	public JSONParser( LineReader reader )
 	{
 		this.reader = reader;
 		this.tokenizer = new JSONTokenizer( reader );
@@ -91,7 +88,7 @@ public class JSONParser
 									this.currentStruct = this.pastStructs.pop(); // TODO EmptyStack
 									return EVENT.END_OBJECT;
 								default:
-									throw new SourceException( "Expecting , or }, not '" + token + "'", tokenizer.getLocation() );
+									throw new CommandFileException( "Expecting , or }, not '" + token + "'", tokenizer.getLocation() );
 							}
 						case ARRAY:
 							switch( token.getType() )
@@ -104,11 +101,11 @@ public class JSONParser
 									this.currentStruct = this.pastStructs.pop(); // TODO EmptyStack
 									return EVENT.END_OBJECT;
 								default:
-									throw new SourceException( "Expecting , or ], not '" + token + "'", tokenizer.getLocation() );
+									throw new CommandFileException( "Expecting , or ], not '" + token + "'", tokenizer.getLocation() );
 							}
 						case NONE:
 							// Multiple top level objects are allowed, fall through to BEFOREVALUE
-					} //$FALL-THROUGH$
+					}
 
 				case BEFOREVALUE:
 					switch( token.getType() )
@@ -133,19 +130,19 @@ public class JSONParser
 						case EOF:
 							if( this.currentStruct == STRUCT.NONE )
 								return EVENT.EOF;
-							//$FALL-THROUGH$
+							// fall through
 						default:
 							// TODO We have 2 kinds of EOF (are we in a STRUCT or not?)
-							throw new SourceException( "Expecting {, [, \", a number, true, false or null, not '" + token + "'", tokenizer.getLocation() );
+							throw new CommandFileException( "Expecting {, [, \", a number, true, false or null, not '" + token + "'", tokenizer.getLocation() );
 					}
 
 				case BEFORENAME:
 					if( token.getType() != TYPE.STRING )
-						throw new SourceException( "Expecting \", not '" + token + "'", tokenizer.getLocation() );
+						throw new CommandFileException( "Expecting \", not '" + token + "'", tokenizer.getLocation() );
 					this.name = (String)token.getValue();
 					token = tokenizer.get();
 					if( token.getType() != TYPE.NAME_SEPARATOR )
-						throw new SourceException( "Expecting :, not '" + token + "'", tokenizer.getLocation() );
+						throw new CommandFileException( "Expecting :, not '" + token + "'", tokenizer.getLocation() );
 					this.state = STATE.BEFOREVALUE;
 					return EVENT.NAME;
 			}
@@ -156,7 +153,7 @@ public class JSONParser
 		EVENT event = next();
 		if( event != required )
 			// TODO eventToString()
-			throw new SourceException( "Expected " + required + ", not " + event, getLocation() );
+			throw new CommandFileException( "Expected " + required + ", not " + event, getLocation() );
 		return event;
 	}
 
@@ -170,7 +167,7 @@ public class JSONParser
 		return this.value;
 	}
 
-	public SourceLocation getLocation()
+	public FileLocation getLocation()
 	{
 		return this.tokenizer.getLocation();
 	}

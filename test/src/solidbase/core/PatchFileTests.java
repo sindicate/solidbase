@@ -28,8 +28,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidbase.core.UpgradeSegment.Type;
-import solidstack.io.FileResource;
-import solidstack.io.RandomAccessSourceReader;
+import solidbase.util.FileResource;
+import solidbase.util.URLRandomAccessLineReader;
 
 
 /**
@@ -47,7 +47,7 @@ public class PatchFileTests
 	@Test
 	public void testCollectTipVersions1() throws IOException
 	{
-		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "testpatch1.sql" ) );
+		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "testpatch1.sql" ) );
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		upgradeFile.scan();
 		upgradeFile.close();
@@ -118,7 +118,7 @@ public class PatchFileTests
 	@Test
 	public void testCollectTipVersions2() throws IOException
 	{
-		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "testpatch1.sql" ) );
+		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "testpatch1.sql" ) );
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		upgradeFile.scan();
 		upgradeFile.close();
@@ -153,7 +153,7 @@ public class PatchFileTests
 	@Test
 	public void testOpenPatch() throws IOException
 	{
-		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "testpatch1.sql" ) );
+		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "testpatch1.sql" ) );
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		upgradeFile.close();
 

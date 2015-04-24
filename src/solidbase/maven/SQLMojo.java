@@ -18,9 +18,9 @@ package solidbase.maven;
 
 import org.apache.maven.plugin.MojoFailureException;
 
+import solidbase.core.Factory;
 import solidbase.core.FatalException;
 import solidbase.core.Runner;
-import solidstack.io.Resources;
 
 
 /**
@@ -33,20 +33,25 @@ public class SQLMojo extends DBMojo
 	/**
 	 * File containing the upgrade.
 	 */
-	public String sqlfile;
+	protected String sqlfile;
 
 	public void execute() throws MojoFailureException
 	{
-		if( this.skip )
-		{
-			getLog().info( "Skipped." );
-			getLog().info( "" );
-			return;
-		}
-
 		validate();
 
-		Runner runner = prepareRunner();
+		Runner runner = new Runner();
+		runner.setProgressListener( new Progress( getLog() ) );
+		runner.setConnectionAttributes( "default", this.driver, this.url, this.username, this.password == null ? "" : this.password );
+		if( this.connections != null )
+			for( Secondary connection : this.connections )
+				runner.setConnectionAttributes(
+					connection.getName(),
+					connection.getDriver(),
+					connection.getUrl(),
+					connection.getUsername(),
+					connection.getPassword() == null ? "" : connection.getPassword()
+				);
+		runner.setSQLFile( Factory.getResource( this.project.getBasedir(), this.sqlfile ) );
 		try
 		{
 			runner.executeSQL();
@@ -55,13 +60,5 @@ public class SQLMojo extends DBMojo
 		{
 			throw new MojoFailureException( e.getMessage() );
 		}
-	}
-
-	@Override
-	public Runner prepareRunner()
-	{
-		Runner runner = super.prepareRunner();
-		runner.setSQLFile( Resources.getResource( this.project.getBasedir() ).resolve( this.sqlfile ) );
-		return runner;
 	}
 }

@@ -58,24 +58,15 @@ public class Messages
 				"Starting import.....\n" + // Message before listener execution
 				"    Generating SQLException.\n" + // There should be a dot here
 				"    Importing with linenumber..\n" +
-				"112\n" +
-				"113\n" +
-				"114.\n" +
+						"108\n" +
+						"109\n" +
+						"110.\n" +
 				"        Importing with column list\n" +
 				"            And deeper..\n" +
 				"23Y\n" +
 				"47Y.\n" +
 				"        Importing from external file.\n" +
-				"        Importing through update.\n" +
-		        "2360\n" +
-		        "4770.\n" +
-		        "        Importing through delete.\n" +
-		        "2360.\n" +
-		        "        Importing through merge...\n" +
-		        "1 The first record\n" +
-		        "2 The second record\n" +
-		        "3 The third record.\n" +
-		        "DEBUG: version=1.0.1, target=1.0.2, statements=23\n" +
+				"DEBUG: version=1.0.1, target=1.0.2, statements=14\n" +
 				"\n" +
 				"Current database version is \"1.0.2\".\n" +
 				"Upgrade complete.\n"

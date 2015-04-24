@@ -21,8 +21,8 @@ import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import solidstack.io.FileResource;
-import solidstack.io.RandomAccessSourceReader;
+import solidbase.util.FileResource;
+import solidbase.util.URLRandomAccessLineReader;
 
 
 public class EmptyLines
@@ -30,7 +30,7 @@ public class EmptyLines
 	@Test
 	public void testEmptyLines() throws IOException
 	{
-		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "testpatch-emptylines.sql" ) );
+		URLRandomAccessLineReader ralr = new URLRandomAccessLineReader( new FileResource( "testpatch-emptylines.sql" ) );
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		upgradeFile.scan();
 		UpgradeSegment segment = upgradeFile.getSegment( "1.0.1", "1.0.2" );
@@ -44,7 +44,7 @@ public class EmptyLines
 				"\n" +
 				"\n" +
 				"of empty lines'\n" +
-				"\n" );
+		"\n" );
 		upgradeFile.close();
 	}
 }

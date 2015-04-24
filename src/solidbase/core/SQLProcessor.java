@@ -18,8 +18,8 @@ package solidbase.core;
 
 import java.sql.SQLException;
 
-import solidstack.io.Resource;
-import solidstack.io.SourceReader;
+import solidbase.util.LineReader;
+import solidbase.util.Resource;
 
 
 /**
@@ -72,11 +72,12 @@ public class SQLProcessor extends CommandProcessor
 		Command command = this.sqlContext.getSource().readCommand();
 		while( command != null )
 		{
-			executeWithListeners( command, this.context.skipping() ); // TODO What if exception is ignored, how do we call progress then?
+			if( this.context.skipping() && command.isPersistent() )
+				this.progress.skipped( command );
+			else
+				executeWithListeners( command ); // TODO What if exception is ignored, how do we call progress then?
 			command = this.sqlContext.getSource().readCommand();
 		}
-
-		// FIXME Rollback every connection
 	}
 
 	@Override
@@ -104,7 +105,7 @@ public class SQLProcessor extends CommandProcessor
 	}
 
 	@Override
-	public SourceReader getReader()
+	public LineReader getReader()
 	{
 		return this.sqlContext.getSource().reader;
 	}

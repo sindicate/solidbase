@@ -25,7 +25,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
@@ -34,12 +33,12 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import solidbase.config.Configuration;
+import solidbase.core.Factory;
 import solidbase.core.FatalException;
 import solidbase.core.Runner;
 import solidbase.core.SQLExecutionException;
 import solidbase.core.SystemException;
 import solidbase.util.Assert;
-import solidstack.io.Resources;
 
 
 /**
@@ -115,7 +114,6 @@ public class Main
 		options.addOption( "target", true, "sets the target version to upgrade to" );
 		options.addOption( "upgradefile", true, "specifies the file containing the database upgrades" );
 		options.addOption( "sqlfile", true, "specifies an SQL file to execute" );
-		options.addOption( "D", true, "parameter to the SQL file or upgrade file" );
 		options.addOption( "config", true, "specifies a properties file to use" );
 		options.addOption( "downgradeallowed", false, "allow downgrades to reach the target" );
 		options.addOption( "help", false, "Brings up this page" );
@@ -127,10 +125,6 @@ public class Main
 		options.getOption( "password" ).setArgName( "password" );
 		options.getOption( "target" ).setArgName( "version" );
 		options.getOption( "upgradefile" ).setArgName( "filename" );
-		options.getOption( "sqlfile" ).setArgName( "filename" );
-		options.getOption( "D" ).setArgName( "property=value" );
-		options.getOption( "D" ).setArgs( 2 );
-		options.getOption( "D" ).setValueSeparator( '=' );
 		options.getOption( "config" ).setArgName( "filename" );
 
 		// Read the commandline options
@@ -151,7 +145,7 @@ public class Main
 				.hasOption( "dumplog" ), line.getOptionValue( "driver" ), line.getOptionValue( "url" ), line
 				.getOptionValue( "username" ), line.getOptionValue( "password" ), line.getOptionValue( "target" ), line
 				.getOptionValue( "upgradefile" ), line.getOptionValue( "sqlfile" ), line.getOptionValue( "config" ),
-				line.hasOption( "downgradeallowed" ), line.hasOption( "help" ), line.getOptionProperties( "D" ) );
+				line.hasOption( "downgradeallowed" ), line.hasOption( "help" ) );
 
 		if( opts.help )
 		{
@@ -188,30 +182,27 @@ public class Main
 		runner.setConnectionAttributes( "default", def.getDriver(), def.getUrl(), def.getUserName(), def.getPassword() );
 		for( solidbase.config.Database connection : configuration.getSecondaryDatabases() )
 			runner.setConnectionAttributes(
-					connection.getName(),
-					connection.getDriver(),
-					connection.getUrl(),
-					connection.getUserName(),
-					connection.getPassword()
-					);
-
-		for( Entry<Object, Object> entry : configuration.getParameters().entrySet() )
-			runner.addParameter( (String)entry.getKey(), (String)entry.getValue() );
+				connection.getName(),
+				connection.getDriver(),
+				connection.getUrl(),
+				connection.getUserName(),
+				connection.getPassword()
+			);
 
 		if( configuration.getSqlFile() != null )
 		{
-			runner.setSQLFile( Resources.getResource( configuration.getSqlFile() ) );
+			runner.setSQLFile( Factory.getResource( configuration.getSqlFile() ) );
 			runner.executeSQL();
 		}
 		else if( opts.dumplog )
 		{
-			runner.setUpgradeFile( Resources.getResource( configuration.getUpgradeFile() ) );
-			runner.setOutputFile( Resources.getResource( line.getOptionValue( "dumplog" ) ) );
+			runner.setUpgradeFile( Factory.getResource( configuration.getUpgradeFile() ) );
+			runner.setOutputFile( Factory.getResource( line.getOptionValue( "dumplog" ) ) );
 			runner.logToXML();
 		}
 		else
 		{
-			runner.setUpgradeFile( Resources.getResource( configuration.getUpgradeFile() ) );
+			runner.setUpgradeFile( Factory.getResource( configuration.getUpgradeFile() ) );
 			runner.setUpgradeTarget( configuration.getTarget() );
 			runner.setDowngradeAllowed( opts.downgradeallowed );
 			runner.upgrade();
@@ -290,7 +281,6 @@ public class Main
 		{
 			throw new SystemException( e );
 		}
-		// TODO Should we change the contextClassLoader too?
 		try
 		{
 			method.invoke( method, (Object)args );

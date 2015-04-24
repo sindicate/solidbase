@@ -27,9 +27,4 @@ public class JSONArray implements Iterable< Object >
 	{
 		return this.values.get( index );
 	}
-
-	public Object set( int index, Object value )
-	{
-		return this.values.set( index, value );
-	}
 }

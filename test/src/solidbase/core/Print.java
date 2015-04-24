@@ -23,7 +23,6 @@ import java.sql.SQLException;
 import org.testng.annotations.Test;
 
 
-@SuppressWarnings( "javadoc" )
 public class Print
 {
 	@Test

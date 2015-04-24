@@ -22,7 +22,7 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import solidbase.util.DriverDataSource;
-import solidstack.io.FileResource;
+import solidbase.util.FileResource;
 
 public class DataSourceTests
 {

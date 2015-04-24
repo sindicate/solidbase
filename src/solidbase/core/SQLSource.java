@@ -19,10 +19,10 @@ package solidbase.core;
 import java.util.regex.Matcher;
 
 import solidbase.core.Delimiter.Type;
-import solidstack.io.Resource;
-import solidstack.io.SourceLocation;
-import solidstack.io.SourceReader;
-import solidstack.io.SourceReaders;
+import solidbase.util.FileLocation;
+import solidbase.util.LineReader;
+import solidbase.util.Resource;
+import solidbase.util.StringLineReader;
 
 
 /**
@@ -41,7 +41,7 @@ public class SQLSource
 	/**
 	 * The underlying reader.
 	 */
-	protected SourceReader reader;
+	protected LineReader reader;
 
 	/**
 	 * A buffer needed when a delimiter is used of type {@link Type#FREE}.
@@ -59,7 +59,7 @@ public class SQLSource
 	 *
 	 * @param in The reader which is used to read the SQL.
 	 */
-	protected SQLSource( SourceReader in )
+	protected SQLSource( LineReader in )
 	{
 		this.reader = in;
 	}
@@ -72,7 +72,7 @@ public class SQLSource
 	 */
 	protected SQLSource( String sql )
 	{
-		this( SourceReaders.forString( sql ) );
+		this( new StringLineReader( sql ) );
 	}
 
 
@@ -82,9 +82,9 @@ public class SQLSource
 	 * @param sql The SQL to read.
 	 * @param location The location of the SQL within the original file.
 	 */
-	protected SQLSource( String sql, SourceLocation location )
+	protected SQLSource( String sql, FileLocation location )
 	{
-		this( SourceReaders.forString( sql, location ) );
+		this( new StringLineReader( sql, location ) );
 	}
 
 
@@ -95,7 +95,7 @@ public class SQLSource
 	 */
 	protected SQLSource( Fragment fragment )
 	{
-		this( SourceReaders.forString( fragment.getText(), fragment.getLocation() ) );
+		this( new StringLineReader( fragment.getText(), fragment.getLocation() ) );
 	}
 
 
@@ -131,7 +131,7 @@ public class SQLSource
 	public Command readCommand()
 	{
 		StringBuilder result = new StringBuilder();
-		int pos = 0; // No line found yet TODO Can we use source location instead?
+		int pos = 0; // No line found yet
 
 		while( true )
 		{
@@ -151,16 +151,16 @@ public class SQLSource
 					return null;
 				}
 
-				if( line.startsWith( "--*" ) )
+				if( line.startsWith( "--*" ) ) // Only if read from file
 				{
 					if( result.length() > 0 )
 						throw new NonDelimitedStatementException( this.reader.getLocation().previousLine() );
 
-					line = line.substring( 3 ).trim(); // TODO Remove this trim()?
+					line = line.substring( 3 ).trim();
 					if( !line.startsWith( "//" )) // skip comment
 					{
 						if( pos == 0 )
-							pos = this.reader.getLocation().getLineNumber() - 1;
+							pos = this.reader.getLineNumber() - 1;
 						return new Command( line, true, this.reader.getLocation().lineNumber( pos ) );
 					}
 					continue;
@@ -176,7 +176,7 @@ public class SQLSource
 				if( matcher.matches() )
 				{
 					if( pos == 0 )
-						pos = this.reader.getLocation().getLineNumber() - 1;
+						pos = this.reader.getLineNumber() - 1;
 					if( matcher.groupCount() > 0 )
 						result.append( matcher.group( 1 ) );
 					if( matcher.groupCount() > 1 )
@@ -186,7 +186,7 @@ public class SQLSource
 			}
 
 			if( pos == 0 )
-				pos = this.reader.getLocation().getLineNumber() - 1;
+				pos = this.reader.getLineNumber() - 1;
 			result.append( line );
 			result.append( '\n' );
 		}
@@ -199,6 +199,6 @@ public class SQLSource
 	 */
 	public Resource getResource()
 	{
-		return this.reader.getLocation().getResource();
+		return this.reader.getResource();
 	}
 }

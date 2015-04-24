@@ -17,10 +17,11 @@
 package solidbase.ant;
 
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.Project;
 
+import solidbase.core.Factory;
 import solidbase.core.FatalException;
 import solidbase.core.Runner;
-import solidstack.io.Resources;
 
 
 /**
@@ -44,6 +45,17 @@ public class UpgradeTask extends DBTask
 	 * Field to store the configured downgrade allowed option.
 	 */
 	protected boolean downgradeallowed;
+
+	/**
+	 * Sets the user name to configure.
+	 *
+	 * @param username The user name to configure.
+	 */
+	@Deprecated
+	public void setUser( String username )
+	{
+		this.username = username;
+	}
 
 	/**
 	 * Returns the configured upgrade file.
@@ -117,17 +129,6 @@ public class UpgradeTask extends DBTask
 			throw new BuildException( "The 'upgradefile' attribute is mandatory for the " + getTaskName() + " task" );
 	}
 
-	@Override
-	public Runner prepareRunner()
-	{
-		Runner runner = super.prepareRunner();
-
-		runner.setUpgradeFile( Resources.getResource( getProject().getBaseDir() ).resolve( this.upgradefile ) );
-		runner.setUpgradeTarget( this.upgradeTarget );
-		runner.setDowngradeAllowed( this.downgradeallowed );
-
-		return runner;
-	}
 
 	@Override
 	public void execute()
@@ -167,7 +168,19 @@ public class UpgradeTask extends DBTask
 //
 //		out.println( "Dit is een test" );
 
-		Runner runner = prepareRunner();
+		Project project = getProject();
+
+		Runner runner = new Runner();
+		runner.setProgressListener( new Progress( project, this ) );
+		runner.setConnectionAttributes( "default", this.driver, this.url, this.username, this.password );
+		for( Connection connection : this.connections )
+			runner.setConnectionAttributes( connection.getName(), connection.getDriver(), connection.getUrl(),
+					connection.getUsername(), connection.getPassword() );
+
+		runner.setUpgradeFile( Factory.getResource( project.getBaseDir(), this.upgradefile ) );
+		runner.setUpgradeTarget( this.upgradeTarget );
+		runner.setDowngradeAllowed( this.downgradeallowed );
+
 		try
 		{
 			runner.upgrade();
@@ -175,7 +188,6 @@ public class UpgradeTask extends DBTask
 		catch( FatalException e )
 		{
 			// TODO When debugging, we should give the whole exception, not only the message
-			// TODO Shouldn't we just wrap the exception, and then Ant is the one who decides if it only shows the message or the complete stacktrace?
 			throw new BuildException( e.getMessage() );
 		}
 	}
