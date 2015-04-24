@@ -195,7 +195,8 @@ public class Database
 
 	/**
 	 * Returns a connection for the current user. Connections are cached per user. If a connection for the current user
-	 * is not found in the cache, a password will be requested by calling {@link ProgressListener#requestPassword(String)}.
+	 * is not found in the cache, a password will be requested by calling
+	 * {@link ProgressListener#requestPassword(String)} of {@link UpgradeProcessor#progress}.
 	 *
 	 * @return The connection for the current user.
 	 */
@@ -205,19 +206,9 @@ public class Database
 	}
 
 	/**
-	 * Returns a new connection for the current user. Passwords are remembered. If a password for the current user
-	 * is not known, a password will be requested by calling {@link ProgressListener#requestPassword(String)}.
-	 *
-	 * @return The new connection for the current user.
-	 */
-	public Connection newConnection()
-	{
-		return newConnection( this.currentUser );
-	}
-
-	/**
 	 * Returns a connection for the default user. Connections are cached per user. If the password for the default user
-	 * has not been specified, a password will be requested by calling {@link ProgressListener#requestPassword(String)}.
+	 * has not been specified, a password will be requested by calling {@link ProgressListener#requestPassword(String)} of
+	 * {@link UpgradeProcessor#progress}.
 	 *
 	 * @return The connection for the default user.
 	 */
@@ -228,7 +219,8 @@ public class Database
 
 	/**
 	 * Returns a connection for the given user. Connections are cached per user. If a connection for the current user
-	 * is not found in the cache, a password will be requested by calling {@link ProgressListener#requestPassword(String)}.
+	 * is not found in the cache, a password will be requested by calling
+	 * {@link ProgressListener#requestPassword(String)} of {@link UpgradeProcessor#progress}.
 	 *
 	 * @param user The user to get a connection for.
 	 * @return The connection for the given user.
@@ -254,61 +246,43 @@ public class Database
 		Connection connection = this.connections.get( user );
 		if( connection == null )
 		{
-			connection = newConnection( user );
+			// Retrieve password when user is specified
+			String password = null;
+			if( user != null )
+			{
+				password = this.passwords.get( user );
+				if( password == null )
+					password = this.callBack.requestPassword( user );
+			}
+			try
+			{
+				// Get connection
+				if( this.dataSource != null )
+					if( user != null )
+						connection = this.dataSource.getConnection( user, password );
+					else
+						connection = this.dataSource.getConnection();
+				else
+					connection = DriverManager.getConnection( this.url, user, password );
+
+				// Set autocommit false if needed
+				if( connection.getAutoCommit() )
+					connection.setAutoCommit( false );
+			}
+			catch( SQLException e )
+			{
+				throw new FatalException( e );
+			}
 
 			// Cache connection
 			this.connections.put( user, connection ); // Put first, otherwise endless loop
 
 			// Call listener
-			// TODO Should this be moved to newConnection()?
 			if( this.connectionListener != null )
 				this.connectionListener.connected( this ); // TODO Check that auto commit is still off.
 		}
 
 		return connection;
-	}
-
-	/**
-	 * Returns a new connection for the given user. Passwords are remembered. If a password for the given user
-	 * is not known, a password will be requested by calling {@link ProgressListener#requestPassword(String)}.
-	 *
-	 * @param user The user name for the connection.
-	 * @return The new connection for the current user.
-	 */
-	public Connection newConnection( String user )
-	{
-		// Retrieve password when user is specified
-		String password = null;
-		if( user != null )
-		{
-			password = this.passwords.get( user );
-			if( password == null )
-				password = this.callBack.requestPassword( user );
-		}
-
-		try
-		{
-			Connection connection;
-
-			// Get connection
-			if( this.dataSource != null )
-				if( user != null )
-					connection = this.dataSource.getConnection( user, password );
-				else
-					connection = this.dataSource.getConnection();
-			else
-				connection = DriverManager.getConnection( this.url, user, password );
-
-			// Set autocommit false if needed
-			if( connection.getAutoCommit() )
-				connection.setAutoCommit( false );
-
-			return connection;
-		}
-		catch( SQLException e )
-		{
-			throw new FatalException( e );
-		}
 	}
 
 	/**

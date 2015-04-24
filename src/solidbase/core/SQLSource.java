@@ -131,7 +131,7 @@ public class SQLSource
 	public Command readCommand()
 	{
 		StringBuilder result = new StringBuilder();
-		int pos = 0; // No line found yet TODO Can we use source location instead?
+		int pos = 0; // No line found yet
 
 		while( true )
 		{
@@ -151,7 +151,7 @@ public class SQLSource
 					return null;
 				}
 
-				if( line.startsWith( "--*" ) )
+				if( line.startsWith( "--*" ) ) // Only if read from file
 				{
 					if( result.length() > 0 )
 						throw new NonDelimitedStatementException( this.reader.getLocation().previousLine() );
@@ -160,7 +160,7 @@ public class SQLSource
 					if( !line.startsWith( "//" )) // skip comment
 					{
 						if( pos == 0 )
-							pos = this.reader.getLocation().getLineNumber() - 1;
+							pos = this.reader.getLineNumber() - 1;
 						return new Command( line, true, this.reader.getLocation().lineNumber( pos ) );
 					}
 					continue;
@@ -176,17 +176,17 @@ public class SQLSource
 				if( matcher.matches() )
 				{
 					if( pos == 0 )
-						pos = this.reader.getLocation().getLineNumber() - 1;
+						pos = this.reader.getLineNumber() - 1;
 					if( matcher.groupCount() > 0 )
 						result.append( matcher.group( 1 ) );
 					if( matcher.groupCount() > 1 )
-						this.buffer = matcher.group( 2 );
+						this.buffer = matcher.group( 2 ); // TODO Does this buffer thing work correctly?
 					return new Command( result.toString(), false, this.reader.getLocation().lineNumber( pos ) );
 				}
 			}
 
 			if( pos == 0 )
-				pos = this.reader.getLocation().getLineNumber() - 1;
+				pos = this.reader.getLineNumber() - 1;
 			result.append( line );
 			result.append( '\n' );
 		}
@@ -199,6 +199,6 @@ public class SQLSource
 	 */
 	public Resource getResource()
 	{
-		return this.reader.getLocation().getResource();
+		return this.reader.getResource();
 	}
 }

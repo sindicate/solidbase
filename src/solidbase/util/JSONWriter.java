@@ -1,7 +1,6 @@
 package solidbase.util;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
@@ -29,14 +28,9 @@ public class JSONWriter
 
 	public JSONWriter( Resource resource )
 	{
-		this( resource.getOutputStream() );
-	}
-
-	public JSONWriter( OutputStream out )
-	{
 		try
 		{
-			this.out = new OutputStreamWriter( out, ENCODING );
+			this.out = new OutputStreamWriter( resource.getOutputStream(), ENCODING );
 		}
 		catch( UnsupportedEncodingException e )
 		{
@@ -60,8 +54,6 @@ public class JSONWriter
 		writeInternal( object );
 	}
 
-	// TODO More types to implement here?
-	// TODO Tests?
 	private void writeInternal( Object object )
 	{
 		try
@@ -74,12 +66,6 @@ public class JSONWriter
 				writeNotString( ( (BigDecimal)object ).toString() );
 			else if( object instanceof Integer )
 				writeNotString( ( (Integer)object ).toString() );
-			else if( object instanceof Long )
-				writeNotString( ( (Long)object ).toString() );
-			else if( object instanceof Float )
-				writeNotString( ( (Float)object ).toString() );
-			else if( object instanceof Double )
-				writeNotString( ( (Double)object ).toString() );
 			else if( object instanceof JSONObject )
 				writeObject( (JSONObject)object );
 			else if( object instanceof JSONArray )

@@ -30,7 +30,7 @@ public class TestProgressListener extends ProgressListener
 	@Override
 	public void println( String message )
 	{
-		System.out.println( "PRINTLN: " + message );
+		Assert.fail( "Should not be called" );
 	}
 
 	@Override

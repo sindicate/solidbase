@@ -32,8 +32,6 @@ abstract public class SynchronizedProtectedWorkerThread extends Thread
 
 	/**
 	 * Constructor.
-	 *
-	 * @param name Name of the thread.
 	 */
 	public SynchronizedProtectedWorkerThread( String name )
 	{
@@ -116,11 +114,6 @@ abstract public class SynchronizedProtectedWorkerThread extends Thread
 		return this.exception;
 	}
 
-	/**
-	 * A thread that captures the shutdown and safely shuts down the main thread.
-	 *
-	 * @author René de Bloois
-	 */
 	protected class ShutdownHook extends Thread
 	{
 		@Override

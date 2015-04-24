@@ -16,7 +16,7 @@
 
 package solidbase.util;
 
-import solidbase.core.SourceException;
+import solidbase.core.CommandFileException;
 import solidstack.io.PushbackReader;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
@@ -78,6 +78,7 @@ public class SQLTokenizer
 			case '!':
 			case '"':
 			case '#':
+			case '$':
 			case '%':
 			case '&':
 			case '\'':
@@ -139,7 +140,7 @@ public class SQLTokenizer
 
 				ch = this.in.read();
 				if( ch == -1 )
-					throw new SourceException( "Unexpected end of statement", getLocation() );
+					throw new CommandFileException( "Unexpected end of statement", getLocation() );
 				if( ch == quote )
 				{
 					result.append( (char)ch );
@@ -179,7 +180,7 @@ public class SQLTokenizer
 	}
 
 	/**
-	 * A token that matches one of the expected tokens. Throws a {@link SourceException} if a token is encountered
+	 * A token that matches one of the expected tokens. Throws a {@link CommandFileException} if a token is encountered
 	 * that does not match the given expected tokens.
 	 *
 	 * @param expected The expected tokens.
@@ -191,32 +192,18 @@ public class SQLTokenizer
 			throw new IllegalArgumentException( "Specify one ore more expected tokens" );
 
 		Token token = get();
-		expect( token, expected );
-		return token;
-	}
-
-	/**
-	 * Checks if the given token matches the expected tokens.
-	 *
-	 * @param token The token.
-	 * @param expected The expected tokens.
-	 */
-	public void expect( Token token, String... expected )
-	{
-		if( expected.length == 0 )
-			throw new IllegalArgumentException( "Specify one or more expected tokens" );
 
 		if( token.isEndOfInput() )
 		{
 			for( String exp : expected )
 				if( exp == null )
-					return;
+					return token;
 		}
 		else
 		{
 			for( String exp : expected )
 				if( token.eq( exp ) )
-					return;
+					return token;
 		}
 
 		// Raise exception
@@ -253,11 +240,11 @@ public class SQLTokenizer
 		if( token.isNewline() )
 			lineNumber--;
 
-		throw new SourceException( error.toString(), getLocation().lineNumber( lineNumber ) );
+		throw new CommandFileException( error.toString(), getLocation().lineNumber( lineNumber ) );
 	}
 
 	/**
-	 * Returns a newline token. Throws a {@link SourceException} if another token is found.
+	 * Returns a newline token. Throws a {@link CommandFileException} if another token is found.
 	 *
 	 * @return The newline token.
 	 */
@@ -274,9 +261,9 @@ public class SQLTokenizer
 
 		// Check newline
 		if( ch == -1 )
-			throw new SourceException( "Unexpected end of statement", getLocation() );
+			throw new CommandFileException( "Unexpected end of statement", getLocation() );
 		if( ch != '\n' )
-			throw new SourceException( "Expecting end of line, not [" + (char)ch + "]", getLocation() );
+			throw new CommandFileException( "Expecting end of line, not [" + (char)ch + "]", getLocation() );
 
 		// Return the result
 		return new Token( String.valueOf( (char)ch ), whiteSpace.toString() );
@@ -302,8 +289,7 @@ public class SQLTokenizer
 	 */
 	public void push( Token token )
 	{
-		if( token.getValue() != null )
-			this.in.push( token.getValue() );
+		this.in.push( token.getValue() );
 		this.in.push( token.getWhiteSpace() );
 	}
 
@@ -327,9 +313,6 @@ public class SQLTokenizer
 		return this.in.getReader();
 	}
 
-	/**
-	 * @return The location of this token.
-	 */
 	public SourceLocation getLocation()
 	{
 		return this.in.getLocation();
@@ -407,9 +390,6 @@ public class SQLTokenizer
 			return this.value == null;
 		}
 
-		/**
-		 * @return True if the token is a string.
-		 */
 		public boolean isString()
 		{
 			if( this.value == null )
@@ -417,21 +397,9 @@ public class SQLTokenizer
 			return this.value.startsWith( "\"" );
 		}
 
-		/**
-		 * @return The value but without the first and last character.
-		 */
 		public String stripQuotes()
 		{
 			return this.value.substring( 1, this.value.length() - 1 );
-		}
-
-		/**
-		 * @return True if the token is a number.
-		 */
-		public boolean isNumber()
-		{
-			char ch = this.value.charAt( 0 );
-			return ch >= '0' && ch <= '9';
 		}
 
 		/**

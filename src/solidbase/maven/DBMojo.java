@@ -20,12 +20,10 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 
-import solidbase.core.Runner;
-
 
 /**
  * Maven plugin that has database connection functionality.
- *
+ * 
  * @author René de Bloois
  */
 abstract public class DBMojo extends AbstractMojo
@@ -33,46 +31,36 @@ abstract public class DBMojo extends AbstractMojo
 	/**
 	 * The Maven Project Object
 	 */
-	public MavenProject project;
+	protected MavenProject project;
 
 	/**
 	 * Database driver class.
 	 */
-	public String driver;
+	protected String driver;
 
 	/**
 	 * Database URL.
 	 */
-	public String url;
+	protected String url;
 
 	/**
 	 * Database username.
 	 */
-	public String username;
+	protected String username;
 
 	/**
 	 * Database password.
 	 */
-	public String password;
-
-	/**
-	 * Skip execution of the plugin.
-	 */
-	public boolean skip;
+	protected String password;
 
 	/**
 	 * An array of secondary connections.
 	 */
-	public Secondary[] connections;
-
-	/**
-	 * An array of parameters.
-	 */
-	public Parameter[] parameters;
+	protected Secondary[] connections;
 
 	/**
 	 * Validate the configuration of the plugin.
-	 *
+	 * 
 	 * @throws MojoFailureException Whenever a configuration item is missing.
 	 */
 	protected void validate() throws MojoFailureException
@@ -85,38 +73,9 @@ abstract public class DBMojo extends AbstractMojo
 				if( secondary.getName() == null )
 					throw new MojoFailureException( "The 'name' attribute is mandatory for a 'secondary' element" );
 				if( secondary.getUsername() == null )
-					throw new MojoFailureException( "The 'username' attribute is mandatory for a 'secondary' element" );
+					throw new MojoFailureException( "The 'user' attribute is mandatory for a 'secondary' element" );
 				if( secondary.getName().equals( "default" ) )
 					throw new MojoFailureException( "The secondary name 'default' is reserved" );
 			}
-	}
-
-	/**
-	 * Prepares the core's Runner.
-	 *
-	 * @return The Runner.
-	 */
-	public Runner prepareRunner()
-	{
-		Runner runner = new Runner();
-
-		runner.setProgressListener( new Progress( getLog() ) );
-
-		runner.setConnectionAttributes( "default", this.driver, this.url, this.username, this.password == null ? "" : this.password );
-		if( this.connections != null )
-			for( Secondary connection : this.connections )
-				runner.setConnectionAttributes(
-						connection.getName(),
-						connection.getDriver(),
-						connection.getUrl(),
-						connection.getUsername(),
-						connection.getPassword() == null ? "" : connection.getPassword()
-						);
-
-		if( this.parameters != null )
-			for( Parameter parameter : this.parameters )
-				runner.addParameter( parameter.getName(), parameter.getValue() );
-
-		return runner;
 	}
 }

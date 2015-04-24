@@ -69,11 +69,6 @@ public class Runner
 	 */
 	protected Resource outputFile;
 
-	/**
-	 * The parameters.
-	 */
-	protected Map< String, String > parameters = new HashMap<String, String>();
-
 
 	/**
 	 * Sets the progress listener.
@@ -174,17 +169,6 @@ public class Runner
 	}
 
 	/**
-	 * Adds a parameter.
-	 *
-	 * @param name The name of the parameter.
-	 * @param value The value of the parameter.
-	 */
-	public void addParameter( String name, String value )
-	{
-		this.parameters.put( name, value );
-	}
-
-	/**
 	 * Execute the SQL files.
 	 */
 	public void executeSQL()
@@ -206,7 +190,6 @@ public class Runner
 			{
 				SQLContext context = new SQLContext( Factory.openSQLFile( resource, this.listener ).getSource() );
 				context.setDatabases( databases );
-				context.getScope().setAll( this.parameters );
 				processor.setContext( context );
 				if( first )
 				{
@@ -234,7 +217,6 @@ public class Runner
 	/**
 	 * Upgrade the database. This method protects itself against SIGINT (Ctrl-C).
 	 */
-	// TODO executeSQL() prints a newline at the end, but upgrade() does not
 	public void upgrade()
 	{
 		if( this.listener == null )
@@ -246,7 +228,6 @@ public class Runner
 		final UpgradeProcessor processor = new UpgradeProcessor( this.listener );
 		processor.setUpgradeFile( Factory.openUpgradeFile( this.upgradeFile, this.listener ) );
 		processor.setDatabases( getDatabases() );
-		processor.setParameters( this.parameters );
 
 		final ProgressListener listener = this.listener;
 		final String upgradeTarget = this.upgradeTarget;
@@ -316,7 +297,6 @@ public class Runner
 	/**
 	 * Dump the database log to an XML file.
 	 */
-	// TODO Replace with DUMP JSON
 	public void logToXML()
 	{
 		if( this.listener == null )

@@ -19,14 +19,13 @@ package solidbase.core;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
 import solidstack.io.SourceLocation;
-import solidstack.script.scopes.AbstractScope;
-import solidstack.script.scopes.DefaultScope;
-import funny.Symbol;
 
 
 
@@ -88,9 +87,9 @@ abstract public class CommandContext
 	private int skipCounter;
 
 	/**
-	 * The scripting scope.
+	 * Variables. Null instead of empty.
 	 */
-	private AbstractScope scope;
+	private Map< String, String > variables;
 
 
 	/**
@@ -100,6 +99,7 @@ abstract public class CommandContext
 	{
 		this.jdbcEscaping = false;
 		this.sectionLevel = 0;
+		this.variables = null;
 		this.ignoreStack = new Stack< String[] >();
 		this.ignoreSet = new HashSet< String >();
 		this.noSkipCounter = this.skipCounter = 0;
@@ -118,7 +118,8 @@ abstract public class CommandContext
 		this.jdbcEscaping = parent.jdbcEscaping;
 		this.sectionLevel = parent.sectionLevel;
 		this.currentDatabase = parent.currentDatabase;
-		// TODO Inherit scope from parent?
+		if( parent.variables != null )
+			this.variables = new HashMap< String, String >( parent.variables );
 
 		// no inherit
 		this.ignoreStack = new Stack< String[] >();
@@ -148,13 +149,13 @@ abstract public class CommandContext
 
 	/**
 	 * Process the ELSE annotation.
-	 *
+	 * 
 	 * @param location The location where the ELSE is encountered.
 	 */
 	protected void doElse( SourceLocation location )
 	{
 		if( this.noSkipCounter <= 0 && this.skipCounter <= 0 )
-			throw new SourceException( "ELSE without IF encountered", location );
+			throw new CommandFileException( "ELSE without IF encountered", location );
 		boolean skip = this.skipCounter > 0;
 		endSkip( location );
 		skip( !skip );
@@ -162,20 +163,20 @@ abstract public class CommandContext
 
 	/**
 	 * Process the /IF annotation.
-	 *
+	 * 
 	 * @param location The location where the END IF is encountered.
 	 */
 	protected void endIf( SourceLocation location )
 	{
 		if( this.noSkipCounter <= 0 && this.skipCounter <= 0 )
-			throw new SourceException( "/IF without IF encountered", location );
+			throw new CommandFileException( "/IF without IF encountered", location );
 		endSkip( location );
 	}
 
 	/**
 	 * Stop skipping commands. As {@link #skip(boolean)} and {@link #endSkip(SourceLocation)} can be nested, only when the same number
 	 * of endSkips are called as the number of skips, the skipping will stop.
-	 *
+	 * 
 	 * @param location The location where the END SKIP is encountered.
 	 */
 	protected void endSkip( SourceLocation location )
@@ -185,7 +186,7 @@ abstract public class CommandContext
 		else
 		{
 			if( this.noSkipCounter <= 0 )
-				throw new SourceException( "/SKIP without SKIP encountered", location );
+				throw new CommandFileException( "/SKIP without SKIP encountered", location );
 			this.noSkipCounter--;
 		}
 	}
@@ -245,25 +246,53 @@ abstract public class CommandContext
 		return this.ignoreSet.contains( error ) || this.parent != null && this.parent.ignoreSQLError( error );
 	}
 
-	public AbstractScope getScope()
+	/**
+	 * Sets the specified variable.
+	 *
+	 * @param name The name of the variable.
+	 * @param value The value to store into the variable.
+	 */
+	public void setVariable( String name, Object value )
 	{
-		if( this.scope == null )
-		{
-			this.scope = new DefaultScope();
-			this.scope.val( Symbol.apply( "db" ), new ScriptDB( this ) ); // TODO Or var?
-		}
-		return this.scope;
+		if( this.variables == null )
+			this.variables = new HashMap< String, String >();
+		this.variables.put( name.toUpperCase(), value == null ? null : value.toString() );
 	}
 
 	/**
-	 * Is there a scripting scope?
+	 * Are any variables defined?
 	 *
-	 * @return True if a scripting scope exists.
+	 * @return True if variables are defined, false otherwise.
 	 */
-	public boolean hasScope()
+	public boolean hasVariables()
 	{
-		// TODO This does not work, there is always a scope, maybe an empty scope
-		return this.scope != null;
+		return this.variables != null || this.parent != null && this.parent.hasVariables();
+	}
+
+	/**
+	 * Is the variable with the given name defined?
+	 *
+	 * @param name The name of the variable.
+	 * @return True if the variable is defined, false otherwise.
+	 */
+	public boolean hasVariable( String name )
+	{
+		return this.variables != null && this.variables.containsKey( name ) || this.parent != null && this.parent.hasVariable( name );
+	}
+
+	/**
+	 * Return the value of the variable with the given name.
+	 *
+	 * @param name The name of the variable.
+	 * @return The value of the variable with the given name.
+	 */
+	public String getVariableValue( String name )
+	{
+		if( this.variables != null && this.variables.containsKey( name ) )
+			return this.variables.get( name );
+		if( this.parent == null )
+			return null;
+		return this.parent.getVariableValue( name );
 	}
 
 	/**
