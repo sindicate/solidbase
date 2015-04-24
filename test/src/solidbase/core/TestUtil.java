@@ -16,25 +16,23 @@
 
 package solidbase.core;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import mockit.Deencapsulation;
-
-import org.apache.tools.ant.Main;
 import org.testng.Assert;
+
+import solidbase.core.PatchProcessor;
+import solidbase.core.SystemException;
 
 
 public class TestUtil
 {
-	static public void shutdownHSQLDB( UpgradeProcessor patcher ) throws SQLException
+	static public void shutdownHSQLDB( PatchProcessor patcher ) throws SQLException
 	{
-		Connection connection = patcher.getCurrentDatabase().getConnection();
+		Connection connection = patcher.currentDatabase.getConnection();
 		try
 		{
 			connection.createStatement().executeUpdate( "SHUTDOWN" );
@@ -65,10 +63,10 @@ public class TestUtil
 		Assert.assertEquals( count, expected );
 	}
 
-	static public void verifyVersion( UpgradeProcessor patcher, String version, String target, int statements, String spec ) throws SQLException
+	static public void verifyVersion( PatchProcessor patcher, String version, String target, int statements, String spec ) throws SQLException
 	{
 		String sql = "SELECT * FROM DBVERSION";
-		Connection connection = patcher.dbVersion.database.getDefaultConnection();
+		Connection connection = patcher.dbVersion.database.getConnection();
 		PreparedStatement statement = connection.prepareStatement( sql );
 		ResultSet result = statement.executeQuery();
 		Assert.assertTrue( result.next() );
@@ -83,19 +81,19 @@ public class TestUtil
 		connection.commit();
 	}
 
-	public static void verifyHistoryIncludes( UpgradeProcessor patcher, String version )
+	public static void verifyHistoryIncludes( PatchProcessor patcher, String version )
 	{
 		Assert.assertTrue( patcher.dbVersion.logContains( version ), "Expecting version " + version + " to be part of the history" );
 	}
 
-	public static void verifyHistoryNotIncludes( UpgradeProcessor patcher, String version )
+	public static void verifyHistoryNotIncludes( PatchProcessor patcher, String version )
 	{
 		Assert.assertFalse( patcher.dbVersion.logContains( version ), "Not expecting version " + version + " to be part of the history" );
 	}
 
-	static public void assertPatchFileClosed( UpgradeProcessor patcher )
+	static public void assertPatchFileClosed( PatchProcessor patcher )
 	{
-		Assert.assertNull( patcher.upgradeFile.file );
+		Assert.assertNull( patcher.patchFile.file );
 	}
 
 	static public void dropDerbyDatabase( String url ) throws SQLException
@@ -141,67 +139,9 @@ public class TestUtil
 	static public String generalizeOutput( String output )
 	{
 		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
-		output = output.replaceAll( "[A-Z]:/\\S+/", "X:/.../" );
-		output = output.replaceAll( "[A-Z]:\\\\\\S+\\\\", "X:/.../" );
+		output = output.replaceAll( "[A-Z]:\\\\\\S+\\\\", "X:\\\\...\\\\" );
+		output = output.replaceAll( "SolidBase v1\\.5\\.x\\s+\\(C\\) 2006-201\\d Ren[eé] M\\. de Bloois", "SolidBase v1.5.x (C) 2006-200x Rene M. de Bloois" );
 		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
-		output = output.replaceAll( "folder\\\\", "folder/" );
 		return output.replaceAll( "\\\r", "" );
-	}
-
-	static public void assertQueryResultEquals( UpgradeProcessor patcher, String query, Object expected ) throws SQLException
-	{
-		Connection connection = patcher.getCurrentDatabase().getConnection();
-		ResultSet result = connection.createStatement().executeQuery( query );
-		assert result.next() : "Expected 1 row";
-		Object value = result.getObject( 1 );
-		assert !result.next() : "Expected only 1 row";
-		if( expected == null )
-			assert value == null : "Expected null, got [" + value + "]";
-		else
-			assert expected.equals( value ) : "Expected [" + expected + "], got [" + value + "]";
-	}
-
-	static public String capture( Runnable runnable )
-	{
-		ByteArrayOutputStream buf = new ByteArrayOutputStream();
-		PrintStream print = new PrintStream( buf );
-		PrintStream origOut = System.out;
-		PrintStream origErr = System.err;
-		System.setOut( print );
-		System.setErr( print );
-		try
-		{
-			runnable.run();
-			print.close();
-		}
-		finally
-		{
-			System.setOut( origOut );
-			System.setErr( origErr );
-		}
-		return buf.toString();
-	}
-
-	static public String captureAnt( Runnable runnable )
-	{
-		ByteArrayOutputStream buf = new ByteArrayOutputStream();
-		PrintStream print = new PrintStream( buf );
-		PrintStream origOut = System.out;
-		PrintStream origErr = System.err;
-		System.setOut( print );
-		System.setErr( print );
-		Deencapsulation.setField( Main.class, "out", print );
-		Deencapsulation.setField( Main.class, "err", print );
-		try
-		{
-			runnable.run();
-			print.close();
-		}
-		finally
-		{
-			System.setOut( origOut );
-			System.setErr( origErr );
-		}
-		return buf.toString();
 	}
 }

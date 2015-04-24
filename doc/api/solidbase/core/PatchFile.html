@@ -139,6 +139,14 @@ This class manages the patch file contents and the paths between versions.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>protected &nbsp;<A HREF="../../solidbase/core/Fragment.html" title="class in solidbase.core">Fragment</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#initialization">initialization</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initialization fragment.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/PatchFile.html#logTableName">logTableName</A></B></CODE>
 
@@ -409,6 +417,18 @@ protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Map.html?is
 </DL>
 <HR>
 
+<A NAME="initialization"><!-- --></A><H3>
+initialization</H3>
+<PRE>
+protected <A HREF="../../solidbase/core/Fragment.html" title="class in solidbase.core">Fragment</A> <B>initialization</B></PRE>
+<DL>
+<DD>Initialization fragment.
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
 <A NAME="versionTableName"><!-- --></A><H3>
 versionTableName</H3>
 <PRE>
@@ -638,7 +658,7 @@ protected void <B>collectReachableVersions</B>(<A HREF="http://java.sun.com/j2se
                                         boolean&nbsp;downgradesAllowed,
                                         <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&gt;&nbsp;result)</PRE>
 <DL>
-<DD>Retrieves all versions that are reachable from the given source version. The current version is also considered.
+<DD>Retrieves all versions that are reachable from the given source version.
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>source</CODE> - The source version.<DD><CODE>targeting</CODE> - Already targeting a specific version.<DD><CODE>downgradesAllowed</CODE> - Allow downgrades.<DD><CODE>result</CODE> - This set gets filled with all versions that are reachable from the given source version.</DL>

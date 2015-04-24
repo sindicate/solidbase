@@ -16,13 +16,13 @@
 
 package solidbase.core;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import solidstack.io.FileResource;
-import solidstack.io.RandomAccessSourceReader;
+import solidbase.util.RandomAccessLineReader;
 
 
 public class EmptyLines
@@ -30,12 +30,12 @@ public class EmptyLines
 	@Test
 	public void testEmptyLines() throws IOException
 	{
-		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "testpatch-emptylines.sql" ) );
-		UpgradeFile upgradeFile = new UpgradeFile( ralr );
-		upgradeFile.scan();
-		UpgradeSegment segment = upgradeFile.getSegment( "1.0.1", "1.0.2" );
-		assert segment != null;
-		UpgradeSource source = upgradeFile.gotoSegment( segment );
+		RandomAccessLineReader ralr = new RandomAccessLineReader( new File( "testpatch-emptylines.sql" ) );
+		PatchFile patchFile = new PatchFile( ralr );
+		patchFile.scan();
+		Patch patch = patchFile.getPatch( "1.0.1", "1.0.2" );
+		assert patch != null;
+		PatchSource source = patchFile.gotoPatch( patch );
 		Command command = source.readCommand();
 		assert command != null;
 		Assert.assertEquals( command.getCommand(), "INSERT 'This insert contains\n" +
@@ -44,7 +44,7 @@ public class EmptyLines
 				"\n" +
 				"\n" +
 				"of empty lines'\n" +
-				"\n" );
-		upgradeFile.close();
+		"\n" );
+		patchFile.close();
 	}
 }

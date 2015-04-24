@@ -129,8 +129,7 @@ An <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?i
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../solidbase/core/SQLExecutionException.html#SQLExecutionException(java.lang.String, int, java.sql.SQLException)">SQLExecutionException</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;command,
-                      int&nbsp;lineNumber,
+<TD><CODE><B><A HREF="../../solidbase/core/SQLExecutionException.html#SQLExecutionException(solidbase.core.Command, java.sql.SQLException)">SQLExecutionException</A></B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command,
                       <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A>&nbsp;sqlException)</CODE>
 
 <BR>
@@ -194,17 +193,16 @@ An <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?i
 </TR>
 </TABLE>
 
-<A NAME="SQLExecutionException(java.lang.String, int, java.sql.SQLException)"><!-- --></A><H3>
+<A NAME="SQLExecutionException(solidbase.core.Command, java.sql.SQLException)"><!-- --></A><H3>
 SQLExecutionException</H3>
 <PRE>
-public <B>SQLExecutionException</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;command,
-                             int&nbsp;lineNumber,
+public <B>SQLExecutionException</B>(<A HREF="../../solidbase/core/Command.html" title="class in solidbase.core">Command</A>&nbsp;command,
                              <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql">SQLException</A>&nbsp;sqlException)</PRE>
 <DL>
 <DD>Constructor.
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>command</CODE> - The command that caused the <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A>.<DD><CODE>lineNumber</CODE> - The line number where the exception occurred.<DD><CODE>sqlException</CODE> - The <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A>.</DL>
+<DT><B>Parameters:</B><DD><CODE>command</CODE> - The command that caused the <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A>.<DD><CODE>sqlException</CODE> - The <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/sql/SQLException.html?is-external=true" title="class or interface in java.sql"><CODE>SQLException</CODE></A>.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
