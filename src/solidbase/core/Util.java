@@ -26,7 +26,7 @@ import java.sql.SQLException;
  * 
  * @author René M. de Bloois
  */
-public final class Util
+public class Util
 {
 	/**
 	 * This utility class cannot be constructed.

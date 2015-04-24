@@ -19,17 +19,17 @@
 
 
 --*	DEFINITION
---*		SETUP "" --> "1.1"
+--*		INIT "" --> "1.1"
 --*		UPGRADE "" --> "1.0.1"
 --*	/DEFINITION
 
 
 
 --* // ========================================================================
---* SETUP "" --> "1.1"
+--* INIT "" --> "1.1"
 --* // ========================================================================
 
---* SECTION "Creating table DBVERSION"
+--* SET MESSAGE "    Creating table DBVERSION"
 
 CREATE TABLE DBVERSION
 (
@@ -37,9 +37,10 @@ CREATE TABLE DBVERSION
 	VERSION VARCHAR, 
 	TARGET VARCHAR, 
 	STATEMENTS INTEGER NOT NULL 
-);
+)
+GO
 
---* SECTION "Creating table DBVERSIONLOG"
+--* SET MESSAGE "    Creating table DBVERSIONLOG"
 
 CREATE TABLE DBVERSIONLOG
 (
@@ -50,11 +51,13 @@ CREATE TABLE DBVERSIONLOG
 	STAMP TIMESTAMP NOT NULL,
 	COMMAND VARCHAR,
 	RESULT VARCHAR
-);
+)
+GO
 
-CREATE INDEX DBVERSIONLOG_INDEX1 ON DBVERSIONLOG ( TYPE, TARGET );
+CREATE INDEX DBVERSIONLOG_INDEX1 ON DBVERSIONLOG ( TYPE, TARGET )
+GO
 
---* /SETUP
+--* /INIT
 
 
 
@@ -62,21 +65,24 @@ CREATE INDEX DBVERSIONLOG_INDEX1 ON DBVERSIONLOG ( TYPE, TARGET );
 --* UPGRADE "" --> "1.0.1"
 --* // ========================================================================
 
---* SECTION "Creating table ${users1}"
+--* SET MESSAGE "    Creating table USERS"
 
-CREATE TABLE ${users1}
+CREATE TABLE USERS
 (
 	USER_ID INT IDENTITY,
 	USER_USERNAME VARCHAR NOT NULL,
 	USER_PASSWORD VARCHAR NOT NULL
-);
+)
+GO
 
---* SECTION "Inserting admin user"
+--* SET MESSAGE "    Inserting admin user"
 
-INSERT INTO ${users1} ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' );
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' )
+GO
 
---* SECTION "Inserting user"
+--* SET MESSAGE "    Inserting user"
 
-INSERT INTO ${users1} ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' );
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' )
+GO
 
 --* /UPGRADE

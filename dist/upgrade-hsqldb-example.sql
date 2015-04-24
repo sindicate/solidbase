@@ -19,51 +19,90 @@
 
 
 --*	DEFINITION
---*		SETUP "" --> "1.1"
+--*		INIT "" --> "1.1"
 --*		UPGRADE "" --> "1.0.1"
---*	END DEFINITION
+--*		UPGRADE "1.0.1" --> "1.0.2"
+--*	/DEFINITION
 
 
 
---* SETUP "" --> "1.1"
+--* // ========================================================================
+--* INIT "" --> "1.1"
+--* // ========================================================================
+
+--* SET MESSAGE "    Creating table DBVERSION"
 
 CREATE TABLE DBVERSION
 (
-	SPEC VARCHAR(5) NOT NULL,
-	VERSION VARCHAR(20), 
-	TARGET VARCHAR(20), 
-	STATEMENTS INTEGER NOT NULL
-);
+	SPEC VARCHAR,
+	VERSION VARCHAR, 
+	TARGET VARCHAR, 
+	STATEMENTS INTEGER NOT NULL 
+)
+GO
+
+--* SET MESSAGE "    Creating table DBVERSIONLOG"
+
 CREATE TABLE DBVERSIONLOG
 (
-	TYPE VARCHAR(1) NOT NULL,
-	SOURCE VARCHAR(20),
-	TARGET VARCHAR(20) NOT NULL,
+	TYPE VARCHAR NOT NULL,
+	SOURCE VARCHAR,
+	TARGET VARCHAR NOT NULL,
 	STATEMENT INTEGER NOT NULL,
 	STAMP TIMESTAMP NOT NULL,
-	COMMAND VARCHAR(4000),
-	RESULT VARCHAR(4000)
-);
-CREATE INDEX DBVERSIONLOG_INDEX1 ON DBVERSIONLOG ( TYPE, TARGET );
+	COMMAND VARCHAR,
+	RESULT VARCHAR
+)
+GO
 
---* END SETUP
+CREATE INDEX DBVERSIONLOG_INDEX1 ON DBVERSIONLOG ( TYPE, TARGET )
+GO
+
+--* /INIT
 
 
 
+--* // ========================================================================
 --* UPGRADE "" --> "1.0.1"
+--* // ========================================================================
 
---* SECTION "Creating table USERS"
+--* SET MESSAGE "    Creating table USERS"
+
 CREATE TABLE USERS
 (
 	USER_ID INT IDENTITY,
 	USER_USERNAME VARCHAR NOT NULL,
 	USER_PASSWORD VARCHAR NOT NULL
-);
+)
+GO
 
---* SECTION "Inserting admin user"
-INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' );
+--* SET MESSAGE "    Inserting admin user"
 
---* SECTION "Inserting user"
-INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' );
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' )
+GO
 
---* END UPGRADE
+--* SET MESSAGE "    Inserting user"
+
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' )
+GO
+
+--* /UPGRADE
+
+
+
+--* // ========================================================================
+--* UPGRADE "1.0.1" --> "1.0.2"
+--* // ========================================================================
+
+--* SET MESSAGE "    Creating queue"
+
+--* SELECT CONNECTION QUEUES
+
+CREATE TABLE QUEUE1
+(
+	PRIORITY INT NOT NULL,
+	MESSAGE VARCHAR NOT NULL
+)
+GO
+
+--* /UPGRADE

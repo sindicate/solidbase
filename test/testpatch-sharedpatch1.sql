@@ -15,11 +15,11 @@
 
 --* // ========================================================================
 
---*	DEFINITION
---*		UPGRADE "" --> "1.0.1"
---*		UPGRADE "1.0.1" --> "1.0.2"
---*		UPGRADE "1.0.1" --> "C-1.0.2"
---*	/DEFINITION
+--*	PATCHES
+--*		PATCH "" --> "1.0.1"
+--*		PATCH "1.0.1" --> "1.0.2"
+--*		PATCH "1.0.1" --> "C-1.0.2"
+--*	/PATCHES
 
 
 
@@ -28,34 +28,36 @@
 
 
 --* // ========================================================================
---* UPGRADE "" --> "1.0.1"
+--* PATCH "" --> "1.0.1"
 --* // ========================================================================
 
---* SECTION "Creating table DBVERSION"
+--* SET MESSAGE "Creating table DBVERSION"
 CREATE TABLE DBVERSION
 ( 
-	VERSION VARCHAR(20), 
-	TARGET VARCHAR(20), 
+	VERSION VARCHAR, 
+	TARGET VARCHAR, 
 	STATEMENTS INTEGER NOT NULL 
-);
+)
+GO
 
 --* // The patch tool expects to be able to use the DBVERSION table after the *first* sql statement
 
---* SECTION "Creating table DBVERSIONLOG"
+--* SET MESSAGE "Creating table DBVERSIONLOG"
 CREATE TABLE DBVERSIONLOG
 (
 	ID INTEGER IDENTITY, -- An index might be needed here to let the identity perform
-	SOURCE VARCHAR(20),
-	TARGET VARCHAR(20) NOT NULL,
-	STATEMENT INTEGER NOT NULL,
+	SOURCE VARCHAR,
+	TARGET VARCHAR NOT NULL,
+	STATEMENT VARCHAR NOT NULL,
 	STAMP TIMESTAMP NOT NULL,
-	COMMAND VARCHAR(4000),
-	RESULT VARCHAR(4000)
-);
+	COMMAND VARCHAR,
+	RESULT VARCHAR
+)
+GO
 
 --* // The existence of DBVERSIONLOG will automatically be detected at the end of this patch
 
---* /UPGRADE
+--* /PATCH
 
 
 
@@ -64,27 +66,24 @@ CREATE TABLE DBVERSIONLOG
 
 
 --* // ========================================================================
---* UPGRADE "1.0.1" --> "1.0.2"
---* UPGRADE "1.0.1" --> "C-1.0.2"
+--* PATCH "1.0.1" --> "1.0.2"
+--* PATCH "1.0.1" --> "C-1.0.2"
 --* // ========================================================================
 
---* SECTION "Creating table USERS, need a message with a ' in it"
+--* SET MESSAGE "Creating table USERS, need a message with a ' in it"
 CREATE TABLE USERS
 (
 	USER_ID INT IDENTITY,
-	USER_USERNAME VARCHAR(40) NOT NULL,
-	USER_PASSWORD VARCHAR(40) NOT NULL
-);
+	USER_USERNAME VARCHAR NOT NULL,
+	USER_PASSWORD VARCHAR NOT NULL
+)
+GO
 
---* SECTION "Inserting admin user"
-INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' );
+--* SET MESSAGE "Inserting admin user"
+INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' )
+GO
 
---* // Test of the assert plugin
-ASSERT EXISTS MESSAGE "Expecting users"
-SELECT *
-FROM USERS;
-
---* /UPGRADE
+--* /PATCH
 
 --* // ========================================================================
 
