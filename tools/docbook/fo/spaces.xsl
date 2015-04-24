@@ -4,15 +4,14 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: spaces.xsl 8121 2008-09-13 17:21:11Z mzjn $
+     $Id: spaces.xsl 5858 2006-04-14 18:11:23Z kosek $
      ********************************************************************
      XSL-FO specification treats all space characters like ordinary spaces.
      We need to map them to fo:leader with different widths in order to
      simulate desired behaviour.
      ******************************************************************** -->
 
-<xsl:template match="text()[namespace-uri(..) = '' or 
-		     namespace-uri(..) = 'http://docbook.org/ns/docbook']">
+<xsl:template match="text()[namespace-uri(..) = '']">
   <xsl:choose>
     <xsl:when test="$passivetex.extensions != 0">
       <xsl:call-template name="passivetex.dash.subst">

@@ -17,15 +17,14 @@
 package solidbase;
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
@@ -34,47 +33,65 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import solidbase.config.Configuration;
-import solidbase.core.FatalException;
-import solidbase.core.Runner;
-import solidbase.core.SQLExecutionException;
+import solidbase.config.Connection;
+import solidbase.core.Database;
+import solidbase.core.Patcher;
 import solidbase.core.SystemException;
-import solidbase.util.Assert;
-import solidstack.io.Resources;
 
 
 /**
- * This class contains the main method for the command line version of SolidBase.
  *
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
 public class Main
 {
-	/**
-	 * The console for communication with the user.
-	 */
 	static public Console console;
-
-	/**
-	 * The current boot phase. Used to create a new class loader with an extended class path.
-	 */
 	static private int pass = 1;
 
 
-	/**
-	 * This class cannot be constructed.
-	 */
-	private Main()
+	static protected void printCurrentVersion( Console console )
 	{
-		super();
+		String version = Patcher.getCurrentVersion();
+		String target = Patcher.getCurrentTarget();
+		int statements = Patcher.getCurrentStatements();
+
+		if( version == null )
+		{
+			if( target != null )
+				console.println( "The database has no version yet, incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
+			else
+				console.println( "The database has no version yet." );
+		}
+		else
+		{
+			if( target != null )
+				console.println( "Current database version is \"" + version + "\", incompletely patched to version \"" + target + "\" (" + statements + " statements successful)." );
+			else
+				console.println( "Current database version is \"" + version + "\"." );
+		}
 	}
 
 
-	/**
-	 * The main method for the command line version of SolidBase.
-	 *
-	 * @param args The arguments from the command line.
-	 */
+	static protected String list( Collection list )
+	{
+		StringBuffer buffer = new StringBuffer();
+
+		boolean first = true;
+		for( Iterator iter = list.iterator(); iter.hasNext(); )
+		{
+			Object object = iter.next();
+			if( first )
+				first = false;
+			else
+				buffer.append( ", " );
+			buffer.append( object );
+		}
+
+		return buffer.toString();
+	}
+
+
 	static public void main( String... args )
 	{
 		try
@@ -83,22 +100,24 @@ public class Main
 		}
 		catch( Throwable t )
 		{
-			// Fancy stuff is done in pass2(). Checking type of exception does not work because of the new classloader we create.
 			console.println();
+
+			if( t instanceof SystemException )
+				if( t.getCause() != null )
+					t = t.getCause();
+
+			if( t instanceof SQLException )
+				console.println( "SQLState: " + ( (SQLException)t ).getSQLState() );
+
 			console.printStacktrace( t );
+
 			System.exit( 1 );
 		}
 	}
 
 
-	/**
-	 * For internal (testing) use only: a main method that does not catch and print exceptions.
-	 *
-	 * @param args The arguments from the command line.
-	 * @throws SQLExecutionException When an {@link SQLException} is thrown during execution of a database change.
-	 */
-	// TODO Make this protected.
-	static public void main0( String... args ) throws SQLExecutionException
+	// Used for testing
+	static public void main0( String... args ) throws Exception
 	{
 		if( console == null )
 			console = new Console();
@@ -107,31 +126,26 @@ public class Main
 
 		Options options = new Options();
 		options.addOption( "verbose", false, "be extra verbose" );
-		options.addOption( "dumplog", true, "export historical upgrade results to an XML file" );
-		options.addOption( "driver", true, "sets the JDBC driverclass" );
-		options.addOption( "url", true, "sets the URL for the database" );
-		options.addOption( "username", true, "sets the default user name to connect with" );
-		options.addOption( "password", true, "sets the password of the default user" );
-		options.addOption( "target", true, "sets the target version to upgrade to" );
-		options.addOption( "upgradefile", true, "specifies the file containing the database upgrades" );
-		options.addOption( "sqlfile", true, "specifies an SQL file to execute" );
-		options.addOption( "D", true, "parameter to the SQL file or upgrade file" );
-		options.addOption( "config", true, "specifies a properties file to use" );
-		options.addOption( "downgradeallowed", false, "allow downgrades to reach the target" );
-		options.addOption( "help", false, "Brings up this page" );
+		// TODO Rename to 'batchmode, keep 'fromant' hidden
+		options.addOption( "fromant", false, "adds newlines after input requests" );
+		options.addOption( "dumplog", true, "export historical patch results to an xml file" );
+		options.addOption( "driver", true, "sets the jdbc driverclass" );
+		options.addOption( "url", true, "sets the url of the database" );
+		options.addOption( "username", true, "sets the default username to patch with" );
+		options.addOption( "password", true, "sets the password of the default username" );
+		options.addOption( "target", true, "sets the target version" );
+		options.addOption( "patchfile", true, "sets the patch file" );
+		options.addOption( "jsonconfigfile", true, "specify a configfile in JSON format" );
+		// TODO Add driverjar option
 
 		options.getOption( "dumplog" ).setArgName( "filename" );
 		options.getOption( "driver" ).setArgName( "classname" );
 		options.getOption( "url" ).setArgName( "url" );
 		options.getOption( "username" ).setArgName( "username" );
 		options.getOption( "password" ).setArgName( "password" );
-		options.getOption( "target" ).setArgName( "version" );
-		options.getOption( "upgradefile" ).setArgName( "filename" );
-		options.getOption( "sqlfile" ).setArgName( "filename" );
-		options.getOption( "D" ).setArgName( "property=value" );
-		options.getOption( "D" ).setArgs( 2 );
-		options.getOption( "D" ).setValueSeparator( '=' );
-		options.getOption( "config" ).setArgName( "filename" );
+		options.getOption( "target" ).setArgName( "targetversion" );
+		options.getOption( "patchfile" ).setArgName( "patchfile" );
+		options.getOption( "jsonconfigfile" ).setArgName( "configfile" );
 
 		// Read the commandline options
 
@@ -143,91 +157,157 @@ public class Main
 		catch( ParseException e )
 		{
 			console.println( e.getMessage() );
-			printHelp( options );
+			new HelpFormatter().printHelp( "solidbase", options, true );
 			return;
 		}
 
-		solidbase.config.Options opts = new solidbase.config.Options( line.hasOption( "verbose" ), line
-				.hasOption( "dumplog" ), line.getOptionValue( "driver" ), line.getOptionValue( "url" ), line
-				.getOptionValue( "username" ), line.getOptionValue( "password" ), line.getOptionValue( "target" ), line
-				.getOptionValue( "upgradefile" ), line.getOptionValue( "sqlfile" ), line.getOptionValue( "config" ),
-				line.hasOption( "downgradeallowed" ), line.hasOption( "help" ), line.getOptionProperties( "D" ) );
+		boolean verbose = line.hasOption( "verbose" );
+		boolean exportlog = line.hasOption( "dumplog" );
+		console.fromAnt = line.hasOption( "fromant" );
 
-		if( opts.help )
+		// Validate the commandline options
+
+		if( line.hasOption( "driver" ) || line.hasOption( "url" ) || line.hasOption( "username" ) )
 		{
-			printHelp( options );
-			return;
+			boolean valid = true;
+			if( !line.hasOption( "driver" ) )
+			{
+				console.println( "Missing driver option" );
+				valid = false;
+			}
+			if( !line.hasOption( "url" ) )
+			{
+				console.println( "Missing url option" );
+				valid = false;
+			}
+			if( !line.hasOption( "username" ) )
+			{
+				console.println( "Missing user option" );
+				valid = false;
+			}
+			if( !valid )
+			{
+				new HelpFormatter().printHelp( "solidbase", options, true );
+				return;
+			}
 		}
 
-		Progress progress = new Progress( console, opts.verbose );
-		Configuration configuration = new Configuration( progress, pass, opts );
+		//
+
+		Progress progress = new Progress( console, verbose );
+		Configuration configuration = new Configuration( progress, pass, line.getOptionValue( "driver" ), line.getOptionValue( "url" ), line.getOptionValue( "username" ), line.getOptionValue( "password" ), line.getOptionValue( "target" ), line.getOptionValue( "patchfile" ), line.getOptionValue( "jsonconfigfile" ) );
 
 		if( pass == 1 )
 		{
-			reload( args, configuration.getDriverJars(), opts.verbose );
+			reload( args, configuration.getDriverJars(), verbose );
 			return;
 		}
 
-		String error = configuration.getFirstError();
-		if( error != null )
-		{
-			console.println( error );
-			printHelp( options );
-			return;
-		}
+		console.println( "SolidBase v" + configuration.getVersion() );
+		console.println( "(C) 2006-2009 René M. de Bloois" );
+		console.println();
 
-		if( configuration.isVoid() )
+		Patcher.setCallBack( progress );
+		String patchFile;
+		String target;
+		if( configuration.getConfigVersion() == 2 )
 		{
-			printHelp( options );
-			return;
-		}
+			solidbase.config.Database selectedDatabase;
+			if( configuration.getDatabases().size() == 0 )
+			{
+				console.println( "There are no databases configured." );
+				return;
+			}
+			else if( configuration.getDatabases().size() > 1 )
+			{
+				console.println( "Available database:" );
+				for( solidbase.config.Database database : configuration.getDatabases() )
+					if( database.getDescription() != null )
+						console.println( "    " + database.getName() + " (" + database.getDescription() + ")" );
+					else
+						console.println( "    " + database.getName() );
+				console.print( "Select a database from the above: " );
+				String input = console.input();
+				selectedDatabase = configuration.getDatabase( input );
+				console.println();
+			}
+			else
+				selectedDatabase = configuration.getDatabases().get( 0 );
 
-		solidbase.config.Database def = configuration.getDefaultDatabase();
-		Runner runner = new Runner();
-		runner.setProgressListener( progress );
-		runner.setConnectionAttributes( "default", def.getDriver(), def.getUrl(), def.getUserName(), def.getPassword() );
-		for( solidbase.config.Database connection : configuration.getSecondaryDatabases() )
-			runner.setConnectionAttributes(
-					connection.getName(),
-					connection.getDriver(),
-					connection.getUrl(),
-					connection.getUserName(),
-					connection.getPassword()
-					);
+			solidbase.config.Application selectedApplication;
+			if( selectedDatabase.getApplications().size() > 1 )
+			{
+				console.println( "Available applications in database '" + selectedDatabase.getName() + "':" );
+				for( solidbase.config.Application application : selectedDatabase.getApplications() )
+					if( application.getDescription() != null )
+						console.println( "    " + application.getName() + " (" + application.getDescription() + ")" );
+					else
+						console.println( "    " + application.getName() );
+				console.print( "Select an application from the above: " );
+				String input = console.input();
+				selectedApplication = selectedDatabase.getApplication( input );
+				console.println();
+			}
+			else
+				selectedApplication = selectedDatabase.getApplications().get( 0 );
 
-		for( Entry<Object, Object> entry : configuration.getParameters().entrySet() )
-			runner.addParameter( (String)entry.getKey(), (String)entry.getValue() );
+			Patcher.setDefaultConnection( new Database( selectedDatabase.getDriver(), selectedDatabase.getUrl(), selectedApplication.getUserName(), selectedApplication.getPassword() ) );
+			for( Connection connection : selectedApplication.getConnections() )
+				Patcher.addConnection( connection );
 
-		if( configuration.getSqlFile() != null )
-		{
-			runner.setSQLFile( Resources.getResource( configuration.getSqlFile() ) );
-			runner.executeSQL();
-		}
-		else if( opts.dumplog )
-		{
-			runner.setUpgradeFile( Resources.getResource( configuration.getUpgradeFile() ) );
-			runner.setOutputFile( Resources.getResource( line.getOptionValue( "dumplog" ) ) );
-			runner.logToXML();
+			patchFile = selectedApplication.getPatchFile();
+			target = selectedApplication.getTarget();
+			console.println( "Connecting to database '" + selectedDatabase.getName() + "', application '" + selectedApplication.getName() + "'..." );
 		}
 		else
 		{
-			runner.setUpgradeFile( Resources.getResource( configuration.getUpgradeFile() ) );
-			runner.setUpgradeTarget( configuration.getTarget() );
-			runner.setDowngradeAllowed( opts.downgradeallowed );
-			runner.upgrade();
+			Patcher.setDefaultConnection( new Database( configuration.getDBDriver(), configuration.getDBUrl(), configuration.getUser(), configuration.getPassWord() ) );
+			patchFile = configuration.getPatchFile();
+			target = configuration.getTarget();
+			if( patchFile == null )
+				patchFile = "dbpatch.sql";
+			console.println( "Connecting to database..." );
+		}
+
+		printCurrentVersion( console );
+
+		if( exportlog )
+		{
+			Patcher.logToXML( line.getOptionValue( "dumplog" ) );
+			return;
+		}
+
+		Patcher.openPatchFile( patchFile );
+		try
+		{
+			if( target != null )
+				Patcher.patch( target ); // TODO Print this target
+			else
+			{
+				// Need linked set because order is important
+				LinkedHashSet< String > targets = Patcher.getTargets( false, null );
+				if( targets.size() > 0 )
+				{
+					console.println( "Possible targets are: " + list( targets ) );
+					console.print( "Input target version: " );
+					String input = console.input();
+					Patcher.patch( input );
+				}
+				else
+					console.println( "There are no possible targets." );
+				// TODO Distinguish between uptodate and no possible path
+			}
+			console.emptyLine();
+			printCurrentVersion( console );
+		}
+		finally
+		{
+			Patcher.closePatchFile();
 		}
 	}
 
 
-	/**
-	 * Reload SolidBase with an extended classpath. Calls {@link #pass2(String...)} when it's done.
-	 *
-	 * @param args The arguments from the command line.
-	 * @param jars The jars that need to be added to the classpath.
-	 * @param verbose Show more information.
-	 * @throws SQLExecutionException When an {@link SQLException} is thrown during execution of a database change.
-	 */
-	static protected void reload( String[] args, List< String > jars, boolean verbose ) throws SQLExecutionException
+	static protected void reload( String[] args, List< String > jars, boolean verbose ) throws Exception
 	{
 		if( jars == null || jars.isEmpty() )
 		{
@@ -249,14 +329,7 @@ public class Main
 		for( String jar : jars )
 		{
 			File driverJarFile = new File( jar );
-			try
-			{
-				urls[ i++ ] = driverJarFile.toURI().toURL();
-			}
-			catch( MalformedURLException e )
-			{
-				throw new SystemException( e );
-			}
+			urls[ i++ ] = driverJarFile.toURI().toURL();
 			if( verbose )
 				console.println( "Adding jar to classpath: " + urls[ i - 1 ] );
 		}
@@ -268,91 +341,15 @@ public class Main
 		classLoader = new URLClassLoader( urls, Main.class.getClassLoader().getParent() );
 
 		// Execute the main class through the new classloader with reflection
-		Class< ? > main;
-		try
-		{
-			main = classLoader.loadClass( "solidbase.Main" );
-		}
-		catch( ClassNotFoundException e )
-		{
-			throw new SystemException( e );
-		}
-		Method method;
-		try
-		{
-			method = main.getDeclaredMethod( "pass2", String[].class );
-		}
-		catch( SecurityException e )
-		{
-			throw new SystemException( e );
-		}
-		catch( NoSuchMethodException e )
-		{
-			throw new SystemException( e );
-		}
-		// TODO Should we change the contextClassLoader too?
-		try
-		{
-			method.invoke( method, (Object)args );
-		}
-		catch( IllegalArgumentException e )
-		{
-			throw new SystemException( e );
-		}
-		catch( IllegalAccessException e )
-		{
-			throw new SystemException( e );
-		}
-		catch( InvocationTargetException e )
-		{
-			throw new SystemException( e.getCause() );
-		}
+		Class main = classLoader.loadClass( "solidbase.Main" );
+		Method method = main.getDeclaredMethod( "pass2", String[].class );
+		method.invoke( method, (Object)args );
 	}
 
 
-	/**
-	 * Gets called after reloading with an extended classpath.
-	 *
-	 * @param args The arguments from the command line.
-	 * @throws SQLExecutionException When an {@link SQLException} is thrown during execution of a database change.
-	 */
-	static public void pass2( String... args ) throws SQLExecutionException
+	static public void pass2( String[] args ) throws Exception
 	{
-		try
-		{
-			pass = 2;
-			main0( args );
-		}
-		catch( Throwable t )
-		{
-			console.println();
-
-			if( t instanceof SystemException )
-				if( t.getCause() != null )
-				{
-					t = t.getCause();
-					Assert.notInstanceOf( t, SystemException.class );
-				}
-
-			if( t instanceof FatalException )
-				console.println( "ERROR: " + t.getMessage() );
-			else
-				console.printStacktrace( t );
-
-			System.exit( 1 );
-		}
-	}
-
-
-	/**
-	 * Print the help from commons cli to the writer registered on the {@link Console}.
-	 *
-	 * @param options The commons cli option configuration.
-	 */
-	static protected void printHelp( Options options )
-	{
-		PrintWriter writer = new PrintWriter( console.out );
-		new HelpFormatter().printHelp( writer, 80, "solidbase", null, options, 1, 3, null, true );
-		writer.flush();
+		pass = 2;
+		main0( args );
 	}
 }

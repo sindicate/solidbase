@@ -16,155 +16,73 @@
 
 package solidbase.config;
 
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * A configured database.
- * 
- * @author René M. de Bloois
- */
+import solidbase.core.SystemException;
+
+
 public class Database
 {
-	/**
-	 * The name of the database.
-	 */
 	protected String name;
-
-	/**
-	 * The driver for the database.
-	 */
+	protected String description;
 	protected String driver;
-
-	/**
-	 * The url of the database.
-	 */
 	protected String url;
+	protected List< Application > applications = new ArrayList();
 
-	/**
-	 * The username for the connection to the database.
-	 */
-	protected String userName;
-
-	/**
-	 * The password for the connection to the database.
-	 */
-	protected String password;
-
-
-	/**
-	 * Constructor.
-	 * 
-	 * @param name The name of the database.
-	 */
-	public Database( String name )
+	public Database( String name, String description, String driver, String url )
 	{
 		this.name = name;
-	}
-
-	/**
-	 * Constructor.
-	 * 
-	 * @param name The name of the database.
-	 * @param driver The driver for the database.
-	 * @param url The url of the database.
-	 * @param userName The user name for the connection to the database.
-	 * @param password The optional password for the connection to the database.
-	 */
-	public Database( String name, String driver, String url, String userName, String password )
-	{
-		this.name = name;
+		this.description = description;
 		this.driver = driver;
 		this.url = url;
-		this.userName = userName;
-		this.password = password;
 	}
 
-	/**
-	 * Sets the driver for the database.
-	 * 
-	 * @param driver The driver for the database.
-	 */
-	public void setDriver( String driver )
+	public Application addApplication( String name, String description, String userName, String password, String patchFile, String target )
 	{
-		this.driver = driver;
+		Application application = new Application( name, description, userName, password, patchFile, target );
+		this.applications.add( application );
+		return application;
 	}
 
-	/**
-	 * Sets the url of the database.
-	 * 
-	 * @param url The url of the database.
-	 */
-	public void setUrl( String url )
+	public Application getApplication( String name )
 	{
-		this.url = url;
+		for( Application application : this.applications )
+			if( application.name.equals( name ) )
+				return application;
+		throw new SystemException( "Application [" + name + "] not configured for database [" + this.name + "]." );
 	}
 
-	/**
-	 * Sets the user name for the connection to the database.
-	 * 
-	 * @param userName The user name for the connection to the database.
-	 */
-	public void setUserName( String userName )
-	{
-		this.userName = userName;
-	}
-
-	/**
-	 * Sets the password for the connection to the database.
-	 * 
-	 * @param password The password for the connection to the database.
-	 */
-	public void setPassword( String password )
-	{
-		this.password = password;
-	}
-
-	/**
-	 * Returns the name of the database.
-	 * 
-	 * @return The name of the database.
-	 */
 	public String getName()
 	{
 		return this.name;
 	}
 
-	/**
-	 * Returns the driver for this database.
-	 * 
-	 * @return The driver for this database.
-	 */
+	public String getDescription()
+	{
+		return this.description;
+	}
+
 	public String getDriver()
 	{
 		return this.driver;
 	}
 
-	/**
-	 * Returns the url of the database.
-	 * 
-	 * @return The url of the database.
-	 */
 	public String getUrl()
 	{
 		return this.url;
 	}
 
-	/**
-	 * Returns the user name for the connection to the database.
-	 * 
-	 * @return The user name for the connection to the database.
-	 */
-	public String getUserName()
+	public List< Application > getApplications()
 	{
-		return this.userName;
+		return this.applications;
 	}
 
-	/**
-	 * Returns the user name for the connection to the database.
-	 * 
-	 * @return The user name for the connection to the database.
-	 */
-	public String getPassword()
+	static public class Comparator implements java.util.Comparator< Database >
 	{
-		return this.password;
+		public int compare( Database database1, Database database2 )
+		{
+			return database1.name.compareTo( database2.name );
+		}
 	}
 }

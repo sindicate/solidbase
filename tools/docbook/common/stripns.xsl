@@ -5,12 +5,11 @@
                 xmlns:saxon="http://icl.com/saxon"
                 xmlns:NodeInfo="http://org.apache.xalan.lib.NodeInfo"
                 xmlns:exsl="http://exslt.org/common"
-		xmlns:xlink="http://www.w3.org/1999/xlink"
-                exclude-result-prefixes="db ng exsl saxon NodeInfo xlink"
+                exclude-result-prefixes="db ng exsl saxon NodeInfo"
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: stripns.xsl 8488 2009-07-15 19:45:55Z nwalsh $
+     $Id: stripns.xsl 7604 2007-12-14 18:06:11Z mzjn $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -161,55 +160,12 @@
 </xsl:template>
 
 <xsl:template match="ng:tag|db:tag" mode="stripNS">
-  <xsl:choose>
-    <xsl:when test="@xlink:href">
-      <ulink url="{@xlink:href}">
-	<sgmltag>
-	  <xsl:copy-of select="@*[not(name(.) = 'xml:id')
-			       and not(name(.) = 'version')
-			       and not(local-name(.) = 'href')]"/>
-	  <xsl:apply-templates mode="stripNS"/>
-	</sgmltag>
-      </ulink>
-    </xsl:when>
-    <xsl:otherwise>
-      <sgmltag>
-	<xsl:copy-of select="@*[not(name(.) = 'xml:id')
-			     and not(name(.) = 'version')]"/>
-	<xsl:apply-templates mode="stripNS"/>
-      </sgmltag>
-    </xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
-
-<xsl:template match="db:link[@xlink:href]" mode="stripNS">
-  <ulink url="{@xlink:href}">
-    <xsl:apply-templates mode="stripNS"/>
-  </ulink>
-</xsl:template>
-
-<xsl:template match="db:citetitle[@xlink:href]" mode="stripNS">
-  <ulink url="{@xlink:href}">
-    <citetitle>
-      <xsl:copy-of select="@*[not(name(.) = 'xml:id')
-			   and not(name(.) = 'version')
-			   and not(local-name(.) = 'href')]"/>
-      <xsl:apply-templates mode="stripNS"/>
-    </citetitle>
-  </ulink>
-</xsl:template>
-
-<xsl:template match="db:citetitle[@linkend]" mode="stripNS">
-  <citetitle>
+  <sgmltag>
     <xsl:copy-of select="@*[not(name(.) = 'xml:id')
-			 and not(name(.) = 'version')
-			 and not(name(.) = 'linkend')
-			 and not(local-name(.) = 'href')]"/>
-      <xsl:apply-templates mode="stripNS"/>
-  </citetitle>
+                         and not(name(.) = 'version')]"/>
+    <xsl:apply-templates mode="stripNS"/>
+  </sgmltag>
 </xsl:template>
-
-<xsl:template match="db:alt" mode="stripNS"/>
 
 <xsl:template match="ng:textdata|db:textdata
                      |ng:imagedata|db:imagedata
@@ -313,7 +269,10 @@
 
 <xsl:template match="/" priority="-1">
   <xsl:choose>
-    <xsl:when test="(*/self::ng:* or */self::db:*)">
+    <xsl:when test="(function-available('exsl:node-set') or
+                     contains(system-property('xsl:vendor'),
+                       'Apache Software Foundation'))
+                    and (*/self::ng:* or */self::db:*)">
       <xsl:message>Stripping namespace from DocBook 5 document.</xsl:message>
       <xsl:variable name="nons">
         <xsl:apply-templates mode="stripNS"/>
@@ -322,7 +281,7 @@
       <xsl:apply-templates select="exsl:node-set($nons)"/>
     </xsl:when>
     <xsl:otherwise>
-      <xsl:copy-of select="node()"/>
+      <xsl:copy-of select="@* | node()"/>
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>
