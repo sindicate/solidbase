@@ -26,39 +26,12 @@
 
 	<target name="ant-test">
 		<taskdef resource="solidbasetasks" classpathref="test.classpath" />
-		<solidbase-sql driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask2" username="sa" password="">
+		<solidbase-sql driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask2"
+				username="sa" password=""
+				sqlfile="testsql1.sql">
        		<secondary name="queues" url="jdbc:hsqldb:mem:queues" username="sa" password="geheim" />
        		<secondary name="user" username="sa" password="" />
-			<sqlfile src="testsql1.sql" />
-			<sqlfile src="testsql2.sql" />
         </solidbase-sql>
-	</target>
-
-
-	<target name="ant-test-sections">
-		<taskdef resource="solidbasetasks" classpathref="test.classpath" />
-		<solidbase-sql driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testdb"
-				username="sa" password="" sqlfile="testsql-sections.sql" />
-	</target>
-
-
-	<target name="ant-test-filenotfound">
-		<taskdef resource="solidbasetasks" classpathref="test.classpath" />
-		<sb-sql driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask2" username="sa" password="">
-			<sqlfile src="doesnotexist.sql" />
-        </sb-sql>
-	</target>
-
-
-	<!-- TODO Use less databases, for example 1 database and the unit tests just use different table names for the tests -->
-	<target name="ant-test-parameters">
-		<taskdef resource="solidbasetasks" classpathref="test.classpath" />
-		<property name="prop1" value="val1" />
-		<sb-sql driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testTask3" username="sa" password="">
-			<sqlfile src="testsql-parameter2.sql" />
-			<parameter name="par1" value="${prop1}" />
-			<parameter name="par2" /> <!-- null -->
-        </sb-sql>
 	</target>
 
 

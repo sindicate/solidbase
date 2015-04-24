@@ -15,9 +15,9 @@
 
 --* // ========================================================================
 
---*	DEFINITION
---*		UPGRADE "" --> "1.0.1"
---*	/DEFINITION
+--*	PATCHES
+--*		PATCH "" --> "1.0.1"
+--*	/PATCHES
 
 
 
@@ -26,29 +26,31 @@
 
 
 --* // ========================================================================
---* UPGRADE "" --> "1.0.1"
+--* PATCH "" --> "1.0.1"
 --* // ========================================================================
 
---* SECTION "Creating table DBVERSION"
+--* SET MESSAGE "Creating table DBVERSION"
 CREATE TABLE DBVERSION
 ( 
-	VERSION VARCHAR(20), 
-	TARGET VARCHAR(20), 
+	VERSION VARCHAR, 
+	TARGET VARCHAR, 
 	STATEMENTS INTEGER NOT NULL 
-);
+)
+GO
 
-NON-DELIMITED COMMAND
+UNTERMINATED COMMAND
 
---* SECTION "Must fail here"
+--* SET MESSAGE "Must fail here"
 
 CREATE TABLE USERS
 (
 	USER_ID INT IDENTITY,
-	USER_USERNAME VARCHAR(40) NOT NULL,
-	USER_PASSWORD VARCHAR(40) NOT NULL
-);
+	USER_USERNAME VARCHAR NOT NULL,
+	USER_PASSWORD VARCHAR NOT NULL
+)
+GO
 
---* /UPGRADE
+--* /PATCH
 
 --* // ========================================================================
 

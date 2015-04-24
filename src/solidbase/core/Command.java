@@ -16,12 +16,31 @@
 
 package solidbase.core;
 
-import solidbase.util.Assert;
-import solidstack.io.SourceLocation;
-
 /**
- * Represents a command in an upgrade or SQL file.
- *
+ * <p>
+ * Represents a command in the upgrade file. A command can be transient or persistent. Transient commands start with
+ * <code>--*</code>. Example of a transient command is:
+ * </p>
+ * <blockquote>
+ * <pre>
+ * --* SET USER A_USER
+ * </pre>
+ * </blockquote>
+ * <p>
+ * Transient commands are executed as they are encountered even when a patch package fails and is re-processed.
+ * </p>
+ * <p>
+ * Example of a persistent command:
+ * </p>
+ * <blockquote>
+ * <pre>
+ * DROP TABLE A_TABLE
+ * GO
+ * </pre>
+ * </blockquote>
+ * <p>
+ * </p>
+ * 
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:13:28 PM
  */
@@ -38,29 +57,28 @@ public class Command
 	private boolean isTransient;
 
 	/**
-	 * The file location where the command is encountered.
+	 * The line number in the upgrade file where the command is found.
 	 */
-	private SourceLocation location;
+	private int lineNumber;
 
 	/**
-	 * Constructor.
-	 *
+	 * Instantiates a command.
+	 * 
 	 * @param command The text of the command.
 	 * @param isTransient Is the command transient or not?
-	 * @param location The location where the command is encountered.
+	 * @param lineNumber The line number in the upgrade file where the command is found.
 	 */
-	public Command( String command, boolean isTransient, SourceLocation location )
+	public Command( String command, boolean isTransient, int lineNumber )
 	{
-		Assert.notNull( command );
-
+		Assert.isTrue( lineNumber > 0 );
 		this.command = command;
 		this.isTransient = isTransient;
-		this.location = location;
+		this.lineNumber = lineNumber;
 	}
 
 	/**
 	 * Indicates if the command is transient or not.
-	 *
+	 * 
 	 * @return true if the command is transient, false otherwise.
 	 */
 	public boolean isTransient()
@@ -70,7 +88,7 @@ public class Command
 
 	/**
 	 * Indicates if the command is persistent or not.
-	 *
+	 * 
 	 * @return true if the command is persistent, false otherwise.
 	 */
 	public boolean isPersistent()
@@ -80,7 +98,7 @@ public class Command
 
 	/**
 	 * Returns the text of the command.
-	 *
+	 * 
 	 * @return the text of the command.
 	 */
 	public String getCommand()
@@ -90,7 +108,7 @@ public class Command
 
 	/**
 	 * Sets the command text.
-	 *
+	 * 
 	 * @param command the command text.
 	 */
 	public void setCommand( String command )
@@ -99,18 +117,12 @@ public class Command
 	}
 
 	/**
-	 * Returns the file location where the command is encountered.
-	 *
-	 * @return The file location where the command is encountered.
+	 * Returns the line number in the upgrade file where the command is found.
+	 * 
+	 * @return The line number in the upgrade file where the command is found.
 	 */
-	public SourceLocation getLocation()
+	public int getLineNumber()
 	{
-		return this.location;
-	}
-
-	@Override
-	public String toString()
-	{
-		return this.command;
+		return this.lineNumber;
 	}
 }

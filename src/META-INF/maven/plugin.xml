@@ -5,7 +5,7 @@
 	<description></description>
 	<groupId>solidbase</groupId>
 	<artifactId>solidbase</artifactId>
-	<version>2.0.0-beta3</version>
+	<version>1.6.0</version>
 	<goalPrefix>solidbase</goalPrefix>
 	<isolatedRealm>false</isolatedRealm>
 	<inheritedByDefault>true</inheritedByDefault>
@@ -55,13 +55,6 @@
 					<description>The Maven Project</description>
 				</parameter>
 				<parameter>
-					<name>skip</name>
-					<type>boolean</type>
-					<required>false</required>
-					<editable>true</editable>
-					<description>Skip execution.</description>
-				</parameter>
-				<parameter>
 					<name>target</name>
 					<type>java.lang.String</type>
 					<required>false</required>
@@ -91,17 +84,10 @@
 				</parameter>
 				<parameter>
 					<name>connections</name>
-					<type>solidbase.maven.Secondary[]</type>
+					<type>java.lang.Secondary[]</type>
 					<required>false</required>
 					<editable>true</editable>
 					<description>Secondary connections.</description>
-				</parameter>
-				<parameter>
-					<name>parameters</name>
-					<type>solidbase.maven.Parameter[]</type>
-					<required>false</required>
-					<editable>true</editable>
-					<description>Parameters.</description>
 				</parameter>
 			</parameters>
 			<configuration>
@@ -113,9 +99,6 @@
 				<username implementation="java.lang.String">${username}</username>
 				<password implementation="java.lang.String">${password}</password>
 				<url implementation="java.lang.String">${url}</url>
-				<skip implementation="boolean">${skip}</skip>
-				<connections implementation="solidbase.maven.Secondary[]">${connections}</connections>
-				<parameters implementation="solidbase.maven.Parameter[]">${parameters}</parameters>
 			</configuration>
 		</mojo>
 		<mojo>
@@ -155,13 +138,6 @@
 					<description>The Maven Project</description>
 				</parameter>
 				<parameter>
-					<name>skip</name>
-					<type>boolean</type>
-					<required>false</required>
-					<editable>true</editable>
-					<description>Skip execution.</description>
-				</parameter>
-				<parameter>
 					<name>sqlfile</name>
 					<type>java.lang.String</type>
 					<required>true</required>
@@ -184,17 +160,10 @@
 				</parameter>
 				<parameter>
 					<name>connections</name>
-					<type>solidbase.maven.Secondary[]</type>
+					<type>java.lang.Secondary[]</type>
 					<required>false</required>
 					<editable>true</editable>
 					<description>Secondary connections.</description>
-				</parameter>
-				<parameter>
-					<name>parameters</name>
-					<type>solidbase.maven.Parameter[]</type>
-					<required>false</required>
-					<editable>true</editable>
-					<description>Parameters.</description>
 				</parameter>
 			</parameters>
 			<configuration>
@@ -204,9 +173,6 @@
 				<username implementation="java.lang.String">${username}</username>
 				<password implementation="java.lang.String">${password}</password>
 				<url implementation="java.lang.String">${url}</url>
-				<skip implementation="boolean">${skip}</skip>
-				<connections implementation="solidbase.maven.Secondary[]">${connections}</connections>
-				<parameters implementation="solidbase.maven.Parameter[]">${parameters}</parameters>
 			</configuration>
 		</mojo>
 	</mojos>
