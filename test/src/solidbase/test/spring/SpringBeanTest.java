@@ -29,8 +29,12 @@ public class SpringBeanTest
 	@Test
 	public void testSpringUpgrade() throws BeansException, SQLException
 	{
+		System.out.println( "1111" );
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		System.out.println( "2222" );
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb2", "sa", null );
+		System.out.println( "3333" );
 		FileSystemXmlApplicationContext context = new FileSystemXmlApplicationContext( "spring-upgrade.xml" );
+		System.out.println( "4444" );
 	}
 }

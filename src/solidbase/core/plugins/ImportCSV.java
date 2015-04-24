@@ -71,7 +71,7 @@ public class ImportCSV implements CommandListener
 
 		if( skip )
 		{
-			if( parsed.reader == null && parsed.fileName == null )
+			if( parsed.reader == null && parsed.file == null )
 			{
 				SourceReader reader = processor.getReader(); // Data is in the source file, need to skip it.
 				String line = reader.readLine();
@@ -85,14 +85,14 @@ public class ImportCSV implements CommandListener
 		boolean needClose = false;
 		if( parsed.reader != null )
 			lineReader = parsed.reader; // Data is in the command
-		else if( parsed.fileName != null )
+		else if( parsed.file != null )
 		{
 			// Data is in a file
-			Resource resource = processor.getResource().resolve( parsed.fileName );
-			resource.setGZip( parsed.gzip );
+			Resource resource = processor.getResource().resolve( parsed.file.fileName );
+			resource.setGZip( parsed.file.gzip );
 			try
 			{
-				lineReader = SourceReaders.forResource( resource, parsed.encoding );
+				lineReader = SourceReaders.forResource( resource, parsed.file.encoding );
 			}
 			catch( FileNotFoundException e )
 			{
@@ -474,7 +474,7 @@ public class ImportCSV implements CommandListener
 
 		if( t.eq( "FILE" ) )
 		{
-			parseFile( tokenizer, result );
+			result.file = parseFile( tokenizer );
 
 			t = tokenizer.get( "EXECUTE" );
 		}
@@ -553,15 +553,17 @@ public class ImportCSV implements CommandListener
 			return result;
 		}
 
-		parseFile( tokenizer, result );
+		result.file = parseFile( tokenizer );
 
 		tokenizer.get( (String)null );
 		return result;
 	}
 
 
-	static private void parseFile( SQLTokenizer tokenizer, Parsed result )
+	static protected ParsedFile parseFile( SQLTokenizer tokenizer )
 	{
+		ParsedFile result = new ParsedFile();
+
 		Token t = tokenizer.get();
 		String file = t.getValue();
 		if( !file.startsWith( "\"" ) )
@@ -580,6 +582,8 @@ public class ImportCSV implements CommandListener
 			result.gzip = true;
 		else
 			tokenizer.push( t );
+
+		return result;
 	}
 
 
@@ -674,12 +678,25 @@ public class ImportCSV implements CommandListener
 		/** The underlying reader from the {@link SQLTokenizer}. */
 		protected SourceReader reader;
 
-		/** The file path to import from */
+		/** A file */
+		protected ParsedFile file;
+	}
+
+
+	/**
+	 * A parsed file.
+	 *
+	 * @author René M. de Bloois
+	 */
+	static protected class ParsedFile
+	{
+		/** The file path */
 		protected String fileName;
 
 		/** The encoding of the file */
 		protected String encoding;
 
+		/** Is the file compressed with gzip or not? */
 		protected boolean gzip;
 	}
 

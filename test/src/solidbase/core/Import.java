@@ -123,6 +123,48 @@ public class Import
 	}
 
 	@Test
+	public void testImportJSONLineNumber() throws SQLException
+	{
+		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-import2-json.sql" );
+
+		try
+		{
+			patcher.upgrade( "3" );
+			assert false;
+		}
+		catch( SourceException e )
+		{
+			assert e.getMessage().contains( "<separator>, <newline>" );
+			assert e.getMessage().contains( "at line 53" ) : "Wrong error message: " + e.getMessage();
+		}
+
+		try
+		{
+			patcher.upgrade( "4" );
+			assert false;
+		}
+		catch( SourceException e )
+		{
+			assert e.getMessage().contains( "Unexpected \"" );
+			assert e.getMessage().contains( "at line 62" );
+		}
+
+		try
+		{
+			patcher.upgrade( "5" );
+			assert false;
+		}
+		catch( SQLExecutionException e )
+		{
+			assert e.getMessage().contains( "integrity constraint violation" );
+			assert e.getMessage().contains( "executing line 70" );
+		}
+
+		patcher.end();
+	}
+
+	@Test
 	static public void testProgress() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );

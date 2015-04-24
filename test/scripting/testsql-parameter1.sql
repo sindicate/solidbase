@@ -15,16 +15,16 @@
 
 --* // ========================================================================
 
---* SCRIPT tableName = "TESTTEST"
+--*  SCRIPT tableName = "TESTTEST"
 
---* IF SCRIPT tableName
+--*  IF SCRIPT tableName
 
 --* SECTION "Creating table ${tableName}"
 CREATE TABLE ${tableName} ( TEST VARCHAR( 10 ) );
 INSERT INTO ${tableName} VALUES ( 'TEST' );
 COMMIT;
 
---* END IF 
+--* /IF
 
 CREATE TABLE DBPARAMETERS ( KEY VARCHAR( 10 ), VALUE VARCHAR( 100 ) );
 INSERT INTO DBPARAMETERS VALUES ( 'TABLENAME', '${tableName}' );
@@ -37,13 +37,7 @@ INSERT INTO DBPARAMETERS VALUES ( 'TABLENAME', '${tableName}' );
 --* SECTION "Creating table ${tableName}TEST"
 CREATE TABLE ${tableName}TEST ( TEST VARCHAR( 100 ) );
 
---* SCRIPT 
-( key, value ) = db.selectFirst( "SELECT KEY, VALUE FROM DBPARAMETERS WHERE KEY = 'TABLENAME'" );
-println( "\
-	|The time is: ${new Date()}
-	|Found key: ${key}
-	|Found value: ${value}".stripMargin() );
---* END SCRIPT 
+--* SCRIPT ( key, value ) = db.selectFirst( "SELECT KEY, VALUE FROM DBPARAMETERS WHERE KEY = 'TABLENAME'" )
 
 --* SECTION "Found ${key} = ${value}"
 INSERT INTO ${tableName}TEST ( TEST ) VALUES ( '${key} = ${value}' );

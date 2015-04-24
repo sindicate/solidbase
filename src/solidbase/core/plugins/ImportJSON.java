@@ -16,9 +16,7 @@
 
 package solidbase.core.plugins;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -39,6 +37,7 @@ import solidbase.core.FatalException;
 import solidbase.core.SQLExecutionException;
 import solidbase.core.SourceException;
 import solidbase.core.SystemException;
+import solidbase.core.plugins.ImportCSV.ParsedFile;
 import solidbase.util.Assert;
 import solidbase.util.CloseQueue;
 import solidbase.util.Counter;
@@ -56,12 +55,11 @@ import solidstack.io.SegmentedReader;
 import solidstack.io.SourceReader;
 import solidstack.io.SourceReaders;
 import solidstack.lang.ThreadInterrupted;
-import solidstack.script.java.DefaultClassExtensions;
 
 
-public class LoadJSON implements CommandListener
+public class ImportJSON implements CommandListener
 {
-	static private final Pattern triggerPattern = Pattern.compile( "\\s*LOAD\\s+JSON\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern triggerPattern = Pattern.compile( "\\s*IMPORT\\s+JSON\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 	static private final Pattern parameterPattern = Pattern.compile( ":(\\d+)" );
 
@@ -82,18 +80,29 @@ public class LoadJSON implements CommandListener
 		// Parse the command
 		Parsed parsed = parse( command );
 
-		// Open the file resource
-		Resource resource = processor.getResource().resolve( parsed.fileName );
-		resource.setGZip( parsed.gzip );
 		SourceReader sourceReader;
-		try
+		Resource resource;
+		boolean needClose = false;
+		if( parsed.file != null )
 		{
-			// TODO Use the same charset detection as JSON does. Maybe introduce the UTF charset if the default does not become UTF.
-			sourceReader = SourceReaders.forResource( resource, "UTF-8" );
+			// Data is in a file
+			resource = processor.getResource().resolve( parsed.file.fileName );
+			resource.setGZip( parsed.file.gzip );
+			try
+			{
+				sourceReader = SourceReaders.forResource( resource, "UTF-8" );
+			}
+			catch( FileNotFoundException e )
+			{
+				throw new FatalException( e.toString() );
+			}
+			needClose = true;
+			// TODO What about the FileNotFoundException?
 		}
-		catch( FileNotFoundException e )
+		else
 		{
-			throw new FatalException( e.toString() );
+			sourceReader = processor.getReader(); // Data is in the source file
+			resource = sourceReader.getResource(); // TODO Don't need this variable
 		}
 
 		// Create a JSON reader
@@ -125,37 +134,63 @@ public class LoadJSON implements CommandListener
 
 			boolean prependLineNumber = parsed.prependLineNumber;
 
-			// Create the INSERT statement
-			StringBuilder sql = new StringBuilder( "INSERT INTO " );
-			sql.append( parsed.tableName ); // TODO Where else do we need the quotes?
-			if( parsed.columns != null )
-				DefaultClassExtensions.addString( parsed.columns, sql, " (", ",", ")" );
+			String sql;
 			List< Integer > parameterMap = new ArrayList< Integer >();
-			if( parsed.values != null )
-			{
-				int len = parsed.values.length;
-				String[] values = new String[ len ];
-				for( int i = 0; i < len; i++ )
-					values[ i ] = translateArgument( parsed.values[ i ], parameterMap );
-				DefaultClassExtensions.addString( values, sql, " VALUES (", ",", ")" );
-			}
+
+//			if( parsed.sql != null )
+//			{
+				sql = parsed.sql;
+				sql = LoadJSON.translateArgument( sql, parameterMap );
+//			}
+			/*
 			else
 			{
-				int count = types.length;
+				StringBuilder sql1 = new StringBuilder( "INSERT INTO " );
+				sql1.append( parsed.tableName );
 				if( parsed.columns != null )
-					count = parsed.columns.length;
-				if( prependLineNumber )
-					count++;
-				int par = 1;
-				sql.append( " VALUES (?" );
-				parameterMap.add( par++ );
-				while( par <= count )
 				{
-					sql.append( ",?" );
-					parameterMap.add( par++ );
+					sql1.append( " (" );
+					for( int i = 0; i < parsed.columns.length; i++ )
+					{
+						if( i > 0 )
+							sql1.append( ',' );
+						sql1.append( parsed.columns[ i ] );
+					}
+					sql1.append( ')' );
 				}
-				sql.append( ')' );
+				if( parsed.values != null )
+				{
+					sql1.append( " VALUES (" );
+					for( int i = 0; i < parsed.values.length; i++ )
+					{
+						if( i > 0 )
+							sql1.append( "," );
+						String value = parsed.values[ i ];
+						value = translateArgument( value, parameterMap );
+						sql1.append( value );
+					}
+					sql1.append( ')' );
+				}
+				else
+				{
+					int count = line.length;
+					if( parsed.columns != null )
+						count = parsed.columns.length;
+					if( prependLineNumber )
+						count++;
+					int par = 1;
+					sql1.append( " VALUES (?" );
+					parameterMap.add( par++ );
+					while( par <= count )
+					{
+						sql1.append( ",?" );
+						parameterMap.add( par++ );
+					}
+					sql1.append( ')' );
+				}
+				sql = sql1.toString();
 			}
+			*/
 
 			// Create the log counter
 			Counter counter = null;
@@ -167,7 +202,7 @@ public class LoadJSON implements CommandListener
 			// Prepare the INSERT statement
 			PreparedStatement statement = processor.prepareStatement( sql.toString() );
 
-			// Queues the will remember the files we need to close
+			// Queues that will remember the files we need to close
 			CloseQueue outerCloser = new CloseQueue();
 			CloseQueue closer = new CloseQueue();
 
@@ -260,7 +295,7 @@ public class LoadJSON implements CommandListener
 												closer.add( in );
 											}
 											else
-												statement.setBytes( pos++, readBytes( r ) ); // TODO Do a speed test
+												statement.setBytes( pos++, LoadJSON.readBytes( r ) ); // TODO Do a speed test
 										}
 										catch( FileNotFoundException e )
 										{
@@ -374,7 +409,7 @@ public class LoadJSON implements CommandListener
 						catch( SQLException e )
 						{
 							// When NOBATCH is on, you can see the actual insert statement and line number in the file where the SQLException occurred.
-							String message = buildErrorMessage( sql.toString(), parameterMap, values, prependLineNumber, lineNumber );
+							String message = LoadJSON.buildErrorMessage( sql, parameterMap, values, prependLineNumber, lineNumber );
 							throw new SQLExecutionException( message, reader.getLocation().lineNumber( lineNumber ), e );
 						}
 					}
@@ -409,87 +444,6 @@ public class LoadJSON implements CommandListener
 	}
 
 
-	static byte[] readBytes( Resource resource ) throws FileNotFoundException
-	{
-		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-		byte[] buffer = new byte[ 4096 ];
-		try
-		{
-			InputStream in = resource.newInputStream();
-			try
-			{
-				int read;
-				while( ( read = in.read( buffer ) ) >= 0 )
-					bytes.write( buffer, 0, read );
-			}
-			finally
-			{
-				in.close();
-			}
-		}
-		catch( IOException e )
-		{
-			throw new SystemException( e );
-		}
-		return bytes.toByteArray();
-	}
-
-
-	/**
-	 * Replaces arguments within the given value with ? and maintains a map.
-	 *
-	 * @param value Value to be translated.
-	 * @param parameterMap A map of ? index to index of the CSV fields.
-	 * @return The translated value.
-	 */
-	static protected String translateArgument( String value, List< Integer > parameterMap )
-	{
-		Matcher matcher = parameterPattern.matcher( value );
-		StringBuffer result = new StringBuffer();
-		while( matcher.find() )
-		{
-			int num = Integer.parseInt( matcher.group( 1 ) );
-			parameterMap.add( num );
-			matcher.appendReplacement( result, "?" );
-		}
-		matcher.appendTail( result );
-		return result.toString();
-	}
-
-
-	static protected String buildErrorMessage( String sql, List< Integer > parameterMap, JSONArray values, boolean prependLineNumber, int lineNumber )
-	{
-		StringBuilder b = new StringBuilder( sql.toString() );
-		b.append( " VALUES (" );
-		boolean first = true;
-		for( int par : parameterMap )
-		{
-			if( first )
-				first = false;
-			else
-				b.append( ',' );
-			try
-			{
-				if( prependLineNumber )
-				{
-					if( par == 1 )
-						b.append( lineNumber );
-					else
-						b.append( values.get( par - 2 ) );
-				}
-				else
-					b.append( values.get( par - 1 ) );
-			}
-			catch( ArrayIndexOutOfBoundsException ee ) // TODO Why is this caught?
-			{
-				throw new SystemException( ee );
-			}
-		}
-		b.append( ')' );
-		return b.toString();
-	}
-
-
 	/**
 	 * Parses the given command.
 	 *
@@ -499,16 +453,22 @@ public class LoadJSON implements CommandListener
 	static protected Parsed parse( Command command )
 	{
 		// FIXME Replace LINENUMBER with RECORD NUMBER
-		// TODO Match column names
-		// TODO Free SQL like with IMPORT CSV
 		/*
-		LOAD JSON
+		IMPORT JSON
 		[ PREPEND LINENUMBER ]
 		[ NOBATCH ]
 		[ LOG EVERY n RECORDS | SECONDS ]
-		INTO <schema>.<table> [ ( <columns> ) ]
-		[ VALUES ( <values> ) ]
-		FILE "<file>" [ GZIP ]
+		(
+			[ FILE "<file>" ENCODING "<encoding>" [ GZIP ] ]
+			EXECUTE ...
+		)
+
+		Later:
+
+		|
+			INTO <schema>.<table> [ ( <columns> ) ]
+			[ VALUES ( <values> ) ]
+			[ DATA | FILE ]
 		*/
 
 		Parsed result = new Parsed();
@@ -517,24 +477,24 @@ public class LoadJSON implements CommandListener
 
 		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
-		tokenizer.get( "LOAD" );
+		tokenizer.get( "IMPORT" );
 		tokenizer.get( "JSON" );
 
-		Token t = tokenizer.get( "PREPEND", "NOBATCH", "LOG", "INTO" );
+		Token t = tokenizer.get( "PREPEND", "NOBATCH", "LOG", "FILE", "EXECUTE" /*, "INTO" */ );
 
 		if( t.eq( "PREPEND" ) )
 		{
 			tokenizer.get( "LINENUMBER" );
 			result.prependLineNumber = true;
 
-			t = tokenizer.get( "NOBATCH", "LOG", "INTO" );
+			t = tokenizer.get( "NOBATCH", "LOG", "FILE", "EXECUTE" /*, "INTO" */ );
 		}
 
 		if( t.eq( "NOBATCH" ) )
 		{
 			result.noBatch = true;
 
-			t = tokenizer.get( "LOG", "INTO" );
+			t = tokenizer.get( "LOG", "FILE", "EXECUTE" /*, "INTO" */ );
 		}
 
 		if( t.eq( "LOG" ) )
@@ -551,19 +511,34 @@ public class LoadJSON implements CommandListener
 			else
 				result.logSeconds = interval;
 
-			t = tokenizer.get( "INTO" );
+			t = tokenizer.get( "FILE", "EXECUTE" /*, "INTO" */ );
 		}
 
+		if( t.eq( "FILE" ) )
+		{
+			result.file = ImportCSV.parseFile( tokenizer );
+
+			t = tokenizer.get( "EXECUTE" );
+		}
+
+//		if( t.eq( "EXECUTE" ) )
+//		{
+			result.sql = tokenizer.getRemaining();
+			return result;
+//		}
+
+		/*
+		tokenizer.expect( t, "INTO" );
 		result.tableName = tokenizer.get().toString();
 
-		t = tokenizer.get( ".", "(", "VALUES", "FILE" );
+		t = tokenizer.get( ".", "(", "VALUES", "DATA", "FILE", null );
 
 		if( t.eq( "." ) )
 		{
 			// TODO This means spaces are allowed, do we want that or not?
 			result.tableName = result.tableName + "." + tokenizer.get().toString();
 
-			t = tokenizer.get( "(", "VALUES", "FILE" );
+			t = tokenizer.get( "(", "VALUES", "DATA", "FILE", null );
 		}
 
 		if( t.eq( "(" ) )
@@ -582,7 +557,7 @@ public class LoadJSON implements CommandListener
 				t = tokenizer.get( ",", ")" );
 			}
 
-			t = tokenizer.get( "VALUES", "FILE" );
+			t = tokenizer.get( "VALUES", "DATA", "FILE", null );
 		}
 
 		if( t.eq( "VALUES" ) )
@@ -592,6 +567,7 @@ public class LoadJSON implements CommandListener
 			{
 				StringBuilder value = new StringBuilder();
 				parseTill( tokenizer, value, false, ',', ')' );
+				//System.out.println( "Value: " + value.toString() );
 				values.add( value.toString() );
 
 				t = tokenizer.get( ",", ")" );
@@ -602,7 +578,7 @@ public class LoadJSON implements CommandListener
 				if( columns.size() != values.size() )
 					throw new SourceException( "Number of specified columns does not match number of given values", tokenizer.getLocation() );
 
-			t = tokenizer.get( "FILE" );
+			t = tokenizer.get( "DATA", "FILE", null );
 		}
 
 		if( columns.size() > 0 )
@@ -610,76 +586,21 @@ public class LoadJSON implements CommandListener
 		if( values.size() > 0 )
 			result.values = values.toArray( new String[ values.size() ] );
 
-		// File
-		t = tokenizer.get();
-		String file = t.getValue();
-		if( !file.startsWith( "\"" ) )
-			throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-		file = file.substring( 1, file.length() - 1 );
+		if( t.isEndOfInput() )
+			return result;
 
-		t = tokenizer.get();
-		if( t.eq( "GZIP" ) )
+		if( t.eq( "DATA" ) )
 		{
-			result.gzip = true;
-			t = tokenizer.get();
+			tokenizer.getNewline();
+			result.reader = tokenizer.getReader();
+			return result;
 		}
 
-		tokenizer.expect( t, (String)null );
+		result.file = ImportCSV.parseFile( tokenizer ); // TODO Indicate that encoding is not allowed here
 
-		result.fileName = file;
+		tokenizer.get( (String)null );
 		return result;
-	}
-
-
-	/**
-	 * Parse till the specified characters are found.
-	 *
-	 * @param tokenizer The tokenizer.
-	 * @param result The result is stored in this StringBuilder.
-	 * @param chars The end characters.
-	 * @param includeInitialWhiteSpace Include the whitespace that precedes the first token.
-	 */
-	static protected void parseTill( SQLTokenizer tokenizer, StringBuilder result, boolean includeInitialWhiteSpace, char... chars )
-	{
-		Token t = tokenizer.get();
-		if( t == null )
-			throw new SourceException( "Unexpected EOF", tokenizer.getLocation() );
-		if( t.length() == 1 )
-			for( char c : chars )
-				if( t.getValue().charAt( 0 ) == c )
-					throw new SourceException( "Unexpected [" + t + "]", tokenizer.getLocation() );
-
-		if( includeInitialWhiteSpace )
-			result.append( t.getWhiteSpace() );
-		result.append( t.getValue() );
-
-		outer:
-			while( true )
-			{
-				if( t.eq( "(" ) )
-				{
-					//System.out.println( "(" );
-					parseTill( tokenizer, result, true, ')' );
-					t = tokenizer.get();
-					Assert.isTrue( t.eq( ")" ) );
-					//System.out.println( ")" );
-					result.append( t.getWhiteSpace() );
-					result.append( t.getValue() );
-				}
-
-				t = tokenizer.get();
-				if( t == null )
-					throw new SourceException( "Unexpected EOF", tokenizer.getLocation() );
-				if( t.length() == 1 )
-					for( char c : chars )
-						if( t.getValue().charAt( 0 ) == c )
-							break outer;
-
-				result.append( t.getWhiteSpace() );
-				result.append( t.getValue() );
-			}
-
-		tokenizer.push( t );
+		*/
 	}
 
 
@@ -691,7 +612,7 @@ public class LoadJSON implements CommandListener
 	static protected class Parsed
 	{
 		/** Prepend the values from the CSV list with the line number from the command file. */
-		protected boolean prependLineNumber; // TODO Remove, after it is made possible to use an expression for auto increment
+		protected boolean prependLineNumber;
 
 		/** Don't use JDBC batch update. */
 		protected boolean noBatch;
@@ -699,21 +620,22 @@ public class LoadJSON implements CommandListener
 		protected int logRecords;
 		protected int logSeconds;
 
-		/** The table name to insert into. */
-		protected String tableName;
+		protected String sql;
 
-		/** The columns to insert into. */
-		protected String[] columns;
+//		/** The table name to insert into. */
+//		protected String tableName;
+//
+//		/** The columns to insert into. */
+//		protected String[] columns;
 
 		/** The values to insert. Use :1, :2, etc to replace with the values from the CSV list. */
 		protected String[] values;
 
-//		/** The underlying reader from the {@link Tokenizer}. */
+//		/** The underlying reader from the {@link SQLTokenizer}. */
 //		protected SourceReader reader;
 
-		/** The file path to import from */
-		protected String fileName;
-		protected boolean gzip;
+		/** A file */
+		protected ParsedFile file;
 	}
 
 
