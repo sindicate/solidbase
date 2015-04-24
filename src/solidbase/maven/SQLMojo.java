@@ -17,15 +17,15 @@
 package solidbase.maven;
 
 import org.apache.maven.plugin.MojoFailureException;
-
+import solidbase.Version;
+import solidbase.core.Database;
 import solidbase.core.FatalException;
-import solidbase.core.Runner;
-import solidstack.io.Resources;
+import solidbase.core.SQLProcessor;
 
 
 /**
  * The Maven plugin for SolidBase.
- *
+ * 
  * @author René de Bloois
  */
 public class SQLMojo extends DBMojo
@@ -33,35 +33,45 @@ public class SQLMojo extends DBMojo
 	/**
 	 * File containing the upgrade.
 	 */
-	public String sqlfile;
+	protected String sqlfile;
 
 	public void execute() throws MojoFailureException
 	{
-		if( this.skip )
-		{
-			getLog().info( "Skipped." );
-			getLog().info( "" );
-			return;
-		}
-
 		validate();
 
-		Runner runner = prepareRunner();
+		Progress progress = new Progress( getLog() );
+
+		String[] info = Version.getInfo();
+		getLog().info( info[ 0 ] );
+		getLog().info( info[ 1 ] );
+		getLog().info( "" );
+
 		try
 		{
-			runner.executeSQL();
+			SQLProcessor processor = new SQLProcessor( progress, new Database( "default", this.driver, this.url, this.username, this.password == null ? "" : this.password, progress ) );
+
+			if( this.connections != null )
+				for( Secondary secondary : this.connections )
+					processor.addDatabase(
+							new Database( secondary.getName(), secondary.getDriver() == null ? this.driver : secondary.getDriver(),
+									secondary.getUrl() == null ? this.url : secondary.getUrl(),
+											secondary.getUsername(), secondary.getPassword() == null ? "" : secondary.getPassword(), progress ) );
+
+			processor.init( this.project.getBasedir(), this.sqlfile );
+			try
+			{
+				progress.info( "Connecting to database..." );
+				processor.execute();
+				progress.info( "" );
+			}
+			finally
+			{
+				processor.end();
+			}
 		}
 		catch( FatalException e )
 		{
 			throw new MojoFailureException( e.getMessage() );
 		}
-	}
-
-	@Override
-	public Runner prepareRunner()
-	{
-		Runner runner = super.prepareRunner();
-		runner.setSQLFile( Resources.getResource( this.project.getBasedir() ).resolve( this.sqlfile ) );
-		return runner;
 	}
 }

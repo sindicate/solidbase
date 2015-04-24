@@ -54,7 +54,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;PREV CLASS&nbsp;
 &nbsp;<A HREF="../../solidbase/util/RandomAccessLineReader.html" title="class in solidbase.util"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/util/PushbackReader.html" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -92,11 +92,16 @@ solidbase.util</FONT>
 Class PushbackReader</H2>
 <PRE>
 <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</A>
-  <IMG SRC="../../resources/inherit.gif" ALT="extended by "><B>solidbase.util.PushbackReader</B>
+  <IMG SRC="../../resources/inherit.gif" ALT="extended by "><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/Reader.html?is-external=true" title="class or interface in java.io">java.io.Reader</A>
+      <IMG SRC="../../resources/inherit.gif" ALT="extended by "><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/FilterReader.html?is-external=true" title="class or interface in java.io">java.io.FilterReader</A>
+          <IMG SRC="../../resources/inherit.gif" ALT="extended by "><B>solidbase.util.PushbackReader</B>
 </PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/Closeable.html?is-external=true" title="class or interface in java.io">Closeable</A>, <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Readable.html?is-external=true" title="class or interface in java.lang">Readable</A></DD>
+</DL>
 <HR>
 <DL>
-<DT><PRE>public class <B>PushbackReader</B><DT>extends <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public class <B>PushbackReader</B><DT>extends <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/FilterReader.html?is-external=true" title="class or interface in java.io">FilterReader</A></DL>
 </PRE>
 
 <P>
@@ -139,11 +144,29 @@ My own PushbackReader. This one has an unlimited buffer and maintains the curren
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A></CODE></FONT></TD>
+<CODE>protected &nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/Reader.html?is-external=true" title="class or interface in java.io">Reader</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/util/PushbackReader.html#reader">reader</A></B></CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The underlying reader.</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="fields_inherited_from_class_java.io.FilterReader"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Fields inherited from class java.io.<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/FilterReader.html?is-external=true" title="class or interface in java.io">FilterReader</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/FilterReader.html?is-external=true#in" title="class or interface in java.io">in</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="fields_inherited_from_class_java.io.Reader"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Fields inherited from class java.io.<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/Reader.html?is-external=true" title="class or interface in java.io">Reader</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/Reader.html?is-external=true#lock" title="class or interface in java.io">lock</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -156,7 +179,8 @@ My own PushbackReader. This one has an unlimited buffer and maintains the curren
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../solidbase/util/PushbackReader.html#PushbackReader(solidbase.util.LineReader)">PushbackReader</A></B>(<A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A>&nbsp;reader)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/util/PushbackReader.html#PushbackReader(java.io.Reader, int)">PushbackReader</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/Reader.html?is-external=true" title="class or interface in java.io">Reader</A>&nbsp;reader,
+               int&nbsp;lineNumber)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs a new instance of the PushbackReader.</TD>
@@ -181,7 +205,7 @@ My own PushbackReader. This one has an unlimited buffer and maintains the curren
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A></CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/Reader.html?is-external=true" title="class or interface in java.io">Reader</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/util/PushbackReader.html#getReader()">getReader</A></B>()</CODE>
 
 <BR>
@@ -220,6 +244,24 @@ My own PushbackReader. This one has an unlimited buffer and maintains the curren
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Read one character.</TD>
 </TR>
 </TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.io.FilterReader"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.io.<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/FilterReader.html?is-external=true" title="class or interface in java.io">FilterReader</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/FilterReader.html?is-external=true#close()" title="class or interface in java.io">close</A>, <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/FilterReader.html?is-external=true#mark(int)" title="class or interface in java.io">mark</A>, <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/FilterReader.html?is-external=true#markSupported()" title="class or interface in java.io">markSupported</A>, <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/FilterReader.html?is-external=true#read(char[], int, int)" title="class or interface in java.io">read</A>, <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/FilterReader.html?is-external=true#ready()" title="class or interface in java.io">ready</A>, <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/FilterReader.html?is-external=true#reset()" title="class or interface in java.io">reset</A>, <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/FilterReader.html?is-external=true#skip(long)" title="class or interface in java.io">skip</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.io.Reader"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.io.<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/Reader.html?is-external=true" title="class or interface in java.io">Reader</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/Reader.html?is-external=true#read(char[])" title="class or interface in java.io">read</A>, <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/Reader.html?is-external=true#read(java.nio.CharBuffer)" title="class or interface in java.io">read</A></CODE></TD>
+</TR>
+</TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
@@ -245,7 +287,7 @@ My own PushbackReader. This one has an unlimited buffer and maintains the curren
 <A NAME="reader"><!-- --></A><H3>
 reader</H3>
 <PRE>
-protected <A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A> <B>reader</B></PRE>
+protected <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/Reader.html?is-external=true" title="class or interface in java.io">Reader</A> <B>reader</B></PRE>
 <DL>
 <DD>The underlying reader.
 <P>
@@ -287,15 +329,16 @@ protected int <B>lineNumber</B></PRE>
 </TR>
 </TABLE>
 
-<A NAME="PushbackReader(solidbase.util.LineReader)"><!-- --></A><H3>
+<A NAME="PushbackReader(java.io.Reader, int)"><!-- --></A><H3>
 PushbackReader</H3>
 <PRE>
-public <B>PushbackReader</B>(<A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A>&nbsp;reader)</PRE>
+public <B>PushbackReader</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/Reader.html?is-external=true" title="class or interface in java.io">Reader</A>&nbsp;reader,
+                      int&nbsp;lineNumber)</PRE>
 <DL>
 <DD>Constructs a new instance of the PushbackReader.
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>reader</CODE> - A reader.</DL>
+<DT><B>Parameters:</B><DD><CODE>reader</CODE> - A reader.<DD><CODE>lineNumber</CODE> - The current line number.</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -325,7 +368,7 @@ public int <B>getLineNumber</B>()</PRE>
 <A NAME="getReader()"><!-- --></A><H3>
 getReader</H3>
 <PRE>
-public <A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A> <B>getReader</B>()</PRE>
+public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/Reader.html?is-external=true" title="class or interface in java.io">Reader</A> <B>getReader</B>()</PRE>
 <DL>
 <DD>Returns the underlying reader. But only if the back buffer is empty, otherwise an IllegalStateException is thrown.
 <P>
@@ -345,6 +388,9 @@ public int <B>read</B>()</PRE>
  the character is taken from the underlying reader. Carriage returns are filtered out. \r and \r\n are
  automatically translated to a single \n. The current line number is incremented for each newline encountered.
 <P>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/FilterReader.html?is-external=true#read()" title="class or interface in java.io">read</A></CODE> in class <CODE><A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/FilterReader.html?is-external=true" title="class or interface in java.io">FilterReader</A></CODE></DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>The character read or -1 if no more characters are available.</DL>
@@ -419,7 +465,7 @@ public void <B>push</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/la
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;PREV CLASS&nbsp;
 &nbsp;<A HREF="../../solidbase/util/RandomAccessLineReader.html" title="class in solidbase.util"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/util/PushbackReader.html" target="_top"><B>FRAMES</B></A>  &nbsp;

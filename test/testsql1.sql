@@ -20,7 +20,7 @@
 --* DELIMITER IS ;
 
 
---* SECTION "Creating table USERS"
+--* SET MESSAGE "    Creating table USERS"
 
 CREATE TABLE USERS
 (
@@ -30,26 +30,21 @@ CREATE TABLE USERS
 );
 
 
---* SECTION "Inserting admin user"
+--* SET MESSAGE "    Inserting admin user"
  
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '0DPiKuNIrrVmD8IUCuw1hQxNqZc=' );	
 
 
---* SECTION "Inserting 3 users"
+--* SET MESSAGE "    Inserting 3 users"
  
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '1', 'x' ); INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '2', 'y' ); INSERT INTO USERS ( USER_USERNAME, 
 USER_PASSWORD ) VALUES ( '3', 'z' );	
 
 
---* SKIP 
-This is a skip test;
---* /SKIP
-
-
 --* SET DELIMITER ISOLATED ; 	 
 
 
---* SECTION "Inserting 3 users"
+--* SET MESSAGE "    Inserting 3 users"
  
 -- Appearantly, some database allow multiple statements in one go without the BEGIN END (as Oracle does).
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '1', 'x' );
@@ -61,7 +56,7 @@ INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '3', 'z' );
 --* SET DELIMITER TRAILING ;
 
 
---* SECTION "Inserting 3 users"
+--* SET MESSAGE "    Inserting 3 users"
 
 --* // These are now also sent in one go
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '1', 'x' ); INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '2', 'y' ); INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '3', 'z' );	
@@ -70,17 +65,10 @@ INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '1', 'x' ); INSERT I
 --* SET DELIMITER TRAILING ; OR ISOLATED GO
 
 
---* SECTION "Inserting 3 users"
+--* SET MESSAGE "    Inserting 3 users"
  
 			INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '1', 'x' );
 			INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '2', 'y' );
 			INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( '3', 'z' )	
 	  		GO  	
 
---* // To test the reset() between 2 SQL files
---* SET DELIMITER ISOLATED GO
-
-COMMIT
-GO
-ROLLBACK
-GO

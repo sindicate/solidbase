@@ -16,30 +16,26 @@
 
 package solidbase.core;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.SQLException;
-
-import solidstack.io.Resource;
-import solidstack.io.SourceReader;
+import solidbase.util.RandomAccessLineReader;
 
 
 /**
  * This class is the coordinator. It reads commands from the {@link SQLFile}. It calls the {@link CommandListener}s,
  * calls the {@link Database} to execute statements through JDBC, and shows progress to the user by calling
  * {@link ProgressListener}.
- *
+ * 
  * @author René M. de Bloois
  * @since May 2010
  */
 public class SQLProcessor extends CommandProcessor
 {
 	/**
-	 * The SQL execution context.
-	 */
-	protected SQLContext sqlContext;
-
-	/**
 	 * Construct a new instance of the sql executer.
-	 *
+	 * 
 	 * @param listener Listens to the progress.
 	 */
 	public SQLProcessor( ProgressListener listener )
@@ -48,35 +44,110 @@ public class SQLProcessor extends CommandProcessor
 	}
 
 	/**
-	 * Sets the SQL execution context.
-	 *
-	 * @param context The SQL execution context.
+	 * Construct a new instance of the sql executer.
+	 * 
+	 * @param listener Listens to the progress.
+	 * @param database The default database.
 	 */
-	// TODO Maybe the context should just be an argument to process(), and the caller is responsible for closing the source.
-	public void setContext( SQLContext context )
+	public SQLProcessor( ProgressListener listener, Database database )
 	{
-		this.context = context;
-		this.sqlContext = context;
+		super( listener, database );
 	}
 
 	/**
-	 * Execute the SQL file.
-	 *
+	 * Initialize the sql executer.
+	 * 
+	 * @param baseDir The base folder from where to look for the upgrade file (optional).
+	 * @param sqlFileName The name of the sql file.
+	 */
+	// TODO Remove this init, should be in the constructor
+	public void init( File baseDir, String sqlFileName )
+	{
+		openSQLFile( baseDir, sqlFileName );
+	}
+
+	/**
+	 * Initialize the sql executer.
+	 * 
+	 * @param sqlFileName The name of the sql file.
+	 */
+	// TODO Remove this init, should be in the constructor
+	public void init( String sqlFileName )
+	{
+		init( null, sqlFileName );
+	}
+
+	/**
+	 * Open the specified sql file.
+	 * 
+	 * @param fileName The name and path of the sql file.
+	 */
+	protected void openSQLFile( String fileName )
+	{
+		openSQLFile( null, fileName );
+	}
+
+	/**
+	 * Open the specified sql file in the specified folder.
+	 * 
+	 * @param baseDir The base folder from where to look. May be null.
+	 * @param fileName The name and path of the sql file.
+	 */
+	protected void openSQLFile( File baseDir, String fileName )
+	{
+		Assert.notNull( fileName );
+
+		try
+		{
+			RandomAccessLineReader ralr;
+			// TODO Should we remove this "/"?
+			URL url = SQLProcessor.class.getResource( "/" + fileName ); // In the classpath
+			if( url != null )
+			{
+				this.progress.openingSQLFile( url );
+				ralr = new RandomAccessLineReader( url );
+			}
+			else
+			{
+				File file = new File( baseDir, fileName ); // In the current folder
+				this.progress.openingSQLFile( file );
+				ralr = new RandomAccessLineReader( file );
+			}
+
+			this.sqlFile = new SQLFile( ralr );
+
+			this.progress.openedSQLFile( this.sqlFile );
+		}
+		catch( IOException e )
+		{
+			throw new SystemException( e );
+		}
+	}
+
+	/**
+	 * Close the upgrade file.
+	 */
+	public void closeSQLFile()
+	{
+		if( this.sqlFile != null )
+			this.sqlFile.close();
+		this.sqlFile = null;
+	}
+
+	/**
+	 * Execute the sql file.
+	 * 
 	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	public void process() throws SQLExecutionException
+	public void execute() throws SQLExecutionException
 	{
-		this.context.setCurrentDatabase( getDefaultDatabase() );
-		this.context.getCurrentDatabase().resetUser();
-
-		Command command = this.sqlContext.getSource().readCommand();
+		Command command = this.sqlFile.readStatement();
 		while( command != null )
 		{
-			executeWithListeners( command, this.context.skipping() ); // TODO What if exception is ignored, how do we call progress then?
-			command = this.sqlContext.getSource().readCommand();
+			executeWithListeners( command );
+			command = this.sqlFile.readStatement();
 		}
-
-		// FIXME Rollback every connection
+		this.progress.sqlExecutionComplete();
 	}
 
 	@Override
@@ -85,39 +156,13 @@ public class SQLProcessor extends CommandProcessor
 		super.startSection( level > 0 ? level - 1 : level, message );
 	}
 
+	/**
+	 * Closes open files and closes connections.
+	 */
 	@Override
 	public void end()
 	{
-		// TODO Don't like this
-		if( this.context != null )
-		{
-			for( Database database : this.context.getDatabases() )
-				database.closeConnections();
-			this.sqlContext.getSource().close();
-		}
-	}
-
-	@Override
-	protected void setDelimiters( Delimiter[] delimiters )
-	{
-		this.sqlContext.getSource().setDelimiters( delimiters );
-	}
-
-	@Override
-	public SourceReader getReader()
-	{
-		return this.sqlContext.getSource().reader;
-	}
-
-	@Override
-	public Resource getResource()
-	{
-		return this.sqlContext.getSource().getResource();
-	}
-
-	@Override
-	public boolean autoCommit()
-	{
-		return false;
+		super.end();
+		closeSQLFile();
 	}
 }

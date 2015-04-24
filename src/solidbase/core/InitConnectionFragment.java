@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package solidbase.core;
-
-import solidstack.io.SourceLocation;
 
 /**
  * An SQL fragment.
- *
+ * 
  * @author René de Bloois
  */
-public class InitConnectionFragment extends Fragment
+public class InitConnectionFragment
 {
 	/**
 	 * The name of the connection. If null then applies to all connections.
@@ -36,18 +33,37 @@ public class InitConnectionFragment extends Fragment
 	protected String userName;
 
 	/**
-	 * Constructor.
-	 *
-	 * @param location The location of the fragment in the original file.
-	 * @param text The text of the fragment.
+	 * The line number of this fragment.
+	 */
+	protected int lineNumber;
+
+	/**
+	 * The text of the fragment.
+	 */
+	protected String text;
+
+	/**
+	 * Constructs a new SQL fragment.
+	 * 
 	 * @param connectionName The name of the connection.
 	 * @param userName The name of the user.
 	 */
-	protected InitConnectionFragment( SourceLocation location, String text, String connectionName, String userName )
+	protected InitConnectionFragment( String connectionName, String userName )
 	{
-		super( location, text );
 		this.connectionName = connectionName;
 		this.userName = userName;
+	}
+
+	/**
+	 * Sets the text and line number offset of the fragment.
+	 * 
+	 * @param lineNumber The line number of the fragment in the original file.
+	 * @param text The text of the fragment.
+	 */
+	protected void setText( int lineNumber, String text )
+	{
+		this.lineNumber = lineNumber;
+		this.text = text;
 	}
 
 	/**
@@ -68,5 +84,24 @@ public class InitConnectionFragment extends Fragment
 	public String getUserName()
 	{
 		return this.userName;
+	}
+
+	/**
+	 * Returns the line number of the fragment.
+	 * @return The line number of the fragment.
+	 */
+	public int getLineNumber()
+	{
+		return this.lineNumber;
+	}
+
+	/**
+	 * Returns the text of the fragment.
+	 * 
+	 * @return The text of the fragment.
+	 */
+	public String getText()
+	{
+		return this.text;
 	}
 }

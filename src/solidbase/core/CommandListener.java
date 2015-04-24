@@ -19,35 +19,30 @@ package solidbase.core;
 import java.sql.SQLException;
 
 /**
- * A CommandListener listens to commands from the upgrade or SQL file as they are being processed.
+ * A CommandListener listens to commands from the upgrade file as they are being processed.
  *
  * @author René M. de Bloois
  * @since Apr 1, 2006 7:13:28 PM
  */
-public interface CommandListener
+abstract public class CommandListener
 {
 	/**
 	 * Called when a command from the upgrade file needs to be executed. Commands can be transient or persistent (see
-	 * {@link Command#isTransient}). This method should return true if it accepted the command.
-	 *
-	 * Problems caused by the user (command syntax, configuration mistakes or problems in data files) should be wrapped
-	 * in a {@link FatalException}.
-	 *
-	 * {@link SQLException}s should be wrapped in a {@link SQLExecutionException}. You can choose to give it the
-	 * original command that triggered this listener or the actual SQL being sent to the database. You may choose to let
-	 * the {@link SQLException} pass, then SolidBase will wrap it for you.
-	 *
+	 * {@link Command#isTransient}). This method should return true if it decides to process the command.
+	 * 
 	 * @param processor The command processor.
 	 * @param command The command that needs to be executed.
-	 * @param skip The command needs to be skipped.
-	 * @return True if it accepted the command.
-	 * @throws SQLException Whenever an unhandled {@link SQLException} is thrown.
+	 * @return True if it decides to process the command.
+	 * @throws SQLException When the execution of the command fails with an {@link SQLException}.
 	 */
-	boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException;
+	abstract public boolean execute( CommandProcessor processor, Command command ) throws SQLException;
 
 	/**
 	 * Gives this listener a chance to cleanup. For example to kill threads that it started or temporary tables that it
 	 * created.
 	 */
-	void terminate();
+	public void terminate()
+	{
+		// Can be overridden by subclasses.
+	}
 }

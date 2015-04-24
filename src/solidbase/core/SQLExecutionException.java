@@ -18,51 +18,45 @@ package solidbase.core;
 
 import java.sql.SQLException;
 
-import solidbase.util.Assert;
-import solidstack.io.SourceLocation;
-
 
 /**
  * An {@link SQLException} has occurred during execution of a {@link Command}. As a subclass of {@link FatalException}
  * the message of this exception will be presented to the user, not the stack trace.
- *
+ * 
  * @author René M. de Bloois
  */
 public class SQLExecutionException extends FatalException
 {
-	private static final long serialVersionUID = 1L;
-
 	/**
 	 * The command that caused the {@link SQLException}.
 	 */
-	private String command;
+	private Command command;
 
 	/**
-	 * The file location where the exception occurred.
+	 * The {@link SQLException}.
 	 */
-	private SourceLocation location;
+	private SQLException sqlException;
 
 	/**
 	 * Constructor.
-	 *
+	 * 
 	 * @param command The command that caused the {@link SQLException}.
-	 * @param location The file location where the exception occurred.
 	 * @param sqlException The {@link SQLException}.
 	 */
-	public SQLExecutionException( String command, SourceLocation location, SQLException sqlException )
+	public SQLExecutionException( Command command, SQLException sqlException )
 	{
-		super( sqlException );
+		super( null );
 
 		Assert.notNull( command );
 		Assert.notNull( sqlException );
 
 		this.command = command;
-		this.location = location;
+		this.sqlException = sqlException;
 	}
 
 	/**
 	 * Loops through all the exceptions contained in the {@link SQLException} and combines all messages and SQLStates into one String.
-	 *
+	 * 
 	 * @return all messages and SQLStates from the {@link SQLException} combined into one string.
 	 * @see SQLException#getNextException()
 	 */
@@ -70,7 +64,7 @@ public class SQLExecutionException extends FatalException
 	public String getSQLErrorMessages()
 	{
 		StringBuilder result = new StringBuilder();
-		SQLException e = (SQLException)getCause();
+		SQLException e = this.sqlException;
 		while( true )
 		{
 			result.append( e.getSQLState() );
@@ -87,10 +81,10 @@ public class SQLExecutionException extends FatalException
 	@Override
 	public String getMessage()
 	{
-		String command = this.command;
+		String command = this.command.getCommand();
 		if( command.length() > 1000 )
 			command = command.substring( 0, 1000 ) + "...";
 
-		return getSQLErrorMessages() + "\nWhile executing " + this.location + ": " + command;
+		return getSQLErrorMessages() + "\nWhile executing line " + this.command.getLineNumber() + ": " + command;
 	}
 }

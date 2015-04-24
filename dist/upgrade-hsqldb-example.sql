@@ -19,40 +19,53 @@
 
 
 --*	DEFINITION
---*		SETUP "" --> "1.1"
+--*		INIT "" --> "1.1"
 --*		UPGRADE "" --> "1.0.1"
---*	END DEFINITION
+--*		UPGRADE "1.0.1" --> "1.0.2"
+--*	/DEFINITION
 
 
 
---* SETUP "" --> "1.1"
+--* // ========================================================================
+--* INIT "" --> "1.1"
+--* // ========================================================================
+
+--* SECTION "Creating table DBVERSION"
 
 CREATE TABLE DBVERSION
 (
-	SPEC VARCHAR(5) NOT NULL,
-	VERSION VARCHAR(20), 
-	TARGET VARCHAR(20), 
-	STATEMENTS INTEGER NOT NULL
-);
+	SPEC VARCHAR NOT NULL,
+	VERSION VARCHAR, 
+	TARGET VARCHAR, 
+	STATEMENTS INTEGER NOT NULL 
+)
+GO
+
+--* SECTION "Creating table DBVERSIONLOG"
+
 CREATE TABLE DBVERSIONLOG
 (
-	TYPE VARCHAR(1) NOT NULL,
-	SOURCE VARCHAR(20),
-	TARGET VARCHAR(20) NOT NULL,
+	TYPE VARCHAR NOT NULL,
+	SOURCE VARCHAR,
+	TARGET VARCHAR NOT NULL,
 	STATEMENT INTEGER NOT NULL,
 	STAMP TIMESTAMP NOT NULL,
-	COMMAND VARCHAR(4000),
-	RESULT VARCHAR(4000)
+	COMMAND VARCHAR,
+	RESULT VARCHAR
 );
+
 CREATE INDEX DBVERSIONLOG_INDEX1 ON DBVERSIONLOG ( TYPE, TARGET );
 
---* END SETUP
+--* /INIT
 
 
 
+--* // ========================================================================
 --* UPGRADE "" --> "1.0.1"
+--* // ========================================================================
 
 --* SECTION "Creating table USERS"
+
 CREATE TABLE USERS
 (
 	USER_ID INT IDENTITY,
@@ -61,9 +74,29 @@ CREATE TABLE USERS
 );
 
 --* SECTION "Inserting admin user"
+
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' );
 
 --* SECTION "Inserting user"
+
 INSERT INTO USERS ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' );
 
---* END UPGRADE
+--* /UPGRADE
+
+
+
+--* // ========================================================================
+--* UPGRADE "1.0.1" --> "1.0.2"
+--* // ========================================================================
+
+--* SECTION "Creating queue"
+
+--* SELECT CONNECTION QUEUES
+
+CREATE TABLE QUEUE1
+(
+	PRIORITY INT NOT NULL,
+	MESSAGE VARCHAR NOT NULL
+);
+
+--* /UPGRADE

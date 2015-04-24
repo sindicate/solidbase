@@ -55,7 +55,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../solidbase/core/SQLFile.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/core/SQLSource.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/core/SystemException.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/SQLProcessor.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="SQLProcessor.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -75,9 +75,9 @@ function windowTitle()
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#fields_inherited_from_class_solidbase.core.CommandProcessor">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
 </TABLE>
 <A NAME="skip-navbar_top"></A>
@@ -101,7 +101,7 @@ Class SQLProcessor</H2>
 </PRE>
 
 <P>
-This class is the coordinator. It reads commands from the <A HREF="../../solidbase/core/SQLFile.html" title="class in solidbase.core"><CODE>SQLFile</CODE></A>. It calls the <A HREF="../../solidbase/core/CommandListener.html" title="interface in solidbase.core"><CODE>CommandListener</CODE></A>s,
+This class is the coordinator. It reads commands from the <A HREF="../../solidbase/core/SQLFile.html" title="class in solidbase.core"><CODE>SQLFile</CODE></A>. It calls the <A HREF="../../solidbase/core/CommandListener.html" title="class in solidbase.core"><CODE>CommandListener</CODE></A>s,
  calls the <A HREF="../../solidbase/core/Database.html" title="class in solidbase.core"><CODE>Database</CODE></A> to execute statements through JDBC, and shows progress to the user by calling
  <A HREF="../../solidbase/core/ProgressListener.html" title="class in solidbase.core"><CODE>ProgressListener</CODE></A>.
 <P>
@@ -124,14 +124,6 @@ This class is the coordinator. It reads commands from the <A HREF="../../solidba
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Field Summary</B></FONT></TH>
 </TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>protected &nbsp;<A HREF="../../solidbase/core/SQLSource.html" title="class in solidbase.core">SQLSource</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/SQLProcessor.html#sqlSource">sqlSource</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The command reader.</TD>
-</TR>
 </TABLE>
 &nbsp;<A NAME="fields_inherited_from_class_solidbase.core.CommandProcessor"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
@@ -139,7 +131,7 @@ This class is the coordinator. It reads commands from the <A HREF="../../solidba
 <TH ALIGN="left"><B>Fields inherited from class solidbase.core.<A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#autoCommit">autoCommit</A>, <A HREF="../../solidbase/core/CommandProcessor.html#currentDatabase">currentDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#databases">databases</A>, <A HREF="../../solidbase/core/CommandProcessor.html#delimiterPattern">delimiterPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreEnd">ignoreEnd</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreSet">ignoreSet</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreSqlErrorPattern">ignoreSqlErrorPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreStack">ignoreStack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#JDBC_ESCAPING">JDBC_ESCAPING</A>, <A HREF="../../solidbase/core/CommandProcessor.html#jdbcEscaping">jdbcEscaping</A>, <A HREF="../../solidbase/core/CommandProcessor.html#listeners">listeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#noSkipCounter">noSkipCounter</A>, <A HREF="../../solidbase/core/CommandProcessor.html#progress">progress</A>, <A HREF="../../solidbase/core/CommandProcessor.html#sectionLevel">sectionLevel</A>, <A HREF="../../solidbase/core/CommandProcessor.html#sectionPattern">sectionPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#selectConnectionPattern">selectConnectionPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setUserPattern">setUserPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#skipCounter">skipCounter</A>, <A HREF="../../solidbase/core/CommandProcessor.html#skipEnd">skipEnd</A>, <A HREF="../../solidbase/core/CommandProcessor.html#skipPattern">skipPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startMessage">startMessage</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startMessagePattern">startMessagePattern</A></CODE></TD>
+<TD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#currentDatabase">currentDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#databases">databases</A>, <A HREF="../../solidbase/core/CommandProcessor.html#delimiterPattern">delimiterPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreEnd">ignoreEnd</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreSet">ignoreSet</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreSqlErrorPattern">ignoreSqlErrorPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#ignoreStack">ignoreStack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#listeners">listeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#progress">progress</A>, <A HREF="../../solidbase/core/CommandProcessor.html#sectionLevel">sectionLevel</A>, <A HREF="../../solidbase/core/CommandProcessor.html#sectionPattern">sectionPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#selectConnectionPattern">selectConnectionPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setUserPattern">setUserPattern</A>, <A HREF="../../solidbase/core/CommandProcessor.html#sqlFile">sqlFile</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startMessage">startMessage</A>, <A HREF="../../solidbase/core/CommandProcessor.html#startMessagePattern">startMessagePattern</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -177,6 +169,14 @@ This class is the coordinator. It reads commands from the <A HREF="../../solidba
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/SQLProcessor.html#closeSQLFile()">closeSQLFile</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Close the upgrade file.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../solidbase/core/SQLProcessor.html#end()">end</A></B>()</CODE>
 
 <BR>
@@ -184,43 +184,45 @@ This class is the coordinator. It reads commands from the <A HREF="../../solidba
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/SQLProcessor.html#getReader()">getReader</A></B>()</CODE>
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/SQLProcessor.html#execute()">execute</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the <A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util"><CODE>LineReader</CODE></A> that is the source of the commands.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net">URL</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/SQLProcessor.html#getURL()">getURL</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net"><CODE>URL</CODE></A> of the current SQL file.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Execute the sql file.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/SQLProcessor.html#process()">process</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../solidbase/core/SQLProcessor.html#init(java.io.File, java.lang.String)">init</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A>&nbsp;baseDir,
+     <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;sqlFileName)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Execute the SQL file.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initialize the sql executer.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/SQLProcessor.html#init(java.lang.String)">init</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;sqlFileName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initialize the sql executer.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>protected &nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/SQLProcessor.html#setDelimiters(solidbase.core.Delimiter[])">setDelimiters</A></B>(solidbase.core.Delimiter[]&nbsp;delimiters)</CODE>
+<TD><CODE><B><A HREF="../../solidbase/core/SQLProcessor.html#openSQLFile(java.io.File, java.lang.String)">openSQLFile</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A>&nbsp;baseDir,
+            <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;fileName)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Overrides the current delimiters.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Open the specified sql file in the specified folder.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../solidbase/core/SQLProcessor.html#setSQLSource(solidbase.core.SQLSource)">setSQLSource</A></B>(<A HREF="../../solidbase/core/SQLSource.html" title="class in solidbase.core">SQLSource</A>&nbsp;source)</CODE>
+<CODE>protected &nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../solidbase/core/SQLProcessor.html#openSQLFile(java.lang.String)">openSQLFile</A></B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;fileName)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets the source for the SQL.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Open the specified sql file.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -238,7 +240,7 @@ This class is the coordinator. It reads commands from the <A HREF="../../solidba
 <TH ALIGN="left"><B>Methods inherited from class solidbase.core.<A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#addDatabase(solidbase.core.Database)">addDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#createStatement(java.sql.Connection)">createStatement</A>, <A HREF="../../solidbase/core/CommandProcessor.html#endSkip()">endSkip</A>, <A HREF="../../solidbase/core/CommandProcessor.html#executeJdbc(solidbase.core.Command)">executeJdbc</A>, <A HREF="../../solidbase/core/CommandProcessor.html#executeListeners(solidbase.core.Command)">executeListeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#executeWithListeners(solidbase.core.Command)">executeWithListeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getCallBack()">getCallBack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getCurrentDatabase()">getCurrentDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getDefaultDatabase()">getDefaultDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#parseDelimiters(java.util.regex.Matcher)">parseDelimiters</A>, <A HREF="../../solidbase/core/CommandProcessor.html#popIgnores()">popIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#pushIgnores(java.lang.String)">pushIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#refreshIgnores()">refreshIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#reset()">reset</A>, <A HREF="../../solidbase/core/CommandProcessor.html#section(java.lang.String, java.lang.String, solidbase.core.Command)">section</A>, <A HREF="../../solidbase/core/CommandProcessor.html#selectConnection(java.lang.String, solidbase.core.Command)">selectConnection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setCallBack(solidbase.core.ProgressListener)">setCallBack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setConnection(solidbase.core.Database)">setConnection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setUser(java.lang.String)">setUser</A>, <A HREF="../../solidbase/core/CommandProcessor.html#skip(boolean)">skip</A>, <A HREF="../../solidbase/core/CommandProcessor.html#terminateCommandListeners()">terminateCommandListeners</A></CODE></TD>
+<TD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#addDatabase(java.lang.String, solidbase.core.Database)">addDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#delimiter(java.util.regex.Matcher)">delimiter</A>, <A HREF="../../solidbase/core/CommandProcessor.html#execute(solidbase.core.Command)">execute</A>, <A HREF="../../solidbase/core/CommandProcessor.html#executeListeners(solidbase.core.Command)">executeListeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#executeWithListeners(solidbase.core.Command)">executeWithListeners</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getCallBack()">getCallBack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getCurrentDatabase()">getCurrentDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#getDefaultDatabase()">getDefaultDatabase</A>, <A HREF="../../solidbase/core/CommandProcessor.html#jdbcExecute(solidbase.core.Command)">jdbcExecute</A>, <A HREF="../../solidbase/core/CommandProcessor.html#parseDelimiters(java.util.regex.Matcher)">parseDelimiters</A>, <A HREF="../../solidbase/core/CommandProcessor.html#popIgnores()">popIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#pushIgnores(java.lang.String)">pushIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#refreshIgnores()">refreshIgnores</A>, <A HREF="../../solidbase/core/CommandProcessor.html#reset()">reset</A>, <A HREF="../../solidbase/core/CommandProcessor.html#section(java.lang.String, java.lang.String, solidbase.core.Command)">section</A>, <A HREF="../../solidbase/core/CommandProcessor.html#selectConnection(java.lang.String, solidbase.core.Command)">selectConnection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setCallBack(solidbase.core.ProgressListener)">setCallBack</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setConnection(solidbase.core.Database)">setConnection</A>, <A HREF="../../solidbase/core/CommandProcessor.html#setUser(java.lang.String)">setUser</A>, <A HREF="../../solidbase/core/CommandProcessor.html#terminateCommandListeners()">terminateCommandListeners</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -252,27 +254,6 @@ This class is the coordinator. It reads commands from the <A HREF="../../solidba
 </TABLE>
 &nbsp;
 <P>
-
-<!-- ============ FIELD DETAIL =========== -->
-
-<A NAME="field_detail"><!-- --></A>
-<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
-<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
-<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
-<B>Field Detail</B></FONT></TH>
-</TR>
-</TABLE>
-
-<A NAME="sqlSource"><!-- --></A><H3>
-sqlSource</H3>
-<PRE>
-protected <A HREF="../../solidbase/core/SQLSource.html" title="class in solidbase.core">SQLSource</A> <B>sqlSource</B></PRE>
-<DL>
-<DD>The command reader.
-<P>
-<DL>
-</DL>
-</DL>
 
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 
@@ -318,26 +299,80 @@ public <B>SQLProcessor</B>(<A HREF="../../solidbase/core/ProgressListener.html" 
 </TR>
 </TABLE>
 
-<A NAME="setSQLSource(solidbase.core.SQLSource)"><!-- --></A><H3>
-setSQLSource</H3>
+<A NAME="init(java.io.File, java.lang.String)"><!-- --></A><H3>
+init</H3>
 <PRE>
-public void <B>setSQLSource</B>(<A HREF="../../solidbase/core/SQLSource.html" title="class in solidbase.core">SQLSource</A>&nbsp;source)</PRE>
+public void <B>init</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A>&nbsp;baseDir,
+                 <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;sqlFileName)</PRE>
 <DL>
-<DD>Sets the source for the SQL.
+<DD>Initialize the sql executer.
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>source</CODE> - the source for the SQL.</DL>
+<DT><B>Parameters:</B><DD><CODE>baseDir</CODE> - The base folder from where to look for the upgrade file (optional).<DD><CODE>sqlFileName</CODE> - The name of the sql file.</DL>
 </DD>
 </DL>
 <HR>
 
-<A NAME="process()"><!-- --></A><H3>
-process</H3>
+<A NAME="init(java.lang.String)"><!-- --></A><H3>
+init</H3>
 <PRE>
-public void <B>process</B>()
+public void <B>init</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;sqlFileName)</PRE>
+<DL>
+<DD>Initialize the sql executer.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>sqlFileName</CODE> - The name of the sql file.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="openSQLFile(java.lang.String)"><!-- --></A><H3>
+openSQLFile</H3>
+<PRE>
+protected void <B>openSQLFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;fileName)</PRE>
+<DL>
+<DD>Open the specified sql file.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>fileName</CODE> - The name and path of the sql file.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="openSQLFile(java.io.File, java.lang.String)"><!-- --></A><H3>
+openSQLFile</H3>
+<PRE>
+protected void <B>openSQLFile</B>(<A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/io/File.html?is-external=true" title="class or interface in java.io">File</A>&nbsp;baseDir,
+                           <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;fileName)</PRE>
+<DL>
+<DD>Open the specified sql file in the specified folder.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>baseDir</CODE> - The base folder from where to look. May be null.<DD><CODE>fileName</CODE> - The name and path of the sql file.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="closeSQLFile()"><!-- --></A><H3>
+closeSQLFile</H3>
+<PRE>
+public void <B>closeSQLFile</B>()</PRE>
+<DL>
+<DD>Close the upgrade file.
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="execute()"><!-- --></A><H3>
+execute</H3>
+<PRE>
+public void <B>execute</B>()
              throws <A HREF="../../solidbase/core/SQLExecutionException.html" title="class in solidbase.core">SQLExecutionException</A></PRE>
 <DL>
-<DD>Execute the SQL file.
+<DD>Execute the sql file.
 <P>
 <DD><DL>
 
@@ -354,7 +389,7 @@ protected void <B>startSection</B>(int&nbsp;level,
                             <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;message)</PRE>
 <DL>
 <DD><B>Description copied from class: <CODE><A HREF="../../solidbase/core/CommandProcessor.html#startSection(int, java.lang.String)">CommandProcessor</A></CODE></B></DD>
-<DD>Starts a new section.
+<DD>Starts a new section. Called by <A HREF="../../solidbase/core/CommandProcessor.html#section(java.lang.String, java.lang.String, solidbase.core.Command)"><CODE>CommandProcessor.section(String, String, Command)</CODE></A>.
 <P>
 <DD><DL>
 <DT><B>Overrides:</B><DD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#startSection(int, java.lang.String)">startSection</A></CODE> in class <CODE><A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></CODE></DL>
@@ -370,7 +405,6 @@ end</H3>
 <PRE>
 public void <B>end</B>()</PRE>
 <DL>
-<DD><B>Description copied from class: <CODE><A HREF="../../solidbase/core/CommandProcessor.html#end()">CommandProcessor</A></CODE></B></DD>
 <DD>Closes open files and closes connections.
 <P>
 <DD><DL>
@@ -378,59 +412,6 @@ public void <B>end</B>()</PRE>
 </DD>
 <DD><DL>
 </DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="setDelimiters(solidbase.core.Delimiter[])"><!-- --></A><H3>
-setDelimiters</H3>
-<PRE>
-protected void <B>setDelimiters</B>(solidbase.core.Delimiter[]&nbsp;delimiters)</PRE>
-<DL>
-<DD><B>Description copied from class: <CODE><A HREF="../../solidbase/core/CommandProcessor.html#setDelimiters(solidbase.core.Delimiter[])">CommandProcessor</A></CODE></B></DD>
-<DD>Overrides the current delimiters.
-<P>
-<DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#setDelimiters(solidbase.core.Delimiter[])">setDelimiters</A></CODE> in class <CODE><A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></CODE></DL>
-</DD>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>delimiters</CODE> - The delimiters.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="getReader()"><!-- --></A><H3>
-getReader</H3>
-<PRE>
-public <A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util">LineReader</A> <B>getReader</B>()</PRE>
-<DL>
-<DD><B>Description copied from class: <CODE><A HREF="../../solidbase/core/CommandProcessor.html#getReader()">CommandProcessor</A></CODE></B></DD>
-<DD>Returns the <A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util"><CODE>LineReader</CODE></A> that is the source of the commands.
-<P>
-<DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#getReader()">getReader</A></CODE> in class <CODE><A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></CODE></DL>
-</DD>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>the <A HREF="../../solidbase/util/LineReader.html" title="class in solidbase.util"><CODE>LineReader</CODE></A> that is the source of the commands.</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="getURL()"><!-- --></A><H3>
-getURL</H3>
-<PRE>
-public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net">URL</A> <B>getURL</B>()</PRE>
-<DL>
-<DD><B>Description copied from class: <CODE><A HREF="../../solidbase/core/CommandProcessor.html#getURL()">CommandProcessor</A></CODE></B></DD>
-<DD>Returns the <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net"><CODE>URL</CODE></A> of the current SQL file.
-<P>
-<DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../solidbase/core/CommandProcessor.html#getURL()">getURL</A></CODE> in class <CODE><A HREF="../../solidbase/core/CommandProcessor.html" title="class in solidbase.core">CommandProcessor</A></CODE></DL>
-</DD>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>The <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-external=true" title="class or interface in java.net"><CODE>URL</CODE></A> of the current SQL file.</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
@@ -464,7 +445,7 @@ public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-ext
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../solidbase/core/SQLFile.html" title="class in solidbase.core"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../solidbase/core/SQLSource.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../solidbase/core/SystemException.html" title="class in solidbase.core"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../index.html?solidbase/core/SQLProcessor.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="SQLProcessor.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -484,9 +465,9 @@ public <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html?is-ext
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#fields_inherited_from_class_solidbase.core.CommandProcessor">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
 </TABLE>
 <A NAME="skip-navbar_bottom"></A>

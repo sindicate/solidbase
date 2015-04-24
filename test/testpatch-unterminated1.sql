@@ -15,9 +15,9 @@
 
 --* // ========================================================================
 
---*	DEFINITION
---*		UPGRADE "" --> "1.0.1"
---*	/DEFINITION
+--*	PATCHES
+--*		PATCH "" --> "1.0.1"
+--*	/PATCHES
 
 
 
@@ -26,10 +26,10 @@
 
 
 --* // ========================================================================
---* UPGRADE "" --> "1.0.1"
+--* PATCH "" --> "1.0.1"
 --* // ========================================================================
 
---* SECTION "Creating table DBVERSION"
+--* SET MESSAGE "Creating table DBVERSION"
 CREATE TABLE DBVERSION
 ( 
 	VERSION VARCHAR(20), 
@@ -37,9 +37,9 @@ CREATE TABLE DBVERSION
 	STATEMENTS INTEGER NOT NULL 
 );
 
-NON-DELIMITED COMMAND
+UNTERMINATED COMMAND
 
---* /UPGRADE
+--* /PATCH
 
 --* // ========================================================================
 
