@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 
 public class Include
 {
-	static private final String db = "jdbc:hsqldb:mem:testdb2";
+	static private final String db = Setup.defaultdb;
 
 	@Test
 	public void testInclude() throws SQLException

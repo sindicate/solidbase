@@ -27,8 +27,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import solidbase.util.Assert;
 import solidstack.io.Resource;
@@ -76,6 +76,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	/**
 	 * All configured databases. This is used when the upgrade file selects a different database by name.
 	 */
+	// TODO Databases are also in the context
 	protected DatabaseContext databases;
 
 	/**

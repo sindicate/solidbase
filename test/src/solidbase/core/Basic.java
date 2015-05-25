@@ -101,7 +101,7 @@ public class Basic
 	@Test
 	public void testOpen() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-open.sql" );
 
 		patcher.upgrade( "1.0.*" );
@@ -113,7 +113,7 @@ public class Basic
 	@Test(expectedExceptions=NonDelimitedStatementException.class)
 	public void testUnterminatedCommand1() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-unterminated1.sql" );
 
 		try
@@ -130,7 +130,7 @@ public class Basic
 	@Test(expectedExceptions=NonDelimitedStatementException.class)
 	public void testUnterminatedCommand2() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-unterminated2.sql" );
 
 		try
@@ -149,7 +149,7 @@ public class Basic
 	@Test
 	public void testSharedPatchBlock() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-sharedpatch1.sql" );
 
 		patcher.upgrade( "1.0.2" );
@@ -161,7 +161,7 @@ public class Basic
 	@Test
 	public void testMultipleTargets() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-multipletargets.sql" );
 
 		try
@@ -180,9 +180,9 @@ public class Basic
 	//@Test TODO This is a test for INIT CONNECTION
 	public void testConnectionSetup() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-connectionsetup1.sql" );
-		patcher.databases.addDatabase( new Database( "queues", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, patcher.getProgressListener() ) );
+		patcher.databases.addDatabase( new Database( "queues", "org.hsqldb.jdbcDriver", Setup.defaultdb, "sa", null, patcher.getProgressListener() ) );
 
 		patcher.upgrade( "1.0.1" );
 		TestUtil.verifyVersion( patcher, "1.0.1", null, 1, "1.1" );
@@ -193,9 +193,9 @@ public class Basic
 	//@Test TODO This is a test for INITIALIZATION
 	public void testInitialization() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-initialization.sql" );
-		patcher.databases.addDatabase( new Database( "queues", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb", "sa", null, patcher.getProgressListener() ) );
+		patcher.databases.addDatabase( new Database( "queues", "org.hsqldb.jdbcDriver", Setup.defaultdb, "sa", null, patcher.getProgressListener() ) );
 
 		patcher.upgrade( "1.0.1" );
 		TestUtil.verifyVersion( patcher, "1.0.1", null, 1, "1.1" );
@@ -206,7 +206,7 @@ public class Basic
 	// @Test TODO
 	public void testSetUser() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-setuser.sql" );
 
 		patcher.upgrade( null );
@@ -216,7 +216,7 @@ public class Basic
 	@Test
 	public void testJdbcEscaping() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-jdbc-escaping.sql" );
 
 		try

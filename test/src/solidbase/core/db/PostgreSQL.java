@@ -30,18 +30,16 @@ import solidbase.test.mocks.PostgreSQLDriverManager;
 
 public class PostgreSQL
 {
-	static private final String db = "jdbc:hsqldb:mem:testdb2";
-
 	@Test
 	public void testTransactionAborted() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( db, "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 
 		// This mock DriverManager (and mock Connection, PreparedStatement) simulate PostgreSQL
 		// PostgreSQL aborts a transaction when an SQLException is raised, so you can't continue with it
 		Mockit.setUpMocks( PostgreSQLDriverManager.class );
 
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch1.sql", db );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch1.sql", Setup.defaultdb );
 
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;

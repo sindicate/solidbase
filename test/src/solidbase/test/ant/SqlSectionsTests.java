@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import solidbase.core.Setup;
 import solidbase.core.TestUtil;
 
 
@@ -30,7 +31,7 @@ public class SqlSectionsTests extends MyBuildFileTest
 	@Test
 	public void testSqlTask() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 
 		configureProject( "test-sqltask.xml" );
 		this.project.setBaseDir( new File( "." ) ); // Needed when testing through Maven

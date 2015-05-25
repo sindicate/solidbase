@@ -23,13 +23,11 @@ import org.testng.annotations.Test;
 
 public class ClassPathTest
 {
-	static private final String db = "jdbc:hsqldb:mem:testdb";
-
 	@Test
 	public void testClassPath() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( db, "sa", null );
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "classpath:/testpatch-classpath.sql", db );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "classpath:/testpatch-classpath.sql", Setup.defaultdb );
 
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;
@@ -41,8 +39,8 @@ public class ClassPathTest
 	@Test
 	public void testClassPath2() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( db, "sa", null );
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "classpath:/folder/testpatch-classpath.sql", db );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "classpath:/folder/testpatch-classpath.sql", Setup.defaultdb );
 
 		Set< String > targets = patcher.getTargets( false, null, false );
 		assert targets.size() > 0;

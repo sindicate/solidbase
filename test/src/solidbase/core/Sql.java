@@ -25,7 +25,7 @@ public class Sql
 	@Test
 	public void testSql1() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 		SQLProcessor processor = Setup.setupSQLProcessor( "testsql1.sql" );
 
 		processor.process();
@@ -38,7 +38,7 @@ public class Sql
 	// TODO Move to console test
 	public void testSql2() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 		SQLProcessor processor = Setup.setupSQLProcessor( "testsql-sections.sql" );
 
 		processor.process();

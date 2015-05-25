@@ -59,4 +59,11 @@ public class SQLContext extends CommandContext
 	{
 		return this.source;
 	}
+
+	@Override
+	public void end()
+	{
+		super.end();
+		this.source.close();
+	}
 }

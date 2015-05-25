@@ -366,4 +366,10 @@ abstract public class CommandContext
 	{
 		this.sectionLevel = level;
 	}
+
+	public void end()
+	{
+		for( Database database : getDatabases() )
+			database.closeConnections();
+	}
 }

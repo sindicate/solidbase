@@ -75,8 +75,6 @@ public class SQLProcessor extends CommandProcessor
 			executeWithListeners( command, this.context.skipping() ); // TODO What if exception is ignored, how do we call progress then?
 			command = this.sqlContext.getSource().readCommand();
 		}
-
-		// FIXME Rollback every connection
 	}
 
 	@Override
@@ -85,16 +83,13 @@ public class SQLProcessor extends CommandProcessor
 		super.startSection( level > 0 ? level - 1 : level, message );
 	}
 
+	// TODO Move this to CommandProcessor?
 	@Override
 	public void end()
 	{
 		// TODO Don't like this
 		if( this.context != null )
-		{
-			for( Database database : this.context.getDatabases() )
-				database.closeConnections();
-			this.sqlContext.getSource().close();
-		}
+			this.context.end();
 	}
 
 	@Override

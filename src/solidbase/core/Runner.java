@@ -213,7 +213,14 @@ public class Runner
 					this.listener.println( "Connecting to database..." ); // TODO Let the database say that (for example the default connection)
 					first = false;
 				}
-				processor.process();
+				try
+				{
+					processor.process();
+				}
+				finally
+				{
+					processor.end();
+				}
 			}
 			complete = true;
 		}
@@ -224,7 +231,6 @@ public class Runner
 			else
 				this.listener.sqlExecutionAborted();
 
-			processor.end();
 			PluginManager.terminateListeners();
 		}
 

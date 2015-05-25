@@ -52,7 +52,6 @@
 
 	<path id="groovy.classpath">
 		<fileset dir="tools/groovy" includes="*.jar" />
-		<fileset dir="tools/svnkit" includes="*.jar" />
 	</path>
 
 	<path id="jarjar.classpath">
@@ -172,7 +171,7 @@
 			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.999.10.jar" />
 			<jvmarg value="-Xmx256m" />
 			<classfileset dir="${build.home}/testclasses" />
-			<!-- <reporter classname="solidbase.test.TestListener"/> -->
+			<reporter classname="solidbase.test.TestListener"/>
 		</testng>
 	</target>
 
@@ -204,16 +203,15 @@
 				</resourcecount>
 			</condition>
 		</fail>
-		<groovy src="scripts/getsvninfo.groovy" />
 		<mkdir dir="${build.home}/config" />
 		<!-- TODO This echo causes the jar file to be rebuilt again and again -->
-		<echo file="${build.home}/config/version.properties" message="solidbase.version=${release.number}-rev${svn.revision}" />
+		<echo file="${build.home}/config/version.properties" message="solidbase.version=${release.number}" />
 		<mkdir dir="${dist.home}" />
 		<jarjar compress="yes" destfile="${dist.home}/solidbase.jar">
 			<zipfileset dir="${build.home}/classes" excludes="solidbase/version.properties" />
 			<zipfileset file="${build.home}/config/version.properties" prefix="solidbase" />
 			<zipfileset src="lib/commons-cli-1.2.jar" excludes="META-INF/**" />
-			<zipfileset src="lib/commons-lang-2.3.jar" excludes="META-INF/**" />
+			<zipfileset src="lib/commons-lang3-3.4.jar" excludes="META-INF/**" />
 			<zipfileset dir="${build.home}/../solidstack/classes" includes="**/*.class" /> <!-- TODO This is temporary -->
 			<!-- <zipfileset src="lib/solidstack-1.9.2-beta.jar" includes="solidstack/**/*.class" /> --> <!-- TODO This is the correct way -->
 			<zipfileset dir="." includes="LICENSE.txt,NOTICE.txt,CHANGELOG.TXT" prefix="META-INF" />
@@ -222,15 +220,17 @@
 			<keep pattern="solidbase.**" />
 			<manifest>
 				<attribute name="Implementation-Title" value="SolidBase" />
-				<attribute name="Implementation-Version" value="${release.number}.${svn.revision}" />
+				<attribute name="Implementation-Version" value="${release.number}" />
 				<attribute name="Implementation-Vendor-Id" value="org.solidbase" />
 				<attribute name="Main-Class" value="solidbase.Main" />
-				<attribute name="Version" value="${release.number}.${svn.revision}" />
+				<attribute name="Version" value="${release.number}" />
 				<attribute name="Project-Name" value="${ant.project.name}" />
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Target-JRE" value="${target-jre}" />
+				<!--
 				<attribute name="SVN-url" value="${svn.url}" />
 				<attribute name="SVN-revision" value="${svn.committedRevision}" />
+				-->
 			</manifest>
 		</jarjar>
 	</target>
@@ -261,12 +261,7 @@
 	</target>
 	-->
 
-	<target name="checksvnstatus">
-		<groovy src="scripts/checksvnstatus.groovy" />
-	</target>
-
-
-	<target name="dist" depends="checksvnstatus,clean,test,build" description="Complete build process to create the distribution files">
+	<target name="dist" depends="clean,test,build" description="Complete build process to create the distribution files">
 		<fail>
 			<condition>
 				<resourcecount when="ne" count="8">

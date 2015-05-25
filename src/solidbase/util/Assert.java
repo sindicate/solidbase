@@ -18,11 +18,11 @@ package solidbase.util;
 
 import java.util.Collection;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Assert methods.
- * 
+ *
  * @author René M. de Bloois
  * @since Jan 5, 2005
  */
@@ -39,7 +39,7 @@ public class Assert
 	/**
 	 * Asserts that the <code>test</code> argument is <code>true</code>. If not, it throws an
 	 * {@link AssertionFailedException}.
-	 * 
+	 *
 	 * @param test
 	 *            Test argument.
 	 */
@@ -52,7 +52,7 @@ public class Assert
 	/**
 	 * Assert that the <code>test</code> argument is <code>true</code>. If not, it throws an
 	 * {@link AssertionFailedException} with the given <code>errorMessage</code>.
-	 * 
+	 *
 	 * @param test
 	 *            Test argument.
 	 * @param errorMessage
@@ -67,7 +67,7 @@ public class Assert
 	/**
 	 * Assert that the <code>test</code> argument is <code>true</code>. If not, it throws an
 	 * {@link AssertionFailedException} with the given <code>errorMessage</code> and the given linenumber.
-	 * 
+	 *
 	 * @param test
 	 *            Test argument.
 	 * @param errorMessage
@@ -84,7 +84,7 @@ public class Assert
 	/**
 	 * Assert that the <code>test</code> argument is <code>false</code>. If not, it throws an
 	 * {@link AssertionFailedException}.
-	 * 
+	 *
 	 * @param test
 	 *            Test argument.
 	 */
@@ -97,7 +97,7 @@ public class Assert
 	/**
 	 * Assert that the <code>test</code> argument is <code>false</code>. If not, it throws an
 	 * {@link AssertionFailedException} with the given <code>errorMessage</code>.
-	 * 
+	 *
 	 * @param test
 	 *            Test argument.
 	 * @param errorMessage
@@ -112,7 +112,7 @@ public class Assert
 	/**
 	 * Throws an {@link AssertionFailedException} with the given <code>errorMessage</code> while popping the number of
 	 * items from the stack trace. This gives the impression that the exception is generated from the caller's code.
-	 * 
+	 *
 	 * @param errorMessage
 	 *            The error message.
 	 * @param pop
@@ -130,7 +130,7 @@ public class Assert
 
 	/**
 	 * Throws an {@link AssertionFailedException} with the given <code>errorMessage</code>.
-	 * 
+	 *
 	 * @param errorMessage
 	 *            The error message.
 	 */
@@ -149,7 +149,7 @@ public class Assert
 
 	/**
 	 * Assert that String argument s is not null and not "". If not, it throws an {@link AssertionFailedException}.
-	 * 
+	 *
 	 * @param test
 	 *            Test argument.
 	 */
@@ -161,7 +161,7 @@ public class Assert
 	/**
 	 * Assert that String argument s is not null and not "". If not, it throws an {@link AssertionFailedException} with
 	 * the given <code>errorMessage</code>.
-	 * 
+	 *
 	 * @param test
 	 *            Test argument.
 	 * @param errorMessage
@@ -175,7 +175,7 @@ public class Assert
 
 	/**
 	 * Assert that the collection is not null and not empty. If not, an {@link AssertionFailedException} is thrown.
-	 * 
+	 *
 	 * @param collection The collection to be checked for not emptiness.
 	 */
 	static public void notEmpty( Collection< ? > collection )
@@ -187,7 +187,7 @@ public class Assert
 	/**
 	 * Assert that String argument s is not null and not "" and not whitespace. If not, it throws an
 	 * {@link AssertionFailedException}.
-	 * 
+	 *
 	 * @param test
 	 *            Test argument.
 	 */
@@ -199,7 +199,7 @@ public class Assert
 	/**
 	 * Assert that String argument s is not null and not "" and not whitespace. If not, it throws an
 	 * {@link AssertionFailedException} with the given <code>errorMessage</code>.
-	 * 
+	 *
 	 * @param test
 	 *            Test argument.
 	 * @param errorMessage
@@ -213,7 +213,7 @@ public class Assert
 
 	/**
 	 * Asserts that the <code>test</code> argument is not <code>null</code>. If not, it throws an {@link AssertionFailedException}.
-	 * 
+	 *
 	 * @param test
 	 *            Test argument.
 	 */
@@ -225,7 +225,7 @@ public class Assert
 
 	/**
 	 * Asserts that the <code>test</code> argument is not <code>null</code>. If not, it throws an {@link AssertionFailedException} with the given <code>errorMessage</code>.
-	 * 
+	 *
 	 * @param test
 	 *            Test argument.
 	 * @param errorMessage
@@ -239,7 +239,7 @@ public class Assert
 
 	/**
 	 * Asserts that the <code>test</code> argument is <code>null</code>. If not, it throws an {@link AssertionFailedException}.
-	 * 
+	 *
 	 * @param test
 	 *            Test argument.
 	 */
@@ -251,7 +251,7 @@ public class Assert
 
 	/**
 	 * Asserts that the <code>test</code> argument is <code>null</code>. If not, it throws an {@link AssertionFailedException} with the given <code>errorMessage</code>.
-	 * 
+	 *
 	 * @param test
 	 *            Test argument.
 	 * @param errorMessage
@@ -266,7 +266,7 @@ public class Assert
 	/**
 	 * Asserts that the {@code object} is an instance of the {@code class}. If not, an
 	 * {@link AssertionFailedException} is thrown.
-	 * 
+	 *
 	 * @param object The object of which the type is checked.
 	 * @param type The type to be checked.
 	 */
@@ -279,7 +279,7 @@ public class Assert
 	/**
 	 * Asserts that the {@code object} is not an instance of the {@code class}. If it is, an
 	 * {@link AssertionFailedException} is thrown.
-	 * 
+	 *
 	 * @param object The object of which the type is checked.
 	 * @param type The type to be checked.
 	 */

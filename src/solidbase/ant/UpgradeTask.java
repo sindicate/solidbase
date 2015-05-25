@@ -174,6 +174,7 @@ public class UpgradeTask extends DBTask
 		}
 		catch( FatalException e )
 		{
+			// TODO ScriptException should also be wrapped in a FatalException, somewhere
 			// TODO When debugging, we should give the whole exception, not only the message
 			// TODO Shouldn't we just wrap the exception, and then Ant is the one who decides if it only shows the message or the complete stacktrace?
 			throw new BuildException( e.getMessage() );

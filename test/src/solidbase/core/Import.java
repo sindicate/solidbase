@@ -83,7 +83,7 @@ public class Import
 	@Test
 	public void testImportLineNumber() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-import2.sql" );
 
 		try
@@ -125,7 +125,7 @@ public class Import
 	@Test
 	static public void testProgress() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-import3.sql" );
 		patcher.upgrade( "1" );
 		patcher.end();

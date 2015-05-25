@@ -29,10 +29,10 @@ public class DataSourceTests
 	@Test
 	public void testWithDataSource() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb2", "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 
 		TestProgressListener progress = new TestProgressListener();
-		DriverDataSource dataSource = new DriverDataSource( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb2", "sa", null );
+		DriverDataSource dataSource = new DriverDataSource( "org.hsqldb.jdbcDriver", Setup.defaultdb, "sa", null );
 		Database database = new Database( "default", dataSource, progress );
 		DatabaseContext databases = new DatabaseContext( database );
 		UpgradeProcessor processor = new UpgradeProcessor( progress );
@@ -52,10 +52,10 @@ public class DataSourceTests
 	@Test
 	public void testWithDataSourceAndUser() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb2", "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 
 		TestProgressListener progress = new TestProgressListener();
-		DriverDataSource dataSource = new DriverDataSource( "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdb2", "sa", null );
+		DriverDataSource dataSource = new DriverDataSource( "org.hsqldb.jdbcDriver", Setup.defaultdb, "sa", null );
 		Database database = new Database( "default", dataSource, "sa", null, progress );
 		DatabaseContext databases = new DatabaseContext( database );
 		UpgradeProcessor processor = new UpgradeProcessor( progress );

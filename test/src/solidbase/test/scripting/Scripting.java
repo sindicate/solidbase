@@ -29,10 +29,17 @@ public class Scripting
 	@Test
 	public void testParameter1() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 		SQLProcessor processor = Setup.setupSQLProcessor( "scripting/testsql-parameter1.sql" );
+		// TODO Check the output
 
-		processor.process();
-		processor.end();
+		try
+		{
+			processor.process();
+		}
+		finally // TODO Need this finally in the other tests too
+		{
+			processor.end();
+		}
 	}
 }

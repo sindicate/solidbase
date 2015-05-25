@@ -20,6 +20,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import solidbase.Main;
+import solidbase.core.Setup;
 import solidbase.core.TestUtil;
 import solidbase.test.mocks.MockConsole;
 
@@ -28,14 +29,14 @@ public class Messages
 	@Test
 	static public void testMessageBeforeListener() throws Exception
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 
 		MockConsole console = new MockConsole();
 		Main.console = console;
 
 		Main.pass2( "-verbose",
 				"-driver", "org.hsqldb.jdbcDriver",
-				"-url", "jdbc:hsqldb:mem:testdb",
+				"-url", Setup.defaultdb,
 				"-username", "sa",
 				"-password", "",
 				"-target", "1.0.2",

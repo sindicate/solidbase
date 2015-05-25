@@ -32,6 +32,8 @@ import java.util.ListIterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+
 import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
@@ -112,6 +114,7 @@ public class LoadJSON implements CommandListener
 
 			// Initialise the working arrays
 			int[] types = new int[ fieldCount ];
+			String[] names = new String[ fieldCount ];
 			String[] fileNames = new String[ fieldCount ];
 			SegmentedInputStream[] streams = new SegmentedInputStream[ fieldCount ];
 			SegmentedReader[] textStreams = new SegmentedReader[ fieldCount ];
@@ -120,6 +123,7 @@ public class LoadJSON implements CommandListener
 			{
 				JSONObject field = (JSONObject)fields.get( i );
 				types[ i ] = JDBCSupport.fromTypeName( field.getString( "type" ) );
+				names[ i ] = field.findString( "name" );
 				fileNames[ i ] = field.findString( "file" );
 			}
 
@@ -129,7 +133,14 @@ public class LoadJSON implements CommandListener
 			StringBuilder sql = new StringBuilder( "INSERT INTO " );
 			sql.append( parsed.tableName ); // TODO Where else do we need the quotes?
 			if( parsed.columns != null )
-				DefaultClassExtensions.addString( parsed.columns, sql, " (", ",", ")" );
+				names = parsed.columns;
+			else
+				for( int i = 0; i < names.length; i++ )
+					if( StringUtils.isBlank( names[ i ] ) )
+						throw new FatalException( "Field name is blank for field number " + i + " in " + resource );
+			DefaultClassExtensions.addString( names, sql, " (", ",", ")" );
+
+			// Add the VALUES
 			List< Integer > parameterMap = new ArrayList< Integer >();
 			if( parsed.values != null )
 			{

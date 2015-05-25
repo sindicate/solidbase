@@ -44,7 +44,7 @@ public class CharSets
 	@Test
 	public void testUtf8() throws SQLException, SQLExecutionException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 
 		TestProgressListener progress = new TestProgressListener();
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "patch-utf-8-1.sql" );

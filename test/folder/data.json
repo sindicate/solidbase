@@ -8,8 +8,8 @@
 		{ "name": "ID", "type": "NUMERIC" },
 		{ "name": "ISOCODE", "type": "NUMERIC" },
 		{ "name": "NAME", "type": "VARCHAR" },
-		{ "name": "START", "type": "DATE" },
-		{ "name": "END", "type": "TIMESTAMP" },
+		{ "name": "START_DATE", "type": "DATE" },
+		{ "name": "END_DATE", "type": "TIMESTAMP" },
 		{ "name": "IMAGE", "type": "BLOB" }
 	]
 }

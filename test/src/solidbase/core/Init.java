@@ -60,7 +60,7 @@ public class Init
 	@Test
 	public void testInit3() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( db, "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 
 		TestProgressListener progress = new TestProgressListener();
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-version-table-upgrade-2.sql", db );

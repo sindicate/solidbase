@@ -26,7 +26,7 @@ public class Downgrade
 	@Test
 	public void testDowngrade() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 
 		TestProgressListener progress = new TestProgressListener();
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-downgrade-1.sql" );
@@ -61,7 +61,7 @@ public class Downgrade
 	@Test
 	public void testDowngrade2() throws SQLException
 	{
-		TestUtil.dropHSQLDBSchema( "jdbc:hsqldb:mem:testdb", "sa", null );
+		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 
 		TestProgressListener progress = new TestProgressListener();
 		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-downgrade-2.sql" );

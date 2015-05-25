@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
 
 import solidbase.Main;
 import solidbase.core.FatalException;
+import solidbase.core.Setup;
 import solidbase.core.TestUtil;
 import solidbase.test.mocks.MockConsole;
 
@@ -28,7 +29,7 @@ import solidbase.test.mocks.MockConsole;
 public class CommandLineTests
 {
 	static private final String db = "jdbc:hsqldb:mem:testCommandLine";
-	static private final String db2 = "jdbc:hsqldb:mem:testCommandLine2";
+	static private final String db2 = Setup.defaultdb;
 
 	@Test
 	static public void testCommandLine() throws Exception
