@@ -30,6 +30,7 @@ public class Scripting
 	public void testParameter1() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
+		// TODO What about undefined variables? Should they give an exception or not?
 		SQLProcessor processor = Setup.setupSQLProcessor( "scripting/testsql-parameter1.sql" );
 		// TODO Check the output
 

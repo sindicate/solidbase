@@ -39,8 +39,7 @@ CREATE TABLE ${tableName}TEST ( TEST VARCHAR( 100 ) );
 
 --* SCRIPT 
 ( key, value ) = db.selectFirst( "SELECT KEY, VALUE FROM DBPARAMETERS WHERE KEY = 'TABLENAME'" );
-println( "\
-	|The time is: ${new Date()}
+println( s"The time is: ${new Date()}
 	|Found key: ${key}
 	|Found value: ${value}".stripMargin() );
 --* END SCRIPT 
@@ -53,6 +52,6 @@ PRINT SELECT * FROM ${tableName}TEST;
 --* END IF
 
 --* // This should not give an exception 
---* IF SCRIPT undefinedVariable
+--* // IF SCRIPT undefinedVariable
 
---* END IF
+--* // END IF
