@@ -218,7 +218,6 @@
 			<rule pattern="org.apache.commons.**" result="solidbase.@0" />
 			<rule pattern="solidstack.**" result="solidbase.@0" />
 			<keep pattern="solidbase.**" />
-			<keep pattern="org.apache.commons.lang3.exception.CloneFailedException" />
 			<manifest>
 				<attribute name="Implementation-Title" value="SolidBase" />
 				<attribute name="Implementation-Version" value="${release.number}" />
