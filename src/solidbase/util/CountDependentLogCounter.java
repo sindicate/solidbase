@@ -22,7 +22,7 @@ package solidbase.util;
  *
  * @author René de Bloois
  */
-abstract public class RecordCounter extends Counter
+abstract public class CountDependentLogCounter extends LogCounter
 {
 	private long next;
 

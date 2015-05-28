@@ -1,14 +1,15 @@
 package solidbase.core.plugins;
 
 import solidbase.core.ProgressListener;
+import solidbase.util.LogCounter;
 
 
 public class Counter
 {
-	private solidbase.util.Counter counter;
+	private LogCounter counter;
 	private ProgressListener listener;
 
-	public Counter( solidbase.util.Counter counter, ProgressListener progressListener )
+	public Counter( LogCounter counter, ProgressListener progressListener )
 	{
 		this.counter = counter;
 		this.listener = progressListener;

@@ -43,15 +43,15 @@ import solidbase.core.SourceException;
 import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidbase.util.CloseQueue;
-import solidbase.util.Counter;
-import solidbase.util.FixedCounter;
+import solidbase.util.LogCounter;
+import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.JDBCSupport;
 import solidbase.util.JSONArray;
 import solidbase.util.JSONObject;
 import solidbase.util.JSONReader;
 import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
-import solidbase.util.TimedCounter;
+import solidbase.util.TimeIntervalLogCounter;
 import solidstack.io.Resource;
 import solidstack.io.SegmentedInputStream;
 import solidstack.io.SegmentedReader;
@@ -169,11 +169,11 @@ public class LoadJSON implements CommandListener
 			}
 
 			// Create the log counter
-			Counter counter = null;
+			LogCounter counter = null;
 			if( parsed.logRecords > 0 )
-				counter = new FixedCounter( parsed.logRecords );
+				counter = new FixedIntervalLogCounter( parsed.logRecords );
 			else if( parsed.logSeconds > 0 )
-				counter = new TimedCounter( parsed.logSeconds );
+				counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
 			// Prepare the INSERT statement
 			PreparedStatement statement = processor.prepareStatement( sql.toString() );

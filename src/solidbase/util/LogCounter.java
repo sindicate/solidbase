@@ -22,7 +22,7 @@ package solidbase.util;
  *
  * @author René de Bloois
  */
-abstract public class Counter
+abstract public class LogCounter
 {
 	private long total;
 	private boolean logged = false;

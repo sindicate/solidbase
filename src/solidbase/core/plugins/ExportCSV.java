@@ -40,12 +40,12 @@ import solidbase.core.SourceException;
 import solidbase.core.SystemException;
 import solidbase.core.plugins.DumpJSON.Coalescer;
 import solidbase.util.CSVWriter;
-import solidbase.util.Counter;
-import solidbase.util.FixedCounter;
+import solidbase.util.LogCounter;
+import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.JDBCSupport;
 import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
-import solidbase.util.TimedCounter;
+import solidbase.util.TimeIntervalLogCounter;
 import solidstack.io.Resource;
 import solidstack.io.Resources;
 import solidstack.io.SourceReaders;
@@ -144,11 +144,11 @@ public class ExportCSV implements CommandListener
 						csvWriter.nextRecord();
 					}
 
-					Counter counter = null;
+					LogCounter counter = null;
 					if( parsed.logRecords > 0 )
-						counter = new FixedCounter( parsed.logRecords );
+						counter = new FixedIntervalLogCounter( parsed.logRecords );
 					else if( parsed.logSeconds > 0 )
-						counter = new TimedCounter( parsed.logSeconds );
+						counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
 					while( result.next() )
 					{
