@@ -18,35 +18,15 @@ package solidbase.util;
 
 
 /**
- * A counter that logs after certain time intervals.
+ * A counter that does not log.
  *
  * @author René de Bloois
  */
-public class TimedCounter extends Counter
+public class SilentLogCounter extends LogCounter
 {
-	private int milliseconds;
-	private long next;
-
-	/**
-	 * @param seconds The interval in seconds.
-	 */
-	public TimedCounter( int seconds )
-	{
-		this.milliseconds = seconds * 1000;
-		this.next = System.currentTimeMillis() + this.milliseconds;
-	}
-
 	@Override
 	protected boolean logNow()
 	{
-		long now = System.currentTimeMillis();
-		if( now >= this.next )
-		{
-			this.next += this.milliseconds;
-			if( now >= this.next )
-				this.next = now + this.milliseconds;
-			return true;
-		}
 		return false;
 	}
 }

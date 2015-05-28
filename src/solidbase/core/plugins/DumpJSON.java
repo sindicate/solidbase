@@ -53,15 +53,15 @@ import solidbase.core.FatalException;
 import solidbase.core.SourceException;
 import solidbase.core.SystemException;
 import solidbase.util.Assert;
-import solidbase.util.Counter;
-import solidbase.util.FixedCounter;
+import solidbase.util.LogCounter;
+import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.JDBCSupport;
 import solidbase.util.JSONArray;
 import solidbase.util.JSONObject;
 import solidbase.util.JSONWriter;
 import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
-import solidbase.util.TimedCounter;
+import solidbase.util.TimeIntervalLogCounter;
 import solidstack.io.DeferringWriter;
 import solidstack.io.FileResource;
 import solidstack.io.Resource;
@@ -235,11 +235,11 @@ public class DumpJSON implements CommandListener
 					jsonWriter.writeFormatted( properties, 120 );
 					jsonWriter.getWriter().write( '\n' );
 
-					Counter counter = null;
+					LogCounter counter = null;
 					if( parsed.logRecords > 0 )
-						counter = new FixedCounter( parsed.logRecords );
+						counter = new FixedIntervalLogCounter( parsed.logRecords );
 					else if( parsed.logSeconds > 0 )
-						counter = new TimedCounter( parsed.logSeconds );
+						counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
 					try
 					{

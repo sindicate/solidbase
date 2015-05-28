@@ -18,45 +18,26 @@ package solidbase.util;
 
 
 /**
- * A counter that logs progressively.
+ * A counter with a fixed logging interval.
  *
  * @author René de Bloois
  */
-public class ProgressiveCounter extends RecordCounter
+public class FixedIntervalLogCounter extends CountDependentLogCounter
 {
-	private int percent;
-	private long min;
-	private long max;
+	private long interval;
 
 	/**
-	 * Constructor.
-	 *
-	 * @param percent Percentage of current count which determines the next interval.
-	 * @param min Minimum interval.
-	 * @param max Maximum interval.
+	 * @param interval The logging interval.
 	 */
-	public ProgressiveCounter( int percent, long min, long max )
+	public FixedIntervalLogCounter( long interval )
 	{
-		this.percent = percent;
-		this.min = min;
-		this.max = max;
+		this.interval = interval;
 		init();
 	}
 
 	@Override
 	protected long getNext( long count )
 	{
-		long delta = count * this.percent / 100;
-		if( delta < this.min )
-			delta = this.min;
-		if( delta > this.max )
-			delta = this.max;
-		if( delta > 0 )
-		{
-			long pow = (long)Math.pow( 10, Math.floor( Math.log10( delta ) ) );
-			long next = count + delta;
-			return next / pow * pow;
-		}
-		return count;
+		return count + this.interval;
 	}
 }

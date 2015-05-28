@@ -18,26 +18,35 @@ package solidbase.util;
 
 
 /**
- * A counter with a fixed logging interval.
+ * A counter that logs after certain time intervals.
  *
  * @author René de Bloois
  */
-public class FixedCounter extends RecordCounter
+public class TimeIntervalLogCounter extends LogCounter
 {
-	private long interval;
+	private int milliseconds;
+	private long next;
 
 	/**
-	 * @param interval The logging interval.
+	 * @param seconds The interval in seconds.
 	 */
-	public FixedCounter( long interval )
+	public TimeIntervalLogCounter( int seconds )
 	{
-		this.interval = interval;
-		init();
+		this.milliseconds = seconds * 1000;
+		this.next = System.currentTimeMillis() + this.milliseconds;
 	}
 
 	@Override
-	protected long getNext( long count )
+	protected boolean logNow()
 	{
-		return count + this.interval;
+		long now = System.currentTimeMillis();
+		if( now >= this.next )
+		{
+			this.next += this.milliseconds;
+			if( now >= this.next )
+				this.next = now + this.milliseconds;
+			return true;
+		}
+		return false;
 	}
 }
