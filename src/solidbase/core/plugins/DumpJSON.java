@@ -19,13 +19,8 @@ package solidbase.core.plugins;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.Writer;
-import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -37,7 +32,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -58,11 +52,9 @@ import solidbase.util.FixedCounter;
 import solidbase.util.JDBCSupport;
 import solidbase.util.JSONArray;
 import solidbase.util.JSONObject;
-import solidbase.util.JSONWriter;
 import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
 import solidbase.util.TimedCounter;
-import solidstack.io.DeferringWriter;
 import solidstack.io.FileResource;
 import solidstack.io.Resource;
 import solidstack.io.Resources;
@@ -78,7 +70,6 @@ import funny.Symbol;
  * @author René M. de Bloois
  * @since Aug 12, 2011
  */
-// TODO To compressed file
 public class DumpJSON implements CommandListener
 {
 	static private final Pattern triggerPattern = Pattern.compile( "\\s*DUMP\\s+JSON\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
@@ -94,7 +85,7 @@ public class DumpJSON implements CommandListener
 
 		if( command.isTransient() )
 		{
-			/* DUMP JSON DATE_CREATED ON | OFF */
+			/* --* DUMP JSON DATE_CREATED ON | OFF */
 
 			SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
@@ -137,14 +128,13 @@ public class DumpJSON implements CommandListener
 			OutputStream out = jsvResource.getOutputStream();
 			if( parsed.gzip )
 				out = new BufferedOutputStream( new GZIPOutputStream( out, 65536 ), 65536 ); // TODO Ctrl-C, close the outputstream?
-
-			JSONWriter jsonWriter = new JSONWriter( out );
 			try
 			{
 				Statement statement = processor.createStatement();
 				try
 				{
 					ResultSet result = statement.executeQuery( parsed.query );
+
 					ResultSetMetaData metaData = result.getMetaData();
 
 					// Define locals
@@ -185,9 +175,6 @@ public class DumpJSON implements CommandListener
 						tableNames[ i ] = StringUtils.upperCase( StringUtils.defaultIfEmpty( metaData.getTableName( col ), null ) );
 						schemaNames[ i ] = StringUtils.upperCase( StringUtils.defaultIfEmpty( metaData.getSchemaName( col ), null ) );
 					}
-
-					if( parsed.coalesce != null )
-						parsed.coalesce.bind( names );
 
 					// Write header
 
@@ -232,222 +219,55 @@ public class DumpJSON implements CommandListener
 
 					FileSpec binaryFile = parsed.binaryFileName != null ? new FileSpec( true, parsed.binaryFileName, 0 ) : null;
 
-					jsonWriter.writeFormatted( properties, 120 );
-					jsonWriter.getWriter().write( '\n' );
-
-					Counter counter = null;
-					if( parsed.logRecords > 0 )
-						counter = new FixedCounter( parsed.logRecords );
-					else if( parsed.logSeconds > 0 )
-						counter = new TimedCounter( parsed.logSeconds );
-
+//					public JSONDataWriter( Resource resource, OutputStream out, FileSpec[] fileSpecs, String[] names, FileSpec binaryFile, boolean binaryGZip, SourceLocation location )
+					JSONDataWriter dataWriter = new JSONDataWriter( jsvResource, out, fileSpecs, names, binaryFile, parsed.binaryGzip, command.getLocation() );
 					try
 					{
-						while( result.next() )
+						dataWriter.getJSONWriter().writeFormatted( properties, 120 );
+						dataWriter.getJSONWriter().getWriter().write( '\n' );
+
+						Counter counter = null;
+						if( parsed.logRecords > 0 )
+							counter = new FixedCounter( parsed.logRecords );
+						else if( parsed.logSeconds > 0 )
+							counter = new TimedCounter( parsed.logSeconds );
+
+						solidbase.core.plugins.Counter myCounter = null;
+						if( counter != null )
+							myCounter = new solidbase.core.plugins.Counter( counter, processor.getProgressListener() );
+
+						DBReader dataReader;
+						if( parsed.coalesce != null )
 						{
-							Object[] values = new Object[ columns ];
-							for( int i = 0; i < values.length; i++ )
-								values[ i ] = JDBCSupport.getValue( result, types, i );
-
-							if( parsed.coalesce != null )
-								parsed.coalesce.coalesce( values );
-
-							JSONArray array = new JSONArray();
-							for( int i = 0; i < columns; i++ )
-								if( !ignore[ i ] )
-								{
-									Object value = values[ i ];
-									if( value == null )
-									{
-										array.add( null );
-										continue;
-									}
-
-									// TODO 2 columns can't be written to the same dynamic filename
-
-									FileSpec spec = fileSpecs[ i ];
-									if( spec != null ) // The column is redirected to its own file
-									{
-										String relFileName = null;
-										int startIndex;
-										if( spec.binary )
-										{
-											if( spec.generator.isDynamic() )
-											{
-												String fileName = spec.generator.generateFileName( result );
-												Resource fileResource = new FileResource( fileName );
-												spec.out = fileResource.getOutputStream();
-												spec.index = 0;
-												relFileName = fileResource.getPathFrom( jsvResource ).toString();
-											}
-											else if( spec.out == null )
-											{
-												String fileName = spec.generator.generateFileName( result );
-												Resource fileResource = new FileResource( fileName );
-												spec.out = fileResource.getOutputStream();
-											}
-											if( value instanceof Blob )
-											{
-												InputStream in = ( (Blob)value ).getBinaryStream();
-												startIndex = spec.index;
-												byte[] buf = new byte[ 4096 ];
-												for( int read = in.read( buf ); read >= 0; read = in.read( buf ) )
-												{
-													spec.out.write( buf, 0, read );
-													spec.index += read;
-												}
-												in.close();
-											}
-											else if( value instanceof byte[] )
-											{
-												startIndex = spec.index;
-												spec.out.write( (byte[])value );
-												spec.index += ( (byte[])value ).length;
-											}
-											else
-												throw new SourceException( names[ i ] + " (" + value.getClass().getName() + ") is not a binary column. Only binary columns like BLOB, RAW, BINARY VARYING can be written to a binary file", command.getLocation() );
-											if( spec.generator.isDynamic() )
-											{
-												spec.out.close();
-												JSONObject ref = new JSONObject();
-												ref.set( "file", relFileName );
-												ref.set( "size", spec.index - startIndex );
-												array.add( ref );
-											}
-											else
-											{
-												JSONObject ref = new JSONObject();
-												ref.set( "index", startIndex );
-												ref.set( "length", spec.index - startIndex );
-												array.add( ref );
-											}
-										}
-										else
-										{
-											if( spec.generator.isDynamic() )
-											{
-												String fileName = spec.generator.generateFileName( result );
-												Resource fileResource = new FileResource( fileName );
-												spec.writer = new DeferringWriter( spec.threshold, fileResource, jsonWriter.getEncoding() );
-												spec.index = 0;
-												relFileName = fileResource.getPathFrom( jsvResource ).toString();
-											}
-											else if( spec.writer == null )
-											{
-												String fileName = spec.generator.generateFileName( result );
-												Resource fileResource = new FileResource( fileName );
-												spec.writer = new OutputStreamWriter( fileResource.getOutputStream(), jsonWriter.getEncoding() );
-											}
-											if( value instanceof Blob || value instanceof byte[] )
-												throw new SourceException( names[ i ] + " is a binary column. Binary columns like BLOB, RAW, BINARY VARYING cannot be written to a text file", command.getLocation() );
-											if( value instanceof Clob )
-											{
-												Reader in = ( (Clob)value ).getCharacterStream();
-												startIndex = spec.index;
-												char[] buf = new char[ 4096 ];
-												for( int read = in.read( buf ); read >= 0; read = in.read( buf ) )
-												{
-													spec.writer.write( buf, 0, read );
-													spec.index += read;
-												}
-												in.close();
-											}
-											else
-											{
-												String val = value.toString();
-												startIndex = spec.index;
-												spec.writer.write( val );
-												spec.index += val.length();
-											}
-											if( spec.generator.isDynamic() )
-											{
-												DeferringWriter writer = (DeferringWriter)spec.writer;
-												if( writer.isBuffered() )
-													array.add( writer.clearBuffer() );
-												else
-												{
-													JSONObject ref = new JSONObject();
-													ref.set( "file", relFileName );
-													ref.set( "size", spec.index - startIndex );
-													array.add( ref );
-												}
-												writer.close();
-											}
-											else
-											{
-												JSONObject ref = new JSONObject();
-												ref.set( "index", startIndex );
-												ref.set( "length", spec.index - startIndex );
-												array.add( ref );
-											}
-										}
-									}
-									else if( value instanceof Clob )
-										array.add( ( (Clob)value ).getCharacterStream() );
-									else if( binaryFile != null && ( value instanceof Blob || value instanceof byte[] ) )
-									{
-										if( binaryFile.out == null )
-										{
-											String fileName = binaryFile.generator.generateFileName( null );
-											Resource fileResource = new FileResource( fileName );
-											binaryFile.out = fileResource.getOutputStream();
-											if( parsed.binaryGzip )
-												binaryFile.out = new BufferedOutputStream( new GZIPOutputStream( binaryFile.out, 65536 ), 65536 ); // TODO Ctrl-C, close the outputstream?
-										}
-										int startIndex = binaryFile.index;
-										if( value instanceof Blob )
-										{
-											InputStream in = ( (Blob)value ).getBinaryStream();
-											byte[] buf = new byte[ 4096 ];
-											for( int read = in.read( buf ); read >= 0; read = in.read( buf ) )
-											{
-												binaryFile.out.write( buf, 0, read );
-												binaryFile.index += read;
-											}
-											in.close();
-										}
-										else
-										{
-											binaryFile.out.write( (byte[])value );
-											binaryFile.index += ( (byte[])value ).length;
-										}
-										JSONObject ref = new JSONObject();
-										ref.set( "index", startIndex );
-										ref.set( "length", binaryFile.index - startIndex );
-										array.add( ref );
-									}
-									else
-										array.add( value );
-								}
-
-							for( ListIterator< Object > i = array.iterator(); i.hasNext(); )
-							{
-								Object value = i.next();
-								if( value instanceof java.sql.Date || value instanceof java.sql.Time || value instanceof java.sql.Timestamp || value instanceof java.sql.RowId )
-									i.set( value.toString() );
-							}
-							jsonWriter.write( array );
-							jsonWriter.getWriter().write( '\n' );
-
-							if( counter != null && counter.next() )
-								processor.getProgressListener().println( "Exported " + counter.total() + " records." );
+							parsed.coalesce.bind( names );
+							CoalescerProcessor coalescer = new CoalescerProcessor( parsed.coalesce, dataWriter );
+							dataReader = new DBReader( result, coalescer, myCounter );
 						}
-						if( counter != null && counter.needFinal() )
-							processor.getProgressListener().println( "Exported " + counter.total() + " records." );
+						else
+							dataReader = new DBReader( result, dataWriter, myCounter );
+
+						try
+						{
+							dataReader.process();
+						}
+						finally
+						{
+							// Close files that have been left open
+							for( FileSpec fileSpec : fileSpecs )
+								if( fileSpec != null )
+								{
+									if( fileSpec.out != null )
+										fileSpec.out.close();
+									if( fileSpec.writer != null )
+										fileSpec.writer.close();
+								}
+							if( binaryFile != null && binaryFile.out != null )
+								binaryFile.out.close();
+						}
 					}
 					finally
 					{
-						// Close files that have been left open
-						for( FileSpec fileSpec : fileSpecs )
-							if( fileSpec != null )
-							{
-								if( fileSpec.out != null )
-									fileSpec.out.close();
-								if( fileSpec.writer != null )
-									fileSpec.writer.close();
-							}
-						if( binaryFile != null && binaryFile.out != null )
-							binaryFile.out.close();
+						dataWriter.close();
 					}
 				}
 				finally
@@ -457,7 +277,7 @@ public class DumpJSON implements CommandListener
 			}
 			finally
 			{
-				jsonWriter.close();
+				out.close();
 			}
 		}
 		catch( IOException e )
@@ -719,22 +539,14 @@ public class DumpJSON implements CommandListener
 			return this.generic;
 		}
 
-		protected String generateFileName( ResultSet resultSet )
+		protected String generateFileName( Object[] values )
 		{
-
 			Matcher matcher = this.pattern.matcher( this.fileName );
 			StringBuffer result = new StringBuffer();
 			while( matcher.find() )
 			{
 				int index = Integer.parseInt( matcher.group( 1 ) );
-				try
-				{
-					matcher.appendReplacement( result, resultSet.getString( index ) );
-				}
-				catch( SQLException e )
-				{
-					throw new SystemException( e );
-				}
+				matcher.appendReplacement( result, values[ index - 1 ].toString() ); // TODO Does this work for every type?
 			}
 			matcher.appendTail( result );
 			return result.toString();
