@@ -10,9 +10,9 @@ public class DBReader
 {
 	private ResultSet result;
 	private DataProcessor processor;
-	private Counter counter;
+	private ExportLogger counter;
 
-	public DBReader( ResultSet result, DataProcessor processor, Counter counter )
+	public DBReader( ResultSet result, DataProcessor processor, ExportLogger counter )
 	{
 		this.result = result;
 		this.processor = processor;
@@ -26,10 +26,16 @@ public class DBReader
 		int columns = metaData.getColumnCount();
 
 		int[] types = new int[ columns ];
+		String[] names = new String[ columns ];
 		for( int i = 0; i < columns; i++ )
-			types[ i ] = metaData.getColumnType( i + 1 );
+		{
+			int col = i + 1;
+			types[ i ] = metaData.getColumnType( col );
+			names[ i ] = metaData.getColumnName( col ).toUpperCase();
+		}
 
 		DataProcessor next = this.processor;
+		next.init( names );
 
 		while( result.next() )
 		{

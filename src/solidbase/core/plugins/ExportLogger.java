@@ -4,12 +4,12 @@ import solidbase.core.ProgressListener;
 import solidbase.util.LogCounter;
 
 
-public class Counter
+public class ExportLogger
 {
 	private LogCounter counter;
 	private ProgressListener listener;
 
-	public Counter( LogCounter counter, ProgressListener progressListener )
+	public ExportLogger( LogCounter counter, ProgressListener progressListener )
 	{
 		this.counter = counter;
 		this.listener = progressListener;

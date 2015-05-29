@@ -30,10 +30,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
@@ -43,10 +41,8 @@ import org.apache.commons.lang3.StringUtils;
 import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
-import solidbase.core.FatalException;
 import solidbase.core.SourceException;
 import solidbase.core.SystemException;
-import solidbase.util.Assert;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.JDBCSupport;
 import solidbase.util.JSONArray;
@@ -121,11 +117,11 @@ public class DumpJSON implements CommandListener
 			dateCreated = true;
 		}
 
-		Resource jsvResource = new FileResource( new File( parsed.fileName ) ); // Relative to current folder
+		Resource jsonOutput = new FileResource( new File( parsed.fileName ) ); // Relative to current folder
 
 		try
 		{
-			OutputStream out = jsvResource.getOutputStream();
+			OutputStream out = jsonOutput.getOutputStream();
 			if( parsed.gzip )
 				out = new BufferedOutputStream( new GZIPOutputStream( out, 65536 ), 65536 ); // TODO Ctrl-C, close the outputstream?
 			try
@@ -166,11 +162,9 @@ public class DumpJSON implements CommandListener
 								else
 									fileSpecs[ i ] = columnSpec.toFile;
 						}
-						if( parsed.coalesce != null && parsed.coalesce.notFirst( name ) )
-							ignore[ i ] = true;
 						// TODO STRUCT serialize
 						// TODO This must be optional and not the default
-						else if( types[ i ] == 2002 || JDBCSupport.toTypeName( types[ i ] ) == null )
+						if( types[ i ] == 2002 || JDBCSupport.toTypeName( types[ i ] ) == null )
 							ignore[ i ] = true;
 						tableNames[ i ] = StringUtils.upperCase( StringUtils.defaultIfEmpty( metaData.getTableName( col ), null ) );
 						schemaNames[ i ] = StringUtils.upperCase( StringUtils.defaultIfEmpty( metaData.getSchemaName( col ), null ) );
@@ -212,15 +206,14 @@ public class DumpJSON implements CommandListener
 							if( spec != null && !spec.generator.isDynamic() )
 							{
 								Resource fileResource = new FileResource( spec.generator.fileName );
-								field.set( "file", fileResource.getPathFrom( jsvResource ).toString() );
+								field.set( "file", fileResource.getPathFrom( jsonOutput ).toString() );
 							}
 							fields.add( field );
 						}
 
 					FileSpec binaryFile = parsed.binaryFileName != null ? new FileSpec( true, parsed.binaryFileName, 0 ) : null;
 
-//					public JSONDataWriter( Resource resource, OutputStream out, FileSpec[] fileSpecs, String[] names, FileSpec binaryFile, boolean binaryGZip, SourceLocation location )
-					JSONDataWriter dataWriter = new JSONDataWriter( jsvResource, out, fileSpecs, names, binaryFile, parsed.binaryGzip, command.getLocation() );
+					JSONDataWriter dataWriter = new JSONDataWriter( jsonOutput, out, fileSpecs, names, binaryFile, parsed.binaryGzip, command.getLocation() );
 					try
 					{
 						dataWriter.getJSONWriter().writeFormatted( properties, 120 );
@@ -232,14 +225,13 @@ public class DumpJSON implements CommandListener
 						else if( parsed.logSeconds > 0 )
 							counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
-						solidbase.core.plugins.Counter myCounter = null;
+						ExportLogger myCounter = null;
 						if( counter != null )
-							myCounter = new Counter( counter, processor.getProgressListener() );
+							myCounter = new ExportLogger( counter, processor.getProgressListener() );
 
 						DBReader dataReader;
 						if( parsed.coalesce != null )
 						{
-							parsed.coalesce.bind( names );
 							CoalescerProcessor coalescer = new CoalescerProcessor( parsed.coalesce, dataWriter );
 							dataReader = new DBReader( result, coalescer, myCounter );
 						}
@@ -300,11 +292,11 @@ public class DumpJSON implements CommandListener
 		/*
 		DUMP JSON
 		DATE AS TIMESTAMP
-		COALESCE "<col1>", "<col2>"
-		LOG EVERY n RECORDS|SECONDS
-		FILE "file" GZIP
-		BINARY FILE "file" GZIP
-		COLUMN col1, col2 TO BINARY|TEXT FILE "file" THRESHOLD n
+		COALESCE col1, col2
+		LOG EVERY n (RECORDS|SECONDS)
+		FILE "file" [GZIP]
+		BINARY FILE "file" [GZIP]
+		COLUMN col1, col2 ( TO (BINARY|TEXT) FILE "file" [THRESHOLD n] | SKIP )
 		*/
 
 		Parsed result = new Parsed();
@@ -329,26 +321,27 @@ public class DumpJSON implements CommandListener
 		while( t.eq( "COALESCE" ) )
 		{
 			if( result.coalesce == null )
-				result.coalesce = new Coalescer();
+				result.coalesce = new ArrayList<List<String>>();
+
+			List<String> cols = new ArrayList<String>();
+			result.coalesce.add( cols );
 
 			t = tokenizer.get();
-			if( !t.isString() )
-				throw new SourceException( "Expecting column name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-			result.coalesce.first( t.stripQuotes() );
+			if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
+				throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
+			cols.add( t.toString() );
 
 			t = tokenizer.get( "," );
 			do
 			{
 				t = tokenizer.get();
-				if( !t.isString() )
-					throw new SourceException( "Expecting column name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-				result.coalesce.next( t.stripQuotes() );
+				if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
+					throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
+				cols.add( t.toString() );
 
 				t = tokenizer.get();
 			}
 			while( t.eq( "," ) );
-
-			result.coalesce.end();
 		}
 
 		tokenizer.expect( t, "LOG", "FILE" );
@@ -398,54 +391,55 @@ public class DumpJSON implements CommandListener
 			}
 		}
 
-		if( t.eq( "COLUMN" ) )
+		while( t.eq( "COLUMN" ) )
 		{
-			result.columns = new HashMap< String, ColumnSpec >();
-			while( t.eq( "COLUMN" ) )
+			if( result.columns == null )
+				result.columns = new HashMap<String, ColumnSpec>();
+
+			List<String> cols = new ArrayList<String>();
+			do
 			{
-				List< Token > columns = new ArrayList< Token >();
-				columns.add( tokenizer.get() );
 				t = tokenizer.get();
-				while( t.eq( "," ) )
-				{
-					columns.add( tokenizer.get() );
-					t = tokenizer.get();
-				}
-				tokenizer.push( t );
-
-				ColumnSpec columnSpec;
-				t = tokenizer.get( "TO", "SKIP" );
-				if( t.eq( "TO" ) )
-				{
-					t = tokenizer.get( "BINARY", "TEXT" );
-					boolean binary = t.eq( "BINARY" );
-					tokenizer.get( "FILE" );
-					t = tokenizer.get();
-					String fileName = t.getValue();
-					if( !fileName.startsWith( "\"" ) )
-						throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-					fileName = fileName.substring( 1, fileName.length() - 1 );
-
-					t = tokenizer.get();
-					int threshold = 0;
-					if( t.eq( "THRESHOLD" ) )
-					{
-						threshold = Integer.parseInt( tokenizer.get().getValue() );
-						t = tokenizer.get();
-					}
-
-					columnSpec = new ColumnSpec( false, new FileSpec( binary, fileName, threshold ) );
-				}
-				else
-				{
-					columnSpec = new ColumnSpec( true, null );
-					t = tokenizer.get();
-				}
-
-				for( Token column : columns )
-					result.columns.put( column.getValue().toUpperCase(), columnSpec );
+				if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
+					throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
+				cols.add( t.getValue() );
+				t = tokenizer.get();
 			}
+			while( t.eq( "," ) );
+			tokenizer.push( t );
+
+			ColumnSpec columnSpec;
+			t = tokenizer.get( "TO", "SKIP" );
+			if( t.eq( "TO" ) )
+			{
+				t = tokenizer.get( "BINARY", "TEXT" );
+				boolean binary = t.eq( "BINARY" );
+				tokenizer.get( "FILE" );
+				t = tokenizer.get();
+				if( !t.isString() )
+					throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+				String fileName = t.stripQuotes();
+
+				t = tokenizer.get();
+				int threshold = 0;
+				if( t.eq( "THRESHOLD" ) )
+				{
+					threshold = Integer.parseInt( tokenizer.get().getValue() );
+					t = tokenizer.get();
+				}
+
+				columnSpec = new ColumnSpec( false, new FileSpec( binary, fileName, threshold ) );
+			}
+			else
+			{
+				columnSpec = new ColumnSpec( true, null );
+				t = tokenizer.get();
+			}
+
+			for( String col : cols )
+				result.columns.put( col, columnSpec );
 		}
+
 		tokenizer.push( t );
 
 		result.query = tokenizer.getRemaining();
@@ -481,7 +475,7 @@ public class DumpJSON implements CommandListener
 		protected boolean dateAsTimestamp;
 
 		/** Which columns need to be coalesced */
-		protected Coalescer coalesce;
+		protected List<List<String>> coalesce;
 
 		protected int logRecords;
 		protected int logSeconds;
@@ -550,93 +544,6 @@ public class DumpJSON implements CommandListener
 			}
 			matcher.appendTail( result );
 			return result.toString();
-		}
-	}
-
-
-	static protected class Coalescer
-	{
-//		protected Set< String > first = new HashSet();
-		protected Set< String > next = new HashSet< String >();
-		protected List< List< String > > names = new ArrayList< List<String> >();
-		protected List< List< Integer > > indexes = new ArrayList< List<Integer> >();
-		protected List< String > temp;
-		protected List< Integer > temp2;
-
-		public void first( String name )
-		{
-//			this.first.add( name );
-
-			Assert.isNull( this.temp );
-			this.temp = new ArrayList< String >();
-			this.temp.add( name );
-			this.temp2 = new ArrayList< Integer >();
-			this.temp2.add( null );
-		}
-
-		public void next( String name )
-		{
-			this.next.add( name );
-
-			Assert.notNull( this.temp );
-			this.temp.add( name );
-			this.temp2.add( null );
-		}
-
-		public void end()
-		{
-			this.names.add( this.temp );
-			this.indexes.add( this.temp2 );
-			this.temp = null;
-			this.temp2 = null;
-		}
-
-		public boolean notFirst( String name )
-		{
-			return this.next.contains( name );
-		}
-
-		public void bind( String[] names )
-		{
-			for( int i = 0; i < this.names.size(); i++ )
-			{
-				List< String > nams = this.names.get( i );
-				List< Integer > indexes = this.indexes.get( i );
-				for( int j = 0; j < nams.size(); j++ )
-				{
-					String name = nams.get( j );
-					int found = -1;
-					for( int k = 0; k < names.length; k++ )
-						if( name.equals( names[ k ] ) )
-						{
-							found = k;
-							break;
-						}
-					if( found < 0 )
-						throw new FatalException( "Coalesce column " + name + " not in result set" );
-					indexes.set( j, found );
-				}
-			}
-		}
-
-		public void coalesce( Object[] values )
-		{
-			for( int i = 0; i < this.indexes.size(); i++ )
-			{
-				List< Integer > indexes = this.indexes.get( i );
-				int firstIndex = indexes.get( 0 );
-				if( values[ firstIndex ] == null )
-				{
-					Object found = null;
-					for( int j = 1; j < indexes.size(); j++ )
-					{
-						found = values[ indexes.get( j ) ];
-						if( found != null )
-							break;
-					}
-					values[ firstIndex ] = found;
-				}
-			}
 		}
 	}
 }

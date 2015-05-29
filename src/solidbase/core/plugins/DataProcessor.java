@@ -2,7 +2,8 @@ package solidbase.core.plugins;
 
 import java.sql.SQLException;
 
-abstract public class DataProcessor
+public interface DataProcessor
 {
-	abstract public void process( Object[] values ) throws SQLException;
+	void process( Object[] values ) throws SQLException;
+	void init( String[] names );
 }

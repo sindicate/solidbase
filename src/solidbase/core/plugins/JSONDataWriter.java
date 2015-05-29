@@ -23,7 +23,7 @@ import solidstack.io.FileResource;
 import solidstack.io.Resource;
 import solidstack.io.SourceLocation;
 
-public class JSONDataWriter extends DataProcessor
+public class JSONDataWriter implements DataProcessor
 {
 	private Resource resource;
 	private JSONWriter jsonWriter;
@@ -44,7 +44,10 @@ public class JSONDataWriter extends DataProcessor
 		this.location = location;
 	}
 
-	@Override
+	public void init( String[] names )
+	{
+	}
+
 	public void process( Object[] values ) throws SQLException
 	{
 		try

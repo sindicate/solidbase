@@ -30,25 +30,30 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
 import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
+import solidbase.core.FatalException;
 import solidbase.core.SourceException;
 import solidbase.core.SystemException;
-import solidbase.core.plugins.DumpJSON.Coalescer;
 import solidbase.util.CSVWriter;
-import solidbase.util.LogCounter;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.JDBCSupport;
+import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
 import solidbase.util.TimeIntervalLogCounter;
 import solidstack.io.Resource;
 import solidstack.io.Resources;
 import solidstack.io.SourceReaders;
+import solidstack.lang.Assert;
 
 
 /**
@@ -382,5 +387,92 @@ public class ExportCSV implements CommandListener
 
 		protected int logRecords;
 		protected int logSeconds;
+	}
+
+
+	static protected class Coalescer
+	{
+//		protected Set< String > first = new HashSet();
+		protected Set< String > next = new HashSet< String >();
+		protected List< List< String > > names = new ArrayList< List<String> >();
+		protected List< List< Integer > > indexes = new ArrayList< List<Integer> >();
+		protected List< String > temp;
+		protected List< Integer > temp2;
+
+		public void first( String name )
+		{
+//			this.first.add( name );
+
+			Assert.isNull( this.temp );
+			this.temp = new ArrayList< String >();
+			this.temp.add( name );
+			this.temp2 = new ArrayList< Integer >();
+			this.temp2.add( null );
+		}
+
+		public void next( String name )
+		{
+			this.next.add( name );
+
+			Assert.notNull( this.temp );
+			this.temp.add( name );
+			this.temp2.add( null );
+		}
+
+		public void end()
+		{
+			this.names.add( this.temp );
+			this.indexes.add( this.temp2 );
+			this.temp = null;
+			this.temp2 = null;
+		}
+
+		public boolean notFirst( String name )
+		{
+			return this.next.contains( name );
+		}
+
+		public void bind( String[] names )
+		{
+			for( int i = 0; i < this.names.size(); i++ )
+			{
+				List< String > nams = this.names.get( i );
+				List< Integer > indexes = this.indexes.get( i );
+				for( int j = 0; j < nams.size(); j++ )
+				{
+					String name = nams.get( j );
+					int found = -1;
+					for( int k = 0; k < names.length; k++ )
+						if( name.equals( names[ k ] ) )
+						{
+							found = k;
+							break;
+						}
+					if( found < 0 )
+						throw new FatalException( "Coalesce column " + name + " not in result set" );
+					indexes.set( j, found );
+				}
+			}
+		}
+
+		public void coalesce( Object[] values )
+		{
+			for( int i = 0; i < this.indexes.size(); i++ )
+			{
+				List< Integer > indexes = this.indexes.get( i );
+				int firstIndex = indexes.get( 0 );
+				if( values[ firstIndex ] == null )
+				{
+					Object found = null;
+					for( int j = 1; j < indexes.size(); j++ )
+					{
+						found = values[ indexes.get( j ) ];
+						if( found != null )
+							break;
+					}
+					values[ firstIndex ] = found;
+				}
+			}
+		}
 	}
 }
