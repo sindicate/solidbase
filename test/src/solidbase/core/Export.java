@@ -1,19 +1,24 @@
 package solidbase.core;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import solidbase.util.CSVReader;
 import solidstack.io.Resources;
+import solidstack.io.SourceReader;
+import solidstack.io.SourceReaders;
 
 public class Export
 {
 	@Test
-	public void testExport() throws SQLException, UnsupportedEncodingException
+	public void testExport() throws SQLException, UnsupportedEncodingException, FileNotFoundException
 	{
 		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 		UpgradeProcessor processor = Setup.setupUpgradeProcessor( "testpatch-export1.sql" );
@@ -24,10 +29,11 @@ public class Export
 		byte[] blob = new byte[ 32 ];
 		for( int i = 0; i < blob.length; i++ )
 			blob[ i ] = (byte)i;
+		String blobString = new String( blob, "ISO-8859-1" );
 		statement.setInt( 1, 1 );
 		statement.setBinaryStream( 2, new ByteArrayInputStream( blob ) );
 		statement.setString( 3, "^ Starts with a caret" );
-		statement.setString( 4, new String( blob, "ISO-8859-1" ) );
+		statement.setString( 4, blobString );
 		statement.setTimestamp( 5, new Timestamp( System.currentTimeMillis() ) );
 		statement.execute();
 
@@ -49,6 +55,43 @@ public class Export
 		processor.upgrade( "2" );
 
 		processor.end();
+
+		SourceReader reader = SourceReaders.forResource( Resources.getResource( "export1.csv" ), "UTF-8" );
+		try
+		{
+			CSVReader csv = new CSVReader( reader, ',', false );
+			String[] line = csv.getLine();
+			Assert.assertEquals( line.length, 5 );
+			Assert.assertEquals( line[ 0 ], "ID" );
+			Assert.assertEquals( line[ 1 ], "PICTURE" );
+			Assert.assertEquals( line[ 2 ], "TEXT" );
+			Assert.assertEquals( line[ 3 ], "TEXT2" );
+			Assert.assertEquals( line[ 4 ], "DATE1" );
+			line = csv.getLine();
+			Assert.assertEquals( line.length, 5 );
+			Assert.assertEquals( line[ 0 ], "1" );
+			Assert.assertEquals( line[ 1 ], "000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F" );
+			Assert.assertEquals( line[ 2 ], "^ Starts with a caret" );
+//			Assert.assertEquals( line[ 3 ], blobString );
+			for( int i = 0; i < 32; i++ )
+			{
+				System.out.println( line[ 3 ].codePointAt( i ) );
+				System.out.println( blobString.codePointAt( i ) );
+				Assert.assertEquals( line[ 3 ].charAt( i ), blobString.charAt( i ) );
+			}
+			line = csv.getLine();
+			Assert.assertEquals( line.length, 5 );
+			Assert.assertEquals( line[ 0 ], "2" );
+			Assert.assertEquals( line[ 1 ], "5858585858585858585858585858580A5858585858585858585858585858580A5858585858585858585858585858580A5858585858585858585858585858580A5858585858585858585858585858580A5858585858585858585858585858580A5858585858585858585858585858580A5858585858585858585858585858580A5858585858585858585858585858580A5858585858585858585858585858580A5858585858585858585858585858580A5858585858585858585858585858580A5858585858585858585858585858580A5858585858585858585858585858580A5858585858585858585858585858580A5858585858585858585858585858580A" );
+			Assert.assertEquals( line[ 2 ], "Does not start with a ^ caret" );
+			Assert.assertEquals( line[ 3 ], "XXXXXXXXXXXXXXX\nXXXXXXXXXXXXXXX\nXXXXXXXXXXXXXXX\nXXXXXXXXXXXXXXX\nXXXXXXXXXXXXXXX\nXXXXXXXXXXXXXXX\nXXXXXXXXXXXXXXX\nXXXXXXXXXXXXXXX\nXXXXXXXXXXXXXXX\nXXXXXXXXXXXXXXX\nXXXXXXXXXXXXXXX\nXXXXXXXXXXXXXXX\nXXXXXXXXXXXXXXX\nXXXXXXXXXXXXXXX\nXXXXXXXXXXXXXXX\nXXXXXXXXXXXXXXX\n" );
+			line = csv.getLine();
+			Assert.assertNull( line );
+		}
+		finally
+		{
+			reader.close();
+		}
 	}
 
 	@Test(enabled=false)
