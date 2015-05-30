@@ -72,13 +72,7 @@ public class Export
 			Assert.assertEquals( line[ 0 ], "1" );
 			Assert.assertEquals( line[ 1 ], "000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F" );
 			Assert.assertEquals( line[ 2 ], "^ Starts with a caret" );
-//			Assert.assertEquals( line[ 3 ], blobString );
-			for( int i = 0; i < 32; i++ )
-			{
-				System.out.println( line[ 3 ].codePointAt( i ) );
-				System.out.println( blobString.codePointAt( i ) );
-				Assert.assertEquals( line[ 3 ].charAt( i ), blobString.charAt( i ) );
-			}
+			Assert.assertEquals( line[ 3 ], blobString );
 			line = csv.getLine();
 			Assert.assertEquals( line.length, 5 );
 			Assert.assertEquals( line[ 0 ], "2" );
