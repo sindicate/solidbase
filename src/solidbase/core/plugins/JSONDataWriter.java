@@ -14,7 +14,6 @@ import java.util.zip.GZIPOutputStream;
 
 import solidbase.core.SourceException;
 import solidbase.core.SystemException;
-import solidbase.core.plugins.DumpJSON.FileSpec;
 import solidbase.util.JSONArray;
 import solidbase.util.JSONObject;
 import solidbase.util.JSONWriter;
@@ -28,17 +27,17 @@ public class JSONDataWriter implements DataProcessor
 	private Resource resource;
 	private JSONWriter jsonWriter;
 	private FileSpec[] fileSpecs;
-	private String[] names;
+	private Column[] columns;
 	private FileSpec binaryFile;
 	private boolean binaryGZip;
 	private SourceLocation location;
 
-	public JSONDataWriter( Resource resource, OutputStream out, FileSpec[] fileSpecs, String[] names, FileSpec binaryFile, boolean binaryGZip, SourceLocation location )
+	public JSONDataWriter( Resource resource, OutputStream out, FileSpec[] fileSpecs, Column[] columns, FileSpec binaryFile, boolean binaryGZip, SourceLocation location )
 	{
 		this.resource = resource;
 		this.jsonWriter = new JSONWriter( out );
 		this.fileSpecs = fileSpecs;
-		this.names = names;
+		this.columns = columns;
 		this.binaryFile = binaryFile;
 		this.binaryGZip = binaryGZip;
 		this.location = location;
@@ -73,7 +72,7 @@ public class JSONDataWriter implements DataProcessor
 					int startIndex;
 					if( spec.binary )
 					{
-						if( spec.generator.isDynamic() )
+						if( spec.generator.isParameterized() )
 						{
 							String fileName = spec.generator.generateFileName( values );
 							Resource fileResource = new FileResource( fileName );
@@ -106,8 +105,8 @@ public class JSONDataWriter implements DataProcessor
 							spec.index += ( (byte[])value ).length;
 						}
 						else
-							throw new SourceException( this.names[ i ] + " (" + value.getClass().getName() + ") is not a binary column. Only binary columns like BLOB, RAW, BINARY VARYING can be written to a binary file", this.location );
-						if( spec.generator.isDynamic() )
+							throw new SourceException( this.columns[ i ].getName() + " (" + value.getClass().getName() + ") is not a binary column. Only binary columns like BLOB, RAW, BINARY VARYING can be written to a binary file", this.location );
+						if( spec.generator.isParameterized() )
 						{
 							spec.out.close();
 							JSONObject ref = new JSONObject();
@@ -125,7 +124,7 @@ public class JSONDataWriter implements DataProcessor
 					}
 					else
 					{
-						if( spec.generator.isDynamic() )
+						if( spec.generator.isParameterized() )
 						{
 							String fileName = spec.generator.generateFileName( values );
 							Resource fileResource = new FileResource( fileName );
@@ -140,7 +139,7 @@ public class JSONDataWriter implements DataProcessor
 							spec.writer = new OutputStreamWriter( fileResource.getOutputStream(), this.jsonWriter.getEncoding() );
 						}
 						if( value instanceof Blob || value instanceof byte[] )
-							throw new SourceException( this.names[ i ] + " is a binary column. Binary columns like BLOB, RAW, BINARY VARYING cannot be written to a text file", this.location );
+							throw new SourceException( this.columns[ i ].getName() + " is a binary column. Binary columns like BLOB, RAW, BINARY VARYING cannot be written to a text file", this.location );
 						if( value instanceof Clob )
 						{
 							Reader in = ( (Clob)value ).getCharacterStream();
@@ -160,7 +159,7 @@ public class JSONDataWriter implements DataProcessor
 							spec.writer.write( val );
 							spec.index += val.length();
 						}
-						if( spec.generator.isDynamic() )
+						if( spec.generator.isParameterized() )
 						{
 							DeferringWriter writer = (DeferringWriter)spec.writer;
 							if( writer.isBuffered() )

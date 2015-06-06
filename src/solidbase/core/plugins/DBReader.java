@@ -3,20 +3,49 @@ package solidbase.core.plugins;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
+
+import org.apache.commons.lang3.StringUtils;
 
 import solidbase.util.JDBCSupport;
 
-public class DBReader
+public class DBReader implements RecordSource
 {
 	private ResultSet result;
 	private DataProcessor processor;
 	private ExportLogger counter;
+	private Column[] columns;
 
-	public DBReader( ResultSet result, DataProcessor processor, ExportLogger counter )
+	public DBReader( ResultSet result, ExportLogger counter, boolean dateAsTimestamp  ) throws SQLException
 	{
 		this.result = result;
-		this.processor = processor;
 		this.counter = counter;
+
+		ResultSetMetaData metaData = result.getMetaData();
+		int count = metaData.getColumnCount();
+		this.columns = new Column[ count ];
+
+		for( int i = 0; i < count; i++ )
+		{
+			int col = i + 1;
+			String name = metaData.getColumnName( col ).toUpperCase();
+			int type = metaData.getColumnType( col );
+			if( type == Types.DATE && dateAsTimestamp )
+				type = Types.TIMESTAMP;
+			String table = StringUtils.upperCase( StringUtils.defaultIfEmpty( metaData.getTableName( col ), null ) );
+			String schema = StringUtils.upperCase( StringUtils.defaultIfEmpty( metaData.getSchemaName( col ), null ) );
+			this.columns[ i ] = new Column( name, type, table, schema );
+		}
+	}
+
+	public void setOutput( DataProcessor processor )
+	{
+		this.processor = processor;
+	}
+
+	public Column[] getColumns()
+	{
+		return this.columns;
 	}
 
 	public void process() throws SQLException

@@ -6,18 +6,29 @@ import java.util.List;
 
 import solidbase.core.FatalException;
 
-public class CoalescerProcessor implements DataProcessor
+public class CoalescerProcessor implements DataProcessor, RecordSource
 {
-	private DataProcessor processor;
+	private DataProcessor output;
 
 	private List<List<String>> names = new ArrayList<List<String>>();
 	private List<List<Integer>> indexes = new ArrayList<List<Integer>>();
 
 
-	public CoalescerProcessor( List<List<String>> names, DataProcessor processor )
+	public CoalescerProcessor( List<List<String>> names )
 	{
 		this.names = names;
-		this.processor = processor;
+	}
+
+	@Override
+	public Column[] getColumns()
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void setOutput( DataProcessor output )
+	{
+		this.output = output;
 	}
 
 	public void init( String[] names )
@@ -62,6 +73,6 @@ public class CoalescerProcessor implements DataProcessor
 			}
 		}
 
-		this.processor.process( values );
+		this.output.process( values );
 	}
 }

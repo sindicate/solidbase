@@ -80,7 +80,7 @@ public class JDBCSupport
 	static public String toTypeName( int type )
 	{
 		if( typeNames == null )
-			initTypeNames();
+			initTypeNames(); // TODO Move to a static initializer
 
 		String result = typeNames.get( type );
 //		if( result == null )
@@ -92,7 +92,7 @@ public class JDBCSupport
 	static public int fromTypeName( String type )
 	{
 		if( typeNames == null )
-			initTypeNames();
+			initTypeNames(); // TODO Move to a static initializer
 
 		Integer result = typeNames2.get( type );
 		Assert.notNull( result, "Unknown JDBC type " + type );

@@ -20,23 +20,17 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.Writer;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
-
-import org.apache.commons.lang3.StringUtils;
 
 import solidbase.core.Command;
 import solidbase.core.CommandListener;
@@ -44,7 +38,6 @@ import solidbase.core.CommandProcessor;
 import solidbase.core.SourceException;
 import solidbase.core.SystemException;
 import solidbase.util.FixedIntervalLogCounter;
-import solidbase.util.JDBCSupport;
 import solidbase.util.JSONArray;
 import solidbase.util.JSONObject;
 import solidbase.util.LogCounter;
@@ -123,7 +116,7 @@ public class DumpJSON implements CommandListener
 		{
 			OutputStream out = jsonOutput.getOutputStream();
 			if( parsed.gzip )
-				out = new BufferedOutputStream( new GZIPOutputStream( out, 65536 ), 65536 ); // TODO Ctrl-C, close the outputstream?
+				out = new BufferedOutputStream( new GZIPOutputStream( out, 65536 ), 65536 );
 			try
 			{
 				Statement statement = processor.createStatement();
@@ -131,44 +124,71 @@ public class DumpJSON implements CommandListener
 				{
 					ResultSet result = statement.executeQuery( parsed.query );
 
-					ResultSetMetaData metaData = result.getMetaData();
+					LogCounter counter = null;
+					if( parsed.logRecords > 0 )
+						counter = new FixedIntervalLogCounter( parsed.logRecords );
+					else if( parsed.logSeconds > 0 )
+						counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
-					// Define locals
+					DBReader reader = new DBReader( result, counter != null ? new ExportLogger( counter, processor.getProgressListener() ) : null, parsed.dateAsTimestamp );
+					RecordSource source = reader;
 
-					int columns = metaData.getColumnCount();
-					int[] types = new int[ columns ];
-					String[] names = new String[ columns ];
-					boolean[] ignore = new boolean[ columns ];
-					FileSpec[] fileSpecs = new FileSpec[ columns ];
-					String schemaNames[] = new String[ columns ];
-					String tableNames[] = new String[ columns ];
+					Column[] columns = source.getColumns();
+					int count = columns.length;
 
-					// Analyze metadata
+					FileSpec[] fileSpecs = new FileSpec[ count ];
 
-					for( int i = 0; i < columns; i++ )
+					// Analyze columns
+
+					SelectProcessor selector = null;
+					for( int i = 0; i < count; i++ )
 					{
-						int col = i + 1;
-						String name = metaData.getColumnName( col ).toUpperCase();
-						types[ i ] = metaData.getColumnType( col );
-						if( types[ i ] == Types.DATE && parsed.dateAsTimestamp )
-							types[ i ] = Types.TIMESTAMP;
-						names[ i ] = name;
+						int type = columns[ i ].getType();
+						boolean skipped = false;
 						if( parsed.columns != null )
 						{
-							ColumnSpec columnSpec = parsed.columns.get( name );
+							ColumnSpec columnSpec = parsed.columns.get( columns[ i ].getName() );
 							if( columnSpec != null )
 								if( columnSpec.skip )
-									ignore[ i ] = true;
+									skipped = true;
 								else
 									fileSpecs[ i ] = columnSpec.toFile;
 						}
 						// TODO STRUCT serialize
 						// TODO This must be optional and not the default
-						if( types[ i ] == 2002 || JDBCSupport.toTypeName( types[ i ] ) == null )
-							ignore[ i ] = true;
-						tableNames[ i ] = StringUtils.upperCase( StringUtils.defaultIfEmpty( metaData.getTableName( col ), null ) );
-						schemaNames[ i ] = StringUtils.upperCase( StringUtils.defaultIfEmpty( metaData.getSchemaName( col ), null ) );
+						if( type == 2002 || columns[ i ].getTypeName() == null )
+							skipped = true;
+
+						if( skipped )
+						{
+							if( selector == null )
+								selector = new SelectProcessor( columns );
+							selector.deselect( i );
+						}
 					}
+
+					if( selector != null )
+					{
+						source.setOutput( selector );
+						source = selector;
+					}
+
+					if( parsed.coalesce != null )
+					{
+						CoalescerProcessor coalescer = new CoalescerProcessor( parsed.coalesce );
+						source.setOutput( coalescer );
+						source = coalescer;
+					}
+
+					columns = source.getColumns();
+
+					for( int i = 0; i < columns.length; i++ )
+						if( parsed.columns != null )
+						{
+							ColumnSpec columnSpec = parsed.columns.get( columns[ i ].getName() );
+							if( columnSpec != null )
+								fileSpecs[ i ] = columnSpec.toFile;
+						}
 
 					// Write header
 
@@ -194,53 +214,36 @@ public class DumpJSON implements CommandListener
 
 					JSONArray fields = new JSONArray();
 					properties.set( "fields", fields );
-					for( int i = 0; i < columns; i++ )
-						if( !ignore[ i ] )
+					for( int i = 0; i < columns.length; i++ )
+					{
+						Column column = columns[ i ];
+						JSONObject field = new JSONObject();
+						field.set( "schemaName", column.getSchema() );
+						field.set( "tableName", column.getTable() );
+						field.set( "name", column.getName() );
+						field.set( "type", column.getTypeName() ); // TODO Better error message when type is not recognized, for example Oracle's 2007 for a user type
+						FileSpec spec = fileSpecs[ i ];
+						if( spec != null && !spec.generator.isParameterized() )
 						{
-							JSONObject field = new JSONObject();
-							field.set( "schemaName", schemaNames[ i ] );
-							field.set( "tableName", tableNames[ i ] );
-							field.set( "name", names[ i ] );
-							field.set( "type", JDBCSupport.toTypeName( types[ i ] ) ); // TODO Better error message when type is not recognized, for example Oracle's 2007 for a user type
-							FileSpec spec = fileSpecs[ i ];
-							if( spec != null && !spec.generator.isDynamic() )
-							{
-								Resource fileResource = new FileResource( spec.generator.fileName );
-								field.set( "file", fileResource.getPathFrom( jsonOutput ).toString() );
-							}
-							fields.add( field );
+							Resource fileResource = new FileResource( spec.generator.fileName );
+							field.set( "file", fileResource.getPathFrom( jsonOutput ).toString() );
 						}
+						fields.add( field );
+					}
 
 					FileSpec binaryFile = parsed.binaryFileName != null ? new FileSpec( true, parsed.binaryFileName, 0 ) : null;
 
-					JSONDataWriter dataWriter = new JSONDataWriter( jsonOutput, out, fileSpecs, names, binaryFile, parsed.binaryGzip, command.getLocation() );
+					JSONDataWriter dataWriter = new JSONDataWriter( jsonOutput, out, fileSpecs, columns, binaryFile, parsed.binaryGzip, command.getLocation() );
 					try
 					{
 						dataWriter.getJSONWriter().writeFormatted( properties, 120 );
 						dataWriter.getJSONWriter().getWriter().write( '\n' );
 
-						LogCounter counter = null;
-						if( parsed.logRecords > 0 )
-							counter = new FixedIntervalLogCounter( parsed.logRecords );
-						else if( parsed.logSeconds > 0 )
-							counter = new TimeIntervalLogCounter( parsed.logSeconds );
-
-						ExportLogger myCounter = null;
-						if( counter != null )
-							myCounter = new ExportLogger( counter, processor.getProgressListener() );
-
-						DBReader dataReader;
-						if( parsed.coalesce != null )
-						{
-							CoalescerProcessor coalescer = new CoalescerProcessor( parsed.coalesce, dataWriter );
-							dataReader = new DBReader( result, coalescer, myCounter );
-						}
-						else
-							dataReader = new DBReader( result, dataWriter, myCounter );
+						source.setOutput( dataWriter );
 
 						try
 						{
-							dataReader.process();
+							reader.process();
 						}
 						finally
 						{
@@ -481,69 +484,5 @@ public class DumpJSON implements CommandListener
 		protected int logSeconds;
 
 		protected Map<String, ColumnSpec> columns;
-	}
-
-
-	static protected class FileSpec
-	{
-		protected boolean binary;
-		protected int threshold;
-
-		protected FileNameGenerator generator;
-		protected OutputStream out;
-		protected Writer writer;
-		protected int index;
-
-		protected FileSpec( boolean binary, String fileName, int threshold )
-		{
-			this.binary = binary;
-			this.threshold = threshold;
-			this.generator = new FileNameGenerator( fileName );
-		}
-	}
-
-
-	static protected class ColumnSpec
-	{
-		protected boolean skip;
-		protected FileSpec toFile;
-
-		protected ColumnSpec( boolean skip, FileSpec toFile )
-		{
-			this.skip = skip;
-			this.toFile = toFile;
-		}
-	}
-
-
-	static protected class FileNameGenerator
-	{
-		protected final Pattern pattern = Pattern.compile( "\\?(\\d+)" );
-		protected String fileName;
-		protected boolean generic;
-
-		protected FileNameGenerator( String fileName )
-		{
-			this.fileName = fileName;
-			this.generic = this.pattern.matcher( fileName ).find();
-		}
-
-		protected boolean isDynamic()
-		{
-			return this.generic;
-		}
-
-		protected String generateFileName( Object[] values )
-		{
-			Matcher matcher = this.pattern.matcher( this.fileName );
-			StringBuffer result = new StringBuffer();
-			while( matcher.find() )
-			{
-				int index = Integer.parseInt( matcher.group( 1 ) );
-				matcher.appendReplacement( result, values[ index - 1 ].toString() ); // TODO Does this work for every type?
-			}
-			matcher.appendTail( result );
-			return result.toString();
-		}
 	}
 }
