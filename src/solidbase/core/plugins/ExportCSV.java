@@ -18,34 +18,23 @@ package solidbase.core.plugins;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
-import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
 import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
-import solidbase.core.FatalException;
 import solidbase.core.SourceException;
 import solidbase.core.SystemException;
 import solidbase.util.CSVWriter;
 import solidbase.util.FixedIntervalLogCounter;
-import solidbase.util.JDBCSupport;
 import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
@@ -53,7 +42,6 @@ import solidbase.util.TimeIntervalLogCounter;
 import solidstack.io.Resource;
 import solidstack.io.Resources;
 import solidstack.io.SourceReaders;
-import solidstack.lang.Assert;
 
 
 /**
@@ -62,7 +50,6 @@ import solidstack.lang.Assert;
  * @author René M. de Bloois
  * @since Aug 12, 2011
  */
-// TODO To compressed file
 // TODO Escape with \ instead of doubling double quotes. This means also \n \t \r. ESCAPE DQ CR LF TAB WITH \
 public class ExportCSV implements CommandListener
 {
@@ -83,71 +70,20 @@ public class ExportCSV implements CommandListener
 
 		Parsed parsed = parse( command );
 
-		Resource csvResource = Resources.getResource( parsed.fileName ); // Relative to current folder
+		Resource csvOutput = Resources.getResource( parsed.fileName ); // Relative to current folder
 
 		try
 		{
-			OutputStream out = csvResource.getOutputStream();
+			OutputStream out = csvOutput.getOutputStream();
 			if( parsed.gzip )
 				out = new BufferedOutputStream( new GZIPOutputStream( out, 65536 ), 65536 ); // TODO Ctrl-C, close the outputstream?
 
-			CSVWriter csvWriter;
-			try
-			{
-				csvWriter = new CSVWriter( new OutputStreamWriter( out, parsed.encoding ), parsed.separator, false );
-			}
-			catch( UnsupportedEncodingException e )
-			{
-				// toString() instead of getMessage(), the getMessage only returns the character encoding
-				throw new SourceException( e.toString(), command.getLocation() );
-			}
-
-			// TODO Lots of identical code in DumpJSON
 			try
 			{
 				Statement statement = processor.createStatement();
 				try
 				{
 					ResultSet result = statement.executeQuery( parsed.query );
-					ResultSetMetaData metaData = result.getMetaData();
-
-					// Define locals
-
-					int columns = metaData.getColumnCount();
-					int[] types = new int[ columns ];
-					String[] names = new String[ columns ];
-					boolean[] ignore = new boolean[ columns ];
-
-					// Analyze metadata
-
-					for( int i = 0; i < columns; i++ )
-					{
-						int col = i + 1;
-						String name = metaData.getColumnName( col ).toUpperCase();
-						types[ i ] = metaData.getColumnType( col );
-						if( types[ i ] == Types.DATE && parsed.dateAsTimestamp )
-							types[ i ] = Types.TIMESTAMP;
-						names[ i ] = name;
-						if( parsed.coalesce != null && parsed.coalesce.notFirst( name ) )
-							ignore[ i ] = true;
-						// TODO STRUCT serialize
-						// TODO This must be optional and not the default
-						else if( types[ i ] == 2002 || JDBCSupport.toTypeName( types[ i ] ) == null )
-							ignore[ i ] = true;
-					}
-
-					if( parsed.coalesce != null )
-						parsed.coalesce.bind( names );
-
-					// Write header
-
-					if( parsed.withHeader )
-					{
-						for( int i = 0; i < columns; i++ )
-							if( !ignore[ i ] )
-								csvWriter.writeValue( names[ i ] );
-						csvWriter.nextRecord();
-					}
 
 					LogCounter counter = null;
 					if( parsed.logRecords > 0 )
@@ -155,46 +91,68 @@ public class ExportCSV implements CommandListener
 					else if( parsed.logSeconds > 0 )
 						counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
-					while( result.next() )
+					DBReader reader = new DBReader( result, counter != null ? new ExportLogger( counter, processor.getProgressListener() ) : null, parsed.dateAsTimestamp );
+					RecordSource source = reader;
+
+					Column[] columns = source.getColumns();
+					int count = columns.length;
+
+					// Analyze columns
+
+					SelectProcessor selector = null;
+					for( int i = 0; i < count; i++ )
 					{
-						Object[] values = new Object[ columns ];
-						for( int i = 0; i < values.length; i++ )
-							values[ i ] = JDBCSupport.getValue( result, types, i );
+						int type = columns[ i ].getType();
+						boolean skipped = false;
 
-						if( parsed.coalesce != null )
-							parsed.coalesce.coalesce( values );
+						// TODO STRUCT serialize
+						// TODO This must be optional and not the default
+						if( type == 2002 || columns[ i ].getTypeName() == null )
+							skipped = true;
 
-						for( int i = 0; i < columns; i++ )
-							if( !ignore[ i ] )
-							{
-								Object value = values[ i ];
-								if( value == null )
-									csvWriter.writeValue( (String)null );
-								else if( value instanceof Clob )
-								{
-									Reader in = ( (Clob)value ).getCharacterStream();
-									csvWriter.writeValue( in );
-									in.close();
-								}
-								else if( value instanceof Blob )
-								{
-									InputStream in = ( (Blob)value ).getBinaryStream();
-									csvWriter.writeValue( in );
-									in.close();
-								}
-								else if( value instanceof byte[] )
-									csvWriter.writeValue( (byte[])value );
-								else
-									csvWriter.writeValue( value.toString() );
-							}
-
-						csvWriter.nextRecord();
-
-						if( counter != null && counter.next() )
-								processor.getProgressListener().println( "Exported " + counter.total() + " records." );
+						if( skipped )
+						{
+							if( selector == null )
+								selector = new SelectProcessor( columns );
+							selector.deselect( i );
+						}
 					}
-					if( counter != null && counter.needFinal() )
-						processor.getProgressListener().println( "Exported " + counter.total() + " records." );
+
+					if( selector != null )
+					{
+						source.setOutput( selector );
+						source = selector;
+					}
+
+					if( parsed.coalesce != null )
+					{
+						CoalescerProcessor coalescer = new CoalescerProcessor( parsed.coalesce );
+						source.setOutput( coalescer );
+						source = coalescer;
+					}
+
+					columns = source.getColumns();
+
+					// TODO The UnsupportedEncodingException should be a SourceException
+					CSVDataWriter dataWriter = new CSVDataWriter( new OutputStreamWriter( out, parsed.encoding ), parsed.separator );
+					try
+					{
+						if( parsed.withHeader )
+						{
+							CSVWriter csvWriter = dataWriter.getCSVWriter();
+							for( int i = 0; i < columns.length; i++ )
+								csvWriter.writeValue( columns[ i ].getName() );
+							csvWriter.nextRecord();
+						}
+
+						source.setOutput( dataWriter );
+
+						reader.process();
+					}
+					finally
+					{
+						dataWriter.close();
+					}
 				}
 				finally
 				{
@@ -203,7 +161,7 @@ public class ExportCSV implements CommandListener
 			}
 			finally
 			{
-				csvWriter.close();
+				out.close();
 			}
 		}
 		catch( IOException e )
@@ -280,26 +238,27 @@ public class ExportCSV implements CommandListener
 		while( t.eq( "COALESCE" ) )
 		{
 			if( result.coalesce == null )
-				result.coalesce = new Coalescer();
+				result.coalesce = new ArrayList<List<String>>();
+
+			List<String> cols = new ArrayList<String>();
+			result.coalesce.add( cols );
 
 			t = tokenizer.get();
-			if( !t.isString() )
-				throw new SourceException( "Expecting column name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-			result.coalesce.first( t.stripQuotes() );
+			if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
+				throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
+			cols.add( t.toString() );
 
 			t = tokenizer.get( "," );
 			do
 			{
 				t = tokenizer.get();
-				if( !t.isString() )
-					throw new SourceException( "Expecting column name enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-				result.coalesce.next( t.stripQuotes() );
+				if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
+					throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
+				cols.add( t.toString() );
 
 				t = tokenizer.get();
 			}
 			while( t.eq( "," ) );
-
-			result.coalesce.end();
 		}
 
 		tokenizer.expect( t, "LOG", "FILE" );
@@ -383,96 +342,9 @@ public class ExportCSV implements CommandListener
 		protected boolean dateAsTimestamp;
 
 		/** Which columns need to be coalesced */
-		protected Coalescer coalesce;
+		protected List<List<String>> coalesce;
 
 		protected int logRecords;
 		protected int logSeconds;
-	}
-
-
-	static protected class Coalescer
-	{
-//		protected Set< String > first = new HashSet();
-		protected Set< String > next = new HashSet< String >();
-		protected List< List< String > > names = new ArrayList< List<String> >();
-		protected List< List< Integer > > indexes = new ArrayList< List<Integer> >();
-		protected List< String > temp;
-		protected List< Integer > temp2;
-
-		public void first( String name )
-		{
-//			this.first.add( name );
-
-			Assert.isNull( this.temp );
-			this.temp = new ArrayList< String >();
-			this.temp.add( name );
-			this.temp2 = new ArrayList< Integer >();
-			this.temp2.add( null );
-		}
-
-		public void next( String name )
-		{
-			this.next.add( name );
-
-			Assert.notNull( this.temp );
-			this.temp.add( name );
-			this.temp2.add( null );
-		}
-
-		public void end()
-		{
-			this.names.add( this.temp );
-			this.indexes.add( this.temp2 );
-			this.temp = null;
-			this.temp2 = null;
-		}
-
-		public boolean notFirst( String name )
-		{
-			return this.next.contains( name );
-		}
-
-		public void bind( String[] names )
-		{
-			for( int i = 0; i < this.names.size(); i++ )
-			{
-				List< String > nams = this.names.get( i );
-				List< Integer > indexes = this.indexes.get( i );
-				for( int j = 0; j < nams.size(); j++ )
-				{
-					String name = nams.get( j );
-					int found = -1;
-					for( int k = 0; k < names.length; k++ )
-						if( name.equals( names[ k ] ) )
-						{
-							found = k;
-							break;
-						}
-					if( found < 0 )
-						throw new FatalException( "Coalesce column " + name + " not in result set" );
-					indexes.set( j, found );
-				}
-			}
-		}
-
-		public void coalesce( Object[] values )
-		{
-			for( int i = 0; i < this.indexes.size(); i++ )
-			{
-				List< Integer > indexes = this.indexes.get( i );
-				int firstIndex = indexes.get( 0 );
-				if( values[ firstIndex ] == null )
-				{
-					Object found = null;
-					for( int j = 1; j < indexes.size(); j++ )
-					{
-						found = values[ indexes.get( j ) ];
-						if( found != null )
-							break;
-					}
-					values[ firstIndex ] = found;
-				}
-			}
-		}
 	}
 }
