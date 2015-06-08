@@ -10,8 +10,9 @@ public class CoalescerProcessor implements DataProcessor, RecordSource
 {
 	private DataProcessor output;
 
-	private List<List<String>> names = new ArrayList<List<String>>();
-	private List<List<Integer>> indexes = new ArrayList<List<Integer>>();
+	private List<List<String>> names;
+	private Mapping[] mapping;
+	private Column[] columns;
 
 
 	public CoalescerProcessor( List<List<String>> names )
@@ -22,7 +23,7 @@ public class CoalescerProcessor implements DataProcessor, RecordSource
 	@Override
 	public Column[] getColumns()
 	{
-		throw new UnsupportedOperationException();
+		return this.columns;
 	}
 
 	@Override
@@ -31,48 +32,86 @@ public class CoalescerProcessor implements DataProcessor, RecordSource
 		this.output = output;
 	}
 
-	public void init( String[] names )
+	public void init( Column[] columns )
 	{
+		int cols = columns.length;
+		boolean next[] = new boolean[ cols ];
+		Mapping[] mapping = new Mapping[ cols ];
+
 		for( int i = 0; i < this.names.size(); i++ )
 		{
+			Mapping current = null;
 			List<String> nams = this.names.get( i );
-			List<Integer> indexes = this.indexes.get( i );
 			for( int j = 0; j < nams.size(); j++ )
 			{
 				String name = nams.get( j );
 				int found = -1;
-				for( int k = 0; k < names.length; k++ )
-					if( name.equals( names[ k ] ) )
+				for( int k = 0; k < cols; k++ )
+					if( name.equals( columns[ k ].getName() ) )
 					{
 						found = k;
 						break;
 					}
 				if( found < 0 )
 					throw new FatalException( "Coalesce column " + name + " not in result set" ); // TODO Should be sourceexception
-				indexes.set( j, found );
+				if( j != 0 )
+					next[ found ] = true;
+				if( current == null )
+					current = mapping[ found ] = new Mapping( found );
+				else
+					current = current.next = new Mapping( found );
 			}
 		}
+
+		List<Column> newCols = new ArrayList<Column>();
+		List<Mapping> newMapping = new ArrayList<Mapping>();
+
+		int j = 0;
+		for( int i = 0; i < cols; i++ )
+			if( mapping[ i ] != null )
+			{
+				newCols.add( columns[ i ] );
+				newMapping.add( mapping[ i ] );
+			}
+			else if( !next[ i ] )
+			{
+				newCols.add( columns[ i ] );
+				newMapping.add( new Mapping( i ) );
+			}
+
+		this.columns = newCols.toArray( new Column[ newCols.size() ] );
+		this.mapping = newMapping.toArray( new Mapping[ newCols.size() ] );
+
+		this.output.init( this.columns );
 	}
 
 	public void process( Object[] values ) throws SQLException
 	{
-		for( int i = 0; i < this.indexes.size(); i++ )
+		int count = this.mapping.length;
+		Object[] newValues = new Object[ count ];
+
+		for( int i = 0; i < count; i++ )
 		{
-			List< Integer > indexes = this.indexes.get( i );
-			int firstIndex = indexes.get( 0 );
-			if( values[ firstIndex ] == null )
+			Mapping mapping = this.mapping[ i ];
+			Object value = values[ mapping.index ];
+			while( value == null && mapping.next != null )
 			{
-				Object found = null;
-				for( int j = 1; j < indexes.size(); j++ )
-				{
-					found = values[ indexes.get( j ) ];
-					if( found != null )
-						break;
-				}
-				values[ firstIndex ] = found;
+				mapping = mapping.next;
+				value = values[ mapping.index ];
 			}
+			newValues[ i ] = value;
 		}
 
-		this.output.process( values );
+		this.output.process( newValues );
+	}
+
+	static class Mapping
+	{
+		int index;
+		Mapping next;
+		Mapping( int index )
+		{
+			this.index = index;
+		}
 	}
 }

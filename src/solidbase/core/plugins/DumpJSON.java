@@ -180,66 +180,65 @@ public class DumpJSON implements CommandListener
 						source = coalescer;
 					}
 
-					columns = source.getColumns();
-
-					for( int i = 0; i < columns.length; i++ )
-						if( parsed.columns != null )
-						{
-							ColumnSpec columnSpec = parsed.columns.get( columns[ i ].getName() );
-							if( columnSpec != null )
-								fileSpecs[ i ] = columnSpec.toFile;
-						}
-
-					// Write header
-
-					JSONObject properties = new JSONObject();
-					properties.set( "version", "1.0" );
-					properties.set( "format", "record-stream" );
-					properties.set( "description", "SolidBase JSON Data Dump File" );
-					properties.set( "createdBy", new JSONObject( "product", "SolidBase", "version", "2.0.0" ) );
-
-					if( dateCreated )
-					{
-						SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
-						properties.set( "createdDate", format.format( new Date() ) );
-					}
-
-					if( parsed.binaryFileName != null )
-					{
-						// TODO FIXME Should be wrapped in a SourceException: solidbase.solidstack.io.FatalURISyntaxException: java.net.URISyntaxException: Illegal character in path at index 1: &{folder}/JIADHOCCH
-						Resource binResource = Resources.getResource( parsed.binaryFileName );
-						Resource resource = Resources.getResource( parsed.fileName );
-						properties.set( "binaryFile", binResource.getPathFrom( resource ).toString() );
-					}
-
-					JSONArray fields = new JSONArray();
-					properties.set( "fields", fields );
-					for( int i = 0; i < columns.length; i++ )
-					{
-						Column column = columns[ i ];
-						JSONObject field = new JSONObject();
-						field.set( "schemaName", column.getSchema() );
-						field.set( "tableName", column.getTable() );
-						field.set( "name", column.getName() );
-						field.set( "type", column.getTypeName() ); // TODO Better error message when type is not recognized, for example Oracle's 2007 for a user type
-						FileSpec spec = fileSpecs[ i ];
-						if( spec != null && !spec.generator.isParameterized() )
-						{
-							Resource fileResource = new FileResource( spec.generator.fileName );
-							field.set( "file", fileResource.getPathFrom( jsonOutput ).toString() );
-						}
-						fields.add( field );
-					}
-
 					FileSpec binaryFile = parsed.binaryFileName != null ? new FileSpec( true, parsed.binaryFileName, 0 ) : null;
-
 					JSONDataWriter dataWriter = new JSONDataWriter( jsonOutput, out, fileSpecs, columns, binaryFile, parsed.binaryGzip, command.getLocation() );
 					try
 					{
+						source.setOutput( dataWriter );
+						reader.init();
+						columns = source.getColumns();
+
+						for( int i = 0; i < columns.length; i++ )
+							if( parsed.columns != null )
+							{
+								ColumnSpec columnSpec = parsed.columns.get( columns[ i ].getName() );
+								if( columnSpec != null )
+									fileSpecs[ i ] = columnSpec.toFile;
+							}
+
+						// Write header
+
+						JSONObject properties = new JSONObject();
+						properties.set( "version", "1.0" );
+						properties.set( "format", "record-stream" );
+						properties.set( "description", "SolidBase JSON Data Dump File" );
+						properties.set( "createdBy", new JSONObject( "product", "SolidBase", "version", "2.0.0" ) );
+
+						if( dateCreated )
+						{
+							SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
+							properties.set( "createdDate", format.format( new Date() ) );
+						}
+
+						if( parsed.binaryFileName != null )
+						{
+							// TODO FIXME Should be wrapped in a SourceException: solidbase.solidstack.io.FatalURISyntaxException: java.net.URISyntaxException: Illegal character in path at index 1: &{folder}/JIADHOCCH
+							Resource binResource = Resources.getResource( parsed.binaryFileName );
+							Resource resource = Resources.getResource( parsed.fileName );
+							properties.set( "binaryFile", binResource.getPathFrom( resource ).toString() );
+						}
+
+						JSONArray fields = new JSONArray();
+						properties.set( "fields", fields );
+						for( int i = 0; i < columns.length; i++ )
+						{
+							Column column = columns[ i ];
+							JSONObject field = new JSONObject();
+							field.set( "schemaName", column.getSchema() );
+							field.set( "tableName", column.getTable() );
+							field.set( "name", column.getName() );
+							field.set( "type", column.getTypeName() ); // TODO Better error message when type is not recognized, for example Oracle's 2007 for a user type
+							FileSpec spec = fileSpecs[ i ];
+							if( spec != null && !spec.generator.isParameterized() )
+							{
+								Resource fileResource = new FileResource( spec.generator.fileName );
+								field.set( "file", fileResource.getPathFrom( jsonOutput ).toString() );
+							}
+							fields.add( field );
+						}
+
 						dataWriter.getJSONWriter().writeFormatted( properties, 120 );
 						dataWriter.getJSONWriter().getWriter().write( '\n' );
-
-						source.setOutput( dataWriter );
 
 						try
 						{

@@ -131,21 +131,21 @@ public class ExportCSV implements CommandListener
 						source = coalescer;
 					}
 
-					columns = source.getColumns();
-
 					// TODO The UnsupportedEncodingException should be a SourceException
 					CSVDataWriter dataWriter = new CSVDataWriter( new OutputStreamWriter( out, parsed.encoding ), parsed.separator );
 					try
 					{
+						source.setOutput( dataWriter );
+						reader.init();
+
 						if( parsed.withHeader )
 						{
 							CSVWriter csvWriter = dataWriter.getCSVWriter();
+							columns = source.getColumns();
 							for( int i = 0; i < columns.length; i++ )
 								csvWriter.writeValue( columns[ i ].getName() );
 							csvWriter.nextRecord();
 						}
-
-						source.setOutput( dataWriter );
 
 						reader.process();
 					}

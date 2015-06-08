@@ -29,13 +29,13 @@ insert into temp1 ( field1, field2, field3, field4, field5 ) values
 ( NULL, NULL, 23, 24, 25 );
 
 EXPORT CSV WITH HEADER
-COALESCE "FIELD1", "FIELD2", "FIELD3"
-COALESCE "FIELD2", "FIELD5"
+COALESCE FIELD1, FIELD2, FIELD3
+COALESCE FIELD2, FIELD5
 FILE "export-coalesce1.csv" ENCODING "UTF-8"
 SELECT field1, field2, field3, field4, field5 FROM TEMP1;
 
 DUMP JSON
-COALESCE "FIELD1", "FIELD2", "FIELD3"
-COALESCE "FIELD2", "FIELD5"
+COALESCE FIELD1, FIELD2, FIELD3
+COALESCE FIELD2, FIELD5
 FILE "export-coalesce1.json"
 SELECT field1, field2, field3, field4, field5 FROM TEMP1;

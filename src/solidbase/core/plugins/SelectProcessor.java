@@ -47,9 +47,10 @@ public class SelectProcessor implements DataProcessor, RecordSource
 		this.output = output;
 	}
 
-	public void init( String[] names )
+	public void init( Column[] columns )
 	{
-		this.output.init( names );
+		// TODO We should compute the outcolumns here
+		this.output.init( this.outColumns );
 	}
 
 	public void process( Object[] inValues ) throws SQLException

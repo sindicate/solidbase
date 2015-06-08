@@ -20,7 +20,7 @@ public class CSVDataWriter implements DataProcessor
 		this.csvWriter = new CSVWriter( out, separator, false );
 	}
 
-	public void init( String[] names )
+	public void init( Column[] columns )
 	{
 	}
 

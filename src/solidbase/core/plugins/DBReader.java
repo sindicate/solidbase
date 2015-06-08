@@ -16,6 +16,7 @@ public class DBReader implements RecordSource
 	private ExportLogger counter;
 	private Column[] columns;
 
+
 	public DBReader( ResultSet result, ExportLogger counter, boolean dateAsTimestamp  ) throws SQLException
 	{
 		this.result = result;
@@ -48,8 +49,14 @@ public class DBReader implements RecordSource
 		return this.columns;
 	}
 
+	public void init()
+	{
+		this.processor.init( this.columns );
+	}
+
 	public void process() throws SQLException
 	{
+		// TODO This metaData must go
 		ResultSet result = this.result;
 		ResultSetMetaData metaData = result.getMetaData();
 		int columns = metaData.getColumnCount();
@@ -64,7 +71,6 @@ public class DBReader implements RecordSource
 		}
 
 		DataProcessor next = this.processor;
-		next.init( names );
 
 		while( result.next() )
 		{

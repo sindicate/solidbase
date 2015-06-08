@@ -43,7 +43,7 @@ public class JSONDataWriter implements DataProcessor
 		this.location = location;
 	}
 
-	public void init( String[] names )
+	public void init( Column[] columns )
 	{
 	}
 
