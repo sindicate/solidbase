@@ -19,7 +19,6 @@ package solidbase.util;
 import solidbase.core.SourceException;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
-import solidstack.io.PushbackReader;
 
 
 /**
@@ -32,7 +31,7 @@ public class CSVTokenizer
 	/**
 	 * The reader used to read from and push back characters.
 	 */
-	protected PushbackReader in;
+	protected SourceReader in;
 
 	/**
 	 * The CSV separator.
@@ -64,7 +63,7 @@ public class CSVTokenizer
 	 */
 	public CSVTokenizer( SourceReader in, int separator, boolean ignoreWhiteSpace )
 	{
-		this.in = new PushbackReader( in );
+		this.in = in;
 		this.separator = separator;
 		this.ignoreWhiteSpace = ignoreWhiteSpace;
 	}
@@ -110,15 +109,15 @@ public class CSVTokenizer
 		{
 			while( true )
 			{
-				ch = this.in.read();
+				ch = this.in.readRaw();
 				if( ch == -1 )
 					throw new SourceException( "Missing \"", this.in.getLocation() );
 				if( ch == '"' )
 				{
-					ch = this.in.read();
+					ch = this.in.readRaw();
 					if( ch != '"' )
 					{
-						this.in.push( ch );
+						this.in.rewind();
 						break;
 					}
 					// Double "" do not end the string
@@ -167,7 +166,7 @@ public class CSVTokenizer
 		while( ch != this.separator && ch != -1 && ch != '\n' );
 
 		// Push back the last character
-		this.in.push( ch );
+		this.in.rewind();
 
 		// Return the result
 		Assert.isFalse( result.length() == 0 );
@@ -201,7 +200,7 @@ public class CSVTokenizer
 	 */
 	public SourceReader getReader()
 	{
-		return this.in.getReader();
+		return this.in;
 	}
 
 
