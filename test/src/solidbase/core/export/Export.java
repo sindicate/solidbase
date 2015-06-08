@@ -1,4 +1,4 @@
-package solidbase.core;
+package solidbase.core.export;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
@@ -10,6 +10,16 @@ import java.sql.Timestamp;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import solidbase.core.Database;
+import solidbase.core.DatabaseContext;
+import solidbase.core.Factory;
+import solidbase.core.SQLContext;
+import solidbase.core.SQLFile;
+import solidbase.core.SQLProcessor;
+import solidbase.core.Setup;
+import solidbase.core.TestProgressListener;
+import solidbase.core.TestUtil;
+import solidbase.core.UpgradeProcessor;
 import solidbase.util.CSVReader;
 import solidstack.io.Resources;
 import solidstack.io.SourceReader;
