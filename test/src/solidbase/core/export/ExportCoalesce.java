@@ -2,6 +2,7 @@ package solidbase.core.export;
 
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 
 import org.testng.Assert;
@@ -11,6 +12,9 @@ import solidbase.core.SQLProcessor;
 import solidbase.core.Setup;
 import solidbase.core.TestUtil;
 import solidbase.util.CSVReader;
+import solidbase.util.JSONArray;
+import solidbase.util.JSONObject;
+import solidbase.util.JSONReader;
 import solidstack.io.Resources;
 import solidstack.io.SourceReader;
 import solidstack.io.SourceReaders;
@@ -22,8 +26,14 @@ public class ExportCoalesce
 	{
 		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 		SQLProcessor processor = Setup.setupSQLProcessor( "test-export-coalesce.sql" );
-		processor.process();
-		processor.end();
+		try
+		{
+			processor.process();
+		}
+		finally
+		{
+			processor.end();
+		}
 
 		SourceReader reader = SourceReaders.forResource( Resources.getResource( "export-coalesce1.csv" ), "UTF-8" );
 		try
@@ -56,6 +66,47 @@ public class ExportCoalesce
 
 			line = csv.getLine();
 			Assert.assertNull( line );
+		}
+		finally
+		{
+			reader.close();
+		}
+
+		reader = SourceReaders.forResource( Resources.getResource( "export-coalesce1.json" ), "UTF-8" );
+		try
+		{
+			JSONReader json = new JSONReader( reader );
+			JSONObject object = (JSONObject)json.read();
+			Assert.assertNotNull( object );
+			JSONArray array = object.getArray( "fields" );
+			Assert.assertEquals( array.size(), 3 );
+			Assert.assertEquals( array.getObject( 0 ).getString( "name" ), "FIELD1" );
+			Assert.assertEquals( array.getObject( 1 ).getString( "name" ), "FIELD2" );
+			Assert.assertEquals( array.getObject( 2 ).getString( "name" ), "FIELD4" );
+
+			array = (JSONArray)json.read();
+			Assert.assertNotNull( array );
+			Assert.assertEquals( array.size(), 3 );
+			Assert.assertEquals( array.getNumber( 0 ), BigDecimal.valueOf( 1 ) );
+			Assert.assertEquals( array.getNumber( 1 ), BigDecimal.valueOf( 2 ) );
+			Assert.assertEquals( array.getNumber( 2 ), BigDecimal.valueOf( 4 ) );
+
+			array = (JSONArray)json.read();
+			Assert.assertNotNull( array );
+			Assert.assertEquals( array.size(), 3 );
+			Assert.assertEquals( array.getNumber( 0 ), BigDecimal.valueOf( 12 ) );
+			Assert.assertEquals( array.getNumber( 1 ), BigDecimal.valueOf( 12 ) );
+			Assert.assertEquals( array.getNumber( 2 ), BigDecimal.valueOf( 14 ) );
+
+			array = (JSONArray)json.read();
+			Assert.assertNotNull( array );
+			Assert.assertEquals( array.size(), 3 );
+			Assert.assertEquals( array.getNumber( 0 ), BigDecimal.valueOf( 23 ) );
+			Assert.assertEquals( array.getNumber( 1 ), BigDecimal.valueOf( 25 ) );
+			Assert.assertEquals( array.getNumber( 2 ), BigDecimal.valueOf( 24 ) );
+
+			array = (JSONArray)json.read();
+			Assert.assertNull( array );
 		}
 		finally
 		{

@@ -10,6 +10,7 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.SQLException;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
 import solidbase.core.SourceException;
@@ -31,13 +32,13 @@ public class JSONDataWriter implements DataProcessor
 	private FileSpec binaryFile;
 	private boolean binaryGZip;
 	private SourceLocation location;
+	private Map<String, ColumnSpec> columnSpecs;
 
-	public JSONDataWriter( Resource resource, OutputStream out, FileSpec[] fileSpecs, Column[] columns, FileSpec binaryFile, boolean binaryGZip, SourceLocation location )
+	public JSONDataWriter( Resource resource, OutputStream out, Map<String, ColumnSpec> columnSpecs, FileSpec binaryFile, boolean binaryGZip, SourceLocation location )
 	{
 		this.resource = resource;
 		this.jsonWriter = new JSONWriter( out );
-		this.fileSpecs = fileSpecs;
-		this.columns = columns;
+		this.columnSpecs = columnSpecs;
 		this.binaryFile = binaryFile;
 		this.binaryGZip = binaryGZip;
 		this.location = location;
@@ -45,6 +46,18 @@ public class JSONDataWriter implements DataProcessor
 
 	public void init( Column[] columns )
 	{
+		this.columns = columns;
+
+		if( this.columnSpecs != null )
+		{
+			this.fileSpecs = new FileSpec[ columns.length ];
+			for( int i = 0; i < columns.length; i++ )
+				{
+					ColumnSpec columnSpec = this.columnSpecs.get( columns[ i ].getName() );
+					if( columnSpec != null )
+						this.fileSpecs[ i ] = columnSpec.toFile;
+				}
+		}
 	}
 
 	public void process( Object[] values ) throws SQLException
@@ -65,16 +78,16 @@ public class JSONDataWriter implements DataProcessor
 
 				// TODO 2 columns can't be written to the same dynamic filename
 
-				FileSpec spec = this.fileSpecs[ i ];
+				FileSpec spec = this.fileSpecs != null ? this.fileSpecs[ i ] : null;
 				if( spec != null ) // The column is redirected to its own file
 				{
 					String relFileName = null;
 					int startIndex;
 					if( spec.binary )
 					{
-						if( spec.generator.isParameterized() )
+						if( spec.isParameterized() )
 						{
-							String fileName = spec.generator.generateFileName( values );
+							String fileName = spec.generateFileName();
 							Resource fileResource = new FileResource( fileName );
 							spec.out = fileResource.getOutputStream();
 							spec.index = 0;
@@ -82,7 +95,7 @@ public class JSONDataWriter implements DataProcessor
 						}
 						else if( spec.out == null )
 						{
-							String fileName = spec.generator.generateFileName( values );
+							String fileName = spec.generateFileName();
 							Resource fileResource = new FileResource( fileName );
 							spec.out = fileResource.getOutputStream();
 						}
@@ -106,7 +119,7 @@ public class JSONDataWriter implements DataProcessor
 						}
 						else
 							throw new SourceException( this.columns[ i ].getName() + " (" + value.getClass().getName() + ") is not a binary column. Only binary columns like BLOB, RAW, BINARY VARYING can be written to a binary file", this.location );
-						if( spec.generator.isParameterized() )
+						if( spec.isParameterized() )
 						{
 							spec.out.close();
 							JSONObject ref = new JSONObject();
@@ -124,9 +137,9 @@ public class JSONDataWriter implements DataProcessor
 					}
 					else
 					{
-						if( spec.generator.isParameterized() )
+						if( spec.isParameterized() )
 						{
-							String fileName = spec.generator.generateFileName( values );
+							String fileName = spec.generateFileName();
 							Resource fileResource = new FileResource( fileName );
 							spec.writer = new DeferringWriter( spec.threshold, fileResource, this.jsonWriter.getEncoding() );
 							spec.index = 0;
@@ -134,7 +147,7 @@ public class JSONDataWriter implements DataProcessor
 						}
 						else if( spec.writer == null )
 						{
-							String fileName = spec.generator.generateFileName( values );
+							String fileName = spec.generateFileName();
 							Resource fileResource = new FileResource( fileName );
 							spec.writer = new OutputStreamWriter( fileResource.getOutputStream(), this.jsonWriter.getEncoding() );
 						}
@@ -159,7 +172,7 @@ public class JSONDataWriter implements DataProcessor
 							spec.writer.write( val );
 							spec.index += val.length();
 						}
-						if( spec.generator.isParameterized() )
+						if( spec.isParameterized() )
 						{
 							DeferringWriter writer = (DeferringWriter)spec.writer;
 							if( writer.isBuffered() )
@@ -188,7 +201,7 @@ public class JSONDataWriter implements DataProcessor
 				{
 					if( this.binaryFile.out == null )
 					{
-						String fileName = this.binaryFile.generator.generateFileName( null );
+						String fileName = this.binaryFile.generateFileName();
 						Resource fileResource = new FileResource( fileName );
 						this.binaryFile.out = fileResource.getOutputStream();
 						if( this.binaryGZip )

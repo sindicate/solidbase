@@ -69,7 +69,8 @@ public class JSONReader extends JSONParser
 		return this.endOfFile;
 	}
 
-	public JSONObject readObject()
+	// TODO This one does not work if called directly
+	private JSONObject readObject()
 	{
 		JSONObject result = new JSONObject();
 		EVENT event = next();
@@ -82,7 +83,8 @@ public class JSONReader extends JSONParser
 		return result;
 	}
 
-	public JSONArray readArray()
+	// TODO This one does not work if called directly
+	private JSONArray readArray()
 	{
 		JSONArray result = new JSONArray();
 		while( true )

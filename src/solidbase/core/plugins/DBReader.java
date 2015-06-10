@@ -15,6 +15,7 @@ public class DBReader implements RecordSource
 	private DataProcessor processor;
 	private ExportLogger counter;
 	private Column[] columns;
+	private Object[] currentValues;
 
 
 	public DBReader( ResultSet result, ExportLogger counter, boolean dateAsTimestamp  ) throws SQLException
@@ -54,6 +55,14 @@ public class DBReader implements RecordSource
 		this.processor.init( this.columns );
 	}
 
+	@Override
+	public Object[] getCurrentValues()
+	{
+		if( this.currentValues == null )
+			throw new IllegalStateException( "There are no current values, called too early" );
+		return this.currentValues;
+	}
+
 	public void process() throws SQLException
 	{
 		// TODO This metaData must go
@@ -74,7 +83,7 @@ public class DBReader implements RecordSource
 
 		while( result.next() )
 		{
-			Object[] values = new Object[ columns ];
+			Object[] values = this.currentValues = new Object[ columns ];
 			for( int i = 0; i < columns; i++ )
 				values[ i ] = JDBCSupport.getValue( result, types, i );
 

@@ -67,6 +67,7 @@ public class DumpJSON implements CommandListener
 	//@Override
 	// TODO Escape dynamic file names, because illegal characters may be generated
 	// TODO Export multiple tables to a single file. If no PK than sort on all columns. Schema name for import or not?
+	// TODO COLUMN TO TEXT FILE with ENCODING
 	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
 	{
 		if( !triggerPattern.matcher( command.getCommand() ).matches() )
@@ -167,6 +168,11 @@ public class DumpJSON implements CommandListener
 						}
 					}
 
+					// Connect FileSpecs with the DBReader for the original values
+					for( FileSpec fileSpec : fileSpecs )
+						if( fileSpec != null )
+							fileSpec.setSource( reader );
+
 					if( selector != null )
 					{
 						source.setOutput( selector );
@@ -181,20 +187,13 @@ public class DumpJSON implements CommandListener
 					}
 
 					FileSpec binaryFile = parsed.binaryFileName != null ? new FileSpec( true, parsed.binaryFileName, 0 ) : null;
-					JSONDataWriter dataWriter = new JSONDataWriter( jsonOutput, out, fileSpecs, columns, binaryFile, parsed.binaryGzip, command.getLocation() );
+					binaryFile.setSource( reader );
+					JSONDataWriter dataWriter = new JSONDataWriter( jsonOutput, out, parsed.columns, binaryFile, parsed.binaryGzip, command.getLocation() );
 					try
 					{
 						source.setOutput( dataWriter );
 						reader.init();
 						columns = source.getColumns();
-
-						for( int i = 0; i < columns.length; i++ )
-							if( parsed.columns != null )
-							{
-								ColumnSpec columnSpec = parsed.columns.get( columns[ i ].getName() );
-								if( columnSpec != null )
-									fileSpecs[ i ] = columnSpec.toFile;
-							}
 
 						// Write header
 
@@ -229,9 +228,9 @@ public class DumpJSON implements CommandListener
 							field.set( "name", column.getName() );
 							field.set( "type", column.getTypeName() ); // TODO Better error message when type is not recognized, for example Oracle's 2007 for a user type
 							FileSpec spec = fileSpecs[ i ];
-							if( spec != null && !spec.generator.isParameterized() )
+							if( spec != null && !spec.isParameterized() )
 							{
-								Resource fileResource = new FileResource( spec.generator.fileName );
+								Resource fileResource = new FileResource( spec.fileName );
 								field.set( "file", fileResource.getPathFrom( jsonOutput ).toString() );
 							}
 							fields.add( field );

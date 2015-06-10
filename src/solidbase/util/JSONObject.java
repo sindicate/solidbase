@@ -59,14 +59,36 @@ public class JSONObject implements Iterable< Map.Entry< String, Object > >
 		return result;
 	}
 
-	public JSONArray getArray( String name )
+	public JSONArray findArray( String name )
 	{
 		Object result = this.values.get( name );
-		if( result == null )
-			throw new SystemException( "Missing attribute '" + name + "'" );
-		if( result instanceof JSONArray )
+		if( result == null || result instanceof JSONArray )
 			return (JSONArray)result;
 		throw new SystemException( "Attribute '" + name + "' is not an JSONArray" );
+	}
+
+	public JSONArray getArray( String name )
+	{
+		JSONArray result = findArray( name );
+		if( result == null )
+			throw new SystemException( "Missing attribute '" + name + "'" );
+		return result;
+	}
+
+	public JSONObject findObject( String name )
+	{
+		Object result = this.values.get( name );
+		if( result == null || result instanceof JSONObject )
+			return (JSONObject)result;
+		throw new SystemException( "Attribute '" + name + "' is not an JSONObject" );
+	}
+
+	public JSONObject getObject( String name )
+	{
+		JSONObject result = findObject( name );
+		if( result == null )
+			throw new SystemException( "Missing attribute '" + name + "'" );
+		return result;
 	}
 
 	public Iterator< Map.Entry< String, Object >> iterator()

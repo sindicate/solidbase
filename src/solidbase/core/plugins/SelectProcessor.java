@@ -61,4 +61,10 @@ public class SelectProcessor implements DataProcessor, RecordSource
 			outValues[ i ] = inValues[ mapping[ i ] ];
 		this.output.process( outValues );
 	}
+
+	@Override
+	public Object[] getCurrentValues()
+	{
+		throw new UnsupportedOperationException();
+	}
 }

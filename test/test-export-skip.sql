@@ -18,18 +18,10 @@
 CREATE TABLE TEMP1 ( FIELD1 INTEGER, FIELD2 INTEGER, FIELD3 INTEGER, FIELD4 INTEGER, FIELD5 INTEGER );
 
 insert into temp1 ( field1, field2, field3, field4, field5 ) values
-( 1, 2, 3, 4, 5 ),
-( NULL, 12, 13, 14, 15 ),
-( NULL, NULL, 23, 24, 25 );
-
-EXPORT CSV WITH HEADER
-COALESCE FIELD1, FIELD2, FIELD3
-COALESCE FIELD2, FIELD5
-FILE "export-coalesce1.csv" ENCODING "UTF-8"
-SELECT field1, field2, field3, field4, field5 FROM TEMP1;
+( 1, 2, 3, 4, 5 );
 
 DUMP JSON
-COALESCE FIELD1, FIELD2, FIELD3
-COALESCE FIELD2, FIELD5
-FILE "export-coalesce1.json"
+FILE "export-skip1.json"
+COLUMN FIELD2, field4 SKIP
+column field5 TO TEXT FILE "export-skip1-?4.txt" 
 SELECT field1, field2, field3, field4, field5 FROM TEMP1;

@@ -114,4 +114,10 @@ public class CoalescerProcessor implements DataProcessor, RecordSource
 			this.index = index;
 		}
 	}
+
+	@Override
+	public Object[] getCurrentValues()
+	{
+		throw new UnsupportedOperationException();
+	}
 }
