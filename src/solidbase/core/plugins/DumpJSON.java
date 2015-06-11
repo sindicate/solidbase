@@ -163,8 +163,8 @@ public class DumpJSON implements CommandListener
 						if( skipped )
 						{
 							if( selector == null )
-								selector = new SelectProcessor( columns );
-							selector.deselect( i );
+								selector = new SelectProcessor();
+							selector.deselect( columns[ i ].getName() );
 						}
 					}
 
@@ -173,12 +173,6 @@ public class DumpJSON implements CommandListener
 						if( fileSpec != null )
 							fileSpec.setSource( reader );
 
-					if( selector != null )
-					{
-						source.setOutput( selector );
-						source = selector;
-					}
-
 					if( parsed.coalesce != null )
 					{
 						CoalescerProcessor coalescer = new CoalescerProcessor( parsed.coalesce );
@@ -186,8 +180,13 @@ public class DumpJSON implements CommandListener
 						source = coalescer;
 					}
 
-					FileSpec binaryFile = parsed.binaryFileName != null ? new FileSpec( true, parsed.binaryFileName, 0 ) : null;
-					binaryFile.setSource( reader );
+					if( selector != null )
+					{
+						source.setOutput( selector );
+						source = selector;
+					}
+
+					FileSpec binaryFile = parsed.binaryFileName != null ? new FileSpec( true, parsed.binaryFileName, 0, reader ) : null;
 					JSONDataWriter dataWriter = new JSONDataWriter( jsonOutput, out, parsed.columns, binaryFile, parsed.binaryGzip, command.getLocation() );
 					try
 					{
@@ -288,6 +287,7 @@ public class DumpJSON implements CommandListener
 	 * @param command The command to be parsed.
 	 * @return A structure representing the parsed command.
 	 */
+	// TODO The order of stuff should be free
 	static protected Parsed parse( Command command )
 	{
 		/*

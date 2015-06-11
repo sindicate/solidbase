@@ -1,38 +1,41 @@
 package solidbase.core.plugins;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 public class SelectProcessor implements DataProcessor, RecordSource
 {
 	private DataProcessor output;
-	private Column[] inColumns;
 	private Column[] outColumns;
 	private int[] mapping;
+	private Set<String> deselect = new HashSet<String>();
 
-	public SelectProcessor( Column[] columns )
+
+	public void deselect( String name )
 	{
-		this.inColumns = this.outColumns = columns;
-		int[] mapping = this.mapping = new int[ columns.length ];
-		for( int i = 0; i < mapping.length; i++ )
-			mapping[ i ] = i;
+		this.deselect.add( name );
 	}
 
-	public void deselect( int column )
+	public void init( Column[] columns )
 	{
-		int[] mapping = this.mapping;
-		for( int i = 0; i < mapping.length; i++ )
-			if( mapping[ i ] == column )
-			{
-				this.mapping = new int[ mapping.length - 1 ];
-				System.arraycopy( mapping, 0, this.mapping, 0, i );
-				System.arraycopy( mapping, i + 1, this.mapping, i, mapping.length - i - 1 );
+		List<Integer> temp = new ArrayList<Integer>();
+		for( int i = 0; i < columns.length; i++ )
+			if( !this.deselect.contains( columns[ i ].getName() ) )
+				temp.add( i );
 
-				Column[] columns = this.outColumns;
-				this.outColumns = new Column[ mapping.length - 1 ];
-				System.arraycopy( columns, 0, this.outColumns, 0, i );
-				System.arraycopy( columns, i + 1, this.outColumns, i, mapping.length - i - 1 );
-				return;
-			}
+		// TODO Google Guava has a Ints.toArray() ?
+		int[] mapping = this.mapping = ArrayUtils.toPrimitive( temp.toArray( new Integer[ temp.size() ] ) );
+
+		this.outColumns = new Column[ mapping.length ];
+		for( int i = 0; i < mapping.length; i++ )
+			this.outColumns[ i ] = columns[ mapping[ i ] ];
+
+		this.output.init( this.outColumns );
 	}
 
 	@Override
@@ -45,12 +48,6 @@ public class SelectProcessor implements DataProcessor, RecordSource
 	public void setOutput( DataProcessor output )
 	{
 		this.output = output;
-	}
-
-	public void init( Column[] columns )
-	{
-		// TODO We should compute the outcolumns here
-		this.output.init( this.outColumns );
 	}
 
 	public void process( Object[] inValues ) throws SQLException

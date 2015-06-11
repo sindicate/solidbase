@@ -17,11 +17,27 @@
 
 CREATE TABLE TEMP1 ( FIELD1 INTEGER, FIELD2 INTEGER, FIELD3 INTEGER, FIELD4 INTEGER, FIELD5 INTEGER );
 
-insert into temp1 ( field1, field2, field3, field4, field5 ) values
-( 1, 2, 3, 4, 5 );
+insert into temp1 ( field1, field2, field3, field4, field5 ) values ( 1, 2, 3, 4, 5 );
 
 DUMP JSON
 FILE "export-skip1.json"
 COLUMN FIELD2, field4 SKIP
 column field5 TO TEXT FILE "export-skip1-?4.txt" 
+SELECT field1, field2, field3, field4, field5 FROM TEMP1;
+
+DUMP JSON
+COALESCE field2, FiElD4
+FILE "export-skip2.json"
+COLUMN FIELD5 SKIP
+column field2 TO TEXT FILE "export-skip2-?4.txt" 
+SELECT field1, field2, field3, field4, field5 FROM TEMP1;
+
+delete from temp1;
+insert into temp1 ( field1, field2, field3, field4, field5 ) values ( 1, null, 3, 4, 5 );
+
+DUMP JSON
+COALESCE field2, FiElD4
+FILE "export-skip3.json"
+COLUMN FIELD2 SKIP
+column field5 TO TEXT FILE "export-skip3-?2.txt" 
 SELECT field1, field2, field3, field4, field5 FROM TEMP1;

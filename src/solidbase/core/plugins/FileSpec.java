@@ -30,6 +30,12 @@ class FileSpec
 		this.parameterized = FileSpec.pattern.matcher( fileName ).find();
 	}
 
+	protected FileSpec( boolean binary, String fileName, int threshold, RecordSource source )
+	{
+		this( binary, fileName, threshold );
+		this.source = source;
+	}
+
 	protected void setSource( RecordSource source )
 	{
 		this.source = source;
@@ -49,9 +55,17 @@ class FileSpec
 		while( matcher.find() )
 		{
 			int index = Integer.parseInt( matcher.group( 1 ) );
-			matcher.appendReplacement( result, values[ index - 1 ].toString() ); // TODO Does this work for every type?
+			matcher.appendReplacement( result, toString( values[ index - 1 ] ) );
 		}
 		matcher.appendTail( result );
 		return result.toString();
+	}
+
+	// TODO Does this work for every type?
+	static public String toString( Object value )
+	{
+		if( value == null )
+			return "null";
+		return value.toString();
 	}
 }

@@ -113,8 +113,8 @@ public class ExportCSV implements CommandListener
 						if( skipped )
 						{
 							if( selector == null )
-								selector = new SelectProcessor( columns );
-							selector.deselect( i );
+								selector = new SelectProcessor();
+							selector.deselect( columns[ i ].getName() );
 						}
 					}
 
