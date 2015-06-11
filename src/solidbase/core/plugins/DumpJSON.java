@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
@@ -141,32 +142,27 @@ public class DumpJSON implements CommandListener
 
 					// Analyze columns
 
-					SelectProcessor selector = null;
-					for( int i = 0; i < count; i++ )
+					SelectProcessor selector = new SelectProcessor();
+					if( parsed.columns != null )
+						for( Entry<String, ColumnSpec> entry : parsed.columns.entrySet() )
+							if( entry.getValue().skip )
+								selector.deselect( entry.getKey() );
+					for( Column column : columns )
 					{
-						int type = columns[ i ].getType();
-						boolean skipped = false;
-						if( parsed.columns != null )
+						int type = column.getType();
+						// TODO STRUCT serialize
+						// TODO This must be optional and not the default
+						if( type == 2002 || column.getTypeName() == null )
+							selector.deselect( column.getName() );
+					}
+
+					if( parsed.columns != null )
+						for( int i = 0; i < count; i++ )
 						{
 							ColumnSpec columnSpec = parsed.columns.get( columns[ i ].getName() );
 							if( columnSpec != null )
-								if( columnSpec.skip )
-									skipped = true;
-								else
-									fileSpecs[ i ] = columnSpec.toFile;
+								fileSpecs[ i ] = columnSpec.toFile;
 						}
-						// TODO STRUCT serialize
-						// TODO This must be optional and not the default
-						if( type == 2002 || columns[ i ].getTypeName() == null )
-							skipped = true;
-
-						if( skipped )
-						{
-							if( selector == null )
-								selector = new SelectProcessor();
-							selector.deselect( columns[ i ].getName() );
-						}
-					}
 
 					// Connect FileSpecs with the DBReader for the original values
 					for( FileSpec fileSpec : fileSpecs )
@@ -180,7 +176,7 @@ public class DumpJSON implements CommandListener
 						source = coalescer;
 					}
 
-					if( selector != null )
+					if( selector.hasDeselected() )
 					{
 						source.setOutput( selector );
 						source = selector;

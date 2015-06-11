@@ -33,7 +33,6 @@ import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.SourceException;
 import solidbase.core.SystemException;
-import solidbase.util.CSVWriter;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
@@ -132,21 +131,11 @@ public class ExportCSV implements CommandListener
 					}
 
 					// TODO The UnsupportedEncodingException should be a SourceException
-					CSVDataWriter dataWriter = new CSVDataWriter( new OutputStreamWriter( out, parsed.encoding ), parsed.separator );
+					CSVDataWriter dataWriter = new CSVDataWriter( new OutputStreamWriter( out, parsed.encoding ), parsed.separator, parsed.withHeader );
 					try
 					{
 						source.setOutput( dataWriter );
 						reader.init();
-
-						if( parsed.withHeader )
-						{
-							CSVWriter csvWriter = dataWriter.getCSVWriter();
-							columns = source.getColumns();
-							for( int i = 0; i < columns.length; i++ )
-								csvWriter.writeValue( columns[ i ].getName() );
-							csvWriter.nextRecord();
-						}
-
 						reader.process();
 					}
 					finally
