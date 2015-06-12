@@ -79,7 +79,6 @@
 	</path>
 
 	<path id="compile.classpath">
-		<pathelement location="${build.home}/../solidstack/classes" /> <!-- TODO This is temporary -->
 		<fileset dir="lib" includes="*.jar" />
 	</path>
 
@@ -212,10 +211,12 @@
 			<zipfileset file="${build.home}/config/version.properties" prefix="solidbase" />
 			<zipfileset src="lib/commons-cli-1.2.jar" excludes="META-INF/**" />
 			<zipfileset src="lib/commons-lang3-3.4.jar" excludes="META-INF/**" />
-			<zipfileset dir="${build.home}/../solidstack/classes" includes="**/*.class" /> <!-- TODO This is temporary -->
-			<!-- <zipfileset src="lib/solidstack-1.9.2-beta.jar" includes="solidstack/**/*.class" /> --> <!-- TODO This is the correct way -->
+			<zipfileset src="lib/solidstack-1.9.3-beta.jar">
+				<include name="solidstack/**/*.class" />
+				<include name="funny/*.class" />
+			</zipfileset>
 			<zipfileset dir="." includes="LICENSE.txt,NOTICE.txt,CHANGELOG.TXT" prefix="META-INF" />
-			<rule pattern="org.apache.commons.**" result="solidbase.@0" />
+			<rule pattern="org.apache.commons.**" result="solidbase.commons.@1" />
 			<rule pattern="solidstack.**" result="solidbase.@0" />
 			<keep pattern="solidbase.**" />
 			<manifest>

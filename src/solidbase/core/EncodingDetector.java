@@ -19,6 +19,8 @@ package solidbase.core;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import solidstack.io.EncodingUtils;
+
 
 /**
  * Detects the encoding of upgrade and SQL files.
@@ -47,7 +49,7 @@ public class EncodingDetector implements solidstack.io.EncodingDetector
 	{
 		String result = CHARSET_ISO_8859_1; // FIXME Or null for platform dependent? Think not. Or UTF-8?
 
-		String first = solidstack.template.EncodingDetector.toAscii( bytes );
+		String first = EncodingUtils.filter7bit( bytes );
 		Matcher matcher = ENCODING_PATTERN.matcher( first );
 		if( matcher.matches() )
 			result = matcher.group( 1 );
