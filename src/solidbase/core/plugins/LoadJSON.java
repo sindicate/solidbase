@@ -43,12 +43,12 @@ import solidbase.core.SourceException;
 import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidbase.util.CloseQueue;
-import solidbase.util.LogCounter;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.JDBCSupport;
 import solidbase.util.JSONArray;
 import solidbase.util.JSONObject;
 import solidbase.util.JSONReader;
+import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
 import solidbase.util.TimeIntervalLogCounter;
@@ -210,22 +210,31 @@ public class LoadJSON implements CommandListener
 
 					int lineNumber = reader.getLineNumber();
 
-					// Convert the strings to date, time and timestamps
-					// TODO Time zones, is there a default way of putting times and dates in a text file? For example whats in a HTTP header?
-					int i = 0;
-					for( ListIterator< Object > it = values.iterator(); it.hasNext(); )
+					try
 					{
-						Object value = it.next();
-						if( value != null )
+						// Convert the strings to date, time and timestamps
+						// TODO Time zones, is there a default way of putting times and dates in a text file? For example whats in a HTTP header?
+						int i = 0;
+						for( ListIterator< Object > it = values.iterator(); it.hasNext(); )
 						{
-							if( types[ i ] == Types.DATE )
-								it.set( java.sql.Date.valueOf( (String)value ) );
-							else if( types[ i ] == Types.TIMESTAMP )
-								it.set( java.sql.Timestamp.valueOf( (String)value ) );
-							else if( types[ i ] == Types.TIME )
-								it.set( java.sql.Time.valueOf( (String)value ) );
+							Object value = it.next();
+							if( value != null )
+							{
+								if( types[ i ] == Types.DATE )
+									it.set( java.sql.Date.valueOf( (String)value ) );
+								else if( types[ i ] == Types.TIMESTAMP )
+									it.set( java.sql.Timestamp.valueOf( (String)value ) );
+								else if( types[ i ] == Types.TIME )
+									it.set( java.sql.Time.valueOf( (String)value ) );
+							}
+							i++;
 						}
-						i++;
+					}
+					catch( IllegalArgumentException e )
+					{
+						// TODO Add test? C:\_WORK\SAO-20150612\build.xml:32: The following error occurred while executing this line:
+						// C:\_WORK\SAO-20150612\build.xml:13: Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff], at line 17 of file C:/_WORK/SAO-20150612/SYSTEEM/sca.JSON.GZ
+						throw new SourceException( e.getMessage(), reader.getLocation() );
 					}
 
 					// Set the statement parameters
