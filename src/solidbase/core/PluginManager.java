@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
+import solidstack.io.FatalIOException;
 
 
 /**
@@ -78,27 +79,27 @@ public class PluginManager
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 		catch( ClassNotFoundException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 		catch( NoSuchMethodException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 		catch( InstantiationException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 		catch( IllegalAccessException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 		catch( InvocationTargetException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 	}
 

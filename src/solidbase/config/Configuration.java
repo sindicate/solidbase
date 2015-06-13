@@ -36,6 +36,7 @@ import org.apache.commons.lang3.StringUtils;
 import solidbase.core.FatalException;
 import solidbase.core.SystemException;
 import solidbase.util.Assert;
+import solidstack.io.FatalIOException;
 
 
 /**
@@ -258,7 +259,7 @@ public class Configuration
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 	}
 

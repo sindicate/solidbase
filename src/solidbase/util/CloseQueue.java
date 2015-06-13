@@ -22,7 +22,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-import solidbase.core.SystemException;
+import solidstack.io.FatalIOException;
 
 
 /**
@@ -73,7 +73,7 @@ public class CloseQueue
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 		this.files.clear();
 	}

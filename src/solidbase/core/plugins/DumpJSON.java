@@ -37,18 +37,18 @@ import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.SourceException;
-import solidbase.core.SystemException;
 import solidbase.util.FixedIntervalLogCounter;
-import solidbase.util.JSONArray;
-import solidbase.util.JSONObject;
 import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
 import solidbase.util.TimeIntervalLogCounter;
+import solidstack.io.FatalIOException;
 import solidstack.io.FileResource;
 import solidstack.io.Resource;
 import solidstack.io.Resources;
 import solidstack.io.SourceReaders;
+import solidstack.json.JSONArray;
+import solidstack.json.JSONObject;
 import solidstack.script.scopes.AbstractScope;
 import solidstack.script.scopes.UndefinedException;
 import funny.Symbol;
@@ -270,7 +270,7 @@ public class DumpJSON implements CommandListener
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 
 		return true;

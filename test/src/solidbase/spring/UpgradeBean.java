@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
 
 import solidbase.core.ConnectionAttributes;
 import solidbase.core.Runner;
-import solidbase.core.SystemException;
+import solidstack.io.FatalIOException;
 import solidstack.io.InputStreamResource;
 import solidstack.io.MemoryResource;
 import solidstack.io.URIResource;
@@ -303,7 +303,7 @@ public class UpgradeBean
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 
 		runner.setUpgradeTarget( this.target );

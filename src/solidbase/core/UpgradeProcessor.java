@@ -31,6 +31,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import solidbase.util.Assert;
+import solidstack.io.FatalIOException;
 import solidstack.io.Resource;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
@@ -607,7 +608,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 			}
 			catch( IOException e )
 			{
-				throw new SystemException( e );
+				throw new FatalIOException( e );
 			}
 		}
 	}

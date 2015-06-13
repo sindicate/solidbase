@@ -30,14 +30,14 @@ import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
 import solidbase.core.SourceException;
-import solidbase.core.SystemException;
-import solidbase.util.JSONArray;
-import solidbase.util.JSONObject;
-import solidbase.util.JSONWriter;
 import solidstack.io.DeferringWriter;
+import solidstack.io.FatalIOException;
 import solidstack.io.FileResource;
 import solidstack.io.Resource;
 import solidstack.io.SourceLocation;
+import solidstack.json.JSONArray;
+import solidstack.json.JSONObject;
+import solidstack.json.JSONWriter;
 
 public class JSONDataWriter implements DataProcessor
 {
@@ -260,7 +260,7 @@ public class JSONDataWriter implements DataProcessor
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 	}
 

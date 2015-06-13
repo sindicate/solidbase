@@ -24,8 +24,8 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.SQLException;
 
-import solidbase.core.SystemException;
 import solidbase.util.CSVWriter;
+import solidstack.io.FatalIOException;
 
 
 public class CSVDataWriter implements DataProcessor
@@ -77,7 +77,7 @@ public class CSVDataWriter implements DataProcessor
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 	}
 

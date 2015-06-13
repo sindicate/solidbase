@@ -23,12 +23,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import solidbase.core.SystemException;
+import solidstack.io.FatalIOException;
 
 
 /**
  * Groovy utilities.
- * 
+ *
  * @author René M. de Bloois
  */
 public class GroovyUtil
@@ -43,7 +43,7 @@ public class GroovyUtil
 
 	/**
 	 * Execute the given groovy file using the specified binding.
-	 * 
+	 *
 	 * @param file The groovy file.
 	 * @param binding The binding to use.
 	 * @return The return value of the groovy script.
@@ -56,7 +56,7 @@ public class GroovyUtil
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 	}
 }

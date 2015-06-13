@@ -22,7 +22,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.regex.Pattern;
 
-import solidbase.core.SystemException;
+import solidstack.io.FatalIOException;
 
 
 /**
@@ -97,7 +97,7 @@ public class CSVWriter
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 	}
 
@@ -119,7 +119,7 @@ public class CSVWriter
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 	}
 
@@ -149,7 +149,7 @@ public class CSVWriter
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 	}
 
@@ -176,7 +176,7 @@ public class CSVWriter
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 	}
 
@@ -188,7 +188,7 @@ public class CSVWriter
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 	}
 
@@ -211,7 +211,7 @@ public class CSVWriter
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 	}
 
@@ -232,7 +232,7 @@ public class CSVWriter
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 		internalWriteValue( value );
 	}
@@ -248,7 +248,7 @@ public class CSVWriter
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 	}
 }

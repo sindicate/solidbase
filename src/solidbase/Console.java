@@ -23,8 +23,8 @@ import java.io.PrintStream;
 import java.text.DateFormat;
 import java.util.Date;
 
-import solidbase.core.SystemException;
 import solidbase.util.Assert;
+import solidstack.io.FatalIOException;
 
 
 /**
@@ -218,7 +218,7 @@ public class Console
 			}
 			catch( IOException e )
 			{
-				throw new SystemException( e );
+				throw new FatalIOException( e );
 			}
 		}
 

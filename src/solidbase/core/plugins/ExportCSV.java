@@ -32,12 +32,12 @@ import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.SourceException;
-import solidbase.core.SystemException;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
 import solidbase.util.TimeIntervalLogCounter;
+import solidstack.io.FatalIOException;
 import solidstack.io.Resource;
 import solidstack.io.Resources;
 import solidstack.io.SourceReaders;
@@ -155,7 +155,7 @@ public class ExportCSV implements CommandListener
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 
 		return true;

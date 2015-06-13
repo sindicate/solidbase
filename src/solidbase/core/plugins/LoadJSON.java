@@ -45,18 +45,19 @@ import solidbase.util.Assert;
 import solidbase.util.CloseQueue;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.JDBCSupport;
-import solidbase.util.JSONArray;
-import solidbase.util.JSONObject;
-import solidbase.util.JSONReader;
 import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
 import solidbase.util.TimeIntervalLogCounter;
+import solidstack.io.FatalIOException;
 import solidstack.io.Resource;
 import solidstack.io.SegmentedInputStream;
 import solidstack.io.SegmentedReader;
 import solidstack.io.SourceReader;
 import solidstack.io.SourceReaders;
+import solidstack.json.JSONArray;
+import solidstack.json.JSONObject;
+import solidstack.json.JSONReader;
 import solidstack.lang.ThreadInterrupted;
 import solidstack.script.java.DefaultClassExtensions;
 
@@ -450,7 +451,7 @@ public class LoadJSON implements CommandListener
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 		return bytes.toByteArray();
 	}

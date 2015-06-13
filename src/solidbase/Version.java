@@ -20,13 +20,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
 
-import solidbase.core.SystemException;
 import solidbase.util.Assert;
+import solidstack.io.FatalIOException;
 
 
 /**
  * Represents the version of SolidBase. It reads from version.properties.
- * 
+ *
  * @author René M. de Bloois
  */
 public class Version
@@ -51,7 +51,7 @@ public class Version
 		}
 		catch( IOException e )
 		{
-			throw new SystemException( e );
+			throw new FatalIOException( e );
 		}
 		version = properties.getProperty( "solidbase.version" );
 		Assert.notNull( version );
@@ -67,7 +67,7 @@ public class Version
 
 	/**
 	 * Get the SolidBase version & copyright info to be displayed to the user.
-	 * 
+	 *
 	 * @return The SolidBase version & copyright info to be displayed to the user.
 	 */
 	static public String getInfo()
