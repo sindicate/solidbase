@@ -45,10 +45,15 @@ public class SourceException extends FatalException
 		this.location = location;
 	}
 
+	public void setLocation( SourceLocation location )
+	{
+		this.location = location;
+	}
+
 	@Override
 	public String getMessage()
 	{
-		return super.getMessage() + ", at " + this.location;
+		return super.getMessage() + ", at " + ( this.location != null ? this.location : "(unknown)" );
 	}
 
 	/**

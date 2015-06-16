@@ -60,6 +60,11 @@ public class SQLExecutionException extends FatalException
 		this.location = location;
 	}
 
+	public void setLocation( SourceLocation location )
+	{
+		this.location = location;
+	}
+
 	/**
 	 * Loops through all the exceptions contained in the {@link SQLException} and combines all messages and SQLStates into one String.
 	 *

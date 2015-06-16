@@ -1,170 +1,162 @@
 package solidbase.core.plugins;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.ArrayUtils;
+
+import solidbase.core.CommandProcessor;
+import solidbase.core.SQLExecutionException;
+import solidbase.core.SourceException;
 import solidbase.core.SystemException;
 
 public class DBWriter
 {
 	static private final Pattern parameterPattern = Pattern.compile( ":(\\d+)" );
 
+	private String sql;
+	private String tableName;
+	private String[] columns;
+	private String[] values;
+	private boolean noBatch;
+	private CommandProcessor processor;
 
-	public DBWriter( String sql, String tableName, String[] columns, String[] values )
+	private PreparedStatement statement;
+	private int[] parameterMap;
+	private int batchSize;
+
+
+	public DBWriter( String sql, String tableName, String[] columns, String[] values, boolean noBatch, CommandProcessor processor )
 	{
-		// TODO Auto-generated constructor stub
+		this.sql = sql;
+		this.tableName = tableName;
+		this.columns = columns;
+		this.values = values;
+		this.noBatch = noBatch;
+		this.processor = processor;
 	}
 
-	private void createSQL()
+	private PreparedStatement createStatement( Object[] line ) throws SQLException
 	{
-//		String sql;
-//		List< Integer > parameterMap = new ArrayList< Integer >();
-//
-//		if( parsed.sql != null )
-//		{
-//			sql = parsed.sql;
-//			sql = translateArgument( sql, parameterMap );
-//		}
-//		else
-//		{
-//			StringBuilder sql1 = new StringBuilder( "INSERT INTO " );
-//			sql1.append( parsed.tableName );
-//			if( parsed.columns != null )
-//			{
-//				sql1.append( " (" );
-//				for( int i = 0; i < parsed.columns.length; i++ )
-//				{
-//					if( i > 0 )
-//						sql1.append( ',' );
-//					sql1.append( parsed.columns[ i ] );
-//				}
-//				sql1.append( ')' );
-//			}
-//			if( parsed.values != null )
-//			{
-//				sql1.append( " VALUES (" );
-//				for( int i = 0; i < parsed.values.length; i++ )
-//				{
-//					if( i > 0 )
-//						sql1.append( "," );
-//					String value = parsed.values[ i ];
-//					value = translateArgument( value, parameterMap );
-//					sql1.append( value );
-//				}
-//				sql1.append( ')' );
-//			}
-//			else
-//			{
-//				int count = line.length;
-//				if( parsed.columns != null )
-//					count = parsed.columns.length;
+		String[] columns = this.columns;
+		String[] values = this.values;
+
+		String sql;
+		List< Integer > parameterMap = new ArrayList< Integer >();
+
+		if( this.sql != null )
+		{
+			sql = this.sql;
+			sql = translateArgument( sql, parameterMap );
+		}
+		else
+		{
+			StringBuilder sql1 = new StringBuilder( "INSERT INTO " );
+			sql1.append( this.tableName );
+			if( columns != null )
+			{
+				sql1.append( " (" );
+				for( int i = 0; i < columns.length; i++ )
+				{
+					if( i > 0 )
+						sql1.append( ',' );
+					sql1.append( columns[ i ] );
+				}
+				sql1.append( ')' );
+			}
+			if( values != null )
+			{
+				sql1.append( " VALUES (" );
+				for( int i = 0; i < values.length; i++ )
+				{
+					if( i > 0 )
+						sql1.append( "," );
+					String value = values[ i ];
+					value = translateArgument( value, parameterMap );
+					sql1.append( value );
+				}
+				sql1.append( ')' );
+			}
+			else
+			{
+				int count = line.length;
+				if( columns != null )
+					count = columns.length;
 //				if( prependLineNumber )
 //					count++;
-//				int par = 1;
-//				sql1.append( " VALUES (?" );
-//				parameterMap.add( par++ );
-//				while( par <= count )
-//				{
-//					sql1.append( ",?" );
-//					parameterMap.add( par++ );
-//				}
-//				sql1.append( ')' );
-//			}
-//			sql = sql1.toString();
-//		}
+				int par = 1;
+				sql1.append( " VALUES (?" );
+				parameterMap.add( par++ );
+				while( par <= count )
+				{
+					sql1.append( ",?" );
+					parameterMap.add( par++ );
+				}
+				sql1.append( ')' );
+			}
+			sql = sql1.toString();
+		}
+
+		// TODO Google Guava has a Ints.toArray() ?
+		this.parameterMap = ArrayUtils.toPrimitive( parameterMap.toArray( new Integer[ parameterMap.size() ] ) );
+		this.sql = sql;
+		return this.processor.prepareStatement( sql );
 	}
 
-	public void process( Object[] values )
+	public void process( Object[] values ) throws SQLException
 	{
-//		PreparedStatement statement = processor.prepareStatement( sql );
-//		boolean commit = false;
-//		try
-//		{
-//			int batchSize = 0;
-//			while( true )
-//			{
-//				if( Thread.currentThread().isInterrupted() ) // TODO Is this the right spot during an upgrade?
-//					throw new ThreadInterrupted();
-//
-//				preprocess( line );
-//
-//				int pos = 1;
-//				int index = 0;
-//				for( int par : parameterMap )
-//				{
-//					try
-//					{
-//						if( prependLineNumber )
-//						{
-//							if( par == 1 )
-//								statement.setInt( pos++, lineNumber );
-//							else
-//								statement.setString( pos++, line[ index = par - 2 ] );
-//						}
-//						else
-//							statement.setString( pos++, line[ index = par - 1 ] );
-//					}
-//					catch( ArrayIndexOutOfBoundsException e )
-//					{
-//						throw new SourceException( "Value with index " + ( index + 1 ) + " does not exist, record has only " + line.length + " values", reader.getLocation().lineNumber( lineNumber ) );
-//					}
-//					catch( SQLException e )
-//					{
-//						String message = buildMessage( sql, parameterMap, prependLineNumber, lineNumber, line );
-//						throw new SQLExecutionException( message, reader.getLocation().lineNumber( lineNumber ), e );
-//					}
-//				}
-//
-//				if( parsed.noBatch )
-//				{
-//					try
-//					{
-//						statement.executeUpdate();
-//					}
-//					catch( SQLException e )
-//					{
-//						String message = buildMessage( sql, parameterMap, prependLineNumber, lineNumber, line );
-//						// When NOBATCH is on, you can see the actual insert statement and line number in the file where the SQLException occurred.
-//						throw new SQLExecutionException( message, reader.getLocation().lineNumber( lineNumber ), e );
-//					}
-//				}
-//				else
-//				{
-//					statement.addBatch();
-//					batchSize++;
-//					if( batchSize >= 1000 )
-//					{
-//						statement.executeBatch();
-//						batchSize = 0;
-//					}
-//				}
-//
-//				if( counter != null && counter.next() )
-//					processor.getProgressListener().println( "Imported " + counter.total() + " records." );
-//
-//				lineNumber = reader.getLineNumber();
-//				line = reader.getLine();
-//				if( line == null )
-//				{
-//					if( batchSize > 0 )
-//						statement.executeBatch();
-//
-//					if( counter != null && counter.needFinal() )
-//						processor.getProgressListener().println( "Imported " + counter.total() + " records." );
-//
-//					commit = true;
-//					return;
-//				}
-//			}
-//		}
-//		finally
-//		{
-//			processor.closeStatement( statement, commit );
-//		}
+		if( this.statement == null )
+			this.statement = createStatement( values );
+
+		int pos = 1;
+		int index = 0;
+		for( int par : this.parameterMap )
+		{
+			try
+			{
+				this.statement.setString( pos++, (String)values[ index = par - 1 ] );
+			}
+			catch( ArrayIndexOutOfBoundsException e )
+			{
+				throw new SourceException( "Value with index " + ( index + 1 ) + " does not exist, record has only " + values.length + " values", null );
+			}
+			catch( SQLException e )
+			{
+				String message = buildMessage( this.sql, this.parameterMap, (String[])values );
+				throw new SQLExecutionException( message, null, e );
+			}
+		}
+
+		if( this.noBatch )
+		{
+			try
+			{
+				this.statement.executeUpdate();
+			}
+			catch( SQLException e )
+			{
+				String message = buildMessage( this.sql, this.parameterMap, (String[])values );
+				// When NOBATCH is on, you can see the actual insert statement and line number in the file where the SQLException occurred.
+				throw new SQLExecutionException( message, null, e );
+			}
+		}
+		else
+		{
+			this.statement.addBatch();
+			this.batchSize++;
+			if( this.batchSize >= 1000 )
+			{
+				this.statement.executeBatch();
+				this.batchSize = 0;
+			}
+		}
 	}
 
-	static private String buildMessage( String sql, List<Integer> parameterMap, boolean prependLineNumber, int lineNumber, String[] line )
+	static private String buildMessage( String sql, int[] parameterMap, String[] line )
 	{
 		StringBuilder result = new StringBuilder( sql );
 		result.append( " VALUES (" );
@@ -177,15 +169,7 @@ public class DBWriter
 				result.append( ',' );
 			try
 			{
-				if( prependLineNumber )
-				{
-					if( par == 1 )
-						result.append( lineNumber );
-					else
-						result.append( line[ par - 2 ] );
-				}
-				else
-					result.append( line[ par - 1 ] );
+				result.append( line[ par - 1 ] );
 			}
 			catch( ArrayIndexOutOfBoundsException ee )
 			{
@@ -219,9 +203,15 @@ public class DBWriter
 	}
 
 
-	public void end()
+	public void end( boolean commit ) throws SQLException
 	{
-		// TODO Auto-generated method stub
+		if( this.batchSize > 0 )
+		{
+			this.statement.executeBatch();
+			this.batchSize = 0;
+		}
 
+		if( this.statement != null )
+			this.processor.closeStatement( this.statement, commit );
 	}
 }
