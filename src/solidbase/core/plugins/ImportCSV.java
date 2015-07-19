@@ -74,10 +74,10 @@ public class ImportCSV implements CommandListener
 			return true;
 		}
 
-		SourceReader lineReader;
+		SourceReader sourceReader;
 		boolean needClose = false;
 		if( parsed.reader != null )
-			lineReader = parsed.reader; // Data is in the command
+			sourceReader = parsed.reader; // Data is in the command
 		else if( parsed.fileName != null )
 		{
 			// Data is in a file
@@ -85,7 +85,7 @@ public class ImportCSV implements CommandListener
 			resource.setGZip( parsed.gzip );
 			try
 			{
-				lineReader = SourceReaders.forResource( resource, parsed.encoding );
+				sourceReader = SourceReaders.forResource( resource, parsed.encoding );
 			}
 			catch( FileNotFoundException e )
 			{
@@ -95,7 +95,7 @@ public class ImportCSV implements CommandListener
 			// TODO What about the FileNotFoundException?
 		}
 		else
-			lineReader = processor.getReader(); // Data is in the source file
+			sourceReader = processor.getReader(); // Data is in the source file
 		try
 		{
 			LogCounter counter = null;
@@ -104,7 +104,7 @@ public class ImportCSV implements CommandListener
 			else if( parsed.logSeconds > 0 )
 				counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
-			CSVDataReader reader = new CSVDataReader( lineReader, parsed.skipHeader, parsed.separator, parsed.ignoreWhiteSpace, parsed.prependLineNumber, counter != null ? new ImportLogger( counter, processor.getProgressListener() ) : null );
+			CSVDataReader reader = new CSVDataReader( sourceReader, parsed.skipHeader, parsed.separator, parsed.ignoreWhiteSpace, parsed.prependLineNumber, counter != null ? new ImportLogger( counter, processor.getProgressListener() ) : null );
 
 			DBWriter writer = new DBWriter( parsed.sql, parsed.tableName, parsed.columns, parsed.values, parsed.noBatch, processor );
 			reader.setOutput( writer );
@@ -115,7 +115,7 @@ public class ImportCSV implements CommandListener
 		finally
 		{
 			if( needClose )
-				lineReader.close();
+				sourceReader.close();
 		}
 	}
 

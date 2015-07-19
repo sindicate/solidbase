@@ -20,6 +20,6 @@ import java.sql.SQLException;
 
 public interface DataProcessor
 {
-	void process( Object[] values ) throws SQLException;
 	void init( Column[] columns );
+	void process( Object[] values ) throws SQLException;
 }

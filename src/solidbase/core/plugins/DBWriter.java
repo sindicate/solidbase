@@ -56,7 +56,7 @@ public class DBWriter
 		else
 		{
 			StringBuilder sql1 = new StringBuilder( "INSERT INTO " );
-			sql1.append( this.tableName );
+			sql1.append( this.tableName ); // TODO Where else do we need the quotes?
 			if( columns != null )
 			{
 				sql1.append( " (" );
@@ -118,7 +118,7 @@ public class DBWriter
 		{
 			try
 			{
-				this.statement.setString( pos++, (String)values[ index = par - 1 ] );
+				this.statement.setObject( pos++, values[ index = par - 1 ] );
 			}
 			catch( ArrayIndexOutOfBoundsException e )
 			{
