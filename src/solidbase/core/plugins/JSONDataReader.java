@@ -9,7 +9,6 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ListIterator;
 
 import solidbase.core.SQLExecutionException;
 import solidbase.core.SourceException;
@@ -38,8 +37,8 @@ public class JSONDataReader
 	private boolean done;
 
 	private String binaryFile;
+	private Column[] columns;
 	private String[] fieldNames;
-	private int[] fieldTypes;
 	private String[] fileNames;
 	private SegmentedInputStream[] streams;
 	private SegmentedReader[] textStreams;
@@ -60,8 +59,9 @@ public class JSONDataReader
 		JSONArray fields = properties.getArray( "fields" );
 		int fieldCount = fields.size();
 
+		this.columns = new Column[ fieldCount ];
+
 		// Initialise the working arrays
-		this.fieldTypes = new int[ fieldCount ];
 		this.fieldNames = new String[ fieldCount ];
 		this.fileNames = new String[ fieldCount ];
 		this.streams = new SegmentedInputStream[ fieldCount ];
@@ -70,9 +70,9 @@ public class JSONDataReader
 		for( int i = 0; i < fieldCount; i++ )
 		{
 			JSONObject field = (JSONObject)fields.get( i );
-			this.fieldTypes[ i ] = JDBCSupport.fromTypeName( field.getString( "type" ) );
-			this.fieldNames[ i ] = field.findString( "name" );
 			this.fileNames[ i ] = field.findString( "file" );
+			String name = this.fieldNames[ i ] = field.findString( "name" );
+			this.columns[ i ] = new Column( name, JDBCSupport.fromTypeName( field.getString( "type" ) ), field.findString( "tableName" ), field.findString( "schemaName" ) );
 		}
 	}
 
@@ -88,7 +88,9 @@ public class JSONDataReader
 
 	public void process() throws SQLException
 	{
-		// Queues the will remember the files we need to close
+		this.output.init( this.columns );
+
+		// Queues that will remember the files we need to close
 		CloseQueue outerCloser = new CloseQueue();
 		CloseQueue closer = new CloseQueue();
 
@@ -117,42 +119,14 @@ public class JSONDataReader
 
 				SourceLocation location = this.reader.getLocation();
 
-				try
-				{
-					// Convert the strings to date, time and timestamps
-					// TODO Time zones, is there a default way of putting times and dates in a text file? For example whats in a HTTP header?
-					int i = 0;
-					for( ListIterator< Object > it = array.iterator(); it.hasNext(); )
-					{
-						Object value = it.next();
-						if( value != null )
-						{
-							// TODO Switch statement
-							if( this.fieldTypes[ i ] == Types.DATE )
-								it.set( java.sql.Date.valueOf( (String)value ) );
-							else if( this.fieldTypes[ i ] == Types.TIMESTAMP )
-								it.set( java.sql.Timestamp.valueOf( (String)value ) );
-							else if( this.fieldTypes[ i ] == Types.TIME )
-								it.set( java.sql.Time.valueOf( (String)value ) );
-						}
-						i++;
-					}
-				}
-				catch( IllegalArgumentException e )
-				{
-					// TODO Add test? C:\_WORK\SAO-20150612\build.xml:32: The following error occurred while executing this line:
-					// C:\_WORK\SAO-20150612\build.xml:13: Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff], at line 17 of file C:/_WORK/SAO-20150612/SYSTEEM/sca.JSON.GZ
-					throw new SourceException( e.getMessage(), this.reader.getLocation() );
-				}
-
-				Object[] values = new Object[ this.fieldNames.length + ( this.prependLineNumber ? 1 : 0 ) ];
+				Object[] values = new Object[ this.columns.length + ( this.prependLineNumber ? 1 : 0 ) ];
 				int pos = 0;
 				if( this.prependLineNumber )
 					values[ pos++ ] = location.getLineNumber();
 
 				for( int i = 0; i < array.size(); i++ )
 				{
-					int type = this.fieldTypes[ i ];
+					int type = this.columns[ i ].getType();
 					Object value;
 					try
 					{
@@ -290,21 +264,21 @@ public class JSONDataReader
 //						else
 //							statement.setNull( pos++, type );
 					}
+				}
 
-					try
-					{
-						this.output.process( values );
-					}
-					catch( SourceException e )
-					{
-						e.setLocation( location );
-						throw e;
-					}
-					catch( SQLExecutionException e )
-					{
-						e.setLocation( location );
-						throw e;
-					}
+				try
+				{
+					this.output.process( values );
+				}
+				catch( SourceException e )
+				{
+					e.setLocation( location );
+					throw e;
+				}
+				catch( SQLExecutionException e )
+				{
+					e.setLocation( location );
+					throw e;
 				}
 
 				closer.closeAll();

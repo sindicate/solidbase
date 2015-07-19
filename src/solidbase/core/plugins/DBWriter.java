@@ -2,6 +2,7 @@ package solidbase.core.plugins;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -14,35 +15,43 @@ import solidbase.core.SQLExecutionException;
 import solidbase.core.SourceException;
 import solidbase.core.SystemException;
 
-public class DBWriter
+public class DBWriter implements DataProcessor
 {
 	static private final Pattern parameterPattern = Pattern.compile( ":(\\d+)" );
 
 	private String sql;
 	private String tableName;
-	private String[] columns;
+	private String[] fieldNames;
 	private String[] values;
 	private boolean noBatch;
 	private CommandProcessor processor;
+
+	private Column[] columns;
 
 	private PreparedStatement statement;
 	private int[] parameterMap;
 	private int batchSize;
 
 
-	public DBWriter( String sql, String tableName, String[] columns, String[] values, boolean noBatch, CommandProcessor processor )
+	public DBWriter( String sql, String tableName, String[] fieldNames, String[] values, boolean noBatch, CommandProcessor processor )
 	{
 		this.sql = sql;
 		this.tableName = tableName;
-		this.columns = columns;
+		this.fieldNames = fieldNames;
 		this.values = values;
 		this.noBatch = noBatch;
 		this.processor = processor;
 	}
 
+	@Override
+	public void init( Column[] columns )
+	{
+		this.columns = columns;
+	}
+
 	private PreparedStatement createStatement( Object[] line ) throws SQLException
 	{
-		String[] columns = this.columns;
+		String[] fieldNames = this.fieldNames;
 		String[] values = this.values;
 
 		String sql;
@@ -57,14 +66,14 @@ public class DBWriter
 		{
 			StringBuilder sql1 = new StringBuilder( "INSERT INTO " );
 			sql1.append( this.tableName ); // TODO Where else do we need the quotes?
-			if( columns != null )
+			if( fieldNames != null )
 			{
 				sql1.append( " (" );
-				for( int i = 0; i < columns.length; i++ )
+				for( int i = 0; i < fieldNames.length; i++ )
 				{
 					if( i > 0 )
 						sql1.append( ',' );
-					sql1.append( columns[ i ] );
+					sql1.append( fieldNames[ i ] );
 				}
 				sql1.append( ')' );
 			}
@@ -84,8 +93,8 @@ public class DBWriter
 			else
 			{
 				int count = line.length;
-				if( columns != null )
-					count = columns.length;
+				if( fieldNames != null )
+					count = fieldNames.length;
 //				if( prependLineNumber )
 //					count++;
 				int par = 1;
@@ -111,6 +120,35 @@ public class DBWriter
 	{
 		if( this.statement == null )
 			this.statement = createStatement( values );
+
+		// Convert the strings to date, time and timestamps
+		for( int i = 0; i < values.length; i++ )
+		{
+			Object value = values[ i ];
+			try
+			{
+				// TODO Time zones, is there a default way of putting times and dates in a text file? For example whats in a HTTP header?
+				if( value != null )
+					switch( this.columns[ i ].getType() )
+					{
+						case Types.DATE:
+							values[ i ] = java.sql.Date.valueOf( (String)value );
+							break;
+						case Types.TIMESTAMP:
+							values[ i ] = java.sql.Timestamp.valueOf( (String)value );
+							break;
+						case Types.TIME:
+							values[ i ] = java.sql.Time.valueOf( (String)value );
+							break;
+					}
+			}
+			catch( IllegalArgumentException e )
+			{
+				// TODO Add test? C:\_WORK\SAO-20150612\build.xml:32: The following error occurred while executing this line:
+				// C:\_WORK\SAO-20150612\build.xml:13: Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff], at line 17 of file C:/_WORK/SAO-20150612/SYSTEEM/sca.JSON.GZ
+				throw new SourceException( e.getMessage(), null );
+			}
+		}
 
 		int pos = 1;
 		int index = 0;

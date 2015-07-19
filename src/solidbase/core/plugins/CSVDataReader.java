@@ -1,6 +1,7 @@
 package solidbase.core.plugins;
 
 import java.sql.SQLException;
+import java.sql.Types;
 
 import solidbase.core.SQLExecutionException;
 import solidbase.core.SourceException;
@@ -40,6 +41,8 @@ public class CSVDataReader
 
 	public void process() throws SQLException
 	{
+		boolean initDone = false;
+
 		boolean commit = false;
 		try
 		{
@@ -60,6 +63,15 @@ public class CSVDataReader
 					line = new String[ temp.length + 1 ];
 					line[ 0 ] = Integer.toString( location.getLineNumber() );
 					System.arraycopy( temp, 0, line, 1, temp.length );
+				}
+
+				if( !initDone )
+				{
+					Column[] columns = new Column[ line.length ];
+					for( int i = 0; i < columns.length; i++ )
+						columns[ i ] = new Column( null, Types.VARCHAR, null, null );
+					this.output.init( columns );
+					initDone = true;
 				}
 
 				try
