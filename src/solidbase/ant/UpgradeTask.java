@@ -21,6 +21,7 @@ import org.apache.tools.ant.BuildException;
 import solidbase.core.FatalException;
 import solidbase.core.Runner;
 import solidstack.io.Resources;
+import solidstack.script.ScriptException;
 
 
 /**
@@ -174,9 +175,13 @@ public class UpgradeTask extends DBTask
 		}
 		catch( FatalException e )
 		{
-			// TODO ScriptException should also be wrapped in a FatalException, somewhere
 			// TODO When debugging, we should give the whole exception, not only the message
 			// TODO Shouldn't we just wrap the exception, and then Ant is the one who decides if it only shows the message or the complete stacktrace?
+			throw new BuildException( e.getMessage() );
+		}
+		catch( ScriptException e )
+		{
+			// TODO Or should ScriptException be wrapped in a FatalException?
 			throw new BuildException( e.getMessage() );
 		}
 	}

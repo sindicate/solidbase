@@ -213,7 +213,7 @@
 			<zipfileset src="lib/commons-lang3-3.4.jar" excludes="META-INF/**" />
 			<zipfileset src="lib/solidstack-1.9.3-beta.jar">
 				<include name="solidstack/**/*.class" />
-				<include name="funny/*.class" />
+				<include name="funny/**/*.class" />
 			</zipfileset>
 			<zipfileset dir="." includes="LICENSE.txt,NOTICE.txt,CHANGELOG.TXT" prefix="META-INF" />
 			<rule pattern="org.apache.commons.**" result="solidbase.commons.@1" />

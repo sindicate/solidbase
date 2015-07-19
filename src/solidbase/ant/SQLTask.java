@@ -26,6 +26,7 @@ import solidbase.core.FatalException;
 import solidbase.core.Runner;
 import solidstack.io.Resource;
 import solidstack.io.Resources;
+import solidstack.script.ScriptException;
 
 
 /**
@@ -117,6 +118,11 @@ public class SQLTask extends DBTask
 		{
 			// TODO When debugging, we should give the whole exception, not only the message
 			// TODO Shouldn't we just wrap the exception, and then Ant is the one who decides if it only shows the message or the complete stacktrace?
+			throw new BuildException( e.getMessage() );
+		}
+		catch( ScriptException e )
+		{
+			// TODO Or should ScriptException be wrapped in a FatalException?
 			throw new BuildException( e.getMessage() );
 		}
 	}

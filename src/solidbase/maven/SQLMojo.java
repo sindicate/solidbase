@@ -21,6 +21,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import solidbase.core.FatalException;
 import solidbase.core.Runner;
 import solidstack.io.Resources;
+import solidstack.script.ScriptException;
 
 
 /**
@@ -53,6 +54,11 @@ public class SQLMojo extends DBMojo
 		}
 		catch( FatalException e )
 		{
+			throw new MojoFailureException( e.getMessage() );
+		}
+		catch( ScriptException e )
+		{
+			// TODO Or should ScriptException be wrapped in a FatalException?
 			throw new MojoFailureException( e.getMessage() );
 		}
 	}

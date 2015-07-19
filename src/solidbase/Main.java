@@ -88,6 +88,7 @@ public class Main
 			console.printStacktrace( t );
 			System.exit( 1 );
 		}
+		// TODO FatalException & ScriptException like in ant and maven?
 	}
 
 

@@ -99,7 +99,7 @@ public class PluginManager
 		}
 		catch( InvocationTargetException e )
 		{
-			throw new FatalIOException( e );
+			throw new FatalIOException( e.getCause() );
 		}
 	}
 
