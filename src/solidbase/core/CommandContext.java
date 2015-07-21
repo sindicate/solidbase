@@ -23,10 +23,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
+import funny.Symbol;
 import solidstack.io.SourceLocation;
 import solidstack.script.scopes.AbstractScope;
 import solidstack.script.scopes.DefaultScope;
-import funny.Symbol;
 
 
 
@@ -86,6 +86,8 @@ abstract public class CommandContext
 	 * evaluates to false, the {@link UpgradeProcessor#skipCounter} get incremented.
 	 */
 	private int skipCounter;
+
+	private boolean scriptExpansion;
 
 	/**
 	 * The scripting scope.
@@ -256,17 +258,6 @@ abstract public class CommandContext
 	}
 
 	/**
-	 * Is there a scripting scope?
-	 *
-	 * @return True if a scripting scope exists.
-	 */
-	public boolean hasScope()
-	{
-		// TODO This does not work, there is always a scope, maybe an empty scope
-		return this.scope != null;
-	}
-
-	/**
 	 * Enable or disable JDBC escape processing.
 	 *
 	 * @param escaping True enables, false disables.
@@ -284,6 +275,25 @@ abstract public class CommandContext
 	public boolean getJdbcEscaping()
 	{
 		return this.jdbcEscaping;
+	}
+
+	/**
+	 * @return True if script expansion is on.
+	 */
+	public boolean isScriptExpansion()
+	{
+		return this.scriptExpansion;
+	}
+
+	/**
+	 * Enable or disable script expansion. Script expansion is the execution of scripts inside placeholders in between
+	 * the commands and inserting the resulting value.
+	 *
+	 * @param scriptExpansion True enables script expansion, false disables it.
+	 */
+	public void setScriptExpansion( boolean scriptExpansion )
+	{
+		this.scriptExpansion = scriptExpansion;
 	}
 
 	/**

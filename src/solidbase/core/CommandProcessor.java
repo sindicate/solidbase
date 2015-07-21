@@ -117,6 +117,11 @@ abstract public class CommandProcessor
 	static protected Pattern runPattern = Pattern.compile( "\\s*RUN\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
 
 	/**
+	 * Pattern for SCRIPT EXPANSION.
+	 */
+	static protected Pattern SCRIPT_EXPANSION_COMMAND = Pattern.compile( "SCRIPT\\s+EXPANSION\\s+(ON|OFF)", Pattern.CASE_INSENSITIVE );
+
+	/**
 	 * Pattern for SCRIPT.
 	 */
 	static protected Pattern SCRIPT_COMMAND = Pattern.compile( "SCRIPT(?:\\s+(.*))?", Pattern.CASE_INSENSITIVE );
@@ -171,7 +176,7 @@ abstract public class CommandProcessor
 	 */
 	protected SQLExecutionException executeWithListeners( Command command, boolean skip ) throws SQLExecutionException
 	{
-		substituteVariables( command );
+		expand( command );
 
 		if( command.isPersistent() )
 			if( !skip )
@@ -213,10 +218,9 @@ abstract public class CommandProcessor
 	 *
 	 * @param command The command.
 	 */
-	protected void substituteVariables( Command command )
+	protected void expand( Command command )
 	{
-		// TODO Or should we always substitute?
-		if( !this.context.hasScope() )
+		if( !this.context.isScriptExpansion() )
 			return;
 
 		// TODO Is this needed? The string parser is fast too.
@@ -306,6 +310,11 @@ abstract public class CommandProcessor
 			{
 				// Ignore, already picked up by the EncodingDetector
 				// TODO Check that it is the first line, and check with the detected encoding
+				return true;
+			}
+			if( ( matcher = SCRIPT_EXPANSION_COMMAND.matcher( sql ) ).matches() )
+			{
+				this.context.setScriptExpansion( "ON".equalsIgnoreCase( matcher.group( 1 ) ) );
 				return true;
 			}
 			if( ( matcher = SCRIPT_COMMAND.matcher( sql ) ).matches() )
