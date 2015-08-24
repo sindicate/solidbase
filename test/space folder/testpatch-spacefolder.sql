@@ -1,6 +1,6 @@
 --* ENCODING "ISO-8859-1"
 
---* // Copyright 2006 René M. de Bloois
+--* // Copyright 2015 René M. de Bloois
 
 --* // Licensed under the Apache License, Version 2.0 (the "License");
 --* // you may not use this file except in compliance with the License.
@@ -18,22 +18,36 @@
 
 
 
---* SCRIPT EXPANSION ON
+--*	DEFINITION
+--*		SETUP "" --> "1.1"
+--*		UPGRADE "" --> "1.0.1"
+--*	END DEFINITION
 
---* SECTION "Creating table ${users2}"
 
-CREATE TABLE ${users2}
-(
-	USER_ID INT IDENTITY,
-	USER_USERNAME VARCHAR NOT NULL,
-	USER_PASSWORD VARCHAR NOT NULL
+
+--* SETUP "" --> "1.1"
+
+CREATE TABLE DBVERSION
+( 
+	VERSION VARCHAR(20), 
+	TARGET VARCHAR(20), 
+	STATEMENTS INTEGER NOT NULL 
 );
 
---* SECTION "Inserting admin user"
+CREATE TABLE DBVERSIONLOG
+(
+	ID INTEGER IDENTITY,
+	SOURCE VARCHAR(20),
+	TARGET VARCHAR(20) NOT NULL,
+	STATEMENT INTEGER NOT NULL,
+	STAMP TIMESTAMP NOT NULL,
+	COMMAND VARCHAR(4000),
+	RESULT VARCHAR(4000)
+);
 
-INSERT INTO ${users2} ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'admin', '*****' );
+--* END SETUP
 
---* SECTION "Inserting user"
 
-INSERT INTO ${users2} ( USER_USERNAME, USER_PASSWORD ) VALUES ( 'rené', '*****' );
 
+--* UPGRADE "" --> "1.0.1"
+--* END UPGRADE

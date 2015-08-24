@@ -62,6 +62,8 @@ CREATE INDEX DBVERSIONLOG_INDEX1 ON DBVERSIONLOG ( TYPE, TARGET );
 --* UPGRADE "" --> "1.0.1"
 --* // ========================================================================
 
+--* SCRIPT EXPANSION ON
+
 --* SECTION "Creating table ${users1}"
 
 CREATE TABLE ${users1}

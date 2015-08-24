@@ -136,4 +136,40 @@ public class UpgradeTaskTests extends MyBuildFileTest
 				"Upgrade complete.\n"
 				);
 	}
+
+	@Test
+	public void testSpaceFolder()
+	{
+		configureProject( "space folder/testpatch-spacefolder.xml" );
+		this.project.setBaseDir( new File( "space folder" ) ); // Needed when testing through Maven
+		executeTarget( "ant-test-space-folder" );
+		String log = TestUtil.generalizeOutput( getLog() );
+		Assert.assertEquals( log, "SolidBase v1.5.x (http://solidbase.org)\n" +
+				"\n" +
+				"Opening file 'X:/.../testpatch-multiconnections.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
+				"Connecting to database...\n" +
+				"The database is unmanaged.\n" +
+				"Setting up control tables to \"1.1\"\n" +
+				"    Creating table DBVERSION...\n" +
+				"    Creating table DBVERSIONLOG...\n" +
+				"Upgrading to \"1.0.1\"\n" +
+				"Upgrading \"1.0.1\" to \"1.1.0\"\n" +
+				"    Inserting admin users...\n" +
+				"\n" +
+				"Current database version is \"1.1.0\".\n" +
+				"Upgrade complete.\n" +
+				"SolidBase v1.5.x (http://solidbase.org)\n" +
+				"\n" +
+				"Opening file 'X:/.../testpatch-multiconnections.sql'\n" +
+				"    Encoding is 'ISO-8859-1'\n" +
+				"Connecting to database...\n" +
+				"Current database version is \"1.1.0\".\n" +
+				"Downgrading \"1.1.0\" to \"1.0.1\"\n" +
+				"Upgrading \"1.0.1\" to \"1.0.2\"\n" +
+				"\n" +
+				"Current database version is \"1.0.2\".\n" +
+				"Upgrade complete.\n"
+				);
+	}
 }

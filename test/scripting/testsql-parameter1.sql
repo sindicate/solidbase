@@ -16,6 +16,7 @@
 --* // ========================================================================
 
 --* SCRIPT tableName = "TESTTEST"
+--* SCRIPT EXPANSION ON
 
 --* IF SCRIPT tableName
 

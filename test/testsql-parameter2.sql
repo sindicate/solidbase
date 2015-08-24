@@ -16,6 +16,8 @@
 --* // ========================================================================
 
 
+--* SCRIPT EXPANSION ON
+
 CREATE TABLE TEST ( COL1 VARCHAR( 10 ) );
 
 INSERT INTO TEST VALUES ( '${par1}' );
