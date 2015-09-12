@@ -146,29 +146,14 @@ public class UpgradeTaskTests extends MyBuildFileTest
 		String log = TestUtil.generalizeOutput( getLog() );
 		Assert.assertEquals( log, "SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
-				"Opening file 'X:/.../testpatch-multiconnections.sql'\n" +
+				"Opening file 'X:/.../space folder/testpatch spacefolder.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
 				"Connecting to database...\n" +
 				"The database is unmanaged.\n" +
 				"Setting up control tables to \"1.1\"\n" +
-				"    Creating table DBVERSION...\n" +
-				"    Creating table DBVERSIONLOG...\n" +
 				"Upgrading to \"1.0.1\"\n" +
-				"Upgrading \"1.0.1\" to \"1.1.0\"\n" +
-				"    Inserting admin users...\n" +
 				"\n" +
-				"Current database version is \"1.1.0\".\n" +
-				"Upgrade complete.\n" +
-				"SolidBase v1.5.x (http://solidbase.org)\n" +
-				"\n" +
-				"Opening file 'X:/.../testpatch-multiconnections.sql'\n" +
-				"    Encoding is 'ISO-8859-1'\n" +
-				"Connecting to database...\n" +
-				"Current database version is \"1.1.0\".\n" +
-				"Downgrading \"1.1.0\" to \"1.0.1\"\n" +
-				"Upgrading \"1.0.1\" to \"1.0.2\"\n" +
-				"\n" +
-				"Current database version is \"1.0.2\".\n" +
+				"Current database version is \"1.0.1\".\n" +
 				"Upgrade complete.\n"
 				);
 	}

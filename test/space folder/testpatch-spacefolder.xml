@@ -23,7 +23,7 @@
 	
 
 	<target name="ant-test-space-folder">
-		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testBaseDir" username="sa" password="" upgradefile="testpatch-spacefolder.sql" />
+		<solidbase-upgrade driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:testSpaceFolder" username="sa" password="" upgradefile="testpatch spacefolder.sql" />
 	</target>
 
 
