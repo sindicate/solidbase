@@ -118,7 +118,7 @@ public class DBVersion
 	protected ProgressListener callBack;
 
 	/**
-	 * An instance of this class needs to now in which database the version tables can be found. The default
+	 * An instance of this class needs to know in which database the version tables can be found. The default
 	 * connection of this database determines the schema where those tables reside.
 	 *
 	 * @param database The database that contains the version tables, with its default connection determining the schema.

@@ -90,6 +90,11 @@ abstract public class CommandContext
 	private boolean scriptExpansion;
 
 	/**
+	 * PostgreSQL has this peculiarity with transactions. Can't create a database when the connection is set to autocommit off. Use this to set the autocommit to true.
+	 */
+	private boolean autocommit;
+
+	/**
 	 * The scripting scope.
 	 */
 	private AbstractScope scope;
@@ -381,5 +386,15 @@ abstract public class CommandContext
 	{
 		for( Database database : getDatabases() )
 			database.closeConnections();
+	}
+
+	public void setAutocommit( boolean autocommit )
+	{
+		this.autocommit = autocommit;
+	}
+
+	public boolean getAutocommit()
+	{
+		return this.autocommit;
 	}
 }

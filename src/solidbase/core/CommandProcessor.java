@@ -131,6 +131,11 @@ abstract public class CommandProcessor
 	 */
 	static protected Pattern END_SCRIPT_COMMAND = Pattern.compile( "--\\*\\s*END\\s+SCRIPT\\s*", Pattern.CASE_INSENSITIVE );
 
+	/**
+	 * Pattern for AUTOCOMMIT.
+	 */
+	static protected Pattern AUTOCOMMIT_PATTERN = Pattern.compile( "AUTOCOMMIT\\s+(ON|OFF)", Pattern.CASE_INSENSITIVE );
+
 	// TODO Commit pattern
 //	static protected final Pattern commitPattern = Pattern.compile( "COMMIT", Pattern.CASE_INSENSITIVE );
 
@@ -339,6 +344,11 @@ abstract public class CommandProcessor
 				}
 				return true;
 			}
+			if( ( matcher = AUTOCOMMIT_PATTERN.matcher( sql ) ).matches() )
+			{
+				this.context.setAutocommit( "ON".equalsIgnoreCase( matcher.group( 1 ) ) );
+				return true;
+			}
 //			if( commitPattern.matcher( sql ).matches() )
 //			{
 //				getCurrentDatabase().getConnection().commit();
@@ -443,11 +453,13 @@ abstract public class CommandProcessor
 		boolean commit = false;
 		try
 		{
+			statement.getConnection().setAutoCommit( this.context.getAutocommit() );
 			statement.execute( sql );
 			commit = true;
 		}
 		finally
 		{
+			statement.getConnection().setAutoCommit( false );
 			closeStatement( statement, commit );
 		}
 	}
