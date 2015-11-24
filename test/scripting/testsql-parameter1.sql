@@ -53,6 +53,6 @@ PRINT SELECT * FROM ${tableName}TEST;
 --* END IF
 
 --* // This should not give an exception 
---* // IF SCRIPT undefinedVariable
+--* IF SCRIPT defined( undefinedVariable ) && undefinedVariable 
 
---* // END IF
+--* END IF
