@@ -17,7 +17,6 @@
 package solidbase.util;
 
 import solidbase.core.SourceException;
-import solidstack.io.PushbackReader;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
 
@@ -33,7 +32,9 @@ public class SQLTokenizer
 	/**
 	 * The reader used to read from and push back characters.
 	 */
-	protected PushbackReader in;
+	protected SourceReader in;
+
+	private Token buffer;
 
 
 	/**
@@ -43,7 +44,7 @@ public class SQLTokenizer
 	 */
 	public SQLTokenizer( SourceReader in )
 	{
-		this.in = new PushbackReader( in );
+		this.in = in;
 	}
 
 	/**
@@ -119,6 +120,13 @@ public class SQLTokenizer
 	 */
 	public Token get()
 	{
+		if( this.buffer != null )
+		{
+			Token result = this.buffer;
+			this.buffer = null;
+			return result;
+		}
+
 		// Read whitespace
 		StringBuilder whiteSpace = new StringBuilder();
 		int ch = this.in.read();
@@ -146,7 +154,7 @@ public class SQLTokenizer
 					ch = this.in.read();
 					if( ch != quote ) // Double '' or "" do not end the string
 					{
-						this.in.push( ch );
+						this.in.rewind();
 						break;
 					}
 				}
@@ -171,7 +179,7 @@ public class SQLTokenizer
 		while( ch != -1 && !isWhitespace( ch ) && !isSpecial( ch ) );
 
 		// Push back the last character
-		this.in.push( ch );
+		this.in.rewind();
 
 		// Return the result
 		Assert.isFalse( result.length() == 0 );
@@ -263,6 +271,15 @@ public class SQLTokenizer
 	 */
 	public Token getNewline()
 	{
+		if( this.buffer != null )
+		{
+			Token result = this.buffer;
+			this.buffer = null;
+			if( !result.isNewline() )
+				throw new SourceException( "Expecting end of line, not [" + result.getValue() + "]", getLocation() );
+			return result;
+		}
+
 		// Read whitespace
 		StringBuilder whiteSpace = new StringBuilder();
 		int ch = this.in.read();
@@ -302,9 +319,9 @@ public class SQLTokenizer
 	 */
 	public void push( Token token )
 	{
-		if( token.getValue() != null )
-			this.in.push( token.getValue() );
-		this.in.push( token.getWhiteSpace() );
+		if( this.buffer != null )
+			throw new IllegalStateException( "Pushed token back twice" );
+		this.buffer = token;
 	}
 
 	/**
@@ -324,7 +341,7 @@ public class SQLTokenizer
 	 */
 	public SourceReader getReader()
 	{
-		return this.in.getReader();
+		return this.in;
 	}
 
 	/**

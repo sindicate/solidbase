@@ -23,15 +23,19 @@ import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
+
 import solidbase.core.Delimiter.Type;
+import solidbase.core.script.ScriptManager;
 import solidbase.util.Assert;
 import solidstack.io.Resource;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
 import solidstack.io.SourceReaders;
-import solidstack.script.Script;
-import solidstack.script.ScriptParser;
-import solidstack.script.expressions.Expression;
+import solidstack.io.StringResource;
+import solidstack.template.Template;
+import solidstack.template.TemplateCompiler;
 
 
 
@@ -227,9 +231,10 @@ abstract public class CommandProcessor
 		if( !command.getCommand().contains( "${" ) ) // TODO & or something else?
 			return;
 
-		Expression expression = ScriptParser.parseString( command.getCommand(), command.getLocation() );
-		Object object = Script.eval( expression, this.context.getScope() );
-		command.setCommand( object.toString() );
+		Template template = new TemplateCompiler( null ).compile( new StringResource( "<%@ template version=\"1.0\" language=\"javascript\" %>" + command.getCommand() ), null );
+		String result = template.apply( this.context.getScope() );
+
+		command.setCommand( result );
 	}
 
 	/**
@@ -518,8 +523,17 @@ abstract public class CommandProcessor
 
 	protected Object script( String script, SourceLocation location )
 	{
+		ScriptEngine engine = ScriptManager.getEngine( "javascript" );
 		SourceReader reader = SourceReaders.forString( script, location );
-		return Script.compile( reader ).eval( this.context.getScope() );
+		// TODO The script engine may be compilable
+		try
+		{
+			return engine.eval( script );
+		}
+		catch( ScriptException e )
+		{
+			throw new SystemException( e ); // TODO ScriptException of FatalException
+		}
 	}
 
 	/**
@@ -564,9 +578,22 @@ abstract public class CommandProcessor
 
 	protected void ifScript( String script, Command command )
 	{
-		SourceReader reader = SourceReaders.forString( script, command.getLocation() );
-		boolean condition = Script.compile( reader ).evalBoolean( this.context.getScope() );
-		this.context.skip( !condition );
+		ScriptEngine engine = ScriptManager.getEngine( "javascript" );
+		// TODO The script engine may be compilable
+		Object result;
+		try
+		{
+			result = engine.eval( script );
+		}
+		catch( ScriptException e )
+		{
+			throw new SystemException( e ); // TODO ScriptException of FatalException
+		}
+
+		throw new UnsupportedOperationException( result.getClass().getName() );
+//		SourceReader reader = SourceReaders.forString( script, command.getLocation() );
+//		boolean condition = Script.compile( reader ).evalBoolean( this.context.getScope() );
+//		this.context.skip( !condition );
 	}
 
 	/**
