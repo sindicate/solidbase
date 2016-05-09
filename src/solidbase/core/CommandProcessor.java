@@ -29,9 +29,9 @@ import solidstack.io.Resource;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
 import solidstack.io.SourceReaders;
-import solidstack.io.StringResource;
-import solidstack.template.Template;
-import solidstack.template.TemplateCompiler;
+import solidstack.script.Script;
+import solidstack.script.ScriptParser;
+import solidstack.script.expressions.Expression;
 
 
 
@@ -227,10 +227,13 @@ abstract public class CommandProcessor
 		if( !command.getCommand().contains( "${" ) ) // TODO & or something else?
 			return;
 
-		Template template = new TemplateCompiler( null ).compile( new StringResource( "<%@ template version=\"1.0\" language=\"javascript\" %>" + command.getCommand() ), null );
-		String result = template.apply( this.context.getScope() );
+		Expression expression = ScriptParser.parseString( command.getCommand(), command.getLocation() );
+		Object object = Script.eval( expression, this.context.getScope() );
+		command.setCommand( object.toString() );
 
-		command.setCommand( result );
+//		Template template = new TemplateCompiler( null ).compile( new StringResource( "<%@ template version=\"1.0\" language=\"javascript\" %>" + command.getCommand() ), null );
+//		String result = template.apply( this.context.getScope() );
+//		command.setCommand( result );
 	}
 
 	/**
