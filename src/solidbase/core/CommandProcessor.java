@@ -23,11 +23,7 @@ import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptException;
-
 import solidbase.core.Delimiter.Type;
-import solidbase.core.script.ScriptManager;
 import solidbase.util.Assert;
 import solidstack.io.Resource;
 import solidstack.io.SourceLocation;
@@ -523,17 +519,8 @@ abstract public class CommandProcessor
 
 	protected Object script( String script, SourceLocation location )
 	{
-		ScriptEngine engine = ScriptManager.getEngine( "javascript" );
 		SourceReader reader = SourceReaders.forString( script, location );
-		// TODO The script engine may be compilable
-		try
-		{
-			return engine.eval( script );
-		}
-		catch( ScriptException e )
-		{
-			throw new SystemException( e ); // TODO ScriptException of FatalException
-		}
+		return Script.compile( reader ).eval( this.context.getScope() );
 	}
 
 	/**
@@ -578,22 +565,9 @@ abstract public class CommandProcessor
 
 	protected void ifScript( String script, Command command )
 	{
-		ScriptEngine engine = ScriptManager.getEngine( "javascript" );
-		// TODO The script engine may be compilable
-		Object result;
-		try
-		{
-			result = engine.eval( script );
-		}
-		catch( ScriptException e )
-		{
-			throw new SystemException( e ); // TODO ScriptException of FatalException
-		}
-
-		throw new UnsupportedOperationException( result.getClass().getName() );
-//		SourceReader reader = SourceReaders.forString( script, command.getLocation() );
-//		boolean condition = Script.compile( reader ).evalBoolean( this.context.getScope() );
-//		this.context.skip( !condition );
+		SourceReader reader = SourceReaders.forString( script, command.getLocation() );
+		boolean condition = Script.compile( reader ).evalBoolean( this.context.getScope() );
+		this.context.skip( !condition );
 	}
 
 	/**
