@@ -17,9 +17,9 @@
 package solidbase.util;
 
 import solidbase.core.SourceException;
-import solidstack.io.PushbackReader;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
+import solidstack.util.WindowBuffer;
 
 
 /**
@@ -33,8 +33,10 @@ public class SQLTokenizer
 	/**
 	 * The reader used to read from and push back characters.
 	 */
-	protected PushbackReader in;
+	protected SourceReader in;
 
+	// A window that holds the last 3 tokens read
+	private WindowBuffer<Token> window = new WindowBuffer<Token>( 3 );
 
 	/**
 	 * Constructs a new instance of the Tokenizer.
@@ -43,7 +45,7 @@ public class SQLTokenizer
 	 */
 	public SQLTokenizer( SourceReader in )
 	{
-		this.in = new PushbackReader( in );
+		this.in = in;
 	}
 
 	/**
@@ -119,6 +121,16 @@ public class SQLTokenizer
 	 */
 	public Token get()
 	{
+		if( this.window.hasRemaining() )
+			return this.window.get();
+
+		Token token = get0();
+		this.window.put( token );
+		return token;
+	}
+
+	private Token get0()
+	{
 		// Read whitespace
 		StringBuilder whiteSpace = new StringBuilder();
 		int ch = this.in.read();
@@ -146,7 +158,7 @@ public class SQLTokenizer
 					ch = this.in.read();
 					if( ch != quote ) // Double '' or "" do not end the string
 					{
-						this.in.push( ch );
+						this.in.rewind();;
 						break;
 					}
 				}
@@ -171,7 +183,7 @@ public class SQLTokenizer
 		while( ch != -1 && !isWhitespace( ch ) && !isSpecial( ch ) );
 
 		// Push back the last character
-		this.in.push( ch );
+		this.in.rewind();
 
 		// Return the result
 		Assert.isFalse( result.length() == 0 );
@@ -290,21 +302,22 @@ public class SQLTokenizer
 	public String getRemaining()
 	{
 		StringBuilder result = new StringBuilder();
-		for( int ch = this.in.read(); ch != -1; ch = this.in.read() )
+
+		if( this.window.hasRemaining() )
+			result.append( this.window.get().getValue() );
+
+		SourceReader in = getReader(); // Also checks if the token window is empty
+		for( int ch = in.read(); ch != -1; ch = in.read() )
 			result.append( (char)ch );
 		return result.toString();
 	}
 
 	/**
-	 * Push back a token.
-	 *
-	 * @param token The token to push back.
+	 * Rewind to the previous token.
 	 */
-	public void push( Token token )
+	public void rewind()
 	{
-		if( token.getValue() != null )
-			this.in.push( token.getValue() );
-		this.in.push( token.getWhiteSpace() );
+		this.window.rewind();
 	}
 
 	/**
@@ -324,7 +337,9 @@ public class SQLTokenizer
 	 */
 	public SourceReader getReader()
 	{
-		return this.in.getReader();
+		if( this.window.hasRemaining() )
+			throw new IllegalStateException( "There are still tokens in the buffer" );
+		return this.in;
 	}
 
 	/**

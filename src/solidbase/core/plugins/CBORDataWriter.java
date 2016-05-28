@@ -17,32 +17,35 @@
 package solidbase.core.plugins;
 
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
+import java.sql.RowId;
 import java.sql.SQLException;
-import java.util.ListIterator;
+import java.util.Date;
 import java.util.Map;
 
-import solidstack.cbor.CBOROutputStream;
-import solidstack.io.Resource;
-import solidstack.io.SourceLocation;
-import solidstack.json.JSONArray;
+import solidstack.cbor.CBORWriter;
+
 
 public class CBORDataWriter implements DataProcessor
 {
-	private Resource resource;
-	private CBOROutputStream cborOutputStream;
-	private FileSpec[] fileSpecs;
-	private Column[] columns;
-	private SourceLocation location;
+	private CBORWriter out;
 	private Map<String, ColumnSpec> columnSpecs;
 
-	public CBORDataWriter( Resource resource, OutputStream out, Map<String, ColumnSpec> columnSpecs, SourceLocation location )
+	private FileSpec[] fileSpecs;
+	private Column[] columns;
+
+
+	public CBORDataWriter( OutputStream out, Map<String, ColumnSpec> columnSpecs )
 	{
-		this.resource = resource;
-		this.cborOutputStream = new CBOROutputStream( out );
+		this.out = new CBORWriter( out );
 		this.columnSpecs = columnSpecs;
-		this.location = location;
+	}
+
+	public CBORWriter getCBOROutputStream()
+	{
+		return this.out;
 	}
 
 	public void init( Column[] columns )
@@ -61,45 +64,67 @@ public class CBORDataWriter implements DataProcessor
 		}
 	}
 
+	public void close()
+	{
+		this.out.close();
+	}
+
 	public void process( Object[] values ) throws SQLException
 	{
 		int columns = values.length;
+		if( this.columns.length != columns )
+			throw new IllegalStateException( "Column count mismatch" );
 
-		JSONArray array = new JSONArray();
+		CBORWriter out = this.out;
+
+		out.startArray();
+
+		// TODO Stringrefs & global array
 		for( int i = 0; i < columns; i++ )
 		{
 			Object value = values[ i ];
 			if( value == null )
-			{
-				array.add( null );
-				continue;
-			}
-
-			if( value instanceof Clob )
-				array.add( ( (Clob)value ).getCharacterStream() ); // TODO Need to close these?
+				out.writeNull();
+			else if( value instanceof Clob )
+				out.writeText( ( (Clob)value ).getCharacterStream() ); // TODO Need to close these?
 			else if( value instanceof Blob )
-				array.add( ( (Blob)value ).getBinaryStream() );
+				out.writeBytes( ( (Blob)value ).getBinaryStream() ); // TODO Need to close these?
+			else if( value instanceof java.sql.Date || value instanceof java.sql.Time || value instanceof java.sql.Timestamp )
+				out.writeDateTime( (Date)value ); // FIXME We need to write string because of the timezone
+			else if( value instanceof RowId )
+				out.writeBytes( ( (RowId)value ).getBytes() ); // TODO Need a tag for this?
+			else if( value instanceof Integer )
+			{
+				int v = (Integer)value;
+				if( v < 0 )
+					out.writeIntN( -( v + 1 ) );
+				else
+					out.writeIntU( v );
+			}
+			else if( value instanceof Long )
+			{
+				long v = (Long)value;
+				if( v < 0 )
+					out.writeIntN( -( v + 1 ) );
+				else
+					out.writeIntU( v );
+			}
+			else if( value instanceof Float )
+				out.writeFloatS( (Float)value );
+			else if( value instanceof Double )
+				out.writeFloatD( (Double)value );
+			else if( value instanceof BigDecimal )
+				out.writeText( value.toString() ); // TODO Is there another CBOR type (tag) ?
+			else if( value instanceof Boolean )
+				out.writeBoolean( (Boolean)value );
+			else if( value instanceof String )
+				out.writeText( (String)value );
+			else if( value instanceof byte[] )
+				out.writeBytes( (byte[])value );
 			else
-				array.add( value );
+				throw new UnsupportedOperationException( "Type not supported: " + value.getClass().getName() );
 		}
 
-		for( ListIterator< Object > i = array.iterator(); i.hasNext(); )
-		{
-			Object value = i.next();
-			if( value instanceof java.sql.Date || value instanceof java.sql.Time || value instanceof java.sql.Timestamp || value instanceof java.sql.RowId )
-				i.set( value.toString() );
-		}
-
-		this.cborOutputStream.write( array );
+		out.writeBreak();
 	}
-
-	public void close()
-	{
-		this.cborOutputStream.close();
-	}
-
-//	public JSONWriter getJSONWriter()
-//	{
-//		return this.jsonWriter;
-//	}
 }

@@ -33,6 +33,7 @@ import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
+import funny.Symbol;
 import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
@@ -49,9 +50,8 @@ import solidstack.io.Resources;
 import solidstack.io.SourceReaders;
 import solidstack.json.JSONArray;
 import solidstack.json.JSONObject;
-import solidstack.script.scopes.AbstractScope;
+import solidstack.script.scopes.Scope;
 import solidstack.script.scopes.UndefinedException;
-import funny.Symbol;
 
 
 /**
@@ -89,8 +89,8 @@ public class DumpJSON implements CommandListener
 			tokenizer.get( (String)null );
 
 			// TODO I think we should have a scope that is restricted to the current file and a scope that gets inherited when running or including another file.
-			AbstractScope scope = processor.getContext().getScope();
-			scope.set( Symbol.apply( "solidbase.dump_json.dateCreated" ), t.eq( "ON" ) ); // TODO Make this a constant
+			Scope scope = processor.getContext().getScope();
+			scope.setOrCreate( Symbol.apply( "solidbase.dump_json.dateCreated" ), t.eq( "ON" ) ); // TODO Make this a constant
 
 			return true;
 		}
@@ -100,7 +100,7 @@ public class DumpJSON implements CommandListener
 
 		Parsed parsed = parse( command );
 
-		AbstractScope scope = processor.getContext().getScope();
+		Scope scope = processor.getContext().getScope();
 		boolean dateCreated;
 		try
 		{
@@ -133,9 +133,11 @@ public class DumpJSON implements CommandListener
 						counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
 					DBReader reader = new DBReader( result, counter != null ? new ExportLogger( counter, processor.getProgressListener() ) : null, parsed.dateAsTimestamp );
-					RecordSource source = reader;
+					CBORResultTransformer trans = new CBORResultTransformer();
+					RecordSource source = trans;
+					reader.setOutput( trans );
 
-					Column[] columns = source.getColumns();
+					Column[] columns = reader.getColumns();
 					int count = columns.length;
 
 					FileSpec[] fileSpecs = new FileSpec[ count ];
@@ -167,7 +169,7 @@ public class DumpJSON implements CommandListener
 					// Connect FileSpecs with the DBReader for the original values
 					for( FileSpec fileSpec : fileSpecs )
 						if( fileSpec != null )
-							fileSpec.setSource( reader );
+							fileSpec.setSource( trans );
 
 					if( parsed.coalesce != null )
 					{
@@ -182,7 +184,7 @@ public class DumpJSON implements CommandListener
 						source = selector;
 					}
 
-					FileSpec binaryFile = parsed.binaryFileName != null ? new FileSpec( true, parsed.binaryFileName, 0, reader ) : null;
+					FileSpec binaryFile = parsed.binaryFileName != null ? new FileSpec( true, parsed.binaryFileName, 0, trans ) : null;
 					JSONDataWriter dataWriter = new JSONDataWriter( jsonOutput, out, parsed.columns, binaryFile, parsed.binaryGzip, command.getLocation() );
 					try
 					{
@@ -200,6 +202,7 @@ public class DumpJSON implements CommandListener
 
 						if( dateCreated )
 						{
+							// TODO Use internet format
 							SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
 							properties.set( "createdDate", format.format( new Date() ) );
 						}
@@ -403,7 +406,7 @@ public class DumpJSON implements CommandListener
 				t = tokenizer.get();
 			}
 			while( t.eq( "," ) );
-			tokenizer.push( t );
+			tokenizer.rewind();
 
 			ColumnSpec columnSpec;
 			t = tokenizer.get( "TO", "SKIP" );
@@ -437,7 +440,7 @@ public class DumpJSON implements CommandListener
 				result.columns.put( col, columnSpec );
 		}
 
-		tokenizer.push( t );
+		tokenizer.rewind();
 
 		result.query = tokenizer.getRemaining();
 

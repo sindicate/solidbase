@@ -91,9 +91,11 @@ public class ExportCSV implements CommandListener
 						counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
 					DBReader reader = new DBReader( result, counter != null ? new ExportLogger( counter, processor.getProgressListener() ) : null, parsed.dateAsTimestamp );
-					RecordSource source = reader;
+					CBORResultTransformer trans = new CBORResultTransformer();
+					RecordSource source = trans;
+					reader.setOutput( trans );
 
-					Column[] columns = source.getColumns();
+					Column[] columns = reader.getColumns();
 					int count = columns.length;
 
 					// Analyze columns
@@ -286,7 +288,7 @@ public class ExportCSV implements CommandListener
 		if( t.eq( "GZIP" ) )
 			result.gzip = true;
 		else
-			tokenizer.push( t );
+			tokenizer.rewind();
 
 		String query = tokenizer.getRemaining();
 

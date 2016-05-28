@@ -7,14 +7,18 @@
 <mapAttribute key="org.testng.eclipse.ALL_CLASS_METHODS">
 <mapEntry key="solidbase.core.Basic" value=""/>
 <mapEntry key="solidbase.core.Export" value=""/>
+<mapEntry key="solidbase.core.export.Export" value=""/>
 </mapAttribute>
 <listAttribute key="org.testng.eclipse.CLASS_TEST_LIST">
-<listEntry value="solidbase.core.Export"/>
+<listEntry value="solidbase.core.export.Export"/>
 </listAttribute>
 <stringAttribute key="org.testng.eclipse.COMPLIANCE_LEVEL" value="JDK"/>
+<booleanAttribute key="org.testng.eclipse.DEBUG" value="false"/>
 <listAttribute key="org.testng.eclipse.GROUP_LIST"/>
 <listAttribute key="org.testng.eclipse.GROUP_LIST_CLASS"/>
 <stringAttribute key="org.testng.eclipse.LOG_LEVEL" value="2"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST"/>
+<stringAttribute key="org.testng.eclipse.PROTOCOL" value="json"/>
 <intAttribute key="org.testng.eclipse.TYPE" value="1"/>
+<booleanAttribute key="org.testng.eclipse.VERBOSE" value="false"/>
 </launchConfiguration>

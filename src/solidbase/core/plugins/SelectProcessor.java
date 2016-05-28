@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+
 public class SelectProcessor implements DataProcessor, RecordSource
 {
 	private DataProcessor output;

@@ -17,6 +17,8 @@
 package solidbase.core.plugins;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,14 +38,14 @@ import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
 import solidbase.util.TimeIntervalLogCounter;
+import solidstack.io.FatalIOException;
 import solidstack.io.Resource;
-import solidstack.io.SourceReader;
 import solidstack.io.SourceReaders;
 
 
-public class LoadJSON implements CommandListener
+public class LoadCBOR implements CommandListener
 {
-	static private final Pattern triggerPattern = Pattern.compile( "\\s*LOAD\\s+JSON\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern triggerPattern = Pattern.compile( "\\s*LOAD\\s+CBOR\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 	static private final Pattern parameterPattern = Pattern.compile( ":(\\d+)" );
 
@@ -67,16 +69,17 @@ public class LoadJSON implements CommandListener
 		// Open the file resource
 		Resource resource = processor.getResource().resolve( parsed.fileName );
 		resource.setGZip( parsed.gzip );
-		SourceReader sourceReader;
+		InputStream in;
 		try
 		{
-			// TODO Use the same charset detection as JSON does. Maybe introduce the UTF charset if the default does not become UTF.
-			sourceReader = SourceReaders.forResource( resource, "UTF-8" );
+			in = resource.newInputStream();
 		}
 		catch( FileNotFoundException e )
 		{
 			throw new FatalException( e.toString() );
 		}
+
+		// TODO SourceInputStream?
 
 		try
 		{
@@ -86,7 +89,7 @@ public class LoadJSON implements CommandListener
 			else if( parsed.logSeconds > 0 )
 				counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
-			JSONDataReader reader = new JSONDataReader( sourceReader, parsed.prependLineNumber, counter != null ? new ImportLogger( counter, processor.getProgressListener() ) : null );
+			CBORDataReader reader = new CBORDataReader( in, parsed.prependLineNumber, counter != null ? new ImportLogger( counter, processor.getProgressListener() ) : null );
 
 			// TODO Test prependlinenumbers
 
@@ -109,7 +112,14 @@ public class LoadJSON implements CommandListener
 		}
 		finally
 		{
-			sourceReader.close();
+			try
+			{
+				in.close();
+			}
+			catch( IOException e )
+			{
+				throw new FatalIOException( e );
+			}
 		}
 	}
 
@@ -126,7 +136,7 @@ public class LoadJSON implements CommandListener
 		// TODO Match column names
 		// TODO Free SQL like with IMPORT CSV
 		/*
-		LOAD JSON
+		LOAD CBOR
 		[ PREPEND LINENUMBER ]
 		[ NOBATCH ]
 		[ LOG EVERY n RECORDS | SECONDS ]
@@ -142,7 +152,7 @@ public class LoadJSON implements CommandListener
 		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
 		tokenizer.get( "LOAD" );
-		tokenizer.get( "JSON" );
+		tokenizer.get( "CBOR" );
 
 		Token t = tokenizer.get( "PREPEND", "NOBATCH", "LOG", "INTO" );
 

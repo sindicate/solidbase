@@ -155,14 +155,15 @@ public class UpgradeFile
 		boolean definitionComplete = false;
 		while( !definitionComplete )
 		{
+			SourceLocation location = this.file.getLocation();
 			String line = this.file.readLine();
 			if( line == null )
-				throw new SourceException( "Unexpected end of file", this.file.getLocation() );
+				throw new SourceException( "Unexpected end of file", location );
 
 			if( line.trim().length() > 0 )
 			{
 				if( !line.startsWith( "--*" ) )
-					throw new SourceException( "Line should start with --*", this.file.getLocation() );
+					throw new SourceException( "Line should start with --*", location );
 				line = line.substring( 3 ).trim();
 
 				if( line.startsWith( "//" ) )
@@ -172,13 +173,13 @@ public class UpgradeFile
 				else if( line.equalsIgnoreCase( "DEFINITION" ) )
 				{
 					if( withinDefinition )
-						throw new SourceException( "Unexpected DEFINITION", this.file.getLocation() );
+						throw new SourceException( "Unexpected DEFINITION", location );
 					withinDefinition = true;
 				}
 				else if( DEFINITION_END_PATTERN.matcher( line ).matches() )
 				{
 					if( !withinDefinition )
-						throw new SourceException( "Unexpected " + line, this.file.getLocation() );
+						throw new SourceException( "Unexpected " + line, location );
 					definitionComplete = true;
 				}
 				else if( withinDefinition )
@@ -188,7 +189,7 @@ public class UpgradeFile
 					{
 						matcher = DEFINITION_PATTERN.matcher( line );
 						if( !matcher.matches() )
-							throw new SourceException( DEFINITION_SYNTAX_ERROR, this.file.getLocation() );
+							throw new SourceException( DEFINITION_SYNTAX_ERROR, location );
 						String action = matcher.group( 1 );
 						boolean open = matcher.group( 2 ) != null;
 						String source = matcher.group( 3 );
@@ -200,7 +201,7 @@ public class UpgradeFile
 						if( type == Type.SETUP )
 						{
 							if( this.setups.containsKey( source ) )
-								throw new SourceException( "Duplicate definition of init block for source version " + source, this.file.getLocation().previousLine() );
+								throw new SourceException( "Duplicate definition of init block for source version " + source, location );
 							this.setups.put( source, segment );
 						}
 						else
@@ -221,12 +222,12 @@ public class UpgradeFile
 					else if( ( matcher = CommandProcessor.delimiterPattern.matcher( line ) ).matches() )
 						this.defaultDelimiters = CommandProcessor.parseDelimiters( matcher );
 					else
-						throw new SourceException( "Unexpected line within definition: " + line, this.file.getLocation() );
+						throw new SourceException( "Unexpected line within definition: " + line, location );
 				}
 				else
 				{
 					if( !CommandProcessor.encodingPattern.matcher( line ).matches() )
-						throw new SourceException( "Unexpected line outside definition: " + line, this.file.getLocation() );
+						throw new SourceException( "Unexpected line outside definition: " + line, location );
 				}
 			}
 		}

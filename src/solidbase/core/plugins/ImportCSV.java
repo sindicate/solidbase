@@ -344,7 +344,7 @@ public class ImportCSV implements CommandListener
 		if( t.eq( "GZIP" ) )
 			result.gzip = true;
 		else
-			tokenizer.push( t );
+			tokenizer.rewind();
 	}
 
 
@@ -396,7 +396,7 @@ public class ImportCSV implements CommandListener
 				result.append( t.getValue() );
 			}
 
-		tokenizer.push( t );
+		tokenizer.rewind();
 	}
 
 

@@ -215,6 +215,7 @@ public class JSONDataWriter implements DataProcessor
 					array.add( ( (Clob)value ).getCharacterStream() );
 				else if( this.binaryFile != null && ( value instanceof Blob || value instanceof byte[] ) )
 				{
+					// TODO Exception when binaryFile is not set, or hexadecimal
 					if( this.binaryFile.out == null )
 					{
 						String fileName = this.binaryFile.generateFileName();

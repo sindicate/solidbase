@@ -1,7 +1,9 @@
 solidbase.core.plugins.AssertExistsOrEmptySelect
 solidbase.core.plugins.DumpJSON
+solidbase.core.plugins.DumpCBOR
 solidbase.core.plugins.ExportCSV
 solidbase.core.plugins.ImportCSV
 solidbase.core.plugins.LoadJSON
+solidbase.core.plugins.LoadCBOR
 solidbase.core.plugins.LogPoller
 solidbase.core.plugins.PrintSelect

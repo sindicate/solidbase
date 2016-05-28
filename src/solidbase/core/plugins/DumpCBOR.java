@@ -24,6 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +45,9 @@ import solidstack.io.FatalIOException;
 import solidstack.io.FileResource;
 import solidstack.io.Resource;
 import solidstack.io.SourceReaders;
-import solidstack.script.scopes.AbstractScope;
+import solidstack.json.JSONArray;
+import solidstack.json.JSONObject;
+import solidstack.script.scopes.Scope;
 
 
 /**
@@ -72,7 +75,7 @@ public class DumpCBOR implements CommandListener
 
 		Parsed parsed = parse( command );
 
-		AbstractScope scope = processor.getContext().getScope(); // TODO Scope?
+		Scope scope = processor.getContext().getScope(); // TODO Scope?
 
 		Resource cborOutput = new FileResource( new File( parsed.fileName ) ); // Relative to current folder
 
@@ -95,9 +98,11 @@ public class DumpCBOR implements CommandListener
 						counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
 					DBReader reader = new DBReader( result, counter != null ? new ExportLogger( counter, processor.getProgressListener() ) : null, parsed.dateAsTimestamp );
-					RecordSource source = reader;
+					CBORResultTransformer trans = new CBORResultTransformer();
+					RecordSource source = trans;
+					reader.setOutput( trans );
 
-					Column[] columns = source.getColumns();
+					Column[] columns = reader.getColumns();
 					int count = columns.length;
 
 					FileSpec[] fileSpecs = new FileSpec[ count ];
@@ -129,7 +134,7 @@ public class DumpCBOR implements CommandListener
 					// Connect FileSpecs with the DBReader for the original values
 					for( FileSpec fileSpec : fileSpecs )
 						if( fileSpec != null )
-							fileSpec.setSource( reader );
+							fileSpec.setSource( trans );
 
 					if( parsed.coalesce != null )
 					{
@@ -144,14 +149,40 @@ public class DumpCBOR implements CommandListener
 						source = selector;
 					}
 
-					CBORDataWriter dataWriter = new CBORDataWriter( cborOutput, out, parsed.columns, command.getLocation() );
+					CBORDataWriter dataWriter = new CBORDataWriter( out, parsed.columns );
 					try
 					{
 						source.setOutput( dataWriter );
 						reader.init();
 						columns = source.getColumns();
 
-						// TODO Write header
+						JSONObject properties = new JSONObject();
+						properties.set( "version", "1.0" );
+						properties.set( "format", "record-stream" );
+						properties.set( "description", "SolidBase CBOR Data Dump File" );
+						properties.set( "createdBy", new JSONObject( "product", "SolidBase", "version", "2.0.0" ) );
+						properties.set( "createdDate", new Date() );
+
+						JSONArray fields = new JSONArray();
+						properties.set( "fields", fields );
+						for( int i = 0; i < columns.length; i++ )
+						{
+							Column column = columns[ i ];
+							JSONObject field = new JSONObject();
+							field.set( "schemaName", column.getSchema() );
+							field.set( "tableName", column.getTable() );
+							field.set( "name", column.getName() );
+							field.set( "type", column.getTypeName() ); // TODO Better error message when type is not recognized, for example Oracle's 2007 for a user type
+							FileSpec spec = fileSpecs[ i ];
+							if( spec != null && !spec.isParameterized() )
+							{
+								Resource fileResource = new FileResource( spec.fileName );
+								field.set( "file", fileResource.getPathFrom( cborOutput ).toString() );
+							}
+							fields.add( field );
+						}
+
+						dataWriter.getCBOROutputStream().tagRefNS().write( properties );
 
 						try
 						{
@@ -217,7 +248,7 @@ public class DumpCBOR implements CommandListener
 		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
 		tokenizer.get( "DUMP" );
-		tokenizer.get( "JSON" );
+		tokenizer.get( "CBOR" );
 
 		Token t = tokenizer.get( "DATE", "COALESCE", "LOG", "FILE" );
 
@@ -303,7 +334,7 @@ public class DumpCBOR implements CommandListener
 				t = tokenizer.get();
 			}
 			while( t.eq( "," ) );
-			tokenizer.push( t );
+			tokenizer.rewind();
 
 			ColumnSpec columnSpec;
 			t = tokenizer.get( "TO", "SKIP" );
@@ -337,7 +368,7 @@ public class DumpCBOR implements CommandListener
 				result.columns.put( col, columnSpec );
 		}
 
-		tokenizer.push( t );
+		tokenizer.rewind();
 
 		result.query = tokenizer.getRemaining();
 

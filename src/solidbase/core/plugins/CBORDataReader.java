@@ -1,0 +1,311 @@
+package solidbase.core.plugins;
+
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.SQLException;
+
+import solidbase.util.JDBCSupport;
+import solidstack.cbor.CBORReader;
+import solidstack.io.FatalIOException;
+import solidstack.io.Resource;
+import solidstack.io.SegmentedInputStream;
+import solidstack.io.SegmentedReader;
+import solidstack.json.JSONArray;
+import solidstack.json.JSONObject;
+
+
+public class CBORDataReader
+{
+	private CBORReader in;
+	private boolean prependLineNumber;
+	private ImportLogger counter;
+
+	private DBWriter output;
+	private boolean done;
+
+	private String binaryFile;
+	private Column[] columns;
+	private String[] fieldNames;
+	private String[] fileNames;
+	private SegmentedInputStream[] streams;
+	private SegmentedReader[] textStreams;
+
+
+	public CBORDataReader( InputStream in, boolean prependLineNumber, ImportLogger counter )
+	{
+		this.in = new CBORReader( in );
+		this.prependLineNumber = prependLineNumber;
+		this.counter = counter;
+
+		// Read the header
+		JSONObject properties = (JSONObject)this.in.read();
+
+		// The fields
+		JSONArray fields = properties.getArray( "fields" );
+		int fieldCount = fields.size();
+
+		this.columns = new Column[ fieldCount ];
+
+		// Initialise the working arrays
+		this.fieldNames = new String[ fieldCount ];
+		this.fileNames = new String[ fieldCount ];
+		this.streams = new SegmentedInputStream[ fieldCount ];
+		this.textStreams = new SegmentedReader[ fieldCount ];
+
+		for( int i = 0; i < fieldCount; i++ )
+		{
+			JSONObject field = (JSONObject)fields.get( i );
+			this.fileNames[ i ] = field.findString( "file" );
+			String name = this.fieldNames[ i ] = field.findString( "name" );
+			this.columns[ i ] = new Column( name, JDBCSupport.fromTypeName( field.getString( "type" ) ), field.findString( "tableName" ), field.findString( "schemaName" ) );
+		}
+	}
+
+	public String[] getFieldNames()
+	{
+		return this.fieldNames;
+	}
+
+	public void setOutput( DBWriter output )
+	{
+		this.output = output;
+	}
+
+	public void process() throws SQLException
+	{
+		/*
+		this.output.init( this.columns );
+
+		// Queues that will remember the files we need to close
+		CloseQueue outerCloser = new CloseQueue();
+		CloseQueue closer = new CloseQueue();
+
+		boolean commit = false; // boolean to see if we reached the end
+		try
+		{
+			while( true )
+			{
+				// Detect interruption
+				if( Thread.currentThread().isInterrupted() ) // TODO Is this the right spot during an upgrade?
+					throw new ThreadInterrupted();
+
+				// Read a record
+				JSONArray array = (JSONArray)this.in.read();
+				if( array == null )
+				{
+					// End of file, finalize things
+					Assert.isTrue( this.in.isEOF() );
+
+					if( this.counter != null )
+						this.counter.end();
+
+					commit = true;
+					return;
+				}
+
+				SourceLocation location = this.in.getLocation();
+
+				Object[] values = new Object[ this.columns.length + ( this.prependLineNumber ? 1 : 0 ) ];
+				int pos = 0;
+				if( this.prependLineNumber )
+					values[ pos++ ] = location.getLineNumber();
+
+				for( int i = 0; i < array.size(); i++ )
+				{
+					int type = this.columns[ i ].getType();
+					Object value;
+					try
+					{
+						value = array.get( i );
+					}
+					catch( ArrayIndexOutOfBoundsException e )
+					{
+						throw new SourceException( "Value with index " + ( i + 1 ) + " does not exist, record has only " + array.size() + " values", this.in.getLocation() );
+					}
+
+					if( value instanceof JSONObject )
+					{
+						// Value of parameter is in a separate file
+						JSONObject object = (JSONObject)value;
+						String filename = object.findString( "file" );
+						if( filename != null )
+						{
+							// One file per record
+							if( type == Types.BLOB || type == Types.VARBINARY )
+							{
+								try
+								{
+									// TODO Fix the input stream size given the size in the JSON file
+									Resource r = this.in.getResource().resolve( filename );
+									BigDecimal filesize = object.findNumber( "size" );
+									if( filesize == null || filesize.intValue() > 10240 ) // TODO Whats a good size here? Should it be a long?
+									{
+										// Some databases read the stream directly (Oracle), others read it later (HSQLDB).
+										// TODO Do we need to decrease the batch size when files are being kept open?
+										// TODO We could detect that the database has read the stream already, and close the file
+										InputStream in = r.newInputStream();
+										values[ pos++ ] = in;
+										closer.add( in );
+									}
+									else
+										values[ pos++ ] = readBytes( r ); // TODO Do a speed test
+								}
+								catch( FileNotFoundException e )
+								{
+									throw new SourceException( e.getMessage(), this.in.getLocation() );
+								}
+							}
+							else
+								Assert.fail( "Unexpected field type for external file: " + JDBCSupport.toTypeName( type ) );
+						}
+						else
+						{
+							// One file for all records
+							BigDecimal lobIndex = object.getNumber( "index" ); // TODO Use findNumber
+							if( lobIndex == null )
+								throw new SourceException( "Expected a 'file' or 'index' attribute", this.in.getLocation() );
+							BigDecimal lobLength = object.getNumber( "length" );
+							if( lobLength == null )
+								throw new SourceException( "Expected a 'length' attribute", this.in.getLocation() );
+
+							if( type == Types.BLOB || type == Types.VARBINARY )
+							{
+								// Get the input stream
+								SegmentedInputStream in = this.streams[ i ];
+								if( in == null )
+								{
+									// File not opened yet, open it
+									String fileName = this.fileNames[ i ];
+									if( fileName == null )
+										fileName = this.binaryFile;
+									if( fileName == null )
+										throw new SourceException( "No file or default binary file configured", this.in.getLocation() );
+									Resource r = this.in.getResource().resolve( fileName );
+									try
+									{
+										in = new SegmentedInputStream( r.newInputStream() );
+										outerCloser.add( in ); // Close at the final end
+										this.streams[ i ] = in;
+									}
+									catch( FileNotFoundException e )
+									{
+										throw new SourceException( e.getMessage(), this.in.getLocation() );
+									}
+								}
+								// TODO Maybe use the limited setBinaryStream instead (see DBWriter)
+								values[ pos++ ] = in.getSegmentInputStream( lobIndex.longValue(), lobLength.longValue() );
+							}
+							else if( type == Types.CLOB )
+							{
+								// Get the reader
+								SegmentedReader in = this.textStreams[ i ];
+								if( in == null )
+								{
+									// File not opened yet, open it
+									if( this.fileNames[ i ] == null )
+										throw new SourceException( "No file configured", this.in.getLocation() );
+									Resource r = this.in.getResource().resolve( this.fileNames[ i ] );
+									try
+									{
+										try
+										{
+											in = new SegmentedReader( new InputStreamReader( r.newInputStream(), "UTF-8" ) );
+										}
+										catch( UnsupportedEncodingException e )
+										{
+											throw new SystemException( e );
+										}
+										outerCloser.add( in ); // Close at the final end
+										this.textStreams[ i ] = in;
+									}
+									catch( FileNotFoundException e )
+									{
+										throw new SourceException( e.getMessage(), this.in.getLocation() );
+									}
+								}
+								values[ pos++ ] = in.getSegmentReader( lobIndex.longValue(), lobLength.longValue() );
+							}
+							else
+								Assert.fail( "Unexpected field type for external file: " + JDBCSupport.toTypeName( type ) );
+						}
+					}
+					else
+					{
+//						if( type == Types.CLOB )
+//						{
+//							if( values.get( index ) == null )
+//								System.out.println( "NULL!" );
+//							else if( ( (String)values.get( index ) ).length() == 0 )
+//								System.out.println( "EMPTY!" );
+//
+//							// TODO What if it is a CLOB and the string value is too long?
+//							// Oracle needs this because CLOBs can contain empty strings "", and setObject() makes that null BUT THIS DOES NOT WORK!
+//							statement.setCharacterStream( pos++, new StringReader( (String)values.get( index ) ) );
+//						}
+//						else
+							// MonetDB complains when calling setObject with null value
+//							Object v = values.get( index );
+//						if( v != null )
+							values[ pos++ ] = array.get( i );
+//						else
+//							statement.setNull( pos++, type );
+					}
+				}
+
+				try
+				{
+					this.output.process( values );
+				}
+				catch( SourceException e )
+				{
+					e.setLocation( location );
+					throw e;
+				}
+				catch( SQLExecutionException e )
+				{
+					e.setLocation( location );
+					throw e;
+				}
+
+				closer.closeAll();
+
+				if( this.counter != null )
+					this.counter.count();
+			}
+		}
+		finally
+		{
+			outerCloser.closeAll();
+			closer.closeAll();
+			this.output.end( commit );
+		}
+		*/
+	}
+
+	static byte[] readBytes( Resource resource ) throws FileNotFoundException
+	{
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		byte[] buffer = new byte[ 4096 ];
+		try
+		{
+			InputStream in = resource.newInputStream();
+			try
+			{
+				int read;
+				while( ( read = in.read( buffer ) ) >= 0 )
+					bytes.write( buffer, 0, read );
+			}
+			finally
+			{
+				in.close();
+			}
+		}
+		catch( IOException e )
+		{
+			throw new FatalIOException( e );
+		}
+		return bytes.toByteArray();
+	}
+}
