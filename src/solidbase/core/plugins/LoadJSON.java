@@ -303,7 +303,7 @@ public class LoadJSON implements CommandListener
 				result.append( t.getValue() );
 			}
 
-		tokenizer.push( t );
+		tokenizer.rewind();
 	}
 
 

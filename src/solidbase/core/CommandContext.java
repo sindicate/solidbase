@@ -25,8 +25,8 @@ import java.util.Stack;
 
 import funny.Symbol;
 import solidstack.io.SourceLocation;
-import solidstack.script.scopes.AbstractScope;
 import solidstack.script.scopes.DefaultScope;
+import solidstack.script.scopes.Scope;
 
 
 
@@ -92,7 +92,7 @@ abstract public class CommandContext
 	/**
 	 * The scripting scope.
 	 */
-	private AbstractScope scope;
+	private Scope scope;
 
 
 	/**
@@ -247,7 +247,7 @@ abstract public class CommandContext
 		return this.ignoreSet.contains( error ) || this.parent != null && this.parent.ignoreSQLError( error );
 	}
 
-	public AbstractScope getScope()
+	public Scope getScope()
 	{
 		if( this.scope == null )
 		{
@@ -255,6 +255,13 @@ abstract public class CommandContext
 			this.scope.val( Symbol.apply( "db" ), new ScriptDB( this ) ); // TODO Or var?
 		}
 		return this.scope;
+	}
+
+	public Scope swapScope( Scope scope )
+	{
+		Scope ret = this.scope;
+		this.scope = scope;
+		return ret;
 	}
 
 	/**

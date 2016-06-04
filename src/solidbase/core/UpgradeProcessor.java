@@ -36,6 +36,7 @@ import solidstack.io.Resource;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
 import solidstack.lang.ThreadInterrupted;
+import solidstack.script.scopes.MapScope;
 
 
 /**
@@ -104,7 +105,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	/**
 	 * Parameters.
 	 */
-	protected Map<String, String> parameters;
+	protected Map<Object, Object> parameters;
 
 	/**
 	 * Constructor.
@@ -152,7 +153,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	 *
 	 * @param parameters The parameters to set.
 	 */
-	public void setParameters( Map<String, String> parameters )
+	public void setParameters( Map<Object, Object> parameters )
 	{
 		this.parameters = parameters;
 	}
@@ -386,10 +387,11 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 		this.progress.reset();
 		this.progress.upgradeStarting( segment );
 
+		// TODO Different levels of contexts and scopes, maybe merge them?
 		UpgradeContext context = new UpgradeContext( this.upgradeFile.gotoSegment( segment ) );
 		context.setDatabases( this.databases );
 		if( this.parameters != null ) // May be null during unit tests
-			context.getScope().setAll( this.parameters );
+			context.swapScope( new MapScope( this.parameters, context.getScope() ) );
 		setContext( context );
 		this.context.setCurrentDatabase( getDefaultDatabase() );
 		this.context.getCurrentDatabase().resetUser();

@@ -286,7 +286,7 @@ public class ExportCSV implements CommandListener
 		if( t.eq( "GZIP" ) )
 			result.gzip = true;
 		else
-			tokenizer.push( t );
+			tokenizer.rewind();
 
 		String query = tokenizer.getRemaining();
 

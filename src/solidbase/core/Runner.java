@@ -26,6 +26,7 @@ import javax.sql.DataSource;
 import solidbase.Version;
 import solidbase.util.SynchronizedProtectedWorkerThread;
 import solidstack.io.Resource;
+import solidstack.script.scopes.MapScope;
 
 /**
  * The runner contains the logic to execute upgrade files and SQL files and is used by the Ant tasks and Maven plugins.
@@ -72,8 +73,8 @@ public class Runner
 	/**
 	 * The parameters.
 	 */
-	protected Map< String, String > parameters = new HashMap<String, String>();
-
+	// TODO Should be <String,Object> ?
+	protected Map<Object, Object> parameters = new HashMap<Object, Object>();
 
 	/**
 	 * Sets the progress listener.
@@ -204,9 +205,10 @@ public class Runner
 			boolean first = true;
 			for( Resource resource : this.sqlFiles )
 			{
+				// TODO Different levels of contexts and scopes, maybe merge them?
 				SQLContext context = new SQLContext( Factory.openSQLFile( resource, this.listener ).getSource() );
 				context.setDatabases( databases );
-				context.getScope().setAll( this.parameters );
+				context.swapScope( new MapScope( this.parameters, context.getScope() ) );
 				processor.setContext( context );
 				if( first )
 				{
@@ -215,7 +217,7 @@ public class Runner
 				}
 				try
 				{
-					processor.process();
+					processor.process(); // TODO Why not a bigger try finally?
 				}
 				finally
 				{
