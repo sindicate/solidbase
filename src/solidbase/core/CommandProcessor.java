@@ -176,7 +176,7 @@ abstract public class CommandProcessor
 	 */
 	protected SQLExecutionException executeWithListeners( Command command, boolean skip ) throws SQLExecutionException
 	{
-		expand( command );
+		command = expand( command );
 
 		if( command.isPersistent() )
 			if( !skip )
@@ -218,18 +218,18 @@ abstract public class CommandProcessor
 	 *
 	 * @param command The command.
 	 */
-	protected void expand( Command command )
+	protected Command expand( Command command )
 	{
 		if( !this.context.isScriptExpansion() )
-			return;
+			return command;
 
 		// TODO Is this needed? The string parser is fast too.
 		if( !command.getCommand().contains( "${" ) ) // TODO & or something else?
-			return;
+			return command;
 
 		Expression expression = ScriptParser.parseString( command.getCommand(), command.getLocation() );
 		Object object = Script.eval( expression, this.context.getScope() );
-		command.setCommand( object.toString() );
+		return new Command( object.toString(), command.isTransient(), command.getLocation() );
 
 //		Template template = new TemplateCompiler( null ).compile( new StringResource( "<%@ template version=\"1.0\" language=\"javascript\" %>" + command.getCommand() ), null );
 //		String result = template.apply( this.context.getScope() );
