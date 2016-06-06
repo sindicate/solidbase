@@ -32,6 +32,7 @@ import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
+import funny.Symbol;
 import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
@@ -48,6 +49,7 @@ import solidstack.io.SourceReaders;
 import solidstack.json.JSONArray;
 import solidstack.json.JSONObject;
 import solidstack.script.scopes.Scope;
+import solidstack.script.scopes.UndefinedException;
 
 
 /**
@@ -70,12 +72,43 @@ public class DumpCBOR implements CommandListener
 		if( !triggerPattern.matcher( command.getCommand() ).matches() )
 			return false;
 
+		if( command.isTransient() )
+		{
+			/* --* DUMP CBOR DATE_CREATED ON | OFF */
+
+			SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
+
+			// TODO Maybe DUMP CBOR CONFIG or DUMP CBORSET
+			// TODO What about other configuration settings?
+			tokenizer.get( "DUMP" );
+			tokenizer.get( "CBOR" );
+			tokenizer.get( "DATE_CREATED" ); // FIXME This should be CREATED_DATE
+			Token t = tokenizer.get( "ON", "OFF" );
+			tokenizer.get( (String)null );
+
+			// TODO I think we should have a scope that is restricted to the current file and a scope that gets inherited when running or including another file.
+			Scope scope = processor.getContext().getScope();
+			scope.setOrCreate( Symbol.apply( "solidbase.dump_cbor.dateCreated" ), t.eq( "ON" ) ); // TODO Make this a constant
+
+			return true;
+		}
+
 		if( skip )
 			return true;
 
 		Parsed parsed = parse( command );
 
-		Scope scope = processor.getContext().getScope(); // TODO Scope?
+		Scope scope = processor.getContext().getScope();
+		boolean dateCreated;
+		try
+		{
+			Object object = scope.get( Symbol.apply( "solidbase.dump_cbor.dateCreated" ) );
+			dateCreated = object instanceof Boolean && (Boolean)object;
+		}
+		catch( UndefinedException e )
+		{
+			dateCreated = true;
+		}
 
 		Resource cborOutput = new FileResource( new File( parsed.fileName ) ); // Relative to current folder
 
@@ -161,7 +194,8 @@ public class DumpCBOR implements CommandListener
 						properties.set( "format", "record-stream" );
 						properties.set( "description", "SolidBase CBOR Data Dump File" );
 						properties.set( "createdBy", new JSONObject( "product", "SolidBase", "version", "2.0.0" ) );
-						properties.set( "createdDate", new Date() );
+						if( dateCreated )
+							properties.set( "createdDate", new Date() );
 
 						JSONArray fields = new JSONArray();
 						properties.set( "fields", fields );
@@ -336,33 +370,9 @@ public class DumpCBOR implements CommandListener
 			while( t.eq( "," ) );
 			tokenizer.rewind();
 
-			ColumnSpec columnSpec;
-			t = tokenizer.get( "TO", "SKIP" );
-			if( t.eq( "TO" ) )
-			{
-				t = tokenizer.get( "BINARY", "TEXT" );
-				boolean binary = t.eq( "BINARY" );
-				tokenizer.get( "FILE" );
-				t = tokenizer.get();
-				if( !t.isString() )
-					throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-				String fileName = t.stripQuotes();
-
-				t = tokenizer.get();
-				int threshold = 0;
-				if( t.eq( "THRESHOLD" ) )
-				{
-					threshold = Integer.parseInt( tokenizer.get().getValue() );
-					t = tokenizer.get();
-				}
-
-				columnSpec = new ColumnSpec( false, new FileSpec( binary, fileName, threshold ) );
-			}
-			else
-			{
-				columnSpec = new ColumnSpec( true, null );
-				t = tokenizer.get();
-			}
+			tokenizer.get( "SKIP" );
+			ColumnSpec columnSpec = new ColumnSpec( true, null );
+			tokenizer.get();
 
 			for( String col : cols )
 				result.columns.put( col, columnSpec );

@@ -216,6 +216,13 @@ public class CBORWriter extends OutputStream
 		popState();
 	}
 
+	public void startArray( int length )
+	{
+		checkState();
+		pushState( STATE.ARRAYMAP );
+		writeUInt( 0x80, length );
+	}
+
 	public void startArray()
 	{
 		checkState();
@@ -278,6 +285,11 @@ public class CBORWriter extends OutputStream
 	{
 		writeByte( 0xFF );
 
+		popState();
+	}
+
+	public void end()
+	{
 		popState();
 	}
 

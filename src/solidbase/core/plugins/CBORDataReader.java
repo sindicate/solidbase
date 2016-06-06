@@ -5,21 +5,25 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import solidbase.util.JDBCSupport;
 import solidstack.cbor.CBORReader;
+import solidstack.cbor.CBORScanner.TYPE;
+import solidstack.cbor.CBORScanner.Token;
 import solidstack.io.FatalIOException;
 import solidstack.io.Resource;
 import solidstack.io.SegmentedInputStream;
 import solidstack.io.SegmentedReader;
 import solidstack.json.JSONArray;
 import solidstack.json.JSONObject;
+import solidstack.lang.ThreadInterrupted;
 
 
 public class CBORDataReader
 {
 	private CBORReader in;
-	private boolean prependLineNumber;
 	private ImportLogger counter;
 
 	private DBWriter output;
@@ -33,14 +37,13 @@ public class CBORDataReader
 	private SegmentedReader[] textStreams;
 
 
-	public CBORDataReader( InputStream in, boolean prependLineNumber, ImportLogger counter )
+	public CBORDataReader( InputStream in, ImportLogger counter )
 	{
 		this.in = new CBORReader( in );
-		this.prependLineNumber = prependLineNumber;
 		this.counter = counter;
 
 		// Read the header
-		JSONObject properties = (JSONObject)this.in.read();
+		JSONObject properties = (JSONObject)this.in.readNoStream();
 
 		// The fields
 		JSONArray fields = properties.getArray( "fields" );
@@ -63,6 +66,8 @@ public class CBORDataReader
 		}
 	}
 
+	// TODO Close the files
+
 	public String[] getFieldNames()
 	{
 		return this.fieldNames;
@@ -75,213 +80,86 @@ public class CBORDataReader
 
 	public void process() throws SQLException
 	{
-		/*
 		this.output.init( this.columns );
-
-		// Queues that will remember the files we need to close
-		CloseQueue outerCloser = new CloseQueue();
-		CloseQueue closer = new CloseQueue();
 
 		boolean commit = false; // boolean to see if we reached the end
 		try
 		{
-			while( true )
+			for( Token t = this.in.get(); t.getType() == TYPE.ARRAY; t = this.in.get() )
 			{
 				// Detect interruption
 				if( Thread.currentThread().isInterrupted() ) // TODO Is this the right spot during an upgrade?
 					throw new ThreadInterrupted();
 
-				// Read a record
-				JSONArray array = (JSONArray)this.in.read();
-				if( array == null )
-				{
-					// End of file, finalize things
-					Assert.isTrue( this.in.isEOF() );
+				List<Object> values = new ArrayList<Object>( this.columns.length );
+				for( Object value = this.in.read(); value != null; value = this.in.read() )
+					values.add( value );
 
-					if( this.counter != null )
-						this.counter.end();
-
-					commit = true;
-					return;
-				}
-
-				SourceLocation location = this.in.getLocation();
-
-				Object[] values = new Object[ this.columns.length + ( this.prependLineNumber ? 1 : 0 ) ];
-				int pos = 0;
-				if( this.prependLineNumber )
-					values[ pos++ ] = location.getLineNumber();
-
-				for( int i = 0; i < array.size(); i++ )
-				{
-					int type = this.columns[ i ].getType();
-					Object value;
-					try
-					{
-						value = array.get( i );
-					}
-					catch( ArrayIndexOutOfBoundsException e )
-					{
-						throw new SourceException( "Value with index " + ( i + 1 ) + " does not exist, record has only " + array.size() + " values", this.in.getLocation() );
-					}
-
-					if( value instanceof JSONObject )
-					{
-						// Value of parameter is in a separate file
-						JSONObject object = (JSONObject)value;
-						String filename = object.findString( "file" );
-						if( filename != null )
-						{
-							// One file per record
-							if( type == Types.BLOB || type == Types.VARBINARY )
-							{
-								try
-								{
-									// TODO Fix the input stream size given the size in the JSON file
-									Resource r = this.in.getResource().resolve( filename );
-									BigDecimal filesize = object.findNumber( "size" );
-									if( filesize == null || filesize.intValue() > 10240 ) // TODO Whats a good size here? Should it be a long?
-									{
-										// Some databases read the stream directly (Oracle), others read it later (HSQLDB).
-										// TODO Do we need to decrease the batch size when files are being kept open?
-										// TODO We could detect that the database has read the stream already, and close the file
-										InputStream in = r.newInputStream();
-										values[ pos++ ] = in;
-										closer.add( in );
-									}
-									else
-										values[ pos++ ] = readBytes( r ); // TODO Do a speed test
-								}
-								catch( FileNotFoundException e )
-								{
-									throw new SourceException( e.getMessage(), this.in.getLocation() );
-								}
-							}
-							else
-								Assert.fail( "Unexpected field type for external file: " + JDBCSupport.toTypeName( type ) );
-						}
-						else
-						{
-							// One file for all records
-							BigDecimal lobIndex = object.getNumber( "index" ); // TODO Use findNumber
-							if( lobIndex == null )
-								throw new SourceException( "Expected a 'file' or 'index' attribute", this.in.getLocation() );
-							BigDecimal lobLength = object.getNumber( "length" );
-							if( lobLength == null )
-								throw new SourceException( "Expected a 'length' attribute", this.in.getLocation() );
-
-							if( type == Types.BLOB || type == Types.VARBINARY )
-							{
-								// Get the input stream
-								SegmentedInputStream in = this.streams[ i ];
-								if( in == null )
-								{
-									// File not opened yet, open it
-									String fileName = this.fileNames[ i ];
-									if( fileName == null )
-										fileName = this.binaryFile;
-									if( fileName == null )
-										throw new SourceException( "No file or default binary file configured", this.in.getLocation() );
-									Resource r = this.in.getResource().resolve( fileName );
-									try
-									{
-										in = new SegmentedInputStream( r.newInputStream() );
-										outerCloser.add( in ); // Close at the final end
-										this.streams[ i ] = in;
-									}
-									catch( FileNotFoundException e )
-									{
-										throw new SourceException( e.getMessage(), this.in.getLocation() );
-									}
-								}
-								// TODO Maybe use the limited setBinaryStream instead (see DBWriter)
-								values[ pos++ ] = in.getSegmentInputStream( lobIndex.longValue(), lobLength.longValue() );
-							}
-							else if( type == Types.CLOB )
-							{
-								// Get the reader
-								SegmentedReader in = this.textStreams[ i ];
-								if( in == null )
-								{
-									// File not opened yet, open it
-									if( this.fileNames[ i ] == null )
-										throw new SourceException( "No file configured", this.in.getLocation() );
-									Resource r = this.in.getResource().resolve( this.fileNames[ i ] );
-									try
-									{
-										try
-										{
-											in = new SegmentedReader( new InputStreamReader( r.newInputStream(), "UTF-8" ) );
-										}
-										catch( UnsupportedEncodingException e )
-										{
-											throw new SystemException( e );
-										}
-										outerCloser.add( in ); // Close at the final end
-										this.textStreams[ i ] = in;
-									}
-									catch( FileNotFoundException e )
-									{
-										throw new SourceException( e.getMessage(), this.in.getLocation() );
-									}
-								}
-								values[ pos++ ] = in.getSegmentReader( lobIndex.longValue(), lobLength.longValue() );
-							}
-							else
-								Assert.fail( "Unexpected field type for external file: " + JDBCSupport.toTypeName( type ) );
-						}
-					}
-					else
-					{
-//						if( type == Types.CLOB )
-//						{
-//							if( values.get( index ) == null )
-//								System.out.println( "NULL!" );
-//							else if( ( (String)values.get( index ) ).length() == 0 )
-//								System.out.println( "EMPTY!" );
+//					if( this.counter != null )
+//						this.counter.end();
 //
-//							// TODO What if it is a CLOB and the string value is too long?
-//							// Oracle needs this because CLOBs can contain empty strings "", and setObject() makes that null BUT THIS DOES NOT WORK!
-//							statement.setCharacterStream( pos++, new StringReader( (String)values.get( index ) ) );
-//						}
-//						else
-							// MonetDB complains when calling setObject with null value
-//							Object v = values.get( index );
-//						if( v != null )
-							values[ pos++ ] = array.get( i );
-//						else
-//							statement.setNull( pos++, type );
-					}
-				}
+//					commit = true;
+//					return;
 
-				try
-				{
-					this.output.process( values );
-				}
-				catch( SourceException e )
-				{
-					e.setLocation( location );
-					throw e;
-				}
-				catch( SQLExecutionException e )
-				{
-					e.setLocation( location );
-					throw e;
-				}
+//				for( int i = 0; i < values.size(); i++ )
+//				{
+//					int type = this.columns[ i ].getType();
+//					Object value;
+//					try
+//					{
+//						value = values.get( i );
+//					}
+//					catch( ArrayIndexOutOfBoundsException e )
+//					{
+//						throw new SourceException( "Value with index " + ( i + 1 ) + " does not exist, record has only " + values.size() + " values", null );
+//					}
+//
+////						if( type == Types.CLOB )
+////						{
+////							if( values.get( index ) == null )
+////								System.out.println( "NULL!" );
+////							else if( ( (String)values.get( index ) ).length() == 0 )
+////								System.out.println( "EMPTY!" );
+////
+////							// TODO What if it is a CLOB and the string value is too long?
+////							// Oracle needs this because CLOBs can contain empty strings "", and setObject() makes that null BUT THIS DOES NOT WORK!
+////							statement.setCharacterStream( pos++, new StringReader( (String)values.get( index ) ) );
+////						}
+////						else
+//							// MonetDB complains when calling setObject with null value
+////							Object v = values.get( index );
+////						if( v != null )
+//							values.set( i, value );
+////						else
+////							statement.setNull( pos++, type );
+//				}
 
-				closer.closeAll();
+//				try
+//				{
+					this.output.process( values.toArray() );
+//				}
+//				catch( SourceException e )
+//				{
+//					throw e;
+//				}
+//				catch( SQLExecutionException e )
+//				{
+//					throw e;
+//				}
 
 				if( this.counter != null )
 					this.counter.count();
 			}
+
+			if( this.counter != null )
+				this.counter.end();
+
+			commit = true;
 		}
 		finally
 		{
-			outerCloser.closeAll();
-			closer.closeAll();
 			this.output.end( commit );
 		}
-		*/
 	}
 
 	static byte[] readBytes( Resource resource ) throws FileNotFoundException

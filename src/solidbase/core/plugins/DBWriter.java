@@ -128,7 +128,7 @@ public class DBWriter implements DataProcessor
 			try
 			{
 				// TODO Time zones, is there a default way of putting times and dates in a text file? For example whats in a HTTP header?
-				if( value != null )
+				if( value != null && value instanceof String )
 					switch( this.columns[ i ].getType() )
 					{
 						case Types.DATE:
@@ -156,7 +156,11 @@ public class DBWriter implements DataProcessor
 		{
 			try
 			{
-				this.statement.setObject( pos++, values[ index = par - 1 ] );
+				Object value = values[ index = par - 1 ];
+//				if( value instanceof Reader )
+//					this.statement.setClob( pos++, (Reader)value );
+//				else
+					this.statement.setObject( pos++, value );
 			}
 			catch( ArrayIndexOutOfBoundsException e )
 			{
@@ -164,7 +168,7 @@ public class DBWriter implements DataProcessor
 			}
 			catch( SQLException e )
 			{
-				String message = buildMessage( this.sql, this.parameterMap, (String[])values );
+				String message = buildMessage( this.sql, this.parameterMap, values );
 				throw new SQLExecutionException( message, null, e );
 			}
 		}
@@ -177,7 +181,7 @@ public class DBWriter implements DataProcessor
 			}
 			catch( SQLException e )
 			{
-				String message = buildMessage( this.sql, this.parameterMap, (String[])values );
+				String message = buildMessage( this.sql, this.parameterMap, values );
 				// When NOBATCH is on, you can see the actual insert statement and line number in the file where the SQLException occurred.
 				throw new SQLExecutionException( message, null, e );
 			}
@@ -194,7 +198,7 @@ public class DBWriter implements DataProcessor
 		}
 	}
 
-	static private String buildMessage( String sql, int[] parameterMap, String[] line )
+	static private String buildMessage( String sql, int[] parameterMap, Object[] values )
 	{
 		StringBuilder result = new StringBuilder( sql );
 		result.append( " VALUES (" );
@@ -207,7 +211,7 @@ public class DBWriter implements DataProcessor
 				result.append( ',' );
 			try
 			{
-				result.append( line[ par - 1 ] );
+				result.append( values[ par - 1 ] );
 			}
 			catch( ArrayIndexOutOfBoundsException ee )
 			{

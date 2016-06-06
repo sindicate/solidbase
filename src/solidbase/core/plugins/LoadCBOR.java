@@ -89,7 +89,7 @@ public class LoadCBOR implements CommandListener
 			else if( parsed.logSeconds > 0 )
 				counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
-			CBORDataReader reader = new CBORDataReader( in, parsed.prependLineNumber, counter != null ? new ImportLogger( counter, processor.getProgressListener() ) : null );
+			CBORDataReader reader = new CBORDataReader( in, counter != null ? new ImportLogger( counter, processor.getProgressListener() ) : null );
 
 			// TODO Test prependlinenumbers
 
@@ -154,15 +154,7 @@ public class LoadCBOR implements CommandListener
 		tokenizer.get( "LOAD" );
 		tokenizer.get( "CBOR" );
 
-		Token t = tokenizer.get( "PREPEND", "NOBATCH", "LOG", "INTO" );
-
-		if( t.eq( "PREPEND" ) )
-		{
-			tokenizer.get( "LINENUMBER" );
-			result.prependLineNumber = true;
-
-			t = tokenizer.get( "NOBATCH", "LOG", "INTO" );
-		}
+		Token t = tokenizer.get( "NOBATCH", "LOG", "INTO" );
 
 		if( t.eq( "NOBATCH" ) )
 		{

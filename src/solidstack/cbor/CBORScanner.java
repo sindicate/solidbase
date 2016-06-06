@@ -221,6 +221,16 @@ public class CBORScanner
 			return this.value;
 		}
 
+		public double getDouble()
+		{
+			return this.doble;
+		}
+
+		public Object getBoolean()
+		{
+			return this.bool;
+		}
+
 		public int getLength()
 		{
 			if( this.value < 0 || this.value > Integer.MAX_VALUE )

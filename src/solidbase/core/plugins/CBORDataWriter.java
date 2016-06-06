@@ -77,7 +77,7 @@ public class CBORDataWriter implements DataProcessor
 
 		CBORWriter out = this.out;
 
-		out.startArray();
+		out.startArray( columns );
 
 		// TODO Stringrefs & global array
 		for( int i = 0; i < columns; i++ )
@@ -125,6 +125,6 @@ public class CBORDataWriter implements DataProcessor
 				throw new UnsupportedOperationException( "Type not supported: " + value.getClass().getName() );
 		}
 
-		out.writeBreak();
+		out.end();
 	}
 }
