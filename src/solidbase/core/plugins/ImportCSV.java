@@ -105,11 +105,19 @@ public class ImportCSV implements CommandListener
 				counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
 			CSVDataReader reader = new CSVDataReader( sourceReader, parsed.skipHeader, parsed.separator, parsed.ignoreWhiteSpace, parsed.prependLineNumber, counter != null ? new ImportLogger( counter, processor.getProgressListener() ) : null );
-
 			DBWriter writer = new DBWriter( parsed.sql, parsed.tableName, parsed.columns, parsed.values, parsed.noBatch, processor );
-			reader.setOutput( writer );
+			reader.setOutput( new DefaultToResultSetTransformer( writer ) );
 
-			reader.process();
+			boolean commit = false;
+			try
+			{
+				reader.process();
+				commit = true;
+			}
+			finally
+			{
+				writer.end( commit );
+			}
 			return true;
 		}
 		finally

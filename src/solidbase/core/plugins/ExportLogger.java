@@ -25,6 +25,7 @@ public class ExportLogger
 	private LogCounter counter;
 	private ProgressListener listener;
 
+
 	public ExportLogger( LogCounter counter, ProgressListener progressListener )
 	{
 		this.counter = counter;

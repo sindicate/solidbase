@@ -16,10 +16,12 @@
 
 package solidbase.core.plugins;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public interface DataProcessor
+
+public interface ResultSink
 {
 	void init( Column[] columns );
-	void process( Object[] values ) throws SQLException;
+	void process( ResultSet result ) throws SQLException;
 }

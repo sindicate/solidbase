@@ -28,7 +28,7 @@ import java.util.Map;
 import solidstack.cbor.CBORWriter;
 
 
-public class CBORDataWriter implements DataProcessor
+public class CBORDataWriter implements RecordSink
 {
 	private CBORWriter out;
 	private Map<String, ColumnSpec> columnSpecs;
@@ -69,9 +69,9 @@ public class CBORDataWriter implements DataProcessor
 		this.out.close();
 	}
 
-	public void process( Object[] values ) throws SQLException
+	public void process( Object[] record ) throws SQLException
 	{
-		int columns = values.length;
+		int columns = record.length;
 		if( this.columns.length != columns )
 			throw new IllegalStateException( "Column count mismatch" );
 
@@ -82,7 +82,7 @@ public class CBORDataWriter implements DataProcessor
 		// TODO Stringrefs & global array
 		for( int i = 0; i < columns; i++ )
 		{
-			Object value = values[ i ];
+			Object value = record[ i ];
 			if( value == null )
 				out.writeNull();
 			else if( value instanceof Clob )

@@ -5,17 +5,17 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 
-public class CBORResultTransformer implements ResultProcessor, RecordSource
+public class DefaultResultSetTransformer implements ResultSink, RecordSource
 {
 	private Column[] columns;
-	private DataProcessor output;
-	private Object[] currentValues;
+	private RecordSink sink;
+	private Object[] currentRecord;
 
 
 	@Override
 	public void init( Column[] columns )
 	{
-		this.output.init( columns );
+		this.sink.init( columns );
 		this.columns = columns;
 	}
 
@@ -26,22 +26,22 @@ public class CBORResultTransformer implements ResultProcessor, RecordSource
 	}
 
 	@Override
-	public void setOutput( DataProcessor output )
+	public void setSink( RecordSink sink )
 	{
-		this.output = output;
+		this.sink = sink;
 	}
 
 	@Override
-	public Object[] getCurrentValues()
+	public Object[] getCurrentRecord()
 	{
-		return this.currentValues;
+		return this.currentRecord;
 	}
 
 	@Override
 	public void process( ResultSet result ) throws SQLException
 	{
 		int colCount = this.columns.length;
-		Object[] values = this.currentValues = new Object[ colCount ];
+		Object[] values = this.currentRecord = new Object[ colCount ];
 
 		for( int i = 0; i < colCount; i++ )
 		{
@@ -90,6 +90,6 @@ public class CBORResultTransformer implements ResultProcessor, RecordSource
 			}
 		}
 
-		this.output.process( values );
+		this.sink.process( values );
 	}
 }

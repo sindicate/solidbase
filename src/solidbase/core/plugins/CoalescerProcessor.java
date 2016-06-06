@@ -22,9 +22,10 @@ import java.util.List;
 
 import solidbase.core.FatalException;
 
-public class CoalescerProcessor implements DataProcessor, RecordSource
+
+public class CoalescerProcessor implements RecordSink, RecordSource
 {
-	private DataProcessor output;
+	private RecordSink sink;
 
 	private List<List<String>> names;
 	private Mapping[] mapping;
@@ -43,9 +44,9 @@ public class CoalescerProcessor implements DataProcessor, RecordSource
 	}
 
 	@Override
-	public void setOutput( DataProcessor output )
+	public void setSink( RecordSink sink )
 	{
-		this.output = output;
+		this.sink = sink;
 	}
 
 	public void init( Column[] columns )
@@ -98,10 +99,10 @@ public class CoalescerProcessor implements DataProcessor, RecordSource
 		this.columns = newCols.toArray( new Column[ newCols.size() ] );
 		this.mapping = newMapping.toArray( new Mapping[ newCols.size() ] );
 
-		this.output.init( this.columns );
+		this.sink.init( this.columns );
 	}
 
-	public void process( Object[] values ) throws SQLException
+	public void process( Object[] record ) throws SQLException
 	{
 		int count = this.mapping.length;
 		Object[] newValues = new Object[ count ];
@@ -109,16 +110,16 @@ public class CoalescerProcessor implements DataProcessor, RecordSource
 		for( int i = 0; i < count; i++ )
 		{
 			Mapping mapping = this.mapping[ i ];
-			Object value = values[ mapping.index ];
+			Object value = record[ mapping.index ];
 			while( value == null && mapping.next != null )
 			{
 				mapping = mapping.next;
-				value = values[ mapping.index ];
+				value = record[ mapping.index ];
 			}
 			newValues[ i ] = value;
 		}
 
-		this.output.process( newValues );
+		this.sink.process( newValues );
 	}
 
 	static class Mapping
@@ -132,7 +133,7 @@ public class CoalescerProcessor implements DataProcessor, RecordSource
 	}
 
 	@Override
-	public Object[] getCurrentValues()
+	public Object[] getCurrentRecord()
 	{
 		throw new UnsupportedOperationException();
 	}

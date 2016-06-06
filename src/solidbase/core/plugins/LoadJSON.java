@@ -102,9 +102,18 @@ public class LoadJSON implements CommandListener
 			}
 
 			DBWriter writer = new DBWriter( null, parsed.tableName, parsed.columns, parsed.values, parsed.noBatch, processor );
-			reader.setOutput( writer );
+			reader.setOutput( new DefaultToResultSetTransformer( writer ) );
 
-			reader.process();
+			boolean commit = false;
+			try
+			{
+				reader.process();
+				commit = true;
+			}
+			finally
+			{
+				writer.end( commit );
+			}
 			return true;
 		}
 		finally

@@ -25,9 +25,9 @@ import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 
 
-public class SelectProcessor implements DataProcessor, RecordSource
+public class SelectProcessor implements RecordSink, RecordSource
 {
-	private DataProcessor output;
+	private RecordSink sink;
 	private Column[] outColumns;
 	private int[] mapping;
 	private Set<String> deselect = new HashSet<String>();
@@ -59,7 +59,7 @@ public class SelectProcessor implements DataProcessor, RecordSource
 		for( int i = 0; i < mapping.length; i++ )
 			this.outColumns[ i ] = columns[ mapping[ i ] ];
 
-		this.output.init( this.outColumns );
+		this.sink.init( this.outColumns );
 	}
 
 	@Override
@@ -69,22 +69,22 @@ public class SelectProcessor implements DataProcessor, RecordSource
 	}
 
 	@Override
-	public void setOutput( DataProcessor output )
+	public void setSink( RecordSink sink )
 	{
-		this.output = output;
+		this.sink = sink;
 	}
 
-	public void process( Object[] inValues ) throws SQLException
+	public void process( Object[] record ) throws SQLException
 	{
 		int[] mapping = this.mapping;
-		Object[] outValues = new Object[ mapping.length ];
+		Object[] mappedRecord = new Object[ mapping.length ];
 		for( int i = 0; i < mapping.length; i++ )
-			outValues[ i ] = inValues[ mapping[ i ] ];
-		this.output.process( outValues );
+			mappedRecord[ i ] = record[ mapping[ i ] ];
+		this.sink.process( mappedRecord );
 	}
 
 	@Override
-	public Object[] getCurrentValues()
+	public Object[] getCurrentRecord()
 	{
 		throw new UnsupportedOperationException();
 	}

@@ -21,6 +21,7 @@ import java.io.Writer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 class FileSpec
 {
 	static private final Pattern pattern = Pattern.compile( "\\?(\\d+)" );
@@ -64,7 +65,7 @@ class FileSpec
 
 	protected String generateFileName()
 	{
-		Object[] values = this.source.getCurrentValues();
+		Object[] values = this.source.getCurrentRecord();
 
 		Matcher matcher = FileSpec.pattern.matcher( this.fileName );
 		StringBuffer result = new StringBuffer();

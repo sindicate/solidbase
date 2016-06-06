@@ -10,14 +10,16 @@ import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
 import solidstack.lang.ThreadInterrupted;
 
-public class CSVDataReader
+
+public class CSVDataReader // TODO implements RecordSource
 {
 	private CSVReader reader;
 	private boolean prependLineNumber;
 	private ImportLogger counter;
 
-	private DBWriter output;
+	private RecordSink output;
 	private boolean done;
+
 
 	public CSVDataReader( SourceReader sourceReader, boolean skipHeader, char separator, boolean ignoreWhiteSpace, boolean prependLineNumber, ImportLogger counter )
 	{
@@ -34,7 +36,7 @@ public class CSVDataReader
 		}
 	}
 
-	public void setOutput( DBWriter output )
+	public void setOutput( RecordSink output )
 	{
 		this.output = output;
 	}
@@ -43,64 +45,54 @@ public class CSVDataReader
 	{
 		boolean initDone = false;
 
-		boolean commit = false;
-		try
+		SourceLocation location = this.reader.getLocation();
+		String[] line = this.reader.getLine();
+		while( line != null )
 		{
-			SourceLocation location = this.reader.getLocation();
-			String[] line = this.reader.getLine();
-			while( line != null )
+			if( Thread.currentThread().isInterrupted() ) // TODO Is this the right spot during an upgrade?
+				throw new ThreadInterrupted();
+
+			for( int i = 0; i < line.length; i++ )
+				if( line[ i ].length() == 0 )
+					line[ i ] = null;
+
+			if( this.prependLineNumber )
 			{
-				if( Thread.currentThread().isInterrupted() ) // TODO Is this the right spot during an upgrade?
-					throw new ThreadInterrupted();
-
-				for( int i = 0; i < line.length; i++ )
-					if( line[ i ].length() == 0 )
-						line[ i ] = null;
-
-				if( this.prependLineNumber )
-				{
-					String[] temp = line;
-					line = new String[ temp.length + 1 ];
-					line[ 0 ] = Integer.toString( location.getLineNumber() );
-					System.arraycopy( temp, 0, line, 1, temp.length );
-				}
-
-				if( !initDone )
-				{
-					Column[] columns = new Column[ line.length ];
-					for( int i = 0; i < columns.length; i++ )
-						columns[ i ] = new Column( null, Types.VARCHAR, null, null );
-					this.output.init( columns );
-					initDone = true;
-				}
-
-				try
-				{
-					this.output.process( line );
-				}
-				catch( SourceException e )
-				{
-					e.setLocation( location );
-					throw e;
-				}
-				catch( SQLExecutionException e )
-				{
-					e.setLocation( location );
-					throw e;
-				}
-
-				if( this.counter != null )
-					this.counter.count();
-
-				location = this.reader.getLocation();
-				line = this.reader.getLine();
+				String[] temp = line;
+				line = new String[ temp.length + 1 ];
+				line[ 0 ] = Integer.toString( location.getLineNumber() );
+				System.arraycopy( temp, 0, line, 1, temp.length );
 			}
 
-			commit = true;
-		}
-		finally
-		{
-			this.output.end( commit );
+			if( !initDone )
+			{
+				Column[] columns = new Column[ line.length ];
+				for( int i = 0; i < columns.length; i++ )
+					columns[ i ] = new Column( null, Types.VARCHAR, null, null );
+				this.output.init( columns );
+				initDone = true;
+			}
+
+			try
+			{
+				this.output.process( line );
+			}
+			catch( SourceException e )
+			{
+				e.setLocation( location );
+				throw e;
+			}
+			catch( SQLExecutionException e )
+			{
+				e.setLocation( location );
+				throw e;
+			}
+
+			if( this.counter != null )
+				this.counter.count();
+
+			location = this.reader.getLocation();
+			line = this.reader.getLine();
 		}
 
 		if( this.counter != null )

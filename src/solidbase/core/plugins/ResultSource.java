@@ -20,5 +20,5 @@ package solidbase.core.plugins;
 public interface ResultSource
 {
 	Column[] getColumns();
-	void setOutput( ResultProcessor output );
+	void setSink( ResultSink sink );
 }

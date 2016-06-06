@@ -91,9 +91,9 @@ public class ExportCSV implements CommandListener
 						counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
 					DBReader reader = new DBReader( result, counter != null ? new ExportLogger( counter, processor.getProgressListener() ) : null, parsed.dateAsTimestamp );
-					CBORResultTransformer trans = new CBORResultTransformer();
+					DefaultResultSetTransformer trans = new DefaultResultSetTransformer();
 					RecordSource source = trans;
-					reader.setOutput( trans );
+					reader.setSink( trans );
 
 					Column[] columns = reader.getColumns();
 					int count = columns.length;
@@ -121,14 +121,14 @@ public class ExportCSV implements CommandListener
 
 					if( selector != null )
 					{
-						source.setOutput( selector );
+						source.setSink( selector );
 						source = selector;
 					}
 
 					if( parsed.coalesce != null )
 					{
 						CoalescerProcessor coalescer = new CoalescerProcessor( parsed.coalesce );
-						source.setOutput( coalescer );
+						source.setSink( coalescer );
 						source = coalescer;
 					}
 
@@ -136,7 +136,7 @@ public class ExportCSV implements CommandListener
 					CSVDataWriter dataWriter = new CSVDataWriter( new OutputStreamWriter( out, parsed.encoding ), parsed.separator, parsed.withHeader );
 					try
 					{
-						source.setOutput( dataWriter );
+						source.setSink( dataWriter );
 						reader.init();
 						reader.process();
 					}

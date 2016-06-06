@@ -18,6 +18,7 @@ package solidbase.core.plugins;
 
 import solidbase.util.JDBCSupport;
 
+
 public class Column
 {
 	private String name;
@@ -25,6 +26,7 @@ public class Column
 	private String table;
 	private String schema;
 	private String typeName;
+
 
 	public Column( String name, int type, String table, String schema )
 	{

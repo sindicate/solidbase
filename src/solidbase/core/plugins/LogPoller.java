@@ -44,6 +44,7 @@ public class LogPoller implements CommandListener
 
 	private Poller poller;
 
+
 	//@Override
 	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
 	{

@@ -27,13 +27,14 @@ import solidstack.lang.Assert;
 import solidstack.lang.SystemException;
 import solidstack.lang.ThreadInterrupted;
 
-public class JSONDataReader
+
+public class JSONDataReader // TODO implements RecordSource
 {
 	private JSONReader reader;
 	private boolean prependLineNumber;
 	private ImportLogger counter;
 
-	private DBWriter output;
+	private RecordSink output;
 	private boolean done;
 
 	private String binaryFile;
@@ -42,6 +43,7 @@ public class JSONDataReader
 	private String[] fileNames;
 	private SegmentedInputStream[] streams;
 	private SegmentedReader[] textStreams;
+
 
 	public JSONDataReader( SourceReader reader, boolean prependLineNumber, ImportLogger counter )
 	{
@@ -81,7 +83,7 @@ public class JSONDataReader
 		return this.fieldNames;
 	}
 
-	public void setOutput( DBWriter output )
+	public void setOutput( RecordSink output )
 	{
 		this.output = output;
 	}
@@ -94,7 +96,6 @@ public class JSONDataReader
 		CloseQueue outerCloser = new CloseQueue();
 		CloseQueue closer = new CloseQueue();
 
-		boolean commit = false; // boolean to see if we reached the end
 		try
 		{
 			while( true )
@@ -113,7 +114,6 @@ public class JSONDataReader
 					if( this.counter != null )
 						this.counter.end();
 
-					commit = true;
 					return;
 				}
 
@@ -291,7 +291,6 @@ public class JSONDataReader
 		{
 			outerCloser.closeAll();
 			closer.closeAll();
-			this.output.end( commit );
 		}
 	}
 

@@ -18,7 +18,7 @@ import solidstack.json.JSONObject;
 
 public class CBORWriter extends OutputStream
 {
-	static private enum STATE { IBYTES, ITEXT, ARRAYMAP };
+	static private enum STATE { ARRAYMAP, IARRAYMAP, IBYTES, ITEXT,  };
 
 	static private final Charset UTF8 = Charset.forName( "UTF-8" );
 
@@ -226,7 +226,7 @@ public class CBORWriter extends OutputStream
 	public void startArray()
 	{
 		checkState();
-		pushState( STATE.ARRAYMAP );
+		pushState( STATE.IARRAYMAP );
 		writeByte( 0x9F ); // End with break
 	}
 
@@ -249,7 +249,7 @@ public class CBORWriter extends OutputStream
 	public void startMap()
 	{
 		checkState();
-		pushState( STATE.ARRAYMAP );
+		pushState( STATE.IARRAYMAP );
 
 		writeByte( 0xBF ); // End with break
 	}
@@ -284,12 +284,13 @@ public class CBORWriter extends OutputStream
 	public void writeBreak()
 	{
 		writeByte( 0xFF );
-
 		popState();
 	}
 
 	public void end()
 	{
+		if( this.state == STATE.IARRAYMAP )
+			writeByte( 0xFF );
 		popState();
 	}
 

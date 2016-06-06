@@ -131,9 +131,9 @@ public class DumpCBOR implements CommandListener
 						counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
 					DBReader reader = new DBReader( result, counter != null ? new ExportLogger( counter, processor.getProgressListener() ) : null, parsed.dateAsTimestamp );
-					CBORResultTransformer trans = new CBORResultTransformer();
+					DefaultResultSetTransformer trans = new DefaultResultSetTransformer();
 					RecordSource source = trans;
-					reader.setOutput( trans );
+					reader.setSink( trans );
 
 					Column[] columns = reader.getColumns();
 					int count = columns.length;
@@ -172,20 +172,20 @@ public class DumpCBOR implements CommandListener
 					if( parsed.coalesce != null )
 					{
 						CoalescerProcessor coalescer = new CoalescerProcessor( parsed.coalesce );
-						source.setOutput( coalescer );
+						source.setSink( coalescer );
 						source = coalescer;
 					}
 
 					if( selector.hasDeselected() )
 					{
-						source.setOutput( selector );
+						source.setSink( selector );
 						source = selector;
 					}
 
 					CBORDataWriter dataWriter = new CBORDataWriter( out, parsed.columns );
 					try
 					{
-						source.setOutput( dataWriter );
+						source.setSink( dataWriter );
 						reader.init();
 						columns = source.getColumns();
 

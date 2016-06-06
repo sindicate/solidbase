@@ -23,10 +23,11 @@ import java.sql.Types;
 
 import org.apache.commons.lang3.StringUtils;
 
+
 public class DBReader implements ResultSource
 {
 	private ResultSet result;
-	private ResultProcessor resultProcessor;
+	private ResultSink sink;
 	private ExportLogger counter;
 	private Column[] columns;
 
@@ -53,9 +54,9 @@ public class DBReader implements ResultSource
 		}
 	}
 
-	public void setOutput( ResultProcessor processor )
+	public void setSink( ResultSink sink )
 	{
-		this.resultProcessor = processor;
+		this.sink = sink;
 	}
 
 	public Column[] getColumns()
@@ -65,13 +66,13 @@ public class DBReader implements ResultSource
 
 	public void init()
 	{
-		this.resultProcessor.init( this.columns );
+		this.sink.init( this.columns );
 	}
 
 	public void process() throws SQLException
 	{
 		ResultSet result = this.result;
-		ResultProcessor processor = this.resultProcessor;
+		ResultSink processor = this.sink;
 
 		while( result.next() )
 		{

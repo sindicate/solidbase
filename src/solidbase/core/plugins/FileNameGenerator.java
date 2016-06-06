@@ -32,6 +32,7 @@ class FileNameGenerator
 	protected String fileName;
 	protected boolean parameterized;
 
+
 	protected FileNameGenerator( String fileName )
 	{
 		this.fileName = fileName;

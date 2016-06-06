@@ -39,7 +39,8 @@ import solidstack.json.JSONArray;
 import solidstack.json.JSONObject;
 import solidstack.json.JSONWriter;
 
-public class JSONDataWriter implements DataProcessor
+
+public class JSONDataWriter implements RecordSink
 {
 	private Resource resource;
 	private JSONWriter jsonWriter;
@@ -49,6 +50,7 @@ public class JSONDataWriter implements DataProcessor
 	private boolean binaryGZip;
 	private SourceLocation location;
 	private Map<String, ColumnSpec> columnSpecs;
+
 
 	public JSONDataWriter( Resource resource, OutputStream out, Map<String, ColumnSpec> columnSpecs, FileSpec binaryFile, boolean binaryGZip, SourceLocation location )
 	{
@@ -76,16 +78,16 @@ public class JSONDataWriter implements DataProcessor
 		}
 	}
 
-	public void process( Object[] values ) throws SQLException
+	public void process( Object[] record ) throws SQLException
 	{
 		try
 		{
-			int columns = values.length;
+			int columns = record.length;
 
 			JSONArray array = new JSONArray();
 			for( int i = 0; i < columns; i++ )
 			{
-				Object value = values[ i ];
+				Object value = record[ i ];
 				if( value == null )
 				{
 					array.add( null );
