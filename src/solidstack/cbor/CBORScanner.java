@@ -1,30 +1,44 @@
 package solidstack.cbor;
 
 import java.io.IOException;
-import java.io.InputStream;
 
+import solidstack.cbor.CBORScanner.Token.TYPE;
 import solidstack.io.FatalIOException;
+import solidstack.io.Resource;
+import solidstack.io.SourceException;
+import solidstack.io.SourceInputStream;
+import solidstack.io.SourceLocation;
 
 public class CBORScanner
 {
-	static public enum TYPE { UINT, NINT, BSTRING, TSTRING, ARRAY, MAP, IBSTRING, ITSTRING, IARRAY, IMAP, TAG, BOOL, NULL, UNDEF, HFLOAT, SFLOAT, DFLOAT, BREAK, EOF };
-
-	private InputStream in;
+	private SourceInputStream in;
 
 
-	public CBORScanner( InputStream in )
+	public CBORScanner( SourceInputStream in )
 	{
 		this.in = in;
 	}
 
+	public Resource getResource()
+	{
+		return this.in.getResource();
+	}
+
+	public long getPos()
+	{
+		return this.in.getPos();
+	}
+
 	public Token get()
 	{
-		InputStream in = this.in;
+		SourceInputStream in = this.in;
 		try
 		{
+			long pos = in.getPos();
+
 			int b = in.read();
 			if( b == -1 )
-				return new Token( TYPE.EOF );
+				return Token.EOF;
 
 			int major = b >>> 5;
 			int minor = b & 0x1F;
@@ -33,41 +47,28 @@ public class CBORScanner
 			{
 				switch( major )
 				{
-					case 2:
-						return new Token( TYPE.IBSTRING );
-					case 3:
-						return new Token( TYPE.ITSTRING );
-					case 4:
-						return new Token( TYPE.IARRAY );
-					case 5:
-						return new Token( TYPE.IMAP );
-					case 7:
-						return new Token( TYPE.BREAK );
+					case 2: return Token.IBSTRING;
+					case 3: return Token.ITSTRING;
+					case 4: return Token.IARRAY;
+					case 5: return Token.IMAP;
+					case 7: return Token.BREAK;
 					default:
-						throw new CBORException( "Unsupported additonal info 31 for major: " + major );
+						throw new SourceException( "Unsupported additional info 31 for major type: " + major, SourceLocation.forBinary( in.getResource(), pos ) );
 				}
 			}
 
 			switch( major )
 			{
-				case 0:
-					return readUInt( in, minor, TYPE.UINT );
-				case 1:
-					return readUInt( in, minor, TYPE.NINT );
-				case 2:
-					return readUInt( in, minor, TYPE.BSTRING );
-				case 3:
-					return readUInt( in, minor, TYPE.TSTRING );
-				case 4:
-					return readUInt( in, minor, TYPE.ARRAY );
-				case 5:
-					return readUInt( in, minor, TYPE.MAP );
-				case 6:
-					return readUInt( in, minor, TYPE.TAG );
-				case 7:
-					return readSimple( in, minor, TYPE.TAG );
+				case 0: return readUInt( in, pos, minor, TYPE.UINT );
+				case 1: return readUInt( in, pos, minor, TYPE.NINT );
+				case 2: return readUInt( in, pos, minor, TYPE.BYTES );
+				case 3: return readUInt( in, pos, minor, TYPE.TEXT );
+				case 4: return readUInt( in, pos, minor, TYPE.ARRAY );
+				case 5: return readUInt( in, pos, minor, TYPE.MAP );
+				case 6: return readUInt( in, pos, minor, TYPE.TAG );
+				case 7: return readSimple( in, pos, minor, TYPE.TAG );
 				default:
-					throw new CBORException( "Unsupported major type: " + major );
+					throw new SourceException( "Unsupported major type: " + major, SourceLocation.forBinary( in.getResource(), pos ) );
 			}
 		}
 		catch( IOException e )
@@ -78,11 +79,20 @@ public class CBORScanner
 
 	public void readBytes( byte[] bytes )
 	{
+		SourceInputStream in = this.in;
+		int remaining = bytes.length;
 		try
 		{
-			int read = this.in.read( bytes );
-			if( read != bytes.length )
-				throw new CBORException( "Not enough bytes read" );
+			int read = in.read( bytes );
+			while( read < remaining )
+			{
+				if( read < 0 )
+					throw new SourceException( "Unexpected EOF", SourceLocation.forBinary( in.getResource(), in.getPos() ) );
+				if( read == 0 )
+					throw new SourceException( "Zero bytes read", SourceLocation.forBinary( in.getResource(), in.getPos() ) );
+				remaining -= read;
+				read = in.read( bytes, bytes.length - remaining, remaining );
+			}
 		}
 		catch( IOException e )
 		{
@@ -97,40 +107,29 @@ public class CBORScanner
 		return new String( result );
 	}
 
-	static private Token readSimple( InputStream in, int minor, TYPE type ) throws IOException
+	static private Token readSimple( SourceInputStream in, long pos, int minor, TYPE type ) throws IOException
 	{
 		switch( minor )
 		{
-			case 20:
-				return new Token( TYPE.BOOL, false );
-			case 21:
-				return new Token( TYPE.BOOL, true );
-			case 22:
-				return new Token( TYPE.NULL );
-			case 23:
-				return new Token( TYPE.UNDEF );
-			case 25:
-				//return new Token( TYPE.HFLOAT );
-				throw new UnsupportedOperationException( "Half precision float not supported" );
-			case 26:
-				return new Token( TYPE.SFLOAT, Float.intBitsToFloat( readUInt4( in ) ) );
-			case 27:
-				return new Token( TYPE.DFLOAT, Double.longBitsToDouble( readUInt8( in ) ) );
-			case 31:
-				return new Token( TYPE.BREAK );
+			case 20: return Token.FALSE;
+			case 21: return Token.TRUE;
+			case 22: return Token.NULL;
+			case 23: return Token.UNDEF;
+			case 25: throw new UnsupportedOperationException( "Half precision float not supported" );
+			case 26: return new Token( TYPE.SFLOAT, Float.intBitsToFloat( readUInt4( in ) ) );
+			case 27: return new Token( TYPE.DFLOAT, Double.longBitsToDouble( readUInt8( in ) ) );
+			case 31: return Token.BREAK;
 			default:
-				throw new CBORException( "Unsupported additional info: " + minor );
+				throw new SourceException( "Unsupported additional info: " + minor, SourceLocation.forBinary( in.getResource(), pos ) );
 		}
 	}
 
-	static private Token readUInt( InputStream in, int minor, TYPE type ) throws IOException
+	static private Token readUInt( SourceInputStream in, long pos, int minor, TYPE type ) throws IOException
 	{
-		if( minor == 31 )
-			new Token( type, -1 );
-		return new Token( type, readUInt( in, minor ) );
+		return new Token( type, readUInt( in, pos, minor ) );
 	}
 
-	static private long readUInt( InputStream in, int minor ) throws IOException
+	static private long readUInt( SourceInputStream in, long pos, int minor ) throws IOException
 	{
 		switch( minor )
 		{
@@ -138,49 +137,64 @@ public class CBORScanner
 			case 10: case 11: case 12: case 13: case 14: case 15: case 16: case 17: case 18: case 19:
 			case 20: case 21: case 22: case 23:
 				return minor;
-			case 24:
-				return readUInt1( in );
-			case 25:
-				return readUInt2( in );
-			case 26:
-				return readUInt4( in );
-			case 27:
-				return readUInt8( in );
+			case 24: return readUInt1( in );
+			case 25: return readUInt2( in );
+			case 26: return readUInt4( in );
+			case 27: return readUInt8( in );
 			default:
-				throw new CBORException( "Unsupported additional info: " + minor );
+				throw new SourceException( "Unsupported additional info: " + minor, SourceLocation.forBinary( in.getResource(), pos ) );
 		}
 	}
 
-	static private int readUInt1( InputStream in ) throws IOException
+	static private int readUInt1( SourceInputStream in ) throws IOException
 	{
 		int result = in.read();
 		if( result == -1 )
-			throw new CBORException( "Unexpected EOF" );
+			throw new SourceException( "Unexpected EOF", SourceLocation.forBinary( in.getResource(), in.getPos() ) );
 		return result;
 	}
 
-	static private int readUInt2( InputStream in ) throws IOException
+	static private int readUInt2( SourceInputStream in ) throws IOException
 	{
 		return readUInt1( in ) << 8 | readUInt1( in );
 	}
 
-	static private int readUInt4( InputStream in ) throws IOException
+	static private int readUInt4( SourceInputStream in ) throws IOException
 	{
 		return readUInt2( in ) << 16 | readUInt2( in );
 	}
 
-	static private long readUInt8( InputStream in ) throws IOException
+	static private long readUInt8( SourceInputStream in ) throws IOException
 	{
 		return (long)readUInt4( in ) << 32 | readUInt4( in );
 	}
 
+
 	static public class Token
 	{
+		static public enum TYPE { UINT, NINT, BYTES, TEXT, ARRAY, MAP, IBYTES, ITEXT, IARRAY, IMAP, TAG, BOOL, NULL, UNDEF, HFLOAT, SFLOAT, DFLOAT, BREAK, EOF };
+
+		static public Token EOF = new Token( TYPE.EOF );
+		static public Token IBSTRING = new Token( TYPE.IBYTES );
+		static public Token ITSTRING = new Token( TYPE.ITEXT );
+		static public Token IARRAY = new Token( TYPE.IARRAY );
+		static public Token IMAP = new Token( TYPE.IMAP );
+		static public Token BREAK = new Token( TYPE.BREAK );
+		static public Token FALSE = new Token( TYPE.BOOL, false );
+		static public Token TRUE = new Token( TYPE.BOOL, true );
+		static public Token NULL = new Token( TYPE.NULL );
+		static public Token UNDEF = new Token( TYPE.UNDEF );
+
 		private TYPE type;
 		private long value;
 		private boolean bool;
 		private float flot;
 		private double doble;
+
+		public Token( TYPE type )
+		{
+			this.type = type;
+		}
 
 		public Token( TYPE type, long value )
 		{
@@ -192,11 +206,6 @@ public class CBORScanner
 		{
 			this.type = type;
 			this.bool = value;
-		}
-
-		public Token( TYPE type )
-		{
-			this.type = type;
 		}
 
 		public Token( TYPE type, float value )
@@ -211,27 +220,27 @@ public class CBORScanner
 			this.doble = value;
 		}
 
-		public TYPE getType()
+		public TYPE type()
 		{
 			return this.type;
 		}
 
-		public long getValue()
+		public long longValue()
 		{
 			return this.value;
 		}
 
-		public double getDouble()
+		public double doubleValue()
 		{
 			return this.doble;
 		}
 
-		public Object getBoolean()
+		public boolean booleanValue()
 		{
 			return this.bool;
 		}
 
-		public int getLength()
+		public int length()
 		{
 			if( this.value < 0 || this.value > Integer.MAX_VALUE )
 				throw new CBORException( "Invalid length: " + this.value );
@@ -245,8 +254,8 @@ public class CBORScanner
 			switch( this.type )
 			{
 				case UINT:
-				case BSTRING:
-				case TSTRING:
+				case BYTES:
+				case TEXT:
 				case ARRAY:
 				case MAP:
 				case TAG:
@@ -258,8 +267,8 @@ public class CBORScanner
 				case BOOL:
 					result.append( ' ' ).append( this.bool );
 					break;
-				case IBSTRING:
-				case ITSTRING:
+				case IBYTES:
+				case ITEXT:
 				case IARRAY:
 				case IMAP:
 				case NULL:
@@ -285,8 +294,6 @@ public class CBORScanner
 			String hex = Long.toHexString( value ).toUpperCase();
 			if( hex.length() % 2 == 1 )
 				out.append( '0' );
-//			if( hex.length() == 1 )
-//				out.append( '0' );
 			out.append( hex );
 		}
 	}

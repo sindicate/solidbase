@@ -16,7 +16,7 @@
 
 package solidbase.util;
 
-import solidbase.core.SourceException;
+import solidstack.io.SourceException;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
 import solidstack.util.WindowBuffer;

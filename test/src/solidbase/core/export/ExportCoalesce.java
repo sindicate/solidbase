@@ -38,7 +38,7 @@ public class ExportCoalesce
 		SourceReader reader = SourceReaders.forResource( Resources.getResource( "export-coalesce1.csv" ), "UTF-8" );
 		try
 		{
-			CSVReader csv = new CSVReader( reader, ',', false );
+			CSVReader csv = new CSVReader( reader, ',', true, false );
 
 			String[] line = csv.getLine();
 			Assert.assertEquals( line.length, 3 );

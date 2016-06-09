@@ -36,7 +36,6 @@ import funny.Symbol;
 import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
-import solidbase.core.SourceException;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
@@ -45,6 +44,7 @@ import solidbase.util.TimeIntervalLogCounter;
 import solidstack.io.FatalIOException;
 import solidstack.io.FileResource;
 import solidstack.io.Resource;
+import solidstack.io.SourceException;
 import solidstack.io.SourceReaders;
 import solidstack.json.JSONArray;
 import solidstack.json.JSONObject;
@@ -190,12 +190,17 @@ public class DumpCBOR implements CommandListener
 						columns = source.getColumns();
 
 						JSONObject properties = new JSONObject();
-						properties.set( "version", "1.0" );
-						properties.set( "format", "record-stream" );
+						properties.set( "version", "1" );
 						properties.set( "description", "SolidBase CBOR Data Dump File" );
 						properties.set( "createdBy", new JSONObject( "product", "SolidBase", "version", "2.0.0" ) );
 						if( dateCreated )
 							properties.set( "createdDate", new Date() );
+
+						dataWriter.getCBOROutputStream().write( properties );
+
+						properties = new JSONObject();
+						properties.set( "format", "record-arrays" );
+						properties.set( "maxStringRefDictionarySize", CBORDataWriter.MAX_DICTIONARY_SIZE );
 
 						JSONArray fields = new JSONArray();
 						properties.set( "fields", fields );

@@ -20,6 +20,8 @@ import java.sql.SQLException;
 
 import org.testng.annotations.Test;
 
+import solidstack.io.SourceException;
+
 public class Import
 {
 	static private final String db = "jdbc:hsqldb:mem:testImport";
@@ -98,18 +100,7 @@ public class Import
 		catch( SourceException e )
 		{
 			assert e.getMessage().contains( "<separator>, <newline>" );
-			assert e.getMessage().contains( "at line 53" ) : "Wrong error message: " + e.getMessage();
-		}
-
-		try
-		{
-			patcher.upgrade( "4" );
-			assert false;
-		}
-		catch( SourceException e )
-		{
-			assert e.getMessage().contains( "Unexpected \"" );
-			assert e.getMessage().contains( "at line 62" );
+			assert e.getMessage().contains( "at line 52" ) : "Wrong error message: " + e.getMessage();
 		}
 
 		try
@@ -120,7 +111,7 @@ public class Import
 		catch( SQLExecutionException e )
 		{
 			assert e.getMessage().contains( "integrity constraint violation" );
-			assert e.getMessage().contains( "executing line 70" );
+			assert e.getMessage().contains( "executing line 61" ) : "Wrong error message: " + e.getMessage();
 		}
 
 		patcher.end();

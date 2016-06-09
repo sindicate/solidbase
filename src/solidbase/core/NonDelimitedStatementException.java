@@ -16,6 +16,7 @@
 
 package solidbase.core;
 
+import solidstack.io.SourceException;
 import solidstack.io.SourceLocation;
 
 

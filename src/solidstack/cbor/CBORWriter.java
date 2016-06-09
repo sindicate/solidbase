@@ -20,21 +20,45 @@ public class CBORWriter extends OutputStream
 {
 	static private enum STATE { ARRAYMAP, IARRAYMAP, IBYTES, ITEXT,  };
 
+	/* *******
+	 * 32-bit JVM or 64-bit with UseCompressedOops=true (default)
+	 *
+	 * dictionary = HashMap
+	 * 		table
+	 *		4+8		--> HashMap$Node
+	 *		4			hash
+	 *		4+8			--> key = ByteString
+	 *		4+8				--> byte[]
+	 *		1				boolean
+	 *		4			--> next
+	 *		4+8			--> value = Integer
+	 *		4				value
+	 *		3	padding
+	 */
+	static private int OVERHEAD = 64;
+
 	static private final Charset UTF8 = Charset.forName( "UTF-8" );
 
 
 	private OutputStream out;
 
-	private Map<ByteString, Integer> namespace;
-	private boolean refNSStarting;
-	private STATE state;
+	private Map<ByteString, Integer> dictionary;
+	private int dictionarySize; // TODO Should this be a long?
 
+	private boolean startNewNameSpace;
+
+	private STATE state;
 	private Stack<StateItem> states = new Stack<StateItem>();
 
 
 	public CBORWriter( OutputStream out )
 	{
 		this.out = out;
+	}
+
+	public int getDictionarySize()
+	{
+		return this.dictionarySize;
 	}
 
 	// ----- OutputStream methods
@@ -350,7 +374,7 @@ public class CBORWriter extends OutputStream
 	public CBORWriter tagRefNS()
 	{
 		writeTag( 0x100 );
-		this.refNSStarting = true;
+		this.startNewNameSpace = true;
 		return this;
 	}
 
@@ -358,10 +382,30 @@ public class CBORWriter extends OutputStream
 
 	// ----- Higher level object and array methods
 
+	public void writeInt( int i )
+	{
+		if( i < 0 )
+			writeIntN( -( i + 1 ) );
+		else
+			writeIntU( i );
+	}
+
+	public void writeLong( long l )
+	{
+		if( l < 0 )
+			writeIntN( -( l + 1 ) );
+		else
+			writeIntU( l );
+	}
+
 	public void write( Object object )
 	{
 		if( object instanceof String )
 			writeText( (String)object );
+		else if( object instanceof Integer )
+			writeInt( (Integer)object );
+		else if( object instanceof Long )
+			writeLong( (Long)object );
 		else if( object instanceof Date )
 			writeDateTime( (Date)object );
 		else if( object instanceof JSONObject )
@@ -473,19 +517,20 @@ public class CBORWriter extends OutputStream
 
 	private void clearFlags()
 	{
-		if( this.refNSStarting )
-			this.refNSStarting = false;
+		if( this.startNewNameSpace )
+			this.startNewNameSpace = false;
 	}
 
 	private void pushState( STATE state )
 	{
-		this.states.push( new StateItem( this.state, this.namespace ) );
+		this.states.push( new StateItem( this.state, this.dictionary ) );
 		this.state = state;
 
-		if( this.refNSStarting )
+		if( this.startNewNameSpace )
 		{
-			this.namespace = new HashMap<ByteString, Integer>();
-			this.refNSStarting = false;
+			this.dictionary = new HashMap<ByteString, Integer>();
+			this.dictionarySize = 0;
+			this.startNewNameSpace = false;
 		}
 	}
 
@@ -493,7 +538,17 @@ public class CBORWriter extends OutputStream
 	{
 		StateItem state = this.states.pop();
 		this.state = state.state;
-		this.namespace = state.namespace;
+		if( this.dictionary != state.dictionary )
+		{
+			this.dictionary = state.dictionary;
+			if( this.dictionary != null )
+			{
+				int size = 0;
+				for( ByteString bs : this.dictionary.keySet() )
+					size += bs.length() + OVERHEAD;
+				this.dictionarySize = size;
+			}
+		}
 	}
 
 	private void checkState()
@@ -508,10 +563,9 @@ public class CBORWriter extends OutputStream
 	{
 		clearFlags();
 
-		if( this.namespace != null )
+		if( this.dictionary != null && this.state != STATE.IBYTES && this.state != STATE.ITEXT )
 		{
-			// FIXME Not within ITEXT or IBYTES
-			Integer index = this.namespace.get( bs );
+			Integer index = this.dictionary.get( bs );
 			if( index != null )
 			{
 				writeTag( 25 );
@@ -519,15 +573,18 @@ public class CBORWriter extends OutputStream
 				return;
 			}
 
-			int index2 = this.namespace.size();
+			int index2 = this.dictionary.size();
 			if( bs.length() >= getUIntSize( index2 ) + 2 )
-				this.namespace.put( bs, index2 );
+			{
+				this.dictionary.put( bs, index2 );
+				this.dictionarySize += bs.length() + OVERHEAD;
+			}
 		}
 
 		writeBytes( major, bs.unwrap() );
 	}
 
-	// Should only be called by something that cares for the namespace
+	// Should only be called by something that cares for the dictionary
 	private void writeBytes( int major, byte[] bytes )
 	{
 		writeUInt( major, bytes.length );
@@ -544,12 +601,12 @@ public class CBORWriter extends OutputStream
 	static private class StateItem
 	{
 		STATE state;
-		Map<ByteString, Integer> namespace;
+		Map<ByteString, Integer> dictionary;
 
-		StateItem( STATE state, Map<ByteString, Integer> namespace )
+		StateItem( STATE state, Map<ByteString, Integer> dictionary )
 		{
 			this.state = state;
-			this.namespace = namespace;
+			this.dictionary = dictionary;
 		}
 	}
 }

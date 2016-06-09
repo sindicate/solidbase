@@ -102,6 +102,12 @@ public class CoalescerProcessor implements RecordSink, RecordSource
 		this.sink.init( this.columns );
 	}
 
+	@Override
+	public void start()
+	{
+		this.sink.start();
+	}
+
 	public void process( Object[] record ) throws SQLException
 	{
 		int count = this.mapping.length;
@@ -120,6 +126,12 @@ public class CoalescerProcessor implements RecordSink, RecordSource
 		}
 
 		this.sink.process( newValues );
+	}
+
+	@Override
+	public void end()
+	{
+		this.sink.end();
 	}
 
 	static class Mapping

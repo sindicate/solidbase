@@ -11,13 +11,13 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import solidbase.core.SQLExecutionException;
-import solidbase.core.SourceException;
 import solidbase.util.CloseQueue;
 import solidbase.util.JDBCSupport;
 import solidstack.io.FatalIOException;
 import solidstack.io.Resource;
 import solidstack.io.SegmentedInputStream;
 import solidstack.io.SegmentedReader;
+import solidstack.io.SourceException;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
 import solidstack.json.JSONArray;
@@ -34,8 +34,7 @@ public class JSONDataReader // TODO implements RecordSource
 	private boolean prependLineNumber;
 	private ImportLogger counter;
 
-	private RecordSink output;
-	private boolean done;
+	private RecordSink sink;
 
 	private String binaryFile;
 	private Column[] columns;
@@ -85,12 +84,13 @@ public class JSONDataReader // TODO implements RecordSource
 
 	public void setOutput( RecordSink output )
 	{
-		this.output = output;
+		this.sink = output;
 	}
 
 	public void process() throws SQLException
 	{
-		this.output.init( this.columns );
+		this.sink.init( this.columns );
+		this.sink.start();
 
 		// Queues that will remember the files we need to close
 		CloseQueue outerCloser = new CloseQueue();
@@ -110,6 +110,8 @@ public class JSONDataReader // TODO implements RecordSource
 				{
 					// End of file, finalize things
 					Assert.isTrue( this.reader.isEOF() );
+
+					this.sink.end();
 
 					if( this.counter != null )
 						this.counter.end();
@@ -268,7 +270,7 @@ public class JSONDataReader // TODO implements RecordSource
 
 				try
 				{
-					this.output.process( values );
+					this.sink.process( values );
 				}
 				catch( SourceException e )
 				{

@@ -50,6 +50,11 @@ public class CSVDataWriter implements RecordSink
 		}
 	}
 
+	@Override
+	public void start()
+	{
+	}
+
 	public void process( Object[] record ) throws SQLException
 	{
 		try
@@ -80,6 +85,11 @@ public class CSVDataWriter implements RecordSink
 		{
 			throw new FatalIOException( e );
 		}
+	}
+
+	@Override
+	public void end()
+	{
 	}
 
 	public void close()

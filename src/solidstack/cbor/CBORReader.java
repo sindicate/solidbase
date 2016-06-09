@@ -1,16 +1,14 @@
 package solidstack.cbor;
 
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.Stack;
 
-import solidstack.cbor.CBORScanner.TYPE;
 import solidstack.cbor.CBORScanner.Token;
+import solidstack.cbor.CBORScanner.Token.TYPE;
+import solidstack.io.SourceException;
+import solidstack.io.SourceInputStream;
+import solidstack.io.SourceLocation;
 import solidstack.json.JSONArray;
 import solidstack.json.JSONObject;
 
@@ -19,24 +17,20 @@ public class CBORReader
 {
 	static private enum STATE { IBYTES, ITEXT, ARRAYMAP };
 
-	private CBORScanner in;
-
-	private List<Object> namespace;
-	private STATE state;
-	private Stack<StateItem> states = new Stack<StateItem>();
+	private CBORParser in;
 
 	private DiskBuffer disk = new DiskBuffer( "cborbuffer" );
 
 
-	public CBORReader( InputStream in )
+	public CBORReader( SourceInputStream in )
 	{
-		this.in = new CBORScanner( in );
+		this.in = new CBORParser( in );
 	}
 
-	public CBORScanner getCBORScanner()
-	{
-		return this.in;
-	}
+//	public CBORScanner getCBORScanner()
+//	{
+//		return this.in;
+//	}
 
 	public void close()
 	{
@@ -51,164 +45,83 @@ public class CBORReader
 
 	public Object read()
 	{
-		CBORScanner in = this.in;
+		CBORParser in = this.in;
+		long pos = in.getPos();
 		Token t = in.get();
-		TYPE type = t.getType();
+		TYPE type = t.type();
 		switch( type )
 		{
 			case TAG:
-				checkState();
-				if( t.getValue() == 0x19 )
+				if( t.longValue() == 0x19 )
 				{
 					t = in.get();
-					if( t.getType() != TYPE.UINT )
-						throw new CBORException( "Expected an UINT, not " + t.getType() );
-					return this.namespace.get( t.getLength() );
+					if( t.type() != TYPE.UINT )
+						throw new SourceException( "Expected a UINT, not " + t, SourceLocation.forBinary( in.getResource(), pos ) );
+					return this.in.getFromNamespace( t.length() );
 				}
-				else if( t.getValue() == 0x01 )
+				if( t.longValue() == 0x01 )
 				{
 					t = in.get();
-					if( t.getType() != TYPE.UINT )
-						throw new CBORException( "Expected an UINT, not " + t.getType() );
-					return new Date( t.getValue() );
+					if( t.type() != TYPE.UINT )
+						throw new SourceException( "Expected a UINT, not " + t, SourceLocation.forBinary( in.getResource(), pos ) );
+					return new Date( t.longValue() );
 				}
-				else if( t.getValue() == 0x100 )
-					this.namespace = new ArrayList<Object>();
-				return read(); // Ignore rest of the tags
+				if( t.longValue() == 0x100 )
+					return read();
+				throw new UnsupportedOperationException( "Unsupported token: " + t );
 
 			case MAP:
-				checkState();
-				pushState( STATE.ARRAYMAP );
-				int len = t.getLength();
+				int len = t.length();
 				JSONObject object = new JSONObject();
 				for( int i = 0; i < len; i++ )
-					object.set( (String)readNoStream(), readNoStream() ); // TODO Throw better exception for the cast?
-				popState();
+					object.set( (String)read(), read() ); // TODO Throw better exception for the cast?
 				return object;
 
 			case ARRAY:
-				checkState();
-				pushState( STATE.ARRAYMAP );
-				len = t.getLength();
+				len = t.length();
 				JSONArray array = new JSONArray();
 				for( int i = 0; i < len; i++ )
-					array.add( readNoStream() );
-				popState();
+					array.add( read() );
 				return array;
 
 			case IARRAY:
-				checkState();
-				pushState( STATE.ARRAYMAP );
 				array = new JSONArray();
-				for( Object o = readNoStream(); o != null; o = readNoStream() )
+				for( Object o = read(); o != null; o = read() )
 					array.add( o );
-//				popState();
 				return array;
 
-			case BSTRING:
-				if( this.state == STATE.ITEXT )
-					throw new IllegalStateException( "Only text strings allowed" );
-				len = t.getLength();
-				byte[] bytes = new byte[ len ];
-				in.readBytes( bytes );
-				if( this.namespace != null )
-				{
-					int index = this.namespace.size();
-					if( len >= CBORWriter.getUIntSize( index ) + 2 )
-						this.namespace.add( bytes );
-				}
+			case BYTES:
+				byte[] bytes = new byte[ t.length() ];
+				this.in.readBytes( bytes );
 				return bytes;
 
-			case TSTRING:
-				if( this.state == STATE.IBYTES )
-					throw new IllegalStateException( "Only byte strings allowed" );
-				len = t.getLength();
-				String s = in.readString( len );
-				if( this.namespace != null )
-				{
-					int index = this.namespace.size();
-					if( len >= CBORWriter.getUIntSize( index ) + 2 )
-						this.namespace.add( s );
-				}
-				return s;
+			case TEXT:
+				len = t.length();
+				return this.in.readString( len );
 
-			case ITSTRING:
-			{
-				checkState();
-				pushState( STATE.ITEXT );
-				Reader result = new InputStreamReader( this.disk.buffer( new CBORBytesInputStream( in ) ), Charset.forName( "UTF-8" ) );
-				popState();
-				return result;
-			}
+			case ITEXT:
+				// TODO If only 1 TSTRING then return normal String
+				return new InputStreamReader( this.disk.buffer( new CBORBytesInputStream( this.in ) ), Charset.forName( "UTF-8" ) );
 
-			case IBSTRING:
-				checkState();
-				pushState( STATE.IBYTES );
-				InputStream result = this.disk.buffer( new CBORBytesInputStream( in ) );
-				popState();
-				return result;
+			case IBYTES:
+				// TODO If only 1 BSTRING then return normal byte[]
+				return this.disk.buffer( new CBORBytesInputStream( this.in ) );
 
 			case UINT:
-				checkState();
-				return t.getValue();
+				return t.longValue();
 
 			case DFLOAT:
-				checkState();
-				return t.getDouble();
+				return t.doubleValue();
 
 			case BOOL:
-				checkState();
-				return t.getBoolean();
+				return t.booleanValue();
 
 			case BREAK:
-				popState();
-				//$FALL-THROUGH$
 			case EOF:
 				return null;
 
 			default:
-				throw new UnsupportedOperationException( type.toString() );
-		}
-	}
-
-	public Object readNoStream()
-	{
-		Object result = read();
-		if( result instanceof Reader || result instanceof InputStream )
-			throw new UnsupportedOperationException( result.getClass().getName() );
-		return result;
-	}
-
-	private void pushState( STATE state )
-	{
-		this.states.push( new StateItem( this.state, this.namespace ) );
-		this.state = state;
-	}
-
-	private void popState()
-	{
-		StateItem state = this.states.pop();
-		this.state = state.state;
-		this.namespace = state.namespace;
-	}
-
-	private void checkState()
-	{
-		if( this.state == STATE.IBYTES )
-			throw new IllegalStateException( "Only byte strings allowed" );
-		if( this.state == STATE.ITEXT )
-			throw new IllegalStateException( "Only text strings allowed" );
-	}
-
-	static private class StateItem
-	{
-		STATE state;
-		List<Object> namespace;
-
-		StateItem( STATE state, List<Object> namespace )
-		{
-			this.state = state;
-			this.namespace = namespace;
+				throw new UnsupportedOperationException( "Unsupported token: " + t );
 		}
 	}
 }

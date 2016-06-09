@@ -18,7 +18,6 @@ package solidbase.core.plugins;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,6 @@ import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.FatalException;
-import solidbase.core.SourceException;
 import solidbase.util.Assert;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.LogCounter;
@@ -40,6 +38,8 @@ import solidbase.util.SQLTokenizer.Token;
 import solidbase.util.TimeIntervalLogCounter;
 import solidstack.io.FatalIOException;
 import solidstack.io.Resource;
+import solidstack.io.SourceException;
+import solidstack.io.SourceInputStream;
 import solidstack.io.SourceReaders;
 
 
@@ -69,10 +69,10 @@ public class LoadCBOR implements CommandListener
 		// Open the file resource
 		Resource resource = processor.getResource().resolve( parsed.fileName );
 		resource.setGZip( parsed.gzip );
-		InputStream in;
+		SourceInputStream in;
 		try
 		{
-			in = resource.newInputStream();
+			in = SourceReaders.forBinaryResource( resource );
 		}
 		catch( FileNotFoundException e )
 		{

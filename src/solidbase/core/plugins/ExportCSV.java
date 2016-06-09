@@ -31,7 +31,6 @@ import java.util.zip.GZIPOutputStream;
 import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
-import solidbase.core.SourceException;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
@@ -40,6 +39,7 @@ import solidbase.util.TimeIntervalLogCounter;
 import solidstack.io.FatalIOException;
 import solidstack.io.Resource;
 import solidstack.io.Resources;
+import solidstack.io.SourceException;
 import solidstack.io.SourceReaders;
 
 

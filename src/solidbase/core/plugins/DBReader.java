@@ -72,15 +72,17 @@ public class DBReader implements ResultSource
 	public void process() throws SQLException
 	{
 		ResultSet result = this.result;
-		ResultSink processor = this.sink;
+		ResultSink sink = this.sink;
 
+		sink.start();
 		while( result.next() )
 		{
-			processor.process( result );
+			sink.process( result );
 
 			if( this.counter != null )
 				this.counter.count();
 		}
+		sink.end();
 
 		if( this.counter != null )
 			this.counter.end();

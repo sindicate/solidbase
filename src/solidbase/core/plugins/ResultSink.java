@@ -23,5 +23,7 @@ import java.sql.SQLException;
 public interface ResultSink
 {
 	void init( Column[] columns );
+	void start();
 	void process( ResultSet result ) throws SQLException;
+	void end();
 }

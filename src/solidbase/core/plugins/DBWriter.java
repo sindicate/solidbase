@@ -11,8 +11,8 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import solidbase.core.CommandProcessor;
 import solidbase.core.SQLExecutionException;
-import solidbase.core.SourceException;
 import solidbase.core.SystemException;
+import solidstack.io.SourceException;
 
 public class DBWriter implements RecordSink
 {
@@ -115,6 +115,11 @@ public class DBWriter implements RecordSink
 		return this.processor.prepareStatement( sql );
 	}
 
+	@Override
+	public void start()
+	{
+	}
+
 	public void process( Object[] record ) throws SQLException
 	{
 		if( this.statement == null )
@@ -165,6 +170,11 @@ public class DBWriter implements RecordSink
 		}
 	}
 
+	@Override
+	public void end()
+	{
+	}
+
 	static private String buildMessage( String sql, int[] parameterMap, Object[] values )
 	{
 		StringBuilder result = new StringBuilder( sql );
@@ -188,7 +198,6 @@ public class DBWriter implements RecordSink
 		result.append( ')' );
 		return result.toString();
 	}
-
 
 	/**
 	 * Replaces arguments within the given value with ? and maintains a map.

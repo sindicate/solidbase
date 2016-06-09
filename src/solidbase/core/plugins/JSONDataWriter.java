@@ -29,11 +29,11 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
-import solidbase.core.SourceException;
 import solidstack.io.DeferringWriter;
 import solidstack.io.FatalIOException;
 import solidstack.io.FileResource;
 import solidstack.io.Resource;
+import solidstack.io.SourceException;
 import solidstack.io.SourceLocation;
 import solidstack.json.JSONArray;
 import solidstack.json.JSONObject;
@@ -76,6 +76,11 @@ public class JSONDataWriter implements RecordSink
 						this.fileSpecs[ i ] = columnSpec.toFile;
 				}
 		}
+	}
+
+	@Override
+	public void start()
+	{
 	}
 
 	public void process( Object[] record ) throws SQLException
@@ -265,6 +270,11 @@ public class JSONDataWriter implements RecordSink
 		{
 			throw new FatalIOException( e );
 		}
+	}
+
+	@Override
+	public void end()
+	{
 	}
 
 	public void close()

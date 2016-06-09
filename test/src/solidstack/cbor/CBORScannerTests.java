@@ -23,8 +23,8 @@ public class CBORScannerTests
 		String s = toString.toString();
 		System.out.println( s );
 		Assertions.assertThat( s ).isEqualTo( "IARRAY\n"
-				+ "    TSTRING 05: \"text1\"\n"
-				+ "    TSTRING 05: \"text1\"\n"
+				+ "    TEXT 05: \"text1\"\n"
+				+ "    TEXT 05: \"text1\"\n"
 				+ "BREAK\n" );
 	}
 
@@ -53,16 +53,16 @@ public class CBORScannerTests
 		String s = toString.toString();
 		System.out.println( s );
 		Assertions.assertThat( s ).isEqualTo( "TAG 0100 IARRAY\n"
-				+ "    TSTRING 05: \"text1\"\n"
-				+ "    TSTRING 03: \"te1\"\n"
+				+ "    TEXT 05: \"text1\"\n"
+				+ "    TEXT 03: \"te1\"\n"
 				+ "    TAG 19 UINT 00\n"
 				+ "    TAG 19 UINT 01\n"
-				+ "    TSTRING 02: \"t2\"\n"
-				+ "    TSTRING 02: \"t2\"\n"
+				+ "    TEXT 02: \"t2\"\n"
+				+ "    TEXT 02: \"t2\"\n"
 				+ "    IARRAY\n"
 				+ "        TAG 19 UINT 00\n"
 				+ "        TAG 19 UINT 01\n"
-				+ "        TSTRING 02: \"t2\"\n"
+				+ "        TEXT 02: \"t2\"\n"
 				+ "    BREAK\n"
 				+ "BREAK\n" );
 	}
@@ -86,11 +86,11 @@ public class CBORScannerTests
 		String s = toString.toString();
 		System.out.println( s );
 		Assertions.assertThat( s ).isEqualTo( "IARRAY\n"
-				+ "    TSTRING 05: \"test1\"\n"
-				+ "    TSTRING 05: \"test1\"\n"
+				+ "    TEXT 05: \"test1\"\n"
+				+ "    TEXT 05: \"test1\"\n"
 				+ "    IARRAY\n"
-				+ "        TSTRING 05: \"test2\"\n"
-				+ "        TSTRING 05: \"test2\"\n"
+				+ "        TEXT 05: \"test2\"\n"
+				+ "        TEXT 05: \"test2\"\n"
 				+ "    BREAK\n"
 				+ "BREAK\n" );
 	}
@@ -114,11 +114,11 @@ public class CBORScannerTests
 		String s = toString.toString();
 		System.out.println( s );
 		Assertions.assertThat( s ).isEqualTo( "IMAP\n"
-				+ "    TSTRING 05: \"test1\"\n"
-				+ "    TSTRING 05: \"test1\"\n"
+				+ "    TEXT 05: \"test1\"\n"
+				+ "    TEXT 05: \"test1\"\n"
 				+ "    IMAP\n"
-				+ "        TSTRING 05: \"test2\"\n"
-				+ "        TSTRING 05: \"test2\"\n"
+				+ "        TEXT 05: \"test2\"\n"
+				+ "        TEXT 05: \"test2\"\n"
 				+ "    BREAK\n"
 				+ "BREAK\n" );
 	}

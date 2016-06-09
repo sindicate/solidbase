@@ -16,7 +16,7 @@
 
 package solidbase.util;
 
-import solidbase.core.SourceException;
+import solidstack.io.SourceException;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
 
@@ -37,6 +37,8 @@ public class CSVTokenizer
 	 * The CSV separator.
 	 */
 	protected int separator;
+
+	protected boolean escape;
 
 	/**
 	 * If true, whitespace is ignored around the values, but not inside double quoted values.
@@ -61,10 +63,11 @@ public class CSVTokenizer
 	 * @param separator The CSV separator.
 	 * @param ignoreWhiteSpace Ignore white space, except white space enclosed in double quotes.
 	 */
-	public CSVTokenizer( SourceReader in, int separator, boolean ignoreWhiteSpace )
+	public CSVTokenizer( SourceReader in, int separator, boolean escape, boolean ignoreWhiteSpace )
 	{
 		this.in = in;
 		this.separator = separator;
+		this.escape = escape;
 		this.ignoreWhiteSpace = ignoreWhiteSpace;
 	}
 
@@ -105,7 +108,7 @@ public class CSVTokenizer
 				ch = this.in.read();
 
 		// Read a string enclosed by "
-		if( ch == '"' )
+		if( ch == '"' && this.escape )
 		{
 			while( true )
 			{
@@ -141,8 +144,8 @@ public class CSVTokenizer
 		whiteSpace.setLength( 0 );
 		do
 		{
-			if( ch == '"' )
-				throw new SourceException( "Unexpected \"", this.in.getLocation() );
+//			if( ch == '"' )
+//				throw new SourceException( "Unexpected \"", this.in.getLocation() );
 			if( ignoreWhiteSpace )
 			{
 				if( isWhitespace( ch ) )

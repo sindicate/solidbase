@@ -74,6 +74,13 @@ public class SelectProcessor implements RecordSink, RecordSource
 		this.sink = sink;
 	}
 
+	@Override
+	public void start()
+	{
+		this.sink.start();
+	}
+
+	@Override
 	public void process( Object[] record ) throws SQLException
 	{
 		int[] mapping = this.mapping;
@@ -81,6 +88,12 @@ public class SelectProcessor implements RecordSink, RecordSource
 		for( int i = 0; i < mapping.length; i++ )
 			mappedRecord[ i ] = record[ mapping[ i ] ];
 		this.sink.process( mappedRecord );
+	}
+
+	@Override
+	public void end()
+	{
+		this.sink.end();
 	}
 
 	@Override

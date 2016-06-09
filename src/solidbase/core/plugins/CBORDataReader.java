@@ -1,14 +1,15 @@
 package solidbase.core.plugins;
 
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import solidbase.util.JDBCSupport;
 import solidstack.cbor.CBORReader;
-import solidstack.cbor.CBORScanner.TYPE;
 import solidstack.cbor.CBORScanner.Token;
+import solidstack.cbor.CBORScanner.Token.TYPE;
+import solidstack.io.SourceException;
+import solidstack.io.SourceInputStream;
 import solidstack.json.JSONArray;
 import solidstack.json.JSONObject;
 import solidstack.lang.ThreadInterrupted;
@@ -19,20 +20,24 @@ public class CBORDataReader // TODO implements RecordSource
 	private CBORReader in;
 	private ImportLogger counter;
 
-	private DBWriter output;
+	private RecordSink sink;
 
 	private Column[] columns;
 	private String[] fieldNames;
 	private String[] fileNames;
 
 
-	public CBORDataReader( InputStream in, ImportLogger counter )
+	public CBORDataReader( SourceInputStream in, ImportLogger counter )
 	{
 		this.in = new CBORReader( in );
 		this.counter = counter;
 
-		// Read the header
-		JSONObject properties = (JSONObject)this.in.readNoStream();
+		// Read the header of the file
+		JSONObject properties = (JSONObject)this.in.read();
+		// TODO Check the version
+
+		// Read the header of the data block
+		properties = (JSONObject)this.in.read();
 
 		// The fields
 		JSONArray fields = properties.getArray( "fields" );
@@ -60,32 +65,46 @@ public class CBORDataReader // TODO implements RecordSource
 		return this.fieldNames;
 	}
 
-	public void setOutput( DBWriter output )
+	public void setOutput( RecordSink sink )
 	{
-		this.output = output;
+		this.sink = sink;
 	}
 
 	public void process() throws SQLException
 	{
-		this.output.init( this.columns );
+		this.sink.init( this.columns );
+		this.sink.start();
 
-		for( Token t = this.in.get(); t.getType() == TYPE.ARRAY; t = this.in.get() )
+		Token t;
+		for( t = this.in.get(); t.type() == TYPE.IARRAY; )
 		{
-			// Detect interruption
-			if( Thread.currentThread().isInterrupted() ) // TODO Is this the right spot during an upgrade?
-				throw new ThreadInterrupted();
+			for( t = this.in.get(); t.type() == TYPE.ARRAY;  )
+			{
+				int len = t.length(); // TODO Check array length
 
-			List<Object> values = new ArrayList<Object>( this.columns.length );
-			for( Object value = this.in.read(); value != null; value = this.in.read() )
-				values.add( value );
+				// Detect interruption
+				if( Thread.currentThread().isInterrupted() ) // TODO Is this the right spot during an upgrade?
+					throw new ThreadInterrupted();
 
-			this.output.process( values.toArray() );
+				List<Object> values = new ArrayList<Object>( this.columns.length );
+				for( int i = 0; i < len; i++ )
+					values.add( this.in.read() );
 
-			if( this.counter != null )
-				this.counter.count();
+				this.sink.process( values.toArray() );
+
+				if( this.counter != null )
+					this.counter.count();
+
+				t = this.in.get();
+			}
 		}
+
+		if( t.type() != TYPE.BREAK )
+			throw new SourceException( "Expected a BREAK, not " + t, null );
 
 		if( this.counter != null )
 			this.counter.end();
+
+		this.sink.end();
 	}
 }

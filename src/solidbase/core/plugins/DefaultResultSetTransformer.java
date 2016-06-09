@@ -38,6 +38,12 @@ public class DefaultResultSetTransformer implements ResultSink, RecordSource
 	}
 
 	@Override
+	public void start()
+	{
+		this.sink.start();
+	}
+
+	@Override
 	public void process( ResultSet result ) throws SQLException
 	{
 		int colCount = this.columns.length;
@@ -91,5 +97,11 @@ public class DefaultResultSetTransformer implements ResultSink, RecordSource
 		}
 
 		this.sink.process( values );
+	}
+
+	@Override
+	public void end()
+	{
+		this.sink.end();
 	}
 }

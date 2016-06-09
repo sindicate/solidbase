@@ -1,10 +1,15 @@
 package solidstack.cbor;
 
 import java.io.ByteArrayInputStream;
+import java.io.CharArrayWriter;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.Writer;
 
-import solidstack.cbor.CBORScanner.TYPE;
 import solidstack.cbor.CBORScanner.Token;
+import solidstack.cbor.CBORScanner.Token.TYPE;
+import solidstack.io.FatalIOException;
+import solidstack.io.SourceInputStream;
 
 public class CBORToString
 {
@@ -18,130 +23,140 @@ public class CBORToString
 
 	public CBORToString( byte[] bytes )
 	{
-		this( new CBORScanner( new ByteArrayInputStream( bytes ) ) );
+		this( new CBORScanner( new SourceInputStream( new ByteArrayInputStream( bytes ), null, 0 ) ) );
 	}
 
 	public CBORToString( InputStream in )
 	{
-		this( new CBORScanner( in ) );
+		this( new CBORScanner( new SourceInputStream( in, null, 0 ) ) );
 	}
 
 	@Override
 	public String toString()
 	{
-		StringBuilder result = new StringBuilder();
+		CharArrayWriter out = new CharArrayWriter();
+		toString( out );
+		return out.toString();
+	}
 
+	public void toString( Writer out )
+	{
 		CBORScanner in = this.in;
 		int indent = 0;
 
-		boolean eof = toString( in, result, indent );
-		while( !eof )
-			eof = toString( in, result, indent );
-
-		return result.toString();
+		try
+		{
+			boolean eof = toString( in, out, indent );
+			while( !eof )
+				eof = toString( in, out, indent );
+		}
+		catch( IOException e )
+		{
+			throw new FatalIOException( e );
+		}
 	}
 
-	private boolean toString( CBORScanner in, StringBuilder result, int indent )
+	private boolean toString( CBORScanner in, Writer out, int indent ) throws IOException
 	{
 		Token t = in.get();
-		if( t.getType() == TYPE.EOF )
+		if( t.type() == TYPE.EOF )
 			return true;
-		if( t.getType() == TYPE.BREAK )
+		if( t.type() == TYPE.BREAK )
 		{
-			toString( t, in, result, indent - 4 );
+			toString( t, in, out, indent - 4 );
 			return true;
 		}
-		toString( t, in, result, indent );
+		toString( t, in, out, indent );
 		return false;
 	}
 
-	private void toString( Token token, CBORScanner in, StringBuilder result, int indent )
+	private void toString( Token token, CBORScanner in, Writer out, int indent ) throws IOException
 	{
 		if( indent > 0 )
 		{
 			if( indent > this.spaces.length() )
 				this.spaces += this.spaces;
-			result.append( this.spaces.substring( 0, indent ) );
+			out.append( this.spaces.substring( 0, indent ) );
 		}
 
-		result.append( token );
+		out.append( token.toString() );
 
-		TYPE type = token.getType();
+		TYPE type = token.type();
 		switch( type )
 		{
-			case BSTRING:
-				byte[] bytes = new byte[ token.getLength() ];
+			case BYTES:
+				byte[] bytes = new byte[ token.length() ];
 				in.readBytes( bytes );
-				result.append( ':' );
-				appendHex( result, bytes );
-				result.append( '\n' );
+				out.append( ':' );
+				appendHex( out, bytes );
+				out.append( '\n' );
 				break;
 
-			case TSTRING:
-				result.append( ": \"" );
-				appendString( result, in.readString( token.getLength() ) );
-				result.append( "\"\n" );
+			case TEXT:
+				out.append( ": \"" );
+				appendString( out, in.readString( token.length() ) );
+				out.append( "\"\n" );
 				break;
 
 			case TAG:
-				result.append( ' ' );
-				toString( in, result, 0 );
+				out.append( ' ' );
+				toString( in, out, 0 );
 				break;
 
 			case ARRAY:
-				result.append( '\n' );
-				int len = token.getLength();
+				out.append( '\n' );
+				int len = token.length();
 				indent += 4;
 				for( int i = 0; i < len; i++ )
-					toString( in, result, indent );
+					toString( in, out, indent );
 				break;
 
 			case IARRAY:
-				result.append( '\n' );
+				out.append( '\n' );
 				indent += 4;
-				boolean eof = toString( in, result, indent );
+				boolean eof = toString( in, out, indent );
 				while( !eof )
-					eof = toString( in, result, indent );
+					eof = toString( in, out, indent );
 				break;
 
 			case MAP:
-				result.append( '\n' );
-				len = token.getLength() * 2;
+				out.append( '\n' );
+				len = token.length() * 2;
 				indent += 4;
 				for( int i = 0; i < len; i++ )
-					toString( in, result, indent );
+					toString( in, out, indent );
 				break;
 
 			case IMAP:
-				result.append( '\n' );
+				out.append( '\n' );
 				indent += 4;
-				eof = toString( in, result, indent );
+				eof = toString( in, out, indent );
 				while( !eof )
-					eof = toString( in, result, indent );
+					eof = toString( in, out, indent );
 				break;
 
-			case IBSTRING:
-				result.append( '\n' );
+			case IBYTES:
+				out.append( '\n' );
 				indent += 4;
-				eof = toString( in, result, indent );
+				eof = toString( in, out, indent );
 				while( !eof )
-					eof = toString( in, result, indent );
+					eof = toString( in, out, indent );
 				break;
 
-			case ITSTRING:
-				result.append( '\n' );
+			case ITEXT:
+				out.append( '\n' );
 				indent += 4;
-				eof = toString( in, result, indent );
+				eof = toString( in, out, indent );
 				while( !eof )
-					eof = toString( in, result, indent );
+					eof = toString( in, out, indent );
 				break;
 
 			default:
-				result.append( '\n' );
+				out.append( '\n' );
 		}
 	}
 
-	private void appendHex( StringBuilder out, byte[] bytes )
+	private void appendHex( Writer out, byte[] bytes ) throws IOException
 	{
 		for( byte b : bytes )
 		{
@@ -153,7 +168,7 @@ public class CBORToString
 		}
 	}
 
-	private void appendString( StringBuilder out, String s )
+	private void appendString( Writer out, String s ) throws IOException
 	{
 		for( char ch : s.toCharArray() )
 		{

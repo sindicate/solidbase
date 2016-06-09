@@ -3,7 +3,7 @@ package solidbase.core.plugins;
 import java.sql.SQLException;
 import java.sql.Types;
 
-import solidbase.core.SourceException;
+import solidstack.io.SourceException;
 
 
 public class DefaultToResultSetTransformer implements RecordSink, RecordSource
@@ -22,6 +22,12 @@ public class DefaultToResultSetTransformer implements RecordSink, RecordSource
 	{
 		this.columns = columns;
 		this.sink.init( columns );
+	}
+
+	@Override
+	public void start()
+	{
+		this.sink.start();
 	}
 
 	@Override
@@ -58,6 +64,12 @@ public class DefaultToResultSetTransformer implements RecordSink, RecordSource
 		}
 
 		this.sink.process( record );
+	}
+
+	@Override
+	public void end()
+	{
+		this.sink.end();
 	}
 
 	@Override

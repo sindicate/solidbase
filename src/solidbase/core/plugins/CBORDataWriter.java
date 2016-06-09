@@ -30,6 +30,8 @@ import solidstack.cbor.CBORWriter;
 
 public class CBORDataWriter implements RecordSink
 {
+	static public final int MAX_DICTIONARY_SIZE = 0x4000000;
+
 	private CBORWriter out;
 	private Map<String, ColumnSpec> columnSpecs;
 
@@ -69,13 +71,27 @@ public class CBORDataWriter implements RecordSink
 		this.out.close();
 	}
 
+	@Override
+	public void start()
+	{
+		this.out.tagRefNS();
+		this.out.startArray();
+	}
+
 	public void process( Object[] record ) throws SQLException
 	{
+		CBORWriter out = this.out;
+
+		if( out.getDictionarySize() >= MAX_DICTIONARY_SIZE ) // 64 MB
+		{
+			out.end();
+			this.out.tagRefNS();
+			this.out.startArray();
+		}
+
 		int columns = record.length;
 		if( this.columns.length != columns )
 			throw new IllegalStateException( "Column count mismatch" );
-
-		CBORWriter out = this.out;
 
 		out.startArray( columns );
 
@@ -94,21 +110,9 @@ public class CBORDataWriter implements RecordSink
 			else if( value instanceof RowId )
 				out.writeBytes( ( (RowId)value ).getBytes() ); // TODO Need a tag for this?
 			else if( value instanceof Integer )
-			{
-				int v = (Integer)value;
-				if( v < 0 )
-					out.writeIntN( -( v + 1 ) );
-				else
-					out.writeIntU( v );
-			}
+				out.writeInt( (Integer)value );
 			else if( value instanceof Long )
-			{
-				long v = (Long)value;
-				if( v < 0 )
-					out.writeIntN( -( v + 1 ) );
-				else
-					out.writeIntU( v );
-			}
+				out.writeLong( (Long)value );
 			else if( value instanceof Float )
 				out.writeFloatS( (Float)value );
 			else if( value instanceof Double )
@@ -126,5 +130,11 @@ public class CBORDataWriter implements RecordSink
 		}
 
 		out.end();
+	}
+
+	@Override
+	public void end()
+	{
+		this.out.end();
 	}
 }

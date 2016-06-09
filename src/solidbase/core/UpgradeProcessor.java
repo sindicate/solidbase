@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import solidbase.util.Assert;
 import solidstack.io.FatalIOException;
 import solidstack.io.Resource;
+import solidstack.io.SourceException;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
 import solidstack.lang.ThreadInterrupted;

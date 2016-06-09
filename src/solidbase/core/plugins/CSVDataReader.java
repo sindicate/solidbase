@@ -4,8 +4,8 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import solidbase.core.SQLExecutionException;
-import solidbase.core.SourceException;
 import solidbase.util.CSVReader;
+import solidstack.io.SourceException;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
 import solidstack.lang.ThreadInterrupted;
@@ -17,14 +17,14 @@ public class CSVDataReader // TODO implements RecordSource
 	private boolean prependLineNumber;
 	private ImportLogger counter;
 
-	private RecordSink output;
+	private RecordSink sink;
 	private boolean done;
 
 
-	public CSVDataReader( SourceReader sourceReader, boolean skipHeader, char separator, boolean ignoreWhiteSpace, boolean prependLineNumber, ImportLogger counter )
+	public CSVDataReader( SourceReader sourceReader, boolean skipHeader, char separator, boolean escape, boolean ignoreWhiteSpace, boolean prependLineNumber, ImportLogger counter )
 	{
 		// Initialize csv reader & read first line (and skip header if needed)
-		this.reader = new CSVReader( sourceReader, separator, ignoreWhiteSpace );
+		this.reader = new CSVReader( sourceReader, separator, escape, ignoreWhiteSpace );
 		this.prependLineNumber = prependLineNumber;
 		this.counter = counter;
 
@@ -38,7 +38,7 @@ public class CSVDataReader // TODO implements RecordSource
 
 	public void setOutput( RecordSink output )
 	{
-		this.output = output;
+		this.sink = output;
 	}
 
 	public void process() throws SQLException
@@ -69,13 +69,14 @@ public class CSVDataReader // TODO implements RecordSource
 				Column[] columns = new Column[ line.length ];
 				for( int i = 0; i < columns.length; i++ )
 					columns[ i ] = new Column( null, Types.VARCHAR, null, null );
-				this.output.init( columns );
+				this.sink.init( columns );
 				initDone = true;
 			}
 
+			this.sink.start();
 			try
 			{
-				this.output.process( line );
+				this.sink.process( line );
 			}
 			catch( SourceException e )
 			{
@@ -87,6 +88,7 @@ public class CSVDataReader // TODO implements RecordSource
 				e.setLocation( location );
 				throw e;
 			}
+			this.sink.end();
 
 			if( this.counter != null )
 				this.counter.count();

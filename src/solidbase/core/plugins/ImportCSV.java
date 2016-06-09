@@ -27,7 +27,6 @@ import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.FatalException;
-import solidbase.core.SourceException;
 import solidbase.util.Assert;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.LogCounter;
@@ -35,6 +34,7 @@ import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
 import solidbase.util.TimeIntervalLogCounter;
 import solidstack.io.Resource;
+import solidstack.io.SourceException;
 import solidstack.io.SourceReader;
 import solidstack.io.SourceReaders;
 
@@ -104,7 +104,7 @@ public class ImportCSV implements CommandListener
 			else if( parsed.logSeconds > 0 )
 				counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
-			CSVDataReader reader = new CSVDataReader( sourceReader, parsed.skipHeader, parsed.separator, parsed.ignoreWhiteSpace, parsed.prependLineNumber, counter != null ? new ImportLogger( counter, processor.getProgressListener() ) : null );
+			CSVDataReader reader = new CSVDataReader( sourceReader, parsed.skipHeader, parsed.separator, !parsed.noEscape, parsed.ignoreWhiteSpace, parsed.prependLineNumber, counter != null ? new ImportLogger( counter, processor.getProgressListener() ) : null );
 			DBWriter writer = new DBWriter( parsed.sql, parsed.tableName, parsed.columns, parsed.values, parsed.noBatch, processor );
 			reader.setOutput( new DefaultToResultSetTransformer( writer ) );
 
@@ -154,6 +154,7 @@ public class ImportCSV implements CommandListener
 		IMPORT CSV
 		[ SKIP HEADER ]
 		[ SEPARATED BY TAB | SPACE | <character> ]
+		[ ESCAPE NONE ]
 		[ IGNORE WHITESPACE ]
 		[ PREPEND LINENUMBER ]
 		[ NOBATCH ]
@@ -201,6 +202,14 @@ public class ImportCSV implements CommandListener
 					throw new SourceException( "Expecting [TAB], [SPACE] or a single character, not [" + t + "]", tokenizer.getLocation() );
 				result.separator = t.getValue().charAt( 0 );
 			}
+
+			t = tokenizer.get( "ESCAPE", "IGNORE", "PREPEND", "NOBATCH", "LOG", "FILE", "EXECUTE", "INTO" );
+		}
+
+		if( t.eq( "ESCAPE" ) )
+		{
+			tokenizer.get( "NONE" );
+			result.noEscape = true;
 
 			t = tokenizer.get( "IGNORE", "PREPEND", "NOBATCH", "LOG", "FILE", "EXECUTE", "INTO" );
 		}
@@ -420,6 +429,8 @@ public class ImportCSV implements CommandListener
 
 		/** The separator. */
 		protected char separator = ',';
+
+		protected boolean noEscape;
 
 		/** Ignore white space, except white space enclosed in double quotes. */
 		protected boolean ignoreWhiteSpace;

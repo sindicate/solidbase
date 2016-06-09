@@ -35,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import solidbase.core.UpgradeSegment.Type;
 import solidbase.util.Assert;
 import solidstack.io.RandomAccessSourceReader;
+import solidstack.io.SourceException;
 import solidstack.io.SourceLocation;
 
 
