@@ -41,6 +41,7 @@ import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
 import solidbase.util.TimeIntervalLogCounter;
+import solidstack.cbor.CBORWriter;
 import solidstack.io.FatalIOException;
 import solidstack.io.FileResource;
 import solidstack.io.Resource;
@@ -114,9 +115,9 @@ public class DumpCBOR implements CommandListener
 
 		try
 		{
-			OutputStream out = cborOutput.getOutputStream();
+			OutputStream out = new BufferedOutputStream( cborOutput.getOutputStream(), 0x1000 );
 			if( parsed.gzip )
-				out = new BufferedOutputStream( new GZIPOutputStream( out, 65536 ), 65536 );
+				out = new BufferedOutputStream( new GZIPOutputStream( out, 0x1000 ), 0x1000 );
 			try
 			{
 				Statement statement = processor.createStatement();
@@ -195,12 +196,14 @@ public class DumpCBOR implements CommandListener
 						properties.set( "createdBy", new JSONObject( "product", "SolidBase", "version", "2.0.0" ) );
 						if( dateCreated )
 							properties.set( "createdDate", new Date() );
+						properties.set( "maxStringRefDictionarySize", CBORDataWriter.MAX_DICTIONARY_SIZE );
+						// TODO Define a new tag for this, like 0x101
+						properties.set( "maxStringRefStringLength", CBORWriter.MAX_STRINGREF_LENGTH );
 
 						dataWriter.getCBOROutputStream().write( properties );
 
 						properties = new JSONObject();
 						properties.set( "format", "record-arrays" );
-						properties.set( "maxStringRefDictionarySize", CBORDataWriter.MAX_DICTIONARY_SIZE );
 
 						JSONArray fields = new JSONArray();
 						properties.set( "fields", fields );

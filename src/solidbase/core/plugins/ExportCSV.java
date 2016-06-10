@@ -73,10 +73,9 @@ public class ExportCSV implements CommandListener
 
 		try
 		{
-			OutputStream out = csvOutput.getOutputStream();
+			OutputStream out = new BufferedOutputStream( csvOutput.getOutputStream(), 0x1000 );
 			if( parsed.gzip )
-				out = new BufferedOutputStream( new GZIPOutputStream( out, 65536 ), 65536 ); // TODO Ctrl-C, close the outputstream?
-
+				out = new BufferedOutputStream( new GZIPOutputStream( out, 0x1000 ), 0x1000 );
 			try
 			{
 				Statement statement = processor.createStatement();

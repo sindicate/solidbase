@@ -64,6 +64,7 @@ public class LoadJSON implements CommandListener
 		// Parse the command
 		Parsed parsed = parse( command );
 
+		// TODO BufferedInputStreams?
 		// Open the file resource
 		Resource resource = processor.getResource().resolve( parsed.fileName );
 		resource.setGZip( parsed.gzip );

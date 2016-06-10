@@ -74,6 +74,7 @@ public class ImportCSV implements CommandListener
 			return true;
 		}
 
+		// TODO BufferedInputStreams?
 		SourceReader sourceReader;
 		boolean needClose = false;
 		if( parsed.reader != null )

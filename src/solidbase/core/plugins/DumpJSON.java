@@ -116,9 +116,10 @@ public class DumpJSON implements CommandListener
 
 		try
 		{
-			OutputStream out = jsonOutput.getOutputStream();
+			// TODO Add buffering to the other files too
+			OutputStream out = new BufferedOutputStream( jsonOutput.getOutputStream(), 0x1000 );
 			if( parsed.gzip )
-				out = new BufferedOutputStream( new GZIPOutputStream( out, 65536 ), 65536 );
+				out = new BufferedOutputStream( new GZIPOutputStream( out, 0x1000 ), 0x1000 );
 			try
 			{
 				Statement statement = processor.createStatement();

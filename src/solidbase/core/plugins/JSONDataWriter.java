@@ -40,6 +40,7 @@ import solidstack.json.JSONObject;
 import solidstack.json.JSONWriter;
 
 
+// TODO BufferedOutputStreams?
 public class JSONDataWriter implements RecordSink
 {
 	private Resource resource;

@@ -28,6 +28,7 @@ import solidstack.lang.SystemException;
 import solidstack.lang.ThreadInterrupted;
 
 
+// TODO BufferedInputStreams?
 public class JSONDataReader // TODO implements RecordSource
 {
 	private JSONReader reader;

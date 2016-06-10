@@ -18,6 +18,8 @@ import solidstack.json.JSONObject;
 
 public class CBORWriter extends OutputStream
 {
+	static public final int MAX_STRINGREF_LENGTH = 64;
+
 	static private enum STATE { ARRAYMAP, IARRAYMAP, IBYTES, ITEXT,  };
 
 	/* *******
@@ -563,23 +565,24 @@ public class CBORWriter extends OutputStream
 	{
 		clearFlags();
 
-		if( this.dictionary != null && this.state != STATE.IBYTES && this.state != STATE.ITEXT )
-		{
-			Integer index = this.dictionary.get( bs );
-			if( index != null )
+		if( bs.length() <= CBORWriter.MAX_STRINGREF_LENGTH )
+			if( this.dictionary != null && this.state != STATE.IBYTES && this.state != STATE.ITEXT )
 			{
-				writeTag( 25 );
-				writeIntU( index );
-				return;
-			}
+				Integer index = this.dictionary.get( bs );
+				if( index != null )
+				{
+					writeTag( 25 );
+					writeIntU( index );
+					return;
+				}
 
-			int index2 = this.dictionary.size();
-			if( bs.length() >= getUIntSize( index2 ) + 2 )
-			{
-				this.dictionary.put( bs, index2 );
-				this.dictionarySize += bs.length() + OVERHEAD;
+				int index2 = this.dictionary.size();
+				if( bs.length() >= getUIntSize( index2 ) + 2 )
+				{
+					this.dictionary.put( bs, index2 );
+					this.dictionarySize += bs.length() + OVERHEAD;
+				}
 			}
-		}
 
 		writeBytes( major, bs.unwrap() );
 	}

@@ -192,12 +192,13 @@ public class CBORParser
 		this.in.readBytes( bytes );
 		// TODO Check remaining
 		popState();
-		if( this.namespace != null )
-		{
-			int index = this.namespace.size();
-			if( bytes.length >= CBORWriter.getUIntSize( index ) + 2 )
-				this.namespace.add( bytes );
-		}
+		if( bytes.length <= CBORWriter.MAX_STRINGREF_LENGTH )
+			if( this.namespace != null )
+			{
+				int index = this.namespace.size();
+				if( bytes.length >= CBORWriter.getUIntSize( index ) + 2 )
+					this.namespace.add( bytes );
+			}
 	}
 
 	public String readString( int len )
@@ -207,12 +208,13 @@ public class CBORParser
 		String s = this.in.readString( len );
 		// TODO Check remaining
 		popState();
-		if( this.namespace != null )
-		{
-			int index = this.namespace.size();
-			if( len >= CBORWriter.getUIntSize( index ) + 2 )
-				this.namespace.add( s );
-		}
+		if( len <= CBORWriter.MAX_STRINGREF_LENGTH )
+			if( this.namespace != null )
+			{
+				int index = this.namespace.size();
+				if( len >= CBORWriter.getUIntSize( index ) + 2 )
+					this.namespace.add( s );
+			}
 		return s;
 	}
 
