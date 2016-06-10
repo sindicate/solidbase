@@ -94,6 +94,7 @@ public class CBORReader
 			case BOOL:
 				return t.booleanValue();
 
+			case NULL:
 			case BREAK:
 			case EOF:
 				return null;

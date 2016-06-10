@@ -140,6 +140,7 @@ public class CBORParser
 			case UINT:
 			case DFLOAT:
 			case BOOL:
+			case NULL:
 				checkNotIString( t, pos );
 				decRemaining();
 				return t;

@@ -76,9 +76,9 @@ public class CBORDataReader // TODO implements RecordSource
 		this.sink.start();
 
 		CBORToken t;
-		for( t = this.in.get(); t.type() == TYPE.IARRAY; )
+		for( t = this.in.get(); t.type() == TYPE.IARRAY; t = this.in.get() )
 		{
-			for( t = this.in.get(); t.type() == TYPE.ARRAY;  )
+			for( t = this.in.get(); t.type() == TYPE.ARRAY; t = this.in.get() )
 			{
 				int len = t.length(); // TODO Check array length
 
@@ -94,13 +94,11 @@ public class CBORDataReader // TODO implements RecordSource
 
 				if( this.counter != null )
 					this.counter.count();
-
-				t = this.in.get();
 			}
-		}
 
-		if( t.type() != TYPE.BREAK )
-			throw new SourceException( "Expected a BREAK, not " + t, null );
+			if( t.type() != TYPE.BREAK )
+				throw new SourceException( "Expected a BREAK, not " + t, null );
+		}
 
 		if( this.counter != null )
 			this.counter.end();
