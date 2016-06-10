@@ -42,7 +42,7 @@ public class CBORWriter extends OutputStream
 
 	private OutputStream out;
 
-	private Map<ByteString, Integer> dictionary;
+	private Map<CBORByteString, Integer> dictionary;
 	private int dictionarySize; // TODO Should this be a long?
 
 	private boolean startNewNameSpace;
@@ -136,7 +136,7 @@ public class CBORWriter extends OutputStream
 	{
 		if( this.state == STATE.ITEXT )
 			throw new IllegalStateException( "Only text strings allowed" );
-		writeString( new ByteString( false, bytes ), 0x40 );
+		writeString( new CBORByteString( false, bytes ), 0x40 );
 	}
 
 	public void writeBytes( byte[] bytes, int offset, int len )
@@ -145,7 +145,7 @@ public class CBORWriter extends OutputStream
 			throw new IllegalStateException( "Only text strings allowed" );
 		byte[] b = new byte[ len ];
 		System.arraycopy( bytes, offset, b, 0, len );
-		writeString( new ByteString( false, b ), 0x40 );
+		writeString( new CBORByteString( false, b ), 0x40 );
 	}
 
 	public void writeBytes( InputStream in )
@@ -182,21 +182,21 @@ public class CBORWriter extends OutputStream
 	{
 		if( this.state == STATE.IBYTES )
 			throw new IllegalStateException( "Only byte strings allowed" );
-		writeString( new ByteString( true, text.getBytes( UTF8 ) ), 0x60 );
+		writeString( new CBORByteString( true, text.getBytes( UTF8 ) ), 0x60 );
 	}
 
 	public void writeText( char[] text )
 	{
 		if( this.state == STATE.IBYTES )
 			throw new IllegalStateException( "Only byte strings allowed" );
-		writeString( new ByteString( true, new String( text ).getBytes( UTF8 ) ), 0x60 );
+		writeString( new CBORByteString( true, new String( text ).getBytes( UTF8 ) ), 0x60 );
 	}
 
 	public void writeText( char[] text, int offset, int len )
 	{
 		if( this.state == STATE.IBYTES )
 			throw new IllegalStateException( "Only byte strings allowed" );
-		writeString( new ByteString( true, new String( text, offset, len ).getBytes( UTF8 ) ), 0x60 );
+		writeString( new CBORByteString( true, new String( text, offset, len ).getBytes( UTF8 ) ), 0x60 );
 	}
 
 	public void writeText( Reader reader )
@@ -528,7 +528,7 @@ public class CBORWriter extends OutputStream
 
 		if( this.startNewNameSpace )
 		{
-			this.dictionary = new HashMap<ByteString, Integer>();
+			this.dictionary = new HashMap<CBORByteString, Integer>();
 			this.dictionarySize = 0;
 			this.startNewNameSpace = false;
 		}
@@ -544,7 +544,7 @@ public class CBORWriter extends OutputStream
 			if( this.dictionary != null )
 			{
 				int size = 0;
-				for( ByteString bs : this.dictionary.keySet() )
+				for( CBORByteString bs : this.dictionary.keySet() )
 					size += bs.length() + OVERHEAD;
 				this.dictionarySize = size;
 			}
@@ -559,7 +559,7 @@ public class CBORWriter extends OutputStream
 			throw new IllegalStateException( "Only text strings allowed" );
 	}
 
-	private void writeString( ByteString bs, int major )
+	private void writeString( CBORByteString bs, int major )
 	{
 		clearFlags();
 
@@ -601,9 +601,9 @@ public class CBORWriter extends OutputStream
 	static private class StateItem
 	{
 		STATE state;
-		Map<ByteString, Integer> dictionary;
+		Map<CBORByteString, Integer> dictionary;
 
-		StateItem( STATE state, Map<ByteString, Integer> dictionary )
+		StateItem( STATE state, Map<CBORByteString, Integer> dictionary )
 		{
 			this.state = state;
 			this.dictionary = dictionary;

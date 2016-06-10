@@ -23,8 +23,8 @@ public class CBORScannerTests
 		String s = toString.toString();
 		System.out.println( s );
 		Assertions.assertThat( s ).isEqualTo( "IARRAY\n"
-				+ "    TEXT 05: \"text1\"\n"
-				+ "    TEXT 05: \"text1\"\n"
+				+ "    TEXT 5: \"text1\"\n"
+				+ "    TEXT 5: \"text1\"\n"
 				+ "BREAK\n" );
 	}
 
@@ -52,17 +52,17 @@ public class CBORScannerTests
 		CBORToString toString = new CBORToString( byteArray.toByteArray() );
 		String s = toString.toString();
 		System.out.println( s );
-		Assertions.assertThat( s ).isEqualTo( "TAG 0100 IARRAY\n"
-				+ "    TEXT 05: \"text1\"\n"
-				+ "    TEXT 03: \"te1\"\n"
-				+ "    TAG 19 UINT 00\n"
-				+ "    TAG 19 UINT 01\n"
-				+ "    TEXT 02: \"t2\"\n"
-				+ "    TEXT 02: \"t2\"\n"
+		Assertions.assertThat( s ).isEqualTo( "TAG 0x0100 IARRAY\n"
+				+ "    TEXT 5: \"text1\"\n"
+				+ "    TEXT 3: \"te1\"\n"
+				+ "    TAG 0x19 UINT 0\n"
+				+ "    TAG 0x19 UINT 1\n"
+				+ "    TEXT 2: \"t2\"\n"
+				+ "    TEXT 2: \"t2\"\n"
 				+ "    IARRAY\n"
-				+ "        TAG 19 UINT 00\n"
-				+ "        TAG 19 UINT 01\n"
-				+ "        TEXT 02: \"t2\"\n"
+				+ "        TAG 0x19 UINT 0\n"
+				+ "        TAG 0x19 UINT 1\n"
+				+ "        TEXT 2: \"t2\"\n"
 				+ "    BREAK\n"
 				+ "BREAK\n" );
 	}
@@ -86,11 +86,11 @@ public class CBORScannerTests
 		String s = toString.toString();
 		System.out.println( s );
 		Assertions.assertThat( s ).isEqualTo( "IARRAY\n"
-				+ "    TEXT 05: \"test1\"\n"
-				+ "    TEXT 05: \"test1\"\n"
+				+ "    TEXT 5: \"test1\"\n"
+				+ "    TEXT 5: \"test1\"\n"
 				+ "    IARRAY\n"
-				+ "        TEXT 05: \"test2\"\n"
-				+ "        TEXT 05: \"test2\"\n"
+				+ "        TEXT 5: \"test2\"\n"
+				+ "        TEXT 5: \"test2\"\n"
 				+ "    BREAK\n"
 				+ "BREAK\n" );
 	}
@@ -114,11 +114,11 @@ public class CBORScannerTests
 		String s = toString.toString();
 		System.out.println( s );
 		Assertions.assertThat( s ).isEqualTo( "IMAP\n"
-				+ "    TEXT 05: \"test1\"\n"
-				+ "    TEXT 05: \"test1\"\n"
+				+ "    TEXT 5: \"test1\"\n"
+				+ "    TEXT 5: \"test1\"\n"
 				+ "    IMAP\n"
-				+ "        TEXT 05: \"test2\"\n"
-				+ "        TEXT 05: \"test2\"\n"
+				+ "        TEXT 5: \"test2\"\n"
+				+ "        TEXT 5: \"test2\"\n"
 				+ "    BREAK\n"
 				+ "BREAK\n" );
 	}

@@ -17,7 +17,6 @@
 package solidbase.core.plugins;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +35,6 @@ import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
 import solidbase.util.TimeIntervalLogCounter;
-import solidstack.io.FatalIOException;
 import solidstack.io.Resource;
 import solidstack.io.SourceException;
 import solidstack.io.SourceInputStream;
@@ -79,8 +77,6 @@ public class LoadCBOR implements CommandListener
 			throw new FatalException( e.toString() );
 		}
 
-		// TODO SourceInputStream?
-
 		try
 		{
 			LogCounter counter = null;
@@ -121,14 +117,7 @@ public class LoadCBOR implements CommandListener
 		}
 		finally
 		{
-			try
-			{
-				in.close();
-			}
-			catch( IOException e )
-			{
-				throw new FatalIOException( e );
-			}
+			in.close();
 		}
 	}
 

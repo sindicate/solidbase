@@ -19,14 +19,9 @@ import solidstack.io.FatalIOException;
  * A map that stores the values in a temporary file instead of memory.
  *
  * @author René M. de Bloois
- * @since 22 June, 2011
- *
- * @param <K> Type of the key.
- * @param <V> Type of the value.
+ * @since 2016
  */
-// TODO Add file extents: for example first extent/next extent
-// TODO Add second level empty block bit mask
-// TODO Add algorithm to prevent fragmentation of values
+// TODO Do we need file extents? Grow with bigger jumps?
 public class DiskBuffer
 {
 	static public final int DEFAULT_BLOCKSIZE = 0x1000;
@@ -45,11 +40,6 @@ public class DiskBuffer
 	 * Underlying temporary file.
 	 */
 	private File tempFile;
-
-//	/**
-//	 * Entries in the map.
-//	 */
-//	private Map< K, DiskMapEntry > entries;
 
 	/**
 	 * A bit array with a bit for every block. A bit is set if the block is in use.
@@ -83,16 +73,14 @@ public class DiskBuffer
 		try
 		{
 			this.tempFile = File.createTempFile( filePrefix, null );
-
 			this.blockSize = blockSize;
 			this.store = new RandomAccessFile( this.tempFile, "rw" );
-//			this.entries = new HashMap< K, DiskMapEntry >();
 			this.usedBlocks = new BitSet();
 			this.emptyBlockStart = 0;
 		}
 		catch( IOException e )
 		{
-			throw new RuntimeException( e );
+			throw new FatalIOException( e );
 		}
 	}
 
@@ -119,15 +107,15 @@ public class DiskBuffer
 		int block = this.usedBlocks.nextClearBit( this.emptyBlockStart );
 		this.emptyBlockStart = block + 1;
 		this.usedBlocks.set( block );
-		DiskBuffer.this.store.seek( (long)block * this.blockSize );
-		DiskBuffer.this.store.write( bytes );
+		this.store.seek( (long)block * this.blockSize );
+		this.store.write( bytes );
 		return block;
 	}
 
 	void readBlock( int block, byte[] bytes ) throws IOException
 	{
-		DiskBuffer.this.store.seek( (long)block * this.blockSize );
-		DiskBuffer.this.store.read( bytes );
+		this.store.seek( (long)block * this.blockSize );
+		this.store.read( bytes );
 	}
 
 	void clearBlocks( IntList blocks )

@@ -6,8 +6,8 @@ import java.util.List;
 
 import solidbase.util.JDBCSupport;
 import solidstack.cbor.CBORReader;
-import solidstack.cbor.CBORScanner.Token;
-import solidstack.cbor.CBORScanner.Token.TYPE;
+import solidstack.cbor.CBORToken;
+import solidstack.cbor.CBORToken.TYPE;
 import solidstack.io.SourceException;
 import solidstack.io.SourceInputStream;
 import solidstack.json.JSONArray;
@@ -75,7 +75,7 @@ public class CBORDataReader // TODO implements RecordSource
 		this.sink.init( this.columns );
 		this.sink.start();
 
-		Token t;
+		CBORToken t;
 		for( t = this.in.get(); t.type() == TYPE.IARRAY; )
 		{
 			for( t = this.in.get(); t.type() == TYPE.ARRAY;  )

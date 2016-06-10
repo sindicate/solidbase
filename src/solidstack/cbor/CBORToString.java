@@ -6,8 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 
-import solidstack.cbor.CBORScanner.Token;
-import solidstack.cbor.CBORScanner.Token.TYPE;
+import solidstack.cbor.CBORToken.TYPE;
 import solidstack.io.FatalIOException;
 import solidstack.io.SourceInputStream;
 
@@ -58,7 +57,7 @@ public class CBORToString
 
 	private boolean toString( CBORScanner in, Writer out, int indent ) throws IOException
 	{
-		Token t = in.get();
+		CBORToken t = in.get();
 		if( t.type() == TYPE.EOF )
 			return true;
 		if( t.type() == TYPE.BREAK )
@@ -70,7 +69,7 @@ public class CBORToString
 		return false;
 	}
 
-	private void toString( Token token, CBORScanner in, Writer out, int indent ) throws IOException
+	private void toString( CBORToken token, CBORScanner in, Writer out, int indent ) throws IOException
 	{
 		if( indent > 0 )
 		{

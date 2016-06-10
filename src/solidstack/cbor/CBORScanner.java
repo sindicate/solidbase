@@ -2,12 +2,13 @@ package solidstack.cbor;
 
 import java.io.IOException;
 
-import solidstack.cbor.CBORScanner.Token.TYPE;
+import solidstack.cbor.CBORToken.TYPE;
 import solidstack.io.FatalIOException;
 import solidstack.io.Resource;
 import solidstack.io.SourceException;
 import solidstack.io.SourceInputStream;
 import solidstack.io.SourceLocation;
+
 
 public class CBORScanner
 {
@@ -17,6 +18,11 @@ public class CBORScanner
 	public CBORScanner( SourceInputStream in )
 	{
 		this.in = in;
+	}
+
+	public void close()
+	{
+		this.in.close();
 	}
 
 	public Resource getResource()
@@ -29,7 +35,7 @@ public class CBORScanner
 		return this.in.getPos();
 	}
 
-	public Token get()
+	public CBORSimpleToken get()
 	{
 		SourceInputStream in = this.in;
 		try
@@ -38,7 +44,7 @@ public class CBORScanner
 
 			int b = in.read();
 			if( b == -1 )
-				return Token.EOF;
+				return CBORToken.EOF;
 
 			int major = b >>> 5;
 			int minor = b & 0x1F;
@@ -47,11 +53,11 @@ public class CBORScanner
 			{
 				switch( major )
 				{
-					case 2: return Token.IBSTRING;
-					case 3: return Token.ITSTRING;
-					case 4: return Token.IARRAY;
-					case 5: return Token.IMAP;
-					case 7: return Token.BREAK;
+					case 2: return CBORToken.IBSTRING;
+					case 3: return CBORToken.ITSTRING;
+					case 4: return CBORToken.IARRAY;
+					case 5: return CBORToken.IMAP;
+					case 7: return CBORToken.BREAK;
 					default:
 						throw new SourceException( "Unsupported additional info 31 for major type: " + major, SourceLocation.forBinary( in.getResource(), pos ) );
 				}
@@ -107,26 +113,26 @@ public class CBORScanner
 		return new String( result );
 	}
 
-	static private Token readSimple( SourceInputStream in, long pos, int minor, TYPE type ) throws IOException
+	static private CBORSimpleToken readSimple( SourceInputStream in, long pos, int minor, TYPE type ) throws IOException
 	{
 		switch( minor )
 		{
-			case 20: return Token.FALSE;
-			case 21: return Token.TRUE;
-			case 22: return Token.NULL;
-			case 23: return Token.UNDEF;
+			case 20: return CBORToken.FALSE;
+			case 21: return CBORToken.TRUE;
+			case 22: return CBORToken.NULL;
+			case 23: return CBORToken.UNDEF;
 			case 25: throw new UnsupportedOperationException( "Half precision float not supported" );
-			case 26: return new Token( TYPE.SFLOAT, Float.intBitsToFloat( readUInt4( in ) ) );
-			case 27: return new Token( TYPE.DFLOAT, Double.longBitsToDouble( readUInt8( in ) ) );
-			case 31: return Token.BREAK;
+			case 26: return CBORSimpleToken.forFloatS( Float.intBitsToFloat( readUInt4( in ) ) );
+			case 27: return CBORSimpleToken.forFloatD( Double.longBitsToDouble( readUInt8( in ) ) );
+			case 31: return CBORToken.BREAK;
 			default:
 				throw new SourceException( "Unsupported additional info: " + minor, SourceLocation.forBinary( in.getResource(), pos ) );
 		}
 	}
 
-	static private Token readUInt( SourceInputStream in, long pos, int minor, TYPE type ) throws IOException
+	static private CBORSimpleToken readUInt( SourceInputStream in, long pos, int minor, TYPE type ) throws IOException
 	{
-		return new Token( type, readUInt( in, pos, minor ) );
+		return CBORSimpleToken.forType( type, readUInt( in, pos, minor ) );
 	}
 
 	static private long readUInt( SourceInputStream in, long pos, int minor ) throws IOException
@@ -167,134 +173,5 @@ public class CBORScanner
 	static private long readUInt8( SourceInputStream in ) throws IOException
 	{
 		return (long)readUInt4( in ) << 32 | readUInt4( in );
-	}
-
-
-	static public class Token
-	{
-		static public enum TYPE { UINT, NINT, BYTES, TEXT, ARRAY, MAP, IBYTES, ITEXT, IARRAY, IMAP, TAG, BOOL, NULL, UNDEF, HFLOAT, SFLOAT, DFLOAT, BREAK, EOF };
-
-		static public Token EOF = new Token( TYPE.EOF );
-		static public Token IBSTRING = new Token( TYPE.IBYTES );
-		static public Token ITSTRING = new Token( TYPE.ITEXT );
-		static public Token IARRAY = new Token( TYPE.IARRAY );
-		static public Token IMAP = new Token( TYPE.IMAP );
-		static public Token BREAK = new Token( TYPE.BREAK );
-		static public Token FALSE = new Token( TYPE.BOOL, false );
-		static public Token TRUE = new Token( TYPE.BOOL, true );
-		static public Token NULL = new Token( TYPE.NULL );
-		static public Token UNDEF = new Token( TYPE.UNDEF );
-
-		private TYPE type;
-		private long value;
-		private boolean bool;
-		private float flot;
-		private double doble;
-
-		public Token( TYPE type )
-		{
-			this.type = type;
-		}
-
-		public Token( TYPE type, long value )
-		{
-			this.type = type;
-			this.value = value;
-		}
-
-		public Token( TYPE type, boolean value )
-		{
-			this.type = type;
-			this.bool = value;
-		}
-
-		public Token( TYPE type, float value )
-		{
-			this.type = type;
-			this.flot = value;
-		}
-
-		public Token( TYPE type, double value )
-		{
-			this.type = type;
-			this.doble = value;
-		}
-
-		public TYPE type()
-		{
-			return this.type;
-		}
-
-		public long longValue()
-		{
-			return this.value;
-		}
-
-		public double doubleValue()
-		{
-			return this.doble;
-		}
-
-		public boolean booleanValue()
-		{
-			return this.bool;
-		}
-
-		public int length()
-		{
-			if( this.value < 0 || this.value > Integer.MAX_VALUE )
-				throw new CBORException( "Invalid length: " + this.value );
-			return (int)this.value;
-		}
-
-		@Override
-		public String toString()
-		{
-			StringBuilder result = new StringBuilder( this.type.toString() );
-			switch( this.type )
-			{
-				case UINT:
-				case BYTES:
-				case TEXT:
-				case ARRAY:
-				case MAP:
-				case TAG:
-					result.append( ' ' ); appendHex( result, this.value );
-					break;
-				case NINT:
-					result.append( " -" ); appendHex( result, this.value ); result.append( "-1" );
-					break;
-				case BOOL:
-					result.append( ' ' ).append( this.bool );
-					break;
-				case IBYTES:
-				case ITEXT:
-				case IARRAY:
-				case IMAP:
-				case NULL:
-				case UNDEF:
-				case BREAK:
-				case EOF:
-					break;
-				case HFLOAT:
-				case SFLOAT:
-					result.append( ' ' ).append( Float.toString( this.flot ) );
-					break;
-				case DFLOAT:
-					result.append( ' ' ).append( Double.toString( this.doble ) );
-					break;
-				default:
-					throw new CBORException( "Unexpected type: " + this.type );
-			}
-			return result.toString();
-		}
-
-		private void appendHex( StringBuilder out, long value )
-		{
-			String hex = Long.toHexString( value ).toUpperCase();
-			if( hex.length() % 2 == 1 )
-				out.append( '0' );
-			out.append( hex );
-		}
 	}
 }

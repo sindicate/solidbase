@@ -3,8 +3,7 @@ package solidstack.cbor;
 import java.io.IOException;
 import java.io.Reader;
 
-import solidstack.cbor.CBORScanner.Token;
-import solidstack.cbor.CBORScanner.Token.TYPE;
+import solidstack.cbor.CBORToken.TYPE;
 
 public class CBORStringReader extends Reader
 {
@@ -24,7 +23,7 @@ public class CBORStringReader extends Reader
 	{
 		while( this.buffer == null || this.pos >= this.buffer.length() )
 		{
-			Token t = this.in.get();
+			CBORToken t = this.in.get();
 			if( t.type() != TYPE.TEXT )
 				throw new IllegalStateException( "Only text strings allowed" );
 

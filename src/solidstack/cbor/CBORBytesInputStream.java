@@ -3,8 +3,7 @@ package solidstack.cbor;
 import java.io.IOException;
 import java.io.InputStream;
 
-import solidstack.cbor.CBORScanner.Token;
-import solidstack.cbor.CBORScanner.Token.TYPE;
+import solidstack.cbor.CBORToken.TYPE;
 
 
 public class CBORBytesInputStream extends InputStream
@@ -30,7 +29,7 @@ public class CBORBytesInputStream extends InputStream
 		if( this.buffer != null && this.pos < this.buffer.length )
 			return this.buffer[ this.pos++ ];
 
-		Token t = this.in.get();
+		CBORToken t = this.in.get();
 		if( t.type() == TYPE.BREAK )
 		{
 			this.in = null;

@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import solidstack.cbor.CBORScanner.Token;
-import solidstack.cbor.CBORScanner.Token.TYPE;
+import org.apache.commons.collections.primitives.ArrayLongList;
+
+import solidstack.cbor.CBORToken.TYPE;
 import solidstack.io.Resource;
 import solidstack.io.SourceException;
 import solidstack.io.SourceInputStream;
@@ -22,13 +23,17 @@ public class CBORParser
 	private STATE state;
 	private Stack<StateItem> states = new Stack<StateItem>();
 
-	private boolean startNewNameSpace;
 	private long remaining;
 
 
 	public CBORParser( SourceInputStream in )
 	{
 		this.in = new CBORScanner( in );
+	}
+
+	public void close()
+	{
+		this.in.close();
 	}
 
 	public CBORScanner getScanner()
@@ -51,189 +56,139 @@ public class CBORParser
 		return this.namespace.get( index );
 	}
 
-	public Token get()
+	private CBORToken get0()
 	{
 		CBORScanner in = this.in;
-		long pos = in.getPos();
 
+		CBORSimpleToken t = in.get();
+		if( !t.isTag() )
+			return t;
+
+		ArrayLongList tags = new ArrayLongList();
+		while( t.isTag() )
+		{
+			tags.add( t.longValue() );
+			t = in.get();
+		}
+
+		return t.withTags( tags.toArray() );
+	}
+
+	public CBORToken get()
+	{
 		if( this.state == STATE.BYTES || this.state == STATE.TEXT )
 			throw new IllegalStateException( "Bytes or text is waiting to be read" );
 
-		Token t = in.get();
-		TYPE type = t.type();
-		switch( type )
-		{
-			case TAG:
-				if( this.state == STATE.ITEXT || this.state == STATE.IBYTES )
-					throw new SourceException( "Unexpected TAG in state: " + this.state, SourceLocation.forBinary( in.getResource(), pos ) );
-				if( t.longValue() == 0x100 )
-				{
-					this.startNewNameSpace = true;
-					return get();
-				}
-				return t;
+		long pos = this.in.getPos();
 
+		CBORToken t = get0();
+		switch( t.type() )
+		{
 			case MAP:
 			case ARRAY:
-				if( this.state == STATE.ITEXT || this.state == STATE.IBYTES )
-					throw new SourceException( "Unexpected " + type + " in state: " + this.state, SourceLocation.forBinary( in.getResource(), pos ) );
-				if( this.state == STATE.ARRAYMAP )
-				{
-					if( this.remaining == 0 )
-						popState();
-					this.remaining--;
-//					if( this.remaining < 0 )
-//						throw new SourceException( "Not enough items in state: " + this.state, SourceLocation.forBinary( in.getResource(), pos ) );
-				}
+				checkNotIString( t, pos );
+				decRemaining();
 				pushState( STATE.ARRAYMAP );
-				this.remaining = t.longValue() * ( type == TYPE.MAP ? 2 : 1 );
-				if( this.startNewNameSpace )
-				{
-					this.namespace = new ArrayList<Object>();
-					this.startNewNameSpace = false;
-				}
+				this.remaining = t.longValue() * ( t.type() == TYPE.MAP ? 2 : 1 );
+				newNamespace( t );
 				return t;
 
 			case EOF:
 				if( this.state != null )
-					throw new SourceException( "Unexpected EOF in state: " + this.state, SourceLocation.forBinary( in.getResource(), pos ) );
+					throw newSourceException( t, pos );
 				return t;
 
 			case IARRAY:
 			case IMAP:
 				// TODO Must count even amount of items if MAP
-				if( this.state == STATE.ITEXT || this.state == STATE.IBYTES )
-					throw new SourceException( "Unexpected " + type + " in state: " + this.state, SourceLocation.forBinary( in.getResource(), pos ) );
-				if( this.state == STATE.ARRAYMAP )
-				{
-					if( this.remaining == 0 )
-						popState();
-					this.remaining--;
-//					if( this.remaining < 0 )
-//						throw new SourceException( "Not enough items in state: " + this.state, SourceLocation.forBinary( in.getResource(), pos ) );
-				}
+				checkNotIString( t, pos );
+				decRemaining();
 				pushState( STATE.IARRAYMAP );
-				if( this.startNewNameSpace )
-				{
-					this.namespace = new ArrayList<Object>();
-					this.startNewNameSpace = false;
-				}
+				newNamespace( t );
 				return t;
 
 			case BYTES:
 				if( this.state == STATE.ITEXT )
-					throw new SourceException( "Unexpected BYTES in state: " + this.state, SourceLocation.forBinary( in.getResource(), pos ) );
-				if( this.state == STATE.ARRAYMAP )
-				{
-					if( this.remaining == 0 )
-						popState();
-					this.remaining--;
-//					if( this.remaining < 0 )
-//						throw new SourceException( "Not enough items in state: " + this.state, SourceLocation.forBinary( in.getResource(), pos ) );
-				}
+					throw newSourceException( t, pos );
+				decRemaining();
 				pushState( STATE.BYTES );
 				this.remaining = t.longValue();
-				if( this.startNewNameSpace )
-				{
-					this.namespace = new ArrayList<Object>();
-					this.startNewNameSpace = false;
-				}
+				newNamespace( t ); // Could be that they want to exclude this string from the current namespace
 				return t;
 
 			case TEXT:
 				if( this.state == STATE.IBYTES )
-					throw new SourceException( "Unexpected TEXT in state: " + this.state, SourceLocation.forBinary( in.getResource(), pos ) );
-				if( this.state == STATE.ARRAYMAP )
-				{
-					if( this.remaining == 0 )
-						popState();
-					this.remaining--;
-//					if( this.remaining < 0 )
-//						throw new SourceException( "Not enough items in state: " + this.state, SourceLocation.forBinary( in.getResource(), pos ) );
-				}
+					throw newSourceException( t, pos );
+				decRemaining();
 				pushState( STATE.TEXT );
 				this.remaining = t.longValue();
-				if( this.startNewNameSpace )
-				{
-					this.namespace = new ArrayList<Object>();
-					this.startNewNameSpace = false;
-				}
+				newNamespace( t ); // Could be that they want to exclude this string from the current namespace
 				return t;
 
-				// Check state: namespace, state, startNewNameSpace, remaining
-				// Change state: namespace, state, startNewNameSpace, remaining
-
 			case IBYTES:
-				if( this.state == STATE.ITEXT || this.state == STATE.IBYTES )
-					throw new SourceException( "Unexpected IBYTES in state: " + this.state, SourceLocation.forBinary( in.getResource(), pos ) );
-				if( this.state == STATE.ARRAYMAP )
-				{
-					if( this.remaining == 0 )
-						popState();
-					this.remaining--;
-//					if( this.remaining < 0 )
-//						throw new SourceException( "Not enough items in state: " + this.state, SourceLocation.forBinary( in.getResource(), pos ) );
-				}
+				checkNotIString( t, pos );
+				decRemaining();
 				pushState( STATE.IBYTES );
-				if( this.startNewNameSpace )
-					this.startNewNameSpace = false;
 				return t;
 
 			case ITEXT:
-				if( this.state == STATE.ITEXT || this.state == STATE.IBYTES )
-					throw new SourceException( "Unexpected ITEXT in state: " + this.state, SourceLocation.forBinary( in.getResource(), pos ) );
-				if( this.state == STATE.ARRAYMAP )
-				{
-					if( this.remaining == 0 )
-						popState();
-					this.remaining--;
-//					if( this.remaining < 0 )
-//						throw new SourceException( "Not enough items in state: " + this.state, SourceLocation.forBinary( in.getResource(), pos ) );
-				}
+				checkNotIString( t, pos );
+				decRemaining();
 				pushState( STATE.ITEXT );
-				if( this.startNewNameSpace )
-					this.startNewNameSpace = false;
 				return t;
 
 			case UINT:
 			case DFLOAT:
 			case BOOL:
-				if( this.state == STATE.ITEXT || this.state == STATE.IBYTES )
-					throw new SourceException( "Unexpected " + type + " in state: " + this.state, SourceLocation.forBinary( in.getResource(), pos ) );
-				if( this.state == STATE.ARRAYMAP )
-				{
-					if( this.remaining == 0 )
-						popState();
-					this.remaining--;
-//					if( this.remaining < 0 )
-//						throw new SourceException( "Not enough items in state: " + this.state, SourceLocation.forBinary( in.getResource(), pos ) );
-//					if( this.remaining == 0 )
-//						popState();
-				}
-				if( this.startNewNameSpace )
-					this.startNewNameSpace = false;
+				checkNotIString( t, pos );
+				decRemaining();
 				return t;
 
 			case BREAK:
-				if( this.state == STATE.ARRAYMAP )
-					if( this.remaining == 0 )
-						popState();
+				decRemaining();
 				if( this.state != STATE.IARRAYMAP && this.state != STATE.IBYTES && this.state != STATE.ITEXT )
-					throw new SourceException( "Unexpected " + type + " in state: " + this.state, SourceLocation.forBinary( in.getResource(), pos ) );
+					throw newSourceException( t, pos );
 				popState();
-				if( this.startNewNameSpace )
-					this.startNewNameSpace = false;
 				return t;
 
 			default:
-				throw new UnsupportedOperationException( type.toString() );
+				throw new UnsupportedOperationException( "Unexpected token: " + t );
 		}
+	}
+
+	private void checkNotIString( CBORToken token, long pos )
+	{
+		if( this.state == STATE.ITEXT || this.state == STATE.IBYTES )
+			throw newSourceException( token, pos );
+	}
+
+	private SourceException newSourceException( CBORToken token, long pos )
+	{
+		return new SourceException( "Unexpected " + token + " in parser state: " + this.state, SourceLocation.forBinary( this.in.getResource(), pos ) );
+	}
+
+	private void decRemaining()
+	{
+		while( this.state == STATE.ARRAYMAP )
+			if( this.remaining <= 0 )
+				popState();
+			else
+			{
+				this.remaining--;
+				return;
+			}
+	}
+
+	private void newNamespace( CBORToken t )
+	{
+		if( t.hasTag( 0x100 ) )
+			this.namespace = new ArrayList<Object>();
 	}
 
 	public void readBytes( byte[] bytes )
 	{
 		if( this.state != STATE.BYTES && this.state != STATE.TEXT )
-			throw new SourceException( "Can't read bytes in state: " + this.state, SourceLocation.forBinary( this.in.getResource(), this.in.getPos() ) );
+			throw new SourceException( "Can't read bytes in parser state: " + this.state, SourceLocation.forBinary( this.in.getResource(), this.in.getPos() ) );
 		this.in.readBytes( bytes );
 		// TODO Check remaining
 		popState();
@@ -248,7 +203,7 @@ public class CBORParser
 	public String readString( int len )
 	{
 		if( this.state != STATE.TEXT )
-			throw new SourceException( "Can't read text in state: " + this.state, SourceLocation.forBinary( this.in.getResource(), this.in.getPos() ) );
+			throw new SourceException( "Can't read text in parser state: " + this.state, SourceLocation.forBinary( this.in.getResource(), this.in.getPos() ) );
 		String s = this.in.readString( len );
 		// TODO Check remaining
 		popState();
