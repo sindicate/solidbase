@@ -520,7 +520,7 @@ public class CBORWriter extends OutputStream
 
 		if( this.startNewSlidingNameSpace )
 		{
-			this.index = new SlidingByteStringIndex( 10000 );
+			this.index = new SlidingByteStringIndex( 1000, Integer.MAX_VALUE );
 			this.startNewSlidingNameSpace = false;
 		}
 		if( this.startNewNameSpace )

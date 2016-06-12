@@ -8,35 +8,49 @@ import java.util.Map;
 public class SlidingByteStringIndex implements ByteStringIndex
 {
 	private Map<CBORByteString, Integer> map = new HashMap<CBORByteString, Integer>();
-	private LinkedList<CBORByteString> window = new LinkedList<CBORByteString>();
+	private LinkedList<Object[]> window = new LinkedList<Object[]>();
 
 	private int capacity;
+	private int maxItemSize;
 	private int nextIndex;
 
 
-	public SlidingByteStringIndex( int capacity )
+	public SlidingByteStringIndex( int capacity, int maxItemSize )
 	{
 		this.capacity = capacity;
+		this.maxItemSize = maxItemSize;
 		this.nextIndex = capacity - 1;
 	}
 
 	void put( CBORByteString value )
 	{
 		if( this.window.size() >= this.capacity )
-			this.map.remove( this.window.removeFirst() );
+		{
+			Object[] item = this.window.removeFirst();
+			if( this.map.get( item[ 0 ] ).equals( item[ 1 ] ) ) // TODO Java 8 has a remove(key,value)
+				this.map.remove( item[ 0 ] );
+		}
 
 		int index = this.nextIndex;
 		this.map.put( value, index );
 		this.nextIndex = wrap( index - 1 );
 
-		this.window.addLast( value );
+		this.window.addLast( new Object[] { value, index } );
 	}
 
 	public Integer putOrGet( CBORByteString value )
 	{
+		if( value.length() < 3 )
+			return null;
+		if( value.length() > this.maxItemSize )
+			return null;
 		Integer result = get( value );
 		put( value ); // New occurrence
-		return result;
+		if( result == null )
+			return null;
+		if( value.length() >= CBORWriter.getUIntSize( result ) + 2 )
+			return result;
+		return null;
 	}
 
 	Integer get( CBORByteString value )

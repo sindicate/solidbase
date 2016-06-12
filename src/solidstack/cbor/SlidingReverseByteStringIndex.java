@@ -9,17 +9,21 @@ public class SlidingReverseByteStringIndex implements ReverseByteStringIndex
 	private Map<Integer, CBORByteString> map = new HashMap<Integer, CBORByteString>();
 
 	private int capacity;
+	private int maxItemSize;
 	private int nextIndex;
 
 
-	public SlidingReverseByteStringIndex( int capacity )
+	public SlidingReverseByteStringIndex( int capacity, int maxItemSize )
 	{
 		this.capacity = capacity;
+		this.maxItemSize = maxItemSize;
 		this.nextIndex = capacity - 1;
 	}
 
 	public void put( CBORByteString value )
 	{
+		if( value.length() > this.maxItemSize )
+			return;
 		int index = this.nextIndex;
 		this.map.put( index, value );
 		this.nextIndex = wrap( index - 1 );

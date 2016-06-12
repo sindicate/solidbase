@@ -10,7 +10,7 @@ public class SlidingByteStringIndexTests
 	@Test
 	public void test1()
 	{
-		SlidingByteStringIndex index = new SlidingByteStringIndex( 4 );
+		SlidingByteStringIndex index = new SlidingByteStringIndex( 4, 64 );
 		CBORByteString b1 = new CBORByteString( false, new byte[] { 1 } );
 		CBORByteString b2 = new CBORByteString( false, new byte[] { 2 } );
 		CBORByteString b3 = new CBORByteString( false, new byte[] { 3 } );
