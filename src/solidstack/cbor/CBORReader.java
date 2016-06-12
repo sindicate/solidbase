@@ -83,7 +83,7 @@ public class CBORReader
 
 			case UINT:
 				if( t.hasTag( 0x19 ) )
-					return this.in.getFromNamespace( t.length() );
+					return this.in.getFromNamespace( t.length(), pos );
 				if( t.hasTag( 0x01 ) )
 					return new Date( t.longValue() );
 				return t.longValue();

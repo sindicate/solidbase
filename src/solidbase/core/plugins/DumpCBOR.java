@@ -41,7 +41,6 @@ import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
 import solidbase.util.TimeIntervalLogCounter;
-import solidstack.cbor.CBORWriter;
 import solidstack.io.FatalIOException;
 import solidstack.io.FileResource;
 import solidstack.io.Resource;
@@ -198,7 +197,7 @@ public class DumpCBOR implements CommandListener
 							properties.set( "createdDate", new Date() );
 						properties.set( "maxStringRefDictionarySize", CBORDataWriter.MAX_DICTIONARY_SIZE );
 						// TODO Define a new tag for this, like 0x101
-						properties.set( "maxStringRefStringLength", CBORWriter.MAX_STRINGREF_LENGTH );
+//						properties.set( "maxStringRefStringLength", CBORWriter.MAX_STRINGREF_LENGTH );
 
 						dataWriter.getCBOROutputStream().write( properties );
 
@@ -224,7 +223,7 @@ public class DumpCBOR implements CommandListener
 							fields.add( field );
 						}
 
-						dataWriter.getCBOROutputStream().tagRefNS().write( properties );
+						dataWriter.getCBOROutputStream().tagSlidingRefNS().write( properties );
 
 						try
 						{

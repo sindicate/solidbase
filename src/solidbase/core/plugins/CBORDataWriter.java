@@ -74,20 +74,13 @@ public class CBORDataWriter implements RecordSink
 	@Override
 	public void start()
 	{
-		this.out.tagRefNS();
+		this.out.tagSlidingRefNS();
 		this.out.startArray();
 	}
 
 	public void process( Object[] record ) throws SQLException
 	{
 		CBORWriter out = this.out;
-
-		if( out.getDictionarySize() >= MAX_DICTIONARY_SIZE ) // 64 MB
-		{
-			out.end();
-			this.out.tagRefNS();
-			this.out.startArray();
-		}
 
 		int columns = record.length;
 		if( this.columns.length != columns )

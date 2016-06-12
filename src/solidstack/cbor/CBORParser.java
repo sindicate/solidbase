@@ -1,7 +1,5 @@
 package solidstack.cbor;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Stack;
 
 import org.apache.commons.collections.primitives.ArrayLongList;
@@ -19,7 +17,7 @@ public class CBORParser
 
 	private CBORScanner in;
 
-	private List<Object> namespace;
+	private ReverseByteStringIndex index;
 	private STATE state;
 	private Stack<StateItem> states = new Stack<StateItem>();
 
@@ -51,9 +49,12 @@ public class CBORParser
 		return this.in.getPos();
 	}
 
-	public Object getFromNamespace( int index )
+	public Object getFromNamespace( int index, long pos )
 	{
-		return this.namespace.get( index );
+		CBORByteString result = this.index.get( index );
+		if( result == null )
+			throw new SourceException( "Illegal string ref: " + index, SourceLocation.forBinary( this.in.getResource(), pos ) );
+		return result.toJava();
 	}
 
 	private CBORToken get0()
@@ -182,46 +183,46 @@ public class CBORParser
 
 	private void newNamespace( CBORToken t )
 	{
-		if( t.hasTag( 0x100 ) )
-			this.namespace = new ArrayList<Object>();
+		if( t.hasTag( 0x102 ) )
+			this.index = new SlidingReverseByteStringIndex( 10000 ); // FIXME Should come from the UINT
+		else if( t.hasTag( 0x100 ) )
+			this.index = new StandardReverseByteStringIndex();
 	}
 
 	public void readBytes( byte[] bytes )
 	{
-		if( this.state != STATE.BYTES && this.state != STATE.TEXT )
+		if( this.state != STATE.BYTES )
 			throw new SourceException( "Can't read bytes in parser state: " + this.state, SourceLocation.forBinary( this.in.getResource(), this.in.getPos() ) );
 		this.in.readBytes( bytes );
 		// TODO Check remaining
 		popState();
-		if( bytes.length <= CBORWriter.MAX_STRINGREF_LENGTH )
-			if( this.namespace != null )
-			{
-				int index = this.namespace.size();
-				if( bytes.length >= CBORWriter.getUIntSize( index ) + 2 )
-					this.namespace.add( bytes );
-			}
+		if( this.index != null )
+			this.index.put( new CBORByteString( false, bytes ) );
 	}
 
 	public String readString( int len )
 	{
 		if( this.state != STATE.TEXT )
 			throw new SourceException( "Can't read text in parser state: " + this.state, SourceLocation.forBinary( this.in.getResource(), this.in.getPos() ) );
-		String s = this.in.readString( len );
+		byte[] bytes = new byte[ len ];
+		this.in.readBytes( bytes );
 		// TODO Check remaining
 		popState();
-		if( len <= CBORWriter.MAX_STRINGREF_LENGTH )
-			if( this.namespace != null )
-			{
-				int index = this.namespace.size();
-				if( len >= CBORWriter.getUIntSize( index ) + 2 )
-					this.namespace.add( s );
-			}
-		return s;
+		if( this.index != null )
+			this.index.put( new CBORByteString( true, bytes ) );
+		return new String( bytes, CBORWriter.UTF8 );
+	}
+
+	void readBytesForStream( byte[] bytes )
+	{
+		this.in.readBytes( bytes );
+		// TODO Check remaining
+		popState();
 	}
 
 	private void pushState( STATE state )
 	{
-		this.states.push( new StateItem( this.state, this.namespace, this.remaining ) );
+		this.states.push( new StateItem( this.state, this.index, this.remaining ) );
 		this.state = state;
 	}
 
@@ -233,7 +234,7 @@ public class CBORParser
 		else
 		{
 			this.state = state.state;
-			this.namespace = state.namespace;
+			this.index = state.index;
 			this.remaining = state.remaining;
 		}
 	}
@@ -241,13 +242,13 @@ public class CBORParser
 	static private class StateItem
 	{
 		STATE state;
-		List<Object> namespace;
+		ReverseByteStringIndex index;
 		long remaining;
 
-		StateItem( STATE state, List<Object> namespace, long remaining )
+		StateItem( STATE state, ReverseByteStringIndex index, long remaining )
 		{
 			this.state = state;
-			this.namespace = namespace;
+			this.index = index;
 			this.remaining = remaining;
 		}
 	}

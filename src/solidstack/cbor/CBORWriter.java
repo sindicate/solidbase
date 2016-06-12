@@ -6,7 +6,6 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
@@ -18,39 +17,21 @@ import solidstack.json.JSONObject;
 
 public class CBORWriter extends OutputStream
 {
-	static public final int MAX_STRINGREF_LENGTH = 64;
+//	static public final int MAX_STRINGREF_LENGTH = 64;
 
 	static private enum STATE { ARRAYMAP, IARRAYMAP, IBYTES, ITEXT,  };
 
-	/* *******
-	 * 32-bit JVM or 64-bit with UseCompressedOops=true (default)
-	 *
-	 * dictionary = HashMap
-	 * 		table
-	 *		4+8		--> HashMap$Node
-	 *		4			hash
-	 *		4+8			--> key = ByteString
-	 *		4+8				--> byte[]
-	 *		1				boolean
-	 *		4			--> next
-	 *		4+8			--> value = Integer
-	 *		4				value
-	 *		3	padding
-	 */
-	static private int OVERHEAD = 64;
-
-	static private final Charset UTF8 = Charset.forName( "UTF-8" );
-
+	static final Charset UTF8 = Charset.forName( "UTF-8" );
 
 	private OutputStream out;
 
-	private Map<CBORByteString, Integer> dictionary;
-	private int dictionarySize; // TODO Should this be a long?
+	private ByteStringIndex index;
 
 	private boolean startNewNameSpace;
+	private boolean startNewSlidingNameSpace;
 
 	private STATE state;
-	private Stack<StateItem> states = new Stack<StateItem>();
+	private Stack<StateItem> stateStack = new Stack<StateItem>();
 
 
 	public CBORWriter( OutputStream out )
@@ -58,9 +39,9 @@ public class CBORWriter extends OutputStream
 		this.out = out;
 	}
 
-	public int getDictionarySize()
+	public ByteStringIndex getIndex()
 	{
-		return this.dictionarySize;
+		return this.index;
 	}
 
 	// ----- OutputStream methods
@@ -380,6 +361,13 @@ public class CBORWriter extends OutputStream
 		return this;
 	}
 
+	public CBORWriter tagSlidingRefNS()
+	{
+		writeTag( 0x102 ); // TODO Add capacity and maxItemLength
+		this.startNewSlidingNameSpace = true;
+		return this;
+	}
+
 	// TODO see Table 5: https://tools.ietf.org/html/rfc7049
 
 	// ----- Higher level object and array methods
@@ -521,36 +509,32 @@ public class CBORWriter extends OutputStream
 	{
 		if( this.startNewNameSpace )
 			this.startNewNameSpace = false;
+		if( this.startNewSlidingNameSpace )
+			this.startNewSlidingNameSpace = false;
 	}
 
 	private void pushState( STATE state )
 	{
-		this.states.push( new StateItem( this.state, this.dictionary ) );
+		this.stateStack.push( new StateItem( this.state, this.index ) );
 		this.state = state;
 
+		if( this.startNewSlidingNameSpace )
+		{
+			this.index = new SlidingByteStringIndex( 10000 );
+			this.startNewSlidingNameSpace = false;
+		}
 		if( this.startNewNameSpace )
 		{
-			this.dictionary = new HashMap<CBORByteString, Integer>();
-			this.dictionarySize = 0;
+			this.index = new StandardByteStringIndex();
 			this.startNewNameSpace = false;
 		}
 	}
 
 	private void popState()
 	{
-		StateItem state = this.states.pop();
+		StateItem state = this.stateStack.pop();
 		this.state = state.state;
-		if( this.dictionary != state.dictionary )
-		{
-			this.dictionary = state.dictionary;
-			if( this.dictionary != null )
-			{
-				int size = 0;
-				for( CBORByteString bs : this.dictionary.keySet() )
-					size += bs.length() + OVERHEAD;
-				this.dictionarySize = size;
-			}
-		}
+		this.index = state.index;
 	}
 
 	private void checkState()
@@ -565,22 +549,15 @@ public class CBORWriter extends OutputStream
 	{
 		clearFlags();
 
-		if( bs.length() <= CBORWriter.MAX_STRINGREF_LENGTH )
-			if( this.dictionary != null && this.state != STATE.IBYTES && this.state != STATE.ITEXT )
+//		if( bs.length() <= CBORWriter.MAX_STRINGREF_LENGTH )
+			if( this.index != null && this.state != STATE.IBYTES && this.state != STATE.ITEXT )
 			{
-				Integer index = this.dictionary.get( bs );
+				Integer index = this.index.putOrGet( bs );
 				if( index != null )
 				{
 					writeTag( 25 );
 					writeIntU( index );
 					return;
-				}
-
-				int index2 = this.dictionary.size();
-				if( bs.length() >= getUIntSize( index2 ) + 2 )
-				{
-					this.dictionary.put( bs, index2 );
-					this.dictionarySize += bs.length() + OVERHEAD;
 				}
 			}
 
@@ -604,12 +581,12 @@ public class CBORWriter extends OutputStream
 	static private class StateItem
 	{
 		STATE state;
-		Map<CBORByteString, Integer> dictionary;
+		ByteStringIndex index;
 
-		StateItem( STATE state, Map<CBORByteString, Integer> dictionary )
+		StateItem( STATE state, ByteStringIndex index )
 		{
 			this.state = state;
-			this.dictionary = dictionary;
+			this.index = index;
 		}
 	}
 }

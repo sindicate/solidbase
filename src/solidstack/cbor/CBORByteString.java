@@ -43,4 +43,11 @@ public class CBORByteString
 	{
 		return this.bytes;
 	}
+
+	public Object toJava()
+	{
+		if( this.utf8 )
+			return new String( this.bytes, CBORWriter.UTF8 );
+		return this.bytes;
+	}
 }

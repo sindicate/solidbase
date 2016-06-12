@@ -110,7 +110,7 @@ public class CBORScanner
 	{
 		byte[] result = new byte[ len ];
 		readBytes( result );
-		return new String( result );
+		return new String( result, CBORWriter.UTF8 );
 	}
 
 	static private CBORSimpleToken readSimple( SourceInputStream in, long pos, int minor, TYPE type ) throws IOException

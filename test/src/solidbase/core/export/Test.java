@@ -17,11 +17,11 @@ public class Test
 {
 	static public void main( String... args ) throws IOException
 	{
-		InputStream in = Resources.getResource( "D:/solidbase/complaints-400000.cbor" ).newInputStream();
+		InputStream in = Resources.getResource( "D:/solidbase/complaints-100000.cbor" ).newInputStream();
 		in = new BufferedInputStream( in, 0x1000 );
 		CBORToString toString = new CBORToString( in );
 
-		OutputStream out = new FileOutputStream( "D:/solidbase/complaints-400000.cbor.txt" );
+		OutputStream out = new FileOutputStream( "D:/solidbase/complaints-100000.cbor.txt" );
 		out = new BufferedOutputStream( out, 0x1000 );
 		Writer w = new OutputStreamWriter( out, Charset.forName( "UTF-8" ) );
 

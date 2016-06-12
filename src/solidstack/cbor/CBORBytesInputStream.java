@@ -40,7 +40,7 @@ public class CBORBytesInputStream extends InputStream
 			throw new IllegalStateException( "Only byte or text strings allowed, not " + t.type() );
 
 		this.buffer = new byte[ t.length() ];
-		this.in.readBytes( this.buffer );
+		this.in.readBytesForStream( this.buffer );
 		this.pos = 0;
 		return this.buffer[ this.pos++ ];
 	}
