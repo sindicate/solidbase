@@ -95,7 +95,7 @@ public class JDBCSupport
 			initTypeNames(); // TODO Move to a static initializer
 
 		Integer result = typeNames2.get( type );
-		Assert.notNull( result, "Unknown JDBC type " + type );
+		Assert.notNull( result, "Unknown JDBC type: " + type );
 		return result;
 	}
 }

@@ -184,7 +184,7 @@ public class CBORParser
 	private void newNamespace( CBORToken t )
 	{
 		if( t.hasTag( 0x102 ) )
-			this.index = new SlidingReverseByteStringIndex( 1000, Integer.MAX_VALUE ); // FIXME Should come from the UINT
+			this.index = new SlidingReverseByteStringIndex( 10000, Integer.MAX_VALUE ); // FIXME Should come from the UINT
 		else if( t.hasTag( 0x100 ) )
 			this.index = new StandardReverseByteStringIndex();
 	}

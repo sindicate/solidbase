@@ -3,30 +3,37 @@ package solidstack.cbor;
 import java.util.HashMap;
 import java.util.Map;
 
+import solidstack.cbor.TreeIndex.Node;
 
 public class SlidingReverseByteStringIndex implements ReverseByteStringIndex
 {
-	private Map<Integer, CBORByteString> map = new HashMap<Integer, CBORByteString>();
+	private Map<CBORByteString, Node<CBORByteString>> map = new HashMap<CBORByteString, Node<CBORByteString>>();
+	private TreeIndex<CBORByteString> index = new TreeIndex<CBORByteString>();
 
 	private int capacity;
 	private int maxItemSize;
-	private int nextIndex;
 
 
 	public SlidingReverseByteStringIndex( int capacity, int maxItemSize )
 	{
 		this.capacity = capacity;
 		this.maxItemSize = maxItemSize;
-		this.nextIndex = capacity - 1;
 	}
 
 	public void put( CBORByteString value )
 	{
+		if( value.length() < 2 )
+			return;
 		if( value.length() > this.maxItemSize )
 			return;
-		int index = this.nextIndex;
-		this.map.put( index, value );
-		this.nextIndex = wrap( index - 1 );
+
+		Node<CBORByteString> node = this.map.remove( value );
+		if( node != null )
+			this.index.remove( node );
+		else if( this.index.size() >= this.capacity )
+			this.map.remove( this.index.removeLast().data );
+
+		this.map.put( value, this.index.addFirst( value ) );
 	}
 
 	public CBORByteString get( int index )
@@ -38,23 +45,6 @@ public class SlidingReverseByteStringIndex implements ReverseByteStringIndex
 
 	CBORByteString get0( int index )
 	{
-		if( index < 0 || index >= this.capacity )
-			throw new IndexOutOfBoundsException( "index: " + index + ", capacity: " + this.capacity );
-		index = cap( index + this.nextIndex + 1 );
-		return this.map.get( index );
-	}
-
-	private int wrap( int value )
-	{
-		if( value < 0 )
-			return value + this.capacity;
-		return value;
-	}
-
-	private int cap( int value )
-	{
-		if( value >= this.capacity )
-			return value - this.capacity;
-		return value;
+		return this.index.get( index ).data;
 	}
 }

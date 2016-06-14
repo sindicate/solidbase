@@ -10,24 +10,24 @@ import solidstack.cbor.CBORToken.TYPE;
 import solidstack.io.FatalIOException;
 import solidstack.io.SourceInputStream;
 
-public class CBORToString
+public class CBORToString2
 {
-	private CBORParser in;
+	private CBORScanner in;
 	private String spaces = "                ";
 
-	public CBORToString( CBORParser in )
+	public CBORToString2( CBORScanner in )
 	{
 		this.in = in;
 	}
 
-	public CBORToString( byte[] bytes )
+	public CBORToString2( byte[] bytes )
 	{
-		this( new CBORParser( new SourceInputStream( new ByteArrayInputStream( bytes ), null, 0 ) ) );
+		this( new CBORScanner( new SourceInputStream( new ByteArrayInputStream( bytes ), null, 0 ) ) );
 	}
 
-	public CBORToString( InputStream in )
+	public CBORToString2( InputStream in )
 	{
-		this( new CBORParser( new SourceInputStream( in, null, 0 ) ) );
+		this( new CBORScanner( new SourceInputStream( in, null, 0 ) ) );
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class CBORToString
 
 	public void toString( Writer out )
 	{
-		CBORParser in = this.in;
+		CBORScanner in = this.in;
 		int indent = 0;
 
 		try
@@ -55,7 +55,7 @@ public class CBORToString
 		}
 	}
 
-	private boolean toString( CBORParser in, Writer out, int indent ) throws IOException
+	private boolean toString( CBORScanner in, Writer out, int indent ) throws IOException
 	{
 		CBORToken t = in.get();
 		if( t.type() == TYPE.EOF )
@@ -69,10 +69,8 @@ public class CBORToString
 		return false;
 	}
 
-	private void toString( CBORToken token, CBORParser in, Writer out, int indent ) throws IOException
+	private void toString( CBORToken token, CBORScanner in, Writer out, int indent ) throws IOException
 	{
-		long pos = in.getPos();
-
 		if( indent > 0 )
 		{
 			if( indent > this.spaces.length() )
@@ -97,6 +95,11 @@ public class CBORToString
 				out.append( ": \"" );
 				appendString( out, in.readString( token.length() ) );
 				out.append( "\"\n" );
+				break;
+
+			case TAG:
+				out.append( ' ' );
+				toString( in, out, 0 );
 				break;
 
 			case ARRAY:
@@ -147,21 +150,6 @@ public class CBORToString
 					eof = toString( in, out, indent );
 				break;
 
-			case UINT:
-				if( token.hasTag( 0x19 ) )
-				{
-					Object string = in.getFromNamespace( token.length(), pos );
-					if( string instanceof String )
-					{
-						out.append( ": \"" );
-						appendString( out, (String)string );
-						out.append( "\"\n" );
-						break;
-					}
-					out.append( ':' );
-					appendHex( out, (byte[])string );
-				}
-				//$FALL-THROUGH$
 			default:
 				out.append( '\n' );
 		}

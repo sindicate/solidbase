@@ -163,7 +163,7 @@ public class CBORSimpleToken implements CBORToken
 		}
 	}
 
-	private void appendHex( StringBuilder out, long value )
+	static void appendHex( StringBuilder out, long value )
 	{
 		String hex = Long.toHexString( value ).toUpperCase();
 		if( hex.length() % 2 == 1 )

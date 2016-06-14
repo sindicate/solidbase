@@ -1,46 +1,41 @@
 package solidstack.cbor;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
+
+import solidstack.cbor.TreeIndex.Node;
 
 
 public class SlidingByteStringIndex implements ByteStringIndex
 {
-	private Map<CBORByteString, Integer> map = new HashMap<CBORByteString, Integer>();
-	private LinkedList<Object[]> window = new LinkedList<Object[]>();
+	private Map<CBORByteString, Node<CBORByteString>> map = new HashMap<CBORByteString, Node<CBORByteString>>();
+	private TreeIndex<CBORByteString> index = new TreeIndex<CBORByteString>();
 
 	private int capacity;
 	private int maxItemSize;
-	private int nextIndex;
 
 
 	public SlidingByteStringIndex( int capacity, int maxItemSize )
 	{
 		this.capacity = capacity;
 		this.maxItemSize = maxItemSize;
-		this.nextIndex = capacity - 1;
 	}
 
 	void put( CBORByteString value )
 	{
-		if( this.window.size() >= this.capacity )
-		{
-			Object[] item = this.window.removeFirst();
-			if( this.map.get( item[ 0 ] ).equals( item[ 1 ] ) ) // TODO Java 8 has a remove(key,value)
-				this.map.remove( item[ 0 ] );
-		}
+		Node<CBORByteString> node = this.map.remove( value );
+		if( node != null )
+			this.index.remove( node );
+		else if( this.index.size() >= this.capacity )
+			this.map.remove( this.index.removeLast().data );
 
-		int index = this.nextIndex;
-		this.map.put( value, index );
-		this.nextIndex = wrap( index - 1 );
-
-		this.window.addLast( new Object[] { value, index } );
+		this.map.put( value, this.index.addFirst( value ) );
 	}
 
+	@Override
 	public Integer putOrGet( CBORByteString value )
 	{
-		if( value.length() < 3 )
+		if( value.length() < 2 )
 			return null;
 		if( value.length() > this.maxItemSize )
 			return null;
@@ -55,21 +50,15 @@ public class SlidingByteStringIndex implements ByteStringIndex
 
 	Integer get( CBORByteString value )
 	{
-		Integer index = this.map.get( value );
-		if( index == null )
+		Node<CBORByteString> node = this.map.get( value );
+		if( node == null )
 			return null;
-		return wrap( index - ( this.nextIndex + 1 ) );
+		return node.index();
 	}
 
+	@Override
 	public int memoryUsage()
 	{
 		return 0;
-	}
-
-	private int wrap( int value )
-	{
-		if( value < 0 )
-			return value + this.capacity;
-		return value;
 	}
 }

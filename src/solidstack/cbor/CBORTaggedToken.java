@@ -19,4 +19,20 @@ public class CBORTaggedToken extends CBORSimpleToken
 				return true;
 		return false;
 	}
+
+	@Override
+	public String toString()
+	{
+		if( this.tags == null )
+			return super.toString();
+
+		StringBuilder result = new StringBuilder( this.tags.length > 1 ? "TAGS" : "TAG" );
+		for( long tag : this.tags )
+		{
+			result.append( " 0x" );
+			appendHex( result, tag );
+		}
+		result.append( ' ' ).append( super.toString() );
+		return result.toString();
+	}
 }

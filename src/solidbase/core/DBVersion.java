@@ -681,11 +681,11 @@ public class DBVersion
 		if( version == null )
 		{
 			if( target != null )
-				return "The database has no version, incompletely upgraded to version \"" + target + "\" (" + statements + " statements successful).";
+				return "The database has no version, partially upgraded to version \"" + target + "\" (" + statements + " statements successful).";
 			return "The database is unmanaged.";
 		}
 		if( target != null )
-			return "Current database version is \"" + version + "\", incompletely upgraded to version \"" + target + "\" (" + statements + " statements successful).";
+			return "Current database version is \"" + version + "\", partially upgraded to version \"" + target + "\" (" + statements + " statements successful).";
 		return "Current database version is \"" + version + "\".";
 	}
 }

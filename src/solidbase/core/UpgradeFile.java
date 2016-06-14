@@ -638,7 +638,7 @@ public class UpgradeFile
 				if( targeting.equals( segment.getTarget() ) )
 					queue.add( segment ); // Add segment to the end of the list
 			if( queue.isEmpty() )
-				throw new FatalException( "The database is incompletely upgraded to version " + targeting + ", but that version is not reachable from version " + StringUtils.defaultString( source, "<no version>" ) );
+				throw new FatalException( "The database is partially upgraded to version " + targeting + ", but that version is not reachable from version " + StringUtils.defaultString( source, "<no version>" ) );
 		}
 		else
 			queue.addAll( segments );

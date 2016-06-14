@@ -50,4 +50,12 @@ public class CBORByteString
 			return new String( this.bytes, CBORWriter.UTF8 );
 		return this.bytes;
 	}
+
+	@Override
+	public String toString()
+	{
+		if( this.utf8 )
+			return (String)toJava();
+		return super.toString();
+	}
 }
