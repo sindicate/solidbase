@@ -216,7 +216,7 @@ public class DumpCBOR implements CommandListener
 							}
 							fields.add( field );
 						}
-						dataWriter.getCBOROutputStream().tagSlidingRefNS().write( properties );
+						dataWriter.getCBOROutputStream().tagRefNS().write( properties );
 
 						try
 						{

@@ -74,7 +74,7 @@ public class CBORDataWriter implements RecordSink
 	@Override
 	public void start()
 	{
-		this.out.tagSlidingRefNS();
+		this.out.tagSlidingRefNS( 10000, 0x1000 );
 		this.out.startArray();
 	}
 
