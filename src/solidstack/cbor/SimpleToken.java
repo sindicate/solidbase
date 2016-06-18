@@ -1,7 +1,7 @@
 package solidstack.cbor;
 
 
-public class CBORSimpleToken implements CBORToken
+public class SimpleToken implements Token
 {
 	private final TYPE type;
 	long value;
@@ -10,41 +10,41 @@ public class CBORSimpleToken implements CBORToken
 	double doble;
 
 
-	static public CBORSimpleToken forType( TYPE type, long value )
+	static public SimpleToken forType( TYPE type, long value )
 	{
-		CBORSimpleToken result = new CBORSimpleToken( type );
+		SimpleToken result = new SimpleToken( type );
 		result.value = value;
 		return result;
 	}
 
-	static public CBORSimpleToken forFloatS( float flot )
+	static public SimpleToken forFloatS( float flot )
 	{
-		CBORSimpleToken result = new CBORSimpleToken( TYPE.SFLOAT );
+		SimpleToken result = new SimpleToken( TYPE.SFLOAT );
 		result.flot = flot;
 		return result;
 	}
 
-	static public CBORSimpleToken forFloatD( double doble )
+	static public SimpleToken forFloatD( double doble )
 	{
-		CBORSimpleToken result = new CBORSimpleToken( TYPE.DFLOAT );
+		SimpleToken result = new SimpleToken( TYPE.DFLOAT );
 		result.doble = doble;
 		return result;
 	}
 
-	CBORSimpleToken( TYPE type )
+	SimpleToken( TYPE type )
 	{
 		this.type = type;
 	}
 
-	CBORSimpleToken( boolean value )
+	SimpleToken( boolean value )
 	{
 		this.type = TYPE.BOOL;
 		this.bool = value;
 	}
 
-	CBORToken withTags( long[] tags )
+	Token withTags( long[] tags )
 	{
-		CBORTaggedToken result = new CBORTaggedToken( this.type );
+		TaggedToken result = new TaggedToken( this.type );
 		result.bool = this.bool;
 		result.doble = this.doble;
 		result.flot = this.flot;

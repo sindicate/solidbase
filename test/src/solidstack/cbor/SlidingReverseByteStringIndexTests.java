@@ -11,12 +11,12 @@ public class SlidingReverseByteStringIndexTests
 	public void test1()
 	{
 		SlidingReverseByteStringIndex index = new SlidingReverseByteStringIndex( 4, 64 );
-		CBORByteString b1 = new CBORByteString( false, new byte[] { 1, 0, 0 } );
-		CBORByteString b2 = new CBORByteString( false, new byte[] { 2, 0, 0 } );
-		CBORByteString b3 = new CBORByteString( false, new byte[] { 3, 0, 0 } );
-		CBORByteString b4 = new CBORByteString( false, new byte[] { 4, 0, 0 } );
-		CBORByteString b5 = new CBORByteString( false, new byte[] { 5, 0, 0 } );
-		CBORByteString b6 = new CBORByteString( false, new byte[] { 6, 0, 0 } );
+		ByteString b1 = new ByteString( false, new byte[] { 1, 0, 0 } );
+		ByteString b2 = new ByteString( false, new byte[] { 2, 0, 0 } );
+		ByteString b3 = new ByteString( false, new byte[] { 3, 0, 0 } );
+		ByteString b4 = new ByteString( false, new byte[] { 4, 0, 0 } );
+		ByteString b5 = new ByteString( false, new byte[] { 5, 0, 0 } );
+		ByteString b6 = new ByteString( false, new byte[] { 6, 0, 0 } );
 
 		index.put( b1 );
 		assertThat( index.get0( 0 ) ).isEqualTo( b1 );
@@ -54,14 +54,14 @@ public class SlidingReverseByteStringIndexTests
 		assertThat( index.get0( 1 ) ).isEqualTo( b6 );
 		assertThat( index.get0( 0 ) ).isEqualTo( b3 );
 
-		CBORByteString b7 = new CBORByteString( false, new byte[] { 1, 0, 0 } );
+		ByteString b7 = new ByteString( false, new byte[] { 1, 0, 0 } );
 		index.put( b7 ); // Not in the index
 		assertThat( index.get0( 3 ) ).isEqualTo( b5 );
 		assertThat( index.get0( 2 ) ).isEqualTo( b6 );
 		assertThat( index.get0( 1 ) ).isEqualTo( b3 );
 		assertThat( index.get0( 0 ) ).isEqualTo( b1 );
 
-		CBORByteString b8 = new CBORByteString( false, new byte[] { 6, 0, 0 } );
+		ByteString b8 = new ByteString( false, new byte[] { 6, 0, 0 } );
 		index.put( b8 ); // Already in the index
 		assertThat( index.get0( 3 ) ).isEqualTo( b5 );
 		assertThat( index.get0( 2 ) ).isEqualTo( b3 );

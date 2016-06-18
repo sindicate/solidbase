@@ -8,8 +8,8 @@ import solidstack.cbor.TreeIndex.Node;
 
 public class SlidingByteStringIndex implements ByteStringIndex
 {
-	private Map<CBORByteString, Node<CBORByteString>> map = new HashMap<CBORByteString, Node<CBORByteString>>();
-	private TreeIndex<CBORByteString> index = new TreeIndex<CBORByteString>();
+	private Map<ByteString, Node<ByteString>> map = new HashMap<ByteString, Node<ByteString>>();
+	private TreeIndex<ByteString> index = new TreeIndex<ByteString>();
 
 	private int capacity;
 	private int maxItemSize;
@@ -21,9 +21,9 @@ public class SlidingByteStringIndex implements ByteStringIndex
 		this.maxItemSize = maxItemSize;
 	}
 
-	void put( CBORByteString value )
+	void put( ByteString value )
 	{
-		Node<CBORByteString> node = this.map.remove( value );
+		Node<ByteString> node = this.map.remove( value );
 		if( node != null )
 			this.index.remove( node );
 		else if( this.index.size() >= this.capacity )
@@ -33,7 +33,7 @@ public class SlidingByteStringIndex implements ByteStringIndex
 	}
 
 	@Override
-	public Integer putOrGet( CBORByteString value )
+	public Integer putOrGet( ByteString value )
 	{
 		if( value.length() < 2 )
 			return null;
@@ -48,9 +48,9 @@ public class SlidingByteStringIndex implements ByteStringIndex
 		return null;
 	}
 
-	Integer get( CBORByteString value )
+	Integer get( ByteString value )
 	{
-		Node<CBORByteString> node = this.map.get( value );
+		Node<ByteString> node = this.map.get( value );
 		if( node == null )
 			return null;
 		return node.index();

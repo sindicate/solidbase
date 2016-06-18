@@ -2,6 +2,6 @@ package solidstack.cbor;
 
 public interface ByteStringIndex
 {
-	Integer putOrGet( CBORByteString value );
+	Integer putOrGet( ByteString value );
 	int memoryUsage();
 }

@@ -3,13 +3,13 @@ package solidstack.cbor;
 import java.util.Arrays;
 
 
-public class CBORByteString
+public class ByteString
 {
 	private boolean utf8;
 	private byte[] bytes;
 
 
-	public CBORByteString( boolean utf8, byte[] bytes )
+	public ByteString( boolean utf8, byte[] bytes )
 	{
 		this.utf8 = utf8;
 		this.bytes = bytes;
@@ -26,9 +26,9 @@ public class CBORByteString
 	{
 		if( other == this )
 			return true;
-		if( !( other instanceof CBORByteString ) )
+		if( !( other instanceof ByteString ) )
 			return false;
-		CBORByteString that = (CBORByteString)other;
+		ByteString that = (ByteString)other;
 		if( that.utf8 != this.utf8 )
 			return false;
 		return Arrays.equals( that.bytes, this.bytes );

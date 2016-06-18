@@ -7,8 +7,8 @@ import solidstack.cbor.TreeIndex.Node;
 
 public class SlidingReverseByteStringIndex implements ReverseByteStringIndex
 {
-	private Map<CBORByteString, Node<CBORByteString>> map = new HashMap<CBORByteString, Node<CBORByteString>>();
-	private TreeIndex<CBORByteString> index = new TreeIndex<CBORByteString>();
+	private Map<ByteString, Node<ByteString>> map = new HashMap<ByteString, Node<ByteString>>();
+	private TreeIndex<ByteString> index = new TreeIndex<ByteString>();
 
 	private int capacity;
 	private int maxItemSize;
@@ -20,14 +20,14 @@ public class SlidingReverseByteStringIndex implements ReverseByteStringIndex
 		this.maxItemSize = maxItemSize;
 	}
 
-	public void put( CBORByteString value )
+	public void put( ByteString value )
 	{
 		if( value.length() < 2 )
 			return;
 		if( value.length() > this.maxItemSize )
 			return;
 
-		Node<CBORByteString> node = this.map.remove( value );
+		Node<ByteString> node = this.map.remove( value );
 		if( node != null )
 			this.index.remove( node );
 		else if( this.index.size() >= this.capacity )
@@ -36,14 +36,14 @@ public class SlidingReverseByteStringIndex implements ReverseByteStringIndex
 		this.map.put( value, this.index.addFirst( value ) );
 	}
 
-	public CBORByteString get( int index )
+	public ByteString get( int index )
 	{
-		CBORByteString result = get0( index );
+		ByteString result = get0( index );
 		put( result ); // New occurrence
 		return result;
 	}
 
-	CBORByteString get0( int index )
+	ByteString get0( int index )
 	{
 		return this.index.get( index ).data;
 	}

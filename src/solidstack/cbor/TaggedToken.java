@@ -1,12 +1,12 @@
 package solidstack.cbor;
 
 
-public class CBORTaggedToken extends CBORSimpleToken
+public class TaggedToken extends SimpleToken
 {
 	long[] tags;
 
 
-	CBORTaggedToken( TYPE type )
+	TaggedToken( TYPE type )
 	{
 		super( type );
 	}

@@ -195,15 +195,9 @@ public class DumpCBOR implements CommandListener
 						properties.set( "createdBy", new JSONObject( "product", "SolidBase", "version", "2.0.0" ) );
 						if( dateCreated )
 							properties.set( "createdDate", new Date() );
-						properties.set( "maxStringRefDictionarySize", CBORDataWriter.MAX_DICTIONARY_SIZE );
-						// TODO Define a new tag for this, like 0x101
-//						properties.set( "maxStringRefStringLength", CBORWriter.MAX_STRINGREF_LENGTH );
-
 						dataWriter.getCBOROutputStream().write( properties );
 
 						properties = new JSONObject();
-						properties.set( "format", "record-arrays" );
-
 						JSONArray fields = new JSONArray();
 						properties.set( "fields", fields );
 						for( int i = 0; i < columns.length; i++ )
@@ -222,7 +216,6 @@ public class DumpCBOR implements CommandListener
 							}
 							fields.add( field );
 						}
-
 						dataWriter.getCBOROutputStream().tagSlidingRefNS().write( properties );
 
 						try

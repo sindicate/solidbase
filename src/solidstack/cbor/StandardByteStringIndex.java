@@ -23,11 +23,11 @@ public class StandardByteStringIndex implements ByteStringIndex
 	 */
 	static public int MEMORY_OVERHEAD = 64;
 
-	private Map<CBORByteString, Integer> map = new HashMap<CBORByteString, Integer>();
+	private Map<ByteString, Integer> map = new HashMap<ByteString, Integer>();
 	private int memoryUsage;
 
 
-	void put( CBORByteString value )
+	void put( ByteString value )
 	{
 		int index = this.map.size();
 		if( value.length() >= CBORWriter.getUIntSize( index ) + 2 )
@@ -37,7 +37,7 @@ public class StandardByteStringIndex implements ByteStringIndex
 		}
 	}
 
-	public Integer putOrGet( CBORByteString value )
+	public Integer putOrGet( ByteString value )
 	{
 		Integer result = get( value );
 		if( result != null )
@@ -46,15 +46,10 @@ public class StandardByteStringIndex implements ByteStringIndex
 		return null;
 	}
 
-	Integer get( CBORByteString value )
+	Integer get( ByteString value )
 	{
 		return this.map.get( value );
 	}
-
-//	public int nextIndex()
-//	{
-//		return this.map.size();
-//	}
 
 	public int memoryUsage()
 	{

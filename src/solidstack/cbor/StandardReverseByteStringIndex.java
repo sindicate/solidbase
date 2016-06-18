@@ -6,11 +6,11 @@ import java.util.List;
 
 public class StandardReverseByteStringIndex implements ReverseByteStringIndex
 {
-	private List<CBORByteString> list = new ArrayList<CBORByteString>();
+	private List<ByteString> list = new ArrayList<ByteString>();
 
 
 	@Override
-	public void put( CBORByteString value )
+	public void put( ByteString value )
 	{
 		int index = this.list.size();
 		if( value.length() >= CBORWriter.getUIntSize( index ) + 2 )
@@ -18,7 +18,7 @@ public class StandardReverseByteStringIndex implements ReverseByteStringIndex
 	}
 
 	@Override
-	public CBORByteString get( int index )
+	public ByteString get( int index )
 	{
 		return this.list.get( index );
 	}

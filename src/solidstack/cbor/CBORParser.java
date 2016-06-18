@@ -1,10 +1,14 @@
 package solidstack.cbor;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Stack;
 
 import org.apache.commons.collections.primitives.ArrayLongList;
 
-import solidstack.cbor.CBORToken.TYPE;
+import solidstack.cbor.Token.TYPE;
 import solidstack.io.Resource;
 import solidstack.io.SourceException;
 import solidstack.io.SourceInputStream;
@@ -15,7 +19,7 @@ public class CBORParser
 {
 	static private enum STATE { IBYTES, ITEXT, IARRAYMAP, BYTES, TEXT, ARRAYMAP };
 
-	private CBORScanner in;
+	CBORScanner in;
 
 	private ReverseByteStringIndex index;
 	private STATE state;
@@ -51,17 +55,17 @@ public class CBORParser
 
 	public Object getFromNamespace( int index, long pos )
 	{
-		CBORByteString result = this.index.get( index );
+		ByteString result = this.index.get( index );
 		if( result == null )
 			throw new SourceException( "Illegal string ref: " + index, SourceLocation.forBinary( this.in.getResource(), pos ) );
 		return result.toJava();
 	}
 
-	private CBORToken get0()
+	private Token get0()
 	{
 		CBORScanner in = this.in;
 
-		CBORSimpleToken t = in.get();
+		SimpleToken t = in.get();
 		if( !t.isTag() )
 			return t;
 
@@ -75,14 +79,14 @@ public class CBORParser
 		return t.withTags( tags.toArray() );
 	}
 
-	public CBORToken get()
+	public Token get()
 	{
 		if( this.state == STATE.BYTES || this.state == STATE.TEXT )
 			throw new IllegalStateException( "Bytes or text is waiting to be read" );
 
 		long pos = this.in.getPos();
 
-		CBORToken t = get0();
+		Token t = get0();
 		switch( t.type() )
 		{
 			case MAP:
@@ -158,13 +162,13 @@ public class CBORParser
 		}
 	}
 
-	private void checkNotIString( CBORToken token, long pos )
+	private void checkNotIString( Token token, long pos )
 	{
 		if( this.state == STATE.ITEXT || this.state == STATE.IBYTES )
 			throw newSourceException( token, pos );
 	}
 
-	private SourceException newSourceException( CBORToken token, long pos )
+	private SourceException newSourceException( Token token, long pos )
 	{
 		return new SourceException( "Unexpected " + token + " in parser state: " + this.state, SourceLocation.forBinary( this.in.getResource(), pos ) );
 	}
@@ -181,7 +185,7 @@ public class CBORParser
 			}
 	}
 
-	private void newNamespace( CBORToken t )
+	private void newNamespace( Token t )
 	{
 		if( t.hasTag( 0x102 ) )
 			this.index = new SlidingReverseByteStringIndex( 10000, Integer.MAX_VALUE ); // FIXME Should come from the UINT
@@ -197,7 +201,7 @@ public class CBORParser
 		// TODO Check remaining
 		popState();
 		if( this.index != null )
-			this.index.put( new CBORByteString( false, bytes ) );
+			this.index.put( new ByteString( false, bytes ) );
 	}
 
 	public String readString( int len )
@@ -209,7 +213,7 @@ public class CBORParser
 		// TODO Check remaining
 		popState();
 		if( this.index != null )
-			this.index.put( new CBORByteString( true, bytes ) );
+			this.index.put( new ByteString( true, bytes ) );
 		return new String( bytes, CBORWriter.UTF8 );
 	}
 
@@ -218,6 +222,20 @@ public class CBORParser
 		this.in.readBytes( bytes );
 		// TODO Check remaining
 		popState();
+	}
+
+	public InputStream getInputStream()
+	{
+		if( this.state != STATE.ITEXT && this.state != STATE.IBYTES )
+			throw new SourceException( "Can't stream bytes in parser state: " + this.state, SourceLocation.forBinary( this.in.getResource(), this.in.getPos() ) );
+		return new BytesInputStream();
+	}
+
+	public Reader getReader()
+	{
+		if( this.state != STATE.ITEXT )
+			throw new SourceException( "Can't stream text in parser state: " + this.state, SourceLocation.forBinary( this.in.getResource(), this.in.getPos() ) );
+		return new InputStreamReader( new BytesInputStream(), CBORWriter.UTF8 );
 	}
 
 	private void pushState( STATE state )
@@ -239,6 +257,7 @@ public class CBORParser
 		}
 	}
 
+
 	static private class StateItem
 	{
 		STATE state;
@@ -250,6 +269,71 @@ public class CBORParser
 			this.state = state;
 			this.index = index;
 			this.remaining = remaining;
+		}
+	}
+
+
+	public class BytesInputStream extends InputStream
+	{
+		private byte[] buffer;
+		private int pos;
+		private boolean end;
+
+
+		@Override
+		public int read() throws IOException
+		{
+			if( this.end )
+				return -1;
+
+			int l;
+			if( this.buffer == null || ( l = this.buffer.length - this.pos ) <= 0 )
+				do
+					l = fillBuffer();
+				while( l == 0 );
+
+			if( l < 0 )
+				return -1;
+
+			return this.buffer[ this.pos++ ];
+		}
+
+		@Override
+		public int read( byte[] b, int off, int len ) throws IOException
+		{
+			if( this.end )
+				return -1;
+
+			int l;
+			if( this.buffer == null || ( l = this.buffer.length - this.pos ) <= 0 )
+				l = fillBuffer();
+
+			if( l < 0 )
+				return -1;
+
+			if( len > l )
+				len = l;
+			System.arraycopy( this.buffer, this.pos, b, off, len );
+			this.pos += len;
+			return len;
+		}
+
+		private int fillBuffer()
+		{
+			Token t = get();
+			if( t.type() == TYPE.BREAK )
+			{
+				this.end = true;
+				return -1;
+			}
+
+			if( t.type() != TYPE.BYTES && t.type() != TYPE.TEXT ) // TODO Add the type to constructor
+				throw new IllegalStateException( "Only byte or text strings allowed, not " + t.type() );
+
+			this.buffer = new byte[ t.length() ];
+			readBytesForStream( this.buffer );
+			this.pos = 0;
+			return t.length();
 		}
 	}
 }

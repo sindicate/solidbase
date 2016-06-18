@@ -4,7 +4,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.Date;
 
-import solidstack.cbor.CBORToken.TYPE;
+import solidstack.cbor.Token.TYPE;
 import solidstack.io.SourceInputStream;
 import solidstack.json.JSONArray;
 import solidstack.json.JSONObject;
@@ -31,7 +31,7 @@ public class CBORReader
 		this.disk.close();
 	}
 
-	public CBORToken get()
+	public Token get()
 	{
 		return this.in.get();
 	}
@@ -40,7 +40,7 @@ public class CBORReader
 	{
 		CBORParser in = this.in;
 		long pos = in.getPos();
-		CBORToken t = in.get();
+		Token t = in.get();
 		TYPE type = t.type();
 		switch( type )
 		{
@@ -75,11 +75,11 @@ public class CBORReader
 
 			case ITEXT:
 				// TODO If only 1 TSTRING then return normal String
-				return new InputStreamReader( this.disk.buffer( new CBORBytesInputStream( this.in ) ), Charset.forName( "UTF-8" ) );
+				return new InputStreamReader( this.disk.buffer( this.in.getInputStream() ), Charset.forName( "UTF-8" ) );
 
 			case IBYTES:
 				// TODO If only 1 BSTRING then return normal byte[]
-				return this.disk.buffer( new CBORBytesInputStream( this.in ) );
+				return this.disk.buffer( this.in.getInputStream() );
 
 			case UINT:
 				if( t.hasTag( 0x19 ) )

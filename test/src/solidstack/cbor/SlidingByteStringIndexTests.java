@@ -15,12 +15,12 @@ public class SlidingByteStringIndexTests
 	public void test1()
 	{
 		SlidingByteStringIndex index = new SlidingByteStringIndex( 4, 64 );
-		CBORByteString b1 = new CBORByteString( false, new byte[] { 1, 0 } );
-		CBORByteString b2 = new CBORByteString( false, new byte[] { 2, 0 } );
-		CBORByteString b3 = new CBORByteString( false, new byte[] { 3, 0 } );
-		CBORByteString b4 = new CBORByteString( false, new byte[] { 4, 0 } );
-		CBORByteString b5 = new CBORByteString( false, new byte[] { 5, 0 } );
-		CBORByteString b6 = new CBORByteString( false, new byte[] { 6, 0 } );
+		ByteString b1 = new ByteString( false, new byte[] { 1, 0 } );
+		ByteString b2 = new ByteString( false, new byte[] { 2, 0 } );
+		ByteString b3 = new ByteString( false, new byte[] { 3, 0 } );
+		ByteString b4 = new ByteString( false, new byte[] { 4, 0 } );
+		ByteString b5 = new ByteString( false, new byte[] { 5, 0 } );
+		ByteString b6 = new ByteString( false, new byte[] { 6, 0 } );
 
 		index.put( b1 );
 		assertThat( index.get( b1 ) ).isEqualTo( 0 );
@@ -63,7 +63,7 @@ public class SlidingByteStringIndexTests
 		assertThat( index.get( b6 ) ).isEqualTo( 1 );
 		assertThat( index.get( b3 ) ).isEqualTo( 0 );
 
-		CBORByteString b7 = new CBORByteString( false, new byte[] { 1, 0 } );
+		ByteString b7 = new ByteString( false, new byte[] { 1, 0 } );
 		index.put( b7 ); // Not in the index
 		assertThat( index.get( b1 ) ).isEqualTo( 0 );
 		assertThat( index.get( b2 ) ).isNull();
@@ -74,7 +74,7 @@ public class SlidingByteStringIndexTests
 		assertThat( index.get( b7 ) ).isEqualTo( 0 );
 
 		// TODO The old one is removed from the index, so we have holes, so the index will not contain as much as it can, but otherwise a performance problem?
-		CBORByteString b8 = new CBORByteString( false, new byte[] { 6, 0 } );
+		ByteString b8 = new ByteString( false, new byte[] { 6, 0 } );
 		index.put( b8 ); // Already in the index
 		assertThat( index.get( b1 ) ).isEqualTo( 1 );
 		assertThat( index.get( b2 ) ).isNull();
@@ -93,7 +93,7 @@ public class SlidingByteStringIndexTests
 
 		SlidingByteStringIndex tree = new SlidingByteStringIndex( 1000, Integer.MAX_VALUE );
 
-		List<CBORByteString> index = new ArrayList<CBORByteString>();
+		List<ByteString> index = new ArrayList<ByteString>();
 
 		Random rnd = new Random( 0 ); // Always generates the same sequence
 		for( int i = 0; i < count; i++ )
@@ -101,7 +101,7 @@ public class SlidingByteStringIndexTests
 			System.out.println( i );
 			byte in = (byte)rnd.nextInt( 100 );
 
-			CBORByteString s = new CBORByteString( false, new byte[] { in, in, in, in, in, in, in } );
+			ByteString s = new ByteString( false, new byte[] { in, in, in, in, in, in, in } );
 
 			int ii = index.indexOf( s );
 			Integer iii = tree.putOrGet( s );

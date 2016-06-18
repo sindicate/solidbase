@@ -2,7 +2,7 @@ package solidstack.cbor;
 
 import java.io.IOException;
 
-import solidstack.cbor.CBORToken.TYPE;
+import solidstack.cbor.Token.TYPE;
 import solidstack.io.FatalIOException;
 import solidstack.io.Resource;
 import solidstack.io.SourceException;
@@ -35,7 +35,7 @@ public class CBORScanner
 		return this.in.getPos();
 	}
 
-	public CBORSimpleToken get()
+	public SimpleToken get()
 	{
 		SourceInputStream in = this.in;
 		try
@@ -44,7 +44,7 @@ public class CBORScanner
 
 			int b = in.read();
 			if( b == -1 )
-				return CBORToken.EOF;
+				return Token.EOF;
 
 			int major = b >>> 5;
 			int minor = b & 0x1F;
@@ -53,11 +53,11 @@ public class CBORScanner
 			{
 				switch( major )
 				{
-					case 2: return CBORToken.IBSTRING;
-					case 3: return CBORToken.ITSTRING;
-					case 4: return CBORToken.IARRAY;
-					case 5: return CBORToken.IMAP;
-					case 7: return CBORToken.BREAK;
+					case 2: return Token.IBSTRING;
+					case 3: return Token.ITSTRING;
+					case 4: return Token.IARRAY;
+					case 5: return Token.IMAP;
+					case 7: return Token.BREAK;
 					default:
 						throw new SourceException( "Unsupported additional info 31 for major type: " + major, SourceLocation.forBinary( in.getResource(), pos ) );
 				}
@@ -113,26 +113,26 @@ public class CBORScanner
 		return new String( result, CBORWriter.UTF8 );
 	}
 
-	static private CBORSimpleToken readSimple( SourceInputStream in, long pos, int minor, TYPE type ) throws IOException
+	static private SimpleToken readSimple( SourceInputStream in, long pos, int minor, TYPE type ) throws IOException
 	{
 		switch( minor )
 		{
-			case 20: return CBORToken.FALSE;
-			case 21: return CBORToken.TRUE;
-			case 22: return CBORToken.NULL;
-			case 23: return CBORToken.UNDEF;
+			case 20: return Token.FALSE;
+			case 21: return Token.TRUE;
+			case 22: return Token.NULL;
+			case 23: return Token.UNDEF;
 			case 25: throw new UnsupportedOperationException( "Half precision float not supported" );
-			case 26: return CBORSimpleToken.forFloatS( Float.intBitsToFloat( readUInt4( in ) ) );
-			case 27: return CBORSimpleToken.forFloatD( Double.longBitsToDouble( readUInt8( in ) ) );
-			case 31: return CBORToken.BREAK;
+			case 26: return SimpleToken.forFloatS( Float.intBitsToFloat( readUInt4( in ) ) );
+			case 27: return SimpleToken.forFloatD( Double.longBitsToDouble( readUInt8( in ) ) );
+			case 31: return Token.BREAK;
 			default:
 				throw new SourceException( "Unsupported additional info: " + minor, SourceLocation.forBinary( in.getResource(), pos ) );
 		}
 	}
 
-	static private CBORSimpleToken readUInt( SourceInputStream in, long pos, int minor, TYPE type ) throws IOException
+	static private SimpleToken readUInt( SourceInputStream in, long pos, int minor, TYPE type ) throws IOException
 	{
-		return CBORSimpleToken.forType( type, readUInt( in, pos, minor ) );
+		return SimpleToken.forType( type, readUInt( in, pos, minor ) );
 	}
 
 	static private long readUInt( SourceInputStream in, long pos, int minor ) throws IOException
