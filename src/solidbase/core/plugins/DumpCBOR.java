@@ -39,6 +39,7 @@ import solidbase.core.CommandProcessor;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
+import solidbase.util.SQLTokenizer.Choice;
 import solidbase.util.SQLTokenizer.Token;
 import solidbase.util.TimeIntervalLogCounter;
 import solidstack.io.FatalIOException;
@@ -275,6 +276,7 @@ public class DumpCBOR implements CommandListener
 		LOG EVERY n (RECORDS|SECONDS)
 		FILE "file" [GZIP]
 		COLUMN col1, col2 ( TO (BINARY|TEXT) FILE "file" [THRESHOLD n] | SKIP )
+		FROM
 		*/
 
 		Parsed result = new Parsed();
@@ -284,104 +286,107 @@ public class DumpCBOR implements CommandListener
 		tokenizer.get( "DUMP" );
 		tokenizer.get( "CBOR" );
 
-		Token t = tokenizer.get( "DATE", "COALESCE", "LOG", "FILE" );
+		Choice choice = new Choice( "DATE", "COALESCE", "LOG", "FILE", "FROM" );
 
-		if( t.eq( "DATE" ) )
+		Token t = tokenizer.get();
+		while( !t.eq( "FROM" ) )
 		{
-			tokenizer.get( "AS" );
-			tokenizer.get( "TIMESTAMP" );
+			tokenizer.expect( t, choice );
 
-			result.dateAsTimestamp = true;
-
-			t = tokenizer.get( "COALESCE", "LOG", "FILE" );
-		}
-
-		while( t.eq( "COALESCE" ) )
-		{
-			if( result.coalesce == null )
-				result.coalesce = new ArrayList<List<String>>();
-
-			List<String> cols = new ArrayList<String>();
-			result.coalesce.add( cols );
-
-			t = tokenizer.get();
-			if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
-				throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-			cols.add( t.toString() );
-
-			t = tokenizer.get( "," );
-			do
+			if( t.eq( "DATE" ) )
 			{
+				tokenizer.get( "AS" );
+				tokenizer.get( "TIMESTAMP" );
+				result.dateAsTimestamp = true;
+
+				choice.remove( "DATE" );
+				t = tokenizer.get();
+			}
+			else if( t.eq( "COALESCE" ) )
+			{
+				if( result.coalesce == null )
+					result.coalesce = new ArrayList<List<String>>();
+
+				List<String> cols = new ArrayList<String>();
+				result.coalesce.add( cols );
+
 				t = tokenizer.get();
 				if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
 					throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
 				cols.add( t.toString() );
 
+				t = tokenizer.get( "," );
+				do
+				{
+					t = tokenizer.get();
+					if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
+						throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
+					cols.add( t.toString() );
+
+					t = tokenizer.get();
+				}
+				while( t.eq( "," ) );
+			}
+			else if( t.eq( "LOG" ) )
+			{
+				tokenizer.get( "EVERY" );
+				t = tokenizer.get();
+				if( !t.isNumber() )
+					throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
+
+				int interval = Integer.parseInt( t.getValue() );
+				t = tokenizer.get( "RECORDS", "SECONDS" );
+				if( t.eq( "RECORDS" ) )
+					result.logRecords = interval;
+				else
+					result.logSeconds = interval;
+
+				choice.remove( "LOG" );
 				t = tokenizer.get();
 			}
-			while( t.eq( "," ) );
-		}
-
-		tokenizer.expect( t, "LOG", "FILE" );
-
-		if( t.eq( "LOG" ) )
-		{
-			tokenizer.get( "EVERY" );
-			t = tokenizer.get();
-			if( !t.isNumber() )
-				throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
-
-			int interval = Integer.parseInt( t.getValue() );
-			t = tokenizer.get( "RECORDS", "SECONDS" );
-			if( t.eq( "RECORDS" ) )
-				result.logRecords = interval;
-			else
-				result.logSeconds = interval;
-
-			tokenizer.get( "FILE" );
-		}
-
-		t = tokenizer.get();
-		if( !t.isString() )
-			throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-		result.fileName = t.stripQuotes();
-
-		t = tokenizer.get();
-		if( t.eq( "GZIP" ) )
-		{
-			result.gzip = true;
-			t = tokenizer.get();
-		}
-
-		while( t.eq( "COLUMN" ) )
-		{
-			if( result.columns == null )
-				result.columns = new HashMap<String, ColumnSpec>();
-
-			List<String> cols = new ArrayList<String>();
-			do
+			else if( t.eq( "FILE" ) )
 			{
 				t = tokenizer.get();
-				if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
-					throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-				cols.add( t.getValue() );
+				if( !t.isString() )
+					throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+				result.fileName = t.stripQuotes();
+
 				t = tokenizer.get();
+				if( t.eq( "GZIP" ) )
+				{
+					result.gzip = true;
+					t = tokenizer.get();
+				}
+
+				choice.remove( "FILE" );
 			}
-			while( t.eq( "," ) );
-			tokenizer.rewind();
+			else if( t.eq( "COLUMN" ) )
+			{
+				if( result.columns == null )
+					result.columns = new HashMap<String, ColumnSpec>();
 
-			tokenizer.get( "SKIP" );
-			ColumnSpec columnSpec = new ColumnSpec( true, null );
-			tokenizer.get();
+				List<String> cols = new ArrayList<String>();
+				do
+				{
+					t = tokenizer.get();
+					if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
+						throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
+					cols.add( t.getValue() );
+					t = tokenizer.get();
+				}
+				while( t.eq( "," ) );
+				tokenizer.rewind();
 
-			for( String col : cols )
-				result.columns.put( col, columnSpec );
+				tokenizer.get( "SKIP" );
+				ColumnSpec columnSpec = new ColumnSpec( true, null );
+				for( String col : cols )
+					result.columns.put( col, columnSpec );
+
+				tokenizer.get();
+			}
 		}
 
-		tokenizer.rewind();
-
 		result.query = tokenizer.getRemaining();
-
 		return result;
 	}
 
