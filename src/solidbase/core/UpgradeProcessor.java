@@ -106,7 +106,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	/**
 	 * Parameters.
 	 */
-	protected Map<Object, Object> parameters;
+	protected Map<String, Object> parameters;
 
 	/**
 	 * Constructor.
@@ -154,7 +154,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	 *
 	 * @param parameters The parameters to set.
 	 */
-	public void setParameters( Map<Object, Object> parameters )
+	public void setParameters( Map<String, Object> parameters )
 	{
 		this.parameters = parameters;
 	}

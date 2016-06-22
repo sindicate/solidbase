@@ -89,7 +89,7 @@ public class DumpCBOR implements CommandListener
 
 			// TODO I think we should have a scope that is restricted to the current file and a scope that gets inherited when running or including another file.
 			Scope scope = processor.getContext().getScope();
-			scope.setOrCreate( Symbol.apply( "solidbase.dump_cbor.dateCreated" ), t.eq( "ON" ) ); // TODO Make this a constant
+			scope.setOrVar( Symbol.apply( "solidbase.dump_cbor.dateCreated" ), t.eq( "ON" ) ); // TODO Make this a constant
 
 			return true;
 		}
