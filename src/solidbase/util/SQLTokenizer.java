@@ -16,7 +16,7 @@
 
 package solidbase.util;
 
-import solidbase.core.SourceException;
+import solidstack.io.SourceException;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
 import solidstack.util.WindowBuffer;
@@ -268,6 +268,11 @@ public class SQLTokenizer
 		throw new SourceException( error.toString(), getLocation().lineNumber( lineNumber ) );
 	}
 
+	public void expect( Token t, Choice choice )
+	{
+		expect( t, choice.choices );
+	}
+
 	/**
 	 * Returns a newline token. Throws a {@link SourceException} if another token is found.
 	 *
@@ -480,6 +485,33 @@ public class SQLTokenizer
 			if( this.value.charAt( 0 ) == '\n' ) // Assume that if char 0 is a newline then the whole string is just the newline
 				return "NEWLINE";
 			return this.value;
+		}
+	}
+
+	static public class Choice
+	{
+		String[] choices;
+
+		public Choice( String... choices )
+		{
+			this.choices = choices;
+		}
+
+		public void remove( String choice )
+		{
+			int len = this.choices.length;
+			String[] result = new String[ len - 1 ];
+			int i;
+			for( i = 0; i < len; i++ )
+			{
+				String c = this.choices[ i ];
+				if( c.equals( choice ) )
+					break;
+				result[ i ] = c;
+			}
+			len--;
+			while( i < len )
+				result[ i ] = this.choices[ ++i ];
 		}
 	}
 }

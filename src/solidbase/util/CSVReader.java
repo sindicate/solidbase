@@ -19,8 +19,8 @@ package solidbase.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import solidbase.core.SourceException;
 import solidbase.util.CSVTokenizer.Token;
+import solidstack.io.SourceException;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
 
@@ -42,6 +42,8 @@ public class CSVReader
 	 */
 	protected char separator;
 
+	protected boolean escape;
+
 
 	/**
 	 * Constructor.
@@ -50,10 +52,11 @@ public class CSVReader
 	 * @param separator The separator that separates the values.
 	 * @param ignoreWhiteSpace Ignore white space, except white space enclosed in double quotes.
 	 */
-	public CSVReader( SourceReader reader, char separator, boolean ignoreWhiteSpace )
+	public CSVReader( SourceReader reader, char separator, boolean escape, boolean ignoreWhiteSpace )
 	{
-		this.tokenizer = new CSVTokenizer( reader, separator, ignoreWhiteSpace );
+		this.tokenizer = new CSVTokenizer( reader, separator, escape, ignoreWhiteSpace );
 		this.separator = separator;
+		this.escape = escape;
 	}
 
 	/**

@@ -31,7 +31,6 @@ import java.util.zip.GZIPOutputStream;
 import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
-import solidbase.core.SourceException;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
@@ -40,6 +39,7 @@ import solidbase.util.TimeIntervalLogCounter;
 import solidstack.io.FatalIOException;
 import solidstack.io.Resource;
 import solidstack.io.Resources;
+import solidstack.io.SourceException;
 import solidstack.io.SourceReaders;
 
 
@@ -73,10 +73,9 @@ public class ExportCSV implements CommandListener
 
 		try
 		{
-			OutputStream out = csvOutput.getOutputStream();
+			OutputStream out = new BufferedOutputStream( csvOutput.getOutputStream(), 0x1000 );
 			if( parsed.gzip )
-				out = new BufferedOutputStream( new GZIPOutputStream( out, 65536 ), 65536 ); // TODO Ctrl-C, close the outputstream?
-
+				out = new BufferedOutputStream( new GZIPOutputStream( out, 0x1000 ), 0x1000 );
 			try
 			{
 				Statement statement = processor.createStatement();
@@ -91,9 +90,11 @@ public class ExportCSV implements CommandListener
 						counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
 					DBReader reader = new DBReader( result, counter != null ? new ExportLogger( counter, processor.getProgressListener() ) : null, parsed.dateAsTimestamp );
-					RecordSource source = reader;
+					DefaultResultSetTransformer trans = new DefaultResultSetTransformer();
+					RecordSource source = trans;
+					reader.setSink( trans );
 
-					Column[] columns = source.getColumns();
+					Column[] columns = reader.getColumns();
 					int count = columns.length;
 
 					// Analyze columns
@@ -119,14 +120,14 @@ public class ExportCSV implements CommandListener
 
 					if( selector != null )
 					{
-						source.setOutput( selector );
+						source.setSink( selector );
 						source = selector;
 					}
 
 					if( parsed.coalesce != null )
 					{
 						CoalescerProcessor coalescer = new CoalescerProcessor( parsed.coalesce );
-						source.setOutput( coalescer );
+						source.setSink( coalescer );
 						source = coalescer;
 					}
 
@@ -134,7 +135,7 @@ public class ExportCSV implements CommandListener
 					CSVDataWriter dataWriter = new CSVDataWriter( new OutputStreamWriter( out, parsed.encoding ), parsed.separator, parsed.withHeader );
 					try
 					{
-						source.setOutput( dataWriter );
+						source.setSink( dataWriter );
 						reader.init();
 						reader.process();
 					}

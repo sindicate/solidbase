@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import solidbase.util.Assert;
 import solidstack.io.FatalIOException;
 import solidstack.io.Resource;
+import solidstack.io.SourceException;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
 import solidstack.lang.ThreadInterrupted;
@@ -105,7 +106,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	/**
 	 * Parameters.
 	 */
-	protected Map<Object, Object> parameters;
+	protected Map<String, Object> parameters;
 
 	/**
 	 * Constructor.
@@ -153,7 +154,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	 *
 	 * @param parameters The parameters to set.
 	 */
-	public void setParameters( Map<Object, Object> parameters )
+	public void setParameters( Map<String, Object> parameters )
 	{
 		this.parameters = parameters;
 	}

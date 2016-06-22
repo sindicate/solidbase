@@ -22,10 +22,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import solidbase.core.Command;
-import solidbase.core.SourceException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.util.Assert;
+import solidstack.io.SourceException;
 
 
 /**
@@ -38,6 +38,7 @@ import solidbase.util.Assert;
 public class AssertExistsOrEmptySelect implements CommandListener
 {
 	static private final Pattern assertPattern = Pattern.compile( "\\s*ASSERT\\s+(EXISTS|EMPTY)\\s+MESSAGE\\s+['\"]([^']*)['\"]\\s+(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+
 
 	//@Override
 	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException

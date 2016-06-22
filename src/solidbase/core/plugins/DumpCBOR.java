@@ -23,7 +23,6 @@ import java.io.OutputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -40,12 +39,12 @@ import solidbase.core.CommandProcessor;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
+import solidbase.util.SQLTokenizer.Choice;
 import solidbase.util.SQLTokenizer.Token;
 import solidbase.util.TimeIntervalLogCounter;
 import solidstack.io.FatalIOException;
 import solidstack.io.FileResource;
 import solidstack.io.Resource;
-import solidstack.io.Resources;
 import solidstack.io.SourceException;
 import solidstack.io.SourceReaders;
 import solidstack.json.JSONArray;
@@ -60,9 +59,9 @@ import solidstack.script.scopes.UndefinedException;
  * @author René M. de Bloois
  * @since Aug 12, 2011
  */
-public class DumpJSON implements CommandListener
+public class DumpCBOR implements CommandListener
 {
-	static private final Pattern triggerPattern = Pattern.compile( "\\s*DUMP\\s+JSON\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern triggerPattern = Pattern.compile( "\\s*DUMP\\s+CBOR\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 
 	//@Override
@@ -76,21 +75,21 @@ public class DumpJSON implements CommandListener
 
 		if( command.isTransient() )
 		{
-			/* --* DUMP JSON DATE_CREATED ON | OFF */
+			/* --* DUMP CBOR DATE_CREATED ON | OFF */
 
 			SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
-			// TODO Maybe DUMP JSON CONFIG or DUMP JSON SET
+			// TODO Maybe DUMP CBOR CONFIG or DUMP CBORSET
 			// TODO What about other configuration settings?
 			tokenizer.get( "DUMP" );
-			tokenizer.get( "JSON" );
+			tokenizer.get( "CBOR" );
 			tokenizer.get( "DATE_CREATED" ); // FIXME This should be CREATED_DATE
 			Token t = tokenizer.get( "ON", "OFF" );
 			tokenizer.get( (String)null );
 
 			// TODO I think we should have a scope that is restricted to the current file and a scope that gets inherited when running or including another file.
 			Scope scope = processor.getContext().getScope();
-			scope.setOrVar( Symbol.apply( "solidbase.dump_json.dateCreated" ), t.eq( "ON" ) ); // TODO Make this a constant
+			scope.setOrVar( Symbol.apply( "solidbase.dump_cbor.dateCreated" ), t.eq( "ON" ) ); // TODO Make this a constant
 
 			return true;
 		}
@@ -104,7 +103,7 @@ public class DumpJSON implements CommandListener
 		boolean dateCreated;
 		try
 		{
-			Object object = scope.get( Symbol.apply( "solidbase.dump_json.dateCreated" ) );
+			Object object = scope.get( Symbol.apply( "solidbase.dump_cbor.dateCreated" ) );
 			dateCreated = object instanceof Boolean && (Boolean)object;
 		}
 		catch( UndefinedException e )
@@ -112,12 +111,11 @@ public class DumpJSON implements CommandListener
 			dateCreated = true;
 		}
 
-		Resource jsonOutput = new FileResource( new File( parsed.fileName ) ); // Relative to current folder
+		Resource cborOutput = new FileResource( new File( parsed.fileName ) ); // Relative to current folder
 
 		try
 		{
-			// TODO Add buffering to the other files too
-			OutputStream out = new BufferedOutputStream( jsonOutput.getOutputStream(), 0x1000 );
+			OutputStream out = new BufferedOutputStream( cborOutput.getOutputStream(), 0x1000 );
 			if( parsed.gzip )
 				out = new BufferedOutputStream( new GZIPOutputStream( out, 0x1000 ), 0x1000 );
 			try
@@ -185,37 +183,22 @@ public class DumpJSON implements CommandListener
 						source = selector;
 					}
 
-					FileSpec binaryFile = parsed.binaryFileName != null ? new FileSpec( true, parsed.binaryFileName, 0, trans ) : null;
-					JSONDataWriter dataWriter = new JSONDataWriter( jsonOutput, out, parsed.columns, binaryFile, parsed.binaryGzip, command.getLocation() );
+					CBORDataWriter dataWriter = new CBORDataWriter( out, parsed.columns );
 					try
 					{
 						source.setSink( dataWriter );
 						reader.init();
 						columns = source.getColumns();
 
-						// Write header
-
 						JSONObject properties = new JSONObject();
-						properties.set( "version", "1.0" );
-						properties.set( "format", "record-stream" );
-						properties.set( "description", "SolidBase JSON Data Dump File" );
+						properties.set( "version", "1" );
+						properties.set( "description", "SolidBase CBOR Data Dump File" );
 						properties.set( "createdBy", new JSONObject( "product", "SolidBase", "version", "2.0.0" ) );
-
 						if( dateCreated )
-						{
-							// TODO Use internet format
-							SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
-							properties.set( "createdDate", format.format( new Date() ) );
-						}
+							properties.set( "createdDate", new Date() );
+						dataWriter.getCBOROutputStream().write( properties );
 
-						if( parsed.binaryFileName != null )
-						{
-							// TODO FIXME Should be wrapped in a SourceException: solidbase.solidstack.io.FatalURISyntaxException: java.net.URISyntaxException: Illegal character in path at index 1: &{folder}/JIADHOCCH
-							Resource binResource = Resources.getResource( parsed.binaryFileName );
-							Resource resource = Resources.getResource( parsed.fileName );
-							properties.set( "binaryFile", binResource.getPathFrom( resource ).toString() );
-						}
-
+						properties = new JSONObject();
 						JSONArray fields = new JSONArray();
 						properties.set( "fields", fields );
 						for( int i = 0; i < columns.length; i++ )
@@ -230,13 +213,11 @@ public class DumpJSON implements CommandListener
 							if( spec != null && !spec.isParameterized() )
 							{
 								Resource fileResource = new FileResource( spec.fileName );
-								field.set( "file", fileResource.getPathFrom( jsonOutput ).toString() );
+								field.set( "file", fileResource.getPathFrom( cborOutput ).toString() );
 							}
 							fields.add( field );
 						}
-
-						dataWriter.getJSONWriter().writeFormatted( properties, 120 );
-						dataWriter.getJSONWriter().getWriter().write( '\n' );
+						dataWriter.getCBOROutputStream().tagRefNS().write( properties );
 
 						try
 						{
@@ -253,8 +234,6 @@ public class DumpJSON implements CommandListener
 									if( fileSpec.writer != null )
 										fileSpec.writer.close();
 								}
-							if( binaryFile != null && binaryFile.out != null )
-								binaryFile.out.close();
 						}
 					}
 					finally
@@ -291,13 +270,13 @@ public class DumpJSON implements CommandListener
 	static protected Parsed parse( Command command )
 	{
 		/*
-		DUMP JSON
+		DUMP CBOR
 		DATE AS TIMESTAMP
 		COALESCE col1, col2
 		LOG EVERY n (RECORDS|SECONDS)
 		FILE "file" [GZIP]
-		BINARY FILE "file" [GZIP]
 		COLUMN col1, col2 ( TO (BINARY|TEXT) FILE "file" [THRESHOLD n] | SKIP )
+		FROM
 		*/
 
 		Parsed result = new Parsed();
@@ -305,146 +284,109 @@ public class DumpJSON implements CommandListener
 		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
 		tokenizer.get( "DUMP" );
-		tokenizer.get( "JSON" );
+		tokenizer.get( "CBOR" );
 
-		Token t = tokenizer.get( "DATE", "COALESCE", "LOG", "FILE" );
+		Choice choice = new Choice( "DATE", "COALESCE", "LOG", "FILE", "FROM" );
 
-		if( t.eq( "DATE" ) )
+		Token t = tokenizer.get();
+		while( !t.eq( "FROM" ) )
 		{
-			tokenizer.get( "AS" );
-			tokenizer.get( "TIMESTAMP" );
+			tokenizer.expect( t, choice );
 
-			result.dateAsTimestamp = true;
-
-			t = tokenizer.get( "COALESCE", "LOG", "FILE" );
-		}
-
-		while( t.eq( "COALESCE" ) )
-		{
-			if( result.coalesce == null )
-				result.coalesce = new ArrayList<List<String>>();
-
-			List<String> cols = new ArrayList<String>();
-			result.coalesce.add( cols );
-
-			t = tokenizer.get();
-			if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
-				throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-			cols.add( t.toString() );
-
-			t = tokenizer.get( "," );
-			do
+			if( t.eq( "DATE" ) )
 			{
+				tokenizer.get( "AS" );
+				tokenizer.get( "TIMESTAMP" );
+				result.dateAsTimestamp = true;
+
+				choice.remove( "DATE" );
+				t = tokenizer.get();
+			}
+			else if( t.eq( "COALESCE" ) )
+			{
+				if( result.coalesce == null )
+					result.coalesce = new ArrayList<List<String>>();
+
+				List<String> cols = new ArrayList<String>();
+				result.coalesce.add( cols );
+
 				t = tokenizer.get();
 				if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
 					throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
 				cols.add( t.toString() );
 
+				t = tokenizer.get( "," );
+				do
+				{
+					t = tokenizer.get();
+					if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
+						throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
+					cols.add( t.toString() );
+
+					t = tokenizer.get();
+				}
+				while( t.eq( "," ) );
+			}
+			else if( t.eq( "LOG" ) )
+			{
+				tokenizer.get( "EVERY" );
+				t = tokenizer.get();
+				if( !t.isNumber() )
+					throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
+
+				int interval = Integer.parseInt( t.getValue() );
+				t = tokenizer.get( "RECORDS", "SECONDS" );
+				if( t.eq( "RECORDS" ) )
+					result.logRecords = interval;
+				else
+					result.logSeconds = interval;
+
+				choice.remove( "LOG" );
 				t = tokenizer.get();
 			}
-			while( t.eq( "," ) );
-		}
-
-		tokenizer.expect( t, "LOG", "FILE" );
-
-		if( t.eq( "LOG" ) )
-		{
-			tokenizer.get( "EVERY" );
-			t = tokenizer.get();
-			if( !t.isNumber() )
-				throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
-
-			int interval = Integer.parseInt( t.getValue() );
-			t = tokenizer.get( "RECORDS", "SECONDS" );
-			if( t.eq( "RECORDS" ) )
-				result.logRecords = interval;
-			else
-				result.logSeconds = interval;
-
-			tokenizer.get( "FILE" );
-		}
-
-		t = tokenizer.get();
-		if( !t.isString() )
-			throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-		result.fileName = t.stripQuotes();
-
-		t = tokenizer.get();
-		if( t.eq( "GZIP" ) )
-		{
-			result.gzip = true;
-			t = tokenizer.get();
-		}
-
-		if( t.eq( "BINARY" ) )
-		{
-			tokenizer.get( "FILE" );
-			t = tokenizer.get();
-			if( !t.isString() )
-				throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-			result.binaryFileName = t.stripQuotes();
-
-			t = tokenizer.get();
-			if( t.eq( "GZIP" ) )
+			else if( t.eq( "FILE" ) )
 			{
-				result.binaryGzip = true;
-				t = tokenizer.get();
-			}
-		}
-
-		while( t.eq( "COLUMN" ) )
-		{
-			if( result.columns == null )
-				result.columns = new HashMap<String, ColumnSpec>();
-
-			List<String> cols = new ArrayList<String>();
-			do
-			{
-				t = tokenizer.get();
-				if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
-					throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-				cols.add( t.getValue() );
-				t = tokenizer.get();
-			}
-			while( t.eq( "," ) );
-			tokenizer.rewind();
-
-			ColumnSpec columnSpec;
-			t = tokenizer.get( "TO", "SKIP" );
-			if( t.eq( "TO" ) )
-			{
-				t = tokenizer.get( "BINARY", "TEXT" );
-				boolean binary = t.eq( "BINARY" );
-				tokenizer.get( "FILE" );
 				t = tokenizer.get();
 				if( !t.isString() )
 					throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-				String fileName = t.stripQuotes();
+				result.fileName = t.stripQuotes();
 
 				t = tokenizer.get();
-				int threshold = 0;
-				if( t.eq( "THRESHOLD" ) )
+				if( t.eq( "GZIP" ) )
 				{
-					threshold = Integer.parseInt( tokenizer.get().getValue() );
+					result.gzip = true;
 					t = tokenizer.get();
 				}
 
-				columnSpec = new ColumnSpec( false, new FileSpec( binary, fileName, threshold ) );
+				choice.remove( "FILE" );
 			}
-			else
+			else if( t.eq( "COLUMN" ) )
 			{
-				columnSpec = new ColumnSpec( true, null );
-				t = tokenizer.get();
-			}
+				if( result.columns == null )
+					result.columns = new HashMap<String, ColumnSpec>();
 
-			for( String col : cols )
-				result.columns.put( col, columnSpec );
+				List<String> cols = new ArrayList<String>();
+				do
+				{
+					t = tokenizer.get();
+					if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
+						throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
+					cols.add( t.getValue() );
+					t = tokenizer.get();
+				}
+				while( t.eq( "," ) );
+				tokenizer.rewind();
+
+				tokenizer.get( "SKIP" );
+				ColumnSpec columnSpec = new ColumnSpec( true, null );
+				for( String col : cols )
+					result.columns.put( col, columnSpec );
+
+				tokenizer.get();
+			}
 		}
 
-		tokenizer.rewind();
-
 		result.query = tokenizer.getRemaining();
-
 		return result;
 	}
 
@@ -466,9 +408,6 @@ public class DumpJSON implements CommandListener
 		/** The file path to export to */
 		protected String fileName;
 		protected boolean gzip;
-
-		protected String binaryFileName;
-		protected boolean binaryGzip;
 
 		/** The query */
 		protected String query;

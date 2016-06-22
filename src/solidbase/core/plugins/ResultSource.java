@@ -17,15 +17,8 @@
 package solidbase.core.plugins;
 
 
-class ColumnSpec
+public interface ResultSource
 {
-	protected boolean skip;
-	protected FileSpec toFile;
-
-
-	protected ColumnSpec( boolean skip, FileSpec toFile )
-	{
-		this.skip = skip;
-		this.toFile = toFile;
-	}
+	Column[] getColumns();
+	void setSink( ResultSink sink );
 }

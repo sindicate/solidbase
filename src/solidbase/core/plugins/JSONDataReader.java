@@ -11,13 +11,13 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import solidbase.core.SQLExecutionException;
-import solidbase.core.SourceException;
 import solidbase.util.CloseQueue;
 import solidbase.util.JDBCSupport;
 import solidstack.io.FatalIOException;
 import solidstack.io.Resource;
 import solidstack.io.SegmentedInputStream;
 import solidstack.io.SegmentedReader;
+import solidstack.io.SourceException;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
 import solidstack.json.JSONArray;
@@ -27,14 +27,15 @@ import solidstack.lang.Assert;
 import solidstack.lang.SystemException;
 import solidstack.lang.ThreadInterrupted;
 
-public class JSONDataReader
+
+// TODO BufferedInputStreams?
+public class JSONDataReader // TODO implements RecordSource
 {
 	private JSONReader reader;
 	private boolean prependLineNumber;
 	private ImportLogger counter;
 
-	private DBWriter output;
-	private boolean done;
+	private RecordSink sink;
 
 	private String binaryFile;
 	private Column[] columns;
@@ -42,6 +43,7 @@ public class JSONDataReader
 	private String[] fileNames;
 	private SegmentedInputStream[] streams;
 	private SegmentedReader[] textStreams;
+
 
 	public JSONDataReader( SourceReader reader, boolean prependLineNumber, ImportLogger counter )
 	{
@@ -81,20 +83,20 @@ public class JSONDataReader
 		return this.fieldNames;
 	}
 
-	public void setOutput( DBWriter output )
+	public void setOutput( RecordSink output )
 	{
-		this.output = output;
+		this.sink = output;
 	}
 
 	public void process() throws SQLException
 	{
-		this.output.init( this.columns );
+		this.sink.init( this.columns );
+		this.sink.start();
 
 		// Queues that will remember the files we need to close
 		CloseQueue outerCloser = new CloseQueue();
 		CloseQueue closer = new CloseQueue();
 
-		boolean commit = false; // boolean to see if we reached the end
 		try
 		{
 			while( true )
@@ -110,10 +112,11 @@ public class JSONDataReader
 					// End of file, finalize things
 					Assert.isTrue( this.reader.isEOF() );
 
+					this.sink.end();
+
 					if( this.counter != null )
 						this.counter.end();
 
-					commit = true;
 					return;
 				}
 
@@ -268,7 +271,7 @@ public class JSONDataReader
 
 				try
 				{
-					this.output.process( values );
+					this.sink.process( values );
 				}
 				catch( SourceException e )
 				{
@@ -291,7 +294,6 @@ public class JSONDataReader
 		{
 			outerCloser.closeAll();
 			closer.closeAll();
-			this.output.end( commit );
 		}
 	}
 

@@ -19,7 +19,6 @@
 --*		UPGRADE "" --> "1"
 --*		UPGRADE "1" --> "2"
 --*		UPGRADE "2" --> "3"
---*		UPGRADE "2" --> "4"
 --*		UPGRADE "2" --> "5"
 --*	/DEFINITION
 
@@ -52,14 +51,6 @@ CREATE TABLE TEMP ( TEMP1 VARCHAR(40) NOT NULL, TEMP2 VARCHAR(40), TEMP3 VARCHAR
 IMPORT CSV INTO TEMP DATA
 "1"a,"2","3"
 "1","2","3"
-"1","2","3";
---* /UPGRADE
-
---* UPGRADE "2" --> "4"
---* // Spaces are considered part of the value (RFC4180). So this gives an error because a value does not start with a double quote
-IMPORT CSV INTO TEMP DATA
-"1","2","3"
-"1", "2","3"
 "1","2","3";
 --* /UPGRADE
 

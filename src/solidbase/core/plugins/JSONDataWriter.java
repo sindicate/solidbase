@@ -29,17 +29,19 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
-import solidbase.core.SourceException;
 import solidstack.io.DeferringWriter;
 import solidstack.io.FatalIOException;
 import solidstack.io.FileResource;
 import solidstack.io.Resource;
+import solidstack.io.SourceException;
 import solidstack.io.SourceLocation;
 import solidstack.json.JSONArray;
 import solidstack.json.JSONObject;
 import solidstack.json.JSONWriter;
 
-public class JSONDataWriter implements DataProcessor
+
+// TODO BufferedOutputStreams?
+public class JSONDataWriter implements RecordSink
 {
 	private Resource resource;
 	private JSONWriter jsonWriter;
@@ -49,6 +51,7 @@ public class JSONDataWriter implements DataProcessor
 	private boolean binaryGZip;
 	private SourceLocation location;
 	private Map<String, ColumnSpec> columnSpecs;
+
 
 	public JSONDataWriter( Resource resource, OutputStream out, Map<String, ColumnSpec> columnSpecs, FileSpec binaryFile, boolean binaryGZip, SourceLocation location )
 	{
@@ -76,16 +79,21 @@ public class JSONDataWriter implements DataProcessor
 		}
 	}
 
-	public void process( Object[] values ) throws SQLException
+	@Override
+	public void start()
+	{
+	}
+
+	public void process( Object[] record ) throws SQLException
 	{
 		try
 		{
-			int columns = values.length;
+			int columns = record.length;
 
 			JSONArray array = new JSONArray();
 			for( int i = 0; i < columns; i++ )
 			{
-				Object value = values[ i ];
+				Object value = record[ i ];
 				if( value == null )
 				{
 					array.add( null );
@@ -263,6 +271,11 @@ public class JSONDataWriter implements DataProcessor
 		{
 			throw new FatalIOException( e );
 		}
+	}
+
+	@Override
+	public void end()
+	{
 	}
 
 	public void close()

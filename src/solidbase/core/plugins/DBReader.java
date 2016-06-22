@@ -23,15 +23,13 @@ import java.sql.Types;
 
 import org.apache.commons.lang3.StringUtils;
 
-import solidbase.util.JDBCSupport;
 
-public class DBReader implements RecordSource
+public class DBReader implements ResultSource
 {
 	private ResultSet result;
-	private DataProcessor processor;
+	private ResultSink sink;
 	private ExportLogger counter;
 	private Column[] columns;
-	private Object[] currentValues;
 
 
 	public DBReader( ResultSet result, ExportLogger counter, boolean dateAsTimestamp  ) throws SQLException
@@ -56,9 +54,9 @@ public class DBReader implements RecordSource
 		}
 	}
 
-	public void setOutput( DataProcessor processor )
+	public void setSink( ResultSink sink )
 	{
-		this.processor = processor;
+		this.sink = sink;
 	}
 
 	public Column[] getColumns()
@@ -68,48 +66,27 @@ public class DBReader implements RecordSource
 
 	public void init()
 	{
-		this.processor.init( this.columns );
-	}
-
-	@Override
-	public Object[] getCurrentValues()
-	{
-		if( this.currentValues == null )
-			throw new IllegalStateException( "There are no current values, called too early" );
-		return this.currentValues;
+		this.sink.init( this.columns );
 	}
 
 	public void process() throws SQLException
 	{
-		// TODO This metaData must go
 		ResultSet result = this.result;
-		ResultSetMetaData metaData = result.getMetaData();
-		int columns = metaData.getColumnCount();
+		ResultSink sink = this.sink;
 
-		int[] types = new int[ columns ];
-		String[] names = new String[ columns ];
-		for( int i = 0; i < columns; i++ )
-		{
-			int col = i + 1;
-			types[ i ] = metaData.getColumnType( col );
-			names[ i ] = metaData.getColumnName( col ).toUpperCase();
-		}
-
-		DataProcessor next = this.processor;
-
+		sink.start();
 		while( result.next() )
 		{
-			Object[] values = this.currentValues = new Object[ columns ];
-			for( int i = 0; i < columns; i++ )
-				values[ i ] = JDBCSupport.getValue( result, types, i );
-
-			next.process( values );
+			sink.process( result );
 
 			if( this.counter != null )
 				this.counter.count();
 		}
+		sink.end();
 
 		if( this.counter != null )
 			this.counter.end();
+
+		return;
 	}
 }

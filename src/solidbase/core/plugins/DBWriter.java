@@ -2,7 +2,6 @@ package solidbase.core.plugins;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -12,10 +11,10 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import solidbase.core.CommandProcessor;
 import solidbase.core.SQLExecutionException;
-import solidbase.core.SourceException;
 import solidbase.core.SystemException;
+import solidstack.io.SourceException;
 
-public class DBWriter implements DataProcessor
+public class DBWriter implements RecordSink
 {
 	static private final Pattern parameterPattern = Pattern.compile( ":(\\d+)" );
 
@@ -116,39 +115,15 @@ public class DBWriter implements DataProcessor
 		return this.processor.prepareStatement( sql );
 	}
 
-	public void process( Object[] values ) throws SQLException
+	@Override
+	public void start()
+	{
+	}
+
+	public void process( Object[] record ) throws SQLException
 	{
 		if( this.statement == null )
-			this.statement = createStatement( values );
-
-		// Convert the strings to date, time and timestamps
-		for( int i = 0; i < values.length; i++ )
-		{
-			Object value = values[ i ];
-			try
-			{
-				// TODO Time zones, is there a default way of putting times and dates in a text file? For example whats in a HTTP header?
-				if( value != null )
-					switch( this.columns[ i ].getType() )
-					{
-						case Types.DATE:
-							values[ i ] = java.sql.Date.valueOf( (String)value );
-							break;
-						case Types.TIMESTAMP:
-							values[ i ] = java.sql.Timestamp.valueOf( (String)value );
-							break;
-						case Types.TIME:
-							values[ i ] = java.sql.Time.valueOf( (String)value );
-							break;
-					}
-			}
-			catch( IllegalArgumentException e )
-			{
-				// TODO Add test? C:\_WORK\SAO-20150612\build.xml:32: The following error occurred while executing this line:
-				// C:\_WORK\SAO-20150612\build.xml:13: Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff], at line 17 of file C:/_WORK/SAO-20150612/SYSTEEM/sca.JSON.GZ
-				throw new SourceException( e.getMessage(), null );
-			}
-		}
+			this.statement = createStatement( record );
 
 		int pos = 1;
 		int index = 0;
@@ -156,15 +131,16 @@ public class DBWriter implements DataProcessor
 		{
 			try
 			{
-				this.statement.setObject( pos++, values[ index = par - 1 ] );
+				Object value = record[ index = par - 1 ];
+				this.statement.setObject( pos++, value );
 			}
 			catch( ArrayIndexOutOfBoundsException e )
 			{
-				throw new SourceException( "Value with index " + ( index + 1 ) + " does not exist, record has only " + values.length + " values", null );
+				throw new SourceException( "Value with index " + ( index + 1 ) + " does not exist, record has only " + record.length + " values", null );
 			}
 			catch( SQLException e )
 			{
-				String message = buildMessage( this.sql, this.parameterMap, (String[])values );
+				String message = buildMessage( this.sql, this.parameterMap, record );
 				throw new SQLExecutionException( message, null, e );
 			}
 		}
@@ -177,7 +153,7 @@ public class DBWriter implements DataProcessor
 			}
 			catch( SQLException e )
 			{
-				String message = buildMessage( this.sql, this.parameterMap, (String[])values );
+				String message = buildMessage( this.sql, this.parameterMap, record );
 				// When NOBATCH is on, you can see the actual insert statement and line number in the file where the SQLException occurred.
 				throw new SQLExecutionException( message, null, e );
 			}
@@ -194,7 +170,12 @@ public class DBWriter implements DataProcessor
 		}
 	}
 
-	static private String buildMessage( String sql, int[] parameterMap, String[] line )
+	@Override
+	public void end()
+	{
+	}
+
+	static private String buildMessage( String sql, int[] parameterMap, Object[] values )
 	{
 		StringBuilder result = new StringBuilder( sql );
 		result.append( " VALUES (" );
@@ -207,7 +188,7 @@ public class DBWriter implements DataProcessor
 				result.append( ',' );
 			try
 			{
-				result.append( line[ par - 1 ] );
+				result.append( values[ par - 1 ] );
 			}
 			catch( ArrayIndexOutOfBoundsException ee )
 			{
@@ -217,7 +198,6 @@ public class DBWriter implements DataProcessor
 		result.append( ')' );
 		return result.toString();
 	}
-
 
 	/**
 	 * Replaces arguments within the given value with ? and maintains a map.

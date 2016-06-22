@@ -28,10 +28,11 @@ import solidbase.util.CSVWriter;
 import solidstack.io.FatalIOException;
 
 
-public class CSVDataWriter implements DataProcessor
+public class CSVDataWriter implements RecordSink
 {
 	private CSVWriter csvWriter;
 	private boolean writeHeader;
+
 
 	public CSVDataWriter( Writer out, char separator, boolean writeHeader )
 	{
@@ -49,11 +50,16 @@ public class CSVDataWriter implements DataProcessor
 		}
 	}
 
-	public void process( Object[] values ) throws SQLException
+	@Override
+	public void start()
+	{
+	}
+
+	public void process( Object[] record ) throws SQLException
 	{
 		try
 		{
-			for( Object value : values )
+			for( Object value : record )
 				if( value == null )
 					this.csvWriter.writeValue( (String)null );
 				else if( value instanceof Clob )
@@ -79,6 +85,11 @@ public class CSVDataWriter implements DataProcessor
 		{
 			throw new FatalIOException( e );
 		}
+	}
+
+	@Override
+	public void end()
+	{
 	}
 
 	public void close()

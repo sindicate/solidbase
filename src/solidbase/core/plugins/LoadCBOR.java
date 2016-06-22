@@ -1,5 +1,5 @@
 /*--
- * Copyright 2006 René M. de Bloois
+ * Copyright 2011 René M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+
 import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
@@ -35,19 +37,15 @@ import solidbase.util.SQLTokenizer.Token;
 import solidbase.util.TimeIntervalLogCounter;
 import solidstack.io.Resource;
 import solidstack.io.SourceException;
-import solidstack.io.SourceReader;
+import solidstack.io.SourceInputStream;
 import solidstack.io.SourceReaders;
 
 
-/**
- * This plugin executes IMPORT CSV statements.
- *
- * @author René M. de Bloois
- */
-// TODO Make this more strict, like assert that the number of values stays the same in the CSV data
-public class ImportCSV implements CommandListener
+public class LoadCBOR implements CommandListener
 {
-	static private final Pattern triggerPattern = Pattern.compile( "\\s*IMPORT\\s+CSV\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern triggerPattern = Pattern.compile( "\\s*LOAD\\s+CBOR\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+
+	static private final Pattern parameterPattern = Pattern.compile( ":(\\d+)" );
 
 
 	//@Override
@@ -60,43 +58,26 @@ public class ImportCSV implements CommandListener
 		if( !matcher.matches() )
 			return false;
 
+		if( skip )
+			return true;
+
+		// Parse the command
 		Parsed parsed = parse( command );
 
-		if( skip )
+		// TODO BufferedInputStreams?
+		// Open the file resource
+		Resource resource = processor.getResource().resolve( parsed.fileName );
+		resource.setGZip( parsed.gzip );
+		SourceInputStream in;
+		try
 		{
-			if( parsed.reader == null && parsed.fileName == null )
-			{
-				SourceReader reader = processor.getReader(); // Data is in the source file, need to skip it.
-				String line = reader.readLine();
-				while( line != null && line.length() > 0 )
-					line = reader.readLine();
-			}
-			return true;
+			in = SourceReaders.forBinaryResource( resource );
+		}
+		catch( FileNotFoundException e )
+		{
+			throw new FatalException( e.toString() );
 		}
 
-		// TODO BufferedInputStreams?
-		SourceReader sourceReader;
-		boolean needClose = false;
-		if( parsed.reader != null )
-			sourceReader = parsed.reader; // Data is in the command
-		else if( parsed.fileName != null )
-		{
-			// Data is in a file
-			Resource resource = processor.getResource().resolve( parsed.fileName );
-			resource.setGZip( parsed.gzip );
-			try
-			{
-				sourceReader = SourceReaders.forResource( resource, parsed.encoding );
-			}
-			catch( FileNotFoundException e )
-			{
-				throw new FatalException( e.toString() );
-			}
-			needClose = true;
-			// TODO What about the FileNotFoundException?
-		}
-		else
-			sourceReader = processor.getReader(); // Data is in the source file
 		try
 		{
 			LogCounter counter = null;
@@ -105,9 +86,23 @@ public class ImportCSV implements CommandListener
 			else if( parsed.logSeconds > 0 )
 				counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
-			CSVDataReader reader = new CSVDataReader( sourceReader, parsed.skipHeader, parsed.separator, !parsed.noEscape, parsed.ignoreWhiteSpace, parsed.prependLineNumber, counter != null ? new ImportLogger( counter, processor.getProgressListener() ) : null );
-			DBWriter writer = new DBWriter( parsed.sql, parsed.tableName, parsed.columns, parsed.values, parsed.noBatch, processor );
-			reader.setOutput( new DefaultToResultSetTransformer( writer ) );
+			CBORDataReader reader = new CBORDataReader( in, counter != null ? new ImportLogger( counter, processor.getProgressListener() ) : null );
+
+			// TODO Test prependlinenumbers
+
+			String[] columns;
+			if( parsed.columns != null )
+				columns = parsed.columns;
+			else
+			{
+				columns = reader.getFieldNames();
+				for( int i = 0; i < columns.length; i++ )
+					if( StringUtils.isBlank( columns[ i ] ) )
+						throw new FatalException( "Field name is blank for field number " + i + " in " + resource );
+			}
+
+			DBWriter writer = new DBWriter( null, parsed.tableName, parsed.columns, parsed.values, parsed.noBatch, processor );
+			reader.setOutput( writer );
 
 			boolean commit = false;
 			try
@@ -123,22 +118,8 @@ public class ImportCSV implements CommandListener
 		}
 		finally
 		{
-			if( needClose )
-				sourceReader.close();
+			in.close();
 		}
-	}
-
-
-	/**
-	 * Replaces empty strings with null.
-	 *
-	 * @param line The line to preprocess.
-	 */
-	static protected void preprocess( String[] line )
-	{
-		for( int i = 0; i < line.length; i++ )
-			if( line[ i ].length() == 0 )
-				line[ i ] = null;
 	}
 
 
@@ -151,23 +132,16 @@ public class ImportCSV implements CommandListener
 	static protected Parsed parse( Command command )
 	{
 		// FIXME Replace LINENUMBER with RECORD NUMBER
+		// TODO Match column names
+		// TODO Free SQL like with IMPORT CSV
 		/*
-		IMPORT CSV
-		[ SKIP HEADER ]
-		[ SEPARATED BY TAB | SPACE | <character> ]
-		[ ESCAPE NONE ]
-		[ IGNORE WHITESPACE ]
+		LOAD CBOR
 		[ PREPEND LINENUMBER ]
 		[ NOBATCH ]
 		[ LOG EVERY n RECORDS | SECONDS ]
-		(
-			[ FILE "<file>" ENCODING "<encoding>" [ GZIP ] ]
-			EXECUTE ...
-		|
-			INTO <schema>.<table> [ ( <columns> ) ]
-			[ VALUES ( <values> ) ]
-			[ DATA | FILE ]
-		)
+		INTO <schema>.<table> [ ( <columns> ) ]
+		[ VALUES ( <values> ) ]
+		FILE "<file>" [ GZIP ]
 		*/
 
 		Parsed result = new Parsed();
@@ -176,66 +150,16 @@ public class ImportCSV implements CommandListener
 
 		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
-		tokenizer.get( "IMPORT" );
-		tokenizer.get( "CSV" );
+		tokenizer.get( "LOAD" );
+		tokenizer.get( "CBOR" );
 
-		Token t = tokenizer.get( "SKIP", "SEPARATED", "IGNORE", "PREPEND", "NOBATCH", "LOG", "FILE", "EXECUTE", "INTO" );
-
-		if( t.eq( "SKIP" ) )
-		{
-			tokenizer.get( "HEADER" );
-			result.skipHeader = true;
-
-			t = tokenizer.get( "SEPARATED", "IGNORE", "PREPEND", "NOBATCH", "LOG", "FILE", "EXECUTE", "INTO" );
-		}
-
-		if( t.eq( "SEPARATED" ) )
-		{
-			tokenizer.get( "BY" );
-			t = tokenizer.get();
-			if( t.eq( "TAB" ) )
-				result.separator = '\t';
-			else if( t.eq( "SPACE" ) )
-				result.separator = ' ';
-			else
-			{
-				if( t.length() != 1 )
-					throw new SourceException( "Expecting [TAB], [SPACE] or a single character, not [" + t + "]", tokenizer.getLocation() );
-				result.separator = t.getValue().charAt( 0 );
-			}
-
-			t = tokenizer.get( "ESCAPE", "IGNORE", "PREPEND", "NOBATCH", "LOG", "FILE", "EXECUTE", "INTO" );
-		}
-
-		if( t.eq( "ESCAPE" ) )
-		{
-			tokenizer.get( "NONE" );
-			result.noEscape = true;
-
-			t = tokenizer.get( "IGNORE", "PREPEND", "NOBATCH", "LOG", "FILE", "EXECUTE", "INTO" );
-		}
-
-		if( t.eq( "IGNORE" ) )
-		{
-			tokenizer.get( "WHITESPACE" );
-			result.ignoreWhiteSpace = true;
-
-			t = tokenizer.get( "PREPEND", "NOBATCH", "LOG", "FILE", "EXECUTE", "INTO" );
-		}
-
-		if( t.eq( "PREPEND" ) )
-		{
-			tokenizer.get( "LINENUMBER" );
-			result.prependLineNumber = true;
-
-			t = tokenizer.get( "NOBATCH", "LOG", "FILE", "EXECUTE", "INTO" );
-		}
+		Token t = tokenizer.get( "NOBATCH", "LOG", "INTO" );
 
 		if( t.eq( "NOBATCH" ) )
 		{
 			result.noBatch = true;
 
-			t = tokenizer.get( "LOG", "FILE", "EXECUTE", "INTO" );
+			t = tokenizer.get( "LOG", "INTO" );
 		}
 
 		if( t.eq( "LOG" ) )
@@ -252,33 +176,19 @@ public class ImportCSV implements CommandListener
 			else
 				result.logSeconds = interval;
 
-			t = tokenizer.get( "FILE", "EXECUTE", "INTO" );
+			t = tokenizer.get( "INTO" );
 		}
 
-		if( t.eq( "FILE" ) )
-		{
-			parseFile( tokenizer, result );
-
-			t = tokenizer.get( "EXECUTE" );
-		}
-
-		if( t.eq( "EXECUTE" ) )
-		{
-			result.sql = tokenizer.getRemaining();
-			return result;
-		}
-
-		tokenizer.expect( t, "INTO" );
 		result.tableName = tokenizer.get().toString();
 
-		t = tokenizer.get( ".", "(", "VALUES", "DATA", "FILE", null );
+		t = tokenizer.get( ".", "(", "VALUES", "FILE" );
 
 		if( t.eq( "." ) )
 		{
 			// TODO This means spaces are allowed, do we want that or not?
 			result.tableName = result.tableName + "." + tokenizer.get().toString();
 
-			t = tokenizer.get( "(", "VALUES", "DATA", "FILE", null );
+			t = tokenizer.get( "(", "VALUES", "FILE" );
 		}
 
 		if( t.eq( "(" ) )
@@ -297,7 +207,7 @@ public class ImportCSV implements CommandListener
 				t = tokenizer.get( ",", ")" );
 			}
 
-			t = tokenizer.get( "VALUES", "DATA", "FILE", null );
+			t = tokenizer.get( "VALUES", "FILE" );
 		}
 
 		if( t.eq( "VALUES" ) )
@@ -307,7 +217,6 @@ public class ImportCSV implements CommandListener
 			{
 				StringBuilder value = new StringBuilder();
 				parseTill( tokenizer, value, false, ',', ')' );
-				//System.out.println( "Value: " + value.toString() );
 				values.add( value.toString() );
 
 				t = tokenizer.get( ",", ")" );
@@ -318,7 +227,7 @@ public class ImportCSV implements CommandListener
 				if( columns.size() != values.size() )
 					throw new SourceException( "Number of specified columns does not match number of given values", tokenizer.getLocation() );
 
-			t = tokenizer.get( "DATA", "FILE", null );
+			t = tokenizer.get( "FILE" );
 		}
 
 		if( columns.size() > 0 )
@@ -326,43 +235,24 @@ public class ImportCSV implements CommandListener
 		if( values.size() > 0 )
 			result.values = values.toArray( new String[ values.size() ] );
 
-		if( t.isEndOfInput() )
-			return result;
-
-		if( t.eq( "DATA" ) )
-		{
-			tokenizer.getNewline();
-			result.reader = tokenizer.getReader();
-			return result;
-		}
-
-		parseFile( tokenizer, result );
-
-		tokenizer.get( (String)null );
-		return result;
-	}
-
-
-	static private void parseFile( SQLTokenizer tokenizer, Parsed result )
-	{
-		Token t = tokenizer.get();
+		// File
+		t = tokenizer.get();
 		String file = t.getValue();
 		if( !file.startsWith( "\"" ) )
 			throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-		result.fileName = file.substring( 1, file.length() - 1 );
-
-		t = tokenizer.get( "ENCODING" );
-		t = tokenizer.get();
-		String encoding = t.getValue();
-		if( !encoding.startsWith( "\"" ) )
-			throw new SourceException( "Expecting encoding enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-		result.encoding = encoding.substring( 1, encoding.length() - 1 );
+		file = file.substring( 1, file.length() - 1 );
 
 		t = tokenizer.get();
 		if( t.eq( "GZIP" ) )
+		{
 			result.gzip = true;
-		else
-			tokenizer.rewind();
+			t = tokenizer.get();
+		}
+
+		tokenizer.expect( t, (String)null );
+
+		result.fileName = file;
+		return result;
 	}
 
 
@@ -425,27 +315,14 @@ public class ImportCSV implements CommandListener
 	 */
 	static protected class Parsed
 	{
-		/** Skip the header line. */
-		protected boolean skipHeader = false;
-
-		/** The separator. */
-		protected char separator = ',';
-
-		protected boolean noEscape;
-
-		/** Ignore white space, except white space enclosed in double quotes. */
-		protected boolean ignoreWhiteSpace;
-
 		/** Prepend the values from the CSV list with the line number from the command file. */
-		protected boolean prependLineNumber;
+		protected boolean prependLineNumber; // TODO Remove, after it is made possible to use an expression for auto increment
 
 		/** Don't use JDBC batch update. */
 		protected boolean noBatch;
 
 		protected int logRecords;
 		protected int logSeconds;
-
-		protected String sql;
 
 		/** The table name to insert into. */
 		protected String tableName;
@@ -456,15 +333,11 @@ public class ImportCSV implements CommandListener
 		/** The values to insert. Use :1, :2, etc to replace with the values from the CSV list. */
 		protected String[] values;
 
-		/** The underlying reader from the {@link SQLTokenizer}. */
-		protected SourceReader reader;
+//		/** The underlying reader from the {@link Tokenizer}. */
+//		protected SourceReader reader;
 
 		/** The file path to import from */
 		protected String fileName;
-
-		/** The encoding of the file */
-		protected String encoding;
-
 		protected boolean gzip;
 	}
 

@@ -16,16 +16,14 @@
 
 package solidbase.core.plugins;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-class ColumnSpec
+
+public interface ResultSink
 {
-	protected boolean skip;
-	protected FileSpec toFile;
-
-
-	protected ColumnSpec( boolean skip, FileSpec toFile )
-	{
-		this.skip = skip;
-		this.toFile = toFile;
-	}
+	void init( Column[] columns );
+	void start();
+	void process( ResultSet result ) throws SQLException;
+	void end();
 }

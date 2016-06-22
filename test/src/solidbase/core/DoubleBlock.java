@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 
 import solidstack.io.FileResource;
 import solidstack.io.RandomAccessSourceReader;
+import solidstack.io.SourceException;
 
 public class DoubleBlock
 {
@@ -36,7 +37,7 @@ public class DoubleBlock
 			upgradeFile.scan();
 			Assert.fail( "Expected an exception" );
 		}
-		catch( FatalException e )
+		catch( SourceException e )
 		{
 			upgradeFile.close();
 			Assert.assertTrue( e.getMessage().contains( "Duplicate upgrade block" ) );

@@ -18,8 +18,11 @@ package solidbase.core.plugins;
 
 import java.sql.SQLException;
 
-public interface DataProcessor
+
+public interface RecordSink
 {
 	void init( Column[] columns );
-	void process( Object[] values ) throws SQLException;
+	void start();
+	void process( Object[] record ) throws SQLException;
+	void end();
 }

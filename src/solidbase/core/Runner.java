@@ -73,8 +73,7 @@ public class Runner
 	/**
 	 * The parameters.
 	 */
-	// TODO Should be <String,Object> ?
-	protected Map<Object, Object> parameters = new HashMap<Object, Object>();
+	protected Map<String, Object> parameters = new HashMap<String, Object>();
 
 	/**
 	 * Sets the progress listener.

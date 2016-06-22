@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import funny.Symbol;
+import solidstack.io.SourceException;
 import solidstack.io.SourceLocation;
 import solidstack.script.scopes.DefaultScope;
 import solidstack.script.scopes.Scope;

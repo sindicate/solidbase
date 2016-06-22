@@ -28,10 +28,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import solidbase.core.Command;
-import solidbase.core.SourceException;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.util.JDBCSupport;
+import solidstack.io.SourceException;
 
 
 /**
@@ -49,6 +49,7 @@ import solidbase.util.JDBCSupport;
 public class PrintSelect implements CommandListener
 {
 	static private final Pattern printSelectPattern = Pattern.compile( "\\s*PRINT\\s+(SELECT\\s+.+)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+
 
 	//@Override
 	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException

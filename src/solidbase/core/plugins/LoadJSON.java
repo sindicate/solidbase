@@ -29,7 +29,6 @@ import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.FatalException;
-import solidbase.core.SourceException;
 import solidbase.util.Assert;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.LogCounter;
@@ -37,6 +36,7 @@ import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
 import solidbase.util.TimeIntervalLogCounter;
 import solidstack.io.Resource;
+import solidstack.io.SourceException;
 import solidstack.io.SourceReader;
 import solidstack.io.SourceReaders;
 
@@ -64,6 +64,7 @@ public class LoadJSON implements CommandListener
 		// Parse the command
 		Parsed parsed = parse( command );
 
+		// TODO BufferedInputStreams?
 		// Open the file resource
 		Resource resource = processor.getResource().resolve( parsed.fileName );
 		resource.setGZip( parsed.gzip );
@@ -102,9 +103,18 @@ public class LoadJSON implements CommandListener
 			}
 
 			DBWriter writer = new DBWriter( null, parsed.tableName, parsed.columns, parsed.values, parsed.noBatch, processor );
-			reader.setOutput( writer );
+			reader.setOutput( new DefaultToResultSetTransformer( writer ) );
 
-			reader.process();
+			boolean commit = false;
+			try
+			{
+				reader.process();
+				commit = true;
+			}
+			finally
+			{
+				writer.end( commit );
+			}
 			return true;
 		}
 		finally
