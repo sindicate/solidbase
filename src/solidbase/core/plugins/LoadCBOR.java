@@ -169,7 +169,7 @@ public class LoadCBOR implements CommandListener
 			if( !t.isNumber() )
 				throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
 
-			int interval = Integer.parseInt( t.getValue() );
+			int interval = Integer.parseInt( t.value() );
 			t = tokenizer.get( "RECORDS", "SECONDS" );
 			if( t.eq( "RECORDS" ) )
 				result.logRecords = interval;
@@ -196,14 +196,14 @@ public class LoadCBOR implements CommandListener
 			t = tokenizer.get();
 			if( t.eq( ")" ) || t.eq( "," ) )
 				throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-			columns.add( t.getValue() );
+			columns.add( t.value() );
 			t = tokenizer.get( ",", ")" );
 			while( !t.eq( ")" ) )
 			{
 				t = tokenizer.get();
 				if( t.eq( ")" ) || t.eq( "," ) )
 					throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-				columns.add( t.getValue() );
+				columns.add( t.value() );
 				t = tokenizer.get( ",", ")" );
 			}
 
@@ -237,7 +237,7 @@ public class LoadCBOR implements CommandListener
 
 		// File
 		t = tokenizer.get();
-		String file = t.getValue();
+		String file = t.value();
 		if( !file.startsWith( "\"" ) )
 			throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 		file = file.substring( 1, file.length() - 1 );
@@ -271,12 +271,12 @@ public class LoadCBOR implements CommandListener
 			throw new SourceException( "Unexpected EOF", tokenizer.getLocation() );
 		if( t.length() == 1 )
 			for( char c : chars )
-				if( t.getValue().charAt( 0 ) == c )
+				if( t.value().charAt( 0 ) == c )
 					throw new SourceException( "Unexpected [" + t + "]", tokenizer.getLocation() );
 
 		if( includeInitialWhiteSpace )
-			result.append( t.getWhiteSpace() );
-		result.append( t.getValue() );
+			result.append( t.whiteSpace() );
+		result.append( t.value() );
 
 		outer:
 			while( true )
@@ -288,8 +288,8 @@ public class LoadCBOR implements CommandListener
 					t = tokenizer.get();
 					Assert.isTrue( t.eq( ")" ) );
 					//System.out.println( ")" );
-					result.append( t.getWhiteSpace() );
-					result.append( t.getValue() );
+					result.append( t.whiteSpace() );
+					result.append( t.value() );
 				}
 
 				t = tokenizer.get();
@@ -297,11 +297,11 @@ public class LoadCBOR implements CommandListener
 					throw new SourceException( "Unexpected EOF", tokenizer.getLocation() );
 				if( t.length() == 1 )
 					for( char c : chars )
-						if( t.getValue().charAt( 0 ) == c )
+						if( t.value().charAt( 0 ) == c )
 							break outer;
 
-				result.append( t.getWhiteSpace() );
-				result.append( t.getValue() );
+				result.append( t.whiteSpace() );
+				result.append( t.value() );
 			}
 
 		tokenizer.rewind();

@@ -354,7 +354,7 @@ public class DumpJSON implements CommandListener
 			if( !t.isNumber() )
 				throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
 
-			int interval = Integer.parseInt( t.getValue() );
+			int interval = Integer.parseInt( t.value() );
 			t = tokenizer.get( "RECORDS", "SECONDS" );
 			if( t.eq( "RECORDS" ) )
 				result.logRecords = interval;
@@ -403,7 +403,7 @@ public class DumpJSON implements CommandListener
 				t = tokenizer.get();
 				if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
 					throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-				cols.add( t.getValue() );
+				cols.add( t.value() );
 				t = tokenizer.get();
 			}
 			while( t.eq( "," ) );
@@ -425,7 +425,7 @@ public class DumpJSON implements CommandListener
 				int threshold = 0;
 				if( t.eq( "THRESHOLD" ) )
 				{
-					threshold = Integer.parseInt( tokenizer.get().getValue() );
+					threshold = Integer.parseInt( tokenizer.get().value() );
 					t = tokenizer.get();
 				}
 

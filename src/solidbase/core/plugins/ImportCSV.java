@@ -201,7 +201,7 @@ public class ImportCSV implements CommandListener
 			{
 				if( t.length() != 1 )
 					throw new SourceException( "Expecting [TAB], [SPACE] or a single character, not [" + t + "]", tokenizer.getLocation() );
-				result.separator = t.getValue().charAt( 0 );
+				result.separator = t.value().charAt( 0 );
 			}
 
 			t = tokenizer.get( "ESCAPE", "IGNORE", "PREPEND", "NOBATCH", "LOG", "FILE", "EXECUTE", "INTO" );
@@ -245,7 +245,7 @@ public class ImportCSV implements CommandListener
 			if( !t.isNumber() )
 				throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
 
-			int interval = Integer.parseInt( t.getValue() );
+			int interval = Integer.parseInt( t.value() );
 			t = tokenizer.get( "RECORDS", "SECONDS" );
 			if( t.eq( "RECORDS" ) )
 				result.logRecords = interval;
@@ -286,14 +286,14 @@ public class ImportCSV implements CommandListener
 			t = tokenizer.get();
 			if( t.eq( ")" ) || t.eq( "," ) )
 				throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-			columns.add( t.getValue() );
+			columns.add( t.value() );
 			t = tokenizer.get( ",", ")" );
 			while( !t.eq( ")" ) )
 			{
 				t = tokenizer.get();
 				if( t.eq( ")" ) || t.eq( "," ) )
 					throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-				columns.add( t.getValue() );
+				columns.add( t.value() );
 				t = tokenizer.get( ",", ")" );
 			}
 
@@ -346,14 +346,14 @@ public class ImportCSV implements CommandListener
 	static private void parseFile( SQLTokenizer tokenizer, Parsed result )
 	{
 		Token t = tokenizer.get();
-		String file = t.getValue();
+		String file = t.value();
 		if( !file.startsWith( "\"" ) )
 			throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 		result.fileName = file.substring( 1, file.length() - 1 );
 
 		t = tokenizer.get( "ENCODING" );
 		t = tokenizer.get();
-		String encoding = t.getValue();
+		String encoding = t.value();
 		if( !encoding.startsWith( "\"" ) )
 			throw new SourceException( "Expecting encoding enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 		result.encoding = encoding.substring( 1, encoding.length() - 1 );
@@ -381,12 +381,12 @@ public class ImportCSV implements CommandListener
 			throw new SourceException( "Unexpected EOF", tokenizer.getLocation() );
 		if( t.length() == 1 )
 			for( char c : chars )
-				if( t.getValue().charAt( 0 ) == c )
+				if( t.value().charAt( 0 ) == c )
 					throw new SourceException( "Unexpected [" + t + "]", tokenizer.getLocation() );
 
 		if( includeInitialWhiteSpace )
-			result.append( t.getWhiteSpace() );
-		result.append( t.getValue() );
+			result.append( t.whiteSpace() );
+		result.append( t.value() );
 
 		outer:
 			while( true )
@@ -398,8 +398,8 @@ public class ImportCSV implements CommandListener
 					t = tokenizer.get();
 					Assert.isTrue( t.eq( ")" ) );
 					//System.out.println( ")" );
-					result.append( t.getWhiteSpace() );
-					result.append( t.getValue() );
+					result.append( t.whiteSpace() );
+					result.append( t.value() );
 				}
 
 				t = tokenizer.get();
@@ -407,11 +407,11 @@ public class ImportCSV implements CommandListener
 					throw new SourceException( "Unexpected EOF", tokenizer.getLocation() );
 				if( t.length() == 1 )
 					for( char c : chars )
-						if( t.getValue().charAt( 0 ) == c )
+						if( t.value().charAt( 0 ) == c )
 							break outer;
 
-				result.append( t.getWhiteSpace() );
-				result.append( t.getValue() );
+				result.append( t.whiteSpace() );
+				result.append( t.value() );
 			}
 
 		tokenizer.rewind();

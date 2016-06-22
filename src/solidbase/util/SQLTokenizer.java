@@ -16,6 +16,8 @@
 
 package solidbase.util;
 
+import java.util.EnumSet;
+
 import solidstack.io.SourceException;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
@@ -115,7 +117,7 @@ public class SQLTokenizer
 	}
 
 	/**
-	 * Returns the next token from the input. The preceding whitespace is also contained separately in {@link Token#getWhiteSpace()}.
+	 * Returns the next token from the input. The preceding whitespace is also contained separately in {@link Token#whiteSpace()}.
 	 *
 	 * @return A token from the input. Null if there are no more tokens available.
 	 */
@@ -207,6 +209,32 @@ public class SQLTokenizer
 		return token;
 	}
 
+	public SQLTokenizer skip( String... expected )
+	{
+		get( expected );
+		return this;
+	}
+
+	public <E extends Enum<E>> E expect( Token token, EnumSet<E> expected )
+	{
+		int i = 0;
+		E result = null;
+		String[] names = new String[ expected.size() ];
+
+		for( E e : expected )
+		{
+			names[ i++ ] = e.name();
+			if( token.eq( e.name() ) )
+				result = e;
+		}
+
+		expect( token, names );
+
+		if( result == null )
+			throw new NullPointerException( "Should not be null" );
+		return result;
+	}
+
 	/**
 	 * Checks if the given token matches the expected tokens.
 	 *
@@ -268,11 +296,6 @@ public class SQLTokenizer
 		throw new SourceException( error.toString(), getLocation().lineNumber( lineNumber ) );
 	}
 
-	public void expect( Token t, Choice choice )
-	{
-		expect( t, choice.choices );
-	}
-
 	/**
 	 * Returns a newline token. Throws a {@link SourceException} if another token is found.
 	 *
@@ -309,7 +332,7 @@ public class SQLTokenizer
 		StringBuilder result = new StringBuilder();
 
 		if( this.window.hasRemaining() )
-			result.append( this.window.get().getValue() );
+			result.append( this.window.get().value() );
 
 		SourceReader in = getReader(); // Also checks if the token window is empty
 		for( int ch = in.read(); ch != -1; ch = in.read() )
@@ -390,7 +413,7 @@ public class SQLTokenizer
 		 *
 		 * @return The value of token.
 		 */
-		public String getValue()
+		public String value()
 		{
 			return this.value;
 		}
@@ -400,7 +423,7 @@ public class SQLTokenizer
 		 *
 		 * @return The whitespace encountered before the token.
 		 */
-		public String getWhiteSpace()
+		public String whiteSpace()
 		{
 			return this.whiteSpace;
 		}
@@ -485,33 +508,6 @@ public class SQLTokenizer
 			if( this.value.charAt( 0 ) == '\n' ) // Assume that if char 0 is a newline then the whole string is just the newline
 				return "NEWLINE";
 			return this.value;
-		}
-	}
-
-	static public class Choice
-	{
-		String[] choices;
-
-		public Choice( String... choices )
-		{
-			this.choices = choices;
-		}
-
-		public void remove( String choice )
-		{
-			int len = this.choices.length;
-			String[] result = new String[ len - 1 ];
-			int i;
-			for( i = 0; i < len; i++ )
-			{
-				String c = this.choices[ i ];
-				if( c.equals( choice ) )
-					break;
-				result[ i ] = c;
-			}
-			len--;
-			while( i < len )
-				result[ i ] = this.choices[ ++i ];
 		}
 	}
 }

@@ -209,7 +209,7 @@ public class ExportCSV implements CommandListener
 			{
 				if( t.length() != 1 )
 					throw new SourceException( "Expecting [TAB], [SPACE] or a single character, not [" + t + "]", tokenizer.getLocation() );
-				result.separator = t.getValue().charAt( 0 );
+				result.separator = t.value().charAt( 0 );
 			}
 
 			t = tokenizer.get( "DATE", "COALESCE", "LOG", "FILE" );
@@ -260,7 +260,7 @@ public class ExportCSV implements CommandListener
 			if( !t.isNumber() )
 				throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
 
-			int interval = Integer.parseInt( t.getValue() );
+			int interval = Integer.parseInt( t.value() );
 			t = tokenizer.get( "RECORDS", "SECONDS" );
 			if( t.eq( "RECORDS" ) )
 				result.logRecords = interval;
@@ -271,14 +271,14 @@ public class ExportCSV implements CommandListener
 		}
 
 		t = tokenizer.get();
-		String file = t.getValue();
+		String file = t.value();
 		if( !file.startsWith( "\"" ) )
 			throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 		file = file.substring( 1, file.length() - 1 );
 
 		t = tokenizer.get( "ENCODING" );
 		t = tokenizer.get();
-		String encoding = t.getValue();
+		String encoding = t.value();
 		if( !encoding.startsWith( "\"" ) )
 			throw new SourceException( "Expecting encoding enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
 		encoding = encoding.substring( 1, encoding.length() - 1 );

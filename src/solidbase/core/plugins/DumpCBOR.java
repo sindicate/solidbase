@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,6 @@ import solidbase.core.CommandProcessor;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
-import solidbase.util.SQLTokenizer.Choice;
 import solidbase.util.SQLTokenizer.Token;
 import solidbase.util.TimeIntervalLogCounter;
 import solidstack.io.FatalIOException;
@@ -260,6 +260,8 @@ public class DumpCBOR implements CommandListener
 	}
 
 
+	static public enum TOKEN { DATE, COALESCE, LOG, FILE, COLUMN, FROM };
+
 	/**
 	 * Parses the given command.
 	 *
@@ -282,112 +284,99 @@ public class DumpCBOR implements CommandListener
 		Parsed result = new Parsed();
 
 		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
+		tokenizer.skip( "DUMP" ).skip( "CBOR" );
 
-		tokenizer.get( "DUMP" );
-		tokenizer.get( "CBOR" );
-
-		Choice choice = new Choice( "DATE", "COALESCE", "LOG", "FILE", "FROM" );
+		EnumSet<TOKEN> expected = EnumSet.of( TOKEN.DATE, TOKEN.COALESCE, TOKEN.LOG, TOKEN.FILE, TOKEN.COLUMN, TOKEN.FROM );
 
 		Token t = tokenizer.get();
-		while( !t.eq( "FROM" ) )
-		{
-			tokenizer.expect( t, choice );
-
-			if( t.eq( "DATE" ) )
+		for( ;; )
+			switch( tokenizer.expect( t, expected ) )
 			{
-				tokenizer.get( "AS" );
-				tokenizer.get( "TIMESTAMP" );
-				result.dateAsTimestamp = true;
+				case DATE:
+					t = tokenizer.skip( "AS" ).skip( "TIMESTAMP" ).get();
+					result.dateAsTimestamp = true;
+					expected.remove( TOKEN.DATE );
+					break;
 
-				choice.remove( "DATE" );
-				t = tokenizer.get();
-			}
-			else if( t.eq( "COALESCE" ) )
-			{
-				if( result.coalesce == null )
-					result.coalesce = new ArrayList<List<String>>();
+				case COALESCE:
+					if( result.coalesce == null )
+						result.coalesce = new ArrayList<List<String>>();
 
-				List<String> cols = new ArrayList<String>();
-				result.coalesce.add( cols );
+					List<String> cols;
+					result.coalesce.add( cols = new ArrayList<String>() );
 
-				t = tokenizer.get();
-				if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
-					throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-				cols.add( t.toString() );
+					do
+					{
+						t = tokenizer.get();
+						if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
+							throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
+						cols.add( t.value() );
+						t = tokenizer.get();
+					}
+					while( t.eq( "," ) );
 
-				t = tokenizer.get( "," );
-				do
-				{
+					if( cols.size() < 2 )
+						throw new SourceException( "COALESCE needs more than 1 column name", tokenizer.getLocation() );
+					break;
+
+				case LOG:
+					t = tokenizer.skip( "EVERY" ).get();
+					if( !t.isNumber() )
+						throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
+					int interval = Integer.parseInt( t.value() );
+
+					if( tokenizer.get( "RECORDS", "SECONDS" ).eq( "RECORDS" ) )
+						result.logRecords = interval;
+					else
+						result.logSeconds = interval;
+
+					expected.remove( TOKEN.LOG );
 					t = tokenizer.get();
-					if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
-						throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-					cols.add( t.toString() );
+					break;
+
+				case FILE:
+					t = tokenizer.get();
+					if( !t.isString() )
+						throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
+					result.fileName = t.stripQuotes();
 
 					t = tokenizer.get();
-				}
-				while( t.eq( "," ) );
-			}
-			else if( t.eq( "LOG" ) )
-			{
-				tokenizer.get( "EVERY" );
-				t = tokenizer.get();
-				if( !t.isNumber() )
-					throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
+					if( t.eq( "GZIP" ) )
+					{
+						result.gzip = true;
+						t = tokenizer.get();
+					}
 
-				int interval = Integer.parseInt( t.getValue() );
-				t = tokenizer.get( "RECORDS", "SECONDS" );
-				if( t.eq( "RECORDS" ) )
-					result.logRecords = interval;
-				else
-					result.logSeconds = interval;
+					expected.remove( TOKEN.FILE );
+					break;
 
-				choice.remove( "LOG" );
-				t = tokenizer.get();
-			}
-			else if( t.eq( "FILE" ) )
-			{
-				t = tokenizer.get();
-				if( !t.isString() )
-					throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-				result.fileName = t.stripQuotes();
+				case COLUMN:
+					if( result.columns == null )
+						result.columns = new HashMap<String, ColumnSpec>();
 
-				t = tokenizer.get();
-				if( t.eq( "GZIP" ) )
-				{
-					result.gzip = true;
+					cols = new ArrayList<String>();
+					do
+					{
+						t = tokenizer.get();
+						if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
+							throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
+						cols.add( t.value() );
+						t = tokenizer.get();
+					}
+					while( t.eq( "," ) );
+					tokenizer.expect( t, "SKIP" );
+
+					ColumnSpec columnSpec = new ColumnSpec( true, null );
+					for( String col : cols )
+						result.columns.put( col, columnSpec );
+
 					t = tokenizer.get();
-				}
+					break;
 
-				choice.remove( "FILE" );
+				case FROM:
+					result.query = tokenizer.getRemaining();
+					return result;
 			}
-			else if( t.eq( "COLUMN" ) )
-			{
-				if( result.columns == null )
-					result.columns = new HashMap<String, ColumnSpec>();
-
-				List<String> cols = new ArrayList<String>();
-				do
-				{
-					t = tokenizer.get();
-					if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
-						throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-					cols.add( t.getValue() );
-					t = tokenizer.get();
-				}
-				while( t.eq( "," ) );
-				tokenizer.rewind();
-
-				tokenizer.get( "SKIP" );
-				ColumnSpec columnSpec = new ColumnSpec( true, null );
-				for( String col : cols )
-					result.columns.put( col, columnSpec );
-
-				tokenizer.get();
-			}
-		}
-
-		result.query = tokenizer.getRemaining();
-		return result;
 	}
 
 
