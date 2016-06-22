@@ -191,7 +191,7 @@ public class DumpCBOR implements CommandListener
 						columns = source.getColumns();
 
 						JSONObject properties = new JSONObject();
-						properties.set( "version", "1" );
+						properties.set( "version", 1 );
 						properties.set( "description", "SolidBase CBOR Data Dump File" );
 						properties.set( "createdBy", new JSONObject( "product", "SolidBase", "version", "2.0.0" ) );
 						if( dateCreated )

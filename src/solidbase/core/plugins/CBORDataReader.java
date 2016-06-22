@@ -10,12 +10,13 @@ import solidstack.cbor.Token;
 import solidstack.cbor.Token.TYPE;
 import solidstack.io.SourceException;
 import solidstack.io.SourceInputStream;
+import solidstack.io.SourceLocation;
 import solidstack.json.JSONArray;
 import solidstack.json.JSONObject;
 import solidstack.lang.ThreadInterrupted;
 
 
-public class CBORDataReader // TODO implements RecordSource
+public class CBORDataReader implements RecordSource
 {
 	private CBORReader in;
 	private ImportLogger counter;
@@ -33,8 +34,11 @@ public class CBORDataReader // TODO implements RecordSource
 		this.counter = counter;
 
 		// Read the header of the file
+		long pos = in.getPos();
 		JSONObject properties = (JSONObject)this.in.read();
-		// TODO Check the version
+		int version = properties.getNumber( "version" ).intValue();
+		if( version != 1 )
+			throw new SourceException( "Expected version 1", SourceLocation.forBinary( in.getResource(), pos ) );
 
 		// Read the header of the data block
 		properties = (JSONObject)this.in.read();
@@ -58,14 +62,17 @@ public class CBORDataReader // TODO implements RecordSource
 		}
 	}
 
-	// TODO Close the files
+	public void close()
+	{
+		this.in.close();
+	}
 
 	public String[] getFieldNames()
 	{
 		return this.fieldNames;
 	}
 
-	public void setOutput( RecordSink sink )
+	public void setSink( RecordSink sink )
 	{
 		this.sink = sink;
 	}
@@ -104,5 +111,17 @@ public class CBORDataReader // TODO implements RecordSource
 			this.counter.end();
 
 		this.sink.end();
+	}
+
+	@Override
+	public Column[] getColumns()
+	{
+		return this.columns;
+	}
+
+	@Override
+	public Object[] getCurrentRecord()
+	{
+		throw new UnsupportedOperationException();
 	}
 }

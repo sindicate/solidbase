@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.sql.Types;
 
@@ -154,7 +153,7 @@ public class JSONDataReader // TODO implements RecordSource
 								{
 									// TODO Fix the input stream size given the size in the JSON file
 									Resource r = this.reader.getResource().resolve( filename );
-									BigDecimal filesize = object.findNumber( "size" );
+									Number filesize = object.findNumber( "size" );
 									if( filesize == null || filesize.intValue() > 10240 ) // TODO Whats a good size here? Should it be a long?
 									{
 										// Some databases read the stream directly (Oracle), others read it later (HSQLDB).
@@ -178,10 +177,10 @@ public class JSONDataReader // TODO implements RecordSource
 						else
 						{
 							// One file for all records
-							BigDecimal lobIndex = object.getNumber( "index" ); // TODO Use findNumber
+							Number lobIndex = object.getNumber( "index" ); // TODO Use findNumber
 							if( lobIndex == null )
 								throw new SourceException( "Expected a 'file' or 'index' attribute", this.reader.getLocation() );
-							BigDecimal lobLength = object.getNumber( "length" );
+							Number lobLength = object.getNumber( "length" );
 							if( lobLength == null )
 								throw new SourceException( "Expected a 'length' attribute", this.reader.getLocation() );
 

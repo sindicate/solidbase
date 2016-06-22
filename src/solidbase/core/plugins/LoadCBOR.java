@@ -102,7 +102,7 @@ public class LoadCBOR implements CommandListener
 			}
 
 			DBWriter writer = new DBWriter( null, parsed.tableName, parsed.columns, parsed.values, parsed.noBatch, processor );
-			reader.setOutput( writer );
+			reader.setSink( writer );
 
 			boolean commit = false;
 			try
