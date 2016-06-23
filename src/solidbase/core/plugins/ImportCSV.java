@@ -107,7 +107,7 @@ public class ImportCSV implements CommandListener
 
 			CSVDataReader reader = new CSVDataReader( sourceReader, parsed.skipHeader, parsed.separator, !parsed.noEscape, parsed.ignoreWhiteSpace, parsed.prependLineNumber, counter != null ? new ImportLogger( counter, processor.getProgressListener() ) : null );
 			DBWriter writer = new DBWriter( parsed.sql, parsed.tableName, parsed.columns, parsed.values, parsed.noBatch, processor );
-			reader.setOutput( new DefaultToResultSetTransformer( writer ) );
+			reader.setOutput( new DefaultToJDBCTransformer( writer ) );
 
 			boolean commit = false;
 			try

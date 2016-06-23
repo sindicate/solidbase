@@ -134,7 +134,7 @@ public class DumpJSON implements CommandListener
 						counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
 					DBReader reader = new DBReader( result, counter != null ? new ExportLogger( counter, processor.getProgressListener() ) : null, parsed.dateAsTimestamp );
-					DefaultResultSetTransformer trans = new DefaultResultSetTransformer();
+					DefaultFromJDBCTransformer trans = new DefaultFromJDBCTransformer();
 					RecordSource source = trans;
 					reader.setSink( trans );
 

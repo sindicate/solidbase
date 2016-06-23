@@ -37,6 +37,7 @@ import funny.Symbol;
 import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
+import solidbase.core.FatalException;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
@@ -132,7 +133,7 @@ public class DumpCBOR implements CommandListener
 						counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
 					DBReader reader = new DBReader( result, counter != null ? new ExportLogger( counter, processor.getProgressListener() ) : null, parsed.dateAsTimestamp );
-					DefaultResultSetTransformer trans = new DefaultResultSetTransformer();
+					DefaultFromJDBCTransformer trans = new DefaultFromJDBCTransformer();
 					RecordSource source = trans;
 					reader.setSink( trans );
 
@@ -268,7 +269,7 @@ public class DumpCBOR implements CommandListener
 	 * @param command The command to be parsed.
 	 * @return A structure representing the parsed command.
 	 */
-	// TODO The order of stuff should be free
+	// TODO Add NOBATCH
 	static protected Parsed parse( Command command )
 	{
 		/*
@@ -284,11 +285,10 @@ public class DumpCBOR implements CommandListener
 		Parsed result = new Parsed();
 
 		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
-		tokenizer.skip( "DUMP" ).skip( "CBOR" );
 
 		EnumSet<TOKEN> expected = EnumSet.of( TOKEN.DATE, TOKEN.COALESCE, TOKEN.LOG, TOKEN.FILE, TOKEN.COLUMN, TOKEN.FROM );
 
-		Token t = tokenizer.get();
+		Token t = tokenizer.skip( "DUMP" ).skip( "CBOR" ).get();
 		for( ;; )
 			switch( tokenizer.expect( t, expected ) )
 			{
@@ -376,6 +376,9 @@ public class DumpCBOR implements CommandListener
 				case FROM:
 					result.query = tokenizer.getRemaining();
 					return result;
+
+				default:
+					throw new FatalException( "Unexpected token: " + t );
 			}
 	}
 

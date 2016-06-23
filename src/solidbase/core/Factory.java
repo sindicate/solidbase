@@ -45,7 +45,7 @@ public final class Factory
 	 * @param listener The progress listener.
 	 * @return A random access reader for the file.
 	 */
-	static public RandomAccessSourceReader openRALR( Resource resource, ProgressListener listener )
+	static public RandomAccessSourceReader openRASR( Resource resource, ProgressListener listener )
 	{
 		try
 		{
@@ -91,7 +91,7 @@ public final class Factory
 	 */
 	static public UpgradeFile openUpgradeFile( Resource resource, ProgressListener listener )
 	{
-		RandomAccessSourceReader reader = openRALR( resource, listener );
+		RandomAccessSourceReader reader = openRASR( resource, listener );
 		UpgradeFile result = new UpgradeFile( reader );
 		try
 		{

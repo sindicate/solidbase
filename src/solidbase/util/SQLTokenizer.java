@@ -192,6 +192,22 @@ public class SQLTokenizer
 		return new Token( result.toString(), whiteSpace.toString() );
 	}
 
+	public Token getIdentifier()
+	{
+		Token result = get();
+		if( !result.isIdentifier() )
+			throw new SourceException( "Expecting an identifier, not [" + result + "]", getLocation() );
+		return result;
+	}
+
+	public Token getString()
+	{
+		Token result = get();
+		if( !result.isString() )
+			throw new SourceException( "Expecting a double quoted string, not [" + result + "]", getLocation() );
+		return result;
+	}
+
 	/**
 	 * A token that matches one of the expected tokens. Throws a {@link SourceException} if a token is encountered
 	 * that does not match the given expected tokens.
@@ -219,16 +235,17 @@ public class SQLTokenizer
 	{
 		int i = 0;
 		E result = null;
-		String[] names = new String[ expected.size() ];
+		String[] values = new String[ expected.size() ];
 
 		for( E e : expected )
 		{
-			names[ i++ ] = e.name();
-			if( token.eq( e.name() ) )
+			String value = e.toString();
+			values[ i++ ] = value;
+			if( token.eq( value ) )
 				result = e;
 		}
 
-		expect( token, names );
+		expect( token, values );
 
 		if( result == null )
 			throw new NullPointerException( "Should not be null" );
@@ -435,7 +452,7 @@ public class SQLTokenizer
 		 */
 		public boolean isNewline()
 		{
-			if( this.value == null )
+			if( isEndOfInput() )
 				return false;
 			return this.value.charAt( 0 ) == '\n'; // Assume that if char 0 is a newline then the whole string is just the newline
 		}
@@ -455,7 +472,7 @@ public class SQLTokenizer
 		 */
 		public boolean isString()
 		{
-			if( this.value == null )
+			if( isEndOfInput() )
 				return false;
 			return this.value.startsWith( "\"" );
 		}
@@ -473,8 +490,18 @@ public class SQLTokenizer
 		 */
 		public boolean isNumber()
 		{
+			if( isEndOfInput() )
+				return false;
 			char ch = this.value.charAt( 0 );
 			return ch >= '0' && ch <= '9';
+		}
+
+		public boolean isIdentifier()
+		{
+			if( isEndOfInput() )
+				return false;
+			char ch = this.value.charAt( 0 );
+			return !isSpecial( ch ) && !isNumber(); // isSpecial includes ", ' and \n
 		}
 
 		/**
@@ -483,10 +510,10 @@ public class SQLTokenizer
 		 * @param s A string to compare the value of this token with.
 		 * @return True if the value of this token and the given string are equal, false otherwise.
 		 */
-		public boolean eq( String s ) // TODO Compare with null?
+		public boolean eq( String s )
 		{
 			if( this.value == null )
-				return false;
+				return s == null;
 			return this.value.equalsIgnoreCase( s );
 		}
 

@@ -72,7 +72,7 @@ public class UpgradeFile
 	/**
 	 * The upgrade file.
 	 */
-	protected RandomAccessSourceReader file;
+	protected RandomAccessSourceReader reader;
 
 	/**
 	 * The default delimiters.
@@ -122,7 +122,7 @@ public class UpgradeFile
 	 */
 	protected UpgradeFile( RandomAccessSourceReader file )
 	{
-		this.file = file;
+		this.reader = file;
 	}
 
 
@@ -156,8 +156,8 @@ public class UpgradeFile
 		boolean definitionComplete = false;
 		while( !definitionComplete )
 		{
-			SourceLocation location = this.file.getLocation();
-			String line = this.file.readLine();
+			SourceLocation location = this.reader.getLocation();
+			String line = this.reader.readLine();
 			if( line == null )
 				throw new SourceException( "Unexpected end of file", location );
 
@@ -233,7 +233,7 @@ public class UpgradeFile
 			}
 		}
 
-		String line = this.file.readLine();
+		String line = this.reader.readLine();
 		while( line != null )
 		{
 			if( line.startsWith( "--*" ) )
@@ -319,7 +319,7 @@ public class UpgradeFile
 				 */
 				if( SEGMENT_START_MARKER_PATTERN.matcher( line ).matches() )
 				{
-					SourceLocation location = this.file.getLocation().previousLine();
+					SourceLocation location = this.reader.getLocation().previousLine();
 					line = line.substring( 3 ).trim();
 					matcher = SEGMENT_START_PATTERN.matcher( line );
 					if( !matcher.matches() )
@@ -349,7 +349,7 @@ public class UpgradeFile
 				}
 			}
 
-			line = this.file.readLine();
+			line = this.reader.readLine();
 		}
 
 		// Check that all defined upgrade blocks are found
@@ -372,7 +372,7 @@ public class UpgradeFile
 	 */
 	public String getEncoding()
 	{
-		return this.file.getEncoding();
+		return this.reader.getEncoding();
 	}
 
 
@@ -381,10 +381,10 @@ public class UpgradeFile
 	 */
 	protected void close()
 	{
-		if( this.file != null )
+		if( this.reader != null )
 		{
-			this.file.close();
-			this.file = null;
+			this.reader.close();
+			this.reader = null;
 		}
 	}
 
@@ -672,11 +672,11 @@ public class UpgradeFile
 	{
 		Assert.isTrue( segment.getLocation() != null, "Upgrade or setup block not found" );
 
-		this.file.gotoLine( segment.getLineNumber() );
-		String line = this.file.readLine();
+		this.reader.gotoLine( segment.getLineNumber() );
+		String line = this.reader.readLine();
 //		System.out.println( line );
 		Assert.isTrue( SEGMENT_START_MARKER_PATTERN.matcher( line ).matches() );
-		UpgradeSource source = new UpgradeSource( this.file );
+		UpgradeSource source = new UpgradeSource( this.reader );
 		source.setDelimiters( this.defaultDelimiters );
 		return source;
 	}

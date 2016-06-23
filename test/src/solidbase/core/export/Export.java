@@ -12,14 +12,7 @@ import java.sql.Timestamp;
 
 import org.testng.annotations.Test;
 
-import solidbase.core.Database;
-import solidbase.core.DatabaseContext;
-import solidbase.core.Factory;
-import solidbase.core.SQLContext;
-import solidbase.core.SQLFile;
-import solidbase.core.SQLProcessor;
 import solidbase.core.Setup;
-import solidbase.core.TestProgressListener;
 import solidbase.core.TestUtil;
 import solidbase.core.UpgradeProcessor;
 import solidbase.util.CSVReader;
@@ -102,7 +95,7 @@ public class Export
 			reader.close();
 		}
 
-		CBORToString toString = new CBORToString( Resources.getResource( "export3.cbor" ).newInputStream() );
+		CBORToString toString = new CBORToString( Resources.getResource( "export1.cbor" ).newInputStream() );
 		String s = toString.toString();
 		System.out.println( s );
 //		assertThat( s ).isEqualTo( "TAG 0100 MAP 05\n"
@@ -266,22 +259,6 @@ public class Export
 		assertThat( result.next() ).isTrue();
 		assertThat( result.next() ).isFalse();
 
-		processor.end();
-	}
-
-	@Test(enabled=false)
-	public void testExportOracle() throws SQLException, UnsupportedEncodingException
-	{
-		TestProgressListener progress = new TestProgressListener();
-		Database database = new Database( "default", "oracle.jdbc.OracleDriver", "jdbc:oracle:thin:@192.168.0.109:1521:XE", "XXXX", "XXXX", progress );
-		SQLProcessor processor = new SQLProcessor( progress );
-		SQLFile sqlFile = Factory.openSQLFile( Resources.getResource( "testsql-export-oracle.sql" ), progress );
-		DatabaseContext databases = new DatabaseContext( database );
-		SQLContext context = new SQLContext( sqlFile.getSource() );
-		context.setDatabases( databases );
-		processor.setContext( context );
-
-		processor.process();
 		processor.end();
 	}
 }

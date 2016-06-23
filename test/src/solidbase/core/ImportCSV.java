@@ -16,21 +16,24 @@
 
 package solidbase.core;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+
 import java.sql.SQLException;
 
 import org.testng.annotations.Test;
 
 import solidstack.io.SourceException;
 
-public class Import
+public class ImportCSV
 {
 	static private final String db = "jdbc:hsqldb:mem:testImport";
 
 	@Test
-	public void testImport() throws SQLException
+	public void testImportCSV() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( db, "sa", null );
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "folder/testpatch-import1.sql", db );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "folder/testpatch-import-csv1.sql", db );
 		try
 		{
 			patcher.upgrade( "1.0.2" );
@@ -56,72 +59,62 @@ public class Import
 		}
 	}
 
-	@Test(dependsOnMethods="testImport")
-	public void testImportNotExist() throws SQLException
+	@Test(dependsOnMethods="testImportCSV")
+	public void testImportCSVNotExist() throws SQLException
 	{
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "folder/testpatch-import1.sql", db );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "folder/testpatch-import-csv1.sql", db );
 
 		try
 		{
 			patcher.upgrade( "1.0.4" );
-			assert false : "Expected a FatalException";
+			failBecauseExceptionWasNotThrown( FatalException.class );
 		}
 		catch( FatalException e )
 		{
 			String message = e.getMessage().replace( '\\', '/' );
-			assert message.contains( "java.io.FileNotFoundException: " ) : message;
-			assert message.contains( "folder/notexist.csv" ) : message;
+			assertThat( message ).contains( "java.io.FileNotFoundException: " );
+			assertThat( message ).contains( "folder/notexist.csv" );
 		}
-
-		patcher.end();
-	}
-
-	@Test(dependsOnMethods="testImportNotExist")
-	public void testImportJSV() throws SQLException
-	{
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "folder/testpatch-import1.sql", db );
-
-		patcher.upgrade( "1.0.5" );
 
 		patcher.end();
 	}
 
 	@Test
-	public void testImportLineNumber() throws SQLException
+	public void testImportCSVLineNumber() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-import2.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-import-csv2.sql" );
 
 		try
 		{
 			patcher.upgrade( "3" );
-			assert false;
+			failBecauseExceptionWasNotThrown( SourceException.class );
 		}
 		catch( SourceException e )
 		{
-			assert e.getMessage().contains( "<separator>, <newline>" );
-			assert e.getMessage().contains( "at line 52" ) : "Wrong error message: " + e.getMessage();
+			assertThat( e.getMessage() ).contains( "<separator>, <newline>" );
+			assertThat( e.getMessage() ).contains( "at line 52" );
 		}
 
 		try
 		{
 			patcher.upgrade( "5" );
-			assert false;
+			failBecauseExceptionWasNotThrown( SQLExecutionException.class );
 		}
 		catch( SQLExecutionException e )
 		{
-			assert e.getMessage().contains( "integrity constraint violation" );
-			assert e.getMessage().contains( "executing line 61" ) : "Wrong error message: " + e.getMessage();
+			assertThat( e.getMessage() ).contains( "integrity constraint violation" );
+			assertThat( e.getMessage() ).contains( "executing line 61" );
 		}
 
 		patcher.end();
 	}
 
 	@Test
-	static public void testProgress() throws SQLException
+	static public void testImportCSVProgress() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-import3.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-import-csv3.sql" );
 		patcher.upgrade( "1" );
 		patcher.end();
 	}

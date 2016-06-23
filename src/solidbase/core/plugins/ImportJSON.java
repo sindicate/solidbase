@@ -19,11 +19,10 @@ package solidbase.core.plugins;
 import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.StringUtils;
 
 import solidbase.core.Command;
 import solidbase.core.CommandListener;
@@ -41,9 +40,9 @@ import solidstack.io.SourceReader;
 import solidstack.io.SourceReaders;
 
 
-public class LoadJSON implements CommandListener
+public class ImportJSON implements CommandListener
 {
-	static private final Pattern triggerPattern = Pattern.compile( "\\s*LOAD\\s+JSON\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern triggerPattern = Pattern.compile( "\\s*IMPORT\\s+JSON\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 	static private final Pattern parameterPattern = Pattern.compile( ":(\\d+)" );
 
@@ -58,27 +57,44 @@ public class LoadJSON implements CommandListener
 		if( !matcher.matches() )
 			return false;
 
-		if( skip )
-			return true;
-
-		// Parse the command
 		Parsed parsed = parse( command );
 
-		// TODO BufferedInputStreams?
-		// Open the file resource
-		Resource resource = processor.getResource().resolve( parsed.fileName );
-		resource.setGZip( parsed.gzip );
-		SourceReader sourceReader;
-		try
+		if( skip )
 		{
-			// TODO Use the same charset detection as JSON does. Maybe introduce the UTF charset if the default does not become UTF.
-			sourceReader = SourceReaders.forResource( resource, "UTF-8" );
-		}
-		catch( FileNotFoundException e )
-		{
-			throw new FatalException( e.toString() );
+			if( parsed.fileName == null )
+			{
+				SourceReader reader = processor.getReader(); // Data is in the source file, need to skip it.
+				String line = reader.readLine();
+				while( line != null && line.length() > 0 )
+					line = reader.readLine();
+			}
+			return true;
 		}
 
+		// TODO BufferedInputStreams?
+		SourceReader sourceReader;
+		Resource resource = null;
+		boolean inline = false;
+		if( parsed.fileName != null )
+		{
+			// Data is in a file
+			resource = processor.getResource().resolve( parsed.fileName );
+			resource.setGZip( parsed.gzip );
+			try
+			{
+				sourceReader = SourceReaders.forResource( resource, "UTF-8" );
+			}
+			catch( FileNotFoundException e )
+			{
+				throw new FatalException( e.toString() );
+			}
+			// TODO What about the FileNotFoundException?
+		}
+		else
+		{
+			sourceReader = processor.getReader(); // Data is in the source file
+			inline = true;
+		}
 		try
 		{
 			LogCounter counter = null;
@@ -87,10 +103,12 @@ public class LoadJSON implements CommandListener
 			else if( parsed.logSeconds > 0 )
 				counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
-			JSONDataReader reader = new JSONDataReader( sourceReader, parsed.prependLineNumber, counter != null ? new ImportLogger( counter, processor.getProgressListener() ) : null );
+			JSONDataReader reader = new JSONDataReader( sourceReader, parsed.prependLineNumber, inline, counter != null ? new ImportLogger( counter, processor.getProgressListener() ) : null );
 
 			// TODO Test prependlinenumbers
 
+			// FIXME This does not work
+			/*
 			String[] columns;
 			if( parsed.columns != null )
 				columns = parsed.columns;
@@ -99,11 +117,12 @@ public class LoadJSON implements CommandListener
 				columns = reader.getFieldNames();
 				for( int i = 0; i < columns.length; i++ )
 					if( StringUtils.isBlank( columns[ i ] ) )
-						throw new FatalException( "Field name is blank for field number " + i + " in " + resource );
+						throw new FatalException( "Field name is blank for field number " + i + ( resource != null ? " in " + resource : "" ) );
 			}
+			*/
 
-			DBWriter writer = new DBWriter( null, parsed.tableName, parsed.columns, parsed.values, parsed.noBatch, processor );
-			reader.setOutput( new DefaultToResultSetTransformer( writer ) );
+			DBWriter writer = new DBWriter( parsed.sql, parsed.tableName, parsed.columns, parsed.values, parsed.noBatch, processor );
+			reader.setOutput( new DefaultToJDBCTransformer( writer ) );
 
 			boolean commit = false;
 			try
@@ -119,10 +138,20 @@ public class LoadJSON implements CommandListener
 		}
 		finally
 		{
-			sourceReader.close();
+			if( !inline )
+				sourceReader.close();
 		}
 	}
 
+
+	static public enum TOKEN {
+		PREPEND, NOBATCH, LOG, INTO, FILE, TO, EOF( null );
+		private String name;
+		private TOKEN() { this.name = name(); }
+		private TOKEN( String name ) { this.name = name; }
+		@Override
+		public String toString() { return this.name; }
+	};
 
 	/**
 	 * Parses the given command.
@@ -130,18 +159,18 @@ public class LoadJSON implements CommandListener
 	 * @param command The command to be parsed.
 	 * @return A structure representing the parsed command.
 	 */
+	// TODO Need to support columns name with "" or with `` like in other databases
 	static protected Parsed parse( Command command )
 	{
-		// FIXME Replace LINENUMBER with RECORD NUMBER
+		// FIXME Replace LINENUMBER with RECORDNUMBER
 		// TODO Match column names
 		// TODO Free SQL like with IMPORT CSV
 		/*
-		LOAD JSON
+		IMPORT JSON
 		[ PREPEND LINENUMBER ]
 		[ NOBATCH ]
 		[ LOG EVERY n RECORDS | SECONDS ]
-		INTO <schema>.<table> [ ( <columns> ) ]
-		[ VALUES ( <values> ) ]
+		INTO <schema>.<table> [ ( <columns> ) ] [ VALUES ( <values> ) ]
 		FILE "<file>" [ GZIP ]
 		*/
 
@@ -151,117 +180,106 @@ public class LoadJSON implements CommandListener
 
 		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
-		tokenizer.get( "LOAD" );
-		tokenizer.get( "JSON" );
+		EnumSet<TOKEN> expected = EnumSet.of( TOKEN.PREPEND, TOKEN.NOBATCH, TOKEN.LOG, TOKEN.INTO, TOKEN.FILE, TOKEN.TO, TOKEN.EOF );
 
-		Token t = tokenizer.get( "PREPEND", "NOBATCH", "LOG", "INTO" );
-
-		if( t.eq( "PREPEND" ) )
-		{
-			tokenizer.get( "LINENUMBER" );
-			result.prependLineNumber = true;
-
-			t = tokenizer.get( "NOBATCH", "LOG", "INTO" );
-		}
-
-		if( t.eq( "NOBATCH" ) )
-		{
-			result.noBatch = true;
-
-			t = tokenizer.get( "LOG", "INTO" );
-		}
-
-		if( t.eq( "LOG" ) )
-		{
-			tokenizer.get( "EVERY" );
-			t = tokenizer.get();
-			if( !t.isNumber() )
-				throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
-
-			int interval = Integer.parseInt( t.value() );
-			t = tokenizer.get( "RECORDS", "SECONDS" );
-			if( t.eq( "RECORDS" ) )
-				result.logRecords = interval;
-			else
-				result.logSeconds = interval;
-
-			t = tokenizer.get( "INTO" );
-		}
-
-		result.tableName = tokenizer.get().toString();
-
-		t = tokenizer.get( ".", "(", "VALUES", "FILE" );
-
-		if( t.eq( "." ) )
-		{
-			// TODO This means spaces are allowed, do we want that or not?
-			result.tableName = result.tableName + "." + tokenizer.get().toString();
-
-			t = tokenizer.get( "(", "VALUES", "FILE" );
-		}
-
-		if( t.eq( "(" ) )
-		{
-			t = tokenizer.get();
-			if( t.eq( ")" ) || t.eq( "," ) )
-				throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-			columns.add( t.value() );
-			t = tokenizer.get( ",", ")" );
-			while( !t.eq( ")" ) )
+		Token t = tokenizer.skip( "IMPORT" ).skip( "JSON" ).get();
+		for( ;; )
+			switch( tokenizer.expect( t, expected ) )
 			{
-				t = tokenizer.get();
-				if( t.eq( ")" ) || t.eq( "," ) )
-					throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-				columns.add( t.value() );
-				t = tokenizer.get( ",", ")" );
+				case PREPEND:
+					t = tokenizer.skip( "LINENUMBER" ).get();
+					result.prependLineNumber = true;
+					expected.remove( TOKEN.PREPEND );
+					break;
+
+				case NOBATCH:
+					t = tokenizer.get();
+					result.noBatch = true;
+					expected.remove( TOKEN.NOBATCH );
+					break;
+
+				case LOG:
+					t = tokenizer.skip( "EVERY" ).get();
+					if( !t.isNumber() )
+						throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
+					int interval = Integer.parseInt( t.value() );
+
+					if( tokenizer.get( "RECORDS", "SECONDS" ).eq( "RECORDS" ) )
+						result.logRecords = interval;
+					else
+						result.logSeconds = interval;
+
+					expected.remove( TOKEN.LOG );
+					t = tokenizer.get();
+					break;
+
+				case INTO:
+					// TODO These tokens should also be added to the expected errors when not encountered
+					result.tableName = tokenizer.getIdentifier().value();
+					t = tokenizer.get();
+					if( t.eq( "." ) )
+					{
+						result.tableName += "." + tokenizer.getIdentifier().value();
+						t = tokenizer.get();
+					}
+					if( t.eq( "(" ) )
+					{
+						columns.add( tokenizer.getIdentifier().value() );
+						t = tokenizer.get( ",", ")" );
+						while( !t.eq( ")" ) )
+						{
+							columns.add( tokenizer.getIdentifier().value() );
+							t = tokenizer.get( ",", ")" );
+						}
+						t = tokenizer.get();
+					}
+					if( t.eq( "VALUES" ) )
+					{
+						tokenizer.get( "(" );
+						do
+						{
+							StringBuilder value = new StringBuilder();
+							parseTill( tokenizer, value, false, ',', ')' );
+							values.add( value.toString() );
+							t = tokenizer.get( ",", ")" );
+						}
+						while( t.eq( "," ) );
+						if( columns.size() > 0 )
+							if( columns.size() != values.size() )
+								throw new SourceException( "Number of specified columns does not match number of given values", tokenizer.getLocation() );
+						t = tokenizer.get();
+					}
+					if( columns.size() > 0 )
+						result.columns = columns.toArray( new String[ columns.size() ] );
+					if( values.size() > 0 )
+						result.values = values.toArray( new String[ values.size() ] );
+					expected.remove( TOKEN.INTO );
+					expected.remove( TOKEN.TO );
+					break;
+
+				case FILE:
+					result.fileName = tokenizer.getString().stripQuotes();
+					t = tokenizer.get();
+					if( t.eq( "GZIP" ) )
+					{
+						result.gzip = true;
+						t = tokenizer.get();
+					}
+					expected.remove( TOKEN.FILE );
+					break;
+
+				case TO:
+					result.sql = tokenizer.getRemaining();
+					return result;
+
+				case EOF:
+					if( expected.contains( TOKEN.INTO ) )
+						throw new SourceException( "Missing INTO", tokenizer.getLocation() );
+					return result;
+
+				default:
+					throw new FatalException( "Unexpected token: " + t );
 			}
-
-			t = tokenizer.get( "VALUES", "FILE" );
-		}
-
-		if( t.eq( "VALUES" ) )
-		{
-			tokenizer.get( "(" );
-			do
-			{
-				StringBuilder value = new StringBuilder();
-				parseTill( tokenizer, value, false, ',', ')' );
-				values.add( value.toString() );
-
-				t = tokenizer.get( ",", ")" );
-			}
-			while( t.eq( "," ) );
-
-			if( columns.size() > 0 )
-				if( columns.size() != values.size() )
-					throw new SourceException( "Number of specified columns does not match number of given values", tokenizer.getLocation() );
-
-			t = tokenizer.get( "FILE" );
-		}
-
-		if( columns.size() > 0 )
-			result.columns = columns.toArray( new String[ columns.size() ] );
-		if( values.size() > 0 )
-			result.values = values.toArray( new String[ values.size() ] );
-
-		// File
-		t = tokenizer.get();
-		String file = t.value();
-		if( !file.startsWith( "\"" ) )
-			throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-		file = file.substring( 1, file.length() - 1 );
-
-		t = tokenizer.get();
-		if( t.eq( "GZIP" ) )
-		{
-			result.gzip = true;
-			t = tokenizer.get();
-		}
-
-		tokenizer.expect( t, (String)null );
-
-		result.fileName = file;
-		return result;
 	}
 
 
@@ -332,6 +350,8 @@ public class LoadJSON implements CommandListener
 
 		protected int logRecords;
 		protected int logSeconds;
+
+		protected String sql;
 
 		/** The table name to insert into. */
 		protected String tableName;

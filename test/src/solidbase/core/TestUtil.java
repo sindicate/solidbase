@@ -95,7 +95,7 @@ public class TestUtil
 
 	static public void assertPatchFileClosed( UpgradeProcessor patcher )
 	{
-		Assert.assertNull( patcher.upgradeFile.file );
+		Assert.assertNull( patcher.upgradeFile.reader );
 	}
 
 	static public void dropDerbyDatabase( String url ) throws SQLException

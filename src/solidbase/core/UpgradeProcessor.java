@@ -642,13 +642,13 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	@Override
 	public SourceReader getReader()
 	{
-		return this.upgradeFile.file;
+		return this.upgradeFile.reader;
 	}
 
 	@Override
 	public Resource getResource()
 	{
-		return this.upgradeFile.file.getResource();
+		return this.upgradeFile.reader.getResource();
 	}
 
 	@Override

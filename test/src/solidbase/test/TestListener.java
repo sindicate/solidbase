@@ -16,44 +16,21 @@
 
 package solidbase.test;
 
-import org.testng.ITestContext;
-import org.testng.ITestListener;
+import org.testng.IInvokedMethod;
+import org.testng.IInvokedMethodListener;
 import org.testng.ITestResult;
 
-public class TestListener implements ITestListener
+public class TestListener implements IInvokedMethodListener
 {
-	public void onFinish( ITestContext arg0 )
+	@Override
+	public void afterInvocation( IInvokedMethod arg0, ITestResult arg1 )
 	{
 		// Nothing
 	}
 
-	public void onStart( ITestContext arg0 )
+	@Override
+	public void beforeInvocation( IInvokedMethod method, ITestResult result )
 	{
-		// Nothing
-	}
-
-	public void onTestFailedButWithinSuccessPercentage( ITestResult arg0 )
-	{
-		// Nothing
-	}
-
-	public void onTestFailure( ITestResult arg0 )
-	{
-		// Nothing
-	}
-
-	public void onTestSkipped( ITestResult arg0 )
-	{
-		// Nothing
-	}
-
-	public void onTestStart( ITestResult result )
-	{
-		System.out.println( "---------- " + result.getName() + " ----------" );
-	}
-
-	public void onTestSuccess( ITestResult arg0 )
-	{
-		// Nothing
+		System.out.println( "---------- " + method.getTestMethod().getInstance().getClass().getName() + "." + method.getTestMethod().getMethodName() + "() ----------" );
 	}
 }

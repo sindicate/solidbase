@@ -28,6 +28,7 @@ import solidstack.io.SourceLocation;
  *
  * @author René M. de Bloois
  */
+// FIXME Rename to FatalSQLException
 public class SQLExecutionException extends FatalException
 {
 	private static final long serialVersionUID = 1L;

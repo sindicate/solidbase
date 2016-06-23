@@ -37,7 +37,7 @@ public class CharSets
 		RandomAccessSourceReader ralr = new RandomAccessSourceReader( new FileResource( "testpatch1.sql" ), EncodingDetector.INSTANCE );
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		upgradeFile.scan();
-		Assert.assertEquals( upgradeFile.file.getEncoding(), "ISO-8859-1" );
+		Assert.assertEquals( upgradeFile.reader.getEncoding(), "ISO-8859-1" );
 		upgradeFile.close();
 	}
 
@@ -52,7 +52,7 @@ public class CharSets
 		patcher.setUpgradeFile( upgradeFile );
 		patcher.init();
 
-		Assert.assertEquals( patcher.upgradeFile.file.getEncoding(), "UTF-8" );
+		Assert.assertEquals( patcher.upgradeFile.reader.getEncoding(), "UTF-8" );
 		patcher.upgrade( "1.0.2" );
 		Connection connection = patcher.getCurrentDatabase().getConnection();
 		Statement stat = connection.createStatement();
@@ -73,7 +73,7 @@ public class CharSets
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		upgradeFile.scan();
 //		Assert.assertEquals( upgradeFile.file.getBOM(), new byte[] { -1, -2 } );
-		Assert.assertEquals( upgradeFile.file.getEncoding(), "UTF-16" );
+		Assert.assertEquals( upgradeFile.reader.getEncoding(), "UTF-16" );
 		upgradeFile.close();
 	}
 
@@ -84,9 +84,9 @@ public class CharSets
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		upgradeFile.scan();
 //		Assert.assertEquals( upgradeFile.file.getBOM(), new byte[] { -1, -2 } );
-		Assert.assertEquals( upgradeFile.file.getEncoding(), "UTF-16LE" );
+		Assert.assertEquals( upgradeFile.reader.getEncoding(), "UTF-16LE" );
 
-		RandomAccessSourceReader reader = upgradeFile.file;
+		RandomAccessSourceReader reader = upgradeFile.reader;
 		reader.gotoLine( 1 );
 		boolean found = false;
 		String line = reader.readLine();
@@ -108,9 +108,9 @@ public class CharSets
 		UpgradeFile upgradeFile = new UpgradeFile( ralr );
 		upgradeFile.scan();
 //		Assert.assertNull( upgradeFile.file.getBOM() );
-		Assert.assertEquals( upgradeFile.file.getEncoding(), "UTF-16LE" );
+		Assert.assertEquals( upgradeFile.reader.getEncoding(), "UTF-16LE" );
 
-		RandomAccessSourceReader reader = upgradeFile.file;
+		RandomAccessSourceReader reader = upgradeFile.reader;
 		reader.gotoLine( 1 );
 		boolean found = false;
 		String line = reader.readLine();

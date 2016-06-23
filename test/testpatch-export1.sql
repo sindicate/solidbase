@@ -43,7 +43,7 @@ FROM TEMP1;
 
  DUMP JSON
 	DATE AS TIMESTAMP
-	FILE "export3.json"
+	FILE "export1.json"
 	COLUMN PICTURE TO BINARY FILE "folder/export3.bin"
 	COLUMN TEXT2 TO TEXT FILE "folder/export3.txt"
 SELECT * FROM TEMP1;
@@ -51,7 +51,7 @@ SELECT * FROM TEMP1;
 --* DUMP CBOR DATE_CREATED OFF
 
 		DUMP CBOR
-	FILE "export3.cbor"
+	FILE "export1.cbor"
 	FROM
 SELECT * FROM TEMP1;
 

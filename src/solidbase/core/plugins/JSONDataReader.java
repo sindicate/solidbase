@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.sql.Types;
 
@@ -30,6 +31,8 @@ import solidstack.lang.ThreadInterrupted;
 // TODO BufferedInputStreams?
 public class JSONDataReader // TODO implements RecordSource
 {
+	static public Charset UTF8 = Charset.forName( "UTF-8" );
+
 	private JSONReader reader;
 	private boolean prependLineNumber;
 	private ImportLogger counter;
@@ -43,38 +46,46 @@ public class JSONDataReader // TODO implements RecordSource
 	private SegmentedInputStream[] streams;
 	private SegmentedReader[] textStreams;
 
+	private JSONArray firstRecord;
 
-	public JSONDataReader( SourceReader reader, boolean prependLineNumber, ImportLogger counter )
+
+	public JSONDataReader( SourceReader reader, boolean prependLineNumber, boolean emptyLineIsEOF, ImportLogger counter )
 	{
-		this.reader = new JSONReader( reader );
+		this.reader = new JSONReader( reader, emptyLineIsEOF );
 		this.prependLineNumber = prependLineNumber;
 		this.counter = counter;
 
 		// Read the header
-		JSONObject properties = (JSONObject)this.reader.read();
-
-		// The default binary file
-		this.binaryFile = properties.findString( "binaryFile" );
-
-		// The fields
-		JSONArray fields = properties.getArray( "fields" );
-		int fieldCount = fields.size();
-
-		this.columns = new Column[ fieldCount ];
-
-		// Initialise the working arrays
-		this.fieldNames = new String[ fieldCount ];
-		this.fileNames = new String[ fieldCount ];
-		this.streams = new SegmentedInputStream[ fieldCount ];
-		this.textStreams = new SegmentedReader[ fieldCount ];
-
-		for( int i = 0; i < fieldCount; i++ )
+		Object object = this.reader.read();
+		if( object instanceof JSONObject )
 		{
-			JSONObject field = (JSONObject)fields.get( i );
-			this.fileNames[ i ] = field.findString( "file" );
-			String name = this.fieldNames[ i ] = field.findString( "name" );
-			this.columns[ i ] = new Column( name, JDBCSupport.fromTypeName( field.getString( "type" ) ), field.findString( "tableName" ), field.findString( "schemaName" ) );
+			JSONObject properties = (JSONObject)object;
+
+			// The default binary file
+			this.binaryFile = properties.findString( "binaryFile" );
+
+			// The fields
+			JSONArray fields = properties.getArray( "fields" );
+			int fieldCount = fields.size();
+
+			this.columns = new Column[ fieldCount ];
+
+			// Initialise the working arrays
+			this.fieldNames = new String[ fieldCount ];
+			this.fileNames = new String[ fieldCount ];
+			this.streams = new SegmentedInputStream[ fieldCount ];
+			this.textStreams = new SegmentedReader[ fieldCount ];
+
+			for( int i = 0; i < fieldCount; i++ )
+			{
+				JSONObject field = (JSONObject)fields.get( i );
+				this.fileNames[ i ] = field.findString( "file" );
+				String name = this.fieldNames[ i ] = field.findString( "name" );
+				this.columns[ i ] = new Column( name, JDBCSupport.fromTypeName( field.getString( "type" ) ), field.findString( "tableName" ), field.findString( "schemaName" ) );
+			}
 		}
+		else if( object != null )
+			this.firstRecord = (JSONArray)object;
 	}
 
 	public String[] getFieldNames()
@@ -105,7 +116,14 @@ public class JSONDataReader // TODO implements RecordSource
 					throw new ThreadInterrupted();
 
 				// Read a record
-				JSONArray array = (JSONArray)this.reader.read();
+				JSONArray array;
+				if( this.firstRecord != null )
+				{
+					array = this.firstRecord;
+					this.firstRecord = null;
+				}
+				else
+					array = (JSONArray)this.reader.read();
 				if( array == null )
 				{
 					// End of file, finalize things
@@ -121,14 +139,13 @@ public class JSONDataReader // TODO implements RecordSource
 
 				SourceLocation location = this.reader.getLocation();
 
-				Object[] values = new Object[ this.columns.length + ( this.prependLineNumber ? 1 : 0 ) ];
+				Object[] values = new Object[ array.size() + ( this.prependLineNumber ? 1 : 0 ) ];
 				int pos = 0;
 				if( this.prependLineNumber )
 					values[ pos++ ] = location.getLineNumber();
 
 				for( int i = 0; i < array.size(); i++ )
 				{
-					int type = this.columns[ i ].getType();
 					Object value;
 					try
 					{
@@ -141,6 +158,11 @@ public class JSONDataReader // TODO implements RecordSource
 
 					if( value instanceof JSONObject )
 					{
+						if( this.columns == null )
+							throw new SourceException( "File refs only supported with a JSON header object that defines the field types", this.reader.getLocation() );
+
+						int type = this.columns[ i ].getType();
+
 						// Value of parameter is in a separate file
 						JSONObject object = (JSONObject)value;
 						String filename = object.findString( "file" );

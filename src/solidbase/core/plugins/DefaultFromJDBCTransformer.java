@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 
-public class DefaultResultSetTransformer implements ResultSink, RecordSource
+public class DefaultFromJDBCTransformer implements ResultSink, RecordSource
 {
 	private Column[] columns;
 	private RecordSink sink;
