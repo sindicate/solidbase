@@ -1,3 +1,19 @@
+/*--
+ * Copyright 2016 René M. de Bloois
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package solidbase.core.plugins;
 
 import java.sql.PreparedStatement;
@@ -120,6 +136,7 @@ public class DBWriter implements RecordSink
 	{
 	}
 
+	@Override
 	public void process( Object[] record ) throws SQLException
 	{
 		if( this.statement == null )
@@ -128,7 +145,6 @@ public class DBWriter implements RecordSink
 		int pos = 1;
 		int index = 0;
 		for( int par : this.parameterMap )
-		{
 			try
 			{
 				Object value = record[ index = par - 1 ];
@@ -143,10 +159,8 @@ public class DBWriter implements RecordSink
 				String message = buildMessage( this.sql, this.parameterMap, record );
 				throw new SQLExecutionException( message, null, e );
 			}
-		}
 
 		if( this.noBatch )
-		{
 			try
 			{
 				this.statement.executeUpdate();
@@ -157,7 +171,6 @@ public class DBWriter implements RecordSink
 				// When NOBATCH is on, you can see the actual insert statement and line number in the file where the SQLException occurred.
 				throw new SQLExecutionException( message, null, e );
 			}
-		}
 		else
 		{
 			this.statement.addBatch();

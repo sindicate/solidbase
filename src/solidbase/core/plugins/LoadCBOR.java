@@ -1,5 +1,5 @@
 /*--
- * Copyright 2011 René M. de Bloois
+ * Copyright 2016 René M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public class LoadCBOR implements CommandListener
 	static private final Pattern parameterPattern = Pattern.compile( ":(\\d+)" );
 
 
-	//@Override
+	@Override
 	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
 	{
 		if( command.isTransient() )
@@ -342,7 +342,7 @@ public class LoadCBOR implements CommandListener
 	}
 
 
-	//@Override
+	@Override
 	public void terminate()
 	{
 		// Nothing to clean up

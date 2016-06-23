@@ -47,7 +47,7 @@ public class ImportJSON implements CommandListener
 	static private final Pattern parameterPattern = Pattern.compile( ":(\\d+)" );
 
 
-	//@Override
+	@Override
 	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
 	{
 		if( command.isTransient() )
@@ -308,6 +308,7 @@ public class ImportJSON implements CommandListener
 		outer:
 			while( true )
 			{
+				// TODO What about quotes?
 				if( t.eq( "(" ) )
 				{
 					//System.out.println( "(" );
@@ -371,7 +372,7 @@ public class ImportJSON implements CommandListener
 	}
 
 
-	//@Override
+	@Override
 	public void terminate()
 	{
 		// Nothing to clean up

@@ -1,5 +1,5 @@
 /*--
- * Copyright 2011 René M. de Bloois
+ * Copyright 2016 René M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,6 @@ import solidstack.script.scopes.UndefinedException;
  * This plugin executes EXPORT CSV statements.
  *
  * @author René M. de Bloois
- * @since Aug 12, 2011
  */
 public class DumpCBOR implements CommandListener
 {
@@ -69,6 +68,7 @@ public class DumpCBOR implements CommandListener
 	// TODO Escape dynamic file names, because illegal characters may be generated
 	// TODO Export multiple tables to a single file. If no PK than sort on all columns. Schema name for import or not?
 	// TODO COLUMN TO TEXT FILE with ENCODING
+	@Override
 	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
 	{
 		if( !triggerPattern.matcher( command.getCommand() ).matches() )
@@ -383,7 +383,7 @@ public class DumpCBOR implements CommandListener
 	}
 
 
-	//@Override
+	@Override
 	public void terminate()
 	{
 		// Nothing to clean up

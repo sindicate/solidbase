@@ -69,6 +69,7 @@ public class DumpJSON implements CommandListener
 	// TODO Escape dynamic file names, because illegal characters may be generated
 	// TODO Export multiple tables to a single file. If no PK than sort on all columns. Schema name for import or not?
 	// TODO COLUMN TO TEXT FILE with ENCODING
+	@Override
 	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
 	{
 		if( !triggerPattern.matcher( command.getCommand() ).matches() )
@@ -300,6 +301,8 @@ public class DumpJSON implements CommandListener
 		COLUMN col1, col2 ( TO (BINARY|TEXT) FILE "file" [THRESHOLD n] | SKIP )
 		*/
 
+		// FIXME What about encoding of the text files?
+		// FIXME and how should we detect it when reading?
 		Parsed result = new Parsed();
 
 		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
@@ -449,7 +452,7 @@ public class DumpJSON implements CommandListener
 	}
 
 
-	//@Override
+	@Override
 	public void terminate()
 	{
 		// Nothing to clean up

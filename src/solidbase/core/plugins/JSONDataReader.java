@@ -1,3 +1,19 @@
+/*--
+ * Copyright 2016 René M. de Bloois
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package solidbase.core.plugins;
 
 import java.io.ByteArrayOutputStream;
@@ -170,7 +186,6 @@ public class JSONDataReader // TODO implements RecordSource
 						{
 							// One file per record
 							if( type == Types.BLOB || type == Types.VARBINARY )
-							{
 								try
 								{
 									// TODO Fix the input stream size given the size in the JSON file
@@ -192,7 +207,6 @@ public class JSONDataReader // TODO implements RecordSource
 								{
 									throw new SourceException( e.getMessage(), this.reader.getLocation() );
 								}
-							}
 							else
 								Assert.fail( "Unexpected field type for external file: " + JDBCSupport.toTypeName( type ) );
 						}
@@ -268,8 +282,7 @@ public class JSONDataReader // TODO implements RecordSource
 						}
 					}
 					else
-					{
-//						if( type == Types.CLOB )
+						//						if( type == Types.CLOB )
 //						{
 //							if( values.get( index ) == null )
 //								System.out.println( "NULL!" );
@@ -281,13 +294,12 @@ public class JSONDataReader // TODO implements RecordSource
 //							statement.setCharacterStream( pos++, new StringReader( (String)values.get( index ) ) );
 //						}
 //						else
-							// MonetDB complains when calling setObject with null value
+						// MonetDB complains when calling setObject with null value
 //							Object v = values.get( index );
 //						if( v != null )
-							values[ pos++ ] = array.get( i );
+						values[ pos++ ] = array.get( i );
 //						else
 //							statement.setNull( pos++, type );
-					}
 				}
 
 				try
