@@ -208,6 +208,14 @@ public class SQLTokenizer
 		return result;
 	}
 
+	public Token getNumber()
+	{
+		Token result = get();
+		if( !result.isNumber() )
+			throw new SourceException( "Expecting a number, not [" + result + "]", getLocation() );
+		return result;
+	}
+
 	/**
 	 * A token that matches one of the expected tokens. Throws a {@link SourceException} if a token is encountered
 	 * that does not match the given expected tokens.
@@ -270,11 +278,9 @@ public class SQLTokenizer
 					return;
 		}
 		else
-		{
 			for( String exp : expected )
 				if( token.eq( exp ) )
 					return;
-		}
 
 		// Raise exception
 

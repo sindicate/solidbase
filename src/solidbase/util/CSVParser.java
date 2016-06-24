@@ -26,7 +26,7 @@ import solidstack.io.SourceReader;
  *
  * @author René M. de Bloois
  */
-public class CSVTokenizer
+public class CSVParser
 {
 	/**
 	 * The reader used to read from and push back characters.
@@ -63,7 +63,7 @@ public class CSVTokenizer
 	 * @param separator The CSV separator.
 	 * @param ignoreWhiteSpace Ignore white space, except white space enclosed in double quotes.
 	 */
-	public CSVTokenizer( SourceReader in, int separator, boolean escape, boolean ignoreWhiteSpace )
+	public CSVParser( SourceReader in, int separator, boolean escape, boolean ignoreWhiteSpace )
 	{
 		this.in = in;
 		this.separator = separator;

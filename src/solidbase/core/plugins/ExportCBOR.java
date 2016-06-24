@@ -38,6 +38,7 @@ import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.FatalException;
+import solidbase.core.ProcessException;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
@@ -59,9 +60,9 @@ import solidstack.script.scopes.UndefinedException;
  *
  * @author René M. de Bloois
  */
-public class DumpCBOR implements CommandListener
+public class ExportCBOR implements CommandListener
 {
-	static private final Pattern triggerPattern = Pattern.compile( "\\s*DUMP\\s+CBOR\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern triggerPattern = Pattern.compile( "\\s*EXPORT\\s+CBOR\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 
 	//@Override
@@ -76,21 +77,17 @@ public class DumpCBOR implements CommandListener
 
 		if( command.isTransient() )
 		{
-			/* --* DUMP CBOR DATE_CREATED ON | OFF */
+			/* --* EXPORT CBOR SET ADD_CREATED_DATE = ON | OFF */
 
 			SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
-			// TODO Maybe DUMP CBOR CONFIG or DUMP CBORSET
 			// TODO What about other configuration settings?
-			tokenizer.get( "DUMP" );
-			tokenizer.get( "CBOR" );
-			tokenizer.get( "DATE_CREATED" ); // FIXME This should be CREATED_DATE
-			Token t = tokenizer.get( "ON", "OFF" );
-			tokenizer.get( (String)null );
+			Token t = tokenizer.skip( "EXPORT" ).skip( "CBOR" ).skip( "SET" ).skip( "ADD_CREATED_DATE" ).skip( "=" ).get( "ON", "OFF" );
+			tokenizer.skip( (String)null );
 
 			// TODO I think we should have a scope that is restricted to the current file and a scope that gets inherited when running or including another file.
 			Scope scope = processor.getContext().getScope();
-			scope.setOrVar( Symbol.apply( "solidbase.dump_cbor.dateCreated" ), t.eq( "ON" ) ); // TODO Make this a constant
+			scope.setOrVar( Symbol.apply( "solidbase.export.cbor.addCreatedDate" ), t.eq( "ON" ) );
 
 			return true;
 		}
@@ -101,15 +98,15 @@ public class DumpCBOR implements CommandListener
 		Parsed parsed = parse( command );
 
 		Scope scope = processor.getContext().getScope();
-		boolean dateCreated;
+		boolean createdDate;
 		try
 		{
-			Object object = scope.get( Symbol.apply( "solidbase.dump_cbor.dateCreated" ) );
-			dateCreated = object instanceof Boolean && (Boolean)object;
+			Object object = scope.get( Symbol.apply( "solidbase.export.cbor.addCreatedDate" ) );
+			createdDate = object instanceof Boolean && (Boolean)object;
 		}
 		catch( UndefinedException e )
 		{
-			dateCreated = true;
+			createdDate = true;
 		}
 
 		Resource cborOutput = new FileResource( new File( parsed.fileName ) ); // Relative to current folder
@@ -124,7 +121,15 @@ public class DumpCBOR implements CommandListener
 				Statement statement = processor.createStatement();
 				try
 				{
-					ResultSet result = statement.executeQuery( parsed.query );
+					ResultSet result;
+					try
+					{
+						result = statement.executeQuery( parsed.query );
+					}
+					catch( SQLException e )
+					{
+						throw new ProcessException( e ).addProcess( "executing: " + parsed.query );
+					}
 
 					LogCounter counter = null;
 					if( parsed.logRecords > 0 )
@@ -195,7 +200,7 @@ public class DumpCBOR implements CommandListener
 						properties.set( "version", 1 );
 						properties.set( "description", "SolidBase CBOR Data Dump File" );
 						properties.set( "createdBy", new JSONObject( "product", "SolidBase", "version", "2.0.0" ) );
-						if( dateCreated )
+						if( createdDate )
 							properties.set( "createdDate", new Date() );
 						dataWriter.getCBOROutputStream().write( properties );
 
@@ -260,116 +265,90 @@ public class DumpCBOR implements CommandListener
 		return true;
 	}
 
-
-	static public enum TOKEN { DATE, COALESCE, LOG, FILE, COLUMN, FROM };
-
 	/**
 	 * Parses the given command.
 	 *
 	 * @param command The command to be parsed.
 	 * @return A structure representing the parsed command.
 	 */
-	// TODO Add NOBATCH
 	static protected Parsed parse( Command command )
 	{
 		/*
 		DUMP CBOR
-		DATE AS TIMESTAMP
-		COALESCE col1, col2
-		LOG EVERY n (RECORDS|SECONDS)
-		FILE "file" [GZIP]
-		COLUMN col1, col2 ( TO (BINARY|TEXT) FILE "file" [THRESHOLD n] | SKIP )
-		FROM
+		FILE "file" [ GZIP ]
+		[ DATE AS TIMESTAMP ]
+		[ COALESCE <col>, <col> [ , <col> ] ]
+		[ LOG EVERY n ( RECORDS | SECONDS ) ]
+		[ COLUMN col1, col2 SKIP ) ]
+		FROM <sqlstatement>
 		*/
 
 		Parsed result = new Parsed();
 
 		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
-		EnumSet<TOKEN> expected = EnumSet.of( TOKEN.DATE, TOKEN.COALESCE, TOKEN.LOG, TOKEN.FILE, TOKEN.COLUMN, TOKEN.FROM );
+		EnumSet<Tokens> expected = EnumSet.of( Tokens.DATE, Tokens.COALESCE, Tokens.LOG, Tokens.FILE, Tokens.COLUMN, Tokens.FROM );
 
-		Token t = tokenizer.skip( "DUMP" ).skip( "CBOR" ).get();
+		Token t = tokenizer.skip( "EXPORT" ).skip( "CBOR" ).get();
 		for( ;; )
 			switch( tokenizer.expect( t, expected ) )
 			{
 				case DATE:
 					t = tokenizer.skip( "AS" ).skip( "TIMESTAMP" ).get();
 					result.dateAsTimestamp = true;
-					expected.remove( TOKEN.DATE );
+					expected.remove( Tokens.DATE );
 					break;
 
 				case COALESCE:
+					List<String> cols;
 					if( result.coalesce == null )
 						result.coalesce = new ArrayList<List<String>>();
-
-					List<String> cols;
 					result.coalesce.add( cols = new ArrayList<String>() );
-
 					do
 					{
-						t = tokenizer.get();
-						if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
-							throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-						cols.add( t.value() );
+						cols.add( tokenizer.getIdentifier().value() );
 						t = tokenizer.get();
 					}
 					while( t.eq( "," ) );
-
 					if( cols.size() < 2 )
 						throw new SourceException( "COALESCE needs more than 1 column name", tokenizer.getLocation() );
 					break;
 
 				case LOG:
-					t = tokenizer.skip( "EVERY" ).get();
-					if( !t.isNumber() )
-						throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
-					int interval = Integer.parseInt( t.value() );
-
+					int interval = Integer.parseInt( tokenizer.skip( "EVERY" ).getNumber().value() );
 					if( tokenizer.get( "RECORDS", "SECONDS" ).eq( "RECORDS" ) )
 						result.logRecords = interval;
 					else
 						result.logSeconds = interval;
-
-					expected.remove( TOKEN.LOG );
+					expected.remove( Tokens.LOG );
 					t = tokenizer.get();
 					break;
 
 				case FILE:
-					t = tokenizer.get();
-					if( !t.isString() )
-						throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-					result.fileName = t.stripQuotes();
-
+					result.fileName = tokenizer.getString().stripQuotes();
 					t = tokenizer.get();
 					if( t.eq( "GZIP" ) )
 					{
 						result.gzip = true;
 						t = tokenizer.get();
 					}
-
-					expected.remove( TOKEN.FILE );
+					expected.remove( Tokens.FILE );
 					break;
 
 				case COLUMN:
 					if( result.columns == null )
 						result.columns = new HashMap<String, ColumnSpec>();
-
 					cols = new ArrayList<String>();
 					do
 					{
-						t = tokenizer.get();
-						if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
-							throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-						cols.add( t.value() );
+						cols.add( tokenizer.getIdentifier().value() );
 						t = tokenizer.get();
 					}
 					while( t.eq( "," ) );
 					tokenizer.expect( t, "SKIP" );
-
 					ColumnSpec columnSpec = new ColumnSpec( true, null );
 					for( String col : cols )
 						result.columns.put( col, columnSpec );
-
 					t = tokenizer.get();
 					break;
 

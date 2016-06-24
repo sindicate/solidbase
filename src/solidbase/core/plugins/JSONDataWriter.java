@@ -17,6 +17,7 @@
 package solidbase.core.plugins;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,6 +33,7 @@ import java.util.zip.GZIPOutputStream;
 import solidstack.io.DeferringWriter;
 import solidstack.io.FatalIOException;
 import solidstack.io.FileResource;
+import solidstack.io.HexInputStreamReader;
 import solidstack.io.Resource;
 import solidstack.io.SourceException;
 import solidstack.io.SourceLocation;
@@ -63,6 +65,7 @@ public class JSONDataWriter implements RecordSink
 		this.location = location;
 	}
 
+	@Override
 	public void init( Column[] columns )
 	{
 		this.columns = columns;
@@ -84,6 +87,7 @@ public class JSONDataWriter implements RecordSink
 	{
 	}
 
+	@Override
 	public void process( Object[] record ) throws SQLException
 	{
 		try
@@ -221,6 +225,10 @@ public class JSONDataWriter implements RecordSink
 				}
 				else if( value instanceof Clob )
 					array.add( ( (Clob)value ).getCharacterStream() );
+				else if( this.binaryFile == null && value instanceof Blob )
+					array.add( new HexInputStreamReader( ( (Blob)value ).getBinaryStream() ) );
+				else if( this.binaryFile == null && value instanceof byte[] )
+					array.add( new HexInputStreamReader( new ByteArrayInputStream( (byte[])value ) ) );
 				else if( this.binaryFile != null && ( value instanceof Blob || value instanceof byte[] ) )
 				{
 					// TODO Exception when binaryFile is not set, or hexadecimal

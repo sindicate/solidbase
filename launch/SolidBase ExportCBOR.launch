@@ -7,11 +7,12 @@
 <mapAttribute key="org.testng.eclipse.ALL_CLASS_METHODS">
 <mapEntry key="solidbase.core.Basic" value=""/>
 <mapEntry key="solidbase.core.Export" value=""/>
-<mapEntry key="solidbase.core.export.ExportCoalesce" value=""/>
-<mapEntry key="solidbase.core.export.ExportCoalese" value=""/>
+<mapEntry key="solidbase.core.ExportCBOR" value=""/>
+<mapEntry key="solidbase.core.ExportCSV" value=""/>
+<mapEntry key="solidbase.core.export.Export" value=""/>
 </mapAttribute>
 <listAttribute key="org.testng.eclipse.CLASS_TEST_LIST">
-<listEntry value="solidbase.core.export.ExportCoalesce"/>
+<listEntry value="solidbase.core.ExportCBOR"/>
 </listAttribute>
 <stringAttribute key="org.testng.eclipse.COMPLIANCE_LEVEL" value="JDK"/>
 <booleanAttribute key="org.testng.eclipse.DEBUG" value="false"/>

@@ -16,6 +16,8 @@
 
 package solidbase.core.plugins;
 
+import java.io.InputStream;
+import java.io.Reader;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -157,7 +159,13 @@ public class DBWriter implements RecordSink
 			}
 			try
 			{
-				this.statement.setObject( pos++, value );
+				if( value instanceof InputStream )
+					this.statement.setBinaryStream( pos, (InputStream)value );
+				else if( value instanceof Reader )
+					this.statement.setCharacterStream( pos, (Reader)value );
+				else
+					this.statement.setObject( pos, value );
+				pos++; // Increment after a potential exception
 			}
 			catch( SQLException e )
 			{

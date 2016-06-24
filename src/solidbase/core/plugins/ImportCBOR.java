@@ -29,14 +29,12 @@ import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.FatalException;
 import solidbase.core.ProcessException;
-import solidbase.core.plugins.ImportJSON.TOKEN;
-import solidbase.util.Assert;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
 import solidbase.util.TimeIntervalLogCounter;
-import solidstack.io.HexInputStream;
+import solidstack.io.HexSourceReaderInputStream;
 import solidstack.io.Resource;
 import solidstack.io.SourceException;
 import solidstack.io.SourceInputStream;
@@ -47,8 +45,6 @@ import solidstack.io.SourceReaders;
 public class ImportCBOR implements CommandListener
 {
 	static private final Pattern triggerPattern = Pattern.compile( "\\s*IMPORT\\s+CBOR\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
-
-	static private final Pattern parameterPattern = Pattern.compile( ":(\\d+)" );
 
 
 	@Override
@@ -96,7 +92,7 @@ public class ImportCBOR implements CommandListener
 		}
 		else
 		{
-			in = new HexInputStream( processor.getReader() ); // Data is in the source file
+			in = new HexSourceReaderInputStream( processor.getReader() ); // Data is in the source file
 			inline = true;
 		}
 
@@ -163,7 +159,6 @@ public class ImportCBOR implements CommandListener
 		}
 	}
 
-
 	/**
 	 * Parses the given command.
 	 *
@@ -172,16 +167,19 @@ public class ImportCBOR implements CommandListener
 	 */
 	static protected Parsed parse( Command command )
 	{
-		// FIXME Replace LINENUMBER with RECORD NUMBER
 		// TODO Match column names
-		// TODO Free SQL like with IMPORT CSV
+
 		/*
-		LOAD CBOR
+		IMPORT CBOR
+		[ FILE "<file>" [ GZIP ] ]
+		[ INTO [ <schema> . ] <table> [ ( <columns> ) ] [ VALUES ( <values> ) ] ]
 		[ PREPEND RECORDNUMBER ]
 		[ NOBATCH ]
 		[ LOG EVERY n RECORDS | SECONDS ]
-		INTO <schema>.<table> [ ( <columns> ) ] [ VALUES ( <values> ) ]
-		FILE "<file>" [ GZIP ]
+		[ EXEC <sqlstatement> ]
+
+		- One of INTO or EXEC is needed
+		- If FILE is missing, the data will be read inline, hexadecimal
 		*/
 
 		Parsed result = new Parsed();
@@ -190,7 +188,7 @@ public class ImportCBOR implements CommandListener
 
 		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
-		EnumSet<TOKEN> expected = EnumSet.of( TOKEN.PREPEND, TOKEN.NOBATCH, TOKEN.LOG, TOKEN.INTO, TOKEN.FILE, TOKEN.TO, TOKEN.EOF );
+		EnumSet<Tokens> expected = EnumSet.of( Tokens.PREPEND, Tokens.NOBATCH, Tokens.LOG, Tokens.INTO, Tokens.FILE, Tokens.EXEC, Tokens.EOF );
 
 		Token t = tokenizer.skip( "IMPORT" ).skip( "CBOR" ).get();
 		for( ;; )
@@ -199,28 +197,23 @@ public class ImportCBOR implements CommandListener
 				case PREPEND:
 					t = tokenizer.skip( "RECORDNUMBER" ).get();
 					result.prependRecordNumber = true;
-					expected.remove( TOKEN.PREPEND );
+					expected.remove( Tokens.PREPEND );
 					break;
 
 				case NOBATCH:
 					t = tokenizer.get();
 					result.noBatch = true;
-					expected.remove( TOKEN.NOBATCH );
+					expected.remove( Tokens.NOBATCH );
 					break;
 
 				case LOG:
-					t = tokenizer.skip( "EVERY" ).get();
-					if( !t.isNumber() )
-						throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
-					int interval = Integer.parseInt( t.value() );
-
+					int interval = Integer.parseInt( tokenizer.skip( "EVERY" ).getNumber().value() );
 					if( tokenizer.get( "RECORDS", "SECONDS" ).eq( "RECORDS" ) )
 						result.logRecords = interval;
 					else
 						result.logSeconds = interval;
-
-					expected.remove( TOKEN.LOG );
 					t = tokenizer.get();
+					expected.remove( Tokens.LOG );
 					break;
 
 				case INTO:
@@ -249,7 +242,7 @@ public class ImportCBOR implements CommandListener
 						do
 						{
 							StringBuilder value = new StringBuilder();
-							parseTill( tokenizer, value, false, ',', ')' );
+							ImportJSON.parseTill( tokenizer, value, false, ',', ')' );
 							values.add( value.toString() );
 							t = tokenizer.get( ",", ")" );
 						}
@@ -263,8 +256,8 @@ public class ImportCBOR implements CommandListener
 						result.columns = columns.toArray( new String[ columns.size() ] );
 					if( values.size() > 0 )
 						result.values = values.toArray( new String[ values.size() ] );
-					expected.remove( TOKEN.INTO );
-					expected.remove( TOKEN.TO );
+					expected.remove( Tokens.INTO );
+					expected.remove( Tokens.EXEC );
 					break;
 
 				case FILE:
@@ -275,73 +268,21 @@ public class ImportCBOR implements CommandListener
 						result.gzip = true;
 						t = tokenizer.get();
 					}
-					expected.remove( TOKEN.FILE );
+					expected.remove( Tokens.FILE );
 					break;
 
-				case TO:
+				case EXEC:
 					result.sql = tokenizer.getRemaining();
 					return result;
 
 				case EOF:
-					if( expected.contains( TOKEN.INTO ) )
-						throw new SourceException( "Missing INTO", tokenizer.getLocation() );
+					if( expected.contains( Tokens.INTO ) && expected.contains( Tokens.EXEC ) )
+						throw new SourceException( "Missing INTO or EXEC", tokenizer.getLocation() );
 					return result;
 
 				default:
 					throw new FatalException( "Unexpected token: " + t );
 			}
-	}
-
-
-	/**
-	 * Parse till the specified characters are found.
-	 *
-	 * @param tokenizer The tokenizer.
-	 * @param result The result is stored in this StringBuilder.
-	 * @param chars The end characters.
-	 * @param includeInitialWhiteSpace Include the whitespace that precedes the first token.
-	 */
-	static protected void parseTill( SQLTokenizer tokenizer, StringBuilder result, boolean includeInitialWhiteSpace, char... chars )
-	{
-		Token t = tokenizer.get();
-		if( t == null )
-			throw new SourceException( "Unexpected EOF", tokenizer.getLocation() );
-		if( t.length() == 1 )
-			for( char c : chars )
-				if( t.value().charAt( 0 ) == c )
-					throw new SourceException( "Unexpected [" + t + "]", tokenizer.getLocation() );
-
-		if( includeInitialWhiteSpace )
-			result.append( t.whiteSpace() );
-		result.append( t.value() );
-
-		outer:
-			while( true )
-			{
-				if( t.eq( "(" ) )
-				{
-					//System.out.println( "(" );
-					parseTill( tokenizer, result, true, ')' );
-					t = tokenizer.get();
-					Assert.isTrue( t.eq( ")" ) );
-					//System.out.println( ")" );
-					result.append( t.whiteSpace() );
-					result.append( t.value() );
-				}
-
-				t = tokenizer.get();
-				if( t == null )
-					throw new SourceException( "Unexpected EOF", tokenizer.getLocation() );
-				if( t.length() == 1 )
-					for( char c : chars )
-						if( t.value().charAt( 0 ) == c )
-							break outer;
-
-				result.append( t.whiteSpace() );
-				result.append( t.value() );
-			}
-
-		tokenizer.rewind();
 	}
 
 

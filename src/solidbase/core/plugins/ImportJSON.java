@@ -44,8 +44,6 @@ public class ImportJSON implements CommandListener
 {
 	static private final Pattern triggerPattern = Pattern.compile( "\\s*IMPORT\\s+JSON\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
-	static private final Pattern parameterPattern = Pattern.compile( ":(\\d+)" );
-
 
 	@Override
 	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
@@ -143,16 +141,6 @@ public class ImportJSON implements CommandListener
 		}
 	}
 
-
-	static public enum TOKEN {
-		PREPEND, NOBATCH, LOG, INTO, FILE, TO, EOF( null );
-		private String name;
-		private TOKEN() { this.name = name(); }
-		private TOKEN( String name ) { this.name = name; }
-		@Override
-		public String toString() { return this.name; }
-	};
-
 	/**
 	 * Parses the given command.
 	 *
@@ -164,14 +152,18 @@ public class ImportJSON implements CommandListener
 	{
 		// FIXME Replace LINENUMBER with RECORDNUMBER
 		// TODO Match column names
-		// TODO Free SQL like with IMPORT CSV
+
 		/*
 		IMPORT JSON
+		[ FILE "<file>" [ GZIP ] ]
+		[ INTO [ <schema> . ] <table> [ ( <columns> ) ] [ VALUES ( <values> ) ] ]
 		[ PREPEND LINENUMBER ]
 		[ NOBATCH ]
 		[ LOG EVERY n RECORDS | SECONDS ]
-		INTO <schema>.<table> [ ( <columns> ) ] [ VALUES ( <values> ) ]
-		FILE "<file>" [ GZIP ]
+		[ EXEC <sqlstatement> ]
+
+		- One of INTO or EXEC is needed
+		- If FILE is missing, the data will be read inline
 		*/
 
 		Parsed result = new Parsed();
@@ -180,7 +172,7 @@ public class ImportJSON implements CommandListener
 
 		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
-		EnumSet<TOKEN> expected = EnumSet.of( TOKEN.PREPEND, TOKEN.NOBATCH, TOKEN.LOG, TOKEN.INTO, TOKEN.FILE, TOKEN.TO, TOKEN.EOF );
+		EnumSet<Tokens> expected = EnumSet.of( Tokens.PREPEND, Tokens.NOBATCH, Tokens.LOG, Tokens.INTO, Tokens.FILE, Tokens.EXEC, Tokens.EOF );
 
 		Token t = tokenizer.skip( "IMPORT" ).skip( "JSON" ).get();
 		for( ;; )
@@ -189,28 +181,23 @@ public class ImportJSON implements CommandListener
 				case PREPEND:
 					t = tokenizer.skip( "LINENUMBER" ).get();
 					result.prependLineNumber = true;
-					expected.remove( TOKEN.PREPEND );
+					expected.remove( Tokens.PREPEND );
 					break;
 
 				case NOBATCH:
 					t = tokenizer.get();
 					result.noBatch = true;
-					expected.remove( TOKEN.NOBATCH );
+					expected.remove( Tokens.NOBATCH );
 					break;
 
 				case LOG:
-					t = tokenizer.skip( "EVERY" ).get();
-					if( !t.isNumber() )
-						throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
-					int interval = Integer.parseInt( t.value() );
-
+					int interval = Integer.parseInt( tokenizer.skip( "EVERY" ).getNumber().value() );
 					if( tokenizer.get( "RECORDS", "SECONDS" ).eq( "RECORDS" ) )
 						result.logRecords = interval;
 					else
 						result.logSeconds = interval;
-
-					expected.remove( TOKEN.LOG );
 					t = tokenizer.get();
+					expected.remove( Tokens.LOG );
 					break;
 
 				case INTO:
@@ -253,8 +240,8 @@ public class ImportJSON implements CommandListener
 						result.columns = columns.toArray( new String[ columns.size() ] );
 					if( values.size() > 0 )
 						result.values = values.toArray( new String[ values.size() ] );
-					expected.remove( TOKEN.INTO );
-					expected.remove( TOKEN.TO );
+					expected.remove( Tokens.INTO );
+					expected.remove( Tokens.EXEC );
 					break;
 
 				case FILE:
@@ -265,16 +252,16 @@ public class ImportJSON implements CommandListener
 						result.gzip = true;
 						t = tokenizer.get();
 					}
-					expected.remove( TOKEN.FILE );
+					expected.remove( Tokens.FILE );
 					break;
 
-				case TO:
+				case EXEC:
 					result.sql = tokenizer.getRemaining();
 					return result;
 
 				case EOF:
-					if( expected.contains( TOKEN.INTO ) )
-						throw new SourceException( "Missing INTO", tokenizer.getLocation() );
+					if( expected.contains( Tokens.INTO ) && expected.contains( Tokens.EXEC ) )
+						throw new SourceException( "Missing INTO or EXEC", tokenizer.getLocation() );
 					return result;
 
 				default:

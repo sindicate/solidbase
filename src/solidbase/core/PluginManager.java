@@ -35,6 +35,7 @@ import solidstack.io.FatalIOException;
  * @author René M. de Bloois
  * @since May 2010
  */
+// TODO Use ServiceManager to find the plugins
 public class PluginManager
 {
 	/**

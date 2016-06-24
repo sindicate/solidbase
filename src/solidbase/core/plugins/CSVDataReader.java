@@ -52,7 +52,7 @@ public class CSVDataReader // TODO implements RecordSource
 		}
 	}
 
-	public void setOutput( RecordSink output )
+	public void setSink( RecordSink output )
 	{
 		this.sink = output;
 	}
@@ -68,6 +68,7 @@ public class CSVDataReader // TODO implements RecordSource
 			if( Thread.currentThread().isInterrupted() ) // TODO Is this the right spot during an upgrade?
 				throw new ThreadInterrupted();
 
+			// Empty --> null
 			for( int i = 0; i < line.length; i++ )
 				if( line[ i ].length() == 0 )
 					line[ i ] = null;

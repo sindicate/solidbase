@@ -54,11 +54,13 @@ public class DBReader implements ResultSource
 		}
 	}
 
+	@Override
 	public void setSink( ResultSink sink )
 	{
 		this.sink = sink;
 	}
 
+	@Override
 	public Column[] getColumns()
 	{
 		return this.columns;

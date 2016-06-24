@@ -24,13 +24,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
 import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
+import solidbase.core.FatalException;
+import solidbase.core.ProcessException;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
@@ -56,6 +62,7 @@ public class ExportCSV implements CommandListener
 
 
 	//@Override
+	@Override
 	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
 	{
 		if( command.isTransient() )
@@ -81,7 +88,15 @@ public class ExportCSV implements CommandListener
 				Statement statement = processor.createStatement();
 				try
 				{
-					ResultSet result = statement.executeQuery( parsed.query );
+					ResultSet result;
+					try
+					{
+						result = statement.executeQuery( parsed.query );
+					}
+					catch( SQLException e )
+					{
+						throw new ProcessException( e ).addProcess( "executing: " + parsed.query );
+					}
 
 					LogCounter counter = null;
 					if( parsed.logRecords > 0 )
@@ -99,29 +114,18 @@ public class ExportCSV implements CommandListener
 
 					// Analyze columns
 
-					SelectProcessor selector = null;
-					for( int i = 0; i < count; i++ )
+					SelectProcessor selector = new SelectProcessor();
+					if( parsed.columns != null )
+						for( Entry<String, ColumnSpec> entry : parsed.columns.entrySet() )
+							if( entry.getValue().skip )
+								selector.deselect( entry.getKey() );
+					for( Column column : columns )
 					{
-						int type = columns[ i ].getType();
-						boolean skipped = false;
-
+						int type = column.getType();
 						// TODO STRUCT serialize
 						// TODO This must be optional and not the default
-						if( type == 2002 || columns[ i ].getTypeName() == null )
-							skipped = true;
-
-						if( skipped )
-						{
-							if( selector == null )
-								selector = new SelectProcessor();
-							selector.deselect( columns[ i ].getName() );
-						}
-					}
-
-					if( selector != null )
-					{
-						source.setSink( selector );
-						source = selector;
+						if( type == 2002 || column.getTypeName() == null )
+							selector.deselect( column.getName() );
 					}
 
 					if( parsed.coalesce != null )
@@ -129,6 +133,12 @@ public class ExportCSV implements CommandListener
 						CoalescerProcessor coalescer = new CoalescerProcessor( parsed.coalesce );
 						source.setSink( coalescer );
 						source = coalescer;
+					}
+
+					if( selector.hasDeselected() )
+					{
+						source.setSink( selector );
+						source = selector;
 					}
 
 					// TODO The UnsupportedEncodingException should be a SourceException
@@ -169,137 +179,125 @@ public class ExportCSV implements CommandListener
 	 * @param command The command to be parsed.
 	 * @return A structure representing the parsed command.
 	 */
+	// TODO We need database connection scope, like default settings for example DATE AS TIMESTAMP
 	static protected Parsed parse( Command command )
 	{
 		/*
 		EXPORT CSV
-		WITH HEADER
-		SEPARATED BY TAB|SPACE|<character>
-		DATE AS TIMESTAMP
-		COALESCE "<col1>", "<col2>"
-		LOG EVERY n RECORDS|SECONDS
-		FILE "<file>" ENCODING "<encoding>" GZIP
+		FILE "<file>" ENCODING "<encoding>" [ GZIP ]
+		[ WITH HEADER ]
+		[ SEPARATED BY ( TAB | SPACE | <character> ) ]
+		[ DATE AS TIMESTAMP ]
+		[ COALESCE <col>, <col> [ , <col> ] ]
+		[ LOG EVERY n ( RECORDS | SECONDS ) ]
+		[ COLUMN <col> [ , <col> ] SKIP ]
+		FROM <sqlstatement>
 		*/
 
 		Parsed result = new Parsed();
 
 		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
-		tokenizer.get( "EXPORT" );
-		tokenizer.get( "CSV" );
+		EnumSet<Tokens> expected = EnumSet.of( Tokens.DATE, Tokens.COALESCE, Tokens.LOG, Tokens.FILE, Tokens.COLUMN, Tokens.FROM, Tokens.WITH, Tokens.SEPARATED );
 
-		Token t = tokenizer.get( "WITH", "SEPARATED", "DATE", "COALESCE", "LOG", "FILE" );
-		if( t.eq( "WITH" ) )
-		{
-			tokenizer.get( "HEADER" );
-			result.withHeader = true;
-
-			t = tokenizer.get( "SEPARATED", "DATE", "COALESCE", "LOG", "FILE" );
-		}
-
-		if( t.eq( "SEPARATED" ) )
-		{
-			tokenizer.get( "BY" );
-			t = tokenizer.get();
-			if( t.eq( "TAB" ) )
-				result.separator = '\t';
-			else if( t.eq( "SPACE" ) )
-				result.separator = ' ';
-			else
+		Token t = tokenizer.skip( "EXPORT" ).skip( "CSV" ).get();
+		for( ;; )
+			switch( tokenizer.expect( t, expected ) )
 			{
-				if( t.length() != 1 )
-					throw new SourceException( "Expecting [TAB], [SPACE] or a single character, not [" + t + "]", tokenizer.getLocation() );
-				result.separator = t.value().charAt( 0 );
+				case DATE:
+					t = tokenizer.skip( "AS" ).skip( "TIMESTAMP" ).get();
+					result.dateAsTimestamp = true;
+					expected.remove( Tokens.DATE );
+					break;
+
+				case COALESCE:
+					List<String> cols;
+					if( result.coalesce == null )
+						result.coalesce = new ArrayList<List<String>>();
+					result.coalesce.add( cols = new ArrayList<String>() );
+					do
+					{
+						cols.add( tokenizer.getIdentifier().value() );
+						t = tokenizer.get();
+					}
+					while( t.eq( "," ) );
+					if( cols.size() < 2 )
+						throw new SourceException( "COALESCE needs more than 1 column name", tokenizer.getLocation() );
+					break;
+
+				case LOG:
+					int interval = Integer.parseInt( tokenizer.skip( "EVERY" ).getNumber().value() );
+					if( tokenizer.get( "RECORDS", "SECONDS" ).eq( "RECORDS" ) )
+						result.logRecords = interval;
+					else
+						result.logSeconds = interval;
+					expected.remove( Tokens.LOG );
+					t = tokenizer.get();
+					break;
+
+				case FILE:
+					result.fileName = tokenizer.getString().stripQuotes();
+					result.encoding = tokenizer.skip( "ENCODING" ).getString().stripQuotes();
+					t = tokenizer.get();
+					if( t.eq( "GZIP" ) )
+					{
+						result.gzip = true;
+						t = tokenizer.get();
+					}
+					expected.remove( Tokens.FILE );
+					break;
+
+				case COLUMN:
+					if( result.columns == null )
+						result.columns = new HashMap<String, ColumnSpec>();
+					cols = new ArrayList<String>();
+					do
+					{
+						cols.add( tokenizer.getIdentifier().value() );
+						t = tokenizer.get();
+					}
+					while( t.eq( "," ) );
+					tokenizer.expect( t, "SKIP" );
+					ColumnSpec columnSpec = new ColumnSpec( true, null );
+					for( String col : cols )
+						result.columns.put( col, columnSpec );
+					t = tokenizer.get();
+					break;
+
+				case WITH:
+					t = tokenizer.skip( "HEADER" ).get();
+					result.withHeader = true;
+					expected.remove( Tokens.WITH );
+					break;
+
+				case SEPARATED:
+					t = tokenizer.skip( "BY" ).get();
+					if( t.eq( "TAB" ) )
+						result.separator = '\t';
+					else if( t.eq( "SPACE" ) )
+						result.separator = ' ';
+					else
+					{
+						if( t.length() != 1 )
+							throw new SourceException( "Expecting [TAB], [SPACE] or a single character, not [" + t + "]", tokenizer.getLocation() );
+						result.separator = t.value().charAt( 0 );
+					}
+					t = tokenizer.get();
+					expected.remove( Tokens.SEPARATED );
+					break;
+
+				case FROM:
+					result.query = tokenizer.getRemaining();
+					return result;
+
+				default:
+					throw new FatalException( "Unexpected token: " + t );
 			}
-
-			t = tokenizer.get( "DATE", "COALESCE", "LOG", "FILE" );
-		}
-
-		if( t.eq( "DATE" ) )
-		{
-			tokenizer.get( "AS" );
-			tokenizer.get( "TIMESTAMP" );
-
-			result.dateAsTimestamp = true;
-
-			t = tokenizer.get( "COALESCE", "LOG", "FILE" );
-		}
-
-		while( t.eq( "COALESCE" ) )
-		{
-			if( result.coalesce == null )
-				result.coalesce = new ArrayList<List<String>>();
-
-			List<String> cols = new ArrayList<String>();
-			result.coalesce.add( cols );
-
-			t = tokenizer.get();
-			if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
-				throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-			cols.add( t.toString() );
-
-			t = tokenizer.get( "," );
-			do
-			{
-				t = tokenizer.get();
-				if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
-					throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-				cols.add( t.toString() );
-
-				t = tokenizer.get();
-			}
-			while( t.eq( "," ) );
-		}
-
-		tokenizer.expect( t, "LOG", "FILE" );
-
-		if( t.eq( "LOG" ) )
-		{
-			tokenizer.get( "EVERY" );
-			t = tokenizer.get();
-			if( !t.isNumber() )
-				throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
-
-			int interval = Integer.parseInt( t.value() );
-			t = tokenizer.get( "RECORDS", "SECONDS" );
-			if( t.eq( "RECORDS" ) )
-				result.logRecords = interval;
-			else
-				result.logSeconds = interval;
-
-			tokenizer.get( "FILE" );
-		}
-
-		t = tokenizer.get();
-		String file = t.value();
-		if( !file.startsWith( "\"" ) )
-			throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-		file = file.substring( 1, file.length() - 1 );
-
-		t = tokenizer.get( "ENCODING" );
-		t = tokenizer.get();
-		String encoding = t.value();
-		if( !encoding.startsWith( "\"" ) )
-			throw new SourceException( "Expecting encoding enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-		encoding = encoding.substring( 1, encoding.length() - 1 );
-
-		t = tokenizer.get();
-		if( t.eq( "GZIP" ) )
-			result.gzip = true;
-		else
-			tokenizer.rewind();
-
-		String query = tokenizer.getRemaining();
-
-		result.fileName = file;
-		result.encoding = encoding;
-		result.query = query;
-
-		return result;
 	}
 
 
 	//@Override
+	@Override
 	public void terminate()
 	{
 		// Nothing to clean up
@@ -336,5 +334,7 @@ public class ExportCSV implements CommandListener
 
 		protected int logRecords;
 		protected int logSeconds;
+
+		protected Map<String, ColumnSpec> columns;
 	}
 }

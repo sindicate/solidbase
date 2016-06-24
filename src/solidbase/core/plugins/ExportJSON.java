@@ -26,6 +26,7 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,8 @@ import funny.Symbol;
 import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
+import solidbase.core.FatalException;
+import solidbase.core.ProcessException;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
@@ -60,9 +63,9 @@ import solidstack.script.scopes.UndefinedException;
  * @author René M. de Bloois
  * @since Aug 12, 2011
  */
-public class DumpJSON implements CommandListener
+public class ExportJSON implements CommandListener
 {
-	static private final Pattern triggerPattern = Pattern.compile( "\\s*DUMP\\s+JSON\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern triggerPattern = Pattern.compile( "\\s*EXPORT\\s+JSON\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 
 	//@Override
@@ -77,21 +80,17 @@ public class DumpJSON implements CommandListener
 
 		if( command.isTransient() )
 		{
-			/* --* DUMP JSON DATE_CREATED ON | OFF */
+			/* --* EXPORT JSON SET ADD_CREATED_DATE = ON | OFF */
 
 			SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
-			// TODO Maybe DUMP JSON CONFIG or DUMP JSON SET
 			// TODO What about other configuration settings?
-			tokenizer.get( "DUMP" );
-			tokenizer.get( "JSON" );
-			tokenizer.get( "DATE_CREATED" ); // FIXME This should be CREATED_DATE
-			Token t = tokenizer.get( "ON", "OFF" );
-			tokenizer.get( (String)null );
+			Token t = tokenizer.skip( "EXPORT" ).skip( "JSON" ).skip( "SET" ).skip( "ADD_CREATED_DATE" ).skip( "=" ).get( "ON", "OFF" );
+			tokenizer.skip( (String)null );
 
 			// TODO I think we should have a scope that is restricted to the current file and a scope that gets inherited when running or including another file.
 			Scope scope = processor.getContext().getScope();
-			scope.setOrVar( Symbol.apply( "solidbase.dump_json.dateCreated" ), t.eq( "ON" ) ); // TODO Make this a constant
+			scope.setOrVar( Symbol.apply( "solidbase.export.json.addCreatedDate" ), t.eq( "ON" ) );
 
 			return true;
 		}
@@ -102,15 +101,15 @@ public class DumpJSON implements CommandListener
 		Parsed parsed = parse( command );
 
 		Scope scope = processor.getContext().getScope();
-		boolean dateCreated;
+		boolean createdDate;
 		try
 		{
-			Object object = scope.get( Symbol.apply( "solidbase.dump_json.dateCreated" ) );
-			dateCreated = object instanceof Boolean && (Boolean)object;
+			Object object = scope.get( Symbol.apply( "solidbase.export.json.addCreatedDate" ) );
+			createdDate = object instanceof Boolean && (Boolean)object;
 		}
 		catch( UndefinedException e )
 		{
-			dateCreated = true;
+			createdDate = true;
 		}
 
 		Resource jsonOutput = new FileResource( new File( parsed.fileName ) ); // Relative to current folder
@@ -126,7 +125,15 @@ public class DumpJSON implements CommandListener
 				Statement statement = processor.createStatement();
 				try
 				{
-					ResultSet result = statement.executeQuery( parsed.query );
+					ResultSet result;
+					try
+					{
+						result = statement.executeQuery( parsed.query );
+					}
+					catch( SQLException e )
+					{
+						throw new ProcessException( e ).addProcess( "executing: " + parsed.query );
+					}
 
 					LogCounter counter = null;
 					if( parsed.logRecords > 0 )
@@ -202,7 +209,7 @@ public class DumpJSON implements CommandListener
 						properties.set( "description", "SolidBase JSON Data Dump File" );
 						properties.set( "createdBy", new JSONObject( "product", "SolidBase", "version", "2.0.0" ) );
 
-						if( dateCreated )
+						if( createdDate )
 						{
 							// TODO Use internet format
 							SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
@@ -288,167 +295,131 @@ public class DumpJSON implements CommandListener
 	 * @param command The command to be parsed.
 	 * @return A structure representing the parsed command.
 	 */
-	// TODO The order of stuff should be free
+	// TODO The headers should be like CBOR
+	// TODO Add WITH HEADER
+	// FIXME Add ENCODING to the TEXT file
+	// FIXME and how should we detect it when reading?
 	static protected Parsed parse( Command command )
 	{
 		/*
-		DUMP JSON
-		DATE AS TIMESTAMP
-		COALESCE col1, col2
-		LOG EVERY n (RECORDS|SECONDS)
-		FILE "file" [GZIP]
-		BINARY FILE "file" [GZIP]
-		COLUMN col1, col2 ( TO (BINARY|TEXT) FILE "file" [THRESHOLD n] | SKIP )
+		EXPORT JSON
+		FILE "<file>" [ GZIP ]
+		[ BINARY FILE "file" [ GZIP ] ]
+		[ WITH HEADER ]
+		[ SEPARATED BY ( TAB | SPACE | <character> ) ]
+		[ DATE AS TIMESTAMP ]
+		[ COALESCE <col>, <col> [ , <col> ] ]
+		[ LOG EVERY n ( RECORDS | SECONDS ) ]
+		[ COLUMN <col> [ , <col> ] ( TO ( BINARY | TEXT ) FILE "<file>" [ THRESHOLD n ] | SKIP ) ]
+		FROM <sqlstatement>
 		*/
 
-		// FIXME What about encoding of the text files?
-		// FIXME and how should we detect it when reading?
 		Parsed result = new Parsed();
 
 		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
-		tokenizer.get( "DUMP" );
-		tokenizer.get( "JSON" );
+		EnumSet<Tokens> expected = EnumSet.of( Tokens.DATE, Tokens.COALESCE, Tokens.LOG, Tokens.FILE, Tokens.COLUMN, Tokens.BINARY, Tokens.FROM );
 
-		Token t = tokenizer.get( "DATE", "COALESCE", "LOG", "FILE" );
-
-		if( t.eq( "DATE" ) )
-		{
-			tokenizer.get( "AS" );
-			tokenizer.get( "TIMESTAMP" );
-
-			result.dateAsTimestamp = true;
-
-			t = tokenizer.get( "COALESCE", "LOG", "FILE" );
-		}
-
-		while( t.eq( "COALESCE" ) )
-		{
-			if( result.coalesce == null )
-				result.coalesce = new ArrayList<List<String>>();
-
-			List<String> cols = new ArrayList<String>();
-			result.coalesce.add( cols );
-
-			t = tokenizer.get();
-			if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
-				throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-			cols.add( t.toString() );
-
-			t = tokenizer.get( "," );
-			do
+		Token t = tokenizer.skip( "EXPORT" ).skip( "JSON" ).get();
+		for( ;; )
+			switch( tokenizer.expect( t, expected ) )
 			{
-				t = tokenizer.get();
-				if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
-					throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-				cols.add( t.toString() );
+				case DATE:
+					t = tokenizer.skip( "AS" ).skip( "TIMESTAMP" ).get();
+					result.dateAsTimestamp = true;
+					expected.remove( Tokens.DATE );
+					break;
 
-				t = tokenizer.get();
-			}
-			while( t.eq( "," ) );
-		}
+				case COALESCE:
+					List<String> cols;
+					if( result.coalesce == null )
+						result.coalesce = new ArrayList<List<String>>();
+					result.coalesce.add( cols = new ArrayList<String>() );
+					do
+					{
+						cols.add( tokenizer.getIdentifier().value() );
+						t = tokenizer.get();
+					}
+					while( t.eq( "," ) );
+					if( cols.size() < 2 )
+						throw new SourceException( "COALESCE needs more than 1 column name", tokenizer.getLocation() );
+					break;
 
-		tokenizer.expect( t, "LOG", "FILE" );
-
-		if( t.eq( "LOG" ) )
-		{
-			tokenizer.get( "EVERY" );
-			t = tokenizer.get();
-			if( !t.isNumber() )
-				throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
-
-			int interval = Integer.parseInt( t.value() );
-			t = tokenizer.get( "RECORDS", "SECONDS" );
-			if( t.eq( "RECORDS" ) )
-				result.logRecords = interval;
-			else
-				result.logSeconds = interval;
-
-			tokenizer.get( "FILE" );
-		}
-
-		t = tokenizer.get();
-		if( !t.isString() )
-			throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-		result.fileName = t.stripQuotes();
-
-		t = tokenizer.get();
-		if( t.eq( "GZIP" ) )
-		{
-			result.gzip = true;
-			t = tokenizer.get();
-		}
-
-		if( t.eq( "BINARY" ) )
-		{
-			tokenizer.get( "FILE" );
-			t = tokenizer.get();
-			if( !t.isString() )
-				throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-			result.binaryFileName = t.stripQuotes();
-
-			t = tokenizer.get();
-			if( t.eq( "GZIP" ) )
-			{
-				result.binaryGzip = true;
-				t = tokenizer.get();
-			}
-		}
-
-		while( t.eq( "COLUMN" ) )
-		{
-			if( result.columns == null )
-				result.columns = new HashMap<String, ColumnSpec>();
-
-			List<String> cols = new ArrayList<String>();
-			do
-			{
-				t = tokenizer.get();
-				if( t.isString() || t.isNewline() || t.isEndOfInput() || t.isNumber() )
-					throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-				cols.add( t.value() );
-				t = tokenizer.get();
-			}
-			while( t.eq( "," ) );
-			tokenizer.rewind();
-
-			ColumnSpec columnSpec;
-			t = tokenizer.get( "TO", "SKIP" );
-			if( t.eq( "TO" ) )
-			{
-				t = tokenizer.get( "BINARY", "TEXT" );
-				boolean binary = t.eq( "BINARY" );
-				tokenizer.get( "FILE" );
-				t = tokenizer.get();
-				if( !t.isString() )
-					throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-				String fileName = t.stripQuotes();
-
-				t = tokenizer.get();
-				int threshold = 0;
-				if( t.eq( "THRESHOLD" ) )
-				{
-					threshold = Integer.parseInt( tokenizer.get().value() );
+				case LOG:
+					int interval = Integer.parseInt( tokenizer.skip( "EVERY" ).getNumber().value() );
+					if( tokenizer.get( "RECORDS", "SECONDS" ).eq( "RECORDS" ) )
+						result.logRecords = interval;
+					else
+						result.logSeconds = interval;
+					expected.remove( Tokens.LOG );
 					t = tokenizer.get();
-				}
+					break;
 
-				columnSpec = new ColumnSpec( false, new FileSpec( binary, fileName, threshold ) );
+				case FILE:
+					// TODO "TO FILE"
+					result.fileName = tokenizer.getString().stripQuotes();
+					t = tokenizer.get();
+					if( t.eq( "GZIP" ) )
+					{
+						result.gzip = true;
+						t = tokenizer.get();
+					}
+					expected.remove( Tokens.FILE );
+					break;
+
+				case BINARY:
+					result.binaryFileName = tokenizer.skip( "FILE" ).getString().stripQuotes();
+					t = tokenizer.get();
+					if( t.eq( "GZIP" ) )
+					{
+						result.binaryGzip = true;
+						t = tokenizer.get();
+					}
+					expected.remove( Tokens.BINARY );
+					break;
+
+				case COLUMN:
+					if( result.columns == null )
+						result.columns = new HashMap<String, ColumnSpec>();
+					cols = new ArrayList<String>();
+					do
+					{
+						cols.add( tokenizer.getIdentifier().value() );
+						t = tokenizer.get();
+					}
+					while( t.eq( "," ) );
+					tokenizer.expect( t, "TO", "SKIP" );
+
+					ColumnSpec columnSpec;
+					if( t.eq( "TO" ) )
+					{
+						boolean binary = tokenizer.get( "BINARY", "TEXT" ).eq( "BINARY" );
+						String fileName = tokenizer.skip( "FILE" ).getString().stripQuotes();
+						t = tokenizer.get();
+						int threshold = 0;
+						if( t.eq( "THRESHOLD" ) )
+						{
+							threshold = Integer.parseInt( tokenizer.getNumber().value() );
+							t = tokenizer.get();
+						}
+						columnSpec = new ColumnSpec( false, new FileSpec( binary, fileName, threshold ) );
+					}
+					else
+					{
+						columnSpec = new ColumnSpec( true, null );
+						t = tokenizer.get();
+					}
+					for( String col : cols )
+						result.columns.put( col, columnSpec );
+					break;
+
+				case FROM:
+					result.query = tokenizer.getRemaining();
+					return result;
+
+				default:
+					throw new FatalException( "Unexpected token: " + t );
 			}
-			else
-			{
-				columnSpec = new ColumnSpec( true, null );
-				t = tokenizer.get();
-			}
-
-			for( String col : cols )
-				result.columns.put( col, columnSpec );
-		}
-
-		tokenizer.rewind();
-
-		result.query = tokenizer.getRemaining();
-
-		return result;
 	}
 
 

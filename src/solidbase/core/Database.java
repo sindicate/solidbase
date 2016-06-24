@@ -303,6 +303,11 @@ public class Database
 			if( connection.getAutoCommit() )
 				connection.setAutoCommit( false );
 
+//			System.out.println( "DatabaseProductName:" + connection.getMetaData().getDatabaseProductName() );
+//			System.out.println( "DatabaseProductVersion:" + connection.getMetaData().getDatabaseProductVersion() );
+//			System.out.println( "DatabaseMajorVersion:" + connection.getMetaData().getDatabaseMajorVersion() );
+//			System.out.println( "DatabaseMinorVersion:" + connection.getMetaData().getDatabaseMinorVersion() );
+
 			return connection;
 		}
 		catch( SQLException e )
@@ -349,7 +354,6 @@ public class Database
 	protected void closeConnections()
 	{
 		for( Connection connection : this.connections.values() )
-		{
 			try
 			{
 //				connection.rollback(); // TODO Derby 10.6 does not like it when connection is closed during an open transaction
@@ -359,7 +363,6 @@ public class Database
 			{
 				throw new SystemException( e );
 			}
-		}
 
 		this.connections.clear();
 	}

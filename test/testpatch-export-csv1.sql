@@ -1,5 +1,5 @@
 
---* // Copyright 2010 René M. de Bloois
+--* // Copyright 2011 René M. de Bloois
 
 --* // Licensed under the Apache License, Version 2.0 (the "License");
 --* // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 --*	DEFINITION
 --*		SETUP "" --> "1.1"
 --*		UPGRADE "" --> "1"
+--*		UPGRADE "1" --> "2"
 --*	/DEFINITION
 
 --* SETUP "" --> "1.1"
@@ -25,42 +26,37 @@ RUN "setup-1.1.sql";
 --* /SETUP
 
 --* UPGRADE "" --> "1"
-CREATE TABLE TEMP ( TEMP1 VARCHAR(40) NOT NULL, TEMP2 VARCHAR(40), TEMP3 VARCHAR(40) );
+CREATE TABLE TEMP1 ( ID INTEGER, PICTURE BLOB, TEXT VARCHAR(100), TEXT2 CLOB, DATE1 DATE );
+--* /UPGRADE
 
-IMPORT CBOR INTO TEMP;
-9F
-	83 01 02 03
-	83 04 05 06
-	83 07 08 09
-FF
+--* UPGRADE "1" --> "2"
 
-INSERT INTO TEMP SELECT * FROM TEMP; -- 6
-INSERT INTO TEMP SELECT * FROM TEMP; -- 12
-INSERT INTO TEMP SELECT * FROM TEMP; -- 24
-INSERT INTO TEMP SELECT * FROM TEMP; -- 48
-INSERT INTO TEMP SELECT * FROM TEMP; -- 96
---INSERT INTO TEMP SELECT * FROM TEMP; -- 192;
+ EXPORT CSV
+	WITH HEADER
+	FILE "export11.csv" ENCODING "UTF-8"
+	FROM
+SELECT * FROM TEMP1;
 
-EXPORT CBOR
-log every 10 records
-FILE "export3.cbor"
+EXPORT CSV
+	FILE "export12.csv" ENCODING "UTF-8" FROM
+SELECT ID, PICTURE, TEXT, TEXT2
+FROM TEMP1;
+
+ EXPORT CSV
+	DATE AS TIMESTAMP
+	FILE "export13.csv" ENCODING "UTF-8"
+FROM SELECT * FROM TEMP1;
+
+EXPORT CSV
+FILE "folder/export14.csv" ENCODING "UTF-8"
+COLUMN DATE1 SKIP
 FROM
-SELECT * FROM TEMP;
-
-EXPORT CBOR
-LOG EVERY 1 SECONDS
-FILE "export3.cbor"
-FROM
-SELECT * FROM TEMP;
-
-IMPORT CBOR
-LOG EVERY 10 RECORDS
-INTO TEMP
-FILE "export3.cbor";
-
-IMPORT CBOR
-LOG EVERY 1 SECONDS
-INTO TEMP
-FILE "export3.cbor";
+SELECT ID, PICTURE, TEXT, TEXT2, DATE1
+FROM TEMP1;
 
 --* /UPGRADE
+
+These cannot be part of a filename (in Windows)
+\/:*?"<>|
+In Linux a double quote can be part of the filename
+

@@ -1,5 +1,5 @@
 /*--
- * Copyright 2015 René M. de Bloois
+ * Copyright 2015 Renï¿½ M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
-import java.sql.RowId;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 import solidstack.cbor.CBORWriter;
@@ -79,6 +79,26 @@ public class CBORDataWriter implements RecordSink
 		this.out.startArray();
 	}
 
+	static public enum Types { BIGDECIMAL, BLOB, BOOLEAN, BYTES, CLOB, DATE, DOUBLE, FLOAT, INTEGER, LONG, STRING, SQLDATE, SQLTIME, SQLTIMESTAMP };
+
+	static public Map<Class<?>, Types> types;
+	static
+	{
+		types = new IdentityHashMap<Class<?>, Types>();
+		types.put( BigDecimal.class, Types.BIGDECIMAL );
+		types.put( Boolean.class, Types.BOOLEAN );
+		types.put( byte[].class, Types.BYTES );
+		types.put( Date.class, Types.DATE );
+		types.put( Double.class, Types.DOUBLE );
+		types.put( Float.class, Types.FLOAT );
+		types.put( Integer.class, Types.INTEGER );
+		types.put( Long.class, Types.LONG );
+		types.put( String.class, Types.STRING );
+		types.put( java.sql.Date.class, Types.SQLDATE );
+		types.put( java.sql.Time.class, Types.SQLTIME );
+		types.put( java.sql.Timestamp.class, Types.SQLTIMESTAMP );
+	}
+
 	@Override
 	public void process( Object[] record ) throws SQLException
 	{
@@ -90,38 +110,43 @@ public class CBORDataWriter implements RecordSink
 
 		out.startArray( columns );
 
-		// TODO Stringrefs & global array
+		// TODO Use map and switch for types
 		for( int i = 0; i < columns; i++ )
 		{
 			Object value = record[ i ];
 			if( value == null )
 				out.writeNull();
-			else if( value instanceof Clob )
-				out.writeText( ( (Clob)value ).getCharacterStream() ); // TODO Need to close these?
-			else if( value instanceof Blob )
-				out.writeBytes( ( (Blob)value ).getBinaryStream() ); // TODO Need to close these?
-			else if( value instanceof java.sql.Date || value instanceof java.sql.Time || value instanceof java.sql.Timestamp )
-				out.writeDateTime( (Date)value ); // FIXME We need to write string because of the timezone
-			else if( value instanceof RowId )
-				out.writeBytes( ( (RowId)value ).getBytes() ); // TODO Need a tag for this?
-			else if( value instanceof Integer )
-				out.writeInt( (Integer)value );
-			else if( value instanceof Long )
-				out.writeLong( (Long)value );
-			else if( value instanceof Float )
-				out.writeFloatS( (Float)value );
-			else if( value instanceof Double )
-				out.writeFloatD( (Double)value );
-			else if( value instanceof BigDecimal )
-				out.writeText( value.toString() ); // TODO Is there another CBOR type (tag) ?
-			else if( value instanceof Boolean )
-				out.writeBoolean( (Boolean)value );
-			else if( value instanceof String )
-				out.writeText( (String)value );
-			else if( value instanceof byte[] )
-				out.writeBytes( (byte[])value );
 			else
-				throw new UnsupportedOperationException( "Type not supported: " + value.getClass().getName() );
+			{
+				// TODO RowId? UUID?
+				Types type = types.get( value.getClass() );
+				if( type == null )
+					if( value instanceof Blob )
+						type = Types.BLOB;
+					else if( value instanceof Clob )
+						type = Types.CLOB;
+					else
+						throw new UnsupportedOperationException( "Type not supported: " + value.getClass().getName() );
+				switch( type )
+				{
+					// TODO Need to close these?
+					case BIGDECIMAL: out.writeText( value.toString() ); break; // TODO Is there another CBOR type (tag) ?
+					case BLOB: out.writeBytes( ( (Blob)value ).getBinaryStream() ); break;
+					case BOOLEAN: out.writeBoolean( (Boolean)value ); break;
+					case BYTES: out.writeBytes( (byte[])value ); break;
+					case CLOB: out.writeText( ( (Clob)value ).getCharacterStream() ); break;
+					case DOUBLE: out.writeFloatD( (Double)value ); break;
+					case FLOAT: out.writeFloatS( (Float)value ); break;
+					case INTEGER: out.writeInt( (Integer)value ); break;
+					case LONG: out.writeLong( (Long)value ); break;
+					case STRING: out.writeText( (String)value ); break;
+					case SQLDATE:
+					case SQLTIME:
+					case SQLTIMESTAMP: out.writeDateTime( (Date)value ); break; // FIXME We need to write string because of the timezone
+					default:
+						throw new UnsupportedOperationException( "Unexpected type: " + type );
+				}
+			}
 		}
 
 		out.end();

@@ -187,7 +187,8 @@ public class JSONDataReader // TODO implements RecordSource
 						if( filename != null )
 						{
 							// One file per record
-							if( type == Types.BLOB || type == Types.VARBINARY )
+							// TODO No CLOB here?
+							if( type == Types.BLOB || type == Types.VARBINARY || type == Types.BINARY )
 								try
 								{
 									// TODO Fix the input stream size given the size in the JSON file
@@ -222,13 +223,14 @@ public class JSONDataReader // TODO implements RecordSource
 							if( lobLength == null )
 								throw new SourceException( "Expected a 'length' attribute", this.reader.getLocation() );
 
-							if( type == Types.BLOB || type == Types.VARBINARY )
+							if( type == Types.BLOB || type == Types.VARBINARY || type == Types.BINARY )
 							{
 								// Get the input stream
 								SegmentedInputStream in = this.streams[ i ];
 								if( in == null )
 								{
 									// File not opened yet, open it
+									// TODO What if already opened for another column?
 									String fileName = this.fileNames[ i ];
 									if( fileName == null )
 										fileName = this.binaryFile;
@@ -269,7 +271,7 @@ public class JSONDataReader // TODO implements RecordSource
 										{
 											throw new SystemException( e );
 										}
-										outerCloser.add( in ); // Close at the final end
+										outerCloser.add( in ); // Close at the very end
 										this.textStreams[ i ] = in;
 									}
 									catch( FileNotFoundException e )

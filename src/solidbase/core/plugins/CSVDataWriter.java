@@ -16,6 +16,7 @@
 
 package solidbase.core.plugins;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -26,6 +27,7 @@ import java.sql.SQLException;
 
 import solidbase.util.CSVWriter;
 import solidstack.io.FatalIOException;
+import solidstack.io.HexInputStreamReader;
 
 
 public class CSVDataWriter implements RecordSink
@@ -36,14 +38,16 @@ public class CSVDataWriter implements RecordSink
 
 	public CSVDataWriter( Writer out, char separator, boolean writeHeader )
 	{
-		this.csvWriter = new CSVWriter( out, separator, false );
+		this.csvWriter = new CSVWriter( out, separator );
 		this.writeHeader = writeHeader;
 	}
 
+	@Override
 	public void init( Column[] columns )
 	{
 		if( this.writeHeader )
 		{
+			// TODO Add second header with types?
 			for( Column column : columns )
 				this.csvWriter.writeValue( column.getName() );
 			this.csvWriter.nextRecord();
@@ -55,6 +59,7 @@ public class CSVDataWriter implements RecordSink
 	{
 	}
 
+	@Override
 	public void process( Object[] record ) throws SQLException
 	{
 		try
@@ -70,12 +75,13 @@ public class CSVDataWriter implements RecordSink
 				}
 				else if( value instanceof Blob )
 				{
+					// TODO Add {HEX} prefix? But some database can read hexadecimal without the prefix.
 					InputStream in = ( (Blob)value ).getBinaryStream();
-					this.csvWriter.writeValue( in );
+					this.csvWriter.writeValue( new HexInputStreamReader( in ) );
 					in.close();
 				}
 				else if( value instanceof byte[] )
-					this.csvWriter.writeValue( (byte[])value );
+					this.csvWriter.writeValue( new HexInputStreamReader( new ByteArrayInputStream( (byte[])value ) ) );
 				else
 					this.csvWriter.writeValue( value.toString() );
 

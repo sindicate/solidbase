@@ -19,14 +19,14 @@ package solidbase.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import solidbase.util.CSVTokenizer.Token;
+import solidbase.util.CSVParser.Token;
 import solidstack.io.SourceException;
 import solidstack.io.SourceLocation;
 import solidstack.io.SourceReader;
 
 
 /**
- * Reads CSV data from the given {@link CSVTokenizer}.
+ * Reads CSV data from the given {@link CSVParser}.
  *
  * @author René M. de Bloois
  */
@@ -35,7 +35,7 @@ public class CSVReader
 	/**
 	 * The source of tokens.
 	 */
-	protected CSVTokenizer tokenizer;
+	protected CSVParser in;
 
 	/**
 	 * The separator that separates the values.
@@ -54,7 +54,7 @@ public class CSVReader
 	 */
 	public CSVReader( SourceReader reader, char separator, boolean escape, boolean ignoreWhiteSpace )
 	{
-		this.tokenizer = new CSVTokenizer( reader, separator, escape, ignoreWhiteSpace );
+		this.in = new CSVParser( reader, separator, escape, ignoreWhiteSpace );
 		this.separator = separator;
 		this.escape = escape;
 	}
@@ -66,12 +66,12 @@ public class CSVReader
 	 */
 	public String[] getLine()
 	{
-		CSVTokenizer tokenizer = this.tokenizer;
+		CSVParser in = this.in;
 		List< String > values = new ArrayList< String >();
 
 		while( true )
 		{
-			Token token = tokenizer.get();
+			Token token = in.get();
 
 			// We expect a value here. So if we get a separator/newline/EOI then we need to add an empty value
 			if( token.isSeparator() )
@@ -87,11 +87,11 @@ public class CSVReader
 			else
 			{
 				values.add( token.getValue() );
-				token = tokenizer.get();
+				token = in.get();
 				if( token.isNewline() || token.isEndOfInput() )
 					break;
 				if( !token.isSeparator() )
-					throw new SourceException( "Expecting <separator>, <newline> or <end-of-input>, not '" + token.getValue() + "'", tokenizer.getLocation() );
+					throw new SourceException( "Expecting <separator>, <newline> or <end-of-input>, not '" + token.getValue() + "'", in.getLocation() );
 			}
 		}
 
@@ -107,7 +107,7 @@ public class CSVReader
 	 */
 	public int getLineNumber()
 	{
-		return this.tokenizer.getLineNumber();
+		return this.in.getLineNumber();
 	}
 
 	/**
@@ -115,6 +115,6 @@ public class CSVReader
 	 */
 	public SourceLocation getLocation()
 	{
-		return this.tokenizer.getLocation();
+		return this.in.getLocation();
 	}
 }

@@ -17,7 +17,6 @@
 package solidbase.util;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.regex.Pattern;
@@ -32,13 +31,9 @@ import solidstack.io.FatalIOException;
  */
 public class CSVWriter
 {
-	static private final char[] HEX = "0123456789ABCDEF".toCharArray();
-	static private final String HEX_ENCODING = "^HEX:"; // TODO Final decision
-
 	private Writer out;
 	private char separator;
 	private Pattern needQuotesPattern;
-	private boolean extendedFormat; // TODO Remove
 	private boolean valueWritten;
 
 
@@ -47,18 +42,15 @@ public class CSVWriter
 	 * @param separator The value separator.
 	 * @param extendedFormat True if extended format needed.
 	 */
-	public CSVWriter( Writer out, char separator, boolean extendedFormat )
+	public CSVWriter( Writer out, char separator )
 	{
 		Assert.isFalse( separator == '"', "Double quote (\") not allowed as value separator" );
-		if( extendedFormat )
-			Assert.isFalse( separator == '^', "Caret (^) not allowed as value separator when extended format is enabled" );
 
 		this.out = out;
 		this.separator = separator;
-		this.extendedFormat = extendedFormat;
 
 		// Pattern: ", CR, NL or parsed.separator, or ^ when extended format is enabled
-		this.needQuotesPattern = Pattern.compile( "\"|\r|\n|" + Pattern.quote( Character.toString( separator ) ) + ( extendedFormat ? "|^\\^" : "" ) );
+		this.needQuotesPattern = Pattern.compile( "\"|\r|\n|" + Pattern.quote( Character.toString( separator ) ) );
 	}
 
 	/**
@@ -123,63 +115,6 @@ public class CSVWriter
 		}
 	}
 
-	/**
-	 * Write the contents of the input stream as a hexadecimal value to the CSV.
-	 *
-	 * @param in The input stream to write to the CSV.
-	 */
-	public void writeValue( InputStream in )
-	{
-		writeSeparatorIfNeeded();
-		try
-		{
-			if( this.extendedFormat )
-				this.out.write( HEX_ENCODING );
-
-			byte[] buf = new byte[ 4096 ];
-			for( int read = in.read( buf ); read >= 0; read = in.read( buf ) )
-			{
-				for( int j = 0; j < read; j++ )
-				{
-					int b = buf[ j ];
-					this.out.write( HEX[ b >> 4 & 15 ] );
-					this.out.write( HEX[ b & 15 ] );
-				}
-			}
-		}
-		catch( IOException e )
-		{
-			throw new FatalIOException( e );
-		}
-	}
-
-	/**
-	 * Write the byte array as a hexadecimal value to the CSV.
-	 *
-	 * @param value The byte array to write to the CSV.
-	 */
-	public void writeValue( byte[] value )
-	{
-		writeSeparatorIfNeeded();
-		if( value == null )
-			return;
-		try
-		{
-			if( this.extendedFormat )
-				this.out.write( HEX_ENCODING );
-
-			for( int b : value )
-			{
-				this.out.write( HEX[ b >> 4 & 15 ] );
-				this.out.write( HEX[ b & 15 ] );
-			}
-		}
-		catch( IOException e )
-		{
-			throw new FatalIOException( e );
-		}
-	}
-
 	private void nextValue()
 	{
 		try
@@ -213,28 +148,6 @@ public class CSVWriter
 		{
 			throw new FatalIOException( e );
 		}
-	}
-
-	/**
-	 * Write the value extended.
-	 *
-	 * @param value The value to write.
-	 */
-	public void writeExtendedValue( String value )
-	{
-		Assert.notNull( value );
-		Assert.isTrue( this.extendedFormat );
-
-		writeSeparatorIfNeeded();
-		try
-		{
-			this.out.write( '^' );
-		}
-		catch( IOException e )
-		{
-			throw new FatalIOException( e );
-		}
-		internalWriteValue( value );
 	}
 
 	/**

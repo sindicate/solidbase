@@ -19,6 +19,7 @@ package solidbase.core.plugins;
 import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,7 +28,6 @@ import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.FatalException;
-import solidbase.util.Assert;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
@@ -50,7 +50,7 @@ public class ImportCSV implements CommandListener
 	static private final Pattern triggerPattern = Pattern.compile( "\\s*IMPORT\\s+CSV\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 
-	//@Override
+	@Override
 	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
 	{
 		if( command.isTransient() )
@@ -107,7 +107,7 @@ public class ImportCSV implements CommandListener
 
 			CSVDataReader reader = new CSVDataReader( sourceReader, parsed.skipHeader, parsed.separator, !parsed.noEscape, parsed.ignoreWhiteSpace, parsed.prependLineNumber, counter != null ? new ImportLogger( counter, processor.getProgressListener() ) : null );
 			DBWriter writer = new DBWriter( parsed.sql, parsed.tableName, parsed.columns, parsed.values, parsed.noBatch, processor );
-			reader.setOutput( new DefaultToJDBCTransformer( writer ) );
+			reader.setSink( new DefaultToJDBCTransformer( writer ) );
 
 			boolean commit = false;
 			try
@@ -128,20 +128,6 @@ public class ImportCSV implements CommandListener
 		}
 	}
 
-
-	/**
-	 * Replaces empty strings with null.
-	 *
-	 * @param line The line to preprocess.
-	 */
-	static protected void preprocess( String[] line )
-	{
-		for( int i = 0; i < line.length; i++ )
-			if( line[ i ].length() == 0 )
-				line[ i ] = null;
-	}
-
-
 	/**
 	 * Parses the given command.
 	 *
@@ -151,8 +137,11 @@ public class ImportCSV implements CommandListener
 	static protected Parsed parse( Command command )
 	{
 		// FIXME Replace LINENUMBER with RECORD NUMBER
+
 		/*
 		IMPORT CSV
+		[ FILE "<file>" ENCODING "<encoding>" [ GZIP ] ]
+		[ INTO [ <schema> . ] <table> [ ( <columns> ) ] [ VALUES ( <values> ) ] ]
 		[ SKIP HEADER ]
 		[ SEPARATED BY TAB | SPACE | <character> ]
 		[ ESCAPE NONE ]
@@ -160,14 +149,12 @@ public class ImportCSV implements CommandListener
 		[ PREPEND LINENUMBER ]
 		[ NOBATCH ]
 		[ LOG EVERY n RECORDS | SECONDS ]
-		(
-			[ FILE "<file>" ENCODING "<encoding>" [ GZIP ] ]
-			EXECUTE ...
-		|
-			INTO <schema>.<table> [ ( <columns> ) ]
-			[ VALUES ( <values> ) ]
-			[ DATA | FILE ]
-		)
+		[ EXEC <sqlstatement> ]
+		[ DATA ]
+
+		- One of INTO or EXEC is needed
+		- Only one of FILE or DATA is allowed, with DATA the data is in the rest of the command
+		- If FILE and DATA is missing, the data will be read inline
 		*/
 
 		Parsed result = new Parsed();
@@ -176,245 +163,142 @@ public class ImportCSV implements CommandListener
 
 		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
-		tokenizer.get( "IMPORT" );
-		tokenizer.get( "CSV" );
+		EnumSet<Tokens> expected = EnumSet.of( Tokens.SKIP, Tokens.SEPARATED, Tokens.ESCAPE, Tokens.IGNORE, Tokens.PREPEND, Tokens.NOBATCH, Tokens.LOG, Tokens.INTO, Tokens.FILE, Tokens.EXEC, Tokens.DATA, Tokens.EOF );
 
-		Token t = tokenizer.get( "SKIP", "SEPARATED", "IGNORE", "PREPEND", "NOBATCH", "LOG", "FILE", "EXECUTE", "INTO" );
-
-		if( t.eq( "SKIP" ) )
-		{
-			tokenizer.get( "HEADER" );
-			result.skipHeader = true;
-
-			t = tokenizer.get( "SEPARATED", "IGNORE", "PREPEND", "NOBATCH", "LOG", "FILE", "EXECUTE", "INTO" );
-		}
-
-		if( t.eq( "SEPARATED" ) )
-		{
-			tokenizer.get( "BY" );
-			t = tokenizer.get();
-			if( t.eq( "TAB" ) )
-				result.separator = '\t';
-			else if( t.eq( "SPACE" ) )
-				result.separator = ' ';
-			else
+		Token t = tokenizer.skip( "IMPORT" ).skip( "CSV" ).get();
+		for( ;; )
+			switch( tokenizer.expect( t, expected ) )
 			{
-				if( t.length() != 1 )
-					throw new SourceException( "Expecting [TAB], [SPACE] or a single character, not [" + t + "]", tokenizer.getLocation() );
-				result.separator = t.value().charAt( 0 );
-			}
+				case SKIP:
+					t = tokenizer.skip( "HEADER" ).get();
+					result.skipHeader = true;
+					expected.remove( Tokens.SKIP );
+					break;
 
-			t = tokenizer.get( "ESCAPE", "IGNORE", "PREPEND", "NOBATCH", "LOG", "FILE", "EXECUTE", "INTO" );
-		}
-
-		if( t.eq( "ESCAPE" ) )
-		{
-			tokenizer.get( "NONE" );
-			result.noEscape = true;
-
-			t = tokenizer.get( "IGNORE", "PREPEND", "NOBATCH", "LOG", "FILE", "EXECUTE", "INTO" );
-		}
-
-		if( t.eq( "IGNORE" ) )
-		{
-			tokenizer.get( "WHITESPACE" );
-			result.ignoreWhiteSpace = true;
-
-			t = tokenizer.get( "PREPEND", "NOBATCH", "LOG", "FILE", "EXECUTE", "INTO" );
-		}
-
-		if( t.eq( "PREPEND" ) )
-		{
-			tokenizer.get( "LINENUMBER" );
-			result.prependLineNumber = true;
-
-			t = tokenizer.get( "NOBATCH", "LOG", "FILE", "EXECUTE", "INTO" );
-		}
-
-		if( t.eq( "NOBATCH" ) )
-		{
-			result.noBatch = true;
-
-			t = tokenizer.get( "LOG", "FILE", "EXECUTE", "INTO" );
-		}
-
-		if( t.eq( "LOG" ) )
-		{
-			tokenizer.get( "EVERY" );
-			t = tokenizer.get();
-			if( !t.isNumber() )
-				throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
-
-			int interval = Integer.parseInt( t.value() );
-			t = tokenizer.get( "RECORDS", "SECONDS" );
-			if( t.eq( "RECORDS" ) )
-				result.logRecords = interval;
-			else
-				result.logSeconds = interval;
-
-			t = tokenizer.get( "FILE", "EXECUTE", "INTO" );
-		}
-
-		if( t.eq( "FILE" ) )
-		{
-			parseFile( tokenizer, result );
-
-			t = tokenizer.get( "EXECUTE" );
-		}
-
-		if( t.eq( "EXECUTE" ) )
-		{
-			result.sql = tokenizer.getRemaining();
-			return result;
-		}
-
-		tokenizer.expect( t, "INTO" );
-		result.tableName = tokenizer.get().toString();
-
-		t = tokenizer.get( ".", "(", "VALUES", "DATA", "FILE", null );
-
-		if( t.eq( "." ) )
-		{
-			// TODO This means spaces are allowed, do we want that or not?
-			result.tableName = result.tableName + "." + tokenizer.get().toString();
-
-			t = tokenizer.get( "(", "VALUES", "DATA", "FILE", null );
-		}
-
-		if( t.eq( "(" ) )
-		{
-			t = tokenizer.get();
-			if( t.eq( ")" ) || t.eq( "," ) )
-				throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-			columns.add( t.value() );
-			t = tokenizer.get( ",", ")" );
-			while( !t.eq( ")" ) )
-			{
-				t = tokenizer.get();
-				if( t.eq( ")" ) || t.eq( "," ) )
-					throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-				columns.add( t.value() );
-				t = tokenizer.get( ",", ")" );
-			}
-
-			t = tokenizer.get( "VALUES", "DATA", "FILE", null );
-		}
-
-		if( t.eq( "VALUES" ) )
-		{
-			tokenizer.get( "(" );
-			do
-			{
-				StringBuilder value = new StringBuilder();
-				parseTill( tokenizer, value, false, ',', ')' );
-				//System.out.println( "Value: " + value.toString() );
-				values.add( value.toString() );
-
-				t = tokenizer.get( ",", ")" );
-			}
-			while( t.eq( "," ) );
-
-			if( columns.size() > 0 )
-				if( columns.size() != values.size() )
-					throw new SourceException( "Number of specified columns does not match number of given values", tokenizer.getLocation() );
-
-			t = tokenizer.get( "DATA", "FILE", null );
-		}
-
-		if( columns.size() > 0 )
-			result.columns = columns.toArray( new String[ columns.size() ] );
-		if( values.size() > 0 )
-			result.values = values.toArray( new String[ values.size() ] );
-
-		if( t.isEndOfInput() )
-			return result;
-
-		if( t.eq( "DATA" ) )
-		{
-			tokenizer.getNewline();
-			result.reader = tokenizer.getReader();
-			return result;
-		}
-
-		parseFile( tokenizer, result );
-
-		tokenizer.get( (String)null );
-		return result;
-	}
-
-
-	static private void parseFile( SQLTokenizer tokenizer, Parsed result )
-	{
-		Token t = tokenizer.get();
-		String file = t.value();
-		if( !file.startsWith( "\"" ) )
-			throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-		result.fileName = file.substring( 1, file.length() - 1 );
-
-		t = tokenizer.get( "ENCODING" );
-		t = tokenizer.get();
-		String encoding = t.value();
-		if( !encoding.startsWith( "\"" ) )
-			throw new SourceException( "Expecting encoding enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-		result.encoding = encoding.substring( 1, encoding.length() - 1 );
-
-		t = tokenizer.get();
-		if( t.eq( "GZIP" ) )
-			result.gzip = true;
-		else
-			tokenizer.rewind();
-	}
-
-
-	/**
-	 * Parse till the specified characters are found.
-	 *
-	 * @param tokenizer The tokenizer.
-	 * @param result The result is stored in this StringBuilder.
-	 * @param chars The end characters.
-	 * @param includeInitialWhiteSpace Include the whitespace that precedes the first token.
-	 */
-	static protected void parseTill( SQLTokenizer tokenizer, StringBuilder result, boolean includeInitialWhiteSpace, char... chars )
-	{
-		Token t = tokenizer.get();
-		if( t == null )
-			throw new SourceException( "Unexpected EOF", tokenizer.getLocation() );
-		if( t.length() == 1 )
-			for( char c : chars )
-				if( t.value().charAt( 0 ) == c )
-					throw new SourceException( "Unexpected [" + t + "]", tokenizer.getLocation() );
-
-		if( includeInitialWhiteSpace )
-			result.append( t.whiteSpace() );
-		result.append( t.value() );
-
-		outer:
-			while( true )
-			{
-				if( t.eq( "(" ) )
-				{
-					//System.out.println( "(" );
-					parseTill( tokenizer, result, true, ')' );
+				case SEPARATED:
+					t = tokenizer.skip( "BY" ).get();
+					if( t.eq( "TAB" ) )
+						result.separator = '\t';
+					else if( t.eq( "SPACE" ) )
+						result.separator = ' ';
+					else
+					{
+						if( t.length() != 1 )
+							throw new SourceException( "Expecting [TAB], [SPACE] or a single character, not [" + t + "]", tokenizer.getLocation() );
+						result.separator = t.value().charAt( 0 );
+					}
 					t = tokenizer.get();
-					Assert.isTrue( t.eq( ")" ) );
-					//System.out.println( ")" );
-					result.append( t.whiteSpace() );
-					result.append( t.value() );
-				}
+					expected.remove( Tokens.SEPARATED );
+					break;
 
-				t = tokenizer.get();
-				if( t == null )
-					throw new SourceException( "Unexpected EOF", tokenizer.getLocation() );
-				if( t.length() == 1 )
-					for( char c : chars )
-						if( t.value().charAt( 0 ) == c )
-							break outer;
+				case ESCAPE:
+					t = tokenizer.skip( "NONE" ).get();
+					result.noEscape = true;
+					expected.remove( Tokens.ESCAPE );
+					break;
 
-				result.append( t.whiteSpace() );
-				result.append( t.value() );
+				case IGNORE:
+					t = tokenizer.skip( "WHITESPACE" ).get();
+					result.ignoreWhiteSpace = true;
+					expected.remove( Tokens.IGNORE );
+					break;
+
+				case PREPEND:
+					t = tokenizer.skip( "LINENUMBER" ).get();
+					result.prependLineNumber = true;
+					expected.remove( Tokens.PREPEND );
+					break;
+
+				case NOBATCH:
+					t = tokenizer.get();
+					result.noBatch = true;
+					expected.remove( Tokens.NOBATCH );
+					break;
+
+				case LOG:
+					int interval = Integer.parseInt( tokenizer.skip( "EVERY" ).getNumber().value() );
+					if( tokenizer.get( "RECORDS", "SECONDS" ).eq( "RECORDS" ) )
+						result.logRecords = interval;
+					else
+						result.logSeconds = interval;
+					t = tokenizer.get();
+					expected.remove( Tokens.LOG );
+					break;
+
+				case INTO:
+					// TODO These tokens should also be added to the expected errors when not encountered
+					result.tableName = tokenizer.getIdentifier().value();
+					t = tokenizer.get();
+					if( t.eq( "." ) )
+					{
+						result.tableName += "." + tokenizer.getIdentifier().value();
+						t = tokenizer.get();
+					}
+					if( t.eq( "(" ) )
+					{
+						columns.add( tokenizer.getIdentifier().value() );
+						t = tokenizer.get( ",", ")" );
+						while( !t.eq( ")" ) )
+						{
+							columns.add( tokenizer.getIdentifier().value() );
+							t = tokenizer.get( ",", ")" );
+						}
+						t = tokenizer.get();
+					}
+					if( t.eq( "VALUES" ) )
+					{
+						tokenizer.get( "(" );
+						do
+						{
+							StringBuilder value = new StringBuilder();
+							ImportJSON.parseTill( tokenizer, value, false, ',', ')' );
+							values.add( value.toString() );
+							t = tokenizer.get( ",", ")" );
+						}
+						while( t.eq( "," ) );
+						if( columns.size() > 0 )
+							if( columns.size() != values.size() )
+								throw new SourceException( "Number of specified columns does not match number of given values", tokenizer.getLocation() );
+						t = tokenizer.get();
+					}
+					if( columns.size() > 0 )
+						result.columns = columns.toArray( new String[ columns.size() ] );
+					if( values.size() > 0 )
+						result.values = values.toArray( new String[ values.size() ] );
+					expected.remove( Tokens.INTO );
+					expected.remove( Tokens.EXEC );
+					break;
+
+				case FILE:
+					result.fileName = tokenizer.getString().stripQuotes();
+					result.encoding = tokenizer.skip( "ENCODING" ).getString().stripQuotes();
+					t = tokenizer.get();
+					if( t.eq( "GZIP" ) )
+					{
+						result.gzip = true;
+						t = tokenizer.get();
+					}
+					expected.remove( Tokens.FILE );
+					expected.remove( Tokens.DATA );
+					break;
+
+				case EXEC:
+					result.sql = tokenizer.getRemaining();
+					return result;
+
+				case DATA:
+					tokenizer.getNewline();
+					result.reader = tokenizer.getReader();
+					//$FALL-THROUGH$
+
+				case EOF:
+					if( expected.contains( Tokens.INTO ) && expected.contains( Tokens.EXEC ) )
+						throw new SourceException( "Missing INTO or EXEC", tokenizer.getLocation() );
+					return result;
+
+				default:
+					throw new FatalException( "Unexpected token: " + t );
 			}
-
-		tokenizer.rewind();
 	}
 
 
@@ -470,6 +354,7 @@ public class ImportCSV implements CommandListener
 
 
 	//@Override
+	@Override
 	public void terminate()
 	{
 		// Nothing to clean up
