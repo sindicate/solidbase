@@ -30,6 +30,7 @@ import solidbase.core.SQLExecutionException;
 import solidbase.core.SystemException;
 import solidstack.io.SourceException;
 
+
 public class DBWriter implements RecordSink
 {
 	static private final Pattern parameterPattern = Pattern.compile( ":(\\d+)" );
@@ -145,20 +146,26 @@ public class DBWriter implements RecordSink
 		int pos = 1;
 		int index = 0;
 		for( int par : this.parameterMap )
+		{
+			Object value;
 			try
 			{
-				Object value = record[ index = par - 1 ];
-				this.statement.setObject( pos++, value );
+				value = record[ index = par - 1 ];
 			}
 			catch( ArrayIndexOutOfBoundsException e )
 			{
 				throw new SourceException( "Value with index " + ( index + 1 ) + " does not exist, record has only " + record.length + " values", null );
 			}
+			try
+			{
+				this.statement.setObject( pos++, value );
+			}
 			catch( SQLException e )
 			{
-				String message = buildMessage( this.sql, this.parameterMap, record );
+				String message = "Trying to set parameter " + pos + " with type " + ( value != null ? value.getClass().getName() : "null" ) + " for:\n" + buildMessage( this.sql, this.parameterMap, record );
 				throw new SQLExecutionException( message, null, e );
 			}
+		}
 
 		if( this.noBatch )
 			try
@@ -184,8 +191,19 @@ public class DBWriter implements RecordSink
 	}
 
 	@Override
-	public void end()
+	public void end() throws SQLException
 	{
+		if( this.batchSize > 0 )
+		{
+			this.statement.executeBatch();
+			this.batchSize = 0;
+		}
+	}
+
+	public void close( boolean commit ) throws SQLException
+	{
+		if( this.statement != null )
+			this.processor.closeStatement( this.statement, commit );
 	}
 
 	static private String buildMessage( String sql, int[] parameterMap, Object[] values )
@@ -231,18 +249,5 @@ public class DBWriter implements RecordSink
 		}
 		matcher.appendTail( result );
 		return result.toString();
-	}
-
-
-	public void end( boolean commit ) throws SQLException
-	{
-		if( this.batchSize > 0 )
-		{
-			this.statement.executeBatch();
-			this.batchSize = 0;
-		}
-
-		if( this.statement != null )
-			this.processor.closeStatement( this.statement, commit );
 	}
 }

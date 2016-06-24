@@ -50,6 +50,7 @@ public class CBORDataWriter implements RecordSink
 		return this.out;
 	}
 
+	@Override
 	public void init( Column[] columns )
 	{
 		this.columns = columns;
@@ -78,6 +79,7 @@ public class CBORDataWriter implements RecordSink
 		this.out.startArray();
 	}
 
+	@Override
 	public void process( Object[] record ) throws SQLException
 	{
 		CBORWriter out = this.out;

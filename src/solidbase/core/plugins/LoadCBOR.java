@@ -112,7 +112,7 @@ public class LoadCBOR implements CommandListener
 			}
 			finally
 			{
-				writer.end( commit );
+				writer.close( commit );
 			}
 			return true;
 		}

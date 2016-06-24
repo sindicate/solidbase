@@ -49,6 +49,7 @@ public class CoalescerProcessor implements RecordSink, RecordSource
 		this.sink = sink;
 	}
 
+	@Override
 	public void init( Column[] columns )
 	{
 		int cols = columns.length;
@@ -108,6 +109,7 @@ public class CoalescerProcessor implements RecordSink, RecordSource
 		this.sink.start();
 	}
 
+	@Override
 	public void process( Object[] record ) throws SQLException
 	{
 		int count = this.mapping.length;
@@ -129,7 +131,7 @@ public class CoalescerProcessor implements RecordSink, RecordSource
 	}
 
 	@Override
-	public void end()
+	public void end() throws SQLException
 	{
 		this.sink.end();
 	}

@@ -25,5 +25,5 @@ public interface ResultSink
 	void init( Column[] columns );
 	void start();
 	void process( ResultSet result ) throws SQLException;
-	void end();
+	void end() throws SQLException;
 }

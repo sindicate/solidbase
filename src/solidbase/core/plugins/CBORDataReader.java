@@ -52,6 +52,7 @@ public class CBORDataReader implements RecordSource
 		// Read the header of the file
 		long pos = in.getPos();
 		JSONObject properties = (JSONObject)this.in.read();
+		// TODO java.lang.ClassCastException: Attribute 'version' is not a Number ---> SourceException
 		int version = properties.getNumber( "version" ).intValue();
 		if( version != 1 )
 			throw new SourceException( "Expected version 1", SourceLocation.forBinary( in.getResource(), pos ) );

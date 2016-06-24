@@ -117,7 +117,7 @@ public class ImportCSV implements CommandListener
 			}
 			finally
 			{
-				writer.end( commit );
+				writer.close( commit );
 			}
 			return true;
 		}

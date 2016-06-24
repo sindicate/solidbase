@@ -43,6 +43,7 @@ public class SelectProcessor implements RecordSink, RecordSource
 		return !this.deselect.isEmpty();
 	}
 
+	@Override
 	public void init( Column[] columns )
 	{
 		// TODO Error when deselect contains an incorrect columnname
@@ -91,7 +92,7 @@ public class SelectProcessor implements RecordSink, RecordSource
 	}
 
 	@Override
-	public void end()
+	public void end() throws SQLException
 	{
 		this.sink.end();
 	}

@@ -84,7 +84,7 @@ public class DefaultToJDBCTransformer implements RecordSink, RecordSource
 	}
 
 	@Override
-	public void end()
+	public void end() throws SQLException
 	{
 		this.sink.end();
 	}
