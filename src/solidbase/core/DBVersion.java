@@ -254,9 +254,7 @@ public class DBVersion
 						this.versionRecordExists = true;
 					}
 					else
-					{
 						Assert.isFalse( this.versionRecordExists, "Record in DBVERSION has disappeared" );
-					}
 				}
 				finally
 				{
@@ -391,9 +389,7 @@ public class DBVersion
 		setSpec( spec );
 
 		if( this.effectiveSpec.equals( SPEC10 ) )
-		{
 			Assert.isFalse( this.specColumnExists, "When effective spec is 1.0, a SPEC column should not exist in the DBVERSION table" );
-		}
 		else
 		{
 			Assert.isTrue( this.effectiveSpec.equals( SPEC11 ), "Only spec 1.0 or 1.1 allowed" );
@@ -464,11 +460,11 @@ public class DBVersion
 	 * @param command The executed statement.
 	 * @param e The SQL exception.
 	 */
-	protected void logSQLException( UpgradeSegment segment, int count, String command, SQLExecutionException e )
+	protected void logSQLException( UpgradeSegment segment, int count, String command, ProcessException e )
 	{
 		Assert.notNull( e, "exception must not be null" );
 
-		log( segment.isDowngrade() ? "T" : "S", segment.getSource(), segment.getTarget(), count, command, e.getSQLErrorMessages() );
+		log( segment.isDowngrade() ? "T" : "S", segment.getSource(), segment.getTarget(), count, command, e.getMessage() );
 	}
 
 	/**

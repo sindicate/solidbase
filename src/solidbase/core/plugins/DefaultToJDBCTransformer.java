@@ -19,7 +19,7 @@ package solidbase.core.plugins;
 import java.sql.SQLException;
 import java.sql.Types;
 
-import solidstack.io.SourceException;
+import solidbase.core.ProcessException;
 
 
 public class DefaultToJDBCTransformer implements RecordSink, RecordSource
@@ -76,7 +76,7 @@ public class DefaultToJDBCTransformer implements RecordSink, RecordSource
 					{
 						// TODO Add test? C:\_WORK\SAO-20150612\build.xml:32: The following error occurred while executing this line:
 						// C:\_WORK\SAO-20150612\build.xml:13: Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff], at line 17 of file C:/_WORK/SAO-20150612/SYSTEEM/sca.JSON.GZ
-						throw new SourceException( e.getMessage(), null );
+						throw new ProcessException( e ).addProcess( "trying to convert " + value + " to " + this.columns[ i ].getType() );
 					}
 			}
 

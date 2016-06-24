@@ -62,9 +62,9 @@ public class SQLProcessor extends CommandProcessor
 	/**
 	 * Execute the SQL file.
 	 *
-	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
+	 * @throws ProcessException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	public void process() throws SQLExecutionException
+	public void process() throws ProcessException
 	{
 		this.context.setCurrentDatabase( getDefaultDatabase() );
 		this.context.getCurrentDatabase().resetUser();

@@ -46,7 +46,7 @@ public class TestProgressListener extends ProgressListener
 	}
 
 	@Override
-	protected void exception( SQLExecutionException exception )
+	protected void exception( ProcessException exception )
 	{
 		System.out.println( "EXCEPTION: " + exception );
 	}

@@ -36,7 +36,7 @@ import org.apache.commons.cli.ParseException;
 import solidbase.config.Configuration;
 import solidbase.core.FatalException;
 import solidbase.core.Runner;
-import solidbase.core.SQLExecutionException;
+import solidbase.core.ProcessException;
 import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidstack.io.Resources;
@@ -96,10 +96,10 @@ public class Main
 	 * For internal (testing) use only: a main method that does not catch and print exceptions.
 	 *
 	 * @param args The arguments from the command line.
-	 * @throws SQLExecutionException When an {@link SQLException} is thrown during execution of a database change.
+	 * @throws ProcessException When an {@link SQLException} is thrown during execution of a database change.
 	 */
 	// TODO Make this protected.
-	static public void main0( String... args ) throws SQLExecutionException
+	static public void main0( String... args ) throws ProcessException
 	{
 		if( console == null )
 			console = new Console();
@@ -226,9 +226,9 @@ public class Main
 	 * @param args The arguments from the command line.
 	 * @param jars The jars that need to be added to the classpath.
 	 * @param verbose Show more information.
-	 * @throws SQLExecutionException When an {@link SQLException} is thrown during execution of a database change.
+	 * @throws ProcessException When an {@link SQLException} is thrown during execution of a database change.
 	 */
-	static protected void reload( String[] args, List< String > jars, boolean verbose ) throws SQLExecutionException
+	static protected void reload( String[] args, List< String > jars, boolean verbose ) throws ProcessException
 	{
 		if( jars == null || jars.isEmpty() )
 		{
@@ -315,9 +315,9 @@ public class Main
 	 * Gets called after reloading with an extended classpath.
 	 *
 	 * @param args The arguments from the command line.
-	 * @throws SQLExecutionException When an {@link SQLException} is thrown during execution of a database change.
+	 * @throws ProcessException When an {@link SQLException} is thrown during execution of a database change.
 	 */
-	static public void pass2( String... args ) throws SQLExecutionException
+	static public void pass2( String... args ) throws ProcessException
 	{
 		try
 		{

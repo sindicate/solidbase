@@ -26,9 +26,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.ArrayUtils;
 
 import solidbase.core.CommandProcessor;
-import solidbase.core.SQLExecutionException;
+import solidbase.core.ProcessException;
 import solidbase.core.SystemException;
-import solidstack.io.SourceException;
 
 
 public class DBWriter implements RecordSink
@@ -154,7 +153,7 @@ public class DBWriter implements RecordSink
 			}
 			catch( ArrayIndexOutOfBoundsException e )
 			{
-				throw new SourceException( "Value with index " + ( index + 1 ) + " does not exist, record has only " + record.length + " values", null );
+				throw new ProcessException( e ).addProcess( "getting value, index: " + index + ", size: " + record.length );
 			}
 			try
 			{
@@ -162,8 +161,7 @@ public class DBWriter implements RecordSink
 			}
 			catch( SQLException e )
 			{
-				String message = "Trying to set parameter " + pos + " with type " + ( value != null ? value.getClass().getName() : "null" ) + " for:\n" + buildMessage( this.sql, this.parameterMap, record );
-				throw new SQLExecutionException( message, null, e );
+				throw new ProcessException( e ).addProcess( "trying to set parameter " + pos + " with type " + ( value != null ? value.getClass().getName() : "null" ) + " for: " + buildMessage( this.sql, this.parameterMap, record ) );
 			}
 		}
 
@@ -174,9 +172,8 @@ public class DBWriter implements RecordSink
 			}
 			catch( SQLException e )
 			{
-				String message = buildMessage( this.sql, this.parameterMap, record );
 				// When NOBATCH is on, you can see the actual insert statement and line number in the file where the SQLException occurred.
-				throw new SQLExecutionException( message, null, e );
+				throw new ProcessException( e ).addProcess( "executing: " + buildMessage( this.sql, this.parameterMap, record ) );
 			}
 		else
 		{

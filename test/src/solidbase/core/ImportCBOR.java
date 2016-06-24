@@ -23,17 +23,15 @@ import java.sql.SQLException;
 
 import org.testng.annotations.Test;
 
-import solidstack.io.SourceException;
-
-public class ImportJSON
+public class ImportCBOR
 {
 	static private final String db = "jdbc:hsqldb:mem:testImport";
 
 	@Test
-	public void testImportJSON() throws SQLException
+	public void testImportCBOR() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( db, "sa", null );
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "folder/testpatch-import-json1.sql", db );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "folder/testpatch-import-cbor1.sql", db );
 		try
 		{
 			patcher.upgrade( "1.0.2" );
@@ -59,38 +57,38 @@ public class ImportJSON
 		}
 	}
 
-	@Test(dependsOnMethods="testImportJSON")
-	public void testImportJSONNotExist() throws SQLException
+	@Test(dependsOnMethods="testImportCBOR")
+	public void testImportCBORNotExist() throws SQLException
 	{
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "folder/testpatch-import-json1.sql", db );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "folder/testpatch-import-cbor1.sql", db );
 
 		try
 		{
 			patcher.upgrade( "1.0.4" );
 			failBecauseExceptionWasNotThrown( FatalException.class );
 		}
-		catch( FatalException e )
+		catch( ProcessException e )
 		{
-			assertThat( e.getMessage().replace( '\\', '/' ) ).contains( "java.io.FileNotFoundException: " ).contains( "folder/notexist.json" );
+			assertThat( e.getMessage().replace( '\\', '/' ) ).contains( "(The system cannot find the file specified)" ).contains( "folder/notexist.cbor" );
 		}
 
 		patcher.end();
 	}
 
 	@Test
-	public void testImportJSONLineNumber() throws SQLException
+	public void testImportCBORLineNumber() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-import-json2.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-import-cbor2.sql" );
 
 		try
 		{
 			patcher.upgrade( "3" );
-			failBecauseExceptionWasNotThrown( SourceException.class );
+			failBecauseExceptionWasNotThrown( ProcessException.class );
 		}
-		catch( SourceException e )
+		catch( ProcessException e )
 		{
-			assertThat( e.getMessage() ).contains( "Unexpected keyword a" ).contains( "at line 52" );
+			assertThat( e.getMessage() ).contains( "Expected ARRAY or BREAK, not TEXT 1" ).contains( "at line 53" );
 		}
 
 		try
@@ -100,17 +98,18 @@ public class ImportJSON
 		}
 		catch( ProcessException e )
 		{
-			assertThat( e.getMessage() ).contains( "integrity constraint violation" ).contains( "line 61" );
+			assertThat( e.getMessage() ).contains( "integrity constraint violation" );
+			assertThat( e.getMessage() ).contains( "line 64" );
 		}
 
 		patcher.end();
 	}
 
 	@Test
-	static public void testImportJSONProgress() throws SQLException
+	static public void testImportCBORProgress() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-import-json3.sql" );
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "testpatch-import-cbor3.sql" );
 		patcher.upgrade( "1" );
 		patcher.end();
 	}

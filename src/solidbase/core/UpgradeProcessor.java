@@ -237,9 +237,9 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	/**
 	 * Use the 'setup' change sets to upgrade the DBVERSION and DBVERSIONLOG tables to the newest specification.
 	 *
-	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
+	 * @throws ProcessException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	public void setupControlTables() throws SQLExecutionException // TODO This is a RuntimeException, remove or not? Keep in Javadoc?
+	public void setupControlTables() throws ProcessException // TODO This is a RuntimeException, remove or not? Keep in Javadoc?
 	{
 		String spec = this.dbVersion.getSpec();
 
@@ -264,9 +264,9 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	 * Upgrade to the given target.
 	 *
 	 * @param target The target to upgrade to.
-	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
+	 * @throws ProcessException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	public void upgrade( String target ) throws SQLExecutionException
+	public void upgrade( String target ) throws ProcessException
 	{
 		upgrade( target, false );
 	}
@@ -277,9 +277,9 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	 *
 	 * @param target The target requested.
 	 * @param downgradeable Indicates that downgrade paths are allowed to reach the given target.
-	 * @throws SQLExecutionException When the execution of a command throws an {@link SQLException}.
+	 * @throws ProcessException When the execution of a command throws an {@link SQLException}.
 	 */
-	protected void upgrade( String target, boolean downgradeable ) throws SQLExecutionException
+	protected void upgrade( String target, boolean downgradeable ) throws ProcessException
 	{
 		setupControlTables();
 
@@ -338,9 +338,9 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	 * @param version The current version of the database.
 	 * @param target The target to upgrade to.
 	 * @param downgradeable Allow downgrades to reach the target
-	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
+	 * @throws ProcessException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	protected void upgrade( String version, String target, boolean downgradeable ) throws SQLExecutionException
+	protected void upgrade( String version, String target, boolean downgradeable ) throws ProcessException
 	{
 		if( target.equals( version ) )
 			return;
@@ -379,9 +379,9 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	 * Execute a upgrade segment.
 	 *
 	 * @param segment The segment to be executed.
-	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
+	 * @throws ProcessException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	protected void process( UpgradeSegment segment ) throws SQLExecutionException
+	protected void process( UpgradeSegment segment ) throws ProcessException
 	{
 		Assert.notNull( segment );
 
@@ -415,7 +415,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 					count++;
 					try
 					{
-						SQLExecutionException result = executeWithListeners( command, windForward || this.context.skipping() );
+						ProcessException result = executeWithListeners( command, windForward || this.context.skipping() );
 						if( !windForward )
 						{
 							// We have to update the progress even if the logging fails. Otherwise the segment cannot be
@@ -427,7 +427,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 								this.dbVersion.log( segment, count, command.getCommand() );
 						}
 					}
-					catch( SQLExecutionException e )
+					catch( ProcessException e )
 					{
 						// TODO We need a unit test for this, and the above
 						this.dbVersion.logSQLException( segment, count, command.getCommand(), e );

@@ -26,7 +26,7 @@ import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.sql.Types;
 
-import solidbase.core.SQLExecutionException;
+import solidbase.core.ProcessException;
 import solidbase.util.CloseQueue;
 import solidbase.util.JDBCSupport;
 import solidstack.io.FatalIOException;
@@ -70,38 +70,6 @@ public class JSONDataReader // TODO implements RecordSource
 		this.reader = new JSONReader( reader, emptyLineIsEOF );
 		this.prependLineNumber = prependLineNumber;
 		this.counter = counter;
-
-		// Read the header
-		Object object = this.reader.read();
-		if( object instanceof JSONObject )
-		{
-			JSONObject properties = (JSONObject)object;
-
-			// The default binary file
-			this.binaryFile = properties.findString( "binaryFile" );
-
-			// The fields
-			JSONArray fields = properties.getArray( "fields" );
-			int fieldCount = fields.size();
-
-			this.columns = new Column[ fieldCount ];
-
-			// Initialise the working arrays
-			this.fieldNames = new String[ fieldCount ];
-			this.fileNames = new String[ fieldCount ];
-			this.streams = new SegmentedInputStream[ fieldCount ];
-			this.textStreams = new SegmentedReader[ fieldCount ];
-
-			for( int i = 0; i < fieldCount; i++ )
-			{
-				JSONObject field = (JSONObject)fields.get( i );
-				this.fileNames[ i ] = field.findString( "file" );
-				String name = this.fieldNames[ i ] = field.findString( "name" );
-				this.columns[ i ] = new Column( name, JDBCSupport.fromTypeName( field.getString( "type" ) ), field.findString( "tableName" ), field.findString( "schemaName" ) );
-			}
-		}
-		else if( object != null )
-			this.firstRecord = (JSONArray)object;
 	}
 
 	public String[] getFieldNames()
@@ -116,6 +84,40 @@ public class JSONDataReader // TODO implements RecordSource
 
 	public void process() throws SQLException
 	{
+		{
+			// Read the header
+			Object object = this.reader.read();
+			if( object instanceof JSONObject )
+			{
+				JSONObject properties = (JSONObject)object;
+
+				// The default binary file
+				this.binaryFile = properties.findString( "binaryFile" );
+
+				// The fields
+				JSONArray fields = properties.getArray( "fields" );
+				int fieldCount = fields.size();
+
+				this.columns = new Column[ fieldCount ];
+
+				// Initialise the working arrays
+				this.fieldNames = new String[ fieldCount ];
+				this.fileNames = new String[ fieldCount ];
+				this.streams = new SegmentedInputStream[ fieldCount ];
+				this.textStreams = new SegmentedReader[ fieldCount ];
+
+				for( int i = 0; i < fieldCount; i++ )
+				{
+					JSONObject field = (JSONObject)fields.get( i );
+					this.fileNames[ i ] = field.findString( "file" );
+					String name = this.fieldNames[ i ] = field.findString( "name" );
+					this.columns[ i ] = new Column( name, JDBCSupport.fromTypeName( field.getString( "type" ) ), field.findString( "tableName" ), field.findString( "schemaName" ) );
+				}
+			}
+			else if( object != null )
+				this.firstRecord = (JSONArray)object;
+		}
+
 		this.sink.init( this.columns );
 		this.sink.start();
 
@@ -153,12 +155,12 @@ public class JSONDataReader // TODO implements RecordSource
 					return;
 				}
 
-				SourceLocation location = this.reader.getLocation();
+				SourceLocation loc = this.reader.getLocation();
 
 				Object[] values = new Object[ array.size() + ( this.prependLineNumber ? 1 : 0 ) ];
 				int pos = 0;
 				if( this.prependLineNumber )
-					values[ pos++ ] = location.getLineNumber();
+					values[ pos++ ] = loc.getLineNumber();
 
 				for( int i = 0; i < array.size(); i++ )
 				{
@@ -306,15 +308,9 @@ public class JSONDataReader // TODO implements RecordSource
 				{
 					this.sink.process( values );
 				}
-				catch( SourceException e )
+				catch( ProcessException e )
 				{
-					e.setLocation( location );
-					throw e;
-				}
-				catch( SQLExecutionException e )
-				{
-					e.setLocation( location );
-					throw e;
+					throw new ProcessException( e ).addLocation( loc );
 				}
 
 				closer.closeAll();

@@ -17,8 +17,9 @@
 package solidbase.core;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
-import solidbase.util.Assert;
 import solidstack.io.SourceLocation;
 
 
@@ -28,42 +29,40 @@ import solidstack.io.SourceLocation;
  *
  * @author René M. de Bloois
  */
-// FIXME Rename to FatalSQLException
-public class SQLExecutionException extends FatalException
+public class ProcessException extends FatalException
 {
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * The command that caused the {@link SQLException}.
-	 */
-	private String command;
+	private List<Object> hierarchy = new ArrayList<Object>();
 
-	/**
-	 * The file location where the exception occurred.
-	 */
-	private SourceLocation location;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param command The command that caused the {@link SQLException}.
-	 * @param location The file location where the exception occurred.
-	 * @param sqlException The {@link SQLException}.
+	 * @param cause The cause.
 	 */
-	public SQLExecutionException( String command, SourceLocation location, SQLException sqlException )
+	public ProcessException( Throwable cause )
 	{
-		super( sqlException );
+		super( cause );
 
-		Assert.notNull( command );
-		Assert.notNull( sqlException );
-
-		this.command = command;
-		this.location = location;
+		if( cause == null )
+			throw new NullPointerException( "cause == null" );
 	}
 
-	public void setLocation( SourceLocation location )
+	public ProcessException addProcess( String process )
 	{
-		this.location = location;
+		if( process == null )
+			throw new NullPointerException( "process == null" );
+		this.hierarchy.add( process );
+		return this;
+	}
+
+	public ProcessException addLocation( SourceLocation location )
+	{
+		if( location == null )
+			throw new NullPointerException( "location == null" );
+		this.hierarchy.add( location );
+		return this;
 	}
 
 	/**
@@ -73,14 +72,14 @@ public class SQLExecutionException extends FatalException
 	 * @see SQLException#getNextException()
 	 */
 	// TODO When BatchUpdateException, in Derby we get the message twice because of BatchUpdatException composing it from the exception chain. And in Oracle?
-	public String getSQLErrorMessages()
+	private  String getSQLErrorMessages( SQLException e )
 	{
 		StringBuilder result = new StringBuilder();
-		SQLException e = (SQLException)getCause();
 		while( true )
 		{
-			result.append( e.getSQLState() );
-			result.append( ": " );
+			String sqlState = e.getSQLState();
+			if( sqlState != null )
+				result.append( sqlState ).append( ": " );
 			result.append( e.getMessage() );
 			e = e.getNextException();
 			if( e == null )
@@ -93,10 +92,15 @@ public class SQLExecutionException extends FatalException
 	@Override
 	public String getMessage()
 	{
-		String command = this.command;
-		if( command.length() > 1000 )
-			command = command.substring( 0, 1000 ) + "...";
+		Throwable t = getCause();
+		String message = t instanceof SQLException ? getSQLErrorMessages( (SQLException)t ) : t.getMessage();
 
-		return getSQLErrorMessages() + "\nWhile executing " + this.location + ": " + command;
+		StringBuilder result = new StringBuilder( message );
+		for( Object object : this.hierarchy )
+			if( object instanceof SourceLocation )
+				result.append( "\nAt " ).append( object );
+			else
+				result.append( "\nWhile " ).append( object.toString() );
+		return result.toString();
 	}
 }

@@ -71,9 +71,7 @@ public class ImportCSV
 		}
 		catch( FatalException e )
 		{
-			String message = e.getMessage().replace( '\\', '/' );
-			assertThat( message ).contains( "java.io.FileNotFoundException: " );
-			assertThat( message ).contains( "folder/notexist.csv" );
+			assertThat( e.getMessage().replace( '\\', '/' ) ).contains( "java.io.FileNotFoundException: " ).contains( "folder/notexist.csv" );
 		}
 
 		patcher.end();
@@ -92,19 +90,17 @@ public class ImportCSV
 		}
 		catch( SourceException e )
 		{
-			assertThat( e.getMessage() ).contains( "<separator>, <newline>" );
-			assertThat( e.getMessage() ).contains( "at line 52" );
+			assertThat( e.getMessage() ).contains( "<separator>, <newline>" ).contains( "at line 52" );
 		}
 
 		try
 		{
 			patcher.upgrade( "5" );
-			failBecauseExceptionWasNotThrown( SQLExecutionException.class );
+			failBecauseExceptionWasNotThrown( ProcessException.class );
 		}
-		catch( SQLExecutionException e )
+		catch( ProcessException e )
 		{
-			assertThat( e.getMessage() ).contains( "integrity constraint violation" );
-			assertThat( e.getMessage() ).contains( "executing line 61" );
+			assertThat( e.getMessage() ).contains( "integrity constraint violation" ).contains( "line 61" );
 		}
 
 		patcher.end();

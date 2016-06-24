@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import solidbase.core.ProcessException;
 import solidbase.util.JDBCSupport;
 import solidstack.cbor.CBORReader;
 import solidstack.cbor.Token;
@@ -43,40 +44,13 @@ public class CBORDataReader implements RecordSource
 	private String[] fieldNames;
 	private String[] fileNames;
 
+	private JSONArray firstRecord;
+
 
 	public CBORDataReader( SourceInputStream in, ImportLogger counter )
 	{
 		this.in = new CBORReader( in );
 		this.counter = counter;
-
-		// Read the header of the file
-		long pos = in.getPos();
-		JSONObject properties = (JSONObject)this.in.read();
-		// TODO java.lang.ClassCastException: Attribute 'version' is not a Number ---> SourceException
-		int version = properties.getNumber( "version" ).intValue();
-		if( version != 1 )
-			throw new SourceException( "Expected version 1", SourceLocation.forBinary( in.getResource(), pos ) );
-
-		// Read the header of the data block
-		properties = (JSONObject)this.in.read();
-
-		// The fields
-		JSONArray fields = properties.getArray( "fields" );
-		int fieldCount = fields.size();
-
-		this.columns = new Column[ fieldCount ];
-
-		// Initialise the working arrays
-		this.fieldNames = new String[ fieldCount ];
-		this.fileNames = new String[ fieldCount ];
-
-		for( int i = 0; i < fieldCount; i++ )
-		{
-			JSONObject field = (JSONObject)fields.get( i );
-			this.fileNames[ i ] = field.findString( "file" );
-			String name = this.fieldNames[ i ] = field.findString( "name" );
-			this.columns[ i ] = new Column( name, JDBCSupport.fromTypeName( field.getString( "type" ) ), field.findString( "tableName" ), field.findString( "schemaName" ) );
-		}
 	}
 
 	public void close()
@@ -97,12 +71,64 @@ public class CBORDataReader implements RecordSource
 
 	public void process() throws SQLException
 	{
+		SourceLocation loc = this.in.getLocation();
+
+		Token token = this.in.peek();
+		if( token.type() == TYPE.MAP )
+		{
+			// Read the header of the file
+			JSONObject properties = (JSONObject)this.in.read();
+			if( properties.has( "version" ) )
+			{
+				// TODO java.lang.ClassCastException: Attribute 'version' is not a Number ---> SourceException
+				int version = properties.getNumber( "version" ).intValue();
+				if( version != 1 )
+					throw new SourceException( "Expected version 1", loc );
+
+				// Read next object
+				if( this.in.peek().type() == TYPE.MAP )
+					properties = (JSONObject)this.in.read();
+				else
+					properties = null;
+			}
+
+			// Read the header of the data block
+			if( properties != null )
+			{
+				// The fields
+				JSONArray fields = properties.getArray( "fields" );
+				int fieldCount = fields.size();
+
+				this.columns = new Column[ fieldCount ];
+
+				// Initialise the working arrays
+				this.fieldNames = new String[ fieldCount ];
+				this.fileNames = new String[ fieldCount ];
+
+				for( int i = 0; i < fieldCount; i++ )
+				{
+					JSONObject field = (JSONObject)fields.get( i );
+					this.fileNames[ i ] = field.findString( "file" );
+					String name = this.fieldNames[ i ] = field.findString( "name" );
+					this.columns[ i ] = new Column( name, JDBCSupport.fromTypeName( field.getString( "type" ) ), field.findString( "tableName" ), field.findString( "schemaName" ) );
+				}
+			}
+		}
+		else if( token.type() != TYPE.EOF )
+			if( token.type() != TYPE.IARRAY )
+				throw new SourceException( "Expected MAP or IARRAY, not " + token, loc );
+
 		this.sink.init( this.columns );
 		this.sink.start();
 
 		Token t;
-		for( t = this.in.get(); t.type() == TYPE.IARRAY; t = this.in.get() )
+		loc = this.in.getLocation();
+		for( t = this.in.get(); t.type() != TYPE.EOF; t = this.in.get() )
 		{
+			if( t.type() != TYPE.IARRAY )
+				throw new SourceException( "Expected IARRAY, not " + t, loc );
+
+			loc = this.in.getLocation();
 			for( t = this.in.get(); t.type() == TYPE.ARRAY; t = this.in.get() )
 			{
 				int len = t.length(); // TODO Check array length
@@ -111,18 +137,27 @@ public class CBORDataReader implements RecordSource
 				if( Thread.currentThread().isInterrupted() ) // TODO Is this the right spot during an upgrade?
 					throw new ThreadInterrupted();
 
-				List<Object> values = new ArrayList<Object>( this.columns.length );
+				loc = this.in.getLocation();
+
+				List<Object> values = new ArrayList<Object>( len );
 				for( int i = 0; i < len; i++ )
 					values.add( this.in.read() );
 
-				this.sink.process( values.toArray() );
+				try
+				{
+					this.sink.process( values.toArray() );
+				}
+				catch( ProcessException e )
+				{
+					throw new ProcessException( e ).addLocation( loc );
+				}
 
 				if( this.counter != null )
 					this.counter.count();
 			}
 
 			if( t.type() != TYPE.BREAK )
-				throw new SourceException( "Expected a BREAK, not " + t, null );
+				throw new SourceException( "Expected ARRAY or BREAK, not " + t, loc );
 		}
 
 		if( this.counter != null )

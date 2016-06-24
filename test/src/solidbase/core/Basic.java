@@ -63,7 +63,7 @@ public class Basic
 			patcher.upgrade( "1.0.3" );
 			Assert.fail();
 		}
-		catch( SQLExecutionException e )
+		catch( ProcessException e )
 		{
 //			System.out.println( e.getMessage() );
 			Assert.assertTrue( e.getMessage().contains( "unexpected token: /" ) );
@@ -224,7 +224,7 @@ public class Basic
 			patcher.upgrade( "2" );
 			assert false;
 		}
-		catch( SQLExecutionException e )
+		catch( ProcessException e )
 		{
 			assert e.getMessage().contains( "42582" );
 			assert e.getMessage().contains( "unknown token" );

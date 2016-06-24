@@ -173,9 +173,9 @@ abstract public class CommandProcessor
 	 * @param command The command to be executed.
 	 * @param skip The command needs to be skipped.
 	 * @return Whenever an {@link SQLException} is ignored.
-	 * @throws SQLExecutionException Whenever an {@link SQLException} occurs during the execution of a command.
+	 * @throws ProcessException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	protected SQLExecutionException executeWithListeners( Command command, boolean skip ) throws SQLExecutionException
+	protected ProcessException executeWithListeners( Command command, boolean skip ) throws ProcessException
 	{
 		expand( command );
 
@@ -183,7 +183,7 @@ abstract public class CommandProcessor
 			if( !skip )
 				this.progress.executing( command );
 
-		SQLExecutionException result = null;
+		ProcessException result = null;
 		try
 		{
 			if( !executeListeners( command, skip ) )
@@ -195,7 +195,8 @@ abstract public class CommandProcessor
 		}
 		catch( SQLException e )
 		{
-			SQLExecutionException newException = new SQLExecutionException( command.getCommand(), command.getLocation(), e );
+			// TODO Is this one thrown anymore?
+			ProcessException newException = new ProcessException( e ).addProcess( "executing: " + command.getCommand() ).addLocation( command.getLocation() );
 			String error = e.getSQLState();
 			if( !this.context.ignoreSQLError( error ) )
 			{
@@ -203,6 +204,11 @@ abstract public class CommandProcessor
 				throw newException;
 			}
 			result = newException;
+		}
+		catch( ProcessException e )
+		{
+			// TODO Do we need to check SQLException to ignore?
+			throw e.addProcess( "executing: " + command.getCommand() ).addLocation( command.getLocation() );
 		}
 
 		if( command.isPersistent() )
@@ -312,11 +318,9 @@ abstract public class CommandProcessor
 				return true;
 			}
 			if( encodingPattern.matcher( sql ).matches() )
-			{
 				// Ignore, already picked up by the EncodingDetector
 				// TODO Check that it is the first line, and check with the detected encoding
 				return true;
-			}
 			if( ( matcher = SCRIPT_EXPANSION_COMMAND.matcher( sql ) ).matches() )
 			{
 				this.context.setScriptExpansion( "ON".equalsIgnoreCase( matcher.group( 1 ) ) );
@@ -351,13 +355,11 @@ abstract public class CommandProcessor
 //			}
 		}
 		else if( !skip )
-		{
 			if( ( matcher = runPattern.matcher( sql ) ).matches() )
 			{
 				run( matcher.group( 1 ) );
 				return true;
 			}
-		}
 
 		for( CommandListener listener : PluginManager.listeners )
 			if( listener.execute( this, command, skip ) )
@@ -393,13 +395,18 @@ abstract public class CommandProcessor
 	{
 		Connection connection = getCurrentDatabase().getConnection();
 		Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
-		PreparedStatement statement = connection.prepareStatement( sql );
+		try
+		{
+			return connection.prepareStatement( sql );
+		}
+		catch( SQLException e )
+		{
+			throw new ProcessException( e ).addProcess( "preparing the statement: " + sql );
+		}
 
 		// This does not work in Oracle: gives invalid character error
-		// Apparently it doesn't even work, because (in which JDBC drivers?) the SQL is already processed before this call.
+		// Apparently it will never work, because (in which JDBC drivers?) the SQL is already processed before this call.
 //		statement.setEscapeProcessing( this.context.getJdbcEscaping() );
-
-		return statement;
 	}
 
 	/**

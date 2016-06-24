@@ -42,7 +42,7 @@ public class CharSets
 	}
 
 	@Test
-	public void testUtf8() throws SQLException, SQLExecutionException
+	public void testUtf8() throws SQLException, ProcessException
 	{
 		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 

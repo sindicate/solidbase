@@ -19,31 +19,34 @@ package solidbase.core.plugins;
 import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.StringUtils;
 
 import solidbase.core.Command;
 import solidbase.core.CommandListener;
 import solidbase.core.CommandProcessor;
 import solidbase.core.FatalException;
+import solidbase.core.ProcessException;
+import solidbase.core.plugins.ImportJSON.TOKEN;
 import solidbase.util.Assert;
 import solidbase.util.FixedIntervalLogCounter;
 import solidbase.util.LogCounter;
 import solidbase.util.SQLTokenizer;
 import solidbase.util.SQLTokenizer.Token;
 import solidbase.util.TimeIntervalLogCounter;
+import solidstack.io.HexInputStream;
 import solidstack.io.Resource;
 import solidstack.io.SourceException;
 import solidstack.io.SourceInputStream;
+import solidstack.io.SourceReader;
 import solidstack.io.SourceReaders;
 
 
-public class LoadCBOR implements CommandListener
+public class ImportCBOR implements CommandListener
 {
-	static private final Pattern triggerPattern = Pattern.compile( "\\s*LOAD\\s+CBOR\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
+	static private final Pattern triggerPattern = Pattern.compile( "\\s*IMPORT\\s+CBOR\\s+.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
 	static private final Pattern parameterPattern = Pattern.compile( ":(\\d+)" );
 
@@ -58,24 +61,43 @@ public class LoadCBOR implements CommandListener
 		if( !matcher.matches() )
 			return false;
 
-		if( skip )
-			return true;
-
 		// Parse the command
 		Parsed parsed = parse( command );
 
-		// TODO BufferedInputStreams?
-		// Open the file resource
-		Resource resource = processor.getResource().resolve( parsed.fileName );
-		resource.setGZip( parsed.gzip );
-		SourceInputStream in;
-		try
+		if( skip )
 		{
-			in = SourceReaders.forBinaryResource( resource );
+			if( parsed.fileName == null )
+			{
+				SourceReader reader = processor.getReader(); // Data is in the source file, need to skip it.
+				String line = reader.readLine();
+				while( line != null && line.length() > 0 )
+					line = reader.readLine();
+			}
+			return true;
 		}
-		catch( FileNotFoundException e )
+
+		// TODO BufferedInputStreams?
+		SourceInputStream in;
+		Resource resource = null;
+		boolean inline = false;
+		if( parsed.fileName != null )
 		{
-			throw new FatalException( e.toString() );
+			// Data is in a file
+			resource = processor.getResource().resolve( parsed.fileName );
+			resource.setGZip( parsed.gzip );
+			try
+			{
+				in = SourceReaders.forBinaryResource( resource );
+			}
+			catch( FileNotFoundException e )
+			{
+				throw new ProcessException( e );
+			}
+		}
+		else
+		{
+			in = new HexInputStream( processor.getReader() ); // Data is in the source file
+			inline = true;
 		}
 
 		try
@@ -86,10 +108,23 @@ public class LoadCBOR implements CommandListener
 			else if( parsed.logSeconds > 0 )
 				counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
+			DBWriter writer = new DBWriter( parsed.sql, parsed.tableName, parsed.columns, parsed.values, parsed.noBatch, processor );
+			RecordSink sink = writer;
+
+			if( parsed.prependRecordNumber )
+			{
+				RecordNumberPrepender recordNumber = new RecordNumberPrepender();
+				recordNumber.setSink( sink );
+				sink = recordNumber;
+			}
+
 			CBORDataReader reader = new CBORDataReader( in, counter != null ? new ImportLogger( counter, processor.getProgressListener() ) : null );
+			reader.setSink( sink );
 
 			// TODO Test prependlinenumbers
 
+			// FIXME This does not work
+			/*
 			String[] columns;
 			if( parsed.columns != null )
 				columns = parsed.columns;
@@ -100,14 +135,19 @@ public class LoadCBOR implements CommandListener
 					if( StringUtils.isBlank( columns[ i ] ) )
 						throw new FatalException( "Field name is blank for field number " + i + " in " + resource );
 			}
-
-			DBWriter writer = new DBWriter( null, parsed.tableName, parsed.columns, parsed.values, parsed.noBatch, processor );
-			reader.setSink( writer );
+			*/
 
 			boolean commit = false;
 			try
 			{
-				reader.process();
+				try
+				{
+					reader.process();
+				}
+				catch( SourceException e )
+				{
+					throw new SQLException( e.getMessage(), e ); // TODO Do this for the other imports too
+				}
 				commit = true;
 			}
 			finally
@@ -118,7 +158,8 @@ public class LoadCBOR implements CommandListener
 		}
 		finally
 		{
-			in.close();
+			if( !inline )
+				in.close();
 		}
 	}
 
@@ -136,11 +177,10 @@ public class LoadCBOR implements CommandListener
 		// TODO Free SQL like with IMPORT CSV
 		/*
 		LOAD CBOR
-		[ PREPEND LINENUMBER ]
+		[ PREPEND RECORDNUMBER ]
 		[ NOBATCH ]
 		[ LOG EVERY n RECORDS | SECONDS ]
-		INTO <schema>.<table> [ ( <columns> ) ]
-		[ VALUES ( <values> ) ]
+		INTO <schema>.<table> [ ( <columns> ) ] [ VALUES ( <values> ) ]
 		FILE "<file>" [ GZIP ]
 		*/
 
@@ -150,109 +190,106 @@ public class LoadCBOR implements CommandListener
 
 		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
-		tokenizer.get( "LOAD" );
-		tokenizer.get( "CBOR" );
+		EnumSet<TOKEN> expected = EnumSet.of( TOKEN.PREPEND, TOKEN.NOBATCH, TOKEN.LOG, TOKEN.INTO, TOKEN.FILE, TOKEN.TO, TOKEN.EOF );
 
-		Token t = tokenizer.get( "NOBATCH", "LOG", "INTO" );
-
-		if( t.eq( "NOBATCH" ) )
-		{
-			result.noBatch = true;
-
-			t = tokenizer.get( "LOG", "INTO" );
-		}
-
-		if( t.eq( "LOG" ) )
-		{
-			tokenizer.get( "EVERY" );
-			t = tokenizer.get();
-			if( !t.isNumber() )
-				throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
-
-			int interval = Integer.parseInt( t.value() );
-			t = tokenizer.get( "RECORDS", "SECONDS" );
-			if( t.eq( "RECORDS" ) )
-				result.logRecords = interval;
-			else
-				result.logSeconds = interval;
-
-			t = tokenizer.get( "INTO" );
-		}
-
-		result.tableName = tokenizer.get().toString();
-
-		t = tokenizer.get( ".", "(", "VALUES", "FILE" );
-
-		if( t.eq( "." ) )
-		{
-			// TODO This means spaces are allowed, do we want that or not?
-			result.tableName = result.tableName + "." + tokenizer.get().toString();
-
-			t = tokenizer.get( "(", "VALUES", "FILE" );
-		}
-
-		if( t.eq( "(" ) )
-		{
-			t = tokenizer.get();
-			if( t.eq( ")" ) || t.eq( "," ) )
-				throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-			columns.add( t.value() );
-			t = tokenizer.get( ",", ")" );
-			while( !t.eq( ")" ) )
+		Token t = tokenizer.skip( "IMPORT" ).skip( "CBOR" ).get();
+		for( ;; )
+			switch( tokenizer.expect( t, expected ) )
 			{
-				t = tokenizer.get();
-				if( t.eq( ")" ) || t.eq( "," ) )
-					throw new SourceException( "Expecting a column name, not [" + t + "]", tokenizer.getLocation() );
-				columns.add( t.value() );
-				t = tokenizer.get( ",", ")" );
+				case PREPEND:
+					t = tokenizer.skip( "RECORDNUMBER" ).get();
+					result.prependRecordNumber = true;
+					expected.remove( TOKEN.PREPEND );
+					break;
+
+				case NOBATCH:
+					t = tokenizer.get();
+					result.noBatch = true;
+					expected.remove( TOKEN.NOBATCH );
+					break;
+
+				case LOG:
+					t = tokenizer.skip( "EVERY" ).get();
+					if( !t.isNumber() )
+						throw new SourceException( "Expecting a number, not [" + t + "]", tokenizer.getLocation() );
+					int interval = Integer.parseInt( t.value() );
+
+					if( tokenizer.get( "RECORDS", "SECONDS" ).eq( "RECORDS" ) )
+						result.logRecords = interval;
+					else
+						result.logSeconds = interval;
+
+					expected.remove( TOKEN.LOG );
+					t = tokenizer.get();
+					break;
+
+				case INTO:
+					// TODO These tokens should also be added to the expected errors when not encountered
+					result.tableName = tokenizer.getIdentifier().value();
+					t = tokenizer.get();
+					if( t.eq( "." ) )
+					{
+						result.tableName += "." + tokenizer.getIdentifier().value();
+						t = tokenizer.get();
+					}
+					if( t.eq( "(" ) )
+					{
+						columns.add( tokenizer.getIdentifier().value() );
+						t = tokenizer.get( ",", ")" );
+						while( !t.eq( ")" ) )
+						{
+							columns.add( tokenizer.getIdentifier().value() );
+							t = tokenizer.get( ",", ")" );
+						}
+						t = tokenizer.get();
+					}
+					if( t.eq( "VALUES" ) )
+					{
+						tokenizer.get( "(" );
+						do
+						{
+							StringBuilder value = new StringBuilder();
+							parseTill( tokenizer, value, false, ',', ')' );
+							values.add( value.toString() );
+							t = tokenizer.get( ",", ")" );
+						}
+						while( t.eq( "," ) );
+						if( columns.size() > 0 )
+							if( columns.size() != values.size() )
+								throw new SourceException( "Number of specified columns does not match number of given values", tokenizer.getLocation() );
+						t = tokenizer.get();
+					}
+					if( columns.size() > 0 )
+						result.columns = columns.toArray( new String[ columns.size() ] );
+					if( values.size() > 0 )
+						result.values = values.toArray( new String[ values.size() ] );
+					expected.remove( TOKEN.INTO );
+					expected.remove( TOKEN.TO );
+					break;
+
+				case FILE:
+					result.fileName = tokenizer.getString().stripQuotes();
+					t = tokenizer.get();
+					if( t.eq( "GZIP" ) )
+					{
+						result.gzip = true;
+						t = tokenizer.get();
+					}
+					expected.remove( TOKEN.FILE );
+					break;
+
+				case TO:
+					result.sql = tokenizer.getRemaining();
+					return result;
+
+				case EOF:
+					if( expected.contains( TOKEN.INTO ) )
+						throw new SourceException( "Missing INTO", tokenizer.getLocation() );
+					return result;
+
+				default:
+					throw new FatalException( "Unexpected token: " + t );
 			}
-
-			t = tokenizer.get( "VALUES", "FILE" );
-		}
-
-		if( t.eq( "VALUES" ) )
-		{
-			tokenizer.get( "(" );
-			do
-			{
-				StringBuilder value = new StringBuilder();
-				parseTill( tokenizer, value, false, ',', ')' );
-				values.add( value.toString() );
-
-				t = tokenizer.get( ",", ")" );
-			}
-			while( t.eq( "," ) );
-
-			if( columns.size() > 0 )
-				if( columns.size() != values.size() )
-					throw new SourceException( "Number of specified columns does not match number of given values", tokenizer.getLocation() );
-
-			t = tokenizer.get( "FILE" );
-		}
-
-		if( columns.size() > 0 )
-			result.columns = columns.toArray( new String[ columns.size() ] );
-		if( values.size() > 0 )
-			result.values = values.toArray( new String[ values.size() ] );
-
-		// File
-		t = tokenizer.get();
-		String file = t.value();
-		if( !file.startsWith( "\"" ) )
-			throw new SourceException( "Expecting filename enclosed in double quotes, not [" + t + "]", tokenizer.getLocation() );
-		file = file.substring( 1, file.length() - 1 );
-
-		t = tokenizer.get();
-		if( t.eq( "GZIP" ) )
-		{
-			result.gzip = true;
-			t = tokenizer.get();
-		}
-
-		tokenizer.expect( t, (String)null );
-
-		result.fileName = file;
-		return result;
 	}
 
 
@@ -316,13 +353,15 @@ public class LoadCBOR implements CommandListener
 	static protected class Parsed
 	{
 		/** Prepend the values from the CSV list with the line number from the command file. */
-		protected boolean prependLineNumber; // TODO Remove, after it is made possible to use an expression for auto increment
+		protected boolean prependRecordNumber; // TODO Remove, after it is made possible to use an expression for auto increment
 
 		/** Don't use JDBC batch update. */
 		protected boolean noBatch;
 
 		protected int logRecords;
 		protected int logSeconds;
+
+		protected String sql;
 
 		/** The table name to insert into. */
 		protected String tableName;

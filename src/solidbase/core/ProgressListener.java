@@ -137,7 +137,7 @@ abstract public class ProgressListener
 	 * @param exception The exception that occurred.
 	 */
 	// TODO Should this be FatalException?
-	protected void exception( SQLExecutionException exception )
+	protected void exception( ProcessException exception )
 	{
 		// could be implemented in subclass
 	}

@@ -33,7 +33,7 @@ public interface CommandListener
 	 * Problems caused by the user (command syntax, configuration mistakes or problems in data files) should be wrapped
 	 * in a {@link FatalException}.
 	 *
-	 * {@link SQLException}s should be wrapped in a {@link SQLExecutionException}. You can choose to give it the
+	 * {@link SQLException}s should be wrapped in a {@link ProcessException}. You can choose to give it the
 	 * original command that triggered this listener or the actual SQL being sent to the database. You may choose to let
 	 * the {@link SQLException} pass, then SolidBase will wrap it for you.
 	 *
