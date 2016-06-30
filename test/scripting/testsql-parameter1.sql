@@ -40,9 +40,9 @@ CREATE TABLE ${tableName}TEST ( TEST VARCHAR( 100 ) );
 
 --* SCRIPT 
 ( key, value ) = db.selectFirst( "SELECT KEY, VALUE FROM DBPARAMETERS WHERE KEY = 'TABLENAME'" );
-println( s"The time is: ${new Date()}
+println( """The time is: ${new Date()}
 	|Found key: ${key}
-	|Found value: ${value}".stripMargin() );
+	|Found value: ${value}""".stripMargin() );
 --* END SCRIPT 
 
 --* SECTION "Found ${key} = ${value}"

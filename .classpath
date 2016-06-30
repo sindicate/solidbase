@@ -11,7 +11,7 @@
 	<classpathentry kind="lib" path="lib/commons-lang3-3.4.jar"/>
 	<classpathentry kind="lib" path="test/lib/hsqldb-2.3.2.jar"/>
 	<classpathentry kind="lib" path="test/lib/jmockit-0.999.10.jar"/>
-	<classpathentry kind="lib" path="lib/groovy-all-1.5.7.jar"/>
+	<classpathentry kind="lib" path="lib/groovy-all-2.4.7.jar"/>
 	<classpathentry kind="lib" path="lib/apache-ant-1.7.1.jar"/>
 	<classpathentry kind="lib" path="test/lib/ant-testutil.jar"/>
 	<classpathentry kind="lib" path="test/lib/junit-4.7.jar"/>

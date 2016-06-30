@@ -16,6 +16,8 @@
 
 package solidbase.core;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -23,6 +25,9 @@ import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import groovy.lang.Binding;
+import groovy.lang.GroovyClassLoader;
+import groovy.lang.GroovyRuntimeException;
 import solidbase.core.Delimiter.Type;
 import solidbase.util.Assert;
 import solidstack.io.Resource;
@@ -530,8 +535,38 @@ abstract public class CommandProcessor
 
 	protected Object script( String script, SourceLocation location )
 	{
-		SourceReader reader = SourceReaders.forString( script, location );
-		return Script.compile( reader ).eval( this.context.getScope() );
+		GroovyClassLoader loader = new GroovyClassLoader();
+		Class<groovy.lang.Script> cls;
+		try
+		{
+			cls = loader.parseClass( script );
+		}
+		catch( GroovyRuntimeException e )
+		{
+			throw new ProcessException( e );
+		}
+//		for( Class<?> face : cls.getInterfaces() )
+//			System.out.println( "Interface: " + face );
+//		for( Method method : cls.getMethods() )
+//			System.out.println( "Method: " + method );
+		try
+		{
+			Constructor<groovy.lang.Script> con = cls.getConstructor( Binding.class );
+			groovy.lang.Script scr = con.newInstance( new GroovyBinding( this.context.getScope() ) );
+			return scr.run();
+		}
+		catch( NoSuchMethodException | InstantiationException | IllegalAccessException e )
+		{
+			throw new SystemException( e );
+		}
+		catch( InvocationTargetException e )
+		{
+			throw new SystemException( e.getCause() );
+		}
+//		throw new UnsupportedOperationException();
+
+		//		SourceReader reader = SourceReaders.forString( script, location );
+//		return Script.compile( reader ).eval( this.context.getScope() );
 	}
 
 	/**

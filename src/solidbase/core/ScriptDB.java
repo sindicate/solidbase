@@ -19,8 +19,8 @@ package solidbase.core;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import solidstack.script.objects.Tuple;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ScriptDB
 {
@@ -41,9 +41,9 @@ public class ScriptDB
 		if( count == 1 )
 			return record ? result.getObject( 1 ) : null;
 
-		Tuple tuple = new Tuple(); // TODO This is not language independent
+		List tuple = new ArrayList<>();
 		for( int i = 1; i <= count; i++ )
-			tuple.append( record ? result.getObject( i ) : null );
+			tuple.add( record ? result.getObject( i ) : null );
 		return tuple;
 	}
 }
