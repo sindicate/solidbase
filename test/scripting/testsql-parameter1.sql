@@ -15,7 +15,7 @@
 
 --* // ========================================================================
 
---* SCRIPT tableName = "TESTTEST"
+--* SCRIPT var tableName = "TESTTEST"
 --* SCRIPT EXPANSION ON
 
 --* IF SCRIPT tableName

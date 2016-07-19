@@ -23,7 +23,14 @@ import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import jdk.nashorn.api.scripting.JSObject;
+import jdk.nashorn.internal.runtime.Context;
+import jdk.nashorn.internal.runtime.ErrorManager;
+import jdk.nashorn.internal.runtime.ScriptObject;
+import jdk.nashorn.internal.runtime.options.Options;
 import solidbase.core.Delimiter.Type;
+import solidbase.javascript.MyJSObject;
+import solidbase.javascript.ScopeScriptObject;
 import solidbase.util.Assert;
 import solidstack.io.Resource;
 import solidstack.io.SourceException;
@@ -530,8 +537,18 @@ abstract public class CommandProcessor
 
 	protected Object script( String script, SourceLocation location )
 	{
-		SourceReader reader = SourceReaders.forString( script, location );
-		return Script.compile( reader ).eval( this.context.getScope() );
+		Options options = new Options( "nashorn" );
+		options.set( "print.ast", true );
+		options.set( "print.parse", true );
+		Context context = new Context( options, new ErrorManager(), Thread.currentThread().getContextClassLoader() );
+		ScriptObject scope = new ScopeScriptObject( this.context.getScope() );
+		JSObject thiz = new MyJSObject();
+		Context.setGlobal( context.createGlobal() );
+		Object result = context.eval( scope, script, null, location.getResource() );
+		Object tableName = scope.get( "tableName" );
+		return result;
+//		SourceReader reader = SourceReaders.forString( script, location );
+//		return Script.compile( reader ).eval( this.context.getScope() );
 	}
 
 	/**
