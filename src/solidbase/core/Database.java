@@ -60,6 +60,8 @@ public class Database
 	 */
 	protected Map< String, Connection > connections = new HashMap< String, Connection >();
 
+	protected Connection versionTablesConnection;
+
 	/**
 	 * The default user name to use for this database. When using a {@link #dataSource} this can be left blank.
 	 * Connection are then retrieved from the datasource without specifying a user name.
@@ -221,9 +223,21 @@ public class Database
 	 *
 	 * @return The connection for the default user.
 	 */
-	public Connection getDefaultConnection()
+	public Connection getVersionTablesConnection()
 	{
-		return getConnection( this.defaultUser );
+		if( this.versionTablesConnection == null )
+		{
+			this.versionTablesConnection = newConnection( this.defaultUser );
+			try
+			{
+				this.versionTablesConnection.setAutoCommit( false );
+			}
+			catch( SQLException e )
+			{
+				throw new SystemException( e );
+			}
+		}
+		return this.versionTablesConnection;
 	}
 
 	/**
@@ -279,11 +293,15 @@ public class Database
 	{
 		// Retrieve password when user is specified
 		String password = null;
+		boolean cacheWhenSuccesful = false;
 		if( user != null )
 		{
 			password = this.passwords.get( user );
 			if( password == null )
+			{
 				password = this.callBack.requestPassword( user );
+				cacheWhenSuccesful = true;
+			}
 		}
 
 		try
@@ -299,14 +317,13 @@ public class Database
 			else
 				connection = DriverManager.getConnection( this.url, user, password );
 
-			// Set autocommit false if needed
-			if( connection.getAutoCommit() )
-				connection.setAutoCommit( false );
-
 //			System.out.println( "DatabaseProductName:" + connection.getMetaData().getDatabaseProductName() );
 //			System.out.println( "DatabaseProductVersion:" + connection.getMetaData().getDatabaseProductVersion() );
 //			System.out.println( "DatabaseMajorVersion:" + connection.getMetaData().getDatabaseMajorVersion() );
 //			System.out.println( "DatabaseMinorVersion:" + connection.getMetaData().getDatabaseMinorVersion() );
+
+			if( cacheWhenSuccesful )
+				this.passwords.put( user, password );
 
 			return connection;
 		}

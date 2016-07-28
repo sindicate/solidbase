@@ -68,7 +68,7 @@ public class TestUtil
 	static public void verifyVersion( UpgradeProcessor patcher, String version, String target, int statements, String spec ) throws SQLException
 	{
 		String sql = "SELECT * FROM DBVERSION";
-		Connection connection = patcher.dbVersion.database.getDefaultConnection();
+		Connection connection = patcher.dbVersion.database.getVersionTablesConnection();
 		PreparedStatement statement = connection.prepareStatement( sql );
 		ResultSet result = statement.executeQuery();
 		Assert.assertTrue( result.next() );

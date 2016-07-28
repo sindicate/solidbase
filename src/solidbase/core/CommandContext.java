@@ -39,6 +39,8 @@ import solidstack.script.scopes.Scope;
  */
 abstract public class CommandContext
 {
+	static public enum COMMIT_STRATEGY { AUTOCOMMIT, TRANSACTIONAL };
+
 	/**
 	 * The parent execution context.
 	 */
@@ -89,6 +91,8 @@ abstract public class CommandContext
 	private int skipCounter;
 
 	private boolean scriptExpansion;
+
+	private COMMIT_STRATEGY commitStrategy;
 
 	/**
 	 * The scripting scope.
@@ -280,7 +284,7 @@ abstract public class CommandContext
 	 *
 	 * @return True if JDBC escape processing is enabled, false otherwise.
 	 */
-	public boolean getJdbcEscaping()
+	public boolean isJdbcEscaping()
 	{
 		return this.jdbcEscaping;
 	}
@@ -389,5 +393,15 @@ abstract public class CommandContext
 	{
 		for( Database database : getDatabases() )
 			database.closeConnections();
+	}
+
+	public COMMIT_STRATEGY commitStrategy()
+	{
+		return this.commitStrategy;
+	}
+
+	public void setCommitStrategy( COMMIT_STRATEGY strategy )
+	{
+		this.commitStrategy = strategy;
 	}
 }

@@ -626,6 +626,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 		return this.dbVersion.getVersionStatement();
 	}
 
+	@Override
 	public void connected( Database database )
 	{
 //		for( InitConnectionFragment init : this.patchFile.connectionInits )
@@ -652,7 +653,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	}
 
 	@Override
-	public boolean autoCommit()
+	public boolean implicitCommit()
 	{
 		return true;
 	}

@@ -225,7 +225,7 @@ public class DBVersion
 		this.target = null;
 		this.statements = 0;
 
-		Connection connection = this.database.getDefaultConnection();
+		Connection connection = this.database.getVersionTablesConnection();
 		try
 		{
 			try
@@ -492,7 +492,7 @@ public class DBVersion
 
 		try
 		{
-			Connection connection = this.database.getDefaultConnection();
+			Connection connection = this.database.getVersionTablesConnection();
 			Statement stat = connection.createStatement();
 			try
 			{
@@ -564,7 +564,7 @@ public class DBVersion
 		else
 			sql = "SELECT 1 FROM " + this.logTableName + " WHERE RESULT = 'COMPLETED VERSION " + version + "'";
 
-		Connection connection = this.database.getDefaultConnection();
+		Connection connection = this.database.getVersionTablesConnection();
 		try
 		{
 			PreparedStatement stat = connection.prepareStatement( sql );
@@ -595,7 +595,7 @@ public class DBVersion
 	{
 		try
 		{
-			Connection connection = this.database.getDefaultConnection();
+			Connection connection = this.database.getVersionTablesConnection();
 			PreparedStatement statement = connection.prepareStatement( sql );
 			int i = 1;
 			for( Object parameter : parameters )
@@ -635,7 +635,7 @@ public class DBVersion
 		Assert.notEmpty( versions );
 		try
 		{
-			Connection connection = this.database.getDefaultConnection();
+			Connection connection = this.database.getVersionTablesConnection();
 			PreparedStatement statement = connection.prepareStatement( "UPDATE " + this.logTableName + " SET TYPE = 'R', RESULT = 'REVERTED' WHERE TYPE = 'B' AND TARGET = ? AND RESULT = 'COMPLETE'" );
 			boolean commit = false;
 			try

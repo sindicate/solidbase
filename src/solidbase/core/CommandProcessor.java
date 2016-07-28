@@ -23,6 +23,7 @@ import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import solidbase.core.CommandContext.COMMIT_STRATEGY;
 import solidbase.core.Delimiter.Type;
 import solidbase.util.Assert;
 import solidstack.io.Resource;
@@ -131,6 +132,16 @@ abstract public class CommandProcessor
 	 * Pattern for END SCRIPT.
 	 */
 	static protected Pattern END_SCRIPT_COMMAND = Pattern.compile( "--\\*\\s*END\\s+SCRIPT\\s*", Pattern.CASE_INSENSITIVE );
+
+	/**
+	 * Pattern for COMMIT_STRATEGY.
+	 */
+	static protected Pattern SET_COMMIT_STRATEGY = Pattern.compile( "SET\\s+COMMIT_STRATEGY\\s+=\\s+(AUTOCOMMIT|TRANSACTIONAL)", Pattern.CASE_INSENSITIVE );
+
+	/**
+	 * Pattern for COMMIT_STRATEGY.
+	 */
+	static protected Pattern RESET_COMMIT_STRATEGY = Pattern.compile( "RESET\\s+COMMIT_STRATEGY", Pattern.CASE_INSENSITIVE );
 
 	// TODO Commit pattern
 //	static protected final Pattern commitPattern = Pattern.compile( "COMMIT", Pattern.CASE_INSENSITIVE );
@@ -348,6 +359,16 @@ abstract public class CommandProcessor
 				}
 				return true;
 			}
+			if( ( matcher = SET_COMMIT_STRATEGY.matcher( sql ) ).matches() )
+			{
+				this.context.setCommitStrategy( "AUTOCOMMIT".equalsIgnoreCase( matcher.group( 1 ) ) ? COMMIT_STRATEGY.AUTOCOMMIT : COMMIT_STRATEGY.TRANSACTIONAL );
+				return true;
+			}
+			if( RESET_COMMIT_STRATEGY.matcher( sql ).matches() )
+			{
+				this.context.setCommitStrategy( null );
+				return true;
+			}
 //			if( commitPattern.matcher( sql ).matches() )
 //			{
 //				getCurrentDatabase().getConnection().commit();
@@ -378,9 +399,9 @@ abstract public class CommandProcessor
 	public Statement createStatement() throws SQLException
 	{
 		Connection connection = getCurrentDatabase().getConnection();
-		Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
+		connection.setAutoCommit( this.context.commitStrategy() == COMMIT_STRATEGY.AUTOCOMMIT );
 		Statement statement = connection.createStatement();
-		statement.setEscapeProcessing( this.context.getJdbcEscaping() );
+		statement.setEscapeProcessing( this.context.isJdbcEscaping() );
 		return statement;
 	}
 
@@ -394,7 +415,7 @@ abstract public class CommandProcessor
 	public PreparedStatement prepareStatement( String sql ) throws SQLException
 	{
 		Connection connection = getCurrentDatabase().getConnection();
-		Assert.isFalse( connection.getAutoCommit(), "Autocommit should be false" );
+		connection.setAutoCommit( this.context.commitStrategy() == COMMIT_STRATEGY.AUTOCOMMIT );
 		try
 		{
 			return connection.prepareStatement( sql );
@@ -421,7 +442,7 @@ abstract public class CommandProcessor
 	{
 		try
 		{
-			if( autoCommit() )
+			if( implicitCommit() && this.context.commitStrategy() != COMMIT_STRATEGY.AUTOCOMMIT )
 			{
 				Connection connection = statement.getConnection();
 				if( commitOrRollback )
@@ -455,7 +476,7 @@ abstract public class CommandProcessor
 		boolean commit = false;
 		try
 		{
-			statement.execute( sql );
+			statement.executeUpdate( sql );
 			commit = true;
 		}
 		finally
@@ -652,5 +673,5 @@ abstract public class CommandProcessor
 	 *
 	 * @return True if commands get committed or rollbacked automatically, false otherwise.
 	 */
-	abstract public boolean autoCommit();
+	abstract public boolean implicitCommit();
 }

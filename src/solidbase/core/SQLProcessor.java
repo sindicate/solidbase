@@ -111,7 +111,7 @@ public class SQLProcessor extends CommandProcessor
 	}
 
 	@Override
-	public boolean autoCommit()
+	public boolean implicitCommit()
 	{
 		return false;
 	}
