@@ -176,7 +176,7 @@ public class DBWriter implements RecordSink
 		if( this.noBatch )
 			try
 			{
-				this.statement.executeUpdate();
+				this.statement.execute();
 			}
 			catch( SQLException e )
 			{
@@ -214,7 +214,7 @@ public class DBWriter implements RecordSink
 	static private String buildMessage( String sql, int[] parameterMap, Object[] values )
 	{
 		StringBuilder result = new StringBuilder( sql );
-		result.append( " VALUES (" );
+		result.append( ", parameters: " );
 		boolean first = true;
 		for( int par : parameterMap )
 		{
@@ -231,7 +231,6 @@ public class DBWriter implements RecordSink
 				throw new SystemException( ee );
 			}
 		}
-		result.append( ')' );
 		return result.toString();
 	}
 
