@@ -34,7 +34,7 @@ public class Sql
 		TestUtil.assertRecordCount( processor.getCurrentDatabase(), "USERS", 13 );
 	}
 
-	@Test
+	@Test//(dependsOnMethods="testSql1")
 	// TODO Move to console test
 	public void testSql2() throws SQLException
 	{

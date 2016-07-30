@@ -119,7 +119,10 @@ public class SQLSource
 	 */
 	public void setDelimiters( Delimiter[] delimiters )
 	{
-		this.delimiters = delimiters;
+		if( delimiters != null )
+			this.delimiters = delimiters;
+		else
+			this.delimiters = DEFAULT_DELIMITERS;
 	}
 
 

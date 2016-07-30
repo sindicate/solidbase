@@ -220,16 +220,13 @@ public class UpgradeFile
 						this.versionTableName = matcher.group( 1 );
 						this.logTableName = matcher.group( 2 );
 					}
-					else if( ( matcher = CommandProcessor.delimiterPattern.matcher( line ) ).matches() )
+					else if( ( matcher = CommandProcessor.delimiterPattern.matcher( line ) ).matches() || ( matcher = CommandProcessor.terminatorPattern.matcher( line ) ).matches() )
 						this.defaultDelimiters = CommandProcessor.parseDelimiters( matcher );
 					else
 						throw new SourceException( "Unexpected line within definition: " + line, location );
 				}
-				else
-				{
-					if( !CommandProcessor.encodingPattern.matcher( line ).matches() )
-						throw new SourceException( "Unexpected line outside definition: " + line, location );
-				}
+				else if( !CommandProcessor.encodingPattern.matcher( line ).matches() )
+					throw new SourceException( "Unexpected line outside definition: " + line, location );
 			}
 		}
 

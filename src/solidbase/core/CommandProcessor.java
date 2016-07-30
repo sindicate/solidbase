@@ -78,6 +78,16 @@ abstract public class CommandProcessor
 	static protected final Pattern delimiterPattern = Pattern.compile( "(?:SET\\s+DELIMITER|DELIMITER\\s+IS)(?:\\s+(ISOLATED)|\\s+(TRAILING))?\\s+(\\S+)(?:\\sOR(?:\\s+(ISOLATED)|\\s+(TRAILING))?\\s+(\\S+))?", Pattern.CASE_INSENSITIVE );
 
 	/**
+	 * Pattern for TERMINATOR.
+	 */
+	static protected final Pattern terminatorPattern = Pattern.compile( "SET\\s+TERMINATOR\\s*=\\s*(?:(SEPARATE)\\s+|(TRAILING)\\s+)?(\\S+)(?:\\s+OR\\s+(?:(SEPARATE)\\s+|(TRAILING)\\s+)?(\\S+))?", Pattern.CASE_INSENSITIVE );
+
+	/**
+	 * Pattern for TERMINATOR.
+	 */
+	static protected final Pattern resetTerminatorPattern = Pattern.compile( "RESET\\s+TERMINATOR", Pattern.CASE_INSENSITIVE );
+
+	/**
 	 * Pattern for SECTION.
 	 */
 	static protected final Pattern sectionPattern = Pattern.compile( "SECTION(?:\\.(\\d))?\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
@@ -273,9 +283,14 @@ abstract public class CommandProcessor
 				section( matcher.group( 1 ), matcher.group( 2 ), command );
 				return true;
 			}
-			if( ( matcher = delimiterPattern.matcher( sql ) ).matches() )
+			if( ( matcher = delimiterPattern.matcher( sql ) ).matches() || ( matcher = terminatorPattern.matcher( sql ) ).matches() )
 			{
 				setDelimiters( parseDelimiters( matcher ) );
+				return true;
+			}
+			if( resetTerminatorPattern.matcher( sql ).matches() )
+			{
+				setDelimiters( null );
 				return true;
 			}
 			if( ( matcher = ignoreSqlErrorPattern.matcher( sql ) ).matches() )
@@ -476,7 +491,7 @@ abstract public class CommandProcessor
 		boolean commit = false;
 		try
 		{
-			statement.executeUpdate( sql );
+			statement.execute( sql );
 			commit = true;
 		}
 		finally
