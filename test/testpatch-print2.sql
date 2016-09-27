@@ -22,7 +22,9 @@
 --*	/DEFINITION
 
 --* SETUP "" --> "1.1"
-RUN "setup-1.1.sql";
+--* // This tests a newline after the RUN command
+RUN "setup-1.1.sql"
+;
 --* /SETUP
 
 --* UPGRADE "" --> "1"

@@ -126,7 +126,7 @@ abstract public class CommandProcessor
 	 * Pattern for RUN.
 	 */
 	// TODO Newlines should be allowed
-	static protected Pattern runPattern = Pattern.compile( "\\s*RUN\\s+\"(.*)\"", Pattern.CASE_INSENSITIVE );
+	static protected Pattern runPattern = Pattern.compile( "\\s*RUN\\s+\"(.*)\"\\s*", Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * Pattern for SCRIPT EXPANSION.

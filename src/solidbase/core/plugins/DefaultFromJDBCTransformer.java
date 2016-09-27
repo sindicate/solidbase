@@ -80,6 +80,7 @@ public class DefaultFromJDBCTransformer implements ResultSink, RecordSource
 						value = result.getInt( col ); break;
 					case Types.BIGINT:
 						value = result.getLong( col ); break;
+					case Types.NUMERIC:
 					case Types.DECIMAL:
 						value = result.getBigDecimal( col ); break;
 					case Types.FLOAT:
