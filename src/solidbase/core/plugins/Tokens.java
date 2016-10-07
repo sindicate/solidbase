@@ -9,6 +9,7 @@ enum Tokens
 	IGNORE,
 	PREPEND,
 	NOBATCH,
+	BATCH,
 	INTO,
 	EXEC,
 	DATA,

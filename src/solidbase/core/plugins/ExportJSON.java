@@ -125,6 +125,7 @@ public class ExportJSON implements CommandListener
 				Statement statement = processor.createStatement();
 				try
 				{
+					statement.setFetchSize( 1000 );
 					ResultSet result;
 					try
 					{

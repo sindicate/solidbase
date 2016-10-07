@@ -40,7 +40,8 @@ public class DBWriter implements RecordSink
 	private String tableName;
 	private String[] fieldNames;
 	private String[] values;
-	private boolean noBatch;
+	private int batchLimit;
+	private boolean batchCommit;
 	private CommandProcessor processor;
 
 	private Column[] columns;
@@ -50,13 +51,16 @@ public class DBWriter implements RecordSink
 	private int batchSize;
 
 
-	public DBWriter( String sql, String tableName, String[] fieldNames, String[] values, boolean noBatch, CommandProcessor processor )
+	public DBWriter( String sql, String tableName, String[] fieldNames, String[] values, int batchLimit, boolean batchCommit, CommandProcessor processor )
 	{
+		if( this.batchLimit < 0 )
+			throw new IllegalArgumentException( "batchLimit must be 0 or greater" );
 		this.sql = sql;
 		this.tableName = tableName;
 		this.fieldNames = fieldNames;
 		this.values = values;
-		this.noBatch = noBatch;
+		this.batchLimit = batchLimit;
+		this.batchCommit = batchCommit;
 		this.processor = processor;
 	}
 
@@ -173,10 +177,12 @@ public class DBWriter implements RecordSink
 			}
 		}
 
-		if( this.noBatch )
+		if( this.batchLimit <= 0 )
 			try
 			{
 				this.statement.execute();
+				if( this.batchCommit )
+					this.statement.getConnection().commit();
 			}
 			catch( SQLException e )
 			{
@@ -187,10 +193,12 @@ public class DBWriter implements RecordSink
 		{
 			this.statement.addBatch();
 			this.batchSize++;
-			if( this.batchSize >= 1000 )
+			if( this.batchSize >= this.batchLimit )
 			{
 				this.statement.executeBatch();
 				this.batchSize = 0;
+				if( this.batchCommit )
+					this.statement.getConnection().commit();
 			}
 		}
 	}
@@ -202,6 +210,8 @@ public class DBWriter implements RecordSink
 		{
 			this.statement.executeBatch();
 			this.batchSize = 0;
+			if( this.batchCommit )
+				this.statement.getConnection().commit();
 		}
 	}
 

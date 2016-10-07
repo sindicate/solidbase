@@ -104,7 +104,7 @@ public class ImportCBOR implements CommandListener
 			else if( parsed.logSeconds > 0 )
 				counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
-			DBWriter writer = new DBWriter( parsed.sql, parsed.tableName, parsed.columns, parsed.values, parsed.noBatch, processor );
+			DBWriter writer = new DBWriter( parsed.sql, parsed.tableName, parsed.columns, parsed.values, parsed.noBatch ? 0 : 1000, false, processor );
 			RecordSink sink = writer;
 
 			if( parsed.prependRecordNumber )
