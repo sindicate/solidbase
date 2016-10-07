@@ -16,7 +16,6 @@
 
 package solidbase.core.plugins;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,7 +27,6 @@ import java.sql.Clob;
 import java.sql.SQLException;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.zip.GZIPOutputStream;
 
 import solidstack.io.DeferringWriter;
 import solidstack.io.FatalIOException;
@@ -117,7 +115,7 @@ public class JSONDataWriter implements RecordSink
 						{
 							String fileName = spec.generateFileName();
 							Resource fileResource = new FileResource( fileName );
-							spec.out = fileResource.getOutputStream();
+							spec.out = fileResource.newOutputStream();
 							spec.index = 0;
 							relFileName = fileResource.getPathFrom( this.resource ).toString();
 						}
@@ -125,7 +123,7 @@ public class JSONDataWriter implements RecordSink
 						{
 							String fileName = spec.generateFileName();
 							Resource fileResource = new FileResource( fileName );
-							spec.out = fileResource.getOutputStream();
+							spec.out = fileResource.newOutputStream();
 						}
 						if( value instanceof Blob )
 						{
@@ -177,7 +175,7 @@ public class JSONDataWriter implements RecordSink
 						{
 							String fileName = spec.generateFileName();
 							Resource fileResource = new FileResource( fileName );
-							spec.writer = new OutputStreamWriter( fileResource.getOutputStream(), this.jsonWriter.getEncoding() );
+							spec.writer = new OutputStreamWriter( fileResource.newOutputStream(), this.jsonWriter.getEncoding() );
 						}
 						if( value instanceof Blob || value instanceof byte[] )
 							throw new SourceException( this.columns[ i ].getName() + " is a binary column. Binary columns like BLOB, RAW, BINARY VARYING cannot be written to a text file", this.location );
@@ -235,10 +233,9 @@ public class JSONDataWriter implements RecordSink
 					if( this.binaryFile.out == null )
 					{
 						String fileName = this.binaryFile.generateFileName();
-						Resource fileResource = new FileResource( fileName );
-						this.binaryFile.out = fileResource.getOutputStream();
-						if( this.binaryGZip )
-							this.binaryFile.out = new BufferedOutputStream( new GZIPOutputStream( this.binaryFile.out, 65536 ), 65536 ); // TODO Ctrl-C, close the outputstream?
+						Resource fileResource = new FileResource( fileName ); // TODO use the factory
+						fileResource.setGZip( this.binaryGZip );
+						this.binaryFile.out = fileResource.newOutputStream(); // TODO Ctrl-C, close the outputstream?
 					}
 					int startIndex = this.binaryFile.index;
 					if( value instanceof Blob )

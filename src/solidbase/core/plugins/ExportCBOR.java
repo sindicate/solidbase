@@ -16,7 +16,6 @@
 
 package solidbase.core.plugins;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -31,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
-import java.util.zip.GZIPOutputStream;
 
 import funny.Symbol;
 import solidbase.core.Command;
@@ -109,18 +107,17 @@ public class ExportCBOR implements CommandListener
 			createdDate = true;
 		}
 
-		Resource cborOutput = new FileResource( new File( parsed.fileName ) ); // Relative to current folder
-
+		Resource cborOutput = new FileResource( new File( parsed.fileName ) ); // Relative to current folder TODO Use factory?
+		cborOutput.setGZip( parsed.gzip );
 		try
 		{
-			OutputStream out = new BufferedOutputStream( cborOutput.getOutputStream(), 0x1000 );
-			if( parsed.gzip )
-				out = new BufferedOutputStream( new GZIPOutputStream( out, 0x1000 ), 0x1000 );
+			OutputStream out = cborOutput.newOutputStream();
 			try
 			{
 				Statement statement = processor.createStatement();
 				try
 				{
+					statement.setFetchSize( 1000 );
 					ResultSet result;
 					try
 					{

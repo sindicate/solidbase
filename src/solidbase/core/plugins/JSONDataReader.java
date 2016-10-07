@@ -77,9 +77,9 @@ public class JSONDataReader // TODO implements RecordSource
 		return this.fieldNames;
 	}
 
-	public void setOutput( RecordSink output )
+	public void setSink( RecordSink sink )
 	{
-		this.sink = output;
+		this.sink = sink;
 	}
 
 	public void process() throws SQLException

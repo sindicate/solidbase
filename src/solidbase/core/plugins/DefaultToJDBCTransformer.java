@@ -18,6 +18,7 @@ package solidbase.core.plugins;
 
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Date;
 
 import solidbase.core.ProcessException;
 
@@ -49,12 +50,12 @@ public class DefaultToJDBCTransformer implements RecordSink, RecordSource
 	@Override
 	public void process( Object[] record ) throws SQLException
 	{
-		// Convert the strings to date, time and timestamps
+		// Convert strings or java.util.Date to date, time and timestamps
 		if( this.columns != null )
 			for( int i = 0; i < record.length; i++ )
 			{
 				Object value = record[ i ];
-				if( value != null && value instanceof String )
+				if( value != null )
 					try
 					{
 						// TODO Time zones, is there a default way of putting times and dates in a text file? For example whats in a HTTP header?
@@ -62,17 +63,28 @@ public class DefaultToJDBCTransformer implements RecordSink, RecordSource
 						switch( this.columns[ i ].getType() )
 						{
 							case Types.DATE:
-								record[ i ] = java.sql.Date.valueOf( (String)value );
+								if( value instanceof String )
+									record[ i ] = java.sql.Date.valueOf( (String)value );
+								else if( value instanceof Date )
+									record[ i ] = new java.sql.Date( ( (Date)value ).getTime() );
 								break;
+
 							case Types.TIMESTAMP:
-								record[ i ] = java.sql.Timestamp.valueOf( (String)value );
+								if( value instanceof String )
+									record[ i ] = java.sql.Timestamp.valueOf( (String)value );
+								else if( value instanceof Date )
+									record[ i ] = new java.sql.Timestamp( ( (Date)value ).getTime() );
 								break;
+
 							case Types.TIME:
-								record[ i ] = java.sql.Time.valueOf( (String)value );
+								if( value instanceof String )
+									record[ i ] = java.sql.Time.valueOf( (String)value );
+								else if( value instanceof Date )
+									record[ i ] = new java.sql.Time( ( (Date)value ).getTime() );
 								break;
 						}
 					}
-					catch( IllegalArgumentException e )
+					catch( IllegalArgumentException e ) // Thrown by the valueOfs
 					{
 						// TODO Add test? C:\_WORK\SAO-20150612\build.xml:32: The following error occurred while executing this line:
 						// C:\_WORK\SAO-20150612\build.xml:13: Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff], at line 17 of file C:/_WORK/SAO-20150612/SYSTEEM/sca.JSON.GZ

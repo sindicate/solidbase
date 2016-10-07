@@ -16,7 +16,6 @@
 
 package solidbase.core.plugins;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -30,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
-import java.util.zip.GZIPOutputStream;
 
 import solidbase.core.Command;
 import solidbase.core.CommandListener;
@@ -77,17 +75,16 @@ public class ExportCSV implements CommandListener
 		Parsed parsed = parse( command );
 
 		Resource csvOutput = Resources.getResource( parsed.fileName ); // Relative to current folder
-
+		csvOutput.setGZip( parsed.gzip );
 		try
 		{
-			OutputStream out = new BufferedOutputStream( csvOutput.getOutputStream(), 0x1000 );
-			if( parsed.gzip )
-				out = new BufferedOutputStream( new GZIPOutputStream( out, 0x1000 ), 0x1000 );
+			OutputStream out = csvOutput.newOutputStream();
 			try
 			{
 				Statement statement = processor.createStatement();
 				try
 				{
+					statement.setFetchSize( 1000 );
 					ResultSet result;
 					try
 					{

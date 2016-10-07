@@ -106,7 +106,7 @@ public class ImportCSV implements CommandListener
 				counter = new TimeIntervalLogCounter( parsed.logSeconds );
 
 			CSVDataReader reader = new CSVDataReader( sourceReader, parsed.skipHeader, parsed.separator, !parsed.noEscape, parsed.ignoreWhiteSpace, parsed.prependLineNumber, counter != null ? new ImportLogger( counter, processor.getProgressListener() ) : null );
-			DBWriter writer = new DBWriter( parsed.sql, parsed.tableName, parsed.columns, parsed.values, parsed.noBatch ? 0 : 1000, false, processor );
+			DBWriter writer = new DBWriter( parsed.sql, parsed.tableName, parsed.columns, parsed.values, parsed.batchSize, parsed.batchCommit, processor );
 			reader.setSink( new DefaultToJDBCTransformer( writer ) );
 
 			boolean commit = false;
@@ -148,6 +148,7 @@ public class ImportCSV implements CommandListener
 		[ IGNORE WHITESPACE ]
 		[ PREPEND LINENUMBER ]
 		[ NOBATCH ]
+		[ BATCH SIZE <n> [ WITH COMMIT ] ]
 		[ LOG EVERY n RECORDS | SECONDS ]
 		[ EXEC <sqlstatement> ]
 		[ DATA ]
@@ -163,7 +164,7 @@ public class ImportCSV implements CommandListener
 
 		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 
-		EnumSet<Tokens> expected = EnumSet.of( Tokens.SKIP, Tokens.SEPARATED, Tokens.ESCAPE, Tokens.IGNORE, Tokens.PREPEND, Tokens.NOBATCH, Tokens.LOG, Tokens.INTO, Tokens.FILE, Tokens.EXEC, Tokens.DATA, Tokens.EOF );
+		EnumSet<Tokens> expected = EnumSet.of( Tokens.SKIP, Tokens.SEPARATED, Tokens.ESCAPE, Tokens.IGNORE, Tokens.PREPEND, Tokens.NOBATCH, Tokens.BATCH, Tokens.LOG, Tokens.INTO, Tokens.FILE, Tokens.EXEC, Tokens.DATA, Tokens.EOF );
 
 		Token t = tokenizer.skip( "IMPORT" ).skip( "CSV" ).get();
 		for( ;; )
@@ -211,8 +212,21 @@ public class ImportCSV implements CommandListener
 
 				case NOBATCH:
 					t = tokenizer.get();
-					result.noBatch = true;
+					result.batchSize = 0;
 					expected.remove( Tokens.NOBATCH );
+					expected.remove( Tokens.BATCH );
+					break;
+
+				case BATCH:
+					// TODO Add to CBOR and CSV too
+					result.batchSize = Integer.parseInt( tokenizer.skip( "SIZE" ).getNumber().value() );
+					if( ( t = tokenizer.get() ).eq( "WITH" ) )
+					{
+						t = tokenizer.skip( "COMMIT" ).get();
+						result.batchCommit = true;
+					}
+					expected.remove( Tokens.NOBATCH );
+					expected.remove( Tokens.BATCH );
 					break;
 
 				case LOG:
@@ -323,8 +337,8 @@ public class ImportCSV implements CommandListener
 		/** Prepend the values from the CSV list with the line number from the command file. */
 		protected boolean prependLineNumber;
 
-		/** Don't use JDBC batch update. */
-		protected boolean noBatch;
+		protected int batchSize; // 0 is no batch
+		protected boolean batchCommit;
 
 		protected int logRecords;
 		protected int logSeconds;

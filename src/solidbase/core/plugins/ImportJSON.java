@@ -120,7 +120,7 @@ public class ImportJSON implements CommandListener
 			*/
 
 			DBWriter writer = new DBWriter( parsed.sql, parsed.tableName, parsed.columns, parsed.values, parsed.batchSize, parsed.batchCommit, processor );
-			reader.setOutput( new DefaultToJDBCTransformer( writer ) );
+			reader.setSink( new DefaultToJDBCTransformer( writer ) );
 
 			boolean commit = false;
 			try
@@ -193,6 +193,7 @@ public class ImportJSON implements CommandListener
 					break;
 
 				case BATCH:
+					// TODO Add to CBOR and CSV too
 					result.batchSize = Integer.parseInt( tokenizer.skip( "SIZE" ).getNumber().value() );
 					if( ( t = tokenizer.get() ).eq( "WITH" ) )
 					{

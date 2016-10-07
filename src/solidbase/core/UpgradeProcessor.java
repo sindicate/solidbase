@@ -598,7 +598,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	 */
 	public void logToXML( Resource output )
 	{
-		OutputStream out = output.getOutputStream();
+		OutputStream out = output.newOutputStream();
 		try
 		{
 			logToXML( out );

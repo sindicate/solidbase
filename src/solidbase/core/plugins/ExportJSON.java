@@ -16,7 +16,6 @@
 
 package solidbase.core.plugins;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -32,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
-import java.util.zip.GZIPOutputStream;
 
 import funny.Symbol;
 import solidbase.core.Command;
@@ -113,13 +111,10 @@ public class ExportJSON implements CommandListener
 		}
 
 		Resource jsonOutput = new FileResource( new File( parsed.fileName ) ); // Relative to current folder
-
+		jsonOutput.setGZip( parsed.gzip );
 		try
 		{
-			// TODO Add buffering to the other files too
-			OutputStream out = new BufferedOutputStream( jsonOutput.getOutputStream(), 0x1000 );
-			if( parsed.gzip )
-				out = new BufferedOutputStream( new GZIPOutputStream( out, 0x1000 ), 0x1000 );
+			OutputStream out = jsonOutput.newOutputStream();
 			try
 			{
 				Statement statement = processor.createStatement();
