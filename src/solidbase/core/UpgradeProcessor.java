@@ -409,7 +409,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 			Command command = readCommand();
 			while( command != null )
 			{
-				if( command.isPersistent() && !this.upgradeContext.isTransient() && !segment.isSetup() )
+				if( !command.isAnnotation() && !this.upgradeContext.isTransient() && !segment.isSetup() )
 				{
 					boolean windForward = count < skipCount;
 					count++;
@@ -476,7 +476,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	@Override
 	protected boolean executeListeners( Command command, boolean skip ) throws SQLException
 	{
-		if( command.isTransient() )
+		if( command.isAnnotation() )
 		{
 			String sql = command.getCommand();
 			Matcher matcher;

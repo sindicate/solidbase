@@ -48,7 +48,7 @@ public class ImportJSON implements CommandListener
 	@Override
 	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
 	{
-		if( command.isTransient() )
+		if( command.isAnnotation() )
 			return false;
 
 		Matcher matcher = triggerPattern.matcher( command.getCommand() );

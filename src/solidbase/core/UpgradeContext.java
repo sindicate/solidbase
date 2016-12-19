@@ -61,6 +61,7 @@ public class UpgradeContext extends CommandContext
 	 *
 	 * @return True if in transient mode, false otherwise.
 	 */
+	@Override
 	public boolean isTransient()
 	{
 		return this.isTransient;

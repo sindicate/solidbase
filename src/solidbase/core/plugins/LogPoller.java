@@ -45,10 +45,10 @@ public class LogPoller implements CommandListener
 	private Poller poller;
 
 
-	//@Override
+	@Override
 	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
 	{
-		if( command.isPersistent() )
+		if( !command.isAnnotation() )
 			return false;
 
 		Matcher matcher = enablePattern.matcher( command.getCommand() );
@@ -72,7 +72,7 @@ public class LogPoller implements CommandListener
 		return false;
 	}
 
-	//@Override
+	@Override
 	public void terminate()
 	{
 		if( this.poller != null )

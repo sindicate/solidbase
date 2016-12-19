@@ -122,7 +122,7 @@ abstract public class ProgressListener
 	}
 
 	/**
-	 * About to execute to given command with the given message for the user.
+	 * About to execute the given command.
 	 *
 	 * @param command The command that is about to be executed.
 	 */

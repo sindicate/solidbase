@@ -76,7 +76,7 @@ public class ExportJSON implements CommandListener
 		if( !triggerPattern.matcher( command.getCommand() ).matches() )
 			return false;
 
-		if( command.isTransient() )
+		if( command.isAnnotation() )
 		{
 			/* --* EXPORT JSON SET ADD_CREATED_DATE = ON | OFF */
 

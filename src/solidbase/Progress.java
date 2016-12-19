@@ -102,18 +102,17 @@ public class Progress extends ProgressListener implements ConfigListener
 	@Override
 	protected void executing( Command command )
 	{
-		if( command.isPersistent() )
-			for( int i = 0; i < this.messages.length; i++ )
+		for( int i = 0; i < this.messages.length; i++ )
+		{
+			String m = this.messages[ i ];
+			if( m != null )
 			{
-				String m = this.messages[ i ];
-				if( m != null )
-				{
-					this.console.carriageReturn();
-					this.console.print( SPACES.substring( 0, i * 4 ) );
-					this.console.print( m );
-					this.messages[ i ] = null;
-				}
+				this.console.carriageReturn();
+				this.console.print( SPACES.substring( 0, i * 4 ) );
+				this.console.print( m );
+				this.messages[ i ] = null;
 			}
+		}
 	}
 
 	@Override

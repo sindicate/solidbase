@@ -33,9 +33,9 @@ public class Command
 	private String command;
 
 	/**
-	 * Is the command transient or not?
+	 * Is the command an annotation?
 	 */
-	private boolean isTransient;
+	private boolean isAnnotation;
 
 	/**
 	 * The file location where the command is encountered.
@@ -46,36 +46,26 @@ public class Command
 	 * Constructor.
 	 *
 	 * @param command The text of the command.
-	 * @param isTransient Is the command transient or not?
+	 * @param isAnnotation Is the command an annotation?
 	 * @param location The location where the command is encountered.
 	 */
-	public Command( String command, boolean isTransient, SourceLocation location )
+	public Command( String command, boolean isAnnotation, SourceLocation location )
 	{
 		Assert.notNull( command );
 
 		this.command = command;
-		this.isTransient = isTransient;
+		this.isAnnotation = isAnnotation;
 		this.location = location;
 	}
 
 	/**
-	 * Indicates if the command is transient or not.
+	 * Indicates if the command is an annotation.
 	 *
-	 * @return true if the command is transient, false otherwise.
+	 * @return true if the command is an annotation, false otherwise.
 	 */
-	public boolean isTransient()
+	public boolean isAnnotation()
 	{
-		return this.isTransient;
-	}
-
-	/**
-	 * Indicates if the command is persistent or not.
-	 *
-	 * @return true if the command is persistent, false otherwise.
-	 */
-	public boolean isPersistent()
-	{
-		return !this.isTransient;
+		return this.isAnnotation;
 	}
 
 	/**

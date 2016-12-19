@@ -73,7 +73,7 @@ public class ExportCBOR implements CommandListener
 		if( !triggerPattern.matcher( command.getCommand() ).matches() )
 			return false;
 
-		if( command.isTransient() )
+		if( command.isAnnotation() )
 		{
 			/* --* EXPORT CBOR SET ADD_CREATED_DATE = ON | OFF */
 
