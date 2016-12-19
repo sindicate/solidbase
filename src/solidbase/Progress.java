@@ -66,6 +66,7 @@ public class Progress extends ProgressListener implements ConfigListener
 		this.console.println( message );
 	}
 
+	@Override
 	public void readingConfigFile( String path )
 	{
 		if( this.verbose )
@@ -101,17 +102,18 @@ public class Progress extends ProgressListener implements ConfigListener
 	@Override
 	protected void executing( Command command )
 	{
-		for( int i = 0; i < this.messages.length; i++ )
-		{
-			String m = this.messages[ i ];
-			if( m != null )
+		if( command.isPersistent() )
+			for( int i = 0; i < this.messages.length; i++ )
 			{
-				this.console.carriageReturn();
-				this.console.print( SPACES.substring( 0, i * 4 ) );
-				this.console.print( m );
-				this.messages[ i ] = null;
+				String m = this.messages[ i ];
+				if( m != null )
+				{
+					this.console.carriageReturn();
+					this.console.print( SPACES.substring( 0, i * 4 ) );
+					this.console.print( m );
+					this.messages[ i ] = null;
+				}
 			}
-		}
 	}
 
 	@Override
