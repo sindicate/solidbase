@@ -53,44 +53,45 @@ public class DefaultToJDBCTransformer implements RecordSink, RecordSource
 		// Convert strings or java.util.Date to date, time and timestamps
 		if( this.columns != null )
 			for( int i = 0; i < record.length; i++ )
-			{
-				Object value = record[ i ];
-				if( value != null )
-					try
-					{
-						// TODO Time zones, is there a default way of putting times and dates in a text file? For example whats in a HTTP header?
-						// TODO Use internet formats (XML)
-						switch( this.columns[ i ].getType() )
+				if( this.columns.length > i )
+				{
+					Object value = record[ i ];
+					if( value != null )
+						try
 						{
-							case Types.DATE:
-								if( value instanceof String )
-									record[ i ] = java.sql.Date.valueOf( (String)value );
-								else if( value instanceof Date )
-									record[ i ] = new java.sql.Date( ( (Date)value ).getTime() );
-								break;
+							// TODO Time zones, is there a default way of putting times and dates in a text file? For example whats in a HTTP header?
+							// TODO Use internet formats (XML)
+							switch( this.columns[ i ].getType() )
+							{
+								case Types.DATE:
+									if( value instanceof String )
+										record[ i ] = java.sql.Date.valueOf( (String)value );
+									else if( value instanceof Date )
+										record[ i ] = new java.sql.Date( ( (Date)value ).getTime() );
+									break;
 
-							case Types.TIMESTAMP:
-								if( value instanceof String )
-									record[ i ] = java.sql.Timestamp.valueOf( (String)value );
-								else if( value instanceof Date )
-									record[ i ] = new java.sql.Timestamp( ( (Date)value ).getTime() );
-								break;
+								case Types.TIMESTAMP:
+									if( value instanceof String )
+										record[ i ] = java.sql.Timestamp.valueOf( (String)value );
+									else if( value instanceof Date )
+										record[ i ] = new java.sql.Timestamp( ( (Date)value ).getTime() );
+									break;
 
-							case Types.TIME:
-								if( value instanceof String )
-									record[ i ] = java.sql.Time.valueOf( (String)value );
-								else if( value instanceof Date )
-									record[ i ] = new java.sql.Time( ( (Date)value ).getTime() );
-								break;
+								case Types.TIME:
+									if( value instanceof String )
+										record[ i ] = java.sql.Time.valueOf( (String)value );
+									else if( value instanceof Date )
+										record[ i ] = new java.sql.Time( ( (Date)value ).getTime() );
+									break;
+							}
 						}
-					}
-					catch( IllegalArgumentException e ) // Thrown by the valueOfs
-					{
-						// TODO Add test? C:\_WORK\SAO-20150612\build.xml:32: The following error occurred while executing this line:
-						// C:\_WORK\SAO-20150612\build.xml:13: Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff], at line 17 of file C:/_WORK/SAO-20150612/SYSTEEM/sca.JSON.GZ
-						throw new ProcessException( e ).addProcess( "trying to convert " + value + " to " + this.columns[ i ].getType() );
-					}
-			}
+						catch( IllegalArgumentException e ) // Thrown by the valueOfs
+						{
+							// TODO Add test? C:\_WORK\SAO-20150612\build.xml:32: The following error occurred while executing this line:
+							// C:\_WORK\SAO-20150612\build.xml:13: Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff], at line 17 of file C:/_WORK/SAO-20150612/SYSTEEM/sca.JSON.GZ
+							throw new ProcessException( e ).addProcess( "trying to convert " + value + " to " + this.columns[ i ].getType() );
+						}
+				}
 
 		this.sink.process( record );
 	}
