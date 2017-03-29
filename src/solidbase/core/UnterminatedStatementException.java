@@ -21,11 +21,11 @@ import solidstack.io.SourceLocation;
 
 
 /**
- * Exception that is thrown when a statement is not delimited with the current delimiter.
+ * Exception which is thrown when a statement is not terminated with one of the configured terminators.
  *
  * @author René M. de Bloois
  */
-public class NonDelimitedStatementException extends SourceException
+public class UnterminatedStatementException extends SourceException
 {
 	private static final long serialVersionUID = 1L;
 
@@ -34,8 +34,8 @@ public class NonDelimitedStatementException extends SourceException
 	 *
 	 * @param location The file location where the problem is located.
 	 */
-	public NonDelimitedStatementException( SourceLocation location )
+	public UnterminatedStatementException( SourceLocation location )
 	{
-		super( "Non-delimited statement found", location );
+		super( "Unterminated statement found", location );
 	}
 }

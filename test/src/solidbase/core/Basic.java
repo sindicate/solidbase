@@ -110,7 +110,7 @@ public class Basic
 		patcher.end();
 	}
 
-	@Test(expectedExceptions=NonDelimitedStatementException.class)
+	@Test(expectedExceptions=UnterminatedStatementException.class)
 	public void testUnterminatedCommand1() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
@@ -127,7 +127,7 @@ public class Basic
 		}
 	}
 
-	@Test(expectedExceptions=NonDelimitedStatementException.class)
+	@Test(expectedExceptions=UnterminatedStatementException.class)
 	public void testUnterminatedCommand2() throws SQLException
 	{
 		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );

@@ -39,7 +39,7 @@ import solidstack.script.scopes.Scope;
  */
 abstract public class CommandContext
 {
-	static public enum COMMIT_STRATEGY { AUTOCOMMIT, TRANSACTIONAL };
+	static public enum CommitStrategy { AUTOCOMMIT, TRANSACTIONAL };
 
 	/**
 	 * The parent execution context.
@@ -92,7 +92,7 @@ abstract public class CommandContext
 
 	private boolean scriptExpansion;
 
-	private COMMIT_STRATEGY commitStrategy;
+	private CommitStrategy commitStrategy;
 
 	/**
 	 * The scripting scope.
@@ -395,13 +395,23 @@ abstract public class CommandContext
 			database.closeConnections();
 	}
 
-	public COMMIT_STRATEGY commitStrategy()
+	public CommitStrategy commitStrategy()
 	{
 		return this.commitStrategy;
 	}
 
-	public void setCommitStrategy( COMMIT_STRATEGY strategy )
+	public void setCommitStrategy( CommitStrategy strategy )
 	{
 		this.commitStrategy = strategy;
+	}
+
+	/**
+	 * Are we in transient mode?
+	 *
+	 * @return True if in transient mode, false otherwise.
+	 */
+	public boolean isTransient()
+	{
+		return false;
 	}
 }

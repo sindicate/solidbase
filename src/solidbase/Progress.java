@@ -66,6 +66,7 @@ public class Progress extends ProgressListener implements ConfigListener
 		this.console.println( message );
 	}
 
+	@Override
 	public void readingConfigFile( String path )
 	{
 		if( this.verbose )

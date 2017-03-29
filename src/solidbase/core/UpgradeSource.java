@@ -52,7 +52,7 @@ public class UpgradeSource extends SQLSource
 			command = super.readCommand();
 			Assert.notNull( command, "Premature end of file found" );
 
-			if( command.isTransient() )
+			if( command.isAnnotation() )
 			{
 				if( UpgradeFile.SEGMENT_END_PATTERN.matcher( command.getCommand() ).matches() )
 					return null;

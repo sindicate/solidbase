@@ -23,7 +23,7 @@ import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import solidbase.core.CommandContext.COMMIT_STRATEGY;
+import solidbase.core.CommandContext.CommitStrategy;
 import solidbase.core.Delimiter.Type;
 import solidbase.util.Assert;
 import solidstack.io.Resource;
@@ -200,7 +200,7 @@ abstract public class CommandProcessor
 	{
 		expand( command );
 
-		if( command.isPersistent() )
+		if( !command.isAnnotation() && !this.context.isTransient() )
 			if( !skip )
 				this.progress.executing( command );
 
@@ -209,7 +209,7 @@ abstract public class CommandProcessor
 		{
 			if( !executeListeners( command, skip ) )
 				if( !skip )
-					if( command.isPersistent() )
+					if( !command.isAnnotation() )
 						executeJdbc( command );
 					else
 						throw new SourceException( "Unknown command " + command.getCommand(), command.getLocation() );
@@ -232,7 +232,7 @@ abstract public class CommandProcessor
 			throw e.addProcess( "executing: " + command.getCommand() ).addLocation( command.getLocation() );
 		}
 
-		if( command.isPersistent() )
+		if( !command.isAnnotation() && !this.context.isTransient() )
 			if( !skip )
 				this.progress.executed();
 			else
@@ -276,7 +276,7 @@ abstract public class CommandProcessor
 	{
 		String sql = command.getCommand();
 		Matcher matcher;
-		if( command.isTransient() )
+		if( command.isAnnotation() )
 		{
 			if( ( matcher = sectionPattern.matcher( sql ) ).matches() )
 			{
@@ -376,7 +376,7 @@ abstract public class CommandProcessor
 			}
 			if( ( matcher = SET_COMMIT_STRATEGY.matcher( sql ) ).matches() )
 			{
-				this.context.setCommitStrategy( "AUTOCOMMIT".equalsIgnoreCase( matcher.group( 1 ) ) ? COMMIT_STRATEGY.AUTOCOMMIT : COMMIT_STRATEGY.TRANSACTIONAL );
+				this.context.setCommitStrategy( "AUTOCOMMIT".equalsIgnoreCase( matcher.group( 1 ) ) ? CommitStrategy.AUTOCOMMIT : CommitStrategy.TRANSACTIONAL );
 				return true;
 			}
 			if( RESET_COMMIT_STRATEGY.matcher( sql ).matches() )
@@ -414,7 +414,7 @@ abstract public class CommandProcessor
 	public Statement createStatement() throws SQLException
 	{
 		Connection connection = getCurrentDatabase().getConnection();
-		connection.setAutoCommit( this.context.commitStrategy() == COMMIT_STRATEGY.AUTOCOMMIT );
+		connection.setAutoCommit( this.context.commitStrategy() == CommitStrategy.AUTOCOMMIT );
 		Statement statement = connection.createStatement();
 		statement.setEscapeProcessing( this.context.isJdbcEscaping() );
 		return statement;
@@ -430,7 +430,7 @@ abstract public class CommandProcessor
 	public PreparedStatement prepareStatement( String sql ) throws SQLException
 	{
 		Connection connection = getCurrentDatabase().getConnection();
-		connection.setAutoCommit( this.context.commitStrategy() == COMMIT_STRATEGY.AUTOCOMMIT );
+		connection.setAutoCommit( this.context.commitStrategy() == CommitStrategy.AUTOCOMMIT );
 		try
 		{
 			return connection.prepareStatement( sql );
@@ -457,7 +457,7 @@ abstract public class CommandProcessor
 	{
 		try
 		{
-			if( implicitCommit() && this.context.commitStrategy() != COMMIT_STRATEGY.AUTOCOMMIT )
+			if( implicitCommit() && this.context.commitStrategy() != CommitStrategy.AUTOCOMMIT )
 			{
 				Connection connection = statement.getConnection();
 				if( commitOrRollback )
@@ -481,7 +481,7 @@ abstract public class CommandProcessor
 	 */
 	protected void executeJdbc( Command command ) throws SQLException
 	{
-		Assert.isTrue( command.isPersistent() ); // TODO Why?
+		Assert.isFalse( command.isAnnotation() );
 
 		String sql = command.getCommand();
 		if( sql.length() == 0 )

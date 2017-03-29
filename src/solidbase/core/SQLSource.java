@@ -150,14 +150,14 @@ public class SQLSource
 				if( line == null )
 				{
 					if( result.length() > 0 )
-						throw new NonDelimitedStatementException( this.reader.getLocation().previousLine() );
+						throw new UnterminatedStatementException( this.reader.getLocation().previousLine() );
 					return null;
 				}
 
 				if( line.startsWith( "--*" ) )
 				{
 					if( result.length() > 0 )
-						throw new NonDelimitedStatementException( this.reader.getLocation().previousLine() );
+						throw new UnterminatedStatementException( this.reader.getLocation().previousLine() );
 
 					line = line.substring( 3 ).trim(); // TODO Remove this trim()?
 					if( !line.startsWith( "//" )) // skip comment
