@@ -370,17 +370,27 @@ public class Database
 	 */
 	protected void closeConnections()
 	{
-		for( Connection connection : this.connections.values() )
-			try
-			{
-//				connection.rollback(); // TODO Derby 10.6 does not like it when connection is closed during an open transaction
-				connection.close();
-			}
-			catch( SQLException e )
-			{
-				throw new SystemException( e );
-			}
+		if( this.versionTablesConnection != null )
+		{
+			close( this.versionTablesConnection );
+			this.versionTablesConnection = null;
+		}
 
+		for( Connection connection : this.connections.values() )
+			close( connection );
 		this.connections.clear();
+	}
+
+	protected void close( Connection connection )
+	{
+		try
+		{
+//			connection.rollback(); // TODO Derby 10.6 does not like it when connection is closed during an open transaction
+			connection.close();
+		}
+		catch( SQLException e )
+		{
+			throw new SystemException( e );
+		}
 	}
 }
