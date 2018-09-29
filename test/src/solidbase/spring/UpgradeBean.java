@@ -83,7 +83,7 @@ public class UpgradeBean
 	/**
 	 * The secondary connections.
 	 */
-	private List< ConnectionAttributes > secondary = new ArrayList< ConnectionAttributes >();
+	private List< ConnectionAttributes > secondary = new ArrayList<>();
 
 	/**
 	 * Returns the database driver class name.

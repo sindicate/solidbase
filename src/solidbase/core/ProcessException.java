@@ -33,7 +33,7 @@ public class ProcessException extends FatalException
 {
 	private static final long serialVersionUID = 1L;
 
-	private List<Object> hierarchy = new ArrayList<Object>();
+	private List<Object> hierarchy = new ArrayList<>();
 
 
 	/**

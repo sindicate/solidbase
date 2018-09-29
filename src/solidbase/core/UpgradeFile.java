@@ -25,11 +25,11 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import solidbase.core.UpgradeSegment.Type;
@@ -82,17 +82,17 @@ public class UpgradeFile
 	/**
 	 * All normal segments in a map indexed by source version.
 	 */
-	protected Map< String, Collection< UpgradeSegment > > segments = new HashMap< String, Collection< UpgradeSegment > >();
+	protected Map< String, Collection< UpgradeSegment > > segments = new HashMap<>();
 
 	/**
 	 * Contains all known versions from the upgrade file.
 	 */
-	protected Set< String > versions = new HashSet< String >();
+	protected Set< String > versions = new HashSet<>();
 
 	/**
 	 * All setup segments in a map indexed by source version.
 	 */
-	protected Map< String, UpgradeSegment > setups = new HashMap< String, UpgradeSegment >();
+	protected Map< String, UpgradeSegment > setups = new HashMap<>();
 
 //	/**
 //	 * Initialization fragment.
@@ -209,7 +209,7 @@ public class UpgradeFile
 						{
 							Collection< UpgradeSegment > segments = this.segments.get( source );
 							if( segments == null )
-								this.segments.put( source, segments = new LinkedList< UpgradeSegment >() );
+								this.segments.put( source, segments = new LinkedList<>() );
 							segments.add( segment );
 							this.versions.add( source );
 							this.versions.add( target );
@@ -438,7 +438,7 @@ public class UpgradeFile
 	 */
 	protected Path getUpgradePath( String source, String target, boolean downgradesAllowed )
 	{
-		Set< String > done = new HashSet< String >();
+		Set< String > done = new HashSet<>();
 		done.add( source );
 		return getUpgradePath0( source, target, downgradesAllowed, done );
 	}
@@ -459,7 +459,7 @@ public class UpgradeFile
 		Path result = new Path();
 
 		// If equal than return an empty path
-		if( ObjectUtils.equals( source, target ) )
+		if( Objects.equals( source, target ) )
 			return result;
 
 		// Start with all the segments that have the given source
@@ -494,7 +494,7 @@ public class UpgradeFile
 				continue;
 
 			// Build new set for recursive call
-			Set< String > processed = new HashSet< String >();
+			Set< String > processed = new HashSet<>();
 			processed.addAll( targetsProcessed );
 			processed.add( segment.getTarget() );
 
@@ -527,7 +527,7 @@ public class UpgradeFile
 	 */
 	protected List< UpgradeSegment > getSetupPath( String source )
 	{
-		List< UpgradeSegment > result = new ArrayList< UpgradeSegment >();
+		List< UpgradeSegment > result = new ArrayList<>();
 
 		// Branches not possible
 
@@ -599,7 +599,7 @@ public class UpgradeFile
 	 */
 	protected LinkedHashSet< String > getReachableVersions( String source, String targeting, boolean downgradesAllowed )
 	{
-		LinkedHashSet< String > result = new LinkedHashSet< String >();
+		LinkedHashSet< String > result = new LinkedHashSet<>();
 		collectReachableVersions( source, targeting, downgradesAllowed, result );
 		return result;
 	}
@@ -626,7 +626,7 @@ public class UpgradeFile
 			return;
 
 		// Queue contains segments that await processing
-		LinkedList< UpgradeSegment > queue = new LinkedList< UpgradeSegment >();
+		LinkedList< UpgradeSegment > queue = new LinkedList<>();
 
 		// Fill queue with segments
 		if( targeting != null )

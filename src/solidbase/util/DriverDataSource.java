@@ -86,6 +86,7 @@ public class DriverDataSource implements DataSource
 	/**
 	 * Returns a new connection using the default user.
 	 */
+	@Override
 	public Connection getConnection() throws SQLException
 	{
 		return DriverManager.getConnection( this.url, this.username, this.password );
@@ -97,41 +98,49 @@ public class DriverDataSource implements DataSource
 	 * @param username The user name to connect with.
 	 * @param password The password of the user.
 	 */
+	@Override
 	public Connection getConnection( String username, String password ) throws SQLException
 	{
 		return DriverManager.getConnection( this.url, username, password );
 	}
 
+	@Override
 	public PrintWriter getLogWriter() throws SQLException
 	{
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public void setLogWriter( PrintWriter out ) throws SQLException
 	{
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public void setLoginTimeout( int seconds ) throws SQLException
 	{
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public int getLoginTimeout() throws SQLException
 	{
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public < T > T unwrap( Class< T > iface ) throws SQLException
 	{
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public boolean isWrapperFor( Class< ? > iface ) throws SQLException
 	{
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public Logger getParentLogger() throws SQLFeatureNotSupportedException
 	{
 		throw new UnsupportedOperationException();

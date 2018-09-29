@@ -51,7 +51,7 @@ public class Path implements Iterable< UpgradeSegment >
 	 */
 	protected Path()
 	{
-		this.segments = new ArrayList< UpgradeSegment >();
+		this.segments = new ArrayList<>();
 	}
 
 	/**
@@ -149,6 +149,7 @@ public class Path implements Iterable< UpgradeSegment >
 	 *
 	 * @return An iterator over the segments in this path.
 	 */
+	@Override
 	public Iterator< UpgradeSegment > iterator()
 	{
 		return this.segments.iterator();

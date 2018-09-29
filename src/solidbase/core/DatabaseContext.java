@@ -32,7 +32,7 @@ public class DatabaseContext
 	/**
 	 * The configured database.
 	 */
-	private Map< String, Database > databases = new HashMap< String, Database >();
+	private Map< String, Database > databases = new HashMap<>();
 
 	/**
 	 * Constructor.

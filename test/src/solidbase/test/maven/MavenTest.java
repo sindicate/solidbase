@@ -20,6 +20,7 @@ public class MavenTest
 	{
 		String output = TestUtil.capture( new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				SQLMojo sql = new SQLMojo();
@@ -62,6 +63,7 @@ public class MavenTest
 	{
 		String output = TestUtil.capture( new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				UpgradeMojo upgrade = new UpgradeMojo();

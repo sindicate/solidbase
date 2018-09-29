@@ -36,6 +36,7 @@ public class SQLMojo extends DBMojo
 	 */
 	public String sqlfile;
 
+	@Override
 	public void execute() throws MojoFailureException
 	{
 		if( this.skip )

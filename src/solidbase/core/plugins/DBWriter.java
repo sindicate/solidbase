@@ -76,7 +76,7 @@ public class DBWriter implements RecordSink
 		String[] values = this.values;
 
 		String sql;
-		List< Integer > parameterMap = new ArrayList< Integer >();
+		List< Integer > parameterMap = new ArrayList<>();
 
 		if( this.sql != null )
 		{

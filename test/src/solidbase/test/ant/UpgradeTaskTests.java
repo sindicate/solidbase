@@ -93,6 +93,7 @@ public class UpgradeTaskTests extends MyBuildFileTest
 	{
 		String log = TestUtil.captureAnt( new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				new AntMain().startAnt( new String[] { "-f", "test-upgradetask.xml", "ant-test-filenotfound" }, null, null );

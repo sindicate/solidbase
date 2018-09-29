@@ -75,36 +75,43 @@ public class MyBuildFileTest extends BuildFileTest
 			// Not needed
 		}
 
+		@Override
 		public void buildStarted( BuildEvent event )
 		{
 			// Not needed
 		}
 
+		@Override
 		public void buildFinished( BuildEvent event )
 		{
 			// Not needed
 		}
 
+		@Override
 		public void targetStarted( BuildEvent event )
 		{
 			// Not needed
 		}
 
+		@Override
 		public void targetFinished( BuildEvent event )
 		{
 			// Not needed
 		}
 
+		@Override
 		public void taskStarted( BuildEvent event )
 		{
 			// Not needed
 		}
 
+		@Override
 		public void taskFinished( BuildEvent event )
 		{
 			// Not needed
 		}
 
+		@Override
 		public void messageLogged( BuildEvent event )
 		{
 			if( event.getPriority() == Project.MSG_INFO || event.getPriority() == Project.MSG_WARN || event.getPriority() == Project.MSG_ERR )

@@ -43,7 +43,7 @@ public class Runner
 	/**
 	 * The named database connections.
 	 */
-	protected Map< String, ConnectionAttributes > connections = new HashMap< String, ConnectionAttributes >();
+	protected Map< String, ConnectionAttributes > connections = new HashMap<>();
 
 	/**
 	 * SQL files to execute.
@@ -73,7 +73,7 @@ public class Runner
 	/**
 	 * The parameters.
 	 */
-	protected Map<String, Object> parameters = new HashMap<String, Object>();
+	protected Map<String, Object> parameters = new HashMap<>();
 
 	/**
 	 * Sets the progress listener.
@@ -129,7 +129,7 @@ public class Runner
 	 */
 	public void setSQLFile( Resource sqlFile )
 	{
-		this.sqlFiles = new ArrayList< Resource >();
+		this.sqlFiles = new ArrayList<>();
 		this.sqlFiles.add( sqlFile );
 	}
 

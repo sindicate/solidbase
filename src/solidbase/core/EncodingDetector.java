@@ -45,6 +45,7 @@ public class EncodingDetector implements solidstack.io.EncodingDetector
 	/**
 	 * Detects the encoding of an upgrade or SQL file from the first couple of bytes of the file. If not encoding is detected the default of ISO-8859-1 is returned.
 	 */
+	@Override
 	public String detect( byte[] bytes )
 	{
 		String result = CHARSET_ISO_8859_1; // FIXME Or null for platform dependent? Think not. Or UTF-8?

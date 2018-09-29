@@ -184,8 +184,8 @@ public class ImportCBOR implements CommandListener
 		*/
 
 		Parsed result = new Parsed();
-		List< String > columns = new ArrayList< String >();
-		List< String > values = new ArrayList< String >();
+		List< String > columns = new ArrayList<>();
+		List< String > values = new ArrayList<>();
 
 		SQLTokenizer tokenizer = new SQLTokenizer( SourceReaders.forString( command.getCommand(), command.getLocation() ) );
 

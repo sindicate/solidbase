@@ -45,7 +45,7 @@ public class PluginManager
 
 	static
 	{
-		listeners = new ArrayList< CommandListener >();
+		listeners = new ArrayList<>();
 
 		try
 		{

@@ -39,8 +39,7 @@ public class AssertExistsOrEmptySelect implements CommandListener
 {
 	static private final Pattern assertPattern = Pattern.compile( "\\s*ASSERT\\s+(EXISTS|EMPTY)\\s+MESSAGE\\s+['\"]([^']*)['\"]\\s+(.*)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
-
-	//@Override
+	@Override
 	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
 	{
 		if( command.isAnnotation() )
@@ -74,7 +73,7 @@ public class AssertExistsOrEmptySelect implements CommandListener
 		return true;
 	}
 
-	//@Override
+	@Override
 	public void terminate()
 	{
 		// Nothing to clean up

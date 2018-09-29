@@ -70,12 +70,12 @@ public class PatchFileTests
 		upgradeFile.versions.add( "1.1" );
 		upgradeFile.versions.add( "1.3" );
 
-		Set< String > result = new HashSet< String >();
+		Set< String > result = new HashSet<>();
 		upgradeFile.collectTargets( "1.1", null, true, false, null, result );
 		for( String tip : result )
 			System.out.println( tip );
 
-		Set< String > expected = new HashSet< String >();
+		Set< String > expected = new HashSet<>();
 		expected.add( "1.5" );
 		expected.add( "2.5" );
 		expected.add( "3.2" );
@@ -84,12 +84,12 @@ public class PatchFileTests
 
 		// Another one
 
-		result = new HashSet< String >();
+		result = new HashSet<>();
 		upgradeFile.collectTargets( "1.3", "2.1", true, false, null, result );
 		for( String tip : result )
 			System.out.println( tip );
 
-		expected = new HashSet< String >();
+		expected = new HashSet<>();
 		expected.add( "2.5" );
 		expected.add( "3.2" );
 
@@ -106,7 +106,7 @@ public class PatchFileTests
 	{
 		Collection< UpgradeSegment > patches = map.get( key );
 		if( patches == null )
-			map.put( key, patches = new LinkedList< UpgradeSegment >() );
+			map.put( key, patches = new LinkedList<>() );
 		patches.add( value );
 	}
 
@@ -123,7 +123,7 @@ public class PatchFileTests
 		upgradeFile.scan();
 		upgradeFile.close();
 
-		Map< String, Collection< UpgradeSegment > > patches = upgradeFile.segments = new HashMap< String, Collection< UpgradeSegment > >();
+		Map< String, Collection< UpgradeSegment > > patches = upgradeFile.segments = new HashMap<>();
 		put( patches, "1.1", new UpgradeSegment( Type.UPGRADE, "1.1", "1.2", false ) );
 		put( patches, "1.2", new UpgradeSegment( Type.UPGRADE, "1.2", "1.3", false ) );
 		put( patches, "1.3", new UpgradeSegment( Type.UPGRADE, "1.3", "1.4", false ) );
@@ -134,12 +134,12 @@ public class PatchFileTests
 
 		upgradeFile.versions.add( "1.1" );
 
-		Set< String > result = new HashSet< String >();
+		Set< String > result = new HashSet<>();
 		upgradeFile.collectTargets( "1.1", null, true, false, "1.", result );
 		for( String tip : result )
 			System.out.println( tip );
 
-		Set< String > expected = new HashSet< String >();
+		Set< String > expected = new HashSet<>();
 		expected.add( "1.4" );
 
 		Assert.assertEquals( result, expected );
@@ -175,12 +175,12 @@ public class PatchFileTests
 		upgradeFile.versions.addAll( patches.keySet() );
 		upgradeFile.versions.add( "3.2" );
 
-		Set< String > result = new HashSet< String >();
+		Set< String > result = new HashSet<>();
 		upgradeFile.collectTargets( "1.1", null, false, false, null, result );
 		for( String target : result )
 			System.out.println( target );
 
-		Set< String > expected = new HashSet< String >();
+		Set< String > expected = new HashSet<>();
 		expected.add( "1.1" );
 		expected.add( "1.2" );
 		expected.add( "1.3" );

@@ -139,7 +139,7 @@ public class CBORDataReader implements RecordSource
 
 				loc = this.in.getLocation();
 
-				List<Object> values = new ArrayList<Object>( len );
+				List<Object> values = new ArrayList<>( len );
 				for( int i = 0; i < len; i++ )
 					values.add( this.in.read() );
 

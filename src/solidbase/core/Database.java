@@ -58,7 +58,7 @@ public class Database
 	/**
 	 * A map of connections indexed by user name.
 	 */
-	protected Map< String, Connection > connections = new HashMap< String, Connection >();
+	protected Map< String, Connection > connections = new HashMap<>();
 
 	protected Connection versionTablesConnection;
 
@@ -71,7 +71,7 @@ public class Database
 	/**
 	 * The password cache.
 	 */
-	protected Map< String, String > passwords = new HashMap< String, String >();
+	protected Map< String, String > passwords = new HashMap<>();
 
 	/**
 	 * The current user. If {@link #defaultUser} is not set, this should stay null also.

@@ -46,6 +46,7 @@ public class UpgradeMojo extends DBMojo
 	 */
 	public boolean downgradeallowed;
 
+	@Override
 	public void execute() throws MojoFailureException
 	{
 		if( this.skip )

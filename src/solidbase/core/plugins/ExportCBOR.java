@@ -299,8 +299,8 @@ public class ExportCBOR implements CommandListener
 				case COALESCE:
 					List<String> cols;
 					if( result.coalesce == null )
-						result.coalesce = new ArrayList<List<String>>();
-					result.coalesce.add( cols = new ArrayList<String>() );
+						result.coalesce = new ArrayList<>();
+					result.coalesce.add( cols = new ArrayList<>() );
 					do
 					{
 						cols.add( tokenizer.getIdentifier().value() );
@@ -334,8 +334,8 @@ public class ExportCBOR implements CommandListener
 
 				case COLUMN:
 					if( result.columns == null )
-						result.columns = new HashMap<String, ColumnSpec>();
-					cols = new ArrayList<String>();
+						result.columns = new HashMap<>();
+					cols = new ArrayList<>();
 					do
 					{
 						cols.add( tokenizer.getIdentifier().value() );

@@ -1,5 +1,5 @@
 /*--
- * Copyright 2015 Renï¿½ M. de Bloois
+ * Copyright 2015 René M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,12 +79,12 @@ public class CBORDataWriter implements RecordSink
 		this.out.startArray();
 	}
 
-	static public enum Types { BIGDECIMAL, BLOB, BOOLEAN, BYTES, CLOB, DATE, DOUBLE, FLOAT, INTEGER, LONG, STRING, SQLDATE, SQLTIME, SQLTIMESTAMP };
+	static public enum Types { BIGDECIMAL, BLOB, BOOLEAN, BYTES, CLOB, DATE, DOUBLE, FLOAT, INTEGER, LONG, STRING, SQLDATE, SQLTIME, SQLTIMESTAMP }
 
 	static public Map<Class<?>, Types> types;
 	static
 	{
-		types = new IdentityHashMap<Class<?>, Types>();
+		types = new IdentityHashMap<>();
 		types.put( BigDecimal.class, Types.BIGDECIMAL );
 		types.put( Boolean.class, Types.BOOLEAN );
 		types.put( byte[].class, Types.BYTES );

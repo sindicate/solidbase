@@ -44,7 +44,7 @@ public class SQLTask extends DBTask
 	/**
 	 * Field to store multiple nested sqlfile elements.
 	 */
-	protected List< Sqlfile > sqlfiles = new ArrayList< Sqlfile >();
+	protected List< Sqlfile > sqlfiles = new ArrayList<>();
 
 	/**
 	 * Sets the sqlfile attribute.
@@ -81,11 +81,8 @@ public class SQLTask extends DBTask
 			if( this.sqlfiles.isEmpty() )
 				throw new BuildException( "The " + getTaskName() + " task needs the 'sqlfile' attribute or nested 'sqlfile' elements" );
 		}
-		else
-		{
-			if( !this.sqlfiles.isEmpty() )
-				throw new BuildException( "The " + getTaskName() + " task does not accept both the 'sqlfile' attribute and nested 'sqlfile' elements" );
-		}
+		else if( !this.sqlfiles.isEmpty() )
+			throw new BuildException( "The " + getTaskName() + " task does not accept both the 'sqlfile' attribute and nested 'sqlfile' elements" );
 	}
 
 	@Override
@@ -93,7 +90,7 @@ public class SQLTask extends DBTask
 	{
 		Runner runner = super.prepareRunner();
 
-		List< Resource > sqlFiles = new ArrayList< Resource >();
+		List< Resource > sqlFiles = new ArrayList<>();
 		File baseDir = getProject().getBaseDir();
 		if( this.sqlfile != null )
 			sqlFiles.add( Resources.getResource( baseDir ).resolve( this.sqlfile ) );
@@ -130,7 +127,7 @@ public class SQLTask extends DBTask
 	/**
 	 * Object used to configure the nested sqlfile element of the SQLTask.
 	 *
-	 * @author R.M. de Bloois
+	 * @author René de Bloois
 	 */
 	static protected class Sqlfile
 	{

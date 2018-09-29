@@ -38,7 +38,7 @@ public class SQLTokenizer
 	protected SourceReader in;
 
 	// A window that holds the last 3 tokens read
-	private WindowBuffer<Token> window = new WindowBuffer<Token>( 3 );
+	private WindowBuffer<Token> window = new WindowBuffer<>( 3 );
 
 	/**
 	 * Constructs a new instance of the Tokenizer.

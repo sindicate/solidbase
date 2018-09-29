@@ -71,7 +71,7 @@ public class Configuration
 	/**
 	 * A list of configured secondary databases.
 	 */
-	protected Map< String, Database > secondaryDatabases = new HashMap< String, Database >();
+	protected Map< String, Database > secondaryDatabases = new HashMap<>();
 
 	/**
 	 * Target version to upgrade to.
@@ -123,14 +123,8 @@ public class Configuration
 			progress.readingConfigFile( url.toString() );
 
 			this.properties = new Properties();
-			InputStream input = url.openStream();
-			try
-			{
+			try (InputStream input = url.openStream()) {
 				this.properties.load( input );
-			}
-			finally
-			{
-				input.close();
 			}
 
 			// Load the solidbase.properties
@@ -146,14 +140,8 @@ public class Configuration
 				progress.readingConfigFile( file.getAbsolutePath() );
 
 				this.properties = new Properties( this.properties );
-				input = new FileInputStream( file );
-				try
-				{
+				try (InputStream input = new FileInputStream( file )) {
 					this.properties.load( input );
-				}
-				finally
-				{
-					input.close();
 				}
 
 				// Read the config version
@@ -186,7 +174,7 @@ public class Configuration
 
 			// Read the classpath extension
 
-			this.driverJars = new ArrayList< String >();
+			this.driverJars = new ArrayList<>();
 			String driversProperty = this.properties.getProperty( "classpath.ext" );
 			if( driversProperty != null )
 				for( String driverJar : driversProperty.split( ";" ) )

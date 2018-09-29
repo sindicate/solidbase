@@ -81,8 +81,8 @@ public class CoalescerProcessor implements RecordSink, RecordSource
 			}
 		}
 
-		List<Column> newCols = new ArrayList<Column>();
-		List<Mapping> newMapping = new ArrayList<Mapping>();
+		List<Column> newCols = new ArrayList<>();
+		List<Mapping> newMapping = new ArrayList<>();
 
 		int j = 0;
 		for( int i = 0; i < cols; i++ )

@@ -39,7 +39,7 @@ import solidstack.script.scopes.Scope;
  */
 abstract public class CommandContext
 {
-	static public enum CommitStrategy { AUTOCOMMIT, TRANSACTIONAL };
+	static public enum CommitStrategy { AUTOCOMMIT, TRANSACTIONAL }
 
 	/**
 	 * The parent execution context.
@@ -107,8 +107,8 @@ abstract public class CommandContext
 	{
 		this.jdbcEscaping = false;
 		this.sectionLevel = 0;
-		this.ignoreStack = new Stack< String[] >();
-		this.ignoreSet = new HashSet< String >();
+		this.ignoreStack = new Stack<>();
+		this.ignoreSet = new HashSet<>();
 		this.noSkipCounter = this.skipCounter = 0;
 	}
 
@@ -128,8 +128,8 @@ abstract public class CommandContext
 		// TODO Inherit scope from parent?
 
 		// no inherit
-		this.ignoreStack = new Stack< String[] >();
-		this.ignoreSet = new HashSet< String >();
+		this.ignoreStack = new Stack<>();
+		this.ignoreSet = new HashSet<>();
 		this.noSkipCounter = this.skipCounter = 0;
 	}
 
@@ -235,7 +235,7 @@ abstract public class CommandContext
 	 */
 	protected void refreshIgnores()
 	{
-		HashSet< String > ignores = new HashSet< String >();
+		HashSet< String > ignores = new HashSet<>();
 		for( String[] ss : this.ignoreStack )
 			ignores.addAll( Arrays.asList( ss ) );
 		this.ignoreSet = ignores;

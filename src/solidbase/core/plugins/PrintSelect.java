@@ -50,8 +50,7 @@ public class PrintSelect implements CommandListener
 {
 	static private final Pattern printSelectPattern = Pattern.compile( "\\s*PRINT\\s+(SELECT\\s+.+)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE );
 
-
-	//@Override
+	@Override
 	public boolean execute( CommandProcessor processor, Command command, boolean skip ) throws SQLException
 	{
 		if( command.isAnnotation() )
@@ -110,7 +109,7 @@ public class PrintSelect implements CommandListener
 		return true;
 	}
 
-	//@Override
+	@Override
 	public void terminate()
 	{
 		// Nothing to clean up

@@ -35,8 +35,8 @@ import org.apache.commons.cli.ParseException;
 
 import solidbase.config.Configuration;
 import solidbase.core.FatalException;
-import solidbase.core.Runner;
 import solidbase.core.ProcessException;
+import solidbase.core.Runner;
 import solidbase.core.SystemException;
 import solidbase.util.Assert;
 import solidstack.io.Resources;
@@ -241,6 +241,7 @@ public class Main
 			console.println( "Extending classpath" );
 
 		// Add the driver jar(s) to the classpath
+		@SuppressWarnings( "resource" )
 		URLClassLoader classLoader = (URLClassLoader)Main.class.getClassLoader();
 		URL[] orig = classLoader.getURLs();
 		URL[] urls;

@@ -38,7 +38,7 @@ public class MockConsole extends Console
 	/**
 	 * Responses to give back when input is requested.
 	 */
-	protected Queue< String > answerQueue = new LinkedList< String >();
+	protected Queue< String > answerQueue = new LinkedList<>();
 
 	/**
 	 * Buffer to collect the output.

@@ -30,7 +30,7 @@ public class SelectProcessor implements RecordSink, RecordSource
 	private RecordSink sink;
 	private Column[] outColumns;
 	private int[] mapping;
-	private Set<String> deselect = new HashSet<String>();
+	private Set<String> deselect = new HashSet<>();
 
 
 	public void deselect( String name )
@@ -48,7 +48,7 @@ public class SelectProcessor implements RecordSink, RecordSource
 	{
 		// TODO Error when deselect contains an incorrect columnname
 
-		List<Integer> temp = new ArrayList<Integer>();
+		List<Integer> temp = new ArrayList<>();
 		for( int i = 0; i < columns.length; i++ )
 			if( !this.deselect.contains( columns[ i ].getName() ) )
 				temp.add( i );

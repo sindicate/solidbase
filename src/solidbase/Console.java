@@ -33,7 +33,6 @@ import solidstack.io.FatalIOException;
  *
  * @author René M. de Bloois
  */
-// TODO Test this on Java 5
 public class Console
 {
 	/**
@@ -71,12 +70,12 @@ public class Console
 	 */
 	protected java.io.Console java6console;
 
-
 	/**
 	 * Constructor.
 	 */
 	public Console()
 	{
+		// TODO No more Java 5
 		try
 		{
 			this.java6console = System.console();

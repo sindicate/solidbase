@@ -55,12 +55,12 @@ public class DBTask extends Task
 	/**
 	 * Field to store the nested collection of secondary connections.
 	 */
-	protected List< Connection > connections = new ArrayList< Connection >();
+	protected List< Connection > connections = new ArrayList<>();
 
 	/**
 	 * Field to store the parameters.
 	 */
-	protected List< Parameter > parameters = new ArrayList< Parameter >();
+	protected List< Parameter > parameters = new ArrayList<>();
 
 	/**
 	 * Returns the configured driver.
@@ -390,10 +390,8 @@ public class DBTask extends Task
 		}
 
 		for( Parameter parameter : this.parameters )
-		{
 			if( parameter.getName() == null )
 				throw new BuildException( "The 'name' attribute is mandatory for a 'parameter' element" );
-		}
 	}
 
 	/**

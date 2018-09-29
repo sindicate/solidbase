@@ -32,7 +32,7 @@ import solidstack.io.FatalIOException;
  */
 public class CloseQueue
 {
-	private List< Object > files = new ArrayList< Object >();
+	private List< Object > files = new ArrayList<>();
 
 	/**
 	 * Add an input stream.

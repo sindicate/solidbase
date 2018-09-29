@@ -67,7 +67,7 @@ public class CSVReader
 	public String[] getLine()
 	{
 		CSVParser in = this.in;
-		List< String > values = new ArrayList< String >();
+		List< String > values = new ArrayList<>();
 
 		while( true )
 		{

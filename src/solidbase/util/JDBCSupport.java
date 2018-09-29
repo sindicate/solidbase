@@ -59,8 +59,8 @@ public class JDBCSupport
 
 	static private void initTypeNames()
 	{
-		typeNames = new HashMap< Integer, String >();
-		typeNames2 = new HashMap< String, Integer >();
+		typeNames = new HashMap<>();
+		typeNames2 = new HashMap<>();
 		for( Field field : Types.class.getFields() )
 			try
 			{

@@ -23,11 +23,11 @@ import java.sql.SQLException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import solidbase.util.Assert;
@@ -229,7 +229,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 	// TODO Why is this a LinkedHashSet?
 	public LinkedHashSet< String > getTargets( boolean tips, String prefix, boolean downgradeable )
 	{
-		LinkedHashSet< String > result = new LinkedHashSet< String >();
+		LinkedHashSet< String > result = new LinkedHashSet<>();
 		this.upgradeFile.collectTargets( this.dbVersion.getVersion(), this.dbVersion.getTarget(), tips, downgradeable, prefix, result );
 		return result;
 	}
@@ -313,7 +313,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 			// TODO Refactor this, put this in getTargets()
 			boolean found = false;
 			for( String t : targets )
-				if( ObjectUtils.equals( t, target ) )
+				if( Objects.equals( t, target ) )
 				{
 					found = true;
 					break;
@@ -323,7 +323,7 @@ public class UpgradeProcessor extends CommandProcessor implements ConnectionList
 				throw new FatalException( "Target " + target + " is not reachable from version " + StringUtils.defaultString( version, "<no version>" ) );
 		}
 
-		if( ObjectUtils.equals( target, version ) )
+		if( Objects.equals( target, version ) )
 		{
 			this.progress.noUpgradeNeeded();
 			return;
