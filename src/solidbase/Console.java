@@ -17,14 +17,11 @@
 package solidbase;
 
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.text.DateFormat;
 import java.util.Date;
 
 import solidbase.util.Assert;
-import solidstack.io.FatalIOException;
 
 
 /**
@@ -73,17 +70,8 @@ public class Console
 	/**
 	 * Constructor.
 	 */
-	public Console()
-	{
-		// TODO No more Java 5
-		try
-		{
-			this.java6console = System.console();
-		}
-		catch( NoSuchMethodError e )
-		{
-			// Only works in java 6
-		}
+	public Console() {
+		java6console = System.console();
 	}
 
 	/**
@@ -91,16 +79,10 @@ public class Console
 	 *
 	 * @param string The string to print.
 	 */
-	protected void printBare( String string )
-	{
-		if( this.java6console != null )
-		{
-			this.java6console.writer().print( string );
-			this.java6console.flush();
-		}
-		else
-			this.out.print( string );
-		this.col += string.length();
+	protected void printBare( String string ) {
+		java6console.writer().print( string );
+		java6console.flush();
+		col += string.length();
 	}
 
 	/**
@@ -108,23 +90,16 @@ public class Console
 	 *
 	 * @param string The string to print.
 	 */
-	protected void printlnBare( String string )
-	{
-		if( this.java6console != null )
-		{
-			this.java6console.writer().println( string );
-			this.java6console.flush();
-		}
-		else
-			this.out.println( string );
-		this.col = 0;
+	protected void printlnBare( String string ) {
+		java6console.writer().println( string );
+		java6console.flush();
+		col = 0;
 	}
 
 	/**
 	 * Prints a newline.
 	 */
-	protected void println()
-	{
+	protected void println() {
 		printlnBare( "" );
 	}
 
@@ -134,10 +109,8 @@ public class Console
 	 *
 	 * @param string The string to print.
 	 */
-	protected void print( String string )
-	{
-		if( this.col == 0 && this.prefixWithDate )
-		{
+	protected void print( String string ) {
+		if( col == 0 && prefixWithDate ) {
 			DateFormat dateFormat = DateFormat.getDateTimeInstance( DateFormat.SHORT, DateFormat.SHORT );
 			printBare( dateFormat.format( new Date() ) + "   " );
 		}
@@ -150,10 +123,8 @@ public class Console
 	 *
 	 * @param string The string to print.
 	 */
-	protected void println( String string )
-	{
-		if( this.col == 0 && this.prefixWithDate )
-		{
+	protected void println( String string ) {
+		if( col == 0 && prefixWithDate ) {
 			DateFormat dateFormat = DateFormat.getDateTimeInstance( DateFormat.SHORT, DateFormat.SHORT );
 			printBare( dateFormat.format( new Date() ) + "   " );
 		}
@@ -163,17 +134,16 @@ public class Console
 	/**
 	 * Prints a newline, but only if {@link #col} > 0.
 	 */
-	protected void carriageReturn()
-	{
-		if( this.col > 0 )
+	protected void carriageReturn() {
+		if( col > 0 ) {
 			printlnBare( "" );
+		}
 	}
 
 	/**
 	 * Makes sure that an empty line is generated after the current printed text.
 	 */
-	protected void emptyLine()
-	{
+	protected void emptyLine() {
 		carriageReturn();
 		printlnBare( "" );
 	}
@@ -183,8 +153,7 @@ public class Console
 	 *
 	 * @return The string that is input.
 	 */
-	protected String input()
-	{
+	protected String input() {
 		return input( false );
 	}
 
@@ -194,36 +163,21 @@ public class Console
 	 * @param password Input a password?
 	 * @return The string that is input.
 	 */
-	synchronized protected String input( boolean password )
-	{
-		if( this.fromAnt )
+	synchronized protected String input( boolean password ) {
+		if( fromAnt ) {
 			carriageReturn();
+		}
 
 		String input;
-		if( this.java6console != null )
-		{
-			if( password )
-				input = String.valueOf( this.java6console.readPassword() );
-			else
-				input = this.java6console.readLine();
-		}
-		else
-		{
-			if( this.stdin == null )
-				this.stdin = new BufferedReader( new InputStreamReader( System.in ) );
-			try
-			{
-				input = this.stdin.readLine();
-			}
-			catch( IOException e )
-			{
-				throw new FatalIOException( e );
-			}
+		if( password ) {
+			input = String.valueOf( java6console.readPassword() );
+		} else {
+			input = java6console.readLine();
 		}
 
 		Assert.notNull( input, "No more input" );
 
-		this.col = 0;
+		col = 0;
 		return input;
 	}
 
@@ -232,8 +186,7 @@ public class Console
 	 *
 	 * @param t The throwable of which the stacktrace needs to be printed.
 	 */
-	protected void printStacktrace( Throwable t )
-	{
-		t.printStackTrace( this.err );
+	protected void printStacktrace( Throwable t ) {
+		t.printStackTrace( err );
 	}
 }

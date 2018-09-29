@@ -38,19 +38,15 @@ public class Version
 	 */
 	static protected String version;
 
-	static
-	{
+	static {
 		// Load the version properties
 
 		URL url = Version.class.getResource( SOLIDBASE_VERSION_PROPERTIES );
 		Assert.notNull( url );
 		Properties properties = new Properties();
-		try
-		{
+		try {
 			properties.load( url.openStream() );
-		}
-		catch( IOException e )
-		{
+		} catch( IOException e ) {
 			throw new FatalIOException( e );
 		}
 		version = properties.getProperty( "solidbase.version" );
@@ -60,8 +56,7 @@ public class Version
 	/**
 	 * This class cannot be constructed.
 	 */
-	private Version()
-	{
+	private Version() {
 		super();
 	}
 
@@ -70,8 +65,7 @@ public class Version
 	 *
 	 * @return The SolidBase version & copyright info to be displayed to the user.
 	 */
-	static public String getInfo()
-	{
+	static public String getInfo() {
 		return "SolidBase v" + version + " (http://solidbase.org)";
 	}
 }

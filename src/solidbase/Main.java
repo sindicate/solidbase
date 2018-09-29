@@ -60,29 +60,22 @@ public class Main
 	 */
 	static private int pass = 1;
 
-
 	/**
 	 * This class cannot be constructed.
 	 */
-	private Main()
-	{
+	private Main() {
 		super();
 	}
-
 
 	/**
 	 * The main method for the command line version of SolidBase.
 	 *
 	 * @param args The arguments from the command line.
 	 */
-	static public void main( String... args )
-	{
-		try
-		{
+	static public void main( String... args ) {
+		try {
 			main0( args );
-		}
-		catch( Throwable t )
-		{
+		} catch( Throwable t ) {
 			// Fancy stuff is done in pass2(). Checking type of exception does not work because of the new classloader we create.
 			console.println();
 			console.printStacktrace( t );
@@ -91,7 +84,6 @@ public class Main
 		// TODO FatalException & ScriptException like in ant and maven?
 	}
 
-
 	/**
 	 * For internal (testing) use only: a main method that does not catch and print exceptions.
 	 *
@@ -99,10 +91,10 @@ public class Main
 	 * @throws ProcessException When an {@link SQLException} is thrown during execution of a database change.
 	 */
 	// TODO Make this protected.
-	static public void main0( String... args ) throws ProcessException
-	{
-		if( console == null )
+	static public void main0( String... args ) throws ProcessException {
+		if( console == null ) {
 			console = new Console();
+		}
 
 		// Configure the commandline options
 
@@ -137,25 +129,20 @@ public class Main
 		// Read the commandline options
 
 		CommandLine line;
-		try
-		{
+		try {
 			line = new GnuParser().parse( options, args );
-		}
-		catch( ParseException e )
-		{
+		} catch( ParseException e ) {
 			console.println( e.getMessage() );
 			printHelp( options );
 			return;
 		}
 
-		solidbase.config.Options opts = new solidbase.config.Options( line.hasOption( "verbose" ), line
-				.hasOption( "dumplog" ), line.getOptionValue( "driver" ), line.getOptionValue( "url" ), line
-				.getOptionValue( "username" ), line.getOptionValue( "password" ), line.getOptionValue( "target" ), line
-				.getOptionValue( "upgradefile" ), line.getOptionValue( "sqlfile" ), line.getOptionValue( "config" ),
-				line.hasOption( "downgradeallowed" ), line.hasOption( "help" ), line.getOptionProperties( "D" ) );
+		solidbase.config.Options opts = new solidbase.config.Options( line.hasOption( "verbose" ), line.hasOption( "dumplog" ), line.getOptionValue( "driver" ),
+				line.getOptionValue( "url" ), line.getOptionValue( "username" ), line.getOptionValue( "password" ), line.getOptionValue( "target" ),
+				line.getOptionValue( "upgradefile" ), line.getOptionValue( "sqlfile" ), line.getOptionValue( "config" ), line.hasOption( "downgradeallowed" ),
+				line.hasOption( "help" ), line.getOptionProperties( "D" ) );
 
-		if( opts.help )
-		{
+		if( opts.help ) {
 			printHelp( options );
 			return;
 		}
@@ -163,22 +150,19 @@ public class Main
 		Progress progress = new Progress( console, opts.verbose );
 		Configuration configuration = new Configuration( progress, pass, opts );
 
-		if( pass == 1 )
-		{
+		if( pass == 1 ) {
 			reload( args, configuration.getDriverJars(), opts.verbose );
 			return;
 		}
 
 		String error = configuration.getFirstError();
-		if( error != null )
-		{
+		if( error != null ) {
 			console.println( error );
 			printHelp( options );
 			return;
 		}
 
-		if( configuration.isVoid() )
-		{
+		if( configuration.isVoid() ) {
 			printHelp( options );
 			return;
 		}
@@ -187,38 +171,29 @@ public class Main
 		Runner runner = new Runner();
 		runner.setProgressListener( progress );
 		runner.setConnectionAttributes( "default", def.getDriver(), def.getUrl(), def.getUserName(), def.getPassword() );
-		for( solidbase.config.Database connection : configuration.getSecondaryDatabases() )
-			runner.setConnectionAttributes(
-					connection.getName(),
-					connection.getDriver(),
-					connection.getUrl(),
-					connection.getUserName(),
-					connection.getPassword()
-					);
+		for( solidbase.config.Database connection : configuration.getSecondaryDatabases() ) {
+			runner.setConnectionAttributes( connection.getName(), connection.getDriver(), connection.getUrl(), connection.getUserName(),
+					connection.getPassword() );
+		}
 
-		for( Entry<Object, Object> entry : configuration.getParameters().entrySet() )
+		for( Entry<Object, Object> entry : configuration.getParameters().entrySet() ) {
 			runner.addParameter( (String)entry.getKey(), (String)entry.getValue() );
+		}
 
-		if( configuration.getSqlFile() != null )
-		{
+		if( configuration.getSqlFile() != null ) {
 			runner.setSQLFile( Resources.getResource( configuration.getSqlFile() ) );
 			runner.executeSQL();
-		}
-		else if( opts.dumplog )
-		{
+		} else if( opts.dumplog ) {
 			runner.setUpgradeFile( Resources.getResource( configuration.getUpgradeFile() ) );
 			runner.setOutputFile( Resources.getResource( line.getOptionValue( "dumplog" ) ) );
 			runner.logToXML();
-		}
-		else
-		{
+		} else {
 			runner.setUpgradeFile( Resources.getResource( configuration.getUpgradeFile() ) );
 			runner.setUpgradeTarget( configuration.getTarget() );
 			runner.setDowngradeAllowed( opts.downgradeallowed );
 			runner.upgrade();
 		}
 	}
-
 
 	/**
 	 * Reload SolidBase with an extended classpath. Calls {@link #pass2(String...)} when it's done.
@@ -228,17 +203,16 @@ public class Main
 	 * @param verbose Show more information.
 	 * @throws ProcessException When an {@link SQLException} is thrown during execution of a database change.
 	 */
-	static protected void reload( String[] args, List< String > jars, boolean verbose ) throws ProcessException
-	{
-		if( jars == null || jars.isEmpty() )
-		{
+	static protected void reload( String[] args, List<String> jars, boolean verbose ) throws ProcessException {
+		if( jars == null || jars.isEmpty() ) {
 			// No need to add a new classloader
 			pass2( args );
 			return;
 		}
 
-		if( verbose )
+		if( verbose ) {
 			console.println( "Extending classpath" );
+		}
 
 		// Add the driver jar(s) to the classpath
 		@SuppressWarnings( "resource" )
@@ -248,69 +222,51 @@ public class Main
 		urls = new URL[ orig.length + jars.size() ];
 		System.arraycopy( orig, 0, urls, 0, orig.length );
 		int i = orig.length;
-		for( String jar : jars )
-		{
+		for( String jar : jars ) {
 			File driverJarFile = new File( jar );
-			try
-			{
+			try {
 				urls[ i++ ] = driverJarFile.toURI().toURL();
-			}
-			catch( MalformedURLException e )
-			{
+			} catch( MalformedURLException e ) {
 				throw new SystemException( e );
 			}
-			if( verbose )
+			if( verbose ) {
 				console.println( "Adding jar to classpath: " + urls[ i - 1 ] );
+			}
 		}
 
-		if( verbose )
+		if( verbose ) {
 			console.println();
+		}
 
 		// Create a new classloader with the new classpath
 		classLoader = new URLClassLoader( urls, Main.class.getClassLoader().getParent() );
 
 		// Execute the main class through the new classloader with reflection
-		Class< ? > main;
-		try
-		{
+		Class<?> main;
+		try {
 			main = classLoader.loadClass( "solidbase.Main" );
-		}
-		catch( ClassNotFoundException e )
-		{
+		} catch( ClassNotFoundException e ) {
 			throw new SystemException( e );
 		}
 		Method method;
-		try
-		{
+		try {
 			method = main.getDeclaredMethod( "pass2", String[].class );
-		}
-		catch( SecurityException e )
-		{
+		} catch( SecurityException e ) {
 			throw new SystemException( e );
-		}
-		catch( NoSuchMethodException e )
-		{
+		} catch( NoSuchMethodException e ) {
 			throw new SystemException( e );
 		}
 		// TODO Should we change the contextClassLoader too?
-		try
-		{
+		try {
 			method.invoke( method, (Object)args );
-		}
-		catch( IllegalArgumentException e )
-		{
+		} catch( IllegalArgumentException e ) {
 			throw new SystemException( e );
-		}
-		catch( IllegalAccessException e )
-		{
+		} catch( IllegalAccessException e ) {
 			throw new SystemException( e );
-		}
-		catch( InvocationTargetException e )
-		{
+		} catch( InvocationTargetException e ) {
 			throw new SystemException( e.getCause() );
 		}
 	}
-
 
 	/**
 	 * Gets called after reloading with an extended classpath.
@@ -318,43 +274,39 @@ public class Main
 	 * @param args The arguments from the command line.
 	 * @throws ProcessException When an {@link SQLException} is thrown during execution of a database change.
 	 */
-	static public void pass2( String... args ) throws ProcessException
-	{
-		try
-		{
+	static public void pass2( String... args ) throws ProcessException {
+		try {
 			pass = 2;
 			main0( args );
-		}
-		catch( Throwable t )
-		{
+		} catch( Throwable t ) {
 			console.println();
 
-			if( t instanceof SystemException )
-				if( t.getCause() != null )
-				{
+			if( t instanceof SystemException ) {
+				if( t.getCause() != null ) {
 					t = t.getCause();
 					Assert.notInstanceOf( t, SystemException.class );
 				}
+			}
 
-			if( t instanceof FatalException )
+			if( t instanceof FatalException ) {
 				console.println( "ERROR: " + t.getMessage() );
-			else
+			} else {
 				console.printStacktrace( t );
+			}
 
 			System.exit( 1 );
 		}
 	}
-
 
 	/**
 	 * Print the help from commons cli to the writer registered on the {@link Console}.
 	 *
 	 * @param options The commons cli option configuration.
 	 */
-	static protected void printHelp( Options options )
-	{
+	static protected void printHelp( Options options ) {
 		PrintWriter writer = new PrintWriter( console.out );
 		new HelpFormatter().printHelp( writer, 80, "solidbase", null, options, 1, 3, null, true );
 		writer.flush();
 	}
+
 }

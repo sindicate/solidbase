@@ -48,98 +48,88 @@ public class Progress extends ProgressListener implements ConfigListener
 	 * @param console The console to use.
 	 * @param verbose Show extra information?
 	 */
-	public Progress( Console console, boolean verbose )
-	{
+	public Progress( Console console, boolean verbose ) {
 		this.console = console;
 		this.verbose = verbose;
 	}
 
 	@Override
-	public void cr()
-	{
-		this.console.carriageReturn();
+	public void cr() {
+		console.carriageReturn();
 	}
 
 	@Override
-	public void println( String message )
-	{
-		this.console.println( message );
+	public void println( String message ) {
+		console.println( message );
 	}
 
 	@Override
-	public void readingConfigFile( String path )
-	{
-		if( this.verbose )
-			this.console.println( "Reading property file " + path );
+	public void readingConfigFile( String path ) {
+		if( verbose ) {
+			console.println( "Reading property file " + path );
+		}
 	}
 
 	@Override
-	protected void upgradeStarting( UpgradeSegment segment )
-	{
-		switch( segment.getType() )
-		{
+	protected void upgradeStarting( UpgradeSegment segment ) {
+		switch( segment.getType() ) {
 			case SETUP:
-				this.console.print( "Setting up control tables" );
+				console.print( "Setting up control tables" );
 				break;
 			case UPGRADE:
-				this.console.print( "Upgrading" );
+				console.print( "Upgrading" );
 				break;
 			case SWITCH:
-				this.console.print( "Switching" );
+				console.print( "Switching" );
 				break;
 			case DOWNGRADE:
-				this.console.print( "Downgrading" );
+				console.print( "Downgrading" );
 				break;
 			default:
 				Assert.fail( "Unknown segment type: " + segment.getType() );
 		}
-		if( segment.getSource() == null )
-			this.console.print( " to \"" + segment.getTarget() + "\"" );
-		else
-			this.console.print( " \"" + segment.getSource() + "\" to \"" + segment.getTarget() + "\"" );
+		if( segment.getSource() == null ) {
+			console.print( " to \"" + segment.getTarget() + "\"" );
+		} else {
+			console.print( " \"" + segment.getSource() + "\" to \"" + segment.getTarget() + "\"" );
+		}
 	}
 
 	@Override
-	protected void executing( Command command )
-	{
-		for( int i = 0; i < this.messages.length; i++ )
-		{
-			String m = this.messages[ i ];
-			if( m != null )
-			{
-				this.console.carriageReturn();
-				this.console.print( SPACES.substring( 0, i * 4 ) );
-				this.console.print( m );
-				this.messages[ i ] = null;
+	protected void executing( Command command ) {
+		for( int i = 0; i < messages.length; i++ ) {
+			String m = messages[ i ];
+			if( m != null ) {
+				console.carriageReturn();
+				console.print( SPACES.substring( 0, i * 4 ) );
+				console.print( m );
+				messages[ i ] = null;
 			}
 		}
 	}
 
 	@Override
-	protected void executed()
-	{
-		this.console.print( "." );
+	protected void executed() {
+		console.print( "." );
 	}
 
 	@Override
-	protected String requestPassword( String user )
-	{
-		this.console.carriageReturn();
-		this.console.print( "Input password for user '" + user + "': " );
-		return this.console.input( true );
+	protected String requestPassword( String user ) {
+		console.carriageReturn();
+		console.print( "Input password for user '" + user + "': " );
+		return console.input( true );
 	}
 
 	@Override
-	protected void debug( String message )
-	{
-		if( this.verbose )
-			this.console.println( "DEBUG: " + message );
+	protected void debug( String message ) {
+		if( verbose ) {
+			console.println( "DEBUG: " + message );
+		}
 	}
 
 	@Override
-	public void print( String message )
-	{
-		this.console.carriageReturn();
-		this.console.print( message );
+	public void print( String message ) {
+		console.carriageReturn();
+		console.print( message );
 	}
 }
