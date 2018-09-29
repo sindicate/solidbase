@@ -80,7 +80,7 @@
 
 	<path id="compile.classpath">
 		<fileset dir="lib" includes="*.jar" />
-		<pathelement location="${build.home}/../solidstack/classes" />
+		<!-- <pathelement location="${build.home}/../solidstack/classes" /> -->
 	</path>
 
 	<path id="compiletest.classpath">
@@ -142,7 +142,7 @@
 
 	<target name="compile">
 		<echo message="java.home=${java.home}" />
-		<ant antfile="../solidstack/build.xml" target="compile" useNativeBasedir="yes" inheritAll="no" />
+		<!-- <ant antfile="../solidstack/build.xml" target="compile" useNativeBasedir="yes" inheritAll="no" /> -->
 		<mkdir dir="${build.home}/classes" />
 		<javac srcdir="src" destdir="${build.home}/classes" source="${target-jre}" target="${target-jre}" optimize="true" debug="true" deprecation="true" classpathref="compile.classpath" />
 		<sync todir="${build.home}/classes">
@@ -210,14 +210,15 @@
 		<mkdir dir="${dist.home}" />
 		<jarjar compress="yes" destfile="${dist.home}/solidbase.jar">
 			<zipfileset dir="${build.home}/classes" excludes="solidbase/version.properties" />
-		    <zipfileset dir="${build.home}/../solidstack/classes" excludes="solidbase/version.properties" />
+		    <!-- <zipfileset dir="${build.home}/../solidstack/classes" excludes="solidbase/version.properties" /> -->
+		    <zipfileset src="lib/solidstack.jar" excludes="META-INF/**" />
 			<zipfileset file="${build.home}/config/version.properties" prefix="solidbase" />
 			<zipfileset src="lib/commons-cli-1.2.jar" excludes="META-INF/**" />
 			<zipfileset src="lib/commons-lang3-3.4.jar" excludes="META-INF/**" />
 			<zipfileset src="lib/commons-primitives-1.0.jar" excludes="META-INF/**" />
 			<zipfileset dir="." includes="LICENSE.txt,NOTICE.txt,CHANGELOG.TXT" prefix="META-INF" />
 			<rule pattern="org.apache.commons.**" result="solidbase.commons.@1" />
-			<rule pattern="solidstack.**" result="solidbase.@1" />
+			<rule pattern="solidstack.**" result="solidbase.solidstack.@1" />
 			<keep pattern="solidbase.**" />
 			<manifest>
 				<attribute name="Implementation-Title" value="SolidBase" />
