@@ -30,7 +30,6 @@ import solidstack.script.scopes.DefaultScope;
 import solidstack.script.scopes.Scope;
 
 
-
 /**
  * Execution context.
  *
@@ -39,8 +38,6 @@ import solidstack.script.scopes.Scope;
  */
 abstract public class CommandContext
 {
-	static public enum CommitStrategy { AUTOCOMMIT, TRANSACTIONAL }
-
 	/**
 	 * The parent execution context.
 	 */
@@ -64,12 +61,12 @@ abstract public class CommandContext
 	/**
 	 * Errors that should be ignored. @{link #ignoreSet} is kept in sync with this stack.
 	 */
-	private Stack< String[] > ignoreStack;
+	private Stack<String[]> ignoreStack;
 
 	/**
 	 * Errors that should be ignored. This set is kept in sync with the {@link #ignoreStack}.
 	 */
-	private Set< String > ignoreSet;
+	private Set<String> ignoreSet;
 
 	/**
 	 * The current database.
@@ -99,17 +96,15 @@ abstract public class CommandContext
 	 */
 	private Scope scope;
 
-
 	/**
 	 * Constructor.
 	 */
-	public CommandContext()
-	{
-		this.jdbcEscaping = false;
-		this.sectionLevel = 0;
-		this.ignoreStack = new Stack<>();
-		this.ignoreSet = new HashSet<>();
-		this.noSkipCounter = this.skipCounter = 0;
+	public CommandContext() {
+		jdbcEscaping = false;
+		sectionLevel = 0;
+		ignoreStack = new Stack<>();
+		ignoreSet = new HashSet<>();
+		noSkipCounter = skipCounter = 0;
 	}
 
 	/**
@@ -117,40 +112,38 @@ abstract public class CommandContext
 	 *
 	 * @param parent The parent context.
 	 */
-	public CommandContext( CommandContext parent )
-	{
+	public CommandContext( CommandContext parent ) {
 		// inherit
 		this.parent = parent;
-		this.databases = parent.databases;
-		this.jdbcEscaping = parent.jdbcEscaping;
-		this.sectionLevel = parent.sectionLevel;
-		this.currentDatabase = parent.currentDatabase;
+		databases = parent.databases;
+		jdbcEscaping = parent.jdbcEscaping;
+		sectionLevel = parent.sectionLevel;
+		currentDatabase = parent.currentDatabase;
 		// TODO Inherit scope from parent?
 
 		// no inherit
-		this.ignoreStack = new Stack<>();
-		this.ignoreSet = new HashSet<>();
-		this.noSkipCounter = this.skipCounter = 0;
+		ignoreStack = new Stack<>();
+		ignoreSet = new HashSet<>();
+		noSkipCounter = skipCounter = 0;
 	}
 
 	/**
 	 * Skip persistent commands depending on the boolean parameter. If the skip parameter is true commands will be
-	 * skipped, otherwise not. As {@link #skip(boolean)} and {@link #endSkip(SourceLocation)} can be nested, the same number of
-	 * endSkips need to be called as the number of skips to stop the skipping.
+	 * skipped, otherwise not. As {@link #skip(boolean)} and {@link #endSkip(SourceLocation)} can be nested, the same
+	 * number of endSkips need to be called as the number of skips to stop the skipping.
 	 *
 	 * @param skip If true, commands will be skipped, otherwise not.
 	 */
-	protected void skip( boolean skip )
-	{
-		if( this.skipCounter == 0 )
-		{
-			if( skip )
-				this.skipCounter++;
-			else
-				this.noSkipCounter++;
+	protected void skip( boolean skip ) {
+		if( skipCounter == 0 ) {
+			if( skip ) {
+				skipCounter++;
+			} else {
+				noSkipCounter++;
+			}
+		} else {
+			skipCounter++;
 		}
-		else
-			this.skipCounter++;
 	}
 
 	/**
@@ -158,11 +151,11 @@ abstract public class CommandContext
 	 *
 	 * @param location The location where the ELSE is encountered.
 	 */
-	protected void doElse( SourceLocation location )
-	{
-		if( this.noSkipCounter <= 0 && this.skipCounter <= 0 )
+	protected void doElse( SourceLocation location ) {
+		if( noSkipCounter <= 0 && skipCounter <= 0 ) {
 			throw new SourceException( "ELSE without IF encountered", location );
-		boolean skip = this.skipCounter > 0;
+		}
+		boolean skip = skipCounter > 0;
 		endSkip( location );
 		skip( !skip );
 	}
@@ -172,28 +165,27 @@ abstract public class CommandContext
 	 *
 	 * @param location The location where the END IF is encountered.
 	 */
-	protected void endIf( SourceLocation location )
-	{
-		if( this.noSkipCounter <= 0 && this.skipCounter <= 0 )
+	protected void endIf( SourceLocation location ) {
+		if( noSkipCounter <= 0 && skipCounter <= 0 ) {
 			throw new SourceException( "/IF without IF encountered", location );
+		}
 		endSkip( location );
 	}
 
 	/**
-	 * Stop skipping commands. As {@link #skip(boolean)} and {@link #endSkip(SourceLocation)} can be nested, only when the same number
-	 * of endSkips are called as the number of skips, the skipping will stop.
+	 * Stop skipping commands. As {@link #skip(boolean)} and {@link #endSkip(SourceLocation)} can be nested, only when
+	 * the same number of endSkips are called as the number of skips, the skipping will stop.
 	 *
 	 * @param location The location where the END SKIP is encountered.
 	 */
-	protected void endSkip( SourceLocation location )
-	{
-		if( this.skipCounter > 0 )
-			this.skipCounter--;
-		else
-		{
-			if( this.noSkipCounter <= 0 )
+	protected void endSkip( SourceLocation location ) {
+		if( skipCounter > 0 ) {
+			skipCounter--;
+		} else {
+			if( noSkipCounter <= 0 ) {
 				throw new SourceException( "/SKIP without SKIP encountered", location );
-			this.noSkipCounter--;
+			}
+			noSkipCounter--;
 		}
 	}
 
@@ -202,9 +194,8 @@ abstract public class CommandContext
 	 *
 	 * @return True if commands need to be skipped, false otherwise.
 	 */
-	public boolean skipping()
-	{
-		return this.skipCounter > 0 || this.parent != null && this.parent.skipping();
+	public boolean skipping() {
+		return skipCounter > 0 || parent != null && parent.skipping();
 	}
 
 	/**
@@ -212,33 +203,32 @@ abstract public class CommandContext
 	 *
 	 * @param ignores A comma separated list of errors to be ignored.
 	 */
-	protected void pushIgnores( String ignores )
-	{
+	protected void pushIgnores( String ignores ) {
 		String[] ss = ignores.split( "," );
-		for( int i = 0; i < ss.length; i++ )
+		for( int i = 0; i < ss.length; i++ ) {
 			ss[ i ] = ss[ i ].trim();
-		this.ignoreStack.push( ss );
+		}
+		ignoreStack.push( ss );
 		refreshIgnores();
 	}
 
 	/**
 	 * Remove the last added list of ignores.
 	 */
-	protected void popIgnores()
-	{
-		this.ignoreStack.pop();
+	protected void popIgnores() {
+		ignoreStack.pop();
 		refreshIgnores();
 	}
 
 	/**
 	 * Synchronize the set of ignores with the queue's contents.
 	 */
-	protected void refreshIgnores()
-	{
-		HashSet< String > ignores = new HashSet<>();
-		for( String[] ss : this.ignoreStack )
+	protected void refreshIgnores() {
+		HashSet<String> ignores = new HashSet<>();
+		for( String[] ss : ignoreStack ) {
 			ignores.addAll( Arrays.asList( ss ) );
-		this.ignoreSet = ignores;
+		}
+		ignoreSet = ignores;
 	}
 
 	/**
@@ -247,23 +237,28 @@ abstract public class CommandContext
 	 * @param error SQL Error code.
 	 * @return True if the given error should be ignored, false otherwise.
 	 */
-	public boolean ignoreSQLError( String error )
-	{
-		return this.ignoreSet.contains( error ) || this.parent != null && this.parent.ignoreSQLError( error );
+	public boolean ignoreSQLError( String error ) {
+		return ignoreSet.contains( error ) || parent != null && parent.ignoreSQLError( error );
 	}
 
-	public Scope getScope()
-	{
-		if( this.scope == null )
-		{
-			this.scope = new DefaultScope();
-			this.scope.val( Symbol.apply( "db" ), new ScriptDB( this ) ); // TODO Or var?
+	/**
+	 * @return The current scope.
+	 */
+	public Scope getScope() {
+		if( scope == null ) {
+			scope = new DefaultScope();
+			scope.val( Symbol.apply( "db" ), new ScriptDB( this ) ); // TODO Or var?
 		}
-		return this.scope;
+		return scope;
 	}
 
-	public Scope swapScope( Scope scope )
-	{
+	/**
+	 * Swap the current scope with the given one.
+	 *
+	 * @param scope The new scope.
+	 * @return The previous scope.
+	 */
+	public Scope swapScope( Scope scope ) {
 		Scope ret = this.scope;
 		this.scope = scope;
 		return ret;
@@ -274,9 +269,8 @@ abstract public class CommandContext
 	 *
 	 * @param escaping True enables, false disables.
 	 */
-	public void setJdbcEscaping( boolean escaping )
-	{
-		this.jdbcEscaping = escaping;
+	public void setJdbcEscaping( boolean escaping ) {
+		jdbcEscaping = escaping;
 	}
 
 	/**
@@ -284,17 +278,15 @@ abstract public class CommandContext
 	 *
 	 * @return True if JDBC escape processing is enabled, false otherwise.
 	 */
-	public boolean isJdbcEscaping()
-	{
-		return this.jdbcEscaping;
+	public boolean isJdbcEscaping() {
+		return jdbcEscaping;
 	}
 
 	/**
 	 * @return True if script expansion is on.
 	 */
-	public boolean isScriptExpansion()
-	{
-		return this.scriptExpansion;
+	public boolean isScriptExpansion() {
+		return scriptExpansion;
 	}
 
 	/**
@@ -303,8 +295,7 @@ abstract public class CommandContext
 	 *
 	 * @param scriptExpansion True enables script expansion, false disables it.
 	 */
-	public void setScriptExpansion( boolean scriptExpansion )
-	{
+	public void setScriptExpansion( boolean scriptExpansion ) {
 		this.scriptExpansion = scriptExpansion;
 	}
 
@@ -313,8 +304,7 @@ abstract public class CommandContext
 	 *
 	 * @param databases All configured databases.
 	 */
-	public void setDatabases( DatabaseContext databases )
-	{
+	public void setDatabases( DatabaseContext databases ) {
 		this.databases = databases;
 	}
 
@@ -323,9 +313,8 @@ abstract public class CommandContext
 	 *
 	 * @return All configured databases.
 	 */
-	public Collection< Database > getDatabases()
-	{
-		return this.databases.getDatabases();
+	public Collection<Database> getDatabases() {
+		return databases.getDatabases();
 	}
 
 	/**
@@ -334,9 +323,8 @@ abstract public class CommandContext
 	 * @param name The name of the database.
 	 * @return The database with the given name.
 	 */
-	public Database getDatabase( String name )
-	{
-		return this.databases.getDatabase( name );
+	public Database getDatabase( String name ) {
+		return databases.getDatabase( name );
 	}
 
 	/**
@@ -344,9 +332,8 @@ abstract public class CommandContext
 	 *
 	 * @return The current database.
 	 */
-	public Database getCurrentDatabase()
-	{
-		return this.currentDatabase;
+	public Database getCurrentDatabase() {
+		return currentDatabase;
 	}
 
 	/**
@@ -354,9 +341,8 @@ abstract public class CommandContext
 	 *
 	 * @param database The database.
 	 */
-	public void setCurrentDatabase( Database database )
-	{
-		this.currentDatabase = database;
+	public void setCurrentDatabase( Database database ) {
+		currentDatabase = database;
 	}
 
 	/**
@@ -364,9 +350,8 @@ abstract public class CommandContext
 	 *
 	 * @return The parent context.
 	 */
-	public CommandContext getParent()
-	{
-		return this.parent;
+	public CommandContext getParent() {
+		return parent;
 	}
 
 	/**
@@ -374,9 +359,8 @@ abstract public class CommandContext
 	 *
 	 * @return The section nesting level.
 	 */
-	public int getSectionLevel()
-	{
-		return this.sectionLevel;
+	public int getSectionLevel() {
+		return sectionLevel;
 	}
 
 	/**
@@ -384,25 +368,33 @@ abstract public class CommandContext
 	 *
 	 * @param level The section nesting level.
 	 */
-	public void setSectionLevel( int level )
-	{
-		this.sectionLevel = level;
+	public void setSectionLevel( int level ) {
+		sectionLevel = level;
 	}
 
-	public void end()
-	{
-		for( Database database : getDatabases() )
+	/**
+	 * Ends the current process. This closes all connections to all databases.
+	 */
+	public void end() {
+		for( Database database : getDatabases() ) {
 			database.closeConnections();
+		}
 	}
 
-	public CommitStrategy commitStrategy()
-	{
-		return this.commitStrategy;
+	/**
+	 * @return The currently active commit strategy.
+	 */
+	public CommitStrategy commitStrategy() {
+		return commitStrategy;
 	}
 
-	public void setCommitStrategy( CommitStrategy strategy )
-	{
-		this.commitStrategy = strategy;
+	/**
+	 * Sets the commit strategy.
+	 *
+	 * @param strategy The commit strategy.
+	 */
+	public void setCommitStrategy( CommitStrategy strategy ) {
+		commitStrategy = strategy;
 	}
 
 	/**
@@ -410,8 +402,8 @@ abstract public class CommandContext
 	 *
 	 * @return True if in transient mode, false otherwise.
 	 */
-	public boolean isTransient()
-	{
+	public boolean isTransient() {
 		return false;
 	}
+
 }

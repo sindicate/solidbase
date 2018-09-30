@@ -23,7 +23,6 @@ import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import solidbase.core.CommandContext.CommitStrategy;
 import solidbase.core.Delimiter.Type;
 import solidbase.util.Assert;
 import solidstack.io.Resource;
@@ -34,7 +33,6 @@ import solidstack.io.SourceReaders;
 import solidstack.script.Script;
 import solidstack.script.ScriptParser;
 import solidstack.script.expressions.Expression;
-
 
 
 /**
@@ -75,12 +73,16 @@ abstract public class CommandProcessor
 	/**
 	 * Pattern for DELIMITER.
 	 */
-	static protected final Pattern delimiterPattern = Pattern.compile( "(?:SET\\s+DELIMITER|DELIMITER\\s+IS)(?:\\s+(ISOLATED)|\\s+(TRAILING))?\\s+(\\S+)(?:\\sOR(?:\\s+(ISOLATED)|\\s+(TRAILING))?\\s+(\\S+))?", Pattern.CASE_INSENSITIVE );
+	static protected final Pattern delimiterPattern = Pattern.compile(
+			"(?:SET\\s+DELIMITER|DELIMITER\\s+IS)(?:\\s+(ISOLATED)|\\s+(TRAILING))?\\s+(\\S+)(?:\\sOR(?:\\s+(ISOLATED)|\\s+(TRAILING))?\\s+(\\S+))?",
+			Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * Pattern for TERMINATOR.
 	 */
-	static protected final Pattern terminatorPattern = Pattern.compile( "SET\\s+TERMINATOR\\s*=\\s*(?:(SEPARATE)\\s+|(TRAILING)\\s+)?(\\S+)(?:\\s+OR\\s+(?:(SEPARATE)\\s+|(TRAILING)\\s+)?(\\S+))?", Pattern.CASE_INSENSITIVE );
+	static protected final Pattern terminatorPattern = Pattern.compile(
+			"SET\\s+TERMINATOR\\s*=\\s*(?:(SEPARATE)\\s+|(TRAILING)\\s+)?(\\S+)(?:\\s+OR\\s+(?:(SEPARATE)\\s+|(TRAILING)\\s+)?(\\S+))?",
+			Pattern.CASE_INSENSITIVE );
 
 	/**
 	 * Pattern for TERMINATOR.
@@ -178,14 +180,15 @@ abstract public class CommandProcessor
 	 *
 	 * @param listener Listens to the progress.
 	 */
-	public CommandProcessor( ProgressListener listener )
-	{
-		this.progress = listener;
+	public CommandProcessor( ProgressListener listener ) {
+		progress = listener;
 	}
 
-	public CommandContext getContext()
-	{
-		return this.context;
+	/**
+	 * @return The context of the command processing.
+	 */
+	public CommandContext getContext() {
+		return context;
 	}
 
 	/**
@@ -196,47 +199,49 @@ abstract public class CommandProcessor
 	 * @return Whenever an {@link SQLException} is ignored.
 	 * @throws ProcessException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	protected ProcessException executeWithListeners( Command command, boolean skip ) throws ProcessException
-	{
-		expand( command );
+	protected ProcessException executeWithListeners( Command command, boolean skip ) throws ProcessException {
+		command = expand( command );
 
-		if( !command.isAnnotation() && !this.context.isTransient() )
-			if( !skip )
-				this.progress.executing( command );
+		if( !command.isAnnotation() && !context.isTransient() ) {
+			if( !skip ) {
+				progress.executing( command );
+			}
+		}
 
 		ProcessException result = null;
-		try
-		{
-			if( !executeListeners( command, skip ) )
-				if( !skip )
-					if( !command.isAnnotation() )
+		try {
+			if( !executeListeners( command, skip ) ) {
+				if( !skip ) {
+					if( !command.isAnnotation() ) {
 						executeJdbc( command );
-					else
+					} else {
 						throw new SourceException( "Unknown command " + command.getCommand(), command.getLocation() );
-		}
-		catch( SQLException e )
-		{
+					}
+				}
+			}
+
+		} catch( SQLException e ) {
 			// TODO Is this one thrown anymore?
 			ProcessException newException = new ProcessException( e ).addProcess( "executing: " + command.getCommand() ).addLocation( command.getLocation() );
 			String error = e.getSQLState();
-			if( !this.context.ignoreSQLError( error ) )
-			{
-				this.progress.exception( newException );
+			if( !context.ignoreSQLError( error ) ) {
+				progress.exception( newException );
 				throw newException;
 			}
 			result = newException;
-		}
-		catch( ProcessException e )
-		{
+
+		} catch( ProcessException e ) {
 			// TODO Do we need to check SQLException to ignore?
 			throw e.addProcess( "executing: " + command.getCommand() ).addLocation( command.getLocation() );
 		}
 
-		if( !command.isAnnotation() && !this.context.isTransient() )
-			if( !skip )
-				this.progress.executed();
-			else
-				this.progress.skipped( command );
+		if( !command.isAnnotation() && !context.isTransient() ) {
+			if( !skip ) {
+				progress.executed();
+			} else {
+				progress.skipped( command );
+			}
+		}
 
 		return result;
 	}
@@ -245,19 +250,20 @@ abstract public class CommandProcessor
 	 * Substitutes place holders in the command.
 	 *
 	 * @param command The command.
+	 * @return The expanded command.
 	 */
-	protected void expand( Command command )
-	{
-		if( !this.context.isScriptExpansion() )
-			return;
+	protected Command expand( Command command ) {
+		if( !context.isScriptExpansion() ) {
+			return command;
+		}
 
-		// TODO Is this needed? The string parser is fast too.
-		if( !command.getCommand().contains( "${" ) ) // TODO & or something else?
-			return;
+//		if( !command.getCommand().contains( "${" ) ) {
+//			return command;
+//		}
 
 		Expression expression = ScriptParser.parseString( command.getCommand(), command.getLocation() );
-		Object object = Script.eval( expression, this.context.getScope() );
-		command.setCommand( object.toString() );
+		Object object = Script.eval( expression, context.getScope() );
+		return command.withCommand( object.toString() );
 
 //		Template template = new TemplateCompiler( null ).compile( new StringResource( "<%@ template version=\"1.0\" language=\"javascript\" %>" + command.getCommand() ), null );
 //		String result = template.apply( this.context.getScope() );
@@ -272,116 +278,98 @@ abstract public class CommandProcessor
 	 * @return True if a listener has processed the command, false otherwise.
 	 * @throws SQLException If the database throws an exception.
 	 */
-	protected boolean executeListeners( Command command, boolean skip ) throws SQLException
-	{
+	protected boolean executeListeners( Command command, boolean skip ) throws SQLException {
 		String sql = command.getCommand();
 		Matcher matcher;
-		if( command.isAnnotation() )
-		{
-			if( ( matcher = sectionPattern.matcher( sql ) ).matches() )
-			{
+		if( command.isAnnotation() ) {
+			if( ( matcher = sectionPattern.matcher( sql ) ).matches() ) {
 				section( matcher.group( 1 ), matcher.group( 2 ), command );
 				return true;
 			}
-			if( ( matcher = delimiterPattern.matcher( sql ) ).matches() || ( matcher = terminatorPattern.matcher( sql ) ).matches() )
-			{
+			if( ( matcher = delimiterPattern.matcher( sql ) ).matches() || ( matcher = terminatorPattern.matcher( sql ) ).matches() ) {
 				setDelimiters( parseDelimiters( matcher ) );
 				return true;
 			}
-			if( resetTerminatorPattern.matcher( sql ).matches() )
-			{
+			if( resetTerminatorPattern.matcher( sql ).matches() ) {
 				setDelimiters( null );
 				return true;
 			}
-			if( ( matcher = ignoreSqlErrorPattern.matcher( sql ) ).matches() )
-			{
-				this.context.pushIgnores( matcher.group( 1 ) );
+			if( ( matcher = ignoreSqlErrorPattern.matcher( sql ) ).matches() ) {
+				context.pushIgnores( matcher.group( 1 ) );
 				return true;
 			}
-			if( ignoreEnd.matcher( sql ).matches() )
-			{
-				this.context.popIgnores();
+			if( ignoreEnd.matcher( sql ).matches() ) {
+				context.popIgnores();
 				return true;
 			}
-			if( ( matcher = selectConnectionPattern.matcher( sql ) ).matches() )
-			{
+			if( ( matcher = selectConnectionPattern.matcher( sql ) ).matches() ) {
 				selectConnection( matcher.group( 1 ), command );
 				return true;
 			}
-			if( ( matcher = IF_SCRIPT_COMMAND.matcher( sql ) ).matches() )
-			{
-				ifScript( matcher.group( 1 ), command );
+			if( ( matcher = IF_SCRIPT_COMMAND.matcher( sql ) ).matches() ) {
+				ifScript( matcher.group( 1 ), command.getLocation() );
 				return true;
 			}
-			if( elsePattern.matcher( sql ).matches() )
-			{
-				this.context.doElse( command.getLocation() );
+			if( elsePattern.matcher( sql ).matches() ) {
+				context.doElse( command.getLocation() );
 				return true;
 			}
-			if( ifEndPattern.matcher( sql ).matches() )
-			{
-				this.context.endIf( command.getLocation() );
+			if( ifEndPattern.matcher( sql ).matches() ) {
+				context.endIf( command.getLocation() );
 				return true;
 			}
-			if( ( matcher = setUserPattern.matcher( sql ) ).matches() )
-			{
+			if( ( matcher = setUserPattern.matcher( sql ) ).matches() ) {
 				setUser( matcher.group( 1 ) );
 				return true;
 			}
-			if( skipPattern.matcher( sql ).matches() )
-			{
-				this.context.skip( true );
+			if( skipPattern.matcher( sql ).matches() ) {
+				context.skip( true );
 				return true;
 			}
-			if( skipEnd.matcher( sql ).matches() )
-			{
-				this.context.endSkip( command.getLocation() );
+			if( skipEnd.matcher( sql ).matches() ) {
+				context.endSkip( command.getLocation() );
 				return true;
 			}
-			if( ( matcher = JDBC_ESCAPING.matcher( sql ) ).matches() )
-			{
-				this.context.setJdbcEscaping( matcher.group( 1 ).equalsIgnoreCase( "ON" ) );
+			if( ( matcher = JDBC_ESCAPING.matcher( sql ) ).matches() ) {
+				context.setJdbcEscaping( matcher.group( 1 ).equalsIgnoreCase( "ON" ) );
 				return true;
 			}
-			if( encodingPattern.matcher( sql ).matches() )
+			if( encodingPattern.matcher( sql ).matches() ) {
 				// Ignore, already picked up by the EncodingDetector
 				// TODO Check that it is the first line, and check with the detected encoding
 				return true;
-			if( ( matcher = SCRIPT_EXPANSION_COMMAND.matcher( sql ) ).matches() )
-			{
-				this.context.setScriptExpansion( "ON".equalsIgnoreCase( matcher.group( 1 ) ) );
+			}
+			if( ( matcher = SCRIPT_EXPANSION_COMMAND.matcher( sql ) ).matches() ) {
+				context.setScriptExpansion( "ON".equalsIgnoreCase( matcher.group( 1 ) ) );
 				return true;
 			}
-			if( ( matcher = SCRIPT_COMMAND.matcher( sql ) ).matches() )
-			{
+			if( ( matcher = SCRIPT_COMMAND.matcher( sql ) ).matches() ) {
 				String script = matcher.group( 1 );
-				if( script != null )
+				if( script != null ) {
 					script( script, command.getLocation() );
-				else
-				{
+				} else {
 					SourceReader reader = getReader();
 					StringBuilder buf = new StringBuilder();
-					while( true )
-					{
+					while( true ) {
 						String line = reader.readLine();
-						if( line == null )
+						if( line == null ) {
 							throw new SourceException( "Missing END SCRIPT for script", command.getLocation() );
-						if( END_SCRIPT_COMMAND.matcher( line ).matches() )
+						}
+						if( END_SCRIPT_COMMAND.matcher( line ).matches() ) {
 							break;
+						}
 						buf.append( line ).append( '\n' );
 					}
 					script( buf.toString(), command.getLocation().nextLine() );
 				}
 				return true;
 			}
-			if( ( matcher = SET_COMMIT_STRATEGY.matcher( sql ) ).matches() )
-			{
-				this.context.setCommitStrategy( "AUTOCOMMIT".equalsIgnoreCase( matcher.group( 1 ) ) ? CommitStrategy.AUTOCOMMIT : CommitStrategy.TRANSACTIONAL );
+			if( ( matcher = SET_COMMIT_STRATEGY.matcher( sql ) ).matches() ) {
+				context.setCommitStrategy( "AUTOCOMMIT".equalsIgnoreCase( matcher.group( 1 ) ) ? CommitStrategy.AUTOCOMMIT : CommitStrategy.TRANSACTIONAL );
 				return true;
 			}
-			if( RESET_COMMIT_STRATEGY.matcher( sql ).matches() )
-			{
-				this.context.setCommitStrategy( null );
+			if( RESET_COMMIT_STRATEGY.matcher( sql ).matches() ) {
+				context.setCommitStrategy( null );
 				return true;
 			}
 //			if( commitPattern.matcher( sql ).matches() )
@@ -389,54 +377,51 @@ abstract public class CommandProcessor
 //				getCurrentDatabase().getConnection().commit();
 //				return true;
 //			}
-		}
-		else if( !skip )
-			if( ( matcher = runPattern.matcher( sql ) ).matches() )
-			{
+		} else if( !skip ) {
+			if( ( matcher = runPattern.matcher( sql ) ).matches() ) {
 				run( matcher.group( 1 ) );
 				return true;
 			}
+		}
 
-		for( CommandListener listener : PluginManager.listeners )
-			if( listener.execute( this, command, skip ) )
+		for( CommandListener listener : PluginManager.listeners ) {
+			if( listener.execute( this, command, skip ) ) {
 				return true;
+			}
+		}
 
 		return false;
 	}
 
 	/**
-	 * Creates a new statement from the current connection. JDBC escape processing is enabled or disabled according to the current configuration.
+	 * Creates a new statement from the current connection. JDBC escape processing is enabled or disabled according to
+	 * the current configuration.
 	 *
 	 * @return The statement.
 	 * @throws SQLException Whenever JDBC throws an SQLException.
 	 */
 	// TODO Maybe we should wrap the connection and override the createStatement there.
-	public Statement createStatement() throws SQLException
-	{
+	public Statement createStatement() throws SQLException {
 		Connection connection = getCurrentDatabase().getConnection();
-		connection.setAutoCommit( this.context.commitStrategy() == CommitStrategy.AUTOCOMMIT );
+		connection.setAutoCommit( context.commitStrategy() == CommitStrategy.AUTOCOMMIT );
 		Statement statement = connection.createStatement();
-		statement.setEscapeProcessing( this.context.isJdbcEscaping() );
+		statement.setEscapeProcessing( context.isJdbcEscaping() );
 		return statement;
 	}
 
 	/**
 	 * Prepares a new statement from the current connection.
-
+	 *
 	 * @param sql The SQL for the statement.
 	 * @return The prepared statement.
 	 * @throws SQLException Whenever JDBC throws an SQLException.
 	 */
-	public PreparedStatement prepareStatement( String sql ) throws SQLException
-	{
+	public PreparedStatement prepareStatement( String sql ) throws SQLException {
 		Connection connection = getCurrentDatabase().getConnection();
-		connection.setAutoCommit( this.context.commitStrategy() == CommitStrategy.AUTOCOMMIT );
-		try
-		{
+		connection.setAutoCommit( context.commitStrategy() == CommitStrategy.AUTOCOMMIT );
+		try {
 			return connection.prepareStatement( sql );
-		}
-		catch( SQLException e )
-		{
+		} catch( SQLException e ) {
 			throw new ProcessException( e ).addProcess( "preparing the statement: " + sql );
 		}
 
@@ -453,22 +438,18 @@ abstract public class CommandProcessor
 	 *        rollback should be called on the statement's connection. If the command processor is not in auto commit
 	 *        mode, this boolean is ignored.
 	 */
-	public void closeStatement( Statement statement, boolean commitOrRollback )
-	{
-		try
-		{
-			if( implicitCommit() && this.context.commitStrategy() != CommitStrategy.AUTOCOMMIT )
-			{
+	public void closeStatement( Statement statement, boolean commitOrRollback ) {
+		try {
+			if( implicitCommit() && context.commitStrategy() != CommitStrategy.AUTOCOMMIT ) {
 				Connection connection = statement.getConnection();
-				if( commitOrRollback )
+				if( commitOrRollback ) {
 					connection.commit();
-				else
+				} else {
 					connection.rollback();
+				}
 			}
 			statement.close(); // TODO Shouldn't the statement be closed before commit or rollback?
-		}
-		catch( SQLException e )
-		{
+		} catch( SQLException e ) {
 			throw new SystemException( e );
 		}
 	}
@@ -479,23 +460,20 @@ abstract public class CommandProcessor
 	 * @param command The command to be executed.
 	 * @throws SQLException Whenever an {@link SQLException} occurs during the execution of a command.
 	 */
-	protected void executeJdbc( Command command ) throws SQLException
-	{
+	protected void executeJdbc( Command command ) throws SQLException {
 		Assert.isFalse( command.isAnnotation() );
 
 		String sql = command.getCommand();
-		if( sql.length() == 0 )
+		if( sql.length() == 0 ) {
 			return;
+		}
 
 		Statement statement = createStatement();
 		boolean commit = false;
-		try
-		{
+		try {
 			statement.execute( sql );
 			commit = true;
-		}
-		finally
-		{
+		} finally {
 			closeStatement( statement, commit );
 		}
 	}
@@ -505,11 +483,11 @@ abstract public class CommandProcessor
 	 *
 	 * @param database The database to make current.
 	 */
-	protected void setConnection( Database database )
-	{
-		this.context.setCurrentDatabase( database );
-		if( database != null )
+	protected void setConnection( Database database ) {
+		context.setCurrentDatabase( database );
+		if( database != null ) {
 			database.init(); // Reset the current user TODO Create a test for this.
+		}
 	}
 
 	/**
@@ -517,9 +495,8 @@ abstract public class CommandProcessor
 	 *
 	 * @param user The user to make current.
 	 */
-	protected void setUser( String user )
-	{
-		this.context.getCurrentDatabase().setCurrentUser( user );
+	protected void setUser( String user ) {
+		context.getCurrentDatabase().setCurrentUser( user );
 	}
 
 	/**
@@ -529,14 +506,15 @@ abstract public class CommandProcessor
 	 * @param message The message to be shown.
 	 * @param command The command that started this.
 	 */
-	protected void section( String level, String message, Command command )
-	{
+	protected void section( String level, String message, Command command ) {
 		int l = level != null ? Integer.parseInt( level ) : 1;
-		if( l < 0 || l > 9 )
+		if( l < 0 || l > 9 ) {
 			throw new SourceException( "Section level must be 0..9", command.getLocation() );
-		if( l > this.context.getSectionLevel() + 1 ) // TODO Why is this?
-			throw new SourceException( "Section levels can't be skipped, current section level is " + this.context.getSectionLevel(), command.getLocation() );
-		this.context.setSectionLevel( l );
+		}
+		if( l > context.getSectionLevel() + 1 ) {
+			throw new SourceException( "Section levels can't be skipped, current section level is " + context.getSectionLevel(), command.getLocation() );
+		}
+		context.setSectionLevel( l );
 		startSection( l, message );
 	}
 
@@ -546,9 +524,8 @@ abstract public class CommandProcessor
 	 * @param level The level of the section.
 	 * @param message The message to be shown.
 	 */
-	protected void startSection( int level, String message )
-	{
-		this.progress.startSection( level, message );
+	protected void startSection( int level, String message ) {
+		progress.startSection( level, message );
 	}
 
 	/**
@@ -556,18 +533,23 @@ abstract public class CommandProcessor
 	 *
 	 * @param url The path of the SQL file.
 	 */
-	protected void run( String url )
-	{
-		SQLFile file = Factory.openSQLFile( getResource().resolve( url ), this.progress );
-		SQLProcessor processor = new SQLProcessor( this.progress );
-		processor.setContext( new SQLContext( this.context, file.getSource() ) );
+	protected void run( String url ) {
+		SQLFile file = Factory.openSQLFile( getResource().resolve( url ), progress );
+		SQLProcessor processor = new SQLProcessor( progress );
+		processor.setContext( new SQLContext( context, file.getSource() ) );
 		processor.process();
 	}
 
-	protected Object script( String script, SourceLocation location )
-	{
+	/**
+	 * Executes a SCRIPT annotation.
+	 *
+	 * @param script The script.
+	 * @param location The source location.
+	 * @return The result of the script.
+	 */
+	protected Object script( String script, SourceLocation location ) {
 		SourceReader reader = SourceReaders.forString( script, location );
-		return Script.compile( reader ).eval( this.context.getScope() );
+		return Script.compile( reader ).eval( context.getScope() );
 	}
 
 	/**
@@ -575,9 +557,8 @@ abstract public class CommandProcessor
 	 *
 	 * @return The progress listener.
 	 */
-	public ProgressListener getProgressListener()
-	{
-		return this.progress;
+	public ProgressListener getProgressListener() {
+		return progress;
 	}
 
 	/**
@@ -585,9 +566,8 @@ abstract public class CommandProcessor
 	 *
 	 * @param callBack The progress listener.
 	 */
-	public void setCallBack( ProgressListener callBack )
-	{
-		this.progress = callBack;
+	public void setCallBack( ProgressListener callBack ) {
+		progress = callBack;
 	}
 
 	/**
@@ -601,20 +581,25 @@ abstract public class CommandProcessor
 	 * @param name The name of the connection to select.
 	 * @param command The command that started this.
 	 */
-	protected void selectConnection( String name, Command command )
-	{
+	protected void selectConnection( String name, Command command ) {
 		name = name.toLowerCase();
-		Database database = this.context.getDatabase( name );
-		if( database == null )
+		Database database = context.getDatabase( name );
+		if( database == null ) {
 			throw new SourceException( "Database '" + name + "' not configured", command.getLocation() );
+		}
 		setConnection( database );
 	}
 
-	protected void ifScript( String script, Command command )
-	{
-		SourceReader reader = SourceReaders.forString( script, command.getLocation() );
-		boolean condition = Script.compile( reader ).evalBoolean( this.context.getScope() );
-		this.context.skip( !condition );
+	/**
+	 * Executes an IF SCRIPT annotation.
+	 *
+	 * @param script The script.
+	 * @param location The source location.
+	 */
+	protected void ifScript( String script, SourceLocation location ) {
+		SourceReader reader = SourceReaders.forString( script, location );
+		boolean condition = Script.compile( reader ).evalBoolean( context.getScope() );
+		context.skip( !condition );
 	}
 
 	/**
@@ -623,19 +608,18 @@ abstract public class CommandProcessor
 	 * @param matcher The matcher.
 	 * @return The parsed delimiters.
 	 */
-	static protected Delimiter[] parseDelimiters( Matcher matcher )
-	{
+	static protected Delimiter[] parseDelimiters( Matcher matcher ) {
 		Delimiter[] delimiters = new Delimiter[ matcher.group( 6 ) != null ? 2 : 1 ];
-		for( int i = 0; i < delimiters.length; i++ )
-		{
+		for( int i = 0; i < delimiters.length; i++ ) {
 			int j = i * 3 + 3;
 			String delimiter = matcher.group( j );
 			j -= 2;
 			Delimiter.Type type = Type.FREE;
-			if( matcher.group( j++ ) != null )
+			if( matcher.group( j++ ) != null ) {
 				type = Type.ISOLATED;
-			else if( matcher.group( j ) != null )
+			} else if( matcher.group( j ) != null ) {
 				type = Type.TRAILING;
+			}
 			delimiters[ i ] = new Delimiter( delimiter, type );
 		}
 		return delimiters;
@@ -653,9 +637,8 @@ abstract public class CommandProcessor
 	 *
 	 * @return The current database.
 	 */
-	public Database getCurrentDatabase()
-	{
-		return this.context.getCurrentDatabase();
+	public Database getCurrentDatabase() {
+		return context.getCurrentDatabase();
 	}
 
 	/**
@@ -663,9 +646,8 @@ abstract public class CommandProcessor
 	 *
 	 * @return The default database.
 	 */
-	public Database getDefaultDatabase()
-	{
-		return this.context.getDatabase( "default" );
+	public Database getDefaultDatabase() {
+		return context.getDatabase( "default" );
 	}
 
 	/**
@@ -683,10 +665,11 @@ abstract public class CommandProcessor
 	abstract public Resource getResource();
 
 	/**
-	 * If true ({@link UpgradeProcessor}), commands get committed automatically, and rolled back when an {@link SQLException} occurs.
-	 * If false ({@link SQLProcessor}), commit/rollback should be in the command source.
+	 * If true ({@link UpgradeProcessor}), commands get committed automatically, and rolled back when an
+	 * {@link SQLException} occurs. If false ({@link SQLProcessor}), commit/rollback should be in the command source.
 	 *
 	 * @return True if commands get committed or rollbacked automatically, false otherwise.
 	 */
 	abstract public boolean implicitCommit();
+
 }

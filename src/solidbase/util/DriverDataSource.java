@@ -16,6 +16,8 @@
 
 package solidbase.util;
 
+import static solidbase.util.Nulls.nonNull;
+
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -26,6 +28,7 @@ import java.util.logging.Logger;
 import javax.sql.DataSource;
 
 import solidbase.core.SystemException;
+
 
 /**
  * A datasource that gets its connections from the DriverManager.
@@ -54,7 +57,6 @@ public class DriverDataSource implements DataSource
 	 */
 	protected String password;
 
-
 	/**
 	 * Constructor.
 	 *
@@ -63,22 +65,15 @@ public class DriverDataSource implements DataSource
 	 * @param username The default user name.
 	 * @param password The password for the default user.
 	 */
-	public DriverDataSource( String driverClassName, String url, String username, String password )
-	{
-		Assert.notNull( driverClassName );
-		Assert.notNull( url );
-
-		this.driverClassName = driverClassName;
-		this.url = url;
+	public DriverDataSource( String driverClassName, String url, String username, String password ) {
+		this.driverClassName = nonNull( driverClassName );
+		this.url = nonNull( url );
 		this.username = username;
 		this.password = password;
 
-		try
-		{
+		try {
 			Class.forName( driverClassName );
-		}
-		catch( ClassNotFoundException e )
-		{
+		} catch( ClassNotFoundException e ) {
 			throw new SystemException( e );
 		}
 	}
@@ -87,9 +82,8 @@ public class DriverDataSource implements DataSource
 	 * Returns a new connection using the default user.
 	 */
 	@Override
-	public Connection getConnection() throws SQLException
-	{
-		return DriverManager.getConnection( this.url, this.username, this.password );
+	public Connection getConnection() throws SQLException {
+		return DriverManager.getConnection( url, username, password );
 	}
 
 	/**
@@ -99,50 +93,43 @@ public class DriverDataSource implements DataSource
 	 * @param password The password of the user.
 	 */
 	@Override
-	public Connection getConnection( String username, String password ) throws SQLException
-	{
-		return DriverManager.getConnection( this.url, username, password );
+	public Connection getConnection( String username, String password ) throws SQLException {
+		return DriverManager.getConnection( url, username, password );
 	}
 
 	@Override
-	public PrintWriter getLogWriter() throws SQLException
-	{
+	public PrintWriter getLogWriter() throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void setLogWriter( PrintWriter out ) throws SQLException
-	{
+	public void setLogWriter( PrintWriter out ) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void setLoginTimeout( int seconds ) throws SQLException
-	{
+	public void setLoginTimeout( int seconds ) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public int getLoginTimeout() throws SQLException
-	{
+	public int getLoginTimeout() throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public < T > T unwrap( Class< T > iface ) throws SQLException
-	{
+	public <T> T unwrap( Class<T> iface ) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public boolean isWrapperFor( Class< ? > iface ) throws SQLException
-	{
+	public boolean isWrapperFor( Class<?> iface ) throws SQLException {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Logger getParentLogger() throws SQLFeatureNotSupportedException
-	{
+	public Logger getParentLogger() throws SQLFeatureNotSupportedException {
 		throw new UnsupportedOperationException();
 	}
+
 }

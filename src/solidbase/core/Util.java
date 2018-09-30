@@ -23,7 +23,7 @@ import java.sql.SQLException;
 
 /**
  * Some utilities.
- * 
+ *
  * @author René M. de Bloois
  */
 public final class Util
@@ -31,26 +31,25 @@ public final class Util
 	/**
 	 * This utility class cannot be constructed.
 	 */
-	private Util()
-	{
-		super();
+	private Util() {
 	}
 
 	/**
 	 * Determines if the specified column is present in the resultset.
-	 * 
+	 *
 	 * @param resultSet The resultset to check.
 	 * @param columnName The column name to look for.
 	 * @return True if the column is present in the resultset, false otherwise.
 	 * @throws SQLException Can be thrown by JDBC.
 	 */
-	static public boolean hasColumn( ResultSet resultSet, String columnName ) throws SQLException
-	{
+	static public boolean hasColumn( ResultSet resultSet, String columnName ) throws SQLException {
 		ResultSetMetaData metaData = resultSet.getMetaData();
 		int columns = metaData.getColumnCount();
-		for( int i = 1; i <= columns; i++ )
-			if( metaData.getColumnName( i ).equalsIgnoreCase( columnName ) )
+		for( int i = 1; i <= columns; i++ ) {
+			if( metaData.getColumnName( i ).equalsIgnoreCase( columnName ) ) {
 				return true;
+			}
+		}
 		return false;
 	}
 }

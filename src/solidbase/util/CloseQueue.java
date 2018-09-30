@@ -16,6 +16,8 @@
 
 package solidbase.util;
 
+import static solidbase.util.Nulls.nonNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -32,17 +34,15 @@ import solidstack.io.FatalIOException;
  */
 public class CloseQueue
 {
-	private List< Object > files = new ArrayList<>();
+	private List<Object> files = new ArrayList<>();
 
 	/**
 	 * Add an input stream.
 	 *
 	 * @param in An input stream.
 	 */
-	public void add( InputStream in )
-	{
-		Assert.notNull( in );
-		this.files.add( in );
+	public void add( InputStream in ) {
+		files.add( nonNull( in ) );
 	}
 
 	/**
@@ -50,31 +50,26 @@ public class CloseQueue
 	 *
 	 * @param in A reader.
 	 */
-	public void add( Reader in )
-	{
-		Assert.notNull( in );
-		this.files.add( in );
+	public void add( Reader in ) {
+		files.add( nonNull( in ) );
 	}
 
 	/**
 	 * Close all registered input streams and readers.
 	 */
-	public void closeAll()
-	{
-		try
-		{
-			for( Object file : this.files )
-			{
-				if( file instanceof InputStream )
+	public void closeAll() {
+		try {
+			for( Object file : files ) {
+				if( file instanceof InputStream ) {
 					( (InputStream)file ).close();
-				else
+				} else {
 					( (Reader)file ).close();
+				}
 			}
-		}
-		catch( IOException e )
-		{
+		} catch( IOException e ) {
 			throw new FatalIOException( e );
 		}
-		this.files.clear();
+		files.clear();
 	}
+
 }

@@ -27,8 +27,8 @@ import java.sql.SQLException;
 public interface CommandListener
 {
 	/**
-	 * Called when a command from the upgrade file needs to be executed. Commands can be transient or persistent (see
-	 * {@link Command#isTransient}). This method should return true if it accepted the command.
+	 * Called when a command from the upgrade file needs to be executed. Commands can be real commands or annotations (see
+	 * {@link Command#isAnnotation()}). This method should return true if it accepted the command.
 	 *
 	 * Problems caused by the user (command syntax, configuration mistakes or problems in data files) should be wrapped
 	 * in a {@link FatalException}.
@@ -50,4 +50,5 @@ public interface CommandListener
 	 * created.
 	 */
 	void terminate();
+
 }

@@ -16,8 +16,10 @@
 
 package solidbase.core;
 
-import solidbase.util.Assert;
+import static solidbase.util.Nulls.nonNull;
+
 import solidstack.io.SourceLocation;
+
 
 /**
  * Represents a command in an upgrade or SQL file.
@@ -49,13 +51,10 @@ public class Command
 	 * @param isAnnotation Is the command an annotation?
 	 * @param location The location where the command is encountered.
 	 */
-	public Command( String command, boolean isAnnotation, SourceLocation location )
-	{
-		Assert.notNull( command );
-
-		this.command = command;
+	public Command( String command, boolean isAnnotation, SourceLocation location ) {
+		this.command = nonNull( command );
 		this.isAnnotation = isAnnotation;
-		this.location = location;
+		this.location = nonNull( location );
 	}
 
 	/**
@@ -63,9 +62,8 @@ public class Command
 	 *
 	 * @return true if the command is an annotation, false otherwise.
 	 */
-	public boolean isAnnotation()
-	{
-		return this.isAnnotation;
+	public boolean isAnnotation() {
+		return isAnnotation;
 	}
 
 	/**
@@ -73,19 +71,18 @@ public class Command
 	 *
 	 * @return the text of the command.
 	 */
-	public String getCommand()
-	{
-		return this.command;
+	public String getCommand() {
+		return command;
 	}
 
 	/**
-	 * Sets the command text.
+	 * Returns a new command with the command text replaced.
 	 *
-	 * @param command the command text.
+	 * @param command The command text.
+	 * @return A new command with the command string replaced.
 	 */
-	public void setCommand( String command )
-	{
-		this.command = command;
+	public Command withCommand( String command ) {
+		return new Command( command, isAnnotation, location );
 	}
 
 	/**
@@ -93,14 +90,13 @@ public class Command
 	 *
 	 * @return The file location where the command is encountered.
 	 */
-	public SourceLocation getLocation()
-	{
-		return this.location;
+	public SourceLocation getLocation() {
+		return location;
 	}
 
 	@Override
-	public String toString()
-	{
-		return this.command;
+	public String toString() {
+		return command;
 	}
+
 }

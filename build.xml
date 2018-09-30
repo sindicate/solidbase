@@ -48,7 +48,7 @@
 	<property name="dist.home" location="${build.home}/dist" />
 
 
-	<!-- Classpaths -->
+	<!-- Tool classpaths -->
 
 	<path id="groovy.classpath">
 		<fileset dir="tools/groovy" includes="*.jar" />
@@ -78,6 +78,20 @@
 		<fileset dir="tools/maven/lib" includes="*.jar" />
 	</path>
 
+	<path id="cobertura.classpath">
+		<fileset dir="tools/cobertura" includes="*.jar" />
+	</path>
+
+	<path id="maven2.classpath">
+		<fileset dir="tools/maven/boot" includes="*.jar" />
+	</path>
+
+	<path id="sonar.classpath">
+		<fileset dir="tools/sonar" includes="*.jar" />
+	</path>
+
+	<!-- Build classpaths -->
+
 	<path id="compile.classpath">
 		<fileset dir="lib" includes="*.jar" />
 		<!-- <pathelement location="${build.home}/../solidstack/classes" /> -->
@@ -91,16 +105,10 @@
 
 	<path id="test.classpath">
 		<pathelement location="${build.home}/testclasses" />
+		<pathelement location="${build.home}/instrumentedclasses" />
 		<path refid="compiletest.classpath" />
 		<path refid="maven.classpath" />
-	</path>
-
-	<path id="maven2.classpath">
-		<fileset dir="tools/maven/boot" includes="*.jar" />
-	</path>
-
-	<path id="sonar.classpath">
-		<fileset dir="tools/sonar" includes="*.jar" />
+		<path refid="cobertura.classpath" />
 	</path>
 
 
@@ -111,6 +119,7 @@
 	<taskdef name="jarjar" classname="org.pantsbuild.jarjar.JarJarTask" classpathref="jarjar.classpath" />
 	<taskdef name="fop" classname="org.apache.fop.tools.anttasks.Fop" classpathref="fop.classpath" />
 	<taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml" classpathref="sonar.classpath" />
+	<taskdef resource="tasks.properties" classpathref="cobertura.classpath" />
 
 	<!-- Check Java version  -->
 
@@ -167,13 +176,28 @@
 	</target>
 
 
+	<target name="instrument" depends="compile">
+		<delete file="cobertura.ser" />
+		<cobertura-instrument todir="${build.home}/instrumentedclasses" datafile="${build.home}/cobertura.ser">
+			<fileset dir="${build.home}/classes" includes="**/*.class" />
+			<auxClasspath refid="compile.classpath" />
+		</cobertura-instrument>
+	</target>
+
+
 	<target name="test" depends="compiletest,test-maven-plugin" description="Run the tests">
 		<testng workingDir="${build.home}/test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="2">
+			<sysproperty key="net.sourceforge.cobertura.datafile" file="${build.home}/cobertura.ser" />
 			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.999.10.jar" />
 			<jvmarg value="-Xmx256m" />
 			<classfileset dir="${build.home}/testclasses" />
 			<reporter classname="solidbase.test.TestListener"/>
 		</testng>
+	</target>
+
+
+	<target name="coverage" depends="instrument,test">
+		<cobertura-report datafile="${build.home}/cobertura.ser" srcdir="src" destdir="${build.home}/coveragereport"/>
 	</target>
 
 

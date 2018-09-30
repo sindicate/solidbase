@@ -16,11 +16,13 @@
 
 package solidbase;
 
+import static solidbase.util.Nulls.nonNull;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
 
-import solidbase.util.Assert;
+import solidbase.core.SystemException;
 import solidstack.io.FatalIOException;
 
 
@@ -39,18 +41,19 @@ public class Version
 	static protected String version;
 
 	static {
-		// Load the version properties
+		// Load the solidbase version
 
 		URL url = Version.class.getResource( SOLIDBASE_VERSION_PROPERTIES );
-		Assert.notNull( url );
+		if( url == null ) {
+			throw new SystemException( "Can't find the " + SOLIDBASE_VERSION_PROPERTIES + " on the classpath" );
+		}
 		Properties properties = new Properties();
 		try {
 			properties.load( url.openStream() );
 		} catch( IOException e ) {
 			throw new FatalIOException( e );
 		}
-		version = properties.getProperty( "solidbase.version" );
-		Assert.notNull( version );
+		version = nonNull( properties.getProperty( "solidbase.version" ) );
 	}
 
 	/**
@@ -68,4 +71,5 @@ public class Version
 	static public String getInfo() {
 		return "SolidBase v" + version + " (http://solidbase.org)";
 	}
+
 }

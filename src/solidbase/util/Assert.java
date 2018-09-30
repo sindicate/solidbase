@@ -45,8 +45,9 @@ public class Assert
 	 */
 	static public void isTrue( boolean test )
 	{
-		if( !test )
+		if( !test ) {
 			throwAssertionFailure( null, 2 );
+		}
 	}
 
 	/**
@@ -60,8 +61,9 @@ public class Assert
 	 */
 	static public void isTrue( boolean test, String errorMessage )
 	{
-		if( !test )
+		if( !test ) {
 			throwAssertionFailure( errorMessage, 2 );
+		}
 	}
 
 	/**
@@ -77,8 +79,9 @@ public class Assert
 	 */
 	static public void isTrue( boolean test, String errorMessage, int linenumber )
 	{
-		if( !test )
+		if( !test ) {
 			throwAssertionFailure( errorMessage + ", line " + linenumber, 2 );
+		}
 	}
 
 	/**
@@ -90,8 +93,9 @@ public class Assert
 	 */
 	static public void isFalse( boolean test )
 	{
-		if( test )
+		if( test ) {
 			throwAssertionFailure( null, 2 );
+		}
 	}
 
 	/**
@@ -105,8 +109,9 @@ public class Assert
 	 */
 	static public void isFalse( boolean test, String errorMessage )
 	{
-		if( test )
+		if( test ) {
 			throwAssertionFailure( errorMessage, 2 );
+		}
 	}
 
 	/**
@@ -169,8 +174,9 @@ public class Assert
 	 */
 	static public void notEmpty( String test, String errorMessage )
 	{
-		if( StringUtils.isEmpty( test ) )
+		if( StringUtils.isEmpty( test ) ) {
 			throwAssertionFailure( errorMessage, 2 );
+		}
 	}
 
 	/**
@@ -180,8 +186,9 @@ public class Assert
 	 */
 	static public void notEmpty( Collection< ? > collection )
 	{
-		if( collection == null || collection.isEmpty() )
+		if( collection == null || collection.isEmpty() ) {
 			throwAssertionFailure( null, 2 );
+		}
 	}
 
 	/**
@@ -207,20 +214,9 @@ public class Assert
 	 */
 	static public void notBlank( String test, String errorMessage )
 	{
-		if( StringUtils.isBlank( test ) )
+		if( StringUtils.isBlank( test ) ) {
 			throwAssertionFailure( errorMessage, 2 );
-	}
-
-	/**
-	 * Asserts that the <code>test</code> argument is not <code>null</code>. If not, it throws an {@link AssertionFailedException}.
-	 *
-	 * @param test
-	 *            Test argument.
-	 */
-	static public void notNull( Object test )
-	{
-		if( test == null )
-			throwAssertionFailure( null, 2 );
+		}
 	}
 
 	/**
@@ -233,8 +229,9 @@ public class Assert
 	 */
 	static public void notNull( Object test, String errorMessage )
 	{
-		if( test == null )
+		if( test == null ) {
 			throwAssertionFailure( errorMessage, 2 );
+		}
 	}
 
 	/**
@@ -245,8 +242,9 @@ public class Assert
 	 */
 	static public void isNull( Object test )
 	{
-		if( test != null )
+		if( test != null ) {
 			throwAssertionFailure( null, 2 );
+		}
 	}
 
 	/**
@@ -259,8 +257,9 @@ public class Assert
 	 */
 	static public void isNull( Object test, String errorMessage )
 	{
-		if( test != null )
+		if( test != null ) {
 			throwAssertionFailure( errorMessage, 2 );
+		}
 	}
 
 	/**
@@ -272,8 +271,9 @@ public class Assert
 	 */
 	static public void isInstanceOf( Object object, Class< ? > type )
 	{
-		if( !type.isInstance( object ) )
+		if( !type.isInstance( object ) ) {
 			throwAssertionFailure( null, 2 );
+		}
 	}
 
 	/**
@@ -285,7 +285,8 @@ public class Assert
 	 */
 	static public void notInstanceOf( Object object, Class< ? > type )
 	{
-		if( type.isInstance( object ) )
+		if( type.isInstance( object ) ) {
 			throwAssertionFailure( null, 2 );
+		}
 	}
 }
