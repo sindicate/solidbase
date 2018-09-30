@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-   Copyright 2006 René M. de Bloois
+   Copyright 2006 RenÃ© M. de Bloois
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -188,7 +188,7 @@
 	<target name="test" depends="compiletest,test-maven-plugin" description="Run the tests">
 		<testng workingDir="${build.home}/test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="2">
 			<sysproperty key="net.sourceforge.cobertura.datafile" file="${build.home}/cobertura.ser" />
-			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.999.10.jar" />
+			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-1.42.jar" />
 			<jvmarg value="-Xmx256m" />
 			<classfileset dir="${build.home}/testclasses" />
 			<reporter classname="solidbase.test.TestListener"/>
@@ -203,7 +203,7 @@
 
 	<target name="testclass" depends="compiletest" description="Run a test class">
 		<testng workingDir="${build.home}/test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="2">
-			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.999.10.jar" />
+			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-1.42.jar" />
 			<jvmarg value="-Xmx256m" />
 			<classfileset dir="${build.home}/testclasses" includes="**/${testclass}.class" />
 			<!-- <reporter classname="solidbase.test.TestListener"/> -->
@@ -213,7 +213,7 @@
 
 	<target name="testnew" depends="compiletest" description="Run new tests">
 		<testng workingDir="${build.home}/test" classpathref="test.classpath" outputDir="${build.home}/testreports" haltOnFailure="true" verbose="2" groups="new">
-			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-0.999.10.jar" />
+			<jvmarg value="-javaagent:${basedir}/test/lib/jmockit-1.42.jar" />
 			<jvmarg value="-Xmx256m" />
 			<classfileset dir="${build.home}/testclasses" />
 		</testng>
