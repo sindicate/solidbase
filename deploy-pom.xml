@@ -7,19 +7,19 @@
 	
 	<groupId>solidbase</groupId>
 	<artifactId>solidbase</artifactId>
-	<version>2.0.0-beta3</version>
+	<version>2.0.0-beta4</version>
 	<packaging>jar</packaging>
 
 	<name>SolidBase</name>
 	<inceptionYear>2006</inceptionYear>
 	<description>A database change and version control tool using annotated SQL.</description>
-	<url>http://code.google.com/p/solidbase/</url>
+	<url>https://github.com/sindicate/solidbase</url>
 	
 	<prerequisites><maven>2.0</maven></prerequisites>
 
 	<issueManagement>
-		<system>Google Code</system>
-		<url>http://code.google.com/p/solidbase/issues/list</url>
+		<system>GitHub</system>
+		<url>https://github.com/sindicate/solidbase/issues</url>
 	</issueManagement>
 	
 	<licenses>
@@ -37,12 +37,12 @@
 			<roles><role>owner</role></roles>
 		</developer>
 	</developers>
-	
+
 	<scm>
 		<url>http://code.google.com/p/solidbase/source/browse/</url>
 		<connection>scm:svn:http://code.google.com/p/solidbase/source/browse/trunk/</connection>
 	</scm>
-
+	
 	<distributionManagement>
 		<repository>
 			<id>solidbase-maven-repository</id>
