@@ -16,11 +16,16 @@
 
 package solidbase.test;
 
+import java.util.List;
+
 import org.testng.IInvokedMethod;
 import org.testng.IInvokedMethodListener;
+import org.testng.IReporter;
+import org.testng.ISuite;
 import org.testng.ITestResult;
+import org.testng.xml.XmlSuite;
 
-public class TestListener implements IInvokedMethodListener
+public class TestListener implements IInvokedMethodListener, IReporter
 {
 	@Override
 	public void afterInvocation( IInvokedMethod arg0, ITestResult arg1 )
@@ -33,4 +38,9 @@ public class TestListener implements IInvokedMethodListener
 	{
 		System.out.println( "---------- " + method.getTestMethod().getInstance().getClass().getName() + "." + method.getTestMethod().getMethodName() + "() ----------" );
 	}
+
+	@Override
+	public void generateReport( List<XmlSuite> arg0, List<ISuite> arg1, String arg2 ) {
+	}
+
 }

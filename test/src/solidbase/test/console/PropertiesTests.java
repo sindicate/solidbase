@@ -137,10 +137,10 @@ public class PropertiesTests
 				"Reading property file X:/.../testsql-parameters2.properties\n" +
 				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
-				"Opening file 'X:/.../testsql-parameter2.sql'\n" +
+				"Connecting to database default (jdbc:hsqldb:mem:testp2)...\n" +
+				"Input password for user 'sa': Opening file 'X:/.../testsql-parameter2.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
-				"Connecting to database...\n" +
-				"Input password for user 'sa': ..\n" +
+				"..\n" +
 				"val1..\n" +
 				"Execution complete.\n" +
 				"\n"
@@ -163,10 +163,10 @@ public class PropertiesTests
 				"Reading property file X:/.../testpatch-parameters2.properties\n" +
 				"SolidBase v1.5.x (http://solidbase.org)\n" +
 				"\n" +
-				"Opening file 'X:/.../testpatch-parameter2.sql'\n" +
+				"Connecting to database default (jdbc:hsqldb:mem:testp22)...\n" +
+				"Input password for user 'sa': Opening file 'X:/.../testpatch-parameter2.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
-				"Connecting to database...\n" +
-				"Input password for user 'sa': The database is unmanaged.\n" +
+				"The database is unmanaged.\n" +
 				"Setting up control tables to \"1.1\"\n" +
 				"Opening file 'X:/.../setup-1.1.sql'\n" +
 				"    Encoding is 'ISO-8859-1'\n" +
