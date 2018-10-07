@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -111,7 +112,9 @@ public class Main
 		options.addOption( "D", true, "parameter to the SQL file or upgrade file" );
 		options.addOption( "config", true, "specifies a properties file to use" );
 		options.addOption( "downgradeallowed", false, "allow downgrades to reach the target" );
-		options.addOption( "help", false, "Brings up this page" );
+		options.addOption( "help", false, "brings up this page" );
+		options.addOption( "retryinterval", true, "interval to try reconnecting" );
+		options.addOption( "retryduration", true, "total duration to try connecting to the databases" );
 
 		options.getOption( "dumplog" ).setArgName( "filename" );
 		options.getOption( "driver" ).setArgName( "classname" );
@@ -125,6 +128,8 @@ public class Main
 		options.getOption( "D" ).setArgs( 2 );
 		options.getOption( "D" ).setValueSeparator( '=' );
 		options.getOption( "config" ).setArgName( "filename" );
+		options.getOption( "retryinterval" ).setArgName( "seconds" );
+		options.getOption( "retryduration" ).setArgName( "seconds" );
 
 		// Read the commandline options
 
@@ -137,10 +142,22 @@ public class Main
 			return;
 		}
 
-		solidbase.config.Options opts = new solidbase.config.Options( line.hasOption( "verbose" ), line.hasOption( "dumplog" ), line.getOptionValue( "driver" ),
-				line.getOptionValue( "url" ), line.getOptionValue( "username" ), line.getOptionValue( "password" ), line.getOptionValue( "target" ),
-				line.getOptionValue( "upgradefile" ), line.getOptionValue( "sqlfile" ), line.getOptionValue( "config" ), line.hasOption( "downgradeallowed" ),
-				line.hasOption( "help" ), line.getOptionProperties( "D" ) );
+		solidbase.config.Options opts = new solidbase.config.Options(
+				line.hasOption( "verbose" ),
+				line.hasOption( "dumplog" ),
+				line.getOptionValue( "driver" ),
+				line.getOptionValue( "url" ),
+				line.getOptionValue( "username" ),
+				line.getOptionValue( "password" ),
+				line.getOptionValue( "target" ),
+				line.getOptionValue( "upgradefile" ),
+				line.getOptionValue( "sqlfile" ),
+				line.getOptionValue( "config" ),
+				line.hasOption( "downgradeallowed" ),
+				line.getOptionValue( "retryinterval" ),
+				line.getOptionValue( "retryduration" ),
+				line.hasOption( "help" ),
+				line.getOptionProperties( "D" ) );
 
 		if( opts.help ) {
 			printHelp( options );
@@ -175,6 +192,8 @@ public class Main
 			runner.setConnectionAttributes( connection.getName(), connection.getDriver(), connection.getUrl(), connection.getUserName(),
 					connection.getPassword() );
 		}
+		runner.setRetryInterval( configuration.getRetryInterval() );
+		runner.setRetryDuration( configuration.getRetryDuration() );
 
 		for( Entry<Object, Object> entry : configuration.getParameters().entrySet() ) {
 			runner.addParameter( (String)entry.getKey(), (String)entry.getValue() );

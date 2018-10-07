@@ -91,6 +91,10 @@ public class Options
 	 */
 	public Properties parameters;
 
+	public String retryInterval;
+
+	public String retryDuration;
+
 	/**
 	 * @param verbose Be extra verbose.
 	 * @param dumplog Export historical upgrade results to an XML file.
@@ -107,11 +111,15 @@ public class Options
 	 * @param parameters Parameters.
 	 */
 	public Options( boolean verbose, boolean dumplog, String driver, String url, String username, String password,
-			String target, String upgradefile, String sqlfile, String config, boolean downgradeallowed, boolean help, Properties parameters )
+			String target, String upgradefile, String sqlfile, String config, boolean downgradeallowed,
+			String retryInterval, String retryDuration,
+			boolean help, Properties parameters )
 	{
 		this.verbose = verbose;
 		this.dumplog = dumplog;
 		this.downgradeallowed = downgradeallowed;
+		this.retryInterval = retryInterval;
+		this.retryDuration = retryDuration;
 		this.help = help;
 		this.driver = driver;
 		this.url = url;
