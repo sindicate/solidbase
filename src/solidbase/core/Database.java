@@ -107,7 +107,7 @@ public class Database
 		this.name = nonNull( name );
 		driverName = nonNull( driverClassName );
 		this.url = nonNull( url );
-		this.defaultUser = currentUser = nonNull( defaultUser );
+		this.defaultUser = nonNull( defaultUser );
 		if( defaultPassword != null ) {
 			passwords.put( defaultUser, defaultPassword );
 		}
@@ -164,10 +164,6 @@ public class Database
 	 */
 	public String getName() {
 		return name;
-	}
-
-	public String getUrl() {
-		return url;
 	}
 
 	/**
@@ -311,7 +307,6 @@ public class Database
 			}
 
 			return connection;
-
 		} catch( SQLException e ) {
 			throw new FatalException( e );
 		}

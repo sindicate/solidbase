@@ -59,7 +59,7 @@ public class DatabaseContext
 	 */
 	public Collection< Database > getDatabases()
 	{
-		return databases.values();
+		return this.databases.values();
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class DatabaseContext
 	 */
 	public void addDatabase( Database database )
 	{
-		databases.put( database.getName(), database );
+		this.databases.put( database.getName(), database );
 	}
 
 	/**
@@ -80,7 +80,6 @@ public class DatabaseContext
 	 */
 	public Database getDatabase( String name )
 	{
-		return databases.get( name );
+		return this.databases.get( name );
 	}
-
 }
