@@ -1,0 +1,15 @@
+{
+	"version": "1.0",
+	"format": "record-stream",
+	"description": "SolidBase JSON Data Dump File",
+	"createdBy": { "product": "SolidBase", "version": "2.0.0" },
+	"createdDate": "2019-03-03 18:54:01",
+	"fields": [
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "FIELD1", "type": "INTEGER" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "FIELD2", "type": "INTEGER" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "FIELD4", "type": "INTEGER" }
+	]
+}
+[1,2,4]
+[12,12,14]
+[23,25,24]

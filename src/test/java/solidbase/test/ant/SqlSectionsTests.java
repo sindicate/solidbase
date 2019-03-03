@@ -34,7 +34,7 @@ public class SqlSectionsTests extends MyBuildFileTest
 		TestUtil.dropHSQLDBSchema( Setup.defaultdb, "sa", null );
 
 		configureProject( "test-sqltask.xml" );
-		this.project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
+		project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
 		executeTarget( "ant-test-sections" );
 		String log = TestUtil.generalizeOutput( getLog() );
 		Assert.assertEquals( log, "SolidBase v1.5.x (http://solidbase.org)\n" +

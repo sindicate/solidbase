@@ -25,7 +25,7 @@ import org.apache.tools.ant.Project;
 import org.testng.Assert;
 
 
-public class MyBuildFileTest extends BuildFileTest
+abstract public class MyBuildFileTest extends BuildFileTest
 {
 	protected StringBuilder logBuffer;
 
@@ -40,7 +40,7 @@ public class MyBuildFileTest extends BuildFileTest
 		// TODO Need to signal this to the Ant project
 
 		int count = 0;
-		Iterator< BuildListener > iterator = this.project.getBuildListeners().iterator();
+		Iterator< BuildListener > iterator = project.getBuildListeners().iterator();
 		while( iterator.hasNext() )
 		{
 			BuildListener listener = iterator.next();
@@ -52,20 +52,20 @@ public class MyBuildFileTest extends BuildFileTest
 		}
 		Assert.assertEquals( count, 1 );
 
-		this.logBuffer = new StringBuilder();
-		this.project.addBuildListener( new MyAntTestListener( logLevel ) );
+		logBuffer = new StringBuilder();
+		project.addBuildListener( new MyAntTestListener( logLevel ) );
 	}
 
 	@Override
 	public String getFullLog()
 	{
-		return this.logBuffer.toString();
+		return logBuffer.toString();
 	}
 
 	@Override
 	public String getLog()
 	{
-		return this.logBuffer.toString();
+		return logBuffer.toString();
 	}
 
 	protected class MyAntTestListener implements BuildListener
@@ -116,8 +116,8 @@ public class MyBuildFileTest extends BuildFileTest
 		{
 			if( event.getPriority() == Project.MSG_INFO || event.getPriority() == Project.MSG_WARN || event.getPriority() == Project.MSG_ERR )
 			{
-				MyBuildFileTest.this.logBuffer.append( event.getMessage() );
-				MyBuildFileTest.this.logBuffer.append( '\n' );
+				logBuffer.append( event.getMessage() );
+				logBuffer.append( '\n' );
 			}
 		}
 	}

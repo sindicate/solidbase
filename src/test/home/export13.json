@@ -1,0 +1,16 @@
+{
+	"version": "1.0",
+	"format": "record-stream",
+	"description": "SolidBase JSON Data Dump File",
+	"createdBy": { "product": "SolidBase", "version": "2.0.0" },
+	"createdDate": "2019-03-03 18:54:01",
+	"fields": [
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "ID", "type": "INTEGER" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "PICTURE", "type": "BLOB", "file": "folder/export13.bin" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "TEXT", "type": "VARCHAR" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "TEXT2", "type": "CLOB", "file": "folder/export13.txt" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "DATE1", "type": "TIMESTAMP" }
+	]
+}
+[1,{"index":0,"length":32},"^ Starts with a caret",{"index":0,"length":32},"2016-05-29 00:00:00.0"]
+[2,{"index":32,"length":256},"Does not start with a ^ caret",{"index":32,"length":256},"2016-06-08 00:00:00.0"]

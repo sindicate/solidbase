@@ -24,10 +24,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import mockit.Deencapsulation;
-
 import org.apache.tools.ant.Main;
 import org.testng.Assert;
+
+import mockit.Deencapsulation;
 
 
 public class TestUtil
@@ -75,10 +75,11 @@ public class TestUtil
 		Assert.assertEquals( result.getString( "VERSION" ), version, "version:" );
 		Assert.assertEquals( result.getString( "TARGET" ), target, "target:" );
 		Assert.assertEquals( result.getInt( "STATEMENTS" ), statements, "statements:" );
-		if( spec == null )
+		if( spec == null ) {
 			Assert.assertFalse( Util.hasColumn( result, "SPEC" ), "SPEC column should not exist in the DBVERSION table" );
-		else
+		} else {
 			Assert.assertEquals( result.getString( "SPEC" ), spec, "spec:" );
+		}
 		Assert.assertFalse( result.next() );
 		connection.commit();
 	}
@@ -100,16 +101,18 @@ public class TestUtil
 
 	static public void dropDerbyDatabase( String url ) throws SQLException
 	{
-		if( !url.contains( "drop=true" ) )
+		if( !url.contains( "drop=true" ) ) {
 			url = url + ";drop=true";
+		}
 		try
 		{
 			DriverManager.getConnection( url, null, null );
 		}
 		catch( SQLException e )
 		{
-			if( e.getSQLState().equals( "XJ004" ) ) // "Database 'memory:test' not found."
+			if( e.getSQLState().equals( "XJ004" ) ) {
 				return;
+			}
 			System.out.println( e.getSQLState() );
 			throw e;
 		}
@@ -155,10 +158,11 @@ public class TestUtil
 		assert result.next() : "Expected 1 row";
 		Object value = result.getObject( 1 );
 		assert !result.next() : "Expected only 1 row";
-		if( expected == null )
+		if( expected == null ) {
 			assert value == null : "Expected null, got [" + value + "]";
-		else
+		} else {
 			assert expected.equals( value ) : "Expected [" + expected + "], got [" + value + "]";
+		}
 	}
 
 	static public String capture( Runnable runnable )

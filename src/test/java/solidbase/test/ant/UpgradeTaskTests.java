@@ -31,7 +31,7 @@ public class UpgradeTaskTests extends MyBuildFileTest
 	public void testUpgradeTask()
 	{
 		configureProject( "test-upgradetask.xml" );
-		this.project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
+		project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
 		executeTarget( "ant-test" );
 		String log = TestUtil.generalizeOutput( getLog() );
 		Assert.assertEquals( log, "SolidBase v1.5.x (http://solidbase.org)\n" +
@@ -67,7 +67,7 @@ public class UpgradeTaskTests extends MyBuildFileTest
 	public void testUpgradeTaskBaseDir()
 	{
 		configureProject( "test-upgradetask.xml" );
-		this.project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
+		project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
 		executeTarget( "ant-basedir-test" );
 		String log = TestUtil.generalizeOutput( getLog() );
 		Assert.assertEquals( log, "SolidBase v1.5.x (http://solidbase.org)\n" +
@@ -91,14 +91,7 @@ public class UpgradeTaskTests extends MyBuildFileTest
 	@Test
 	public void testUpgradeFileDoesNotExist()
 	{
-		String log = TestUtil.captureAnt( new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				new AntMain().startAnt( new String[] { "-f", "test-upgradetask.xml", "ant-test-filenotfound" }, null, null );
-			}
-		} );
+		String log = TestUtil.captureAnt( () -> new AntMain().startAnt( new String[] { "-f", "test-upgradetask.xml", "ant-test-filenotfound" }, null, null ) );
 		log = TestUtil.generalizeOutput( log );
 		Assert.assertEquals( log, "Buildfile: test-upgradetask.xml\n" +
 				"\n" +
@@ -118,7 +111,7 @@ public class UpgradeTaskTests extends MyBuildFileTest
 	public void testUpgradeParameters()
 	{
 		configureProject( "test-upgradetask.xml" );
-		this.project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
+		project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
 		executeTarget( "ant-test-parameters" );
 		String log = TestUtil.generalizeOutput( getLog() );
 		Assert.assertEquals( log, "SolidBase v1.5.x (http://solidbase.org)\n" +
@@ -142,7 +135,7 @@ public class UpgradeTaskTests extends MyBuildFileTest
 	public void testSpaceFolder()
 	{
 		configureProject( "space folder/testpatch-spacefolder.xml" );
-		this.project.setBaseDir( new File( "space folder" ) ); // Needed when testing through Maven
+		project.setBaseDir( new File( "space folder" ) ); // Needed when testing through Maven
 		executeTarget( "ant-test-space-folder" );
 		String log = TestUtil.generalizeOutput( getLog() );
 		Assert.assertEquals( log, "SolidBase v1.5.x (http://solidbase.org)\n" +

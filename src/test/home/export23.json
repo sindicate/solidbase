@@ -1,0 +1,29 @@
+{
+	"version": "1.0",
+	"format": "record-stream",
+	"description": "SolidBase JSON Data Dump File",
+	"createdBy": { "product": "SolidBase", "version": "2.0.0" },
+	"createdDate": "2019-03-03 18:54:02",
+	"fields": [
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "TINYINT", "type": "TINYINT" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "SMALLINT", "type": "SMALLINT" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "INTEGER", "type": "INTEGER" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "BIGINT", "type": "BIGINT" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "DECIMAL", "type": "DECIMAL" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "FLOAT", "type": "DOUBLE" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "BOOLEAN", "type": "BOOLEAN" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "CHAR", "type": "CHAR" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "VARCHAR", "type": "VARCHAR" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "CLOB", "type": "CLOB" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "BINARY", "type": "BINARY" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "VARBINARY", "type": "VARBINARY" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "BLOB", "type": "BLOB" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "DATE", "type": "DATE" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "TIME", "type": "TIME" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "TIMESTAMP", "type": "TIMESTAMP" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "DATEZ", "type": "DATE" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "TIMEZ", "type": "TIME" },
+		{ "schemaName": "PUBLIC", "tableName": "TEMP1", "name": "TIMESTAMPZ", "type": "TIMESTAMP" }
+	]
+}
+[1,1,1,1,1,1.0,true,"Y","test","test","01","01020304","01020304","2016-05-29","17:54:18","2016-05-29 17:54:18.635","2016-05-29","16:54:18","2016-05-29 17:54:18.635"]

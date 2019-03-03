@@ -31,7 +31,7 @@ public class SqlTaskTests extends MyBuildFileTest
 	public void testSqlTask()
 	{
 		configureProject( "test-sqltask.xml" );
-		this.project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
+		project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
 		executeTarget( "ant-test" );
 		String log = TestUtil.generalizeOutput( getLog() );
 		Assert.assertEquals( log, "SolidBase v1.5.x (http://solidbase.org)\n" +
@@ -56,14 +56,7 @@ public class SqlTaskTests extends MyBuildFileTest
 	@Test
 	public void testSqlFileDoesNotExist()
 	{
-		String log = TestUtil.captureAnt( new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				new AntMain().startAnt( new String[] { "-f", "test-sqltask.xml", "ant-test-filenotfound" }, null, null );
-			}
-		} );
+		String log = TestUtil.captureAnt( () -> new AntMain().startAnt( new String[] { "-f", "test-sqltask.xml", "ant-test-filenotfound" }, null, null ) );
 		log = TestUtil.generalizeOutput( log );
 		Assert.assertEquals( log, "Buildfile: test-sqltask.xml\n" +
 				"\n" +
@@ -84,7 +77,7 @@ public class SqlTaskTests extends MyBuildFileTest
 	public void testSqlParameters()
 	{
 		configureProject( "test-sqltask.xml" );
-		this.project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
+		project.setBaseDir( new File( "." ) ); // Needed when testing through Maven
 		executeTarget( "ant-test-parameters" );
 		String log = TestUtil.generalizeOutput( getLog() );
 		Assert.assertEquals( log, "SolidBase v1.5.x (http://solidbase.org)\n" +
