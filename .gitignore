@@ -1,3 +1,5 @@
 /bin
 /out.txt
 /test-output
+/.gradle/
+/build/
