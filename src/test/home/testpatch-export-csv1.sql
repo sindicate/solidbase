@@ -1,5 +1,5 @@
 
---* // Copyright 2011 René M. de Bloois
+--* // Copyright 2011 Renï¿½ M. de Bloois
 
 --* // Licensed under the Apache License, Version 2.0 (the "License");
 --* // you may not use this file except in compliance with the License.
@@ -33,22 +33,22 @@ CREATE TABLE TEMP1 ( ID INTEGER, PICTURE BLOB, TEXT VARCHAR(100), TEXT2 CLOB, DA
 
  EXPORT CSV
 	WITH HEADER
-	FILE "export11.csv" ENCODING "UTF-8"
+	FILE "tmp/export11.csv" ENCODING "UTF-8"
 	FROM
 SELECT * FROM TEMP1;
 
 EXPORT CSV
-	FILE "export12.csv" ENCODING "UTF-8" FROM
+	FILE "tmp/export12.csv" ENCODING "UTF-8" FROM
 SELECT ID, PICTURE, TEXT, TEXT2
 FROM TEMP1;
 
  EXPORT CSV
 	DATE AS TIMESTAMP
-	FILE "export13.csv" ENCODING "UTF-8"
+	FILE "tmp/export13.csv" ENCODING "UTF-8"
 FROM SELECT * FROM TEMP1;
 
 EXPORT CSV
-FILE "folder/export14.csv" ENCODING "UTF-8"
+FILE "tmp/folder/export14.csv" ENCODING "UTF-8"
 COLUMN DATE1 SKIP
 FROM
 SELECT ID, PICTURE, TEXT, TEXT2, DATE1

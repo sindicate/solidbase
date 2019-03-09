@@ -1,5 +1,5 @@
 
---* // Copyright 2010 René M. de Bloois
+--* // Copyright 2010 Renï¿½ M. de Bloois
 
 --* // Licensed under the Apache License, Version 2.0 (the "License");
 --* // you may not use this file except in compliance with the License.
@@ -41,22 +41,22 @@ INSERT INTO TEMP SELECT * FROM TEMP; -- 96
 
 EXPORT JSON
 log every 10 records
-FILE "export3.json"
+FILE "tmp/export3.json"
 FROM SELECT * FROM TEMP;
 
 EXPORT JSON
 LOG EVERY 1 SECONDS
-FILE "export3.json"
+FILE "tmp/export3.json"
 FROM SELECT * FROM TEMP;
 
 IMPORT JSON
 LOG EVERY 10 RECORDS
 INTO TEMP
-FILE "export3.json";
+FILE "tmp/export3.json";
 
 IMPORT JSON
 LOG EVERY 1 SECONDS
 INTO TEMP
-FILE "export3.json";
+FILE "tmp/export3.json";
 
 --* /UPGRADE

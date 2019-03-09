@@ -1,5 +1,5 @@
 
---* // Copyright 2016 René M. de Bloois
+--* // Copyright 2016 Renï¿½ M. de Bloois
 
 --* // Licensed under the Apache License, Version 2.0 (the "License");
 --* // you may not use this file except in compliance with the License.
@@ -63,16 +63,16 @@ CREATE TABLE TEMP1 (
 --* UPGRADE "1" --> "2"
 
 --* // TODO WITH HEADER or WITHOUT
-EXPORT JSON FILE "export21.json"
+EXPORT JSON FILE "tmp/export21.json"
 FROM SELECT * FROM TEMP1;
 
-EXPORT JSON DATE AS TIMESTAMP FILE "export22.json"
-BINARY FILE "export22.bin"
+EXPORT JSON DATE AS TIMESTAMP FILE "tmp/export22.json"
+BINARY FILE "tmp/export22.bin"
 FROM SELECT * FROM TEMP1;
 --* // COLUMN PICTURE TO BINARY FILE "export22.picture.bin"
 --* // COLUMN TEXT2 TO TEXT FILE "export22.text2.txt"
 
-EXPORT JSON FILE "export23.json"
+EXPORT JSON FILE "tmp/export23.json"
 FROM SELECT * FROM TEMP1;
 
 --* END UPGRADE
@@ -83,7 +83,7 @@ FROM SELECT * FROM TEMP1;
 
 IMPORT JSON
 INTO TEMP1 ( TINYINT, SMALLINT, INTEGER, BIGINT, DECIMAL, FLOAT, BOOLEAN, CHAR, VARCHAR, CLOB, BINARY, VARBINARY, BLOB, DATE, TIME, TIMESTAMP, DATEZ, TIMEZ, TIMESTAMPZ )
-FILE "export22.json";
+FILE "tmp/export22.json";
 
 --* END UPGRADE
 

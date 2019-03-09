@@ -1,5 +1,5 @@
 
---* // Copyright 2011 René M. de Bloois
+--* // Copyright 2011 Renï¿½ M. de Bloois
 
 --* // Licensed under the Apache License, Version 2.0 (the "License");
 --* // you may not use this file except in compliance with the License.
@@ -32,31 +32,31 @@ CREATE TABLE TEMP1 ( ID INTEGER, PICTURE BLOB, TEXT VARCHAR(100), TEXT2 CLOB, DA
 --* UPGRADE "1" --> "2"
 
  EXPORT CBOR
-	FILE "export11.cbor" FROM
+	FILE "tmp/export11.cbor" FROM
 SELECT * FROM TEMP1;
 
 EXPORT CBOR
-	FILE "export12.cbor" FROM
+	FILE "tmp/export12.cbor" FROM
 SELECT ID, PICTURE, TEXT, TEXT2
 FROM TEMP1;
 
  EXPORT CBOR
 	DATE AS TIMESTAMP
-	FILE "export13.cbor"
+	FILE "tmp/export13.cbor"
 	FROM
 SELECT * FROM TEMP1;
 
 --* EXPORT CBOR SET ADD_CREATED_DATE = OFF
 
 		EXPORT CBOR
-	FILE "export14.cbor"
+	FILE "tmp/export14.cbor"
 	FROM
 SELECT * FROM TEMP1;
 
 --* EXPORT CBOR SET ADD_CREATED_DATE = ON
 
 EXPORT CBOR
-FILE "folder/export15.cbor"
+FILE "tmp/folder/export15.cbor"
 COLUMN DATE1 SKIP FROM
 SELECT ID, PICTURE, TEXT, TEXT2, DATE1
 FROM TEMP1;

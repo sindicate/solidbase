@@ -1,5 +1,5 @@
 
---* // Copyright 2011 René M. de Bloois
+--* // Copyright 2011 Renï¿½ M. de Bloois
 
 --* // Licensed under the Apache License, Version 2.0 (the "License");
 --* // you may not use this file except in compliance with the License.
@@ -32,35 +32,35 @@ CREATE TABLE TEMP1 ( ID INTEGER, PICTURE BLOB, TEXT VARCHAR(100), TEXT2 CLOB, DA
 --* UPGRADE "1" --> "2"
 
  EXPORT JSON
-	FILE "export11.json" FROM
+	FILE "tmp/export11.json" FROM
 SELECT * FROM TEMP1;
 
 EXPORT JSON
-	FILE "export12.json" FROM
+	FILE "tmp/export12.json" FROM
 SELECT ID, PICTURE, TEXT, TEXT2
 FROM TEMP1;
 
  EXPORT JSON
 	DATE AS TIMESTAMP
-	FILE "export13.json"
-	COLUMN PICTURE TO BINARY FILE "folder/export13.bin"
-	COLUMN TEXT2 TO TEXT FILE "folder/export13.txt"
+	FILE "tmp/export13.json"
+	COLUMN PICTURE TO BINARY FILE "tmp/folder/export13.bin"
+	COLUMN TEXT2 TO TEXT FILE "tmp/folder/export13.txt"
 FROM
 SELECT * FROM TEMP1;
 
 --* EXPORT JSON SET ADD_CREATED_DATE = OFF
 
 		EXPORT JSON
-	FILE "export14.json"
+	FILE "tmp/export14.json"
 	FROM
 SELECT * FROM TEMP1;
 
 --* EXPORT JSON SET ADD_CREATED_DATE = ON
 
 EXPORT JSON
-FILE "folder/export15.json"
-COLUMN PICTURE TO BINARY FILE "folder/export15-blob-?1.txt"
-COLUMN TEXT2 TO TEXT FILE "folder/export15-text-?1.txt" THRESHOLD 100
+FILE "tmp/folder/export15.json"
+COLUMN PICTURE TO BINARY FILE "tmp/folder/export15-blob-?1.txt"
+COLUMN TEXT2 TO TEXT FILE "tmp/folder/export15-text-?1.txt" THRESHOLD 100
 COLUMN DATE1 SKIP
 FROM
 SELECT ID, PICTURE, TEXT, TEXT2, DATE1

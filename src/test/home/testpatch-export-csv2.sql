@@ -1,5 +1,5 @@
 
---* // Copyright 2016 René M. de Bloois
+--* // Copyright 2016 Renï¿½ M. de Bloois
 
 --* // Licensed under the Apache License, Version 2.0 (the "License");
 --* // you may not use this file except in compliance with the License.
@@ -62,13 +62,13 @@ CREATE TABLE TEMP1 (
 
 --* UPGRADE "1" --> "2"
 
-EXPORT CSV WITH HEADER FILE "export21.csv" ENCODING "UTF-8"
+EXPORT CSV WITH HEADER FILE "tmp/export21.csv" ENCODING "UTF-8"
 FROM SELECT * FROM TEMP1;
 
-EXPORT CSV DATE AS TIMESTAMP FILE "export22.csv" ENCODING "UTF-8" FROM
+EXPORT CSV DATE AS TIMESTAMP FILE "tmp/export22.csv" ENCODING "UTF-8" FROM
 SELECT * FROM TEMP1;
 
-EXPORT CSV FILE "export23.csv" ENCODING "UTF-8"FROM
+EXPORT CSV FILE "tmp/export23.csv" ENCODING "UTF-8"FROM
 SELECT * FROM TEMP1;
 
 --* END UPGRADE
@@ -81,7 +81,7 @@ SELECT * FROM TEMP1;
 IMPORT CSV SKIP HEADER
 INTO TEMP1 ( TINYINT, SMALLINT, INTEGER, BIGINT, DECIMAL, FLOAT, BOOLEAN, CHAR, VARCHAR, CLOB, BINARY, VARBINARY, DATE, TIME, TIMESTAMP, DATEZ, TIMEZ, TIMESTAMPZ )
 VALUES ( :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11, :12, :14, :15, :16, :17, :18, :19 )
-FILE "export21.csv"
+FILE "tmp/export21.csv"
 ENCODING "UTF-8";
 
 --* END UPGRADE

@@ -1,5 +1,5 @@
 
---* // Copyright 2010 René M. de Bloois
+--* // Copyright 2010 Renï¿½ M. de Bloois
 
 --* // Licensed under the Apache License, Version 2.0 (the "License");
 --* // you may not use this file except in compliance with the License.
@@ -41,22 +41,22 @@ INSERT INTO TEMP SELECT * FROM TEMP; -- 96
 
 EXPORT CSV
 LOG EVERY 10 RECORDS
-FILE "export3.csv" ENCODING "UTF-8"
+FILE "tmp/export3.csv" ENCODING "UTF-8"
 FROM SELECT * FROM TEMP;
 
 EXPORT CSV
 LOG EVERY 1 SECONDS
-FILE "export3.csv" ENCODING "UTF-8"
+FILE "tmp/export3.csv" ENCODING "UTF-8"
 FROM SELECT * FROM TEMP;
 
 IMPORT CSV
 log every 10 records
 INTO TEMP
-FILE "export3.csv" ENCODING "UTF-8";
+FILE "tmp/export3.csv" ENCODING "UTF-8";
 
 IMPORT CSV
 LOG EVERY 1 seconds
 INTO TEMP
-FILE "export3.csv" ENCODING "UTF-8";
+FILE "tmp/export3.csv" ENCODING "UTF-8";
 
 --* /UPGRADE
