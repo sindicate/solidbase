@@ -1,5 +1,5 @@
 /*--
- * Copyright 2006 René M. de Bloois
+ * Copyright 2006 Renï¿½ M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import solidstack.script.expressions.Expression;
 /**
  * Processes commands, maintains state, triggers the listeners.
  *
- * @author René M. de Bloois
+ * @author Renï¿½ M. de Bloois
  * @since May 2010
  */
 abstract public class CommandProcessor
@@ -159,7 +159,7 @@ abstract public class CommandProcessor
 //	static protected final Pattern commitPattern = Pattern.compile( "COMMIT", Pattern.CASE_INSENSITIVE );
 
 	/**
-	 * Pattern for &{xxx} or &xxx placeholder.
+	 * Pattern for &amp;{xxx} or &amp;xxx placeholder.
 	 */
 	// TODO & or something else?
 	// TODO Only with { }?

@@ -1,5 +1,5 @@
 /*--
- * Copyright 2009 René M. de Bloois
+ * Copyright 2009 Renï¿½ M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import solidstack.io.FatalIOException;
 /**
  * Represents the version of SolidBase. It reads from version.properties.
  *
- * @author René M. de Bloois
+ * @author Renï¿½ M. de Bloois
  */
 public class Version
 {
@@ -64,9 +64,9 @@ public class Version
 	}
 
 	/**
-	 * Get the SolidBase version & copyright info to be displayed to the user.
+	 * Get the SolidBase version &amp; copyright info to be displayed to the user.
 	 *
-	 * @return The SolidBase version & copyright info to be displayed to the user.
+	 * @return The SolidBase version &amp; copyright info to be displayed to the user.
 	 */
 	static public String getInfo() {
 		return "SolidBase v" + version + " (http://solidbase.org)";
