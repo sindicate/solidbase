@@ -1,5 +1,5 @@
 /*--
- * Copyright 2005 René M. de Bloois
+ * Copyright 2005 RenÃ© M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ package solidbase.core;
  * hardware malfunctions, configuration mistakes, missing files, unavailable servers, etc. The upstream code (the
  * callers of the method) have no interest in the condition that led to this exception being thrown.
  * 
- * @author René M. de Bloois
+ * @author RenÃ© M. de Bloois
  * @since Jan 8, 2005
  */
 public class SystemException extends RuntimeException

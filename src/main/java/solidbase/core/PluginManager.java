@@ -1,5 +1,5 @@
 /*--
- * Copyright 2010 René M. de Bloois
+ * Copyright 2010 RenÃ© M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import solidstack.io.FatalIOException;
  * Reads plugins from the classpath. First it collects all of the following files: META-INF/solidbase.plugins.
  * Each (non-empty) line in these files represents a plugin class. A plugin should extend {@link CommandListener}.
  *
- * @author René M. de Bloois
+ * @author RenÃ© M. de Bloois
  * @since May 2010
  */
 // TODO Use ServiceManager to find the plugins

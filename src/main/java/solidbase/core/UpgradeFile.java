@@ -1,5 +1,5 @@
 /*--
- * Copyright 2006 René M. de Bloois
+ * Copyright 2006 RenÃ© M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ import solidstack.io.SourceLocation;
 /**
  * This class manages the upgrade file contents and the paths between versions.
  *
- * @author René M. de Bloois
+ * @author RenÃ© M. de Bloois
  * @since Apr 1, 2006 7:18:27 PM
  */
 public class UpgradeFile

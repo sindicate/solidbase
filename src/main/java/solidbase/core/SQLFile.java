@@ -1,5 +1,5 @@
 /*--
- * Copyright 2010 René M. de Bloois
+ * Copyright 2010 RenÃ© M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import solidstack.io.SourceReaders;
 /**
  * This class manages an SQL file's contents. It detects the encoding and reads commands from it.
  *
- * @author René M. de Bloois
+ * @author RenÃ© M. de Bloois
  * @since Apr 2010
  */
 public class SQLFile

@@ -1,5 +1,5 @@
 /*--
- * Copyright 2005 René M. de Bloois
+ * Copyright 2005 RenÃ© M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * Assert methods.
  *
- * @author René M. de Bloois
+ * @author RenÃ© M. de Bloois
  * @since Jan 5, 2005
  */
 public class Assert

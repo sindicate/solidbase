@@ -1,5 +1,5 @@
 /*--
- * Copyright 2006 René M. de Bloois
+ * Copyright 2006 RenÃ© M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package solidbase.config;
 /**
  * Listens to configuration events.
  *
- * @author René de Bloois
+ * @author RenÃ© de Bloois
  * @since Nov 25, 2008
  */
 public interface ConfigListener

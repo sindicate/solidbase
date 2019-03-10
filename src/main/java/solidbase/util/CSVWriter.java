@@ -1,5 +1,5 @@
 /*--
- * Copyright 2012 Ren� M. de Bloois
+ * Copyright 2012 René M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import solidstack.io.FatalIOException;
 /**
  * A CSV writer.
  *
- * @author Ren� de Bloois
+ * @author René de Bloois
  */
 public class CSVWriter
 {

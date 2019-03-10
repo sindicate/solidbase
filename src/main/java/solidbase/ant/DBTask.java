@@ -1,5 +1,5 @@
 /*--
- * Copyright 2010 René M. de Bloois
+ * Copyright 2010 RenÃ© M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import solidbase.core.Runner;
 /**
  * Ant task that has database connection functionality.
  *
- * @author René M. de Bloois
+ * @author RenÃ© M. de Bloois
  */
 public class DBTask extends Task
 {
@@ -187,7 +187,7 @@ public class DBTask extends Task
 	/**
 	 * Connection object used to configure the Ant Task.
 	 *
-	 * @author René M. de Bloois
+	 * @author RenÃ© M. de Bloois
 	 */
 	static protected class Connection
 	{
@@ -320,7 +320,7 @@ public class DBTask extends Task
 	/**
 	 * Parameter object to allow configuring of parameters.
 	 *
-	 * @author René de Bloois
+	 * @author RenÃ© de Bloois
 	 */
 	static protected class Parameter
 	{

@@ -1,5 +1,5 @@
 /*--
- * Copyright 2011 René M. de Bloois
+ * Copyright 2011 RenÃ© M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import solidstack.script.scopes.MapScope;
 /**
  * The runner contains the logic to execute upgrade files and SQL files and is used by the Ant tasks and Maven plugins.
  *
- * @author René M. de Bloois
+ * @author RenÃ© M. de Bloois
  */
 public class Runner
 {

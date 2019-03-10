@@ -1,5 +1,5 @@
 /*--
- * Copyright 2009 René M. de Bloois
+ * Copyright 2009 RenÃ© M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import java.sql.SQLException;
 /**
  * Some utilities.
  *
- * @author René M. de Bloois
+ * @author RenÃ© M. de Bloois
  */
 public final class Util
 {

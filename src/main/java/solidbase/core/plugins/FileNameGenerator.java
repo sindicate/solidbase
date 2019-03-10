@@ -1,5 +1,5 @@
 /*--
- * Copyright 2015 René M. de Bloois
+ * Copyright 2015 RenÃ© M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 /**
  * Generates filenames from values.
  *
- * @author René de Bloois
+ * @author RenÃ© de Bloois
  * @since 2015
  */
 class FileNameGenerator

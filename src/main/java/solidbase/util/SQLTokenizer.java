@@ -1,5 +1,5 @@
 /*--
- * Copyright 2010 René M. de Bloois
+ * Copyright 2010 RenÃ© M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import solidstack.util.WindowBuffer;
 /**
  * This is a tokenizer for a language like SQL. It maintains the current line number, it is case insensitive, and it ignores whitespace.
  *
- * @author René M. de Bloois
+ * @author RenÃ© M. de Bloois
  */
 // TODO Improve. See example JSPLikeTemplateParser.
 public class SQLTokenizer
@@ -405,7 +405,7 @@ public class SQLTokenizer
 	/**
 	 * A token. Tokens are stored upper case, except for strings.
 	 *
-	 * @author René M. de Bloois
+	 * @author RenÃ© M. de Bloois
 	 */
 	static public class Token
 	{

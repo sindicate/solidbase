@@ -1,5 +1,5 @@
 /*--
- * Copyright 2011 René M. de Bloois
+ * Copyright 2011 RenÃ© M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ import solidstack.io.SourceReaders;
 /**
  * This plugin executes EXPORT CSV statements.
  *
- * @author René M. de Bloois
+ * @author RenÃ© M. de Bloois
  * @since Aug 12, 2011
  */
 // TODO Escape with \ instead of doubling double quotes. This means also \n \t \r. ESCAPE DQ CR LF TAB WITH \
@@ -304,7 +304,7 @@ public class ExportCSV implements CommandListener
 	/**
 	 * A parsed command.
 	 *
-	 * @author René M. de Bloois
+	 * @author RenÃ© M. de Bloois
 	 */
 	static protected class Parsed
 	{

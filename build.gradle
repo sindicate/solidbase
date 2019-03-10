@@ -13,8 +13,10 @@ if (JavaVersion.current() != JavaVersion.VERSION_1_8) {
     throw new GradleException("This build must be run with java 8")
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+compileJava.options.encoding = compileTestJava.options.encoding = "UTF-8"
 
 dependencies {
 	implementation(

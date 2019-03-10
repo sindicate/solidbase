@@ -1,5 +1,5 @@
 /*--
- * Copyright 2015 René M. de Bloois
+ * Copyright 2015 RenÃ© M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import solidstack.io.FatalIOException;
 /**
  * A queue of input streams and readers that need to be closed.
  *
- * @author René de Bloois
+ * @author RenÃ© de Bloois
  */
 public class CloseQueue
 {

@@ -1,5 +1,5 @@
 /*--
- * Copyright 2012 René M. de Bloois
+ * Copyright 2012 RenÃ© M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ package solidbase.util;
 /**
  * A counter that does not log.
  *
- * @author René de Bloois
+ * @author RenÃ© de Bloois
  */
 public class SilentLogCounter extends LogCounter
 {

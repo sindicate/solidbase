@@ -1,5 +1,5 @@
 /*--
- * Copyright 2006 René M. de Bloois
+ * Copyright 2006 RenÃ© M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import solidstack.io.SourceException;
  * This plugin asserts that a given query statement returns results or no results. It generates an error with the given message
  * if the assertion fails. This plugin can be used to check the state of the database.
  *
- * @author René M. de Bloois
+ * @author RenÃ© M. de Bloois
  * @since Apr 1, 2006 7:13:28 PM
  */
 public class AssertExistsOrEmptySelect implements CommandListener

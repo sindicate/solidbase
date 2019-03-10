@@ -1,5 +1,5 @@
 /*--
- * Copyright 2006 René M. de Bloois
+ * Copyright 2006 RenÃ© M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ public class CharSets
 		ResultSet result = stat.executeQuery( "SELECT * FROM USERS" );
 		assert result.next();
 		String userName = result.getString( "USER_USERNAME" );
-		Assert.assertEquals( userName, "rené" );
+		Assert.assertEquals( userName, "RenÃ©" );
 
 		patcher.end();
 	}
@@ -92,11 +92,11 @@ public class CharSets
 		String line = reader.readLine();
 		while( line != null )
 		{
-			if( line.contains( "rené" ) )
+			if( line.contains( "RenÃ©" ) )
 				found = true;
 			line = reader.readLine();
 		}
-		Assert.assertTrue( found, "Expected to find rené" );
+		Assert.assertTrue( found, "Expected to find RenÃ©" );
 
 		upgradeFile.close();
 	}
@@ -116,11 +116,11 @@ public class CharSets
 		String line = reader.readLine();
 		while( line != null )
 		{
-			if( line.contains( "rené" ) )
+			if( line.contains( "RenÃ©" ) )
 				found = true;
 			line = reader.readLine();
 		}
-		Assert.assertTrue( found, "Expected to find rené" );
+		Assert.assertTrue( found, "Expected to find RenÃ©" );
 
 		upgradeFile.close();
 	}

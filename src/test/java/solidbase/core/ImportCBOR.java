@@ -1,5 +1,5 @@
 /*--
- * Copyright 2006 René M. de Bloois
+ * Copyright 2006 RenÃ© M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class ImportCBOR
 			TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP4 FROM TEMP3 WHERE TEMP1 = 2", "-)-\", \nTEST 'X" );
 			TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP2 FROM TEMP WHERE TEMP1 = 'y'", "2 2" );
 			TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP3 FROM TEMP WHERE TEMP1 = 'y'", " 3 " );
-			TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP3 FROM TEMP2 WHERE LINENUMBER = 101", "René" );
+			TestUtil.assertQueryResultEquals( patcher, "SELECT TEMP3 FROM TEMP2 WHERE LINENUMBER = 101", "RenÃ©" );
 			TestUtil.assertQueryResultEquals( patcher, "SELECT DESC FROM TEMP7 WHERE ID = 2", "The second record" );
 
 			patcher.upgrade( "1.0.3" );

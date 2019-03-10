@@ -1,5 +1,5 @@
 /*--
- * Copyright 2006 René M. de Bloois
+ * Copyright 2006 RenÃ© M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ import solidstack.io.SourceReaders;
 /**
  * This plugin executes IMPORT CSV statements.
  *
- * @author René M. de Bloois
+ * @author RenÃ© M. de Bloois
  */
 // TODO Make this more strict, like assert that the number of values stays the same in the CSV data
 public class ImportCSV implements CommandListener
@@ -319,7 +319,7 @@ public class ImportCSV implements CommandListener
 	/**
 	 * A parsed command.
 	 *
-	 * @author René M. de Bloois
+	 * @author RenÃ© M. de Bloois
 	 */
 	static protected class Parsed
 	{

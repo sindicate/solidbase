@@ -1,5 +1,5 @@
 /*--
- * Copyright 2006 Ren� M. de Bloois
+ * Copyright 2006 René M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import solidstack.io.FatalIOException;
  * Represents the console. In java 6, the {@link System#console()} is used. In older versions of java,
  * {@link System#out}, {@link System#in} and {@link System#err} are used. Used by the command line version of SolidBase.
  *
- * @author Ren� M. de Bloois
+ * @author René M. de Bloois
  */
 public class Console
 {

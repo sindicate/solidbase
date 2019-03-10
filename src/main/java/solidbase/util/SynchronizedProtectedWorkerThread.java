@@ -1,5 +1,5 @@
 /*--
- * Copyright 2010 René M. de Bloois
+ * Copyright 2010 RenÃ© M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import solidstack.lang.ThreadInterrupted;
 /**
  * Worker thread which stores the exception in case it ended with one. It also stores if the thread ended itself by throwing a ThreadDeath error.
  *
- * @author René M. de Bloois
+ * @author RenÃ© M. de Bloois
  */
 abstract public class SynchronizedProtectedWorkerThread extends Thread
 {
@@ -119,7 +119,7 @@ abstract public class SynchronizedProtectedWorkerThread extends Thread
 	/**
 	 * A thread that captures the shutdown and safely shuts down the main thread.
 	 *
-	 * @author René de Bloois
+	 * @author RenÃ© de Bloois
 	 */
 	protected class ShutdownHook extends Thread
 	{

@@ -1,5 +1,5 @@
 /*--
- * Copyright 2006 Ren� M. de Bloois
+ * Copyright 2006 René M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import solidstack.script.expressions.Expression;
 /**
  * Processes commands, maintains state, triggers the listeners.
  *
- * @author Ren� M. de Bloois
+ * @author René M. de Bloois
  * @since May 2010
  */
 abstract public class CommandProcessor

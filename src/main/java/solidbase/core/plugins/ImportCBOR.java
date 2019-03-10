@@ -1,5 +1,5 @@
 /*--
- * Copyright 2016 René M. de Bloois
+ * Copyright 2016 RenÃ© M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -303,7 +303,7 @@ public class ImportCBOR implements CommandListener
 	/**
 	 * A parsed command.
 	 *
-	 * @author René M. de Bloois
+	 * @author RenÃ© M. de Bloois
 	 */
 	static protected class Parsed
 	{

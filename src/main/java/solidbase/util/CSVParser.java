@@ -1,5 +1,5 @@
 /*--
- * Copyright 2010 Ren� M. de Bloois
+ * Copyright 2010 René M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import solidstack.io.SourceReader;
 /**
  * This is a tokenizer for CSV. It maintains the current line number, and it ignores whitespace.
  *
- * @author Ren� M. de Bloois
+ * @author René M. de Bloois
  */
 public class CSVParser
 {
@@ -210,7 +210,7 @@ public class CSVParser
 	/**
 	 * A CSV token.
 	 *
-	 * @author Ren� M. de Bloois
+	 * @author René M. de Bloois
 	 */
 	static public class Token
 	{

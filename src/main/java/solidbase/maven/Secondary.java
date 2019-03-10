@@ -1,5 +1,5 @@
 /*--
- * Copyright 2010 René M. de Bloois
+ * Copyright 2010 RenÃ© M. de Bloois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ package solidbase.maven;
 /**
  * A secondary connection used during configuration of the Maven Plugin.
  * 
- * @author René M. de Bloois
+ * @author RenÃ© M. de Bloois
  */
 public class Secondary
 {
