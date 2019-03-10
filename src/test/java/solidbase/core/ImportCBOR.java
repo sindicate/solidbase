@@ -57,19 +57,18 @@ public class ImportCBOR
 		}
 	}
 
-	@Test(dependsOnMethods="testImportCBOR")
-	public void testImportCBORNotExist() throws SQLException
-	{
-		UpgradeProcessor patcher = Setup.setupUpgradeProcessor( "folder/testpatch-import-cbor1.sql", db );
+	@Test( dependsOnMethods = "testImportCBOR" )
+	public void testImportCBORNotExist() throws SQLException {
+		UpgradeProcessor patcher = Setup.setupUpgradeProcessor("folder/testpatch-import-cbor1.sql", db);
 
-		try
-		{
-			patcher.upgrade( "1.0.4" );
-			failBecauseExceptionWasNotThrown( FatalException.class );
-		}
-		catch( ProcessException e )
-		{
-			assertThat( e.getMessage().replace( '\\', '/' ) ).contains( "(The system cannot find the file specified)" ).contains( "folder/notexist.cbor" );
+		try {
+			patcher.upgrade("1.0.4");
+			failBecauseExceptionWasNotThrown(FatalException.class);
+
+		} catch (ProcessException e) {
+			assertThat(TestUtil.generalizeOutput(e.getMessage()))
+					.contains(".../notexist.cbor")
+					.contains("(The system cannot find the file specified)");
 		}
 
 		patcher.end();

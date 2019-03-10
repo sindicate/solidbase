@@ -145,9 +145,11 @@ public class TestUtil
 	{
 		output = output.replaceAll( "file:/\\S+/", "file:/.../" );
 		output = output.replaceAll( "[A-Z]:/\\S+/", "X:/.../" );
+		output = output.replaceAll( "/home/\\S+/", "X:/.../" );
 		output = output.replaceAll( "[A-Z]:\\\\\\S+\\\\", "X:/.../" );
 		output = output.replaceAll( "jdbc:derby:c:/\\S+;", "jdbc:derby:c:/...;" );
 		output = output.replaceAll( "folder\\\\", "folder/" );
+		output = output.replaceAll( "\\(No such file or directory\\)", "(The system cannot find the file specified)" );
 		return output.replaceAll( "\\\r", "" );
 	}
 

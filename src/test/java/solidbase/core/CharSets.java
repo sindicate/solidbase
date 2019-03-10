@@ -59,7 +59,7 @@ public class CharSets
 		ResultSet result = stat.executeQuery( "SELECT * FROM USERS" );
 		assert result.next();
 		String userName = result.getString( "USER_USERNAME" );
-		Assert.assertEquals( userName, "René" );
+		Assert.assertEquals( userName, "rené" );
 
 		patcher.end();
 	}
@@ -92,8 +92,9 @@ public class CharSets
 		String line = reader.readLine();
 		while( line != null )
 		{
-			if( line.contains( "René" ) )
+			if( line.contains( "René" ) ) {
 				found = true;
+			}
 			line = reader.readLine();
 		}
 		Assert.assertTrue( found, "Expected to find René" );
@@ -116,8 +117,9 @@ public class CharSets
 		String line = reader.readLine();
 		while( line != null )
 		{
-			if( line.contains( "René" ) )
+			if( line.contains( "René" ) ) {
 				found = true;
+			}
 			line = reader.readLine();
 		}
 		Assert.assertTrue( found, "Expected to find René" );
