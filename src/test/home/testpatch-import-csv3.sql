@@ -41,22 +41,22 @@ INSERT INTO TEMP SELECT * FROM TEMP; -- 96
 
 EXPORT CSV
 LOG EVERY 10 RECORDS
-FILE "tmp/export3.csv" ENCODING "UTF-8"
+FILE "output/export3.csv" ENCODING "UTF-8"
 FROM SELECT * FROM TEMP;
 
 EXPORT CSV
 LOG EVERY 1 SECONDS
-FILE "tmp/export3.csv" ENCODING "UTF-8"
+FILE "output/export3.csv" ENCODING "UTF-8"
 FROM SELECT * FROM TEMP;
 
 IMPORT CSV
 log every 10 records
 INTO TEMP
-FILE "tmp/export3.csv" ENCODING "UTF-8";
+FILE "output/export3.csv" ENCODING "UTF-8";
 
 IMPORT CSV
 LOG EVERY 1 seconds
 INTO TEMP
-FILE "tmp/export3.csv" ENCODING "UTF-8";
+FILE "output/export3.csv" ENCODING "UTF-8";
 
 --* /UPGRADE

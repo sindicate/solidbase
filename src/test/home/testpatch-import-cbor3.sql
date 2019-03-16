@@ -43,24 +43,24 @@ INSERT INTO TEMP SELECT * FROM TEMP; -- 96
 
 EXPORT CBOR
 log every 10 records
-FILE "tmp/export3.cbor"
+FILE "output/export3.cbor"
 FROM
 SELECT * FROM TEMP;
 
 EXPORT CBOR
 LOG EVERY 1 SECONDS
-FILE "tmp/export3.cbor"
+FILE "output/export3.cbor"
 FROM
 SELECT * FROM TEMP;
 
 IMPORT CBOR
 LOG EVERY 10 RECORDS
 INTO TEMP
-FILE "tmp/export3.cbor";
+FILE "output/export3.cbor";
 
 IMPORT CBOR
 LOG EVERY 1 SECONDS
 INTO TEMP
-FILE "tmp/export3.cbor";
+FILE "output/export3.cbor";
 
 --* /UPGRADE

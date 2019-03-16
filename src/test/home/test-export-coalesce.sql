@@ -25,20 +25,20 @@ insert into temp1 ( field1, field2, field3, field4, field5 ) values
 EXPORT CSV WITH HEADER
 COALESCE FIELD1, FIELD2, FIELD3
 COALESCE FIELD2, FIELD5
-FILE "tmp/export-coalesce1.csv" ENCODING "UTF-8"
+FILE "output/export-coalesce1.csv" ENCODING "UTF-8"
 FROM
 SELECT field1, field2, field3, field4, field5 FROM TEMP1;
 
 EXPORT JSON
 COALESCE FIELD1, FIELD2, FIELD3
 COALESCE FIELD2, FIELD5
-FILE "tmp/export-coalesce1.json"
+FILE "output/export-coalesce1.json"
 FROM
 SELECT field1, field2, field3, field4, field5 FROM TEMP1;
 
 EXPORT CBOR
 COALESCE FIELD1, FIELD2, FIELD3
 COALESCE FIELD2, FIELD5
-FILE "tmp/export-coalesce1.cbor"
+FILE "output/export-coalesce1.cbor"
 FROM
 SELECT field1, field2, field3, field4, field5 FROM TEMP1;

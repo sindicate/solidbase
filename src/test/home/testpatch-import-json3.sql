@@ -41,22 +41,22 @@ INSERT INTO TEMP SELECT * FROM TEMP; -- 96
 
 EXPORT JSON
 log every 10 records
-FILE "tmp/export3.json"
+FILE "output/export3.json"
 FROM SELECT * FROM TEMP;
 
 EXPORT JSON
 LOG EVERY 1 SECONDS
-FILE "tmp/export3.json"
+FILE "output/export3.json"
 FROM SELECT * FROM TEMP;
 
 IMPORT JSON
 LOG EVERY 10 RECORDS
 INTO TEMP
-FILE "tmp/export3.json";
+FILE "output/export3.json";
 
 IMPORT JSON
 LOG EVERY 1 SECONDS
 INTO TEMP
-FILE "tmp/export3.json";
+FILE "output/export3.json";
 
 --* /UPGRADE

@@ -33,7 +33,14 @@ if (JavaVersion.current() != JavaVersion.VERSION_1_8) {
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
-compileJava.options.encoding = compileTestJava.options.encoding = "UTF-8"
+compileJava {
+	options.encoding = "UTF-8"
+	options.debug = true
+}
+
+compileTestJava {
+	options.encoding = "UTF-8"
+}
 
 dependencies {
 	implementation(
@@ -64,20 +71,20 @@ dependencies {
 	)
 }
 
+task copyTestHome(type: Copy) {
+	from "src/test/home"
+    into "${buildDir}/testhome"
+}
+
 test {
+	dependsOn copyTestHome
 	useTestNG() {
 		useDefaultListeners = true
 //		suites "src/test/suite.xml"
 	}
-	workingDir = "src/test/home"
+	workingDir = "${buildDir}/testhome"
 	jvmArgs "-javaagent:${classpath.find{it.name.contains("jmockit")}.absolutePath}"
 }
-
-task deleteTmp(type: Delete) {
-	delete "src/test/home/tmp"
-}
-
-clean.dependsOn deleteTmp
 
 task coverage {
 	dependsOn test, jacocoTestReport

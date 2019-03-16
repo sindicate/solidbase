@@ -32,35 +32,35 @@ CREATE TABLE TEMP1 ( ID INTEGER, PICTURE BLOB, TEXT VARCHAR(100), TEXT2 CLOB, DA
 --* UPGRADE "1" --> "2"
 
  EXPORT JSON
-	FILE "tmp/export11.json" FROM
+	FILE "output/export11.json" FROM
 SELECT * FROM TEMP1;
 
 EXPORT JSON
-	FILE "tmp/export12.json" FROM
+	FILE "output/export12.json" FROM
 SELECT ID, PICTURE, TEXT, TEXT2
 FROM TEMP1;
 
  EXPORT JSON
 	DATE AS TIMESTAMP
-	FILE "tmp/export13.json"
-	COLUMN PICTURE TO BINARY FILE "tmp/folder/export13.bin"
-	COLUMN TEXT2 TO TEXT FILE "tmp/folder/export13.txt"
+	FILE "output/export13.json"
+	COLUMN PICTURE TO BINARY FILE "output/folder/export13.bin"
+	COLUMN TEXT2 TO TEXT FILE "output/folder/export13.txt"
 FROM
 SELECT * FROM TEMP1;
 
 --* EXPORT JSON SET ADD_CREATED_DATE = OFF
 
 		EXPORT JSON
-	FILE "tmp/export14.json"
+	FILE "output/export14.json"
 	FROM
 SELECT * FROM TEMP1;
 
 --* EXPORT JSON SET ADD_CREATED_DATE = ON
 
 EXPORT JSON
-FILE "tmp/folder/export15.json"
-COLUMN PICTURE TO BINARY FILE "tmp/folder/export15-blob-?1.txt"
-COLUMN TEXT2 TO TEXT FILE "tmp/folder/export15-text-?1.txt" THRESHOLD 100
+FILE "output/folder/export15.json"
+COLUMN PICTURE TO BINARY FILE "output/folder/export15-blob-?1.txt"
+COLUMN TEXT2 TO TEXT FILE "output/folder/export15-text-?1.txt" THRESHOLD 100
 COLUMN DATE1 SKIP
 FROM
 SELECT ID, PICTURE, TEXT, TEXT2, DATE1
